@@ -31,8 +31,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.SimpleEntryChange;
+import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
+import org.apache.directory.shared.ldap.model.message.controls.SimpleEntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.AbandonListener;
