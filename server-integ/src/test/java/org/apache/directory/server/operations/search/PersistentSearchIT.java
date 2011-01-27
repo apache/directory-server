@@ -531,7 +531,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         }
 
 
-        PSearchListener(PersistentSearch persistentSearch )
+        PSearchListener( PersistentSearch persistentSearch )
         {
             this.persistentSearch = persistentSearch;
         }
