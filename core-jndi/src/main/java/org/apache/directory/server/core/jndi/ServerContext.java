@@ -77,7 +77,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.ldap.codec.controls.Cascade;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestControl;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
