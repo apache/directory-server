@@ -98,10 +98,7 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.*;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResults;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecoder;

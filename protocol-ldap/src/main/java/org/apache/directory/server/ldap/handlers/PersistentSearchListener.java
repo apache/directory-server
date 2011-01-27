@@ -32,6 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChange;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.SimpleEntryChange;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearch;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.AbandonListener;
@@ -109,7 +110,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     {
         if ( psearchControl.isReturnECs() )
         {
-            EntryChange ecControl = new EntryChange();
+            EntryChange ecControl = new SimpleEntryChange();
             ecControl.setChangeType( type );
 
             if ( opContext.getChangeLogEvent() != null )

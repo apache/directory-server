@@ -611,7 +611,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                         }
                     }
                     
-                    result = new PSearchNotification( sresult, ( EntryChange ) ecControl.getDecorated() );
+                    result = new PSearchNotification( sresult, (EntryChange) ecControl.getDecorated() );
                     break;
                 }
                 
