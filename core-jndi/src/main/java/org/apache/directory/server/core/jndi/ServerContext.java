@@ -83,8 +83,9 @@ import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyReq
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
@@ -193,7 +194,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( PasswordPolicyRequestControl.CONTROL_OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
-        ADS_CONTROLS.put( SyncDoneValueControl.CONTROL_OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
+        ADS_CONTROLS.put( ISyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( ISyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
         ADS_CONTROLS.put( ISyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
         ADS_CONTROLS.put( ISyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
@@ -469,14 +470,14 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case SYNC_DONE_VALUE_CONTROL:
-                control = new SyncDoneValueControl();
+                control = new SyncDoneValueDecorator();
                 SyncDoneValueControlDecoder syncDoneValueControlDecoder = new SyncDoneValueControlDecoder();
-                SyncDoneValueControlContainer syncDoneValueControlContainer = new SyncDoneValueControlContainer();
-                syncDoneValueControlContainer.setSyncDoneValueControl( ( SyncDoneValueControl ) control );
+                SyncDoneValueContainer syncDoneValueContainer = new SyncDoneValueContainer();
+                syncDoneValueContainer.setSyncDoneValueControl( ( SyncDoneValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
-                syncDoneValueControlDecoder.decode( bb, syncDoneValueControlContainer );
+                syncDoneValueControlDecoder.decode( bb, syncDoneValueContainer );
 
                 break;
 

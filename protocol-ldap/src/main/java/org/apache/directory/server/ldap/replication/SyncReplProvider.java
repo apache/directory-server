@@ -48,7 +48,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
@@ -340,7 +340,7 @@ public class SyncReplProvider implements ReplicationProvider
         {
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            SyncDoneValueControl syncDone = new SyncDoneValueControl();
+            SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
             syncDone.setCookie( cookie );
             searchDoneResp.addControl( syncDone );
 
@@ -433,7 +433,7 @@ public class SyncReplProvider implements ReplicationProvider
             else
             {
                 // no need to send from the log, that will be done in the next refreshOnly session
-                SyncDoneValueControl syncDone = new SyncDoneValueControl();
+                SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
                 session.getIoSession().write( searchDoneResp );
@@ -986,7 +986,7 @@ public class SyncReplProvider implements ReplicationProvider
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
-        SyncDoneValueControl syncDone = new SyncDoneValueControl();
+        SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
         searchDoneResp.addControl( syncDone );
 
         session.getIoSession().write( searchDoneResp );

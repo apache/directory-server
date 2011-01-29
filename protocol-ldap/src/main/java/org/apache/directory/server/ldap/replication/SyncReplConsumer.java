@@ -40,7 +40,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
@@ -286,13 +287,13 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        Control ctrl = searchDone.getControls().get( SyncDoneValueControl.CONTROL_OID );
-        SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
+        Control ctrl = searchDone.getControls().get( ISyncDoneValue.OID );
+        SyncDoneValueDecorator syncDoneCtrl = new SyncDoneValueDecorator();
         try
         {
             if ( ctrl != null )
             {
-                syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
+                syncDoneCtrl = ( SyncDoneValueDecorator ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
             }
         }
         catch ( Exception e )
