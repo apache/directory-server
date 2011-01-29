@@ -42,9 +42,10 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestControl;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyResponse;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecoder;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -52,14 +53,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.model.message.AddRequest;
-import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.*;
-import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -81,9 +75,9 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
-    private static final PasswordPolicyRequestControl PP_REQ_CTRL = new PasswordPolicyRequestControl();
+    private static final PasswordPolicyRequestDecorator PP_REQ_CTRL = new PasswordPolicyRequestDecorator();
 
-    private static final PasswordPolicyResponseControlDecoder decoder = new PasswordPolicyResponseControlDecoder();
+    private static final PasswordPolicyResponseDecoder decoder = new PasswordPolicyResponseDecoder();
 
 
     @Before
@@ -136,7 +130,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
-        PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
+        IPasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNotNull( respCtrl );
         assertEquals( PASSWORD_TOO_SHORT, respCtrl.getPasswordPolicyError() );
 
@@ -176,7 +170,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
-        PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
+        IPasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNotNull( respCtrl );
         assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getPasswordPolicyError() );
 
@@ -214,7 +208,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
-        PasswordPolicyResponseControl respCtrl = getPwdRespCtrl( addResp );
+        IPasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
         ModifyRequest modReq = new ModifyRequestImpl();
@@ -239,7 +233,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     }
 
 
-    private PasswordPolicyResponseControl getPwdRespCtrl( Response resp ) throws Exception
+    private IPasswordPolicyResponse getPwdRespCtrl( Response resp ) throws Exception
     {
         Control ctrl = resp.getControls().get( PP_REQ_CTRL.getOid() );
 
@@ -248,7 +242,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
             return null;
         }
 
-        PasswordPolicyResponseControl respCtrl = new PasswordPolicyResponseControl();
+        PasswordPolicyResponseDecorator respCtrl = new PasswordPolicyResponseDecorator();
         decoder.decode( ctrl.getValue(), respCtrl );
 
         return respCtrl;

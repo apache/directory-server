@@ -83,9 +83,9 @@ import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestControl;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseControl;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -348,7 +348,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( entry );
 
-        boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
+        boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( IPasswordPolicyRequest.OID );
 
         checkPwdReset( addContext );
 
@@ -372,7 +372,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 if ( isPPolicyReqCtrlPresent )
                 {
-                    PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                    PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                     responseControl.setPasswordPolicyError( e.getErrorCode() );
                     addContext.addResponseControl( responseControl );
                 }
@@ -511,7 +511,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
         
-        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
+        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( IPasswordPolicyRequest.OID );
         Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
 
         PwdModDetailsHolder pwdModDetails = null;
@@ -528,7 +528,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     if ( isPPolicyReqCtrlPresent )
                     {
-                        PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                        PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                         responseControl.setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
                         modifyContext.addResponseControl( responseControl );
                     }
@@ -544,7 +544,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     LOG.debug( "trying to update password attribute without the supplying the old password" );
                     if ( isPPolicyReqCtrlPresent )
                     {
-                        PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                        PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                         responseControl.setPasswordPolicyError( PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
                         modifyContext.addResponseControl( responseControl );
                     }
@@ -558,7 +558,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 if ( isPPolicyReqCtrlPresent )
                 {
-                    PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                    PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                     responseControl.setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
                     modifyContext.addResponseControl( responseControl );
                 }
@@ -572,7 +572,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 if ( isPPolicyReqCtrlPresent )
                 {
-                    PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                    PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                     responseControl.setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG );
                     modifyContext.addResponseControl( responseControl );
                 }
@@ -600,7 +600,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     if ( isPPolicyReqCtrlPresent )
                     {
-                        PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                        PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                         responseControl.setPasswordPolicyError( e.getErrorCode() );
                         modifyContext.addResponseControl( responseControl );
                     }
@@ -632,7 +632,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         if ( isPPolicyReqCtrlPresent )
                         {
-                            PasswordPolicyResponseControl responseControl = new PasswordPolicyResponseControl();
+                            PasswordPolicyResponseDecorator responseControl = new PasswordPolicyResponseDecorator();
                             responseControl.setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
                             modifyContext.addResponseControl( responseControl );
                         }
@@ -873,8 +873,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return;
         }
 
-        boolean isPPolicyReqCtrlPresent = bindContext.hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
-        PasswordPolicyResponseControl pwdRespCtrl = new PasswordPolicyResponseControl();
+        boolean isPPolicyReqCtrlPresent = bindContext.hasRequestControl( IPasswordPolicyRequest.OID );
+        PasswordPolicyResponseDecorator pwdRespCtrl = new PasswordPolicyResponseDecorator();
 
         boolean authenticated = false;
         PasswordPolicyException ppe = null;
@@ -1429,10 +1429,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( pwdResetSet.contains( userDn ) )
             {
                 boolean isPPolicyReqCtrlPresent = opContext
-                    .hasRequestControl( PasswordPolicyRequestControl.CONTROL_OID );
+                    .hasRequestControl( IPasswordPolicyRequest.OID );
                 if ( isPPolicyReqCtrlPresent )
                 {
-                    PasswordPolicyResponseControl pwdRespCtrl = new PasswordPolicyResponseControl();
+                    PasswordPolicyResponseDecorator pwdRespCtrl = new PasswordPolicyResponseDecorator();
                     pwdRespCtrl.setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
                     opContext.addResponseControl( pwdRespCtrl );
                 }
