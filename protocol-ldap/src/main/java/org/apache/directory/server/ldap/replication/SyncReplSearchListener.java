@@ -30,7 +30,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
@@ -145,7 +145,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueControl syncAdd = new SyncStateValueControl();
+                SyncStateValueDecorator syncAdd = new SyncStateValueDecorator();
                 syncAdd.setSyncStateType( SyncStateTypeEnum.ADD );
                 syncAdd
                     .setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT).getString()) );
@@ -186,7 +186,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueControl syncDelete = new SyncStateValueControl();
+                SyncStateValueDecorator syncDelete = new SyncStateValueDecorator();
                 syncDelete.setSyncStateType( SyncStateTypeEnum.DELETE );
                 syncDelete.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -225,7 +225,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( modifyContext.getDn() );
                 respEntry.setEntry( alteredEntry );
 
-                SyncStateValueControl syncModify = new SyncStateValueControl();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODIFY );
                 syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -273,7 +273,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( moveContext.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueControl syncModify = new SyncStateValueControl();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -324,7 +324,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
-                SyncStateValueControl syncModify = new SyncStateValueControl();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -368,7 +368,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueControl syncModify = new SyncStateValueControl();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );

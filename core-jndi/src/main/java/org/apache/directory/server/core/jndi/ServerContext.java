@@ -89,11 +89,13 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueContainer;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlContainer;
@@ -192,8 +194,8 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( SyncDoneValueControl.CONTROL_OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncInfoValueControl.CONTROL_OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncModifyDnControl.CONTROL_OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
-        ADS_CONTROLS.put( SyncRequestValueControl.CONTROL_OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
-        ADS_CONTROLS.put( SyncStateValueControl.CONTROL_OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
+        ADS_CONTROLS.put( ISyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
+        ADS_CONTROLS.put( ISyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
     }
     
 
@@ -501,10 +503,10 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case SYNC_REQUEST_VALUE_CONTROL:
-                control = new SyncRequestValueControl();
+                control = new SyncRequestValueDecorator();
                 SyncRequestValueControlDecoder syncRequestValueControlDecoder = new SyncRequestValueControlDecoder();
-                SyncRequestValueControlContainer syncRequestValueControlContainer = new SyncRequestValueControlContainer();
-                syncRequestValueControlContainer.setSyncRequestValueControl( ( SyncRequestValueControl ) control );
+                SyncRequestValueContainer syncRequestValueControlContainer = new SyncRequestValueContainer();
+                syncRequestValueControlContainer.setSyncRequestValueControl( ( SyncRequestValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 
@@ -513,10 +515,10 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case SYNC_STATE_VALUE_CONTROL:
-                control = new SyncStateValueControl();
+                control = new SyncStateValueDecorator();
                 SyncStateValueControlDecoder syncStateValueControlDecoder = new SyncStateValueControlDecoder();
-                SyncStateValueControlContainer syncStateValueControlContainer = new SyncStateValueControlContainer();
-                syncStateValueControlContainer.setSyncStateValueControl( ( SyncStateValueControl ) control );
+                SyncStateValueContainer syncStateValueControlContainer = new SyncStateValueContainer();
+                syncStateValueControlContainer.setSyncStateValueControl( ( SyncStateValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
 

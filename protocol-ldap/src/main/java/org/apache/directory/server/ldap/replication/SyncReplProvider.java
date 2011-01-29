@@ -50,8 +50,8 @@ import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
@@ -213,8 +213,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
         try
         {
-            SyncRequestValueControl syncControl = ( SyncRequestValueControl ) req.getControls().get(
-                SyncRequestValueControl.CONTROL_OID );
+            ISyncRequestValue syncControl = ( ISyncRequestValue ) req.getControls().get(
+                ISyncRequestValue.OID );
 
             // cookie is in the format <replicaId>;<Csn value>
             byte[] cookieBytes = syncControl.getCookie();
@@ -560,7 +560,7 @@ public class SyncReplProvider implements ReplicationProvider
     {
 
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-        SyncStateValueControl syncStateControl = new SyncStateValueControl();
+        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator();
         syncStateControl.setSyncStateType( syncStateType );
         syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
@@ -584,7 +584,7 @@ public class SyncReplProvider implements ReplicationProvider
     {
 
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-        SyncStateValueControl syncStateControl = new SyncStateValueControl();
+        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator();
         syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
         syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
@@ -994,8 +994,8 @@ public class SyncReplProvider implements ReplicationProvider
 
     private boolean isRefreshNPersist( SearchRequest req )
     {
-        SyncRequestValueControl control = ( SyncRequestValueControl ) req.getControls().get(
-            SyncRequestValueControl.CONTROL_OID );
+        ISyncRequestValue control = ( ISyncRequestValue ) req.getControls().get(
+            ISyncRequestValue.OID );
         return ( control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST ? true : false );
     }
 }

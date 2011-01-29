@@ -44,8 +44,9 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
@@ -323,17 +324,17 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
 
-        SyncStateValueControl syncStateCtrl = new SyncStateValueControl();
+        SyncStateValueDecorator syncStateCtrl = new SyncStateValueDecorator();
 
         try
         {
             Entry remoteEntry = syncResult.getEntry();
 
-            Control ctrl = syncResult.getControls().get( SyncStateValueControl.CONTROL_OID );
+            Control ctrl = syncResult.getControls().get( ISyncStateValue.OID );
 
             try
             {
-                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(),
+                syncStateCtrl = ( SyncStateValueDecorator ) syncStateControlDecoder.decode( ctrl.getValue(),
                     syncStateCtrl );
             }
             catch ( Exception e )
@@ -534,7 +535,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValueControl syncReq = new SyncRequestValueControl();
+        SyncRequestValueDecorator syncReq = new SyncRequestValueDecorator();
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );

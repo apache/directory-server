@@ -64,8 +64,8 @@ import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
@@ -244,8 +244,8 @@ public class LdapServer extends DirectoryBackedService
         // Replication controls
         this.supportedControls.add( SyncDoneValueControl.CONTROL_OID );
         this.supportedControls.add( SyncInfoValueControl.CONTROL_OID );
-        this.supportedControls.add( SyncRequestValueControl.CONTROL_OID );
-        this.supportedControls.add( SyncStateValueControl.CONTROL_OID );
+        this.supportedControls.add( ISyncRequestValue.OID );
+        this.supportedControls.add( ISyncStateValue.OID );
     }
 
 

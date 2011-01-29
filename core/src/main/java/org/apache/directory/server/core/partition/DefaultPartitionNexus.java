@@ -61,8 +61,8 @@ import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
@@ -178,8 +178,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls
-            SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, SyncRequestValueControl.CONTROL_OID,
-            SyncStateValueControl.CONTROL_OID );
+            SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, ISyncRequestValue.OID,
+            ISyncStateValue.OID );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
