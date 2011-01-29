@@ -49,7 +49,8 @@ import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
@@ -325,9 +326,9 @@ public class SyncReplProvider implements ReplicationProvider
         if ( refreshNPersist )
         {
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-            intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );
+            intermResp.setResponseName( ISyncInfoValue.OID );
 
-            SyncInfoValueControl syncInfo = new SyncInfoValueControl( SynchronizationInfoEnum.NEW_COOKIE );
+            SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( SynchronizationInfoEnum.NEW_COOKIE );
             syncInfo.setCookie( cookie );
             intermResp.setResponseValue( syncInfo.getValue() );
 
@@ -418,9 +419,9 @@ public class SyncReplProvider implements ReplicationProvider
                 cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-                intermResp.setResponseName( SyncInfoValueControl.CONTROL_OID );
+                intermResp.setResponseName( ISyncInfoValue.OID );
 
-                SyncInfoValueControl syncInfo = new SyncInfoValueControl( SynchronizationInfoEnum.NEW_COOKIE );
+                SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfo.setCookie( cookie );
                 intermResp.setResponseValue( syncInfo.getValue() );
 

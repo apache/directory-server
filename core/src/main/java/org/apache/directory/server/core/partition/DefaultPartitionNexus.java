@@ -60,7 +60,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
@@ -178,7 +178,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls
-            SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, ISyncRequestValue.OID,
+            SyncDoneValueControl.CONTROL_OID, ISyncInfoValue.OID, ISyncRequestValue.OID,
             ISyncStateValue.OID );
 
         // Add the objectClasses
