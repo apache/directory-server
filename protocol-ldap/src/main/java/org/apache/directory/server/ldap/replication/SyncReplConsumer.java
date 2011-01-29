@@ -48,8 +48,9 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestVa
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
@@ -382,12 +383,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDnControl.CONTROL_OID );
+                    Control adsModDnControl = syncResult.getControls().get( ISyncModifyDn.OID );
                     //Apache Directory Server's special control
-                    SyncModifyDnControl syncModDnControl = new SyncModifyDnControl();
+                    SyncModifyDnDecorator syncModDnControl = new SyncModifyDnDecorator();
 
                     LOG.debug( "decoding the SyncModifyDnControl.." );
-                    syncModDnControl = ( SyncModifyDnControl ) syncModifyDnControlDecoder.decode( adsModDnControl
+                    syncModDnControl = ( SyncModifyDnDecorator ) syncModifyDnControlDecoder.decode( adsModDnControl
                         .getValue(), syncModDnControl );
 
                     applyModDnOperation( syncModDnControl );
@@ -776,7 +777,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    private void applyModDnOperation( SyncModifyDnControl modDnControl ) throws Exception
+    private void applyModDnOperation( ISyncModifyDn modDnControl ) throws Exception
     {
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 

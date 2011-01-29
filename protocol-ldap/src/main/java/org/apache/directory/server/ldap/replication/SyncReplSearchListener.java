@@ -31,7 +31,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -263,7 +263,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVE );
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( SyncModifyDnType.MOVE );
             modDnControl.setEntryDn( moveContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
@@ -310,7 +310,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVEANDRENAME );
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( SyncModifyDnType.MOVEANDRENAME );
             modDnControl.setEntryDn( moveAndRenameContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveAndRenameContext.getNewSuperiorDn().getNormName() );
             modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
@@ -356,7 +356,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            SyncModifyDnControl modDnControl = new SyncModifyDnControl();
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator();
             modDnControl.setModDnType( SyncModifyDnType.RENAME );
             modDnControl.setEntryDn( renameContext.getDn().getName() );
             modDnControl.setNewRdn( renameContext.getNewRdn().getName() );
@@ -411,7 +411,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    private void handleWriteFuture( WriteFuture future, Entry entry, EventType event, SyncModifyDnControl modDnControl )
+    private void handleWriteFuture( WriteFuture future, Entry entry, EventType event, SyncModifyDnDecorator modDnControl )
     {
         future.awaitUninterruptibly();
         if ( !future.isWritten() )

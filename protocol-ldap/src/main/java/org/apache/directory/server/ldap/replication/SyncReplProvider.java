@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
@@ -580,7 +580,7 @@ public class SyncReplProvider implements ReplicationProvider
 
 
     private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
-        SyncModifyDnControl modDnControl ) throws Exception
+        SyncModifyDnDecorator modDnControl ) throws Exception
     {
 
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
