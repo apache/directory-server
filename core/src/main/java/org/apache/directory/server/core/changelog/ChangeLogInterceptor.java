@@ -37,7 +37,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -47,6 +46,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.slf4j.Logger;
@@ -352,9 +352,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         if ( moveAndRenameContext.isReferralIgnored() )
         {
-            forward.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
+            forward.addControl( new ManageDsaITImpl() );
             LdifEntry reversedEntry = reverses.get( 0 );
-            reversedEntry.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
+            reversedEntry.addControl( new ManageDsaITImpl() );
         }
         
         moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );

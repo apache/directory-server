@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyResponse;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
@@ -79,7 +80,8 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private static final ILdapCodecService codec = new DefaultLdapCodecService();
     
-    private static final PasswordPolicyRequestDecorator PP_REQ_CTRL = new PasswordPolicyRequestDecorator( codec );
+    private static final PasswordPolicyRequestDecorator PP_REQ_CTRL = 
+        new PasswordPolicyRequestDecorator( codec, new PasswordPolicyRequest() );
 
 
     @Before

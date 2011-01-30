@@ -79,6 +79,7 @@ import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -265,7 +266,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
+            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService(), 
+                new ManageDsaITImpl() ) );
         }
     }
 

@@ -74,11 +74,14 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
+import org.apache.directory.shared.ldap.model.message.controls.CascadeImpl;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyRequest;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseContainer;
@@ -387,7 +390,7 @@ public abstract class ServerContext implements EventContext
         switch ( controlId )
         {
             case CASCADE_CONTROL:
-                control = new CascadeDecorator( getDirectoryService().getLdapCodecService() );
+                control = new CascadeDecorator( getDirectoryService().getLdapCodecService(), new CascadeImpl() );
                 
                 break;
 
@@ -402,7 +405,7 @@ public abstract class ServerContext implements EventContext
                 break;
 
             case MANAGE_DSA_IT_CONTROL:
-                control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService() );
+                control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService(), new ManageDsaITImpl() );
                 
                 break;
 
@@ -419,7 +422,8 @@ public abstract class ServerContext implements EventContext
             case PASSWORD_POLICY_REQUEST_CONTROL:
                 if ( isRequest )
                 {
-                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService() );
+                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService(), 
+                        new PasswordPolicyRequest() );
                 }
                 else
                 {
