@@ -29,6 +29,8 @@ import java.util.Iterator;
 
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -59,11 +61,14 @@ public class ReplicaEventMessage implements Externalizable
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventMessage.class );
 
     private static SchemaManager schemaManager;
+    
+    private transient ILdapCodecService codec;
 
 
     public ReplicaEventMessage()
     {
         // used by deserializer
+        codec = new DefaultLdapCodecService();
     }
 
 
@@ -76,6 +81,7 @@ public class ReplicaEventMessage implements Externalizable
 
     public ReplicaEventMessage( SyncModifyDnDecorator modDnControl, Entry entry )
     {
+        codec = new DefaultLdapCodecService();
         this.modDnControl = modDnControl;
         this.entry = entry;
     }
@@ -107,7 +113,7 @@ public class ReplicaEventMessage implements Externalizable
         {
             SyncModifyDnType modDnType = SyncModifyDnType.getModifyDnType( in.readShort() );
             
-            modDnControl = new SyncModifyDnDecorator();
+            modDnControl = new SyncModifyDnDecorator( codec );
             modDnControl.setModDnType( modDnType );
             
             modDnControl.setEntryDn( Unicode.readUTF(in) );

@@ -106,7 +106,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, JndiUtils.toJndiControls( controls ) );
+        return new InitialLdapContext( env, JndiUtils.toJndiControls( 
+            ldapServer.getDirectoryService().getLdapCodecService(), controls ) );
     }
 
 

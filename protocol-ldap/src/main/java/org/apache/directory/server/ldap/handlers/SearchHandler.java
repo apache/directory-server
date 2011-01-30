@@ -460,7 +460,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
             }
 
-            pagedResultsControl = new PagedResultsDecorator();
+            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                .getLdapCodecService() );
             pagedResultsControl.setCritical( true );
             pagedResultsControl.setSize( 0 );
             req.getResultResponse().addControl( pagedResultsControl );
@@ -517,7 +518,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // cursor stored into the session (if any)
             int cookieValue = pagedSearchControl.getCookieValue();
             PagedSearchContext psCookie = session.removePagedSearchContext( cookieValue );
-            pagedResultsControl = new PagedResultsDecorator();
+            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                .getLdapCodecService() );
             pagedResultsControl.setCookie( psCookie.getCookie() );
             pagedResultsControl.setSize( 0 );
             pagedResultsControl.setCritical( true );
@@ -532,7 +534,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         else
         {
-            pagedResultsControl = new PagedResultsDecorator();
+            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                .getLdapCodecService() );
             pagedResultsControl.setSize( 0 );
             pagedResultsControl.setCritical( true );
         }
@@ -649,7 +652,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 session.addPagedSearchContext( pagedContext );
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator();
+                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                    .getLdapCodecService() );
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -688,7 +692,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // get the cookie
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator();
+                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                    .getLdapCodecService() );
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -711,7 +716,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 session.addPagedSearchContext( pagedContext );
 
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator();
+                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
+                    .getLdapCodecService() );
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );

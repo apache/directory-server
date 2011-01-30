@@ -240,7 +240,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         {
             Control[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
-            ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( connCtls ) );
+            ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( directoryService.getLdapCodecService(), 
+                connCtls ) );
         }
         catch ( Exception e )
         {

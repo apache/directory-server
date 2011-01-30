@@ -536,7 +536,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer container = new LdapMessageContainer();
+            LdapMessageContainer container = new LdapMessageContainer( 
+                ldapServer.getDirectoryService().getLdapCodecService() );
             decoder.setLdapMessageContainer( container );
             return (BindResponse) decoder.decode( null, _input_ );
         }
@@ -574,7 +575,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer container = new LdapMessageContainer();
+            LdapMessageContainer container = new LdapMessageContainer(
+                ldapServer.getDirectoryService().getLdapCodecService() );
             decoder.setLdapMessageContainer( container );
             return ( BindResponse ) decoder.decode( null, _input_ );
         }

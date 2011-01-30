@@ -42,15 +42,11 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
@@ -125,9 +121,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /** the schema manager */
     private SchemaManager schemaManager;
 
-    /** the decoder for syncinfovalue control */
-    private SyncInfoValueControlDecoder decoder = new SyncInfoValueControlDecoder();
-
     /** the cookie file */
     private File cookieFile;
 
@@ -136,12 +129,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
     /** the core session */
     private CoreSession session;
-
-    private SyncDoneValueControlDecoder syncDoneControlDecoder = new SyncDoneValueControlDecoder();
-
-    private SyncStateValueControlDecoder syncStateControlDecoder = new SyncStateValueControlDecoder();
-
-    private SyncModifyDnControlDecoder syncModifyDnControlDecoder = new SyncModifyDnControlDecoder();
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
@@ -278,7 +265,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.addControl( new ManageDsaITDecorator() );
+            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
         }
     }
 
@@ -288,18 +275,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
         Control ctrl = searchDone.getControls().get( ISyncDoneValue.OID );
-        SyncDoneValueDecorator syncDoneCtrl = new SyncDoneValueDecorator();
-        try
-        {
-            if ( ctrl != null )
-            {
-                syncDoneCtrl = ( SyncDoneValueDecorator ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Failed to decode the syncDoneControlCodec", e );
-        }
+        SyncDoneValueDecorator syncDoneCtrl = new SyncDoneValueDecorator( directoryService.getLdapCodecService() );
+        syncDoneCtrl.setDecorated( ( ISyncDoneValue ) ctrl );
 
         if ( syncDoneCtrl.getCookie() != null )
         {
@@ -326,23 +303,13 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
 
-        SyncStateValueDecorator syncStateCtrl = new SyncStateValueDecorator();
+        SyncStateValueDecorator syncStateCtrl = new SyncStateValueDecorator( directoryService.getLdapCodecService() );
 
         try
         {
             Entry remoteEntry = syncResult.getEntry();
 
-            Control ctrl = syncResult.getControls().get( ISyncStateValue.OID );
-
-            try
-            {
-                syncStateCtrl = ( SyncStateValueDecorator ) syncStateControlDecoder.decode( ctrl.getValue(),
-                    syncStateCtrl );
-            }
-            catch ( Exception e )
-            {
-                LOG.error( "Failed to decode syncStateControl", e );
-            }
+            syncStateCtrl.setDecorated( syncStateCtrl );
 
             if ( syncStateCtrl.getCookie() != null )
             {
@@ -386,12 +353,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 case MODDN:
                     Control adsModDnControl = syncResult.getControls().get( ISyncModifyDn.OID );
                     //Apache Directory Server's special control
-                    SyncModifyDnDecorator syncModDnControl = new SyncModifyDnDecorator();
-
-                    LOG.debug( "decoding the SyncModifyDnControl.." );
-                    syncModDnControl = ( SyncModifyDnDecorator ) syncModifyDnControlDecoder.decode( adsModDnControl
-                        .getValue(), syncModDnControl );
-
+                    SyncModifyDnDecorator syncModDnControl = 
+                        new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
+                    syncModDnControl.setDecorated( ( ISyncModifyDn ) adsModDnControl );
                     applyModDnOperation( syncModDnControl );
                     break;
 
@@ -432,8 +396,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
+            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( directoryService.getLdapCodecService() );
             byte[] syncinfo = syncInfoResp.getResponseValue();
-            ISyncInfoValue syncInfoValue = ( ISyncInfoValue ) decoder.decode( syncinfo, null );
+            decorator.setValue( syncinfo );
+            ISyncInfoValue syncInfoValue = decorator.getDecorated();
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -537,7 +503,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValueDecorator syncReq = new SyncRequestValueDecorator();
+        SyncRequestValueDecorator syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );

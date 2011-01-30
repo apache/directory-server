@@ -53,8 +53,11 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearchImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.ICodecControl;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -95,8 +98,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     private static final String BASE = "ou=system";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN = "cn=Tori Amos";
-
-
+    
+    
     /**
      * Creation of required attributes of a person entry.
      */
@@ -522,19 +525,21 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     {
         boolean isReady = false;
         PSearchNotification result;
-        final PersistentSearch persistentSearch;
+        final PersistentSearchDecorator persistentSearch;
         LdapContext ctx;
         NamingEnumeration<SearchResult> list;
         
         PSearchListener()
         {
-            persistentSearch = new PersistentSearchImpl();
+            persistentSearch = new PersistentSearchDecorator( ldapServer.getDirectoryService().getLdapCodecService() );
         }
 
 
         PSearchListener( PersistentSearch persistentSearch )
         {
-            this.persistentSearch = persistentSearch;
+            ICodecControl<? extends Control> wrapped = 
+                ldapServer.getDirectoryService().getLdapCodecService().decorate( persistentSearch );
+            this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
         }
 
         
@@ -571,8 +576,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
+            ILdapCodecService codec = ldapServer.getDirectoryService().getLdapCodecService();
             persistentSearch.setCritical( true );
-            
             persistentSearch.setValue( persistentSearch.getValue() );
 
             Control[] ctxCtls = new Control[] { persistentSearch };
@@ -580,7 +585,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
             try
             {
                 ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
-                ctx.setRequestControls( JndiUtils.toJndiControls(ctxCtls) );
+                ctx.setRequestControls( JndiUtils.toJndiControls( codec, ctxCtls) );
                 isReady = true;
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
@@ -604,9 +609,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                                 if ( control.getID().equals(
                                     EntryChange.OID ) )
                                 {
-                                    EntryChangeDecoder decoder = new EntryChangeDecoder();
-                                    ecControl = ( EntryChangeDecorator ) decoder.decode( control.getEncodedValue(), 
-                                            new EntryChangeDecorator() );
+                                    ecControl.setValue( control.getEncodedValue() );
                                 }
                             }
                         }

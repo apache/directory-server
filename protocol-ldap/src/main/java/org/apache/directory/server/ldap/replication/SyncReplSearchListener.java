@@ -145,7 +145,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueDecorator syncAdd = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncAdd = new SyncStateValueDecorator( 
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncAdd.setSyncStateType( SyncStateTypeEnum.ADD );
                 syncAdd
                     .setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT).getString()) );
@@ -186,7 +187,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueDecorator syncDelete = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncDelete = new SyncStateValueDecorator( 
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncDelete.setSyncStateType( SyncStateTypeEnum.DELETE );
                 syncDelete.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -225,7 +227,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( modifyContext.getDn() );
                 respEntry.setEntry( alteredEntry );
 
-                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator( 
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODIFY );
                 syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -263,7 +266,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( SyncModifyDnType.MOVE );
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( 
+                session.getLdapServer().getDirectoryService().getLdapCodecService(),
+                SyncModifyDnType.MOVE );
             modDnControl.setEntryDn( moveContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
@@ -273,7 +278,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( moveContext.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator(
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -310,7 +316,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( SyncModifyDnType.MOVEANDRENAME );
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( 
+                session.getLdapServer().getDirectoryService().getLdapCodecService(),
+                SyncModifyDnType.MOVEANDRENAME );
             modDnControl.setEntryDn( moveAndRenameContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveAndRenameContext.getNewSuperiorDn().getNormName() );
             modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
@@ -324,7 +332,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
-                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator(
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(alteredEntry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );
@@ -356,7 +365,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator();
+            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator(
+                session.getLdapServer().getDirectoryService().getLdapCodecService() );
             modDnControl.setModDnType( SyncModifyDnType.RENAME );
             modDnControl.setEntryDn( renameContext.getDn().getName() );
             modDnControl.setNewRdn( renameContext.getNewRdn().getName() );
@@ -368,7 +378,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 respEntry.setObjectName( entry.getDn() );
                 respEntry.setEntry( entry );
 
-                SyncStateValueDecorator syncModify = new SyncStateValueDecorator();
+                SyncStateValueDecorator syncModify = new SyncStateValueDecorator(
+                    session.getLdapServer().getDirectoryService().getLdapCodecService() );
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( Strings.uuidToBytes(entry.get(SchemaConstants.ENTRY_UUID_AT)
                         .getString()) );

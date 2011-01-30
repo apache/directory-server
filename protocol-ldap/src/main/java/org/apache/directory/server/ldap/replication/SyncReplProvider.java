@@ -328,7 +328,9 @@ public class SyncReplProvider implements ReplicationProvider
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( ISyncInfoValue.OID );
 
-            SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( SynchronizationInfoEnum.NEW_COOKIE );
+            SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
+                .getLdapCodecService(),
+                SynchronizationInfoEnum.NEW_COOKIE );
             syncInfo.setCookie( cookie );
             intermResp.setResponseValue( syncInfo.getValue() );
 
@@ -340,7 +342,8 @@ public class SyncReplProvider implements ReplicationProvider
         {
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
+            SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator( 
+                ldapServer.getDirectoryService().getLdapCodecService() );
             syncDone.setCookie( cookie );
             searchDoneResp.addControl( syncDone );
 
@@ -421,7 +424,8 @@ public class SyncReplProvider implements ReplicationProvider
                 IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
                 intermResp.setResponseName( ISyncInfoValue.OID );
 
-                SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( SynchronizationInfoEnum.NEW_COOKIE );
+                SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( 
+                    ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfo.setCookie( cookie );
                 intermResp.setResponseValue( syncInfo.getValue() );
 
@@ -433,7 +437,8 @@ public class SyncReplProvider implements ReplicationProvider
             else
             {
                 // no need to send from the log, that will be done in the next refreshOnly session
-                SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
+                SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator(
+                    ldapServer.getDirectoryService().getLdapCodecService() );
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
                 session.getIoSession().write( searchDoneResp );
@@ -561,7 +566,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
 
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator();
+        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
+            ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( syncStateType );
         syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
@@ -585,7 +591,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
 
         EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator();
+        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
+            ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
         syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
 
@@ -986,7 +993,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
-        SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator();
+        SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator(
+            ldapServer.getDirectoryService().getLdapCodecService() );
         searchDoneResp.addControl( syncDone );
 
         session.getIoSession().write( searchDoneResp );

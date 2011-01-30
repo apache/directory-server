@@ -65,9 +65,9 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.apache.directory.shared.ldap.codec.controls.ControlImpl;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.controls.BasicControl;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -354,47 +354,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
     @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        Control unsupported = new ControlImpl( "1.1.1.1" )
-        {
-            boolean isCritical = true;
-            private static final long serialVersionUID = 1L;
-
-
-            @SuppressWarnings("unused")
-            public String getType()
-            {
-                return "1.1.1.1";
-            }
-
-
-            public byte[] getValue()
-            {
-                return new byte[0];
-            }
-
-
-            public void setValue( byte[] value )
-            {
-            }
-
-
-            public boolean isCritical()
-            {
-                return isCritical;
-            }
-
-
-            public void setCritical( boolean isCritical )
-            {
-                this.isCritical = isCritical;
-            }
-
-
-            public String getOid()
-            {
-                return "1.1.1.1";
-            }
-        };
+        Control unsupported = new BasicControl( "1.1.1.1" );
+        unsupported.setCritical( true );
         
         ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
         
@@ -417,8 +378,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         user.put( oc );
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
-        ctx.setRequestControls( JndiUtils.toJndiControls( new Control[]
-                {unsupported} ) );
+        ctx.setRequestControls( JndiUtils.toJndiControls( ldapServer.getDirectoryService().getLdapCodecService(),
+            new Control[] {unsupported} ) );
 
         try
         {
@@ -430,7 +391,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         }
 
         unsupported.setCritical( false );
-        ctx.setRequestControls( JndiUtils.toJndiControls( new Control[]{unsupported} ) );
+        ctx.setRequestControls( JndiUtils.toJndiControls( ldapServer.getDirectoryService().getLdapCodecService(),
+            new Control[]{unsupported} ) );
         
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );

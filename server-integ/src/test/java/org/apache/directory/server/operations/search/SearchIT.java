@@ -743,7 +743,8 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
 
-        ctx.setRequestControls( JndiUtils.toJndiControls( reqControls ) );
+        ctx.setRequestControls( JndiUtils.toJndiControls( ldapServer.getDirectoryService().getLdapCodecService(),
+            reqControls ) );
         NamingEnumeration<SearchResult> enm = ctx.search( "", "(objectClass=*)", searchControls );
         Set<String> results = new HashSet<String>();
 

@@ -21,12 +21,14 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.decorators.MessageDecorator;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequestImpl;
+import org.apache.directory.shared.ldap.model.message.Message;
 import org.apache.directory.shared.ldap.model.message.Request;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
@@ -87,7 +89,9 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.setAttribute( "maxPDUSize", ldapServer.getDirectoryService().getMaxPDUSize() );
         
         // Last, store the message container
-        LdapMessageContainer ldapMessageContainer = new LdapMessageContainer( 
+        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer = 
+            new LdapMessageContainer<MessageDecorator<Message>>( 
+            ldapServer.getDirectoryService().getLdapCodecService(),
             new BinaryAttributeDetector()
             {
                 public boolean isBinary( String id )

@@ -44,6 +44,9 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.asn1.EncoderException;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -197,19 +200,23 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
 
+    private ILdapCodecService codec = new DefaultLdapCodecService();
+    
+    
     /**
      * Create the searchControls with a paged size
+     * @throws EncoderException on codec failures
      */
     private SearchControls createSearchControls( DirContext ctx, int sizeLimit, int pagedSize ) 
-        throws NamingException
+        throws NamingException, EncoderException
     {
         SearchControls controls = new SearchControls();
         controls.setCountLimit( sizeLimit );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator();
+        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator( codec );
         pagedSearchControl.setSize( pagedSize );
         
-        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );
+        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls(  codec, new Control[] {pagedSearchControl} ) );
         
         return controls;
     }
@@ -217,14 +224,15 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     
     /**
      * Create the searchControls with a paged size
+     * @throws EncoderException on codec failures
      */
     private void createNextSearchControls( DirContext ctx, byte[] cookie, int pagedSize ) 
-        throws NamingException
+        throws NamingException, EncoderException
     {
-        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator();
+        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator( codec );
         pagedSearchControl.setCookie( cookie );
         pagedSearchControl.setSize( pagedSize );
-        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );
+        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( codec, new Control[] {pagedSearchControl} ) );
     }
     
     
@@ -247,9 +255,10 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     /**
      * Do the loop over the entries, until we can't get any more, or until we
      * reach a limit. It will check that we have got all the expected entries.
+     * @throws EncoderException  on codec failures
      */
     private void doLoop( DirContext ctx, SearchControls controls, int pagedSizeLimit, 
-        int expectedLoop, int expectedNbEntries, boolean expectedException ) throws NamingException
+        int expectedLoop, int expectedNbEntries, boolean expectedException ) throws NamingException, EncoderException
     {
         // Loop over all the elements
         int loop = 0;
