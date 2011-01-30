@@ -37,6 +37,8 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.DecoderException;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.exception.NotImplementedException;
@@ -233,7 +235,15 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
 
 
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        try
+        {
+            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 
+                requestControls ) );
+        }
+        catch ( DecoderException e1 )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+        }
 
         // Inject the Referral flag
         injectReferralControl( opCtx );
@@ -267,7 +277,15 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         UnbindOperationContext opCtx = new UnbindOperationContext( getSession() );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        try
+        {
+            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 
+                requestControls ) );
+        }
+        catch ( DecoderException e1 )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_309, "unbind encoder exception" ) );
+        }
 
         try
         {
@@ -278,7 +296,15 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             JndiUtils.wrap( e );
         }
 
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        try
+        {
+            responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+                opCtx.getResponseControls() );
+        }
+        catch ( EncoderException e )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_309, "unbind encoder exception" ) );
+        }
         requestControls = EMPTY_CONTROLS;
     }
 

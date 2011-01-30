@@ -48,6 +48,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -55,12 +57,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.*;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
@@ -1268,11 +1265,12 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries
         // except subentries disappear
-        SubentriesDecorator decorator = new SubentriesDecorator();
+        ILdapCodecService codec = new DefaultLdapCodecService();
+        SubentriesDecorator decorator = new SubentriesDecorator( codec );
         Subentries ctl = ( Subentries ) decorator.getDecorated();
         ctl.setVisibility( true );
         decorator.getValue();
-        sysRoot.setRequestControls( JndiUtils.toJndiControls(new Control[]
+        sysRoot.setRequestControls( JndiUtils.toJndiControls(codec, new Control[]
                 {ctl}) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = list.next();
@@ -1376,7 +1374,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
         
-        Entry result = connection.lookup( "cn=testsubentry,ou=system", new Control[]{ new SubentriesDecorator()},"subtreeSpecification" );
+        Entry result = connection.lookup( "cn=testsubentry,ou=system", new Control[]{ 
+            new SubentriesDecorator(connection.getCodecService())},"subtreeSpecification" );
 
         assertNotNull( result );
         String ss = result.get( "SubtreeSpecification" ).getString();

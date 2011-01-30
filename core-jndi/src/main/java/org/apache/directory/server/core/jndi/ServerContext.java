@@ -73,50 +73,40 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
+import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ControlEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseContainer;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnContainer;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.*;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecoder;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -356,7 +346,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            opCtx.getResponseControls() );
     }
 
 
@@ -380,7 +371,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            opCtx.getResponseControls() );
     }
 
 
@@ -388,145 +380,127 @@ public abstract class ServerContext implements EventContext
         Control jndiControl ) throws DecoderException
     {
         String controlIDStr = jndiControl.getID();
-        org.apache.directory.shared.ldap.model.message.Control control = null;
+        ICodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
 
         ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
 
         switch ( controlId )
         {
             case CASCADE_CONTROL:
-                control = new CascadeDecorator();
+                control = new CascadeDecorator( getDirectoryService().getLdapCodecService() );
+                
                 break;
 
             case ENTRY_CHANGE_CONTROL:
-                control = new EntryChangeDecorator();
-                Asn1Decoder entryChangeControlDecoder = new EntryChangeDecoder();
-                EntryChangeContainer entryChangeContainer = new EntryChangeContainer();
+                control = new EntryChangeDecorator( getDirectoryService().getLdapCodecService() );
+                EntryChangeContainer entryChangeContainer = new EntryChangeContainer( getDirectoryService().getLdapCodecService() );
                 entryChangeContainer.setEntryChangeDecorator( ( EntryChangeDecorator ) control );
                 ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                entryChangeControlDecoder.decode( bb, entryChangeContainer );
-
+                control.decode( bb.array() );
+                
                 break;
 
             case MANAGE_DSA_IT_CONTROL:
-                control = new ManageDsaITDecorator();
+                control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService() );
+                
                 break;
 
             case PAGED_RESULTS_CONTROL:
-                control = new PagedResultsDecorator();
-                entryChangeControlDecoder = new PagedResultsDecoder();
-                PagedResultsContainer pagedSearchContainer = new PagedResultsContainer();
+                control = new PagedResultsDecorator( getDirectoryService().getLdapCodecService() );
+                PagedResultsContainer pagedSearchContainer = new PagedResultsContainer( getDirectoryService().getLdapCodecService() );
                 pagedSearchContainer.setPagedSearchControl( ( PagedResultsDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                entryChangeControlDecoder.decode( bb, pagedSearchContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case PASSWORD_POLICY_REQUEST_CONTROL:
                 if ( isRequest )
                 {
-                    control = new PasswordPolicyRequestDecorator();
+                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService() );
                 }
                 else
                 {
-                    control = new PasswordPolicyResponseDecorator();
-                    PasswordPolicyResponseDecoder passwordPolicyResponseDecoder = new PasswordPolicyResponseDecoder();
-                    PasswordPolicyResponseContainer passwordPolicyResponseContainer = new PasswordPolicyResponseContainer();
+                    control = new PasswordPolicyResponseDecorator( getDirectoryService().getLdapCodecService() );
+                    PasswordPolicyResponseContainer passwordPolicyResponseContainer = new PasswordPolicyResponseContainer( getDirectoryService().getLdapCodecService() );
                     passwordPolicyResponseContainer
                         .setPasswordPolicyResponseControl( ( PasswordPolicyResponseDecorator ) control );
                     bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                     bb.put( jndiControl.getEncodedValue() ).flip();
-
-                    passwordPolicyResponseDecoder.decode( bb, passwordPolicyResponseContainer );
+                    control.decode( bb.array() );
                 }
 
                 break;
 
             case PERSISTENT_SEARCH_CONTROL:
-                control = new PersistentSearchDecorator();
-                PersistentSearchDecoder persistentSearchDecoder = new PersistentSearchDecoder();
-                PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer();
+                control = new PersistentSearchDecorator( getDirectoryService().getLdapCodecService() );
+                PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer( getDirectoryService().getLdapCodecService() );
                 persistentSearchContainer.setPersistentSearchDecorator( ( PersistentSearchDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                persistentSearchDecoder.decode( bb, persistentSearchContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case SUBENTRIES_CONTROL:
-                control = new SubentriesDecorator();
-                SubentriesDecoder decoder = new SubentriesDecoder();
+                control = new SubentriesDecorator( getDirectoryService().getLdapCodecService() );
                 SubentriesContainer subentriesContainer = new SubentriesContainer();
                 subentriesContainer.setSubentriesDecorator( ( SubentriesDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                decoder.decode( bb, subentriesContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case SYNC_DONE_VALUE_CONTROL:
-                control = new SyncDoneValueDecorator();
-                SyncDoneValueControlDecoder syncDoneValueControlDecoder = new SyncDoneValueControlDecoder();
-                SyncDoneValueContainer syncDoneValueContainer = new SyncDoneValueContainer();
+                control = new SyncDoneValueDecorator( getDirectoryService().getLdapCodecService() );
+                SyncDoneValueContainer syncDoneValueContainer = new SyncDoneValueContainer( getDirectoryService().getLdapCodecService() );
                 syncDoneValueContainer.setSyncDoneValueControl( ( SyncDoneValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                syncDoneValueControlDecoder.decode( bb, syncDoneValueContainer );
-
+                control.decode( bb.array() );
+                
                 break;
 
             case SYNC_INFO_VALUE_CONTROL:
-                control = new SyncInfoValueDecorator();
-                SyncInfoValueControlDecoder syncInfoValueControlDecoder = new SyncInfoValueControlDecoder();
-                SyncInfoValueContainer syncInfoValueControlContainer = new SyncInfoValueContainer();
+                control = new SyncInfoValueDecorator( getDirectoryService().getLdapCodecService() );
+                SyncInfoValueContainer syncInfoValueControlContainer = new SyncInfoValueContainer( getDirectoryService().getLdapCodecService() );
                 syncInfoValueControlContainer.setSyncInfoValueControl( ( SyncInfoValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                syncInfoValueControlDecoder.decode( bb, syncInfoValueControlContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case SYNC_MODIFY_DN_CONTROL:
-                control = new SyncModifyDnDecorator();
-                SyncModifyDnControlDecoder syncModifyDnControlDecoder = new SyncModifyDnControlDecoder();
-                SyncModifyDnContainer syncModifyDnControlContainer = new SyncModifyDnContainer();
+                control = new SyncModifyDnDecorator( getDirectoryService().getLdapCodecService() );
+                SyncModifyDnContainer syncModifyDnControlContainer = new SyncModifyDnContainer( getDirectoryService().getLdapCodecService() );
                 syncModifyDnControlContainer.setSyncModifyDnDecorator( ( SyncModifyDnDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                syncModifyDnControlDecoder.decode( bb, syncModifyDnControlContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case SYNC_REQUEST_VALUE_CONTROL:
-                control = new SyncRequestValueDecorator();
-                SyncRequestValueControlDecoder syncRequestValueControlDecoder = new SyncRequestValueControlDecoder();
+                control = new SyncRequestValueDecorator( getDirectoryService().getLdapCodecService() );
                 SyncRequestValueContainer syncRequestValueControlContainer = new SyncRequestValueContainer();
                 syncRequestValueControlContainer.setSyncRequestValueControl( ( SyncRequestValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                syncRequestValueControlDecoder.decode( bb, syncRequestValueControlContainer );
+                control.decode( bb.array() );
 
                 break;
 
             case SYNC_STATE_VALUE_CONTROL:
-                control = new SyncStateValueDecorator();
-                SyncStateValueControlDecoder syncStateValueControlDecoder = new SyncStateValueControlDecoder();
+                control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
                 SyncStateValueContainer syncStateValueControlContainer = new SyncStateValueContainer();
                 syncStateValueControlContainer.setSyncStateValueControl( ( SyncStateValueDecorator ) control );
                 bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
                 bb.put( jndiControl.getEncodedValue() ).flip();
-
-                syncStateValueControlDecoder.decode( bb, syncStateValueControlContainer );
+                control.decode( bb.array() );
 
                 break;
         }
@@ -643,7 +617,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( searchContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            searchContext.getResponseControls() );
 
         return results;
     }
@@ -664,7 +639,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( listContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            listContext.getResponseControls() );
 
         return results;
     }
@@ -696,7 +672,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            lookupContext.getResponseControls() );
         return serverEntry;
     }
 
@@ -715,7 +692,9 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( 
+            getDirectoryService().getLdapCodecService(),
+            lookupContext.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( lookupContext.getAttrsId() != null ) && ( lookupContext.getAttrsId().size() != 0 ) &&
@@ -749,7 +728,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( bindContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            bindContext.getResponseControls() );
         return bindContext;
     }
 
@@ -774,7 +754,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( moveAndRenameContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(), 
+            moveAndRenameContext.getResponseControls() );
     }
 
 
@@ -796,7 +777,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( modifyContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(), 
+            modifyContext.getResponseControls() );
     }
 
 
@@ -818,7 +800,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( moveContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            moveContext.getResponseControls() );
     }
 
 
@@ -840,7 +823,8 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( renameContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
+            renameContext.getResponseControls() );
     }
 
 

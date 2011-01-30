@@ -40,6 +40,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -561,6 +562,12 @@ public class MockDirectoryService implements DirectoryService
      * {@inheritDoc}
      */
     public DnFactory getDnFactory()
+    {
+        return null;
+    }
+
+
+    public ILdapCodecService getLdapCodecService()
     {
         return null;
     }

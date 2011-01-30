@@ -352,9 +352,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         if ( moveAndRenameContext.isReferralIgnored() )
         {
-            forward.addControl( new ManageDsaITDecorator() );
+            forward.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
             LdifEntry reversedEntry = reverses.get( 0 );
-            reversedEntry.addControl( new ManageDsaITDecorator() );
+            reversedEntry.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService() ) );
         }
         
         moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );

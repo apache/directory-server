@@ -37,6 +37,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -79,7 +80,7 @@ public interface DirectoryService extends ServerEntryFactory
      * there is no tag a illegal state exception will result.  If the latest revision
      * is not earlier than the current revision (both are same), then no changes were
      * made to the directory to be reverted.  In this case we return the current
-     * revision and do nothiig loggin the fact that we ignored the request to revert.
+     * revision and do nothing logging the fact that we ignored the request to revert.
      *
      * @return the new revision reached by applying all changes needed to revert
      * to the new state or the same version before this call if no revert actually
@@ -106,7 +107,13 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The Directory Service SchemaManager
      */
     SchemaManager getSchemaManager();
-
+    
+    
+    /**
+     * @return The LDAP codec service.
+     */
+    ILdapCodecService getLdapCodecService();
+    
 
     /**
      * @return The referral manager

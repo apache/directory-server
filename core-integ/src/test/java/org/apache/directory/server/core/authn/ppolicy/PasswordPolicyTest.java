@@ -42,10 +42,12 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.ICodecControl;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyResponse;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecoder;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -75,9 +77,9 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
-    private static final PasswordPolicyRequestDecorator PP_REQ_CTRL = new PasswordPolicyRequestDecorator();
-
-    private static final PasswordPolicyResponseDecoder decoder = new PasswordPolicyResponseDecoder();
+    private static final ILdapCodecService codec = new DefaultLdapCodecService();
+    
+    private static final PasswordPolicyRequestDecorator PP_REQ_CTRL = new PasswordPolicyRequestDecorator( codec );
 
 
     @Before
@@ -235,16 +237,15 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private IPasswordPolicyResponse getPwdRespCtrl( Response resp ) throws Exception
     {
-        Control ctrl = resp.getControls().get( PP_REQ_CTRL.getOid() );
+        ICodecControl<? extends Control> ctrl = codec.decorate( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
 
         if ( ctrl == null )
         {
             return null;
         }
 
-        PasswordPolicyResponseDecorator respCtrl = new PasswordPolicyResponseDecorator();
-        decoder.decode( ctrl.getValue(), respCtrl );
-
+        PasswordPolicyResponseDecorator respCtrl = new PasswordPolicyResponseDecorator( codec );
+        respCtrl.setValue( ctrl.getValue() );
         return respCtrl;
     }
 }
