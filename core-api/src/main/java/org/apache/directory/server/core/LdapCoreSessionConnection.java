@@ -32,6 +32,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.OID;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
@@ -110,6 +112,8 @@ public class LdapCoreSessionConnection implements LdapConnection
 
     /** The MessageId counter */
     private AtomicInteger messageId = new AtomicInteger( 0 );
+
+    private ILdapCodecService codec = new DefaultLdapCodecService();
 
 
     public LdapCoreSessionConnection()
@@ -400,6 +404,15 @@ public class LdapCoreSessionConnection implements LdapConnection
     public SchemaManager getSchemaManager()
     {
         return schemaManager;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ILdapCodecService getCodecService()
+    {
+        return codec;
     }
 
 
