@@ -21,7 +21,6 @@ package org.apache.directory.server.core.jndi;
 
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -73,48 +72,36 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.ldap.model.message.controls.Cascade;
-import org.apache.directory.shared.ldap.model.message.controls.CascadeImpl;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.*;
-import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesContainer;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -123,10 +110,17 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.controls.Cascade;
+import org.apache.directory.shared.ldap.model.message.controls.CascadeImpl;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -396,11 +390,6 @@ public abstract class ServerContext implements EventContext
 
             case ENTRY_CHANGE_CONTROL:
                 control = new EntryChangeDecorator( getDirectoryService().getLdapCodecService() );
-                EntryChangeContainer entryChangeContainer = new EntryChangeContainer( getDirectoryService().getLdapCodecService() );
-                entryChangeContainer.setEntryChangeDecorator( ( EntryChangeDecorator ) control );
-                ByteBuffer bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
                 
                 break;
 
@@ -411,11 +400,6 @@ public abstract class ServerContext implements EventContext
 
             case PAGED_RESULTS_CONTROL:
                 control = new PagedResultsDecorator( getDirectoryService().getLdapCodecService() );
-                PagedResultsContainer pagedSearchContainer = new PagedResultsContainer( getDirectoryService().getLdapCodecService() );
-                pagedSearchContainer.setPagedSearchControl( ( PagedResultsDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
 
@@ -428,89 +412,55 @@ public abstract class ServerContext implements EventContext
                 else
                 {
                     control = new PasswordPolicyResponseDecorator( getDirectoryService().getLdapCodecService() );
-                    PasswordPolicyResponseContainer passwordPolicyResponseContainer = new PasswordPolicyResponseContainer( getDirectoryService().getLdapCodecService() );
-                    passwordPolicyResponseContainer
-                        .setPasswordPolicyResponseControl( ( PasswordPolicyResponseDecorator ) control );
-                    bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                    bb.put( jndiControl.getEncodedValue() ).flip();
-                    control.decode( bb.array() );
                 }
 
                 break;
 
             case PERSISTENT_SEARCH_CONTROL:
                 control = new PersistentSearchDecorator( getDirectoryService().getLdapCodecService() );
-                PersistentSearchContainer persistentSearchContainer = new PersistentSearchContainer( getDirectoryService().getLdapCodecService() );
-                persistentSearchContainer.setPersistentSearchDecorator( ( PersistentSearchDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
 
             case SUBENTRIES_CONTROL:
                 control = new SubentriesDecorator( getDirectoryService().getLdapCodecService() );
-                SubentriesContainer subentriesContainer = new SubentriesContainer();
-                subentriesContainer.setSubentriesDecorator( ( SubentriesDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
-
+                
                 break;
 
             case SYNC_DONE_VALUE_CONTROL:
                 control = new SyncDoneValueDecorator( getDirectoryService().getLdapCodecService() );
-                SyncDoneValueContainer syncDoneValueContainer = new SyncDoneValueContainer( getDirectoryService().getLdapCodecService() );
-                syncDoneValueContainer.setSyncDoneValueControl( ( SyncDoneValueDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
                 
                 break;
 
             case SYNC_INFO_VALUE_CONTROL:
                 control = new SyncInfoValueDecorator( getDirectoryService().getLdapCodecService() );
-                SyncInfoValueContainer syncInfoValueControlContainer = new SyncInfoValueContainer( getDirectoryService().getLdapCodecService() );
-                syncInfoValueControlContainer.setSyncInfoValueControl( ( SyncInfoValueDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
 
             case SYNC_MODIFY_DN_CONTROL:
                 control = new SyncModifyDnDecorator( getDirectoryService().getLdapCodecService() );
-                SyncModifyDnContainer syncModifyDnControlContainer = new SyncModifyDnContainer( getDirectoryService().getLdapCodecService() );
-                syncModifyDnControlContainer.setSyncModifyDnDecorator( ( SyncModifyDnDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
 
             case SYNC_REQUEST_VALUE_CONTROL:
                 control = new SyncRequestValueDecorator( getDirectoryService().getLdapCodecService() );
-                SyncRequestValueContainer syncRequestValueControlContainer = new SyncRequestValueContainer();
-                syncRequestValueControlContainer.setSyncRequestValueControl( ( SyncRequestValueDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
 
             case SYNC_STATE_VALUE_CONTROL:
                 control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
-                SyncStateValueContainer syncStateValueControlContainer = new SyncStateValueContainer();
-                syncStateValueControlContainer.setSyncStateValueControl( ( SyncStateValueDecorator ) control );
-                bb = ByteBuffer.allocate( jndiControl.getEncodedValue().length );
-                bb.put( jndiControl.getEncodedValue() ).flip();
-                control.decode( bb.array() );
 
                 break;
         }
 
         control.setCritical( jndiControl.isCritical() );
         control.setValue( jndiControl.getEncodedValue() );
+        
+        byte[] value = jndiControl.getEncodedValue();
+        
+        if ( !Strings.isEmpty( value ) )
+        {
+            control.decode( value );
+        }
 
         return control;
     }
