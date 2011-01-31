@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
@@ -141,7 +140,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         {
             // Only SASL BinRequest are allowed if we already are handling a 
             // SASL BindRequest
-            if ( !( message instanceof BindRequestImpl ) || ( ( BindRequestImpl ) message ).isSimple()
+            if ( !( message instanceof BindRequest ) || ( ( BindRequest ) message ).isSimple()
                 || ldapSession.isSimpleAuthPending() )
             {
                 LOG.error( I18n.err( I18n.ERR_732 ) );
