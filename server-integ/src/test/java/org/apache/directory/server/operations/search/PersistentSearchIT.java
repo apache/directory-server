@@ -50,18 +50,17 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearchImpl;
-import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
-import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
-import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
+import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearchImpl;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -615,7 +614,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                         }
                     }
                     
-                    result = new PSearchNotification( sresult, (EntryChange) ecControl.getDecorated() );
+                    result = new PSearchNotification( sresult, ecControl );
                     break;
                 }
                 
