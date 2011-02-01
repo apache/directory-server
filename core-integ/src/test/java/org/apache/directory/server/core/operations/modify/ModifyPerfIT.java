@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 
@@ -69,6 +70,7 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
      * Test an modify operation performance
      */
     @Test
+    @Ignore ( "We should not have performance tests mixed with integration tests" )
     public void testModifyPerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
