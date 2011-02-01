@@ -41,7 +41,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
@@ -276,13 +275,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        Control ctrl = searchDone.getControls().get( ISyncDoneValue.OID );
-        SyncDoneValueDecorator syncDoneCtrl = new SyncDoneValueDecorator( directoryService.getLdapCodecService() );
-        syncDoneCtrl.setDecorated( ( ISyncDoneValue ) ctrl );
+        ISyncDoneValue ctrl = (ISyncDoneValue)searchDone.getControls().get( ISyncDoneValue.OID );
 
-        if ( syncDoneCtrl.getCookie() != null )
+        if ( ctrl.getCookie() != null )
         {
-            syncCookie = syncDoneCtrl.getCookie();
+            syncCookie = ctrl.getCookie();
             LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString(syncCookie) );
             storeCookie();
         }
