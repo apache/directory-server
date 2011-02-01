@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.authn;
 
 
@@ -32,6 +31,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public class PasswordPolicyException extends LdapException
 {
+    private static final long serialVersionUID = -9158126177779964262L;
 
     /** password policy error code */
     private PasswordPolicyErrorEnum errorCode;

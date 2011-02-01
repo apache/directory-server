@@ -75,10 +75,12 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicyRequest;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequest;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyRequestDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponseDecorator;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
+
+// @TODO - all these controls should not be imported !!!! ALEX !!!
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
@@ -179,7 +181,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
-        ADS_CONTROLS.put( IPasswordPolicyRequest.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( IPasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( ISyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
@@ -406,12 +408,13 @@ public abstract class ServerContext implements EventContext
             case PASSWORD_POLICY_REQUEST_CONTROL:
                 if ( isRequest )
                 {
-                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService(), 
-                        new PasswordPolicyRequest() );
+                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(), 
+                        new PasswordPolicy() );
                 }
                 else
                 {
-                    control = new PasswordPolicyResponseDecorator( getDirectoryService().getLdapCodecService() );
+                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
+                        new PasswordPolicy( new PasswordPolicyResponse() ) );
                 }
 
                 break;
@@ -526,7 +529,7 @@ public abstract class ServerContext implements EventContext
                 && ( searchControls.getReturningAttributes().length == 0 ) )
             && ( filter instanceof EqualityNode ) )
         {
-            CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
+            CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode <?>)filter).getAttribute(), ((EqualityNode)filter).getValue() );
 
             // Inject the referral handling into the operation context
             injectReferralControl( compareContext );
