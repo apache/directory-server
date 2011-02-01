@@ -589,7 +589,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
                 LOG.debug( "PSearchListener search request returned." );
-                EntryChangeDecorator ecControl = null;
+                EntryChange ecControl = null;
 
                 while ( list.hasMore() )
                 {
@@ -603,12 +603,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                         
                         if ( controls != null )
                         {
-                            for ( javax.naming.ldap.Control control : controls )
+                            for ( javax.naming.ldap.Control jndiControl : controls )
                             {
-                                if ( control.getID().equals(
+                                if ( jndiControl.getID().equals(
                                     EntryChange.OID ) )
                                 {
-                                    ecControl.setValue( control.getEncodedValue() );
+                                    ecControl = (EntryChange)JndiUtils.fromJndiControl( codec, jndiControl );
+                                    ((EntryChangeDecorator)ecControl).decode( jndiControl.getEncodedValue() );
                                 }
                             }
                         }
