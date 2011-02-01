@@ -38,12 +38,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
-import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -71,6 +67,9 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
@@ -130,16 +129,13 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * @throws Exception if failures are encountered while searching
      */
     private void handlePersistentSearch( LdapSession session, SearchRequest req,
-        PersistentSearchDecorator psearchDecorator ) throws Exception
+        PersistentSearch psearch ) throws Exception
     {
         /*
          * We want the search to complete first before we start listening to
          * events when the decorator does NOT specify changes ONLY mode.
          */
-
-        PersistentSearch psearchControl = ( PersistentSearch ) psearchDecorator.getDecorated();
-
-        if ( !psearchControl.isChangesOnly() )
+        if ( !psearch.isChangesOnly() )
         {
             SearchResultDone done = doSimpleSearch( session, req );
 
@@ -167,7 +163,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         criteria.setBase( req.getBase() );
         criteria.setFilter( req.getFilter() );
         criteria.setScope( req.getScope() );
-        criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
+        criteria.setEventMask( EventType.getEventTypes( psearch.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
         req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
     }
@@ -507,9 +503,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private SearchResultDone abandonPagedSearch( LdapSession session, SearchRequest req ) throws Exception
     {
-        PagedResultsDecorator pagedResultsControl = null;
-        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator ) req.getControls().get(
-            PagedResults.OID );
+        PagedResults pagedSearchControl = (PagedResults)req.getControls().get( PagedResults.OID );
         byte[] cookie = pagedSearchControl.getCookie();
 
         if ( !Strings.isEmpty(cookie) )
@@ -518,11 +512,9 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // cursor stored into the session (if any)
             int cookieValue = pagedSearchControl.getCookieValue();
             PagedSearchContext psCookie = session.removePagedSearchContext( cookieValue );
-            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                .getLdapCodecService() );
-            pagedResultsControl.setCookie( psCookie.getCookie() );
-            pagedResultsControl.setSize( 0 );
-            pagedResultsControl.setCritical( true );
+            pagedSearchControl.setCookie( psCookie.getCookie() );
+            pagedSearchControl.setSize( 0 );
+            pagedSearchControl.setCritical( true );
 
             // Close the cursor
             EntryFilteringCursor cursor = psCookie.getCursor();
@@ -534,17 +526,15 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         else
         {
-            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                .getLdapCodecService() );
-            pagedResultsControl.setSize( 0 );
-            pagedResultsControl.setCritical( true );
+            pagedSearchControl.setSize( 0 );
+            pagedSearchControl.setCritical( true );
         }
 
         // and return
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-        req.getResultResponse().addControl( pagedResultsControl );
+        req.getResultResponse().addControl( pagedSearchControl );
         return ( SearchResultDone ) req.getResultResponse();
     }
 
@@ -1027,16 +1017,15 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchDecorator psearchDecorator = ( PersistentSearchDecorator ) req.getControls().get(
-                PersistentSearch.OID );
+            PersistentSearch psearch = (PersistentSearch)req.getControls().get( PersistentSearch.OID );
 
-            if ( psearchDecorator != null )
+            if ( psearch != null )
             {
                 // Set the flag to avoid the request being removed
                 // from the session
                 isPersistentSearch = true;
 
-                handlePersistentSearch( session, req, psearchDecorator );
+                handlePersistentSearch( session, req, psearch );
 
                 return;
             }
