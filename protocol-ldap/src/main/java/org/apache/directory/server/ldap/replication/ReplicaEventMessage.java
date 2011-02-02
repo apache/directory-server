@@ -30,7 +30,7 @@ import java.util.Iterator;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.ILdapCodecService;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
