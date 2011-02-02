@@ -81,7 +81,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.api.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.ILdapCodecService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
