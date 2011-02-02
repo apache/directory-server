@@ -171,6 +171,7 @@
             <configuration>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <shadedClassifierName>app</shadedClassifierName>
+              <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
               <filters>
                 <filter>
                   <artifact>bouncycastle:bcprov-jdk15</artifact>
@@ -180,23 +181,6 @@
                   </excludes>
                 </filter>
               </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-              <shadedArtifactAttached>false</shadedArtifactAttached>
             </configuration>
           </execution>
         </executions>
