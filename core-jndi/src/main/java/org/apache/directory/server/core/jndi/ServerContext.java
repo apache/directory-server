@@ -83,7 +83,6 @@ import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDec
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
@@ -120,6 +119,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -185,7 +185,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( ISyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
-        ADS_CONTROLS.put( ISyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
         ADS_CONTROLS.put( ISyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
         ADS_CONTROLS.put( ISyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
         ADS_CONTROLS.put( ISyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );

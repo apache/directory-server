@@ -61,7 +61,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -83,6 +82,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
@@ -245,7 +245,7 @@ public class LdapServer extends DirectoryBackedService
         this.supportedControls.add( PagedResults.OID );
         // Replication controls
         this.supportedControls.add( ISyncDoneValue.OID );
-        this.supportedControls.add( ISyncInfoValue.OID );
+        this.supportedControls.add( SyncInfoValue.OID );
         this.supportedControls.add( ISyncRequestValue.OID );
         this.supportedControls.add( ISyncStateValue.OID );
     }

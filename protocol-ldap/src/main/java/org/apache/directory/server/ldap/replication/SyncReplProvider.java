@@ -49,14 +49,10 @@ import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -87,6 +83,10 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.model.message.controls.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.SynchronizationInfoEnum;
+import org.apache.directory.shared.ldap.model.message.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -327,7 +327,7 @@ public class SyncReplProvider implements ReplicationProvider
         if ( refreshNPersist )
         {
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-            intermResp.setResponseName( ISyncInfoValue.OID );
+            intermResp.setResponseName( SyncInfoValue.OID );
 
             SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
                 .getLdapCodecService(),
@@ -423,7 +423,7 @@ public class SyncReplProvider implements ReplicationProvider
                 cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-                intermResp.setResponseName( ISyncInfoValue.OID );
+                intermResp.setResponseName( SyncInfoValue.OID );
 
                 SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( 
                     ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
