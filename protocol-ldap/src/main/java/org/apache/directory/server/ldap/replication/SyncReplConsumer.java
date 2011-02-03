@@ -40,7 +40,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
@@ -75,6 +74,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.model.message.controls.SyncStateTypeEnum;
@@ -275,7 +275,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        ISyncDoneValue ctrl = (ISyncDoneValue)searchDone.getControls().get( ISyncDoneValue.OID );
+        SyncDoneValue ctrl = (SyncDoneValue)searchDone.getControls().get( SyncDoneValue.OID );
 
         if ( ctrl.getCookie() != null )
         {

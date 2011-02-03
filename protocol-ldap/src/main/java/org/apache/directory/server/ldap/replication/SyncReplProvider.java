@@ -47,7 +47,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
@@ -83,6 +82,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.SynchronizationInfoEnum;
@@ -343,7 +343,7 @@ public class SyncReplProvider implements ReplicationProvider
         {
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            ISyncDoneValue syncDone = new SyncDoneValueDecorator( 
+            SyncDoneValue syncDone = new SyncDoneValueDecorator( 
                 ldapServer.getDirectoryService().getLdapCodecService() );
             syncDone.setCookie( cookie );
             searchDoneResp.addControl( syncDone );
@@ -438,7 +438,7 @@ public class SyncReplProvider implements ReplicationProvider
             else
             {
                 // no need to send from the log, that will be done in the next refreshOnly session
-                ISyncDoneValue syncDone = new SyncDoneValueDecorator(
+                SyncDoneValue syncDone = new SyncDoneValueDecorator(
                     ldapServer.getDirectoryService().getLdapCodecService() );
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
