@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.components;
 
@@ -37,9 +37,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-
 import org.apache.directory.shared.util.Strings;
-import sun.security.krb5.internal.AuthorizationData;
 
 
 
@@ -73,37 +71,37 @@ public class KdcReqBody extends AbstractAsn1Object
 {
     /** The KDC options */
     private KdcOptions kdcOptions;
-    
+
     /** The Client Principal, if the request is an AS-REQ */
     private PrincipalName cName;
-    
+
     /** The realm */
     private String realm;
-    
+
     /** The Server Principal */
     private PrincipalName sName;
-    
+
     /** The start time for the requested ticket */
     private KerberosTime from;
-    
+
     /** The expiration date for the requested ticket */
     private KerberosTime till;
-    
+
     /** The renew-till date for the requested ticket */
     private KerberosTime rtime;
-    
+
     /** Random number to avoid MiM attacks */
     private int nonce;
-    
+
     /** Set of desired encryption types */
     private Set<EncryptionType> eType;
-    
+
     /** Addresses valid for the requested ticket */
     private HostAddresses addresses;
-    
+
     /** Encoded authorizationData, used by the TGS-REQ only */
     private EncryptedData encAuthorizationData;
-    
+
     /** Additional tickets */
     private List<Ticket> additionalTickets;
 
@@ -178,8 +176,8 @@ public class KdcReqBody extends AbstractAsn1Object
     {
         return addresses;
     }
-    
-    
+
+
     /**
      * @param addresses the addresses to set
      */
@@ -265,8 +263,8 @@ public class KdcReqBody extends AbstractAsn1Object
     {
         return from;
     }
-    
-    
+
+
     /**
      * @param from the from to set
      */
@@ -392,13 +390,13 @@ public class KdcReqBody extends AbstractAsn1Object
     {
         this.till = till;
     }
-    
-    
+
+
     /**
      * Compute the KdcReqBody length
      * <pre>
      * KdcReqBody :
-     * 
+     *
      * 0x30 L1 KdcReqBody sequence
      *  |
      *  +--> 0xA0 L2 kdc-options tag
@@ -408,31 +406,31 @@ public class KdcReqBody extends AbstractAsn1Object
      *  +--> 0xA1 L3 cname tag
      *  |     |
      *  |     +--> 0x30 L3-1 cname (PrincipalName)
-     *  |     
+     *  |
      *  +--> 0xA2 L4 realm tag
      *  |     |
      *  |     +--> 0x1B L4-1 realm (Realm, KerberosString)
-     *  |     
+     *  |
      *  +--> 0xA3 L5 sname tag
      *  |     |
      *  |     +--> 0x30 L5-1 sname (PrincipalName)
-     *  |     
+     *  |
      *  +--> 0xA4 L6 from tag
      *  |     |
      *  |     +--> 0x18 L6-1 from (KerberosTime)
-     *  |     
+     *  |
      *  +--> 0xA5 L7 till tag
      *  |     |
      *  |     +--> 0x18 L7-1 till (KerberosTime)
-     *  |     
+     *  |
      *  +--> 0xA6 L8 rtime tag
      *  |     |
      *  |     +--> 0x18 L8-1 rtime (KerberosTime)
-     *  |     
+     *  |
      *  +--> 0xA7 L9 nonce tag
      *  |     |
      *  |     +--> 0x02 L9-1 nonce (Int)
-     *  |     
+     *  |
      *  +--> 0xA8 L10 etype tag
      *  |     |
      *  |     +--> 0x30 L10-1 SEQ
@@ -446,11 +444,11 @@ public class KdcReqBody extends AbstractAsn1Object
      *  +--> 0xA9 L11 addresses tag
      *  |     |
      *  |     +--> 0x30 L11-1 addresses (HostAddresses)
-     *  |     
+     *  |
      *  +--> 0xAA L12 enc-authorization-data tag
      *  |     |
      *  |     +--> 0x30 L12-1 enc-authorization-data
-     *  |     
+     *  |
      *  +--> 0xAB L13 additional-tickets tag
      *        |
      *        +--> 0x30 L13-1 additional-tickets
@@ -460,15 +458,16 @@ public class KdcReqBody extends AbstractAsn1Object
      *              +--> 0x61 L13-1-2 Ticket
      *              |
      *              :
-     * </pre>       
+     * </pre>
      */
+    @Override
     public int computeLength()
     {
     	reset();
-    	
+
         // The KdcOptions length
         kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;
-        kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength; 
+        kdcReqBodySeqLength = 1 + TLV.getNbBytes( kdcOptionsLength ) + kdcOptionsLength;
 
         // The cname length
         if ( cName != null )
@@ -515,14 +514,14 @@ public class KdcReqBody extends AbstractAsn1Object
         eTypeLengths = new int[eType.size()];
         int pos = 0;
         eTypeSeqLength = 0;
-        
+
         for ( EncryptionType encryptionType : eType )
         {
             eTypeLengths[pos] = 1 + 1 + Value.getNbBytes( encryptionType.getValue() );
             eTypeSeqLength += eTypeLengths[pos];
             pos++;
         }
-        
+
         eTypeLength = 1 + TLV.getNbBytes( eTypeSeqLength ) + eTypeSeqLength;
         kdcReqBodySeqLength += 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
 
@@ -532,200 +531,201 @@ public class KdcReqBody extends AbstractAsn1Object
             addressesLength = addresses.computeLength();
             kdcReqBodySeqLength += 1 + TLV.getNbBytes( addressesLength ) + addressesLength;
         }
-        
+
         // The EncAuthorizationData length
         if ( encAuthorizationData != null )
         {
             encAuthzDataLength = encAuthorizationData.computeLength();
             kdcReqBodySeqLength += 1 + TLV.getNbBytes( encAuthzDataLength ) + encAuthzDataLength;
         }
-        
+
         // The additionalTickets length
         if ( additionalTickets.size() != 0 )
         {
             additionalTicketsLengths = new int[additionalTickets.size()];
             additionalTicketSeqLength = 0;
             pos = 0;
-            
+
             for ( Ticket ticket : additionalTickets )
             {
                 additionalTicketsLengths[pos] = ticket.computeLength();
                 additionalTicketSeqLength += additionalTicketsLengths[pos];
                 pos++;
             }
-            
+
             additionalTicketLength = 1 + TLV.getNbBytes( additionalTicketSeqLength ) + additionalTicketSeqLength;
             kdcReqBodySeqLength += 1 + TLV.getNbBytes( additionalTicketLength ) + additionalTicketLength;
         }
 
         // compute the global size
         kdcReqBodyLength = 1 + TLV.getNbBytes( kdcReqBodySeqLength ) + kdcReqBodySeqLength;
-        
+
         return kdcReqBodyLength;
     }
-    
-    
+
+
     /**
      * Encode the KDC-REQ-BODY component
-     * 
+     *
      * @param buffer The buffer containing the encoded result
      * @return The encoded component
      * @throws EncoderException If the encoding failed
      */
+    @Override
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )
         {
             throw new EncoderException( I18n.err( I18n.ERR_148 ) );
         }
-        
+
         // The KDC-REQ-BODY SEQ Tag
         buffer.put( UniversalTag.SEQUENCE.getValue() );
         buffer.put( TLV.getBytes( kdcReqBodySeqLength ) );
-        
+
         // The KdcOptions -----------------------------------------------------
         // The tag
         buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG );
         buffer.put( TLV.getBytes( kdcOptionsLength ) );
-        
+
         // The value
         Value.encode( buffer, kdcOptions );
-        
+
         // The cname if any ---------------------------------------------------
         if ( cName != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_CNAME_TAG );
             buffer.put( TLV.getBytes( cNameLength ) );
-            
+
             // The value
             cName.encode( buffer );
         }
-        
+
         // The realm ----------------------------------------------------------
         // The tag
         buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_REALM_TAG );
         buffer.put( TLV.getBytes( realmLength ) );
-        
+
         // The value
         buffer.put( UniversalTag.GENERAL_STRING.getValue() );
         buffer.put( TLV.getBytes( realmBytes.length ) );
         buffer.put( realmBytes );
-        
+
         // The sname, if any --------------------------------------------------
         if ( sName != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_SNAME_TAG );
             buffer.put( TLV.getBytes( sNameLength ) );
-            
+
             // The value
             sName.encode( buffer );
         }
-        
+
         // The from, if any ---------------------------------------------------
         if ( from != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_FROM_TAG );
             buffer.put( TLV.getBytes( fromLength ) );
-            
+
             // The value
-            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( (byte)0x0F );
             buffer.put( from.getBytes() );
         }
-        
+
         // The till -----------------------------------------------------------
         // The tag
         buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_TILL_TAG );
         buffer.put( TLV.getBytes( tillLength ) );
-        
+
         // The value
-        buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+        buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
         buffer.put( (byte)0x0F );
         buffer.put( till.getBytes() );
-        
+
         // The rtime if any ---------------------------------------------------
         if ( rtime != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_RTIME_TAG );
             buffer.put( TLV.getBytes( rtimeLength ) );
-            
+
             // The value
-            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( (byte)0x0F );
             buffer.put( rtime.getBytes() );
         }
-        
+
         // The nonce ----------------------------------------------------------
         // The tag
         buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_NONCE_TAG );
         buffer.put( TLV.getBytes( nonceLength ) );
-        
+
         // The value
         Value.encode( buffer, nonce );
-        
+
         // The etype ----------------------------------------------------------
         // The tag
         buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ETYPE_TAG );
         buffer.put( TLV.getBytes( eTypeLength ) );
-        
+
         // The sequence
         buffer.put( UniversalTag.SEQUENCE.getValue() );
         buffer.put( TLV.getBytes( eTypeSeqLength ) );
-        
+
         // The values
         for ( EncryptionType encryptionType : eType )
         {
             Value.encode( buffer, encryptionType.getValue() );
         }
-        
+
         // The addresses if any -----------------------------------------------
         if ( addresses != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG );
             buffer.put( TLV.getBytes( addressesLength ) );
-            
+
             // The value
             addresses.encode( buffer );
         }
-        
+
         // The enc-authorization-data, if any ---------------------------------
         if ( encAuthorizationData != null )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG );
             buffer.put( TLV.getBytes( encAuthzDataLength ) );
-            
+
             // The value
             encAuthorizationData.encode( buffer );
         }
-        
+
         // The additional-tickets, if any -------------------------------------
         if ( additionalTickets.size() != 0 )
         {
             // The tag
             buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
             buffer.put( TLV.getBytes( additionalTicketLength ) );
-            
+
             // The sequence
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( additionalTicketSeqLength ) );
-            
+
             // The values
             for ( Ticket ticket : additionalTickets )
             {
                 ticket.encode( buffer );
             }
         }
-        
+
         return buffer;
     }
 
-    
+
     /**
      * reset the transient fields used while computing length
      */
@@ -751,11 +751,12 @@ public class KdcReqBody extends AbstractAsn1Object
         kdcReqBodySeqLength = 0;
         kdcReqBodyLength = 0;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -766,7 +767,7 @@ public class KdcReqBody extends AbstractAsn1Object
         {
             sb.append( "cname : " ).append( cName ).append( '\n' );
         }
-        
+
         sb.append( "realm : " ).append( realm ).append( '\n' );
 
         if ( sName != null )
@@ -778,20 +779,20 @@ public class KdcReqBody extends AbstractAsn1Object
         {
             sb.append( "from : " ).append( from ).append( '\n' );
         }
-        
+
         sb.append( "till : " ).append( till ).append( '\n' );
-        
+
 
         if ( rtime != null )
         {
             sb.append( "rtime : " ).append( rtime ).append( '\n' );
         }
-        
+
         sb.append( "nonce : " ).append( nonce ).append( '\n' );
-        
+
         sb.append( "etype : " );
         boolean isFirst = true;
-        
+
         for ( EncryptionType encryptionType : eType )
         {
             if ( isFirst )
@@ -802,17 +803,17 @@ public class KdcReqBody extends AbstractAsn1Object
             {
                 sb.append( " " );
             }
-            
+
             sb.append( encryptionType );
         }
-        
+
         sb.append( '\n' );
-        
+
         if ( addresses != null )
         {
             sb.append( "addresses : " );
             isFirst = true;
-            
+
             for ( HostAddress hostAddress : addresses.getAddresses() )
             {
                 if ( isFirst )
@@ -826,16 +827,16 @@ public class KdcReqBody extends AbstractAsn1Object
 
                 sb.append( hostAddress );
             }
-            
+
             sb.append( '\n' );
         }
-        
+
 
         if ( encAuthorizationData != null )
         {
             sb.append( "enc-authorization-data" ).append( encAuthorizationData ).append( '\n' );
         }
-        
+
         if ( additionalTickets.size() != 0 )
         {
             sb.append( "Tickets : " );
@@ -854,10 +855,10 @@ public class KdcReqBody extends AbstractAsn1Object
 
                 sb.append( ticket );
             }
-            
+
             sb.append( '\n' );
         }
-        
+
         return sb.toString();
     }
 }
