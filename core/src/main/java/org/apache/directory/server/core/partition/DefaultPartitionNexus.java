@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;

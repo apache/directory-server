@@ -63,7 +63,7 @@ import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
