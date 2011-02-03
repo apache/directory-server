@@ -87,9 +87,9 @@ import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryC
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.shared.ldap.extras.controls.IPasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyResponse;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyResponseImpl;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
@@ -181,7 +181,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
-        ADS_CONTROLS.put( IPasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( PasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
@@ -409,12 +409,12 @@ public abstract class ServerContext implements EventContext
                 if ( isRequest )
                 {
                     control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(), 
-                        new PasswordPolicy() );
+                        new PasswordPolicyImpl() );
                 }
                 else
                 {
                     control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicy( new PasswordPolicyResponse() ) );
+                        new PasswordPolicyImpl( new PasswordPolicyResponseImpl() ) );
                 }
 
                 break;
