@@ -59,7 +59,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
@@ -67,6 +66,7 @@ import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.model.message.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -178,7 +178,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls
-            SyncDoneValue.OID, SyncInfoValue.OID, ISyncRequestValue.OID,
+            SyncDoneValue.OID, SyncInfoValue.OID, SyncRequestValue.OID,
             ISyncStateValue.OID );
 
         // Add the objectClasses

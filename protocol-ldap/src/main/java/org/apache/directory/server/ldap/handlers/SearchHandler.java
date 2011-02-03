@@ -38,7 +38,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -70,6 +69,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.shared.ldap.model.message.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
@@ -177,7 +177,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         LOG.debug( "Handling single reply request: {}", req );
 
         // check first for the syncrepl search request decorator
-        if ( req.getControls().containsKey( ISyncRequestValue.OID ) )
+        if ( req.getControls().containsKey( SyncRequestValue.OID ) )
         {
             handleSyncreplSearch( session, req );
         }

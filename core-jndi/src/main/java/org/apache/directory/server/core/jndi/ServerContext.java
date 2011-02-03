@@ -83,7 +83,6 @@ import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDec
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
@@ -120,6 +119,7 @@ import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncModifyDn;
+import org.apache.directory.shared.ldap.model.message.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -187,7 +187,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
-        ADS_CONTROLS.put( ISyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
         ADS_CONTROLS.put( ISyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
     }
     

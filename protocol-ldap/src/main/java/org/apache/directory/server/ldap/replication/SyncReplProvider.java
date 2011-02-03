@@ -49,7 +49,6 @@ import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -84,6 +83,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.model.message.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.model.message.controls.SynchronizationModeEnum;
@@ -215,8 +215,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
         try
         {
-            ISyncRequestValue syncControl = ( ISyncRequestValue ) req.getControls().get(
-                ISyncRequestValue.OID );
+            SyncRequestValue syncControl = ( SyncRequestValue ) req.getControls().get(
+                SyncRequestValue.OID );
 
             // cookie is in the format <replicaId>;<Csn value>
             byte[] cookieBytes = syncControl.getCookie();
@@ -1004,8 +1004,8 @@ public class SyncReplProvider implements ReplicationProvider
 
     private boolean isRefreshNPersist( SearchRequest req )
     {
-        ISyncRequestValue control = ( ISyncRequestValue ) req.getControls().get(
-            ISyncRequestValue.OID );
+        SyncRequestValue control = ( SyncRequestValue ) req.getControls().get(
+            SyncRequestValue.OID );
         return ( control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST ? true : false );
     }
 }
