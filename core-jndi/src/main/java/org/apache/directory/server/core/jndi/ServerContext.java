@@ -75,12 +75,9 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
 import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
 
 // @TODO - all these controls should not be imported !!!! ALEX !!!
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
@@ -91,6 +88,9 @@ import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryC
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.extras.controls.IPasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyResponse;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
