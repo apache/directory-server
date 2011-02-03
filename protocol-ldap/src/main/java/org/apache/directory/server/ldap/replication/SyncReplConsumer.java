@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDe
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -76,6 +75,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.message.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.model.message.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.model.message.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.model.message.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.model.message.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.SynchronizationModeEnum;
@@ -350,11 +350,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControls().get( ISyncModifyDn.OID );
+                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDn.OID );
                     //Apache Directory Server's special control
                     SyncModifyDnDecorator syncModDnControl = 
                         new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
-                    syncModDnControl.setDecorated( ( ISyncModifyDn ) adsModDnControl );
+                    syncModDnControl.setDecorated( ( SyncModifyDn ) adsModDnControl );
                     applyModDnOperation( syncModDnControl );
                     break;
 
@@ -743,7 +743,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    private void applyModDnOperation( ISyncModifyDn modDnControl ) throws Exception
+    private void applyModDnOperation( SyncModifyDn modDnControl ) throws Exception
     {
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 
