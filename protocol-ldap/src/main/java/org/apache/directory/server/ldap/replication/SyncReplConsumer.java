@@ -39,7 +39,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
+import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;

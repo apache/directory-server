@@ -73,8 +73,8 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.ICodecControl;
-import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
+import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
+import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
 
 // @TODO - all these controls should not be imported !!!! ALEX !!!
@@ -91,10 +91,10 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
