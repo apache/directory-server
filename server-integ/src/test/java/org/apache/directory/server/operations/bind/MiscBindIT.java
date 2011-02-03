@@ -67,7 +67,8 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.Control;
-import org.apache.directory.shared.ldap.model.message.controls.BasicControl;
+import org.apache.directory.shared.ldap.model.message.controls.AbstractControl;
+import org.apache.directory.shared.ldap.model.message.controls.OpaqueControlImpl;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -354,7 +355,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        Control unsupported = new BasicControl( "1.1.1.1" );
+        Control unsupported = new OpaqueControlImpl( "1.1.1.1" );
         unsupported.setCritical( true );
         
         ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
