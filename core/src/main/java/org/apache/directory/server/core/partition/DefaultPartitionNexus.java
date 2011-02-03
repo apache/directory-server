@@ -59,7 +59,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
@@ -179,7 +179,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             Cascade.OID, PagedResults.OID,
             // Replication controls
             SyncDoneValue.OID, SyncInfoValue.OID, SyncRequestValue.OID,
-            ISyncStateValue.OID );
+            SyncStateValue.OID );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
