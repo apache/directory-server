@@ -238,7 +238,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
-        ICodecControl<? extends Control> ctrl = codec.decorate( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
+        ICodecControl<? extends Control> ctrl = codec.newControl( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
 
         if ( ctrl == null )
         {

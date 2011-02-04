@@ -537,7 +537,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         PSearchListener( PersistentSearch persistentSearch )
         {
             ICodecControl<? extends Control> wrapped = 
-                ldapServer.getDirectoryService().getLdapCodecService().decorate( persistentSearch );
+                ldapServer.getDirectoryService().getLdapCodecService().newControl( persistentSearch );
             this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
         }
 
