@@ -37,7 +37,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.LdapCodecService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -112,7 +112,7 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * @return The LDAP codec service.
      */
-    ILdapCodecService getLdapCodecService();
+    LdapCodecService getLdapCodecService();
     
 
     /**

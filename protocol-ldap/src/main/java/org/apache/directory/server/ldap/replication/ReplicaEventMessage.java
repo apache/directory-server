@@ -30,7 +30,7 @@ import java.util.Iterator;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.LdapCodecService;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -62,7 +62,7 @@ public class ReplicaEventMessage implements Externalizable
 
     private static SchemaManager schemaManager;
     
-    private transient ILdapCodecService codec;
+    private transient LdapCodecService codec;
 
 
     public ReplicaEventMessage()

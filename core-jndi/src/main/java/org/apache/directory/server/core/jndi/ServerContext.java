@@ -72,7 +72,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.ldap.codec.ICodecControl;
+import org.apache.directory.shared.ldap.codec.CodecControl;
 import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 
@@ -379,7 +379,7 @@ public abstract class ServerContext implements EventContext
         Control jndiControl ) throws DecoderException
     {
         String controlIDStr = jndiControl.getID();
-        ICodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
+        CodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
 
         ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
 

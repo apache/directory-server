@@ -43,8 +43,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.ICodecControl;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
+import org.apache.directory.shared.ldap.codec.CodecControl;
+import org.apache.directory.shared.ldap.codec.LdapCodecService;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
@@ -77,7 +77,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
-    private static final ILdapCodecService codec = new DefaultLdapCodecService();
+    private static final LdapCodecService codec = new DefaultLdapCodecService();
     
     private static final PasswordPolicyDecorator PP_REQ_CTRL = 
         new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
@@ -238,7 +238,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
-        ICodecControl<? extends Control> ctrl = codec.newControl( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
+        CodecControl<? extends Control> ctrl = codec.newControl( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
 
         if ( ctrl == null )
         {
