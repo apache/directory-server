@@ -155,63 +155,59 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAnonymous() throws Exception
     {
-        for ( int i = 0; i < 5; i++ )
-        {
-            //System.out.println( "------------------Create connection" + i + "-------------" );
-            LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            //System.out.println( "------------------Bind" + i + "-------------" );
+        //System.out.println( "------------------Create connection" + i + "-------------" );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        //System.out.println( "------------------Bind" + i + "-------------" );
 
-            // Try with no parameters
-            BindResponse bindResponse = connection.bind();
+        // Try with no parameters
+        BindResponse bindResponse = connection.bind();
 
-            assertNotNull( bindResponse );
-            assertNotNull( bindResponse.getLdapResult() );
-            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-            assertEquals( 1, bindResponse.getMessageId() );
-            assertTrue( connection.isAuthenticated() );
+        assertNotNull( bindResponse );
+        assertNotNull( bindResponse.getLdapResult() );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertEquals( 1, bindResponse.getMessageId() );
+        assertTrue( connection.isAuthenticated() );
 
-            //System.out.println( "----------------Unbind" + i + "-------------" );
-            connection.unBind();
-            assertFalse( connection.isConnected() );
-            connection.close();
+        //System.out.println( "----------------Unbind" + i + "-------------" );
+        connection.unBind();
+        assertFalse( connection.isConnected() );
+        connection.close();
 
-            // Try with empty strings
-            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            bindResponse = connection.bind( "", "" );
+        // Try with empty strings
+        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        bindResponse = connection.bind( "", "" );
 
-            assertNotNull( bindResponse );
-            assertNotNull( bindResponse.getLdapResult() );
-            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-            assertEquals( 1, bindResponse.getMessageId() );
-            assertTrue( connection.isAuthenticated() );
+        assertNotNull( bindResponse );
+        assertNotNull( bindResponse.getLdapResult() );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertEquals( 1, bindResponse.getMessageId() );
+        assertTrue( connection.isAuthenticated() );
 
-            connection.unBind();
-            assertFalse( connection.isConnected() );
-            connection.close();
+        connection.unBind();
+        assertFalse( connection.isConnected() );
+        connection.close();
 
-            // Try with null parameters
-            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            bindResponse = connection.bind( ( String ) null, ( String ) null );
+        // Try with null parameters
+        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        bindResponse = connection.bind( ( String ) null, ( String ) null );
 
-            assertNotNull( bindResponse );
-            assertNotNull( bindResponse.getLdapResult() );
-            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-            assertEquals( 1, bindResponse.getMessageId() );
-            assertTrue( connection.isAuthenticated() );
-            assertTrue( connection.isConnected() );
+        assertNotNull( bindResponse );
+        assertNotNull( bindResponse.getLdapResult() );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertEquals( 1, bindResponse.getMessageId() );
+        assertTrue( connection.isAuthenticated() );
+        assertTrue( connection.isConnected() );
 
-            connection.unBind();
-            assertFalse( connection.isConnected() );
-            connection.close();
+        connection.unBind();
+        assertFalse( connection.isConnected() );
+        connection.close();
 
-            connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-            //System.out.println( "----------------Unbind done" + i + "-------------" );
-            assertFalse( connection.isConnected() );
-            connection.close();
-            //System.out.println( "----------------Unconnected" + i + "-------------" );
-
-        }
+        //System.out.println( "----------------Unbind done" + i + "-------------" );
+        assertFalse( connection.isConnected() );
+        connection.close();
+        //System.out.println( "----------------Unconnected" + i + "-------------" );
     }
 
 
