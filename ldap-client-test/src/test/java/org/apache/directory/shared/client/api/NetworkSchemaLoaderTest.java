@@ -23,7 +23,6 @@ package org.apache.directory.shared.client.api;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NetworkSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -33,6 +32,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.exception.Exceptions;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,12 +47,26 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
 {
+    private LdapNetworkConnection connection;
+
+
+    @Before
+    public void setup() throws Exception
+    {
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
+    }
+
+
+    @After
+    public void shutdown() throws Exception
+    {
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
+    }
+
+
     @Test
     public void testNetworkSchemaLoader() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        connection.bind( "uid=admin,ou=system", "secret" );
-
         NetworkSchemaLoader loader = new NetworkSchemaLoader( connection );
 
         SchemaManager sm = new DefaultSchemaManager( loader );
@@ -64,8 +79,6 @@ public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
         }
 
         assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
-
-        connection.close();
     }
 
 }

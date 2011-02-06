@@ -99,6 +99,7 @@
               </includes>
               <excludes>
                 <exclude>**/*Test.java</exclude>
+                <exclude>**/*ISuite.java</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -116,10 +117,14 @@
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+              <includes>
+                <include>**/*ISuite.java</include>
+              </includes>
               <excludes>
                 <exclude>**/Abstract*</exclude>
                 <exclude>**/*RegressionTest*</exclude>
                 <exclude>**/TestClientApiPerf.java</exclude>
+                <exclude>**/*Test.java</exclude>
               </excludes>
             </configuration>
           </plugin>

@@ -84,18 +84,11 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
      * Close the LdapConnection
      */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
+        if ( connection != null )
         {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
+            connection.close();
         }
     }
 
@@ -133,18 +126,11 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );
 
-            try
-            {
-                BindResponse bindResponse = bindFuture.get( 1000, TimeUnit.MILLISECONDS );
+            BindResponse bindResponse = bindFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-                assertNotNull( bindResponse );
-                assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-                assertTrue( connection.isAuthenticated() );
-            }
-            catch ( TimeoutException toe )
-            {
-                fail();
-            }
+            assertNotNull( bindResponse );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+            assertTrue( connection.isAuthenticated() );
         }
     }
 
@@ -366,18 +352,11 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
 
             // Now get back the BindResponse
-            try
-            {
-                BindResponse bindResponse = bindFuture.get( 2000, TimeUnit.MILLISECONDS );
+            BindResponse bindResponse = bindFuture.get( 2000, TimeUnit.MILLISECONDS );
 
-                assertNotNull( bindResponse );
-                assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-                assertTrue( connection.isAuthenticated() );
-            }
-            catch ( TimeoutException toe )
-            {
-                fail();
-            }
+            assertNotNull( bindResponse );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+            assertTrue( connection.isAuthenticated() );
         }
         finally
         {

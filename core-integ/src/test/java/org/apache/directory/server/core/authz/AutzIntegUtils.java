@@ -69,12 +69,6 @@ public class AutzIntegUtils
     }
 
 
-    public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
-    {
-        return IntegrationUtils.getNetworkConnectionAs( host, port, dn, password );
-    }
-
-
     /**
      * Creates a group using the groupOfUniqueNames objectClass under the
      * ou=groups,ou=sytem container with an initial member.

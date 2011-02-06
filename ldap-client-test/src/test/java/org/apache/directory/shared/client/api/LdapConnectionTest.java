@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,7 +41,6 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
@@ -69,24 +67,20 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
-    private static LdapConnection connection;
+    private LdapNetworkConnection connection;
 
 
     @Before
-    public void bindConnection() throws Exception
+    public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        connection.bind( ADMIN_DN, "secret" );
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
     }
 
 
     @After
-    public void unbindConnection() throws Exception
+    public void shutdown() throws Exception
     {
-        if ( connection != null )
-        {
-            connection.close();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
@@ -107,23 +101,11 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 
             //connection.unBind();
         }
-        catch ( LdapException le )
-        {
-            fail();
-        }
-        catch ( IOException ioe )
-        {
-            fail();
-        }
         finally
         {
-            try
+            if ( connection != null )
             {
                 connection.close();
-            }
-            catch ( IOException ioe )
-            {
-                fail();
             }
         }
     }
@@ -233,10 +215,10 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testAnonBind() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapNetworkConnection conn = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         
-        BindResponse resp = connection.bind();
+        BindResponse resp = conn.bind();
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
-        connection.close();
+        conn.close();
     }
 }

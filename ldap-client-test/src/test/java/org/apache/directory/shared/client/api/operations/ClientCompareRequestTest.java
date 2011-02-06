@@ -23,12 +23,9 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -36,6 +33,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.CompareRequestImpl;
@@ -58,39 +56,22 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientCompareRequestTest extends AbstractLdapTestUnit
 {
-    private LdapAsyncConnection connection;
-
+    private LdapNetworkConnection connection;
     private CoreSession session;
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        Dn bindDn = new Dn( "uid=admin,ou=system" );
-        connection.bind( bindDn.getName(), "secret" );
-
-        session = ldapServer.getDirectoryService().getSession();
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
+        session = ldapServer.getDirectoryService().getAdminSession();
     }
 
 
-    /**
-     * Close the LdapConnection
-     */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
-        {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
@@ -125,16 +106,9 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
 
         CompareFuture compareFuture = connection.compareAsync( compareRequest );
 
-        try
-        {
-            CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
+        CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-            assertNotNull( compareResponse );
-            assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );
-        }
-        catch ( TimeoutException toe )
-        {
-            fail();
-        }
+        assertNotNull( compareResponse );
+        assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );
     }
 }

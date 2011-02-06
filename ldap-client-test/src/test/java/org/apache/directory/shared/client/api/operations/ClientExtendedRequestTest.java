@@ -23,27 +23,23 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.naming.ldap.StartTlsRequest;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ExtendedFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,69 +57,61 @@ import org.junit.runner.RunWith;
     { StartTlsHandler.class })
 public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 {
-    private LdapAsyncConnection connection;
-    private CoreSession session;
+    private LdapNetworkConnection connection;
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        Dn bindDn = new Dn( "uid=admin,ou=system" );
-        connection.bind( bindDn.getName(), "secret" );
-
-        session = ldapServer.getDirectoryService().getSession();
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
     }
 
 
-    /**
-     * Close the LdapConnection
-     */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
-        {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
     @Test
     public void testExtended() throws Exception
     {
-        ExtendedResponse response = connection.extended( StartTlsRequest.OID );
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        try
+        {
+            ExtendedResponse response = connection.extended( StartTlsRequest.OID );
+            assertNotNull( response );
+            assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        }
+        finally
+        {
+            // close connection to stop TLS
+            connection.close();
+        }
     }
 
 
     @Test
     public void testExtendedAsync() throws Exception
     {
-        ExtendedRequest extendedRequest = new ExtendedRequestImpl();
-        extendedRequest.setRequestName( StartTlsRequest.OID );
-
-        ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );
-
         try
         {
-            ExtendedResponse extendedResponse = (ExtendedResponse) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
+            ExtendedRequest extendedRequest = new ExtendedRequestImpl();
+            extendedRequest.setRequestName( StartTlsRequest.OID );
+
+            ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );
+
+            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
 
             assertNotNull( extendedResponse );
             assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
             assertTrue( connection.isAuthenticated() );
         }
-        catch ( TimeoutException toe )
+        finally
         {
-            fail();
+            // close connection to stop TLS
+            connection.close();
         }
+
     }
 }
