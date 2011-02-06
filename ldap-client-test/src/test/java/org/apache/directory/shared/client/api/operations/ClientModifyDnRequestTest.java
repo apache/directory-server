@@ -24,12 +24,9 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyDnFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -38,6 +35,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequestImpl;
@@ -62,51 +60,32 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 {
-    private LdapAsyncConnection connection;
-
+    private static final String DN = "cn=modDn,ou=system";
+    private LdapNetworkConnection connection;
     private CoreSession session;
-
-    private String dn = "cn=modDn,ou=system";
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-
-        Dn bindDn = new Dn( "uid=admin,ou=system" );
-        connection.bind( bindDn.getName(), "secret" );
-
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
         session = ldapServer.getDirectoryService().getAdminSession();
     }
 
 
-    /**
-     * Close the LdapConnection
-     */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
-        {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
     @Test
     public void testRename() throws Exception
     {
-        ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString" );
+        ModifyDnResponse resp = connection.rename( DN, "cn=modifyDnWithString" );
         assertNotNull( resp );
-        assertFalse( session.exists( new Dn( dn ) ) );
+        assertFalse( session.exists( new Dn( DN ) ) );
         assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
     }
 
@@ -114,10 +93,10 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testRenameWithoutDeleteOldRdn() throws Exception
     {
-        ModifyDnResponse resp = connection.rename( dn, "cn=modifyDnWithString", false );
+        ModifyDnResponse resp = connection.rename( DN, "cn=modifyDnWithString", false );
         assertNotNull( resp );
 
-        Dn oldDn = new Dn( dn );
+        Dn oldDn = new Dn( DN );
         assertFalse( session.exists( oldDn ) );
 
         Entry entry = session.lookup( new Dn( "cn=modifyDnWithString,ou=system" ) );
@@ -131,10 +110,10 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testMove() throws Exception
     {
-        ModifyDnResponse resp = connection.move( dn, "ou=users,ou=system" );
+        ModifyDnResponse resp = connection.move( DN, "ou=users,ou=system" );
         assertNotNull( resp );
 
-        Dn oldDn = new Dn( dn );
+        Dn oldDn = new Dn( DN );
         assertFalse( session.exists( oldDn ) );
 
         assertTrue( session.exists( new Dn( "cn=modDn,ou=users,ou=system" ) ) );
@@ -144,7 +123,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testModifyDnAsync() throws Exception
     {
-        Dn oldDn = new Dn( dn );
+        Dn oldDn = new Dn( DN );
         Dn newDn = new Dn( "cn=modifyDnWithString,ou=system" );
 
         ModifyDnRequest modDnReq = new ModifyDnRequestImpl();
@@ -154,20 +133,13 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 
         ModifyDnFuture modifyDnFuture = connection.modifyDnAsync( modDnReq );
 
-        try
-        {
-            ModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
+        ModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-            assertNotNull( response );
+        assertNotNull( response );
 
-            assertTrue( connection.isAuthenticated() );
-            assertFalse( session.exists( oldDn ) );
-            assertTrue( session.exists( newDn ) );
-        }
-        catch ( TimeoutException toe )
-        {
-            fail();
-        }
+        assertTrue( connection.isAuthenticated() );
+        assertFalse( session.exists( oldDn ) );
+        assertTrue( session.exists( newDn ) );
 
         assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
     }

@@ -30,7 +30,6 @@ import static org.junit.Assert.fail;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -41,6 +40,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
@@ -85,39 +85,21 @@ import org.junit.runner.RunWith;
 public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
-
     private CoreSession session;
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-
-        Dn bindDn = new Dn( "uid=admin,ou=system" );
-        connection.bind( bindDn.getName(), "secret" );
-
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
         session = ldapServer.getDirectoryService().getAdminSession();
     }
 
 
-    /**
-     * Close the LdapConnection
-     */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
-        {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
@@ -239,18 +221,11 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );
 
-        try
-        {
-            DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
+        DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-            assertNotNull( deleteResponse );
-            assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
-            assertTrue( connection.isAuthenticated() );
-            assertFalse( session.exists( dn ) );
-        }
-        catch ( TimeoutException toe )
-        {
-            fail();
-        }
+        assertNotNull( deleteResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+        assertFalse( session.exists( dn ) );
     }
 }

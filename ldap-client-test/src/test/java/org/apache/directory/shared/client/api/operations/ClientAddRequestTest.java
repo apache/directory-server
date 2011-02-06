@@ -24,13 +24,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -39,6 +36,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -66,38 +64,22 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientAddRequestTest extends AbstractLdapTestUnit
 {
-    private LdapAsyncConnection connection;
+    private LdapNetworkConnection connection;
     private CoreSession session;
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        Dn bindDn = new Dn( "uid=admin,ou=system" );
-        connection.bind( bindDn.getName(), "secret" );
-
-        session = ldapServer.getDirectoryService().getSession();
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
+        session = ldapServer.getDirectoryService().getAdminSession();
     }
 
 
-    /**
-     * Close the LdapConnection
-     */
     @After
-    public void shutdown()
+    public void shutdown() throws Exception
     {
-        try
-        {
-            if ( connection != null )
-            {
-                connection.close();
-            }
-        }
-        catch ( Exception ioe )
-        {
-            fail();
-        }
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
     }
 
 
@@ -135,19 +117,12 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         AddFuture addFuture = connection.addAsync( addRequest );
 
-        try
-        {
-            AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
+        AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-            assertNotNull( addResponse );
-            assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
-            assertTrue( connection.isAuthenticated() );
-            assertTrue( session.exists( dn ) );
-        }
-        catch ( TimeoutException toe )
-        {
-            fail();
-        }
+        assertNotNull( addResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+        assertTrue( session.exists( dn ) );
     }
 
 

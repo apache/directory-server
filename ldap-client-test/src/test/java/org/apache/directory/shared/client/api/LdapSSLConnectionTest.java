@@ -22,7 +22,6 @@ package org.apache.directory.shared.client.api;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -115,14 +114,12 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
             assertNotNull( bindResponse );
         }
-        catch ( Exception le )
-        {
-            le.printStackTrace();
-            fail();
-        }
         finally
         {
-            connection.close();
+            if ( connection != null )
+            {
+                connection.close();
+            }
         }
     }
 
@@ -163,13 +160,12 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
             connection.unBind();
         }
-        catch ( Exception le )
-        {
-            fail();
-        }
         finally
         {
-            connection.close();
+            if ( connection != null )
+            {
+                connection.close();
+            }
         }
     }
 
