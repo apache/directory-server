@@ -21,8 +21,8 @@
 package org.apache.directory.server.core.authn.ppolicy;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
 import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
@@ -65,6 +65,8 @@ import org.junit.runner.RunWith;
 
 /**
  * Test cases for testing PasswordPolicy implementation.
+ * TODO: currently ignored in MigratedStockCoreSuite
+ * TODO: check if non-network connection can be used for tests
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -120,7 +122,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithClearTextPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminConnection( service );
         
         Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
@@ -146,7 +148,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
+        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -155,7 +157,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminConnection( service );
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
@@ -187,7 +189,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
+        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -198,7 +200,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMinAge( 5 );
 
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminConnection( service );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = LdifUtils.createEntry(userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
@@ -230,7 +232,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
+        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "123456" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
