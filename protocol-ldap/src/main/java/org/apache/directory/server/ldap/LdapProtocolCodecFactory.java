@@ -20,9 +20,9 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.ldap.client.api.protocol.LdapProtocolEncoder;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.protocol.mina.LdapProtocolEncoder;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
