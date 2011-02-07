@@ -45,7 +45,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.model.message.Control;
