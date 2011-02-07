@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.hostAddresses.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -35,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to add an HostAddresses object
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddHostAddress extends GrammarAction
+public class AddHostAddress extends GrammarAction<HostAddressesContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( AddHostAddress.class );
@@ -59,10 +58,8 @@ public class AddHostAddress extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( HostAddressesContainer hostAddressesContainer ) throws DecoderException
     {
-        HostAddressesContainer hostAddressesContainer = ( HostAddressesContainer ) container;
-
         TLV tlv = hostAddressesContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -73,43 +70,43 @@ public class AddHostAddress extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
+
         // Now, let's decode the HostAddress
         Asn1Decoder hostAddressDecoder = new Asn1Decoder();
-        
+
         HostAddressContainer hostAddressContainer = new HostAddressContainer();
-        hostAddressContainer.setStream( container.getStream() );
-        
-        // Compute the start position in the stream for the HostAdress to decode : 
+        hostAddressContainer.setStream( hostAddressesContainer.getStream() );
+
+        // Compute the start position in the stream for the HostAdress to decode :
         // We have to move back to the HostAddress tag
-        container.rewind();
+        hostAddressesContainer.rewind();
 
         // Decode the HostAddress PDU
         try
         {
-            hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
+            hostAddressDecoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
-        
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        hostAddressesContainer.updateParent();
 
         // Store the hostAddress in the container
         HostAddress hostAddress = hostAddressContainer.getHostAddress();
         hostAddressesContainer.addHostAddress( hostAddress );
-        
+
 
         if ( IS_DEBUG )
         {
             LOG.debug( "HostAddress added : {}", hostAddress );
         }
-        
-        container.setGrammarEndAllowed( true );
+
+        hostAddressesContainer.setGrammarEndAllowed( true );
     }
 }

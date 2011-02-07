@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.EncKdcRepPart.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.i18n.I18n;
@@ -33,10 +32,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to initialize the EncKdcRepPart object
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncKdcRepPartInit extends GrammarAction
+public class EncKdcRepPartInit extends GrammarAction<EncKdcRepPartContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( EncKdcRepPart.class );
@@ -57,10 +56,8 @@ public class EncKdcRepPartInit extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( EncKdcRepPartContainer encKdcRepPartContainer ) throws DecoderException
     {
-        EncKdcRepPartContainer encKdcRepPartContainer = ( EncKdcRepPartContainer ) container;
-
         TLV tlv = encKdcRepPartContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -71,10 +68,10 @@ public class EncKdcRepPartInit extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
+
         EncKdcRepPart encKdcRepPart = new EncKdcRepPart();
         encKdcRepPartContainer.setEncKdcRepPart( encKdcRepPart );
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "EncKdcRepPart created" );

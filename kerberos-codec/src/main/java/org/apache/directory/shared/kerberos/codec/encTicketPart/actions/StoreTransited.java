@@ -21,7 +21,6 @@
 package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreTransited extends GrammarAction
+public class StoreTransited extends GrammarAction<EncTicketPartContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreTransited.class );
@@ -45,7 +44,7 @@ public class StoreTransited extends GrammarAction
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    
+
     /**
      * Creates a new instance of StoreTransited.
      */
@@ -53,16 +52,14 @@ public class StoreTransited extends GrammarAction
     {
         super( "EncTicketPart transited");
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( EncTicketPartContainer encTicketPartContainer ) throws DecoderException
     {
-        EncTicketPartContainer encTicketPartContainer = ( EncTicketPartContainer ) container;
-        
-        TLV tlv = container.getCurrentTLV();
+        TLV tlv = encTicketPartContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -77,10 +74,10 @@ public class StoreTransited extends GrammarAction
 
         // Now, let's decode the TransitedEncoding
         Asn1Decoder transitedEncodingDecoder = new Asn1Decoder();
-        
+
         try
         {
-            transitedEncodingDecoder.decode( container.getStream(), transitedContainer );
+            transitedEncodingDecoder.decode( encTicketPartContainer.getStream(), transitedContainer );
         }
         catch ( DecoderException de )
         {
@@ -88,18 +85,18 @@ public class StoreTransited extends GrammarAction
         }
 
         TransitedEncoding te = transitedContainer.getTransitedEncoding();
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "TransitedEncoding {}", te );
         }
-        
+
         encTicketPartContainer.getEncTicketPart().setTransited( te );
-        
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        encTicketPartContainer.updateParent();
     }
 }

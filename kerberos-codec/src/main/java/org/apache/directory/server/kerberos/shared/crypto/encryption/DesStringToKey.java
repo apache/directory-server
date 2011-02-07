@@ -6,21 +6,20 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -31,12 +30,14 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * An implementation of the DES string-to-key function as originally described
  * in RFC 1510, "The Kerberos Network Authentication Service (V5)," and clarified
  * in RFC 3961, "Encryption and Checksum Specifications for Kerberos 5."
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DesStringToKey
@@ -288,7 +289,7 @@ public class DesStringToKey
     /**
      * If the secret key is weak, correct by exclusive OR'ing
      * with the constant 0xF0.
-     * 
+     *
      * @param secretKey The key to correct, if necessary.
      * @return The corrected key.
      */
@@ -316,20 +317,11 @@ public class DesStringToKey
      * @param string The String to encode.
      * @return The encoded String.
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     protected byte[] characterEncodeString( String string )
     {
         byte encodedByteArray[] = new byte[string.length()];
 
-        try
-        {
-            encodedByteArray = string.getBytes( "UTF-8" );
-        }
-        catch ( UnsupportedEncodingException ue )
-        {
-            // Shouldn't ever happen for UTF-8.
-        }
+        encodedByteArray = Strings.getBytesUtf8( string );
 
         return encodedByteArray;
     }

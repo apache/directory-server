@@ -21,6 +21,8 @@
 package org.apache.directory.shared.kerberos.codec;
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -45,15 +47,14 @@ import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
  * Test cases for KrbCredInfo codec.
- * 
+ *
  * This test class assumes that the encoding of KrbCredInfo class is correct and highly relies on its functionality
  * to generate test PDUs instead of generating them by hand. Also note that the accuracy of this test case depends on
- * the accuracy of the encoding done by the components constituted in KrbCredInfo ASN.1 structure 
+ * the accuracy of the encoding done by the components constituted in KrbCredInfo ASN.1 structure
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -140,11 +141,12 @@ public class KrbCredInfoDecoderTest
     public void testKrbCredInfo() throws Exception
     {
         // algorithm:
-        // start from the first mandatory element and then add one of the subsequent OPTIONAL elements(in order) then 
+        // start from the first mandatory element and then add one of the subsequent OPTIONAL elements(in order) then
         // start adding/removing subsequent OPTIONAL elements(those which fall after the above OPTIONAL element)
         // one by one and then test decoding
 
         int size = optionalFieldValueList.size();
+
         for ( int i = 0; i < size; i++ )
         {
             KrbCredInfo expected = new KrbCredInfo();
@@ -242,13 +244,14 @@ public class KrbCredInfoDecoderTest
     /**
      * compare the values that are inserted into the KrbCredInfo objects before encoding to
      * those that are obtained from decoded KrbCredInfo
-     * 
+     *
      * @param presentFieldList the list of values that were inserted in the KrbCredInfo class before encoding
-     * @param decoded the decoded KrbCredInfo object 
+     * @param decoded the decoded KrbCredInfo object
      */
     private void assertValues( List<FieldValueHolder> presentFieldList, KrbCredInfo decoded ) throws Exception
     {
         Map<String, Field> krbCredInfoFieldNameMap = getFieldMap( decoded );
+
         for ( FieldValueHolder fh : presentFieldList )
         {
             Field actualField = krbCredInfoFieldNameMap.get( fh.fieldName.toLowerCase() );
@@ -263,7 +266,7 @@ public class KrbCredInfoDecoderTest
 
     /**
      * create a map with the field's name and field objects of the KrbCreInfo
-     * 
+     *
      * @param source the KrbCredInfo object
      */
     private Map<String, Field> getFieldMap( KrbCredInfo source )

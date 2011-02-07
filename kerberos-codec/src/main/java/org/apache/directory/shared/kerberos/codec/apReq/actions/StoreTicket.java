@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.apReq.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -36,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to store the Ticket
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreTicket extends GrammarAction
+public class StoreTicket extends GrammarAction<ApReqContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreTicket.class );
@@ -59,14 +58,12 @@ public class StoreTicket extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( ApReqContainer apReqContainer ) throws DecoderException
     {
-        ApReqContainer apReqContainer = ( ApReqContainer ) container;
-
         TLV tlv = apReqContainer.getCurrentTLV();
 
         // The Length can't be null
-        if ( tlv.getLength() == 0 ) 
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -76,30 +73,30 @@ public class StoreTicket extends GrammarAction
 
         // Now, let's decode the Ticket
         Asn1Decoder ticketDecoder = new Asn1Decoder();
-        
-        TicketContainer ticketContainer = new TicketContainer( container.getStream() );
+
+        TicketContainer ticketContainer = new TicketContainer( apReqContainer.getStream() );
 
         // Decode the Ticket PDU
         try
         {
-            ticketDecoder.decode( container.getStream(), ticketContainer );
+            ticketDecoder.decode( apReqContainer.getStream(), ticketContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
-        
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        apReqContainer.updateParent();
 
         // Store the Ticket in the container
         Ticket ticket = ticketContainer.getTicket();
         ApReq apReq = apReqContainer.getApReq();
         apReq.setTicket( ticket );
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "Stored ticket:  {}", ticket );

@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.krbSafe.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -35,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to read the KrbSafeBody
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreSafeBody extends GrammarAction
+public class StoreSafeBody extends GrammarAction<KrbSafeContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreSafeBody.class );
@@ -59,10 +58,8 @@ public class StoreSafeBody extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( KrbSafeContainer krbSafeContainer ) throws DecoderException
     {
-        KrbSafeContainer krbSafeContainer = ( KrbSafeContainer ) container;
-        
         TLV tlv = krbSafeContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -73,19 +70,19 @@ public class StoreSafeBody extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
+
         // Now, let's decode the HostAddress
         Asn1Decoder krbSafeBodyDecoder = new Asn1Decoder();
-        
+
         KrbSafeBodyContainer krbSafeBodyContainer = new KrbSafeBodyContainer();
-        
+
         // Passes the Stream to the decoder
-        krbSafeBodyContainer.setStream( container.getStream() );
+        krbSafeBodyContainer.setStream( krbSafeContainer.getStream() );
 
         // Decode the KrbSafeBody PDU
         try
         {
-            krbSafeBodyDecoder.decode( container.getStream(), krbSafeBodyContainer );
+            krbSafeBodyDecoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
         }
         catch ( DecoderException de )
         {
@@ -99,14 +96,14 @@ public class StoreSafeBody extends GrammarAction
         {
             LOG.debug( "KrbSafeBody : {}", krbSafeBody );
         }
-        
+
         krbSafeContainer.getKrbSafe().setSafeBody( krbSafeBody );
-        
-        
+
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        krbSafeContainer.updateParent();
     }
 }
