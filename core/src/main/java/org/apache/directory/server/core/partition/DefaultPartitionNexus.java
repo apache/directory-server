@@ -57,17 +57,17 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
-import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
@@ -178,8 +178,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             EntryChange.OID, Subentries.OID, ManageDsaIT.OID,
             Cascade.OID, PagedResults.OID,
             // Replication controls
-            ISyncDoneValue.OID, ISyncInfoValue.OID, ISyncRequestValue.OID,
-            ISyncStateValue.OID );
+            SyncDoneValue.OID, SyncInfoValue.OID, SyncRequestValue.OID,
+            SyncStateValue.OID );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );

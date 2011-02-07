@@ -19,9 +19,7 @@
 package org.apache.directory.server.integ;
 
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.ldap.InitialLdapContext;
@@ -30,7 +28,6 @@ import javax.naming.ldap.LdapContext;
 import netscape.ldap.LDAPConnection;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -51,7 +48,6 @@ public class ServerIntegrationUtils extends IntegrationUtils
     private static final int DEFAULT_PORT = 10389;
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_PASSWORD = "secret";
-    private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
 
 
     /**
@@ -229,59 +225,4 @@ public class ServerIntegrationUtils extends IntegrationUtils
         return conn;
     }
 
-    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
-    {
-        LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
-
-        connection.bind( dn, password );
-        openConnections.add( connection );
-        return connection;
-    }
-
-
-    public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
-    {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-
-        connection.setTimeOut( 0 );
-        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-
-        openConnections.add( connection );
-
-        return connection;
-    }
-
-
-    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
-    {
-        return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
-    }
-
-
-    public static void closeConnections()
-    {
-
-        for( LdapConnection con : openConnections )
-        {
-            if( con == null )
-            {
-                continue;
-            }
-
-            try
-            {
-                if( con.isConnected() )
-                {
-                    con.close();
-                }
-            }
-            catch( Exception e )
-            {
-                // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
-                e.printStackTrace();
-            }
-        }
-
-        openConnections.clear();
-    }
 }

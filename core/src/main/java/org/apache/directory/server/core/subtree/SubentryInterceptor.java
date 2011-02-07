@@ -52,7 +52,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;

@@ -60,11 +60,11 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
-import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -85,13 +85,11 @@ import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
@@ -244,10 +242,10 @@ public class LdapServer extends DirectoryBackedService
         this.supportedControls.add( Cascade.OID );
         this.supportedControls.add( PagedResults.OID );
         // Replication controls
-        this.supportedControls.add( ISyncDoneValue.OID );
-        this.supportedControls.add( ISyncInfoValue.OID );
-        this.supportedControls.add( ISyncRequestValue.OID );
-        this.supportedControls.add( ISyncStateValue.OID );
+        this.supportedControls.add( SyncDoneValue.OID );
+        this.supportedControls.add( SyncInfoValue.OID );
+        this.supportedControls.add( SyncRequestValue.OID );
+        this.supportedControls.add( SyncStateValue.OID );
     }
 
 

@@ -50,10 +50,10 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.codec.ICodecControl;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.shared.ldap.codec.api.CodecControl;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -536,8 +536,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         PSearchListener( PersistentSearch persistentSearch )
         {
-            ICodecControl<? extends Control> wrapped = 
-                ldapServer.getDirectoryService().getLdapCodecService().decorate( persistentSearch );
+            CodecControl<? extends Control> wrapped = 
+                ldapServer.getDirectoryService().getLdapCodecService().newControl( persistentSearch );
             this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
         }
 
@@ -575,7 +575,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
-            ILdapCodecService codec = ldapServer.getDirectoryService().getLdapCodecService();
+            LdapCodecService codec = ldapServer.getDirectoryService().getLdapCodecService();
             persistentSearch.setCritical( true );
             persistentSearch.setValue( persistentSearch.getValue() );
 

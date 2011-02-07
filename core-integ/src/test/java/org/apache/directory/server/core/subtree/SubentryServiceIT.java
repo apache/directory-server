@@ -48,9 +48,9 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
-import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -1265,7 +1265,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries
         // except subentries disappear
-        ILdapCodecService codec = new DefaultLdapCodecService();
+        LdapCodecService codec = new DefaultLdapCodecService();
         SubentriesDecorator decorator = new SubentriesDecorator( codec );
         Subentries ctl = ( Subentries ) decorator.getDecorated();
         ctl.setVisibility( true );

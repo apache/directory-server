@@ -47,16 +47,16 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationInfoEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.extras.controls.SynchronizationInfoEnum;
+import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -215,8 +215,8 @@ public class SyncReplProvider implements ReplicationProvider
     {
         try
         {
-            ISyncRequestValue syncControl = ( ISyncRequestValue ) req.getControls().get(
-                ISyncRequestValue.OID );
+            SyncRequestValue syncControl = ( SyncRequestValue ) req.getControls().get(
+                SyncRequestValue.OID );
 
             // cookie is in the format <replicaId>;<Csn value>
             byte[] cookieBytes = syncControl.getCookie();
@@ -327,7 +327,7 @@ public class SyncReplProvider implements ReplicationProvider
         if ( refreshNPersist )
         {
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-            intermResp.setResponseName( ISyncInfoValue.OID );
+            intermResp.setResponseName( SyncInfoValue.OID );
 
             SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
                 .getLdapCodecService(),
@@ -343,7 +343,7 @@ public class SyncReplProvider implements ReplicationProvider
         {
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            ISyncDoneValue syncDone = new SyncDoneValueDecorator( 
+            SyncDoneValue syncDone = new SyncDoneValueDecorator( 
                 ldapServer.getDirectoryService().getLdapCodecService() );
             syncDone.setCookie( cookie );
             searchDoneResp.addControl( syncDone );
@@ -423,7 +423,7 @@ public class SyncReplProvider implements ReplicationProvider
                 cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-                intermResp.setResponseName( ISyncInfoValue.OID );
+                intermResp.setResponseName( SyncInfoValue.OID );
 
                 SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( 
                     ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
@@ -438,7 +438,7 @@ public class SyncReplProvider implements ReplicationProvider
             else
             {
                 // no need to send from the log, that will be done in the next refreshOnly session
-                ISyncDoneValue syncDone = new SyncDoneValueDecorator(
+                SyncDoneValue syncDone = new SyncDoneValueDecorator(
                     ldapServer.getDirectoryService().getLdapCodecService() );
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
@@ -1004,8 +1004,8 @@ public class SyncReplProvider implements ReplicationProvider
 
     private boolean isRefreshNPersist( SearchRequest req )
     {
-        ISyncRequestValue control = ( ISyncRequestValue ) req.getControls().get(
-            ISyncRequestValue.OID );
+        SyncRequestValue control = ( SyncRequestValue ) req.getControls().get(
+            SyncRequestValue.OID );
         return ( control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST ? true : false );
     }
 }

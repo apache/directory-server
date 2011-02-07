@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authn;
 
 
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 

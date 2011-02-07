@@ -21,7 +21,7 @@ package org.apache.directory.server.core.event;
 
 import java.util.ArrayList;
 
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 
 
 /**

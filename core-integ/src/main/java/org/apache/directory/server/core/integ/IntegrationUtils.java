@@ -21,6 +21,7 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -34,6 +35,7 @@ import javax.naming.ldap.LdapName;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -41,6 +43,7 @@ import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -67,6 +70,7 @@ public class IntegrationUtils
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
+    private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
 
     /**
      * Deletes the working directory.
@@ -382,8 +386,59 @@ public class IntegrationUtils
     }
 
 
+    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
+    {
+        LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
+
+        connection.bind( dn, password );
+        openConnections.add( connection );
+        return connection;
+    }
+
+
+    public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        connection.setTimeOut( 0 );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        openConnections.add( connection );
+
+        return connection;
+    }
+
+
+    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
+    {
+        return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
+    }
+
+
     public static void closeConnections()
     {
-        // TODO: is it necessary to close all opened CoreSession connections?
+
+        for( LdapConnection con : openConnections )
+        {
+            if( con == null )
+            {
+                continue;
+            }
+
+            try
+            {
+                if( con.isConnected() )
+                {
+                    con.close();
+                }
+            }
+            catch( Exception e )
+            {
+                // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
+                e.printStackTrace();
+            }
+        }
+
+        openConnections.clear();
     }
 }

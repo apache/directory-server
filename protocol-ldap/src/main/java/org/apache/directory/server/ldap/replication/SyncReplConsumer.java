@@ -39,17 +39,17 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
-import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
+import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
+import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
@@ -275,7 +275,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        ISyncDoneValue ctrl = (ISyncDoneValue)searchDone.getControls().get( ISyncDoneValue.OID );
+        SyncDoneValue ctrl = (SyncDoneValue)searchDone.getControls().get( SyncDoneValue.OID );
 
         if ( ctrl.getCookie() != null )
         {
@@ -350,11 +350,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControls().get( ISyncModifyDn.OID );
+                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDn.OID );
                     //Apache Directory Server's special control
                     SyncModifyDnDecorator syncModDnControl = 
                         new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
-                    syncModDnControl.setDecorated( ( ISyncModifyDn ) adsModDnControl );
+                    syncModDnControl.setDecorated( ( SyncModifyDn ) adsModDnControl );
                     applyModDnOperation( syncModDnControl );
                     break;
 
@@ -398,7 +398,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( directoryService.getLdapCodecService() );
             byte[] syncinfo = syncInfoResp.getResponseValue();
             decorator.setValue( syncinfo );
-            ISyncInfoValue syncInfoValue = decorator.getDecorated();
+            SyncInfoValue syncInfoValue = decorator.getDecorated();
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -743,7 +743,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    private void applyModDnOperation( ISyncModifyDn modDnControl ) throws Exception
+    private void applyModDnOperation( SyncModifyDn modDnControl ) throws Exception
     {
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 

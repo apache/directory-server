@@ -21,11 +21,11 @@
 package org.apache.directory.server.core.authn.ppolicy;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
-import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
-import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
+import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
+import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
+import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,12 +42,12 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.codec.DefaultLdapCodecService;
-import org.apache.directory.shared.ldap.codec.ICodecControl;
-import org.apache.directory.shared.ldap.codec.ILdapCodecService;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.codec.api.CodecControl;
+import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -65,8 +65,6 @@ import org.junit.runner.RunWith;
 
 /**
  * Test cases for testing PasswordPolicy implementation.
- * TODO: currently ignored in MigratedStockCoreSuite
- * TODO: check if non-network connection can be used for tests
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -79,10 +77,10 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
-    private static final ILdapCodecService codec = new DefaultLdapCodecService();
+    private static final LdapCodecService codec = new DefaultLdapCodecService();
     
     private static final PasswordPolicyDecorator PP_REQ_CTRL = 
-        new PasswordPolicyDecorator( codec, new PasswordPolicy() );
+        new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
 
 
     @Before
@@ -122,7 +120,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithClearTextPwd() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminNetworkConnection( ldapServer );
         
         Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
@@ -135,7 +133,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
-        IPasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
         assertNotNull( respCtrl );
         assertEquals( PASSWORD_TOO_SHORT, respCtrl.getResponse().getPasswordPolicyError() );
 
@@ -148,7 +146,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "12345" );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -157,7 +155,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
@@ -175,7 +173,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
-        IPasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
         assertNotNull( respCtrl );
         assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
 
@@ -189,7 +187,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "12345" );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -200,7 +198,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMinAge( 5 );
 
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminNetworkConnection( ldapServer );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = LdifUtils.createEntry(userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
@@ -213,7 +211,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         AddResponse addResp = connection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
-        IPasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
         ModifyRequest modReq = new ModifyRequestImpl();
@@ -232,15 +230,15 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        LdapConnection userConnection = getConnectionAs( service, userDn.getName(), "123456" );
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
 
 
-    private IPasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
+    private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
-        ICodecControl<? extends Control> ctrl = codec.decorate( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
+        CodecControl<? extends Control> ctrl = codec.newControl( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
 
         if ( ctrl == null )
         {

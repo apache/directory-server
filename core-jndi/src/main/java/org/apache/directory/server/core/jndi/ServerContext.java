@@ -72,29 +72,29 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.ldap.codec.ICodecControl;
-import org.apache.directory.shared.ldap.codec.controls.CascadeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
+import org.apache.directory.shared.ldap.codec.api.CodecControl;
+import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
+import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 
 // @TODO - all these controls should not be imported !!!! ALEX !!!
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyResponse;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.ISyncDoneValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.ISyncInfoValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.ISyncRequestValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.ISyncStateValue;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.ISyncModifyDn;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyResponseImpl;
+import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -181,14 +181,14 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
-        ADS_CONTROLS.put( IPasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( PasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
-        ADS_CONTROLS.put( ISyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
-        ADS_CONTROLS.put( ISyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
-        ADS_CONTROLS.put( ISyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
-        ADS_CONTROLS.put( ISyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
-        ADS_CONTROLS.put( ISyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
+        ADS_CONTROLS.put( SyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
+        ADS_CONTROLS.put( SyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
     }
     
 
@@ -379,7 +379,7 @@ public abstract class ServerContext implements EventContext
         Control jndiControl ) throws DecoderException
     {
         String controlIDStr = jndiControl.getID();
-        ICodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
+        CodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
 
         ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
 
@@ -409,12 +409,12 @@ public abstract class ServerContext implements EventContext
                 if ( isRequest )
                 {
                     control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(), 
-                        new PasswordPolicy() );
+                        new PasswordPolicyImpl() );
                 }
                 else
                 {
                     control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicy( new PasswordPolicyResponse() ) );
+                        new PasswordPolicyImpl( new PasswordPolicyResponseImpl() ) );
                 }
 
                 break;

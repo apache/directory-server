@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
-import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
+import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
+import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_EXPIRE_WARNING_AT;
@@ -82,9 +82,9 @@ import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.IPasswordPolicy;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.shared.ldap.codec.controls.ppolicy.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -347,7 +347,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( entry );
 
-        boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( IPasswordPolicy.OID );
+        boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( PasswordPolicy.OID );
 
         checkPwdReset( addContext );
 
@@ -511,7 +511,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
         
-        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( IPasswordPolicy.OID );
+        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
         Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
 
         PwdModDetailsHolder pwdModDetails = null;
@@ -879,7 +879,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return;
         }
 
-        boolean isPPolicyReqCtrlPresent = bindContext.hasRequestControl( IPasswordPolicy.OID );
+        boolean isPPolicyReqCtrlPresent = bindContext.hasRequestControl( PasswordPolicy.OID );
         PasswordPolicyDecorator pwdRespCtrl = 
             new PasswordPolicyDecorator( directoryService.getLdapCodecService() );
 
@@ -1385,7 +1385,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( pwdResetSet.contains( userDn ) )
             {
                 boolean isPPolicyReqCtrlPresent = opContext
-                    .hasRequestControl( IPasswordPolicy.OID );
+                    .hasRequestControl( PasswordPolicy.OID );
                 if ( isPPolicyReqCtrlPresent )
                 {
                     PasswordPolicyDecorator pwdRespCtrl = 
