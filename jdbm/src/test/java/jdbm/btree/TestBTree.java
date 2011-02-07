@@ -66,8 +66,8 @@ import jdbm.helper.StringComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
-import org.apache.directory.junit.tools.Concurrent;
-import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -80,7 +80,7 @@ import org.junit.runner.RunWith;
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
  */
 @RunWith(ConcurrentJunitRunner.class)
-@Concurrent()
+@Concurrency()
 public class TestBTree
 {
     @Rule

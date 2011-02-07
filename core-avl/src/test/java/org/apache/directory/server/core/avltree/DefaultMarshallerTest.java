@@ -21,8 +21,8 @@ package org.apache.directory.server.core.avltree;
 
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.directory.junit.tools.Concurrent;
-import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,7 +39,7 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(ConcurrentJunitRunner.class)
-@Concurrent()
+@Concurrency()
 public class DefaultMarshallerTest
 {
     DefaultMarshaller marshaller = DefaultMarshaller.INSTANCE;

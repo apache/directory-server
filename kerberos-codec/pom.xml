@@ -38,6 +38,12 @@
     </dependency>
     
     <dependency>
+      <groupId>com.mycila</groupId>
+      <artifactId>mycila-junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
     </dependency>

@@ -67,6 +67,7 @@
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
+    <mycila-junit.version>1.0.ga</mycila-junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.16</log4j.version>
     <maven.archiver.version>2.2</maven.archiver.version>
@@ -821,6 +822,12 @@
         <groupId>org.apache.directory.junit</groupId>
         <artifactId>junit-addons</artifactId>
         <version>${org.apache.directory.junit.junit-addons.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.mycila</groupId>
+        <artifactId>mycila-junit</artifactId>
+        <version>${mycila-junit.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->
