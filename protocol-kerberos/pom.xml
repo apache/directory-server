@@ -68,8 +68,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-model</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
     </dependency>
   </dependencies>
 

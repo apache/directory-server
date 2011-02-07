@@ -97,6 +97,16 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-codec</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-model</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
