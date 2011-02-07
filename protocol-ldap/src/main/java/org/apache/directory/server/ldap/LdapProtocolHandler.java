@@ -65,7 +65,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * Creates a new instance of LdapProtocolHandler.
      *
-     * @param ldapServer
+     * @param ldapServer The LDAP server instance
      */
     LdapProtocolHandler( LdapServer ldapServer )
     {
@@ -105,12 +105,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                     }
                     catch ( Exception e )
                     {
-                        if ( Strings.isEmpty(id) )
-                        {
-                            return false;
-                        }
-    
-                        return id.endsWith( ";binary" );
+                        return !Strings.isEmpty(id) && id.endsWith(";binary");
                     }
                 }
             } );
@@ -151,11 +146,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         LOG.debug( "Cleaning the {} session", ldapSession );
 
-        if ( ldapSession != null )
-        {
-            // Abandon all the requests
-            ldapSession.abandonAllOutstandingRequests();
-        }
+        // Abandon all the requests
+        ldapSession.abandonAllOutstandingRequests();
 
         if ( !ldapSession.getIoSession().isClosing() || ldapSession.getIoSession().isConnected() )
         {
