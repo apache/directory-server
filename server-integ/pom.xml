@@ -172,6 +172,20 @@
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+              <systemPropertyVariables>
+                <felix.cache.rootdir>
+                  ${project.build.directory}
+                </felix.cache.rootdir>
+                <felix.cache.locking>
+                  false
+                </felix.cache.locking>
+                <org.osgi.framework.storage.clean>
+                  onFirstInit
+                </org.osgi.framework.storage.clean>
+                <org.osgi.framework.storage>
+                  ${project.build.directory}/osgi-cache
+                </org.osgi.framework.storage>
+              </systemPropertyVariables>
               <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
               <includes>
                 <include>**/*ISuite.java</include>
@@ -212,6 +226,18 @@
               </includes>
               <systemPropertyVariables>
                 <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
+                <felix.cache.rootdir>
+                  ${project.build.directory}
+                </felix.cache.rootdir>
+                <felix.cache.locking>
+                  false
+                </felix.cache.locking>
+                <org.osgi.framework.storage.clean>
+                  onFirstInit
+                </org.osgi.framework.storage.clean>
+                <org.osgi.framework.storage>
+                  ${project.build.directory}/osgi-cache
+                </org.osgi.framework.storage>
               </systemPropertyVariables>              
             </configuration>
             <executions>
@@ -224,6 +250,18 @@
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
+	                <felix.cache.rootdir>
+	                  ${project.build.directory}
+	                </felix.cache.rootdir>
+	                <felix.cache.locking>
+	                  false
+	                </felix.cache.locking>
+	                <org.osgi.framework.storage.clean>
+	                  onFirstInit
+	                </org.osgi.framework.storage.clean>
+	                <org.osgi.framework.storage>
+	                  ${project.build.directory}/osgi-cache
+	                </org.osgi.framework.storage>
                   </systemPropertyVariables>
                 </configuration>
               </execution>
@@ -236,6 +274,18 @@
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
+	                <felix.cache.rootdir>
+	                  ${project.build.directory}
+	                </felix.cache.rootdir>
+	                <felix.cache.locking>
+	                  false
+	                </felix.cache.locking>
+	                <org.osgi.framework.storage.clean>
+	                  onFirstInit
+	                </org.osgi.framework.storage.clean>
+	                <org.osgi.framework.storage>
+	                  ${project.build.directory}/osgi-cache
+	                </org.osgi.framework.storage>
                   </systemPropertyVariables>
                 </configuration>
               </execution>
