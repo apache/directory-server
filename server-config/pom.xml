@@ -81,5 +81,10 @@
       <scope>test</scope>
     </dependency>
     
+    <dependency>
+      <groupId>com.mycila</groupId>
+      <artifactId>mycila-junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

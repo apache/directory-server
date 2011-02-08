@@ -23,8 +23,8 @@ package org.apache.directory.server.dhcp;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.junit.tools.Concurrent;
-import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.dhcp.io.DhcpMessageDecoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(ConcurrentJunitRunner.class)
-@Concurrent()
+@Concurrency()
 public class DhcpMessageDecoderTest extends AbstractDhcpTestCase
 {
     private ByteBuffer requestByteBuffer;

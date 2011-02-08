@@ -22,8 +22,8 @@ package org.apache.directory.server.core.authz.support;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.directory.junit.tools.Concurrent;
-import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
  *
  */
 @RunWith(ConcurrentJunitRunner.class)
-@Concurrent()
+@Concurrency()
 public class OperationScopeTest
 {
     @Test
