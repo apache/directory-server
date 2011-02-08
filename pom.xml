@@ -64,7 +64,7 @@
     <derby.version>10.7.1.1</derby.version>
     <dnsjava.version>2.1.0</dnsjava.version>
     <ehcache.version>2.3.2</ehcache.version>
-    <jetty.version>6.1.26</jetty.version>
+    <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
     <mycila-junit.version>1.0.ga</mycila-junit.version>

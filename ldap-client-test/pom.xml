@@ -111,6 +111,20 @@
                 <exclude>**/*Test.java</exclude>
                 <exclude>**/*ISuite.java</exclude>
               </excludes>
+	          <systemPropertyVariables>
+	            <felix.cache.rootdir>
+	              ${project.build.directory}
+	            </felix.cache.rootdir>
+	            <felix.cache.locking>
+	              false
+	            </felix.cache.locking>
+	            <org.osgi.framework.storage.clean>
+	              onFirstInit
+	            </org.osgi.framework.storage.clean>
+	            <org.osgi.framework.storage>
+	              ${project.build.directory}/osgi-cache
+	            </org.osgi.framework.storage>
+	          </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>
@@ -136,6 +150,20 @@
                 <exclude>**/TestClientApiPerf.java</exclude>
                 <exclude>**/*Test.java</exclude>
               </excludes>
+	          <systemPropertyVariables>
+	            <felix.cache.rootdir>
+	              ${project.build.directory}
+	            </felix.cache.rootdir>
+	            <felix.cache.locking>
+	              false
+	            </felix.cache.locking>
+	            <org.osgi.framework.storage.clean>
+	              onFirstInit
+	            </org.osgi.framework.storage.clean>
+	            <org.osgi.framework.storage>
+	              ${project.build.directory}/osgi-cache
+	            </org.osgi.framework.storage>
+	          </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>
