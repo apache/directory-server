@@ -51,7 +51,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
 
     /**
-     * Creates a new instance of PasswordHashingInterceptor which does not hash the passowrds.
+     * Creates a new instance of PasswordHashingInterceptor which does not hash the passwords.
      */
     public PasswordHashingInterceptor()
     {
