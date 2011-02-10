@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.extras.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownResponse;
-import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IoSession;
