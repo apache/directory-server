@@ -74,7 +74,8 @@ public final class KrbPrivGrammar extends AbstractGrammar<KrbPrivContainer>
         super.transitions[KrbPrivStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_PRIV_TAG] =
             new GrammarTransition<KrbPrivContainer>(
                 KrbPrivStatesEnum.START_STATE,
-                KrbPrivStatesEnum.KRB_PRIV_TAG_STATE, KerberosConstants.KRB_PRIV_TAG,
+                KrbPrivStatesEnum.KRB_PRIV_TAG_STATE,
+                KerberosConstants.KRB_PRIV_TAG,
                 new KrbPrivInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ public final class KrbPrivGrammar extends AbstractGrammar<KrbPrivContainer>
             new GrammarTransition<KrbPrivContainer>(
                 KrbPrivStatesEnum.KRB_PRIV_TAG_STATE,
                 KrbPrivStatesEnum.KRB_PRIV_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KrbPrivContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ public final class KrbPrivGrammar extends AbstractGrammar<KrbPrivContainer>
             new GrammarTransition<KrbPrivContainer>(
                 KrbPrivStatesEnum.KRB_PRIV_PVNO_TAG_STATE,
                 KrbPrivStatesEnum.KRB_PRIV_PVNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -131,7 +132,7 @@ public final class KrbPrivGrammar extends AbstractGrammar<KrbPrivContainer>
             new GrammarTransition<KrbPrivContainer>(
                 KrbPrivStatesEnum.KRB_PRIV_MSGTYPE_TAG_STATE,
                 KrbPrivStatesEnum.KRB_PRIV_MSGTYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------

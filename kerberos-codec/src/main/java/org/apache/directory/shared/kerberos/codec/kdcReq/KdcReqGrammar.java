@@ -75,7 +75,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.START_STATE,
                 KdcReqStatesEnum.KDC_REQ_PVNO_TAG_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KdcReqContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.KDC_REQ_PVNO_STATE,
                 KdcReqStatesEnum.KDC_REQ_MSG_TYPE_TAG_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.KDC_REQ_MSG_TYPE_STATE,
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_OR_REQ_BODY_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_TAG_STATE,
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KdcReqContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_SEQ_STATE,
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AddPaData() );
 
         // --------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ public final class KdcReqGrammar extends AbstractGrammar<KdcReqContainer>
             new GrammarTransition<KdcReqContainer>(
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_STATE,
                 KdcReqStatesEnum.KDC_REQ_PA_DATA_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AddPaData() );
 
         // --------------------------------------------------------------------------------------------

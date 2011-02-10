@@ -74,7 +74,7 @@ public final class LastReqGrammar extends AbstractGrammar<LastReqContainer>
             new GrammarTransition<LastReqContainer>(
                 LastReqStatesEnum.START_STATE,
                 LastReqStatesEnum.LAST_REQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new LastReqInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public final class LastReqGrammar extends AbstractGrammar<LastReqContainer>
             new GrammarTransition<LastReqContainer>(
                 LastReqStatesEnum.LAST_REQ_SEQ_STATE,
                 LastReqStatesEnum.LAST_REQ_SEQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<LastReqContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ public final class LastReqGrammar extends AbstractGrammar<LastReqContainer>
             new GrammarTransition<LastReqContainer>(
                 LastReqStatesEnum.LAST_REQ_LR_TYPE_TAG_STATE,
                 LastReqStatesEnum.LAST_REQ_LR_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreLrType() );
 
         // --------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ public final class LastReqGrammar extends AbstractGrammar<LastReqContainer>
             new GrammarTransition<LastReqContainer>(
                 LastReqStatesEnum.LAST_REQ_LR_VALUE_TAG_STATE,
                 LastReqStatesEnum.LAST_REQ_LR_VALUE_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreLrValue() );
 
         // --------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ public final class LastReqGrammar extends AbstractGrammar<LastReqContainer>
             new GrammarTransition<LastReqContainer>(
                 LastReqStatesEnum.LAST_REQ_LR_VALUE_STATE,
                 LastReqStatesEnum.LAST_REQ_SEQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<LastReqContainer>() );
     }
 

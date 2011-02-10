@@ -74,7 +74,7 @@ public final class HostAddressGrammar extends AbstractGrammar<HostAddressContain
             new GrammarTransition<HostAddressContainer>(
                 HostAddressStatesEnum.START_STATE,
                 HostAddressStatesEnum.HOST_ADDRESS_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new HostAddressInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class HostAddressGrammar extends AbstractGrammar<HostAddressContain
             new GrammarTransition<HostAddressContainer>(
                 HostAddressStatesEnum.HOST_ADDRESS_ADDR_TYPE_TAG_STATE,
                 HostAddressStatesEnum.HOST_ADDRESS_ADDR_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreAddrType() );
 
         // --------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public final class HostAddressGrammar extends AbstractGrammar<HostAddressContain
             new GrammarTransition<HostAddressContainer>(
                 HostAddressStatesEnum.HOST_ADDRESS_ADDRESS_TAG_STATE,
                 HostAddressStatesEnum.HOST_ADDRESS_ADDRESS_STATE,
-                UniversalTag.OCTET_STRING.ordinal(),
+                UniversalTag.OCTET_STRING,
                 new StoreAddress() );
     }
 

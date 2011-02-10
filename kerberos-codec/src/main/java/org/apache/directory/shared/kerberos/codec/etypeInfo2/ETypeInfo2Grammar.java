@@ -71,7 +71,7 @@ public final class ETypeInfo2Grammar extends AbstractGrammar<ETypeInfo2Container
             new GrammarTransition<ETypeInfo2Container>(
                 ETypeInfo2StatesEnum.START_STATE,
                 ETypeInfo2StatesEnum.ETYPE_INFO2_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<ETypeInfo2Container>() );
 
         // --------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public final class ETypeInfo2Grammar extends AbstractGrammar<ETypeInfo2Container
             new GrammarTransition<ETypeInfo2Container>(
                 ETypeInfo2StatesEnum.ETYPE_INFO2_SEQ_STATE,
                 ETypeInfo2StatesEnum.ETYPE_INFO2_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AddETypeInfo2Entry() );
     }
 

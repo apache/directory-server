@@ -87,7 +87,7 @@ public final class KrbSafeGrammar extends AbstractGrammar<KrbSafeContainer>
             new GrammarTransition<KrbSafeContainer>(
                 KrbSafeStatesEnum.KRB_SAFE_TAG_STATE,
                 KrbSafeStatesEnum.KRB_SAFE_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KrbSafeContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ public final class KrbSafeGrammar extends AbstractGrammar<KrbSafeContainer>
             new GrammarTransition<KrbSafeContainer>(
                 KrbSafeStatesEnum.KRB_SAFE_PVNO_TAG_STATE,
                 KrbSafeStatesEnum.KRB_SAFE_PVNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ public final class KrbSafeGrammar extends AbstractGrammar<KrbSafeContainer>
             new GrammarTransition<KrbSafeContainer>(
                 KrbSafeStatesEnum.KRB_SAFE_MSGTYPE_TAG_STATE,
                 KrbSafeStatesEnum.KRB_SAFE_MSGTYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------

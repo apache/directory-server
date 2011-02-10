@@ -78,7 +78,7 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.START_STATE,
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_TAG_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new KrbSafeBodyInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -89,7 +89,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_TAG_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_USER_DATA_TAG] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_TAG_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_USER_DATA_TAG,
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_TAG_STATE,
+                KerberosConstants.KRB_SAFE_BODY_USER_DATA_TAG,
                 new CheckNotNullLength<KrbSafeBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -101,7 +102,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
             .getValue()] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_TAG_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE, UniversalTag.OCTET_STRING.getValue(),
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE,
+                UniversalTag.OCTET_STRING,
                 new StoreUserData() );
 
         // --------------------------------------------------------------------------------------------
@@ -112,7 +114,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_TIMESTAMP_TAG] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_TIMESTAMP_TAG,
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_TAG_STATE,
+                KerberosConstants.KRB_SAFE_BODY_TIMESTAMP_TAG,
                 new CheckNotNullLength<KrbSafeBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -124,7 +127,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
             .getValue()] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_TAG_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_STATE,
+                UniversalTag.GENERALIZED_TIME,
                 new StoreTimestamp() );
 
         // --------------------------------------------------------------------------------------------
@@ -135,7 +139,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_USEC_TAG] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_TIMESTAMP_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_USEC_TAG,
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_TAG_STATE,
+                KerberosConstants.KRB_SAFE_BODY_USEC_TAG,
                 new CheckNotNullLength<KrbSafeBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -147,7 +152,7 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_TAG_STATE,
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreUsec() );
 
         // --------------------------------------------------------------------------------------------
@@ -171,7 +176,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
             .getValue()] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_NUMBER_TAG_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_NUMBER_STATE, UniversalTag.INTEGER.getValue(),
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_SEQ_NUMBER_STATE,
+                UniversalTag.INTEGER,
                 new StoreSeqNumber() );
 
         // --------------------------------------------------------------------------------------------
@@ -208,7 +214,8 @@ public final class KrbSafeBodyGrammar extends AbstractGrammar<KrbSafeBodyContain
         super.transitions[KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE.ordinal()][KerberosConstants.KRB_SAFE_BODY_USEC_TAG] =
             new GrammarTransition<KrbSafeBodyContainer>(
                 KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USER_DATA_STATE,
-                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_TAG_STATE, KerberosConstants.KRB_SAFE_BODY_USEC_TAG,
+                KrbSafeBodyStatesEnum.KRB_SAFE_BODY_USEC_TAG_STATE,
+                KerberosConstants.KRB_SAFE_BODY_USEC_TAG,
                 new CheckNotNullLength<KrbSafeBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------

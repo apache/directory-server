@@ -74,7 +74,7 @@ public final class PaDataGrammar extends AbstractGrammar<PaDataContainer>
             new GrammarTransition<PaDataContainer>(
                 PaDataStatesEnum.START_STATE,
                 PaDataStatesEnum.PADATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new PaDataInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ public final class PaDataGrammar extends AbstractGrammar<PaDataContainer>
             new GrammarTransition<PaDataContainer>(
                 PaDataStatesEnum.PADATA_TYPE_TAG_STATE,
                 PaDataStatesEnum.PADATA_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreDataType() );
 
         // --------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public final class PaDataGrammar extends AbstractGrammar<PaDataContainer>
             new GrammarTransition<PaDataContainer>(
                 PaDataStatesEnum.PADATA_VALUE_TAG_STATE,
                 PaDataStatesEnum.PADATA_VALUE_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StorePaDataValue() );
     }
 

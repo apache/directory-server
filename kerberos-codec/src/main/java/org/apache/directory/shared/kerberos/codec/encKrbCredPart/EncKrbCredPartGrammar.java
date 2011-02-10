@@ -79,7 +79,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TAG_STATE,
-                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SEQ_TAG_STATE, UniversalTag.SEQUENCE.getValue(),
+                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SEQ_TAG_STATE,
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SEQ_TAG_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_TICKET_INFO_TAG] =
@@ -92,13 +93,15 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE,
-                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, UniversalTag.SEQUENCE.getValue(),
+                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
-                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE, UniversalTag.SEQUENCE.getValue(),
+                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
+                UniversalTag.SEQUENCE,
                 new StoreTicketInfo() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_NONCE_TAG] =
@@ -111,7 +114,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_TAG_STATE,
-                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE, UniversalTag.INTEGER.getValue(),
+                EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE,
+                UniversalTag.INTEGER,
                 new StoreNonce() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG] =
@@ -125,7 +129,7 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreTimestamp() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG] =
@@ -139,7 +143,7 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreUsec() );
 
         super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_STATE.ordinal()][KerberosConstants.ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG] =

@@ -86,7 +86,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncTicketPartContainer>() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_SEQ_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_FLAGS_TAG] =
@@ -101,7 +101,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_FLAGS_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_FLAGS_STATE,
-                UniversalTag.BIT_STRING.getValue(),
+                UniversalTag.BIT_STRING,
                 new StoreFlags() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_FLAGS_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_KEY_TAG] =
@@ -123,7 +123,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_CREALM_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_CREALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreCRealm() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_CREALM_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_CNAME_TAG] =
@@ -152,7 +152,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_AUTHTIME_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_AUTHTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreAuthTime() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_AUTHTIME_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_STARTTIME_TAG] =
@@ -167,7 +167,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_STARTTIME_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_STARTTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreStartTime() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_STARTTIME_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_ENDTIME_TAG] =
@@ -182,7 +182,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreEndTime() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_ENDTIME_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_RENEWTILL_TAG] =
@@ -197,7 +197,7 @@ public final class EncTicketPartGrammar extends AbstractGrammar<EncTicketPartCon
             new GrammarTransition<EncTicketPartContainer>(
                 EncTicketPartStatesEnum.ENC_TICKET_PART_RENEWTILL_TAG_STATE,
                 EncTicketPartStatesEnum.ENC_TICKET_PART_RENEWTILL_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreRenewtill() );
 
         super.transitions[EncTicketPartStatesEnum.ENC_TICKET_PART_RENEWTILL_STATE.ordinal()][KerberosConstants.ENC_TICKET_PART_CADDR_TAG] =

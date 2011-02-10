@@ -78,7 +78,7 @@ public final class KrbCredGrammar extends AbstractGrammar<KrbCredContainer>
             new GrammarTransition<KrbCredContainer>(
                 KrbCredStatesEnum.KRB_CRED_TAG_STATE,
                 KrbCredStatesEnum.KRB_CRED_SEQ_TAG_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KrbCredContainer>() );
 
         super.transitions[KrbCredStatesEnum.KRB_CRED_SEQ_TAG_STATE.ordinal()][KerberosConstants.KRB_CRED_PVNO_TAG] =
@@ -92,7 +92,7 @@ public final class KrbCredGrammar extends AbstractGrammar<KrbCredContainer>
             new GrammarTransition<KrbCredContainer>(
                 KrbCredStatesEnum.KRB_CRED_PVNO_TAG_STATE,
                 KrbCredStatesEnum.KRB_CRED_PVNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         super.transitions[KrbCredStatesEnum.KRB_CRED_PVNO_STATE.ordinal()][KerberosConstants.KRB_CRED_MSGTYPE_TAG] =
@@ -106,7 +106,7 @@ public final class KrbCredGrammar extends AbstractGrammar<KrbCredContainer>
             new GrammarTransition<KrbCredContainer>(
                 KrbCredStatesEnum.KRB_CRED_MSGTYPE_TAG_STATE,
                 KrbCredStatesEnum.KRB_CRED_MSGTYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         super.transitions[KrbCredStatesEnum.KRB_CRED_MSGTYPE_STATE.ordinal()][KerberosConstants.KRB_CRED_TICKETS_TAG] =
@@ -120,7 +120,7 @@ public final class KrbCredGrammar extends AbstractGrammar<KrbCredContainer>
             new GrammarTransition<KrbCredContainer>(
                 KrbCredStatesEnum.KRB_CRED_TICKETS_TAG_STATE,
                 KrbCredStatesEnum.KRB_CRED_TICKETS_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KrbCredContainer>() );
 
         super.transitions[KrbCredStatesEnum.KRB_CRED_TICKETS_STATE.ordinal()][KerberosConstants.TICKET_TAG] =

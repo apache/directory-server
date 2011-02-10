@@ -73,8 +73,9 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
         // EncryptedData   ::= SEQUENCE
         super.transitions[EncryptedDataStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<EncryptedDataContainer>(
-                EncryptedDataStatesEnum.START_STATE, EncryptedDataStatesEnum.ENCRYPTED_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                EncryptedDataStatesEnum.START_STATE,
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_SEQ_STATE,
+                UniversalTag.SEQUENCE,
                 new EncryptedDataInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -85,7 +86,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_SEQ_STATE.ordinal()][KerberosConstants.ENCRYPTED_DATA_ETYPE_TAG] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_SEQ_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE, KerberosConstants.ENCRYPTED_DATA_ETYPE_TAG,
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE,
+                KerberosConstants.ENCRYPTED_DATA_ETYPE_TAG,
                 new CheckNotNullLength<EncryptedDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -97,7 +99,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
             .getValue()] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_TAG_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE, UniversalTag.INTEGER.getValue(),
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE,
+                UniversalTag.INTEGER,
                 new StoreEType() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +112,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE.ordinal()][KerberosConstants.ENCRYPTED_DATA_KVNO_TAG] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE, KerberosConstants.ENCRYPTED_DATA_KVNO_TAG,
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE,
+                KerberosConstants.ENCRYPTED_DATA_KVNO_TAG,
                 new CheckNotNullLength<EncryptedDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -121,7 +125,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE.ordinal()][KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_ETYPE_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE, KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG,
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE,
+                KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG,
                 new CheckNotNullLength<EncryptedDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -134,7 +139,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
             .getValue()] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_TAG_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE, UniversalTag.INTEGER.getValue(),
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE,
+                UniversalTag.INTEGER,
                 new StoreKvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -146,7 +152,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
         super.transitions[EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE.ordinal()][KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_KVNO_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE, KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG,
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE,
+                KerberosConstants.ENCRYPTED_DATA_CIPHER_TAG,
                 new CheckNotNullLength<EncryptedDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -159,7 +166,8 @@ public final class EncryptedDataGrammar extends AbstractGrammar<EncryptedDataCon
             .getValue()] =
             new GrammarTransition<EncryptedDataContainer>(
                 EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_TAG_STATE,
-                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_STATE, UniversalTag.OCTET_STRING.getValue(),
+                EncryptedDataStatesEnum.ENCRYPTED_DATA_CIPHER_STATE,
+                UniversalTag.OCTET_STRING,
                 new StoreCipher() );
     }
 

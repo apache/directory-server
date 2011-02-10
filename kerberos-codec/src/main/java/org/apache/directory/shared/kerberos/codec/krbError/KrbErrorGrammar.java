@@ -83,7 +83,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // KRB-ERROR       ::= [APPLICATION 30]
         super.transitions[KrbErrorStatesEnum.START_STATE.ordinal()][KerberosConstants.KRB_ERROR_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.START_STATE, KrbErrorStatesEnum.KRB_ERR_TAG,
+                KrbErrorStatesEnum.START_STATE,
+                KrbErrorStatesEnum.KRB_ERR_TAG,
                 KerberosConstants.KRB_ERROR_TAG,
                 new KrbErrorInit() );
 
@@ -95,7 +96,7 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
             new GrammarTransition<KrbErrorContainer>(
                 KrbErrorStatesEnum.KRB_ERR_TAG,
                 KrbErrorStatesEnum.KRB_ERR_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -105,7 +106,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         //         pvno            [0]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_SEQ_STATE.ordinal()][KerberosConstants.KRB_ERROR_PVNO_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_SEQ_STATE, KrbErrorStatesEnum.KRB_ERR_PVNO_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SEQ_STATE,
+                KrbErrorStatesEnum.KRB_ERR_PVNO_TAG_STATE,
                 KerberosConstants.KRB_ERROR_PVNO_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -116,7 +118,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         //         pvno            [0] INTEGER (5) ,
         super.transitions[KrbErrorStatesEnum.KRB_ERR_PVNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_PVNO_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_PVNO_STATE,
+                KrbErrorStatesEnum.KRB_ERR_PVNO_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_PVNO_STATE,
                 UniversalTag.INTEGER.getValue(),
                 new StorePvno() );
 
@@ -126,7 +129,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // msg-type        [1]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_PVNO_STATE.ordinal()][KerberosConstants.KRB_ERROR_MSGTYPE_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_PVNO_STATE, KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_PVNO_STATE,
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_TAG_STATE,
                 KerberosConstants.KRB_ERROR_MSGTYPE_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -136,8 +140,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // msg-type        [1] INTEGER (30)
         super.transitions[KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE,
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------
@@ -146,7 +151,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // ctime        [2]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE.ordinal()][KerberosConstants.KRB_ERROR_CTIME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE, KrbErrorStatesEnum.KRB_ERR_CTIME_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CTIME_TAG_STATE,
                 KerberosConstants.KRB_ERROR_CTIME_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -157,8 +163,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CTIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
             .getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CTIME_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_CTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_CTIME_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CTIME_STATE,
+                UniversalTag.GENERALIZED_TIME,
                 new StoreCTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -167,7 +174,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // cusec           [3]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CTIME_STATE.ordinal()][KerberosConstants.KRB_ERROR_CUSEC_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CTIME_STATE, KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CTIME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE,
                 KerberosConstants.KRB_ERROR_CUSEC_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -177,8 +185,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // cusec           [3] Microseconds OPTIONAL
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_CUSEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CUSEC_STATE,
+                UniversalTag.INTEGER,
                 new StoreCusec() );
 
         // --------------------------------------------------------------------------------------------
@@ -198,8 +207,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         super.transitions[KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
             .getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_STIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_STIME_STATE,
+                UniversalTag.GENERALIZED_TIME,
                 new StoreSTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -208,7 +218,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // susec           [5]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_STIME_STATE.ordinal()][KerberosConstants.KRB_ERROR_SUSEC_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_STIME_STATE, KrbErrorStatesEnum.KRB_ERR_SUSEC_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_STIME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SUSEC_TAG_STATE,
                 KerberosConstants.KRB_ERROR_SUSEC_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -218,8 +229,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // susec           [5] Microseconds
         super.transitions[KrbErrorStatesEnum.KRB_ERR_SUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_SUSEC_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_SUSEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_SUSEC_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SUSEC_STATE,
+                UniversalTag.INTEGER,
                 new StoreSusec() );
 
         // --------------------------------------------------------------------------------------------
@@ -228,7 +240,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // error-code      [6]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_SUSEC_STATE.ordinal()][KerberosConstants.KRB_ERROR_ERROR_CODE_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_SUSEC_STATE, KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SUSEC_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_TAG_STATE,
                 KerberosConstants.KRB_ERROR_ERROR_CODE_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -238,8 +251,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // error-code      [6] Int32
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE,
+                UniversalTag.INTEGER,
                 new StoreErrorCode() );
 
         // --------------------------------------------------------------------------------------------
@@ -248,7 +262,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // crealm          [7]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE.ordinal()][KerberosConstants.KRB_ERROR_CREALM_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE, KrbErrorStatesEnum.KRB_ERR_CREALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CREALM_TAG_STATE,
                 KerberosConstants.KRB_ERROR_CREALM_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -258,8 +273,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // crealm          [7] Realm
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CREALM_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_CREALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_CREALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CREALM_STATE,
+                UniversalTag.GENERAL_STRING,
                 new StoreCRealm() );
 
         // --------------------------------------------------------------------------------------------
@@ -268,7 +284,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // cname           [8] PrincipalName OPTIONAL,
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CREALM_STATE.ordinal()][KerberosConstants.KRB_ERROR_CNAME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CREALM_STATE, KrbErrorStatesEnum.KRB_ERR_CNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CREALM_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CNAME_STATE,
                 KerberosConstants.KRB_ERROR_CNAME_TAG,
                 new StoreCName() );
 
@@ -278,7 +295,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // realm           [9]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CNAME_STATE.ordinal()][KerberosConstants.KRB_ERROR_REALM_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CNAME_STATE, KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
                 KerberosConstants.KRB_ERROR_REALM_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -288,8 +306,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // realm           [9] Realm
         super.transitions[KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_REALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_REALM_STATE,
+                UniversalTag.GENERAL_STRING,
                 new StoreRealm() );
 
         // --------------------------------------------------------------------------------------------
@@ -298,7 +317,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // sname           [10] PrincipalName,
         super.transitions[KrbErrorStatesEnum.KRB_ERR_REALM_STATE.ordinal()][KerberosConstants.KRB_ERROR_SNAME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_REALM_STATE, KrbErrorStatesEnum.KRB_ERR_SNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_REALM_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SNAME_STATE,
                 KerberosConstants.KRB_ERROR_SNAME_TAG,
                 new StoreSName() );
 
@@ -308,7 +328,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // e-text          [11]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_SNAME_STATE.ordinal()][KerberosConstants.KRB_ERROR_ETEXT_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_SNAME_STATE, KrbErrorStatesEnum.KRB_ERR_ETEXT_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ETEXT_TAG_STATE,
                 KerberosConstants.KRB_ERROR_ETEXT_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -318,8 +339,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // e-text          [11] KerberosString OPTIONAL
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ETEXT_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ETEXT_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_ETEXT_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_ETEXT_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ETEXT_STATE,
+                UniversalTag.GENERAL_STRING,
                 new StoreEText() );
 
         // --------------------------------------------------------------------------------------------
@@ -328,7 +350,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // e-data          [12]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ETEXT_STATE.ordinal()][KerberosConstants.KRB_ERROR_EDATA_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ETEXT_STATE, KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ETEXT_STATE,
+                KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE,
                 KerberosConstants.KRB_ERROR_EDATA_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -338,8 +361,9 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // e-data          [12] OCTET STRING OPTIONAL
         super.transitions[KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE, KrbErrorStatesEnum.KRB_ERR_EDATA_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_EDATA_STATE,
+                UniversalTag.OCTET_STRING,
                 new StoreEData() );
 
         // ----------------------------------------- OPTIONAL transitions -----------------------------------------
@@ -350,7 +374,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // cusec           [3]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE.ordinal()][KerberosConstants.KRB_ERROR_CUSEC_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE, KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CUSEC_TAG_STATE,
                 KerberosConstants.KRB_ERROR_CUSEC_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -360,7 +385,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // stime           [4]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE.ordinal()][KerberosConstants.KRB_ERROR_STIME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE, KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_MSG_TYPE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE,
                 KerberosConstants.KRB_ERROR_STIME_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -370,7 +396,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // stime           [4]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CTIME_STATE.ordinal()][KerberosConstants.KRB_ERROR_STIME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CTIME_STATE, KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CTIME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_STIME_TAG_STATE,
                 KerberosConstants.KRB_ERROR_STIME_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -382,7 +409,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // realm           [9]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE.ordinal()][KerberosConstants.KRB_ERROR_REALM_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE, KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
                 KerberosConstants.KRB_ERROR_REALM_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -392,7 +420,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // cname           [8] PrincipalName OPTIONAL,
         super.transitions[KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE.ordinal()][KerberosConstants.KRB_ERROR_CNAME_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE, KrbErrorStatesEnum.KRB_ERR_CNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_ERROR_CODE_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CNAME_STATE,
                 KerberosConstants.KRB_ERROR_CNAME_TAG,
                 new StoreCName() );
 
@@ -402,7 +431,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // realm           [9]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_CREALM_STATE.ordinal()][KerberosConstants.KRB_ERROR_REALM_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_CREALM_STATE, KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_CREALM_STATE,
+                KrbErrorStatesEnum.KRB_ERR_REALM_TAG_STATE,
                 KerberosConstants.KRB_ERROR_REALM_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
 
@@ -412,7 +442,8 @@ public final class KrbErrorGrammar extends AbstractGrammar<KrbErrorContainer>
         // e-data          [12]
         super.transitions[KrbErrorStatesEnum.KRB_ERR_SNAME_STATE.ordinal()][KerberosConstants.KRB_ERROR_EDATA_TAG] =
             new GrammarTransition<KrbErrorContainer>(
-                KrbErrorStatesEnum.KRB_ERR_SNAME_STATE, KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE,
+                KrbErrorStatesEnum.KRB_ERR_SNAME_STATE,
+                KrbErrorStatesEnum.KRB_ERR_EDATA_TAG_STATE,
                 KerberosConstants.KRB_ERROR_EDATA_TAG,
                 new CheckNotNullLength<KrbErrorContainer>() );
     }

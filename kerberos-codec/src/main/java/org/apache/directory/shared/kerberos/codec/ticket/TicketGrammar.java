@@ -80,7 +80,7 @@ public final class TicketGrammar extends AbstractGrammar<TicketContainer>
             new GrammarTransition<TicketContainer>(
                 TicketStatesEnum.TICKET_STATE,
                 TicketStatesEnum.TICKET_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<TicketContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public final class TicketGrammar extends AbstractGrammar<TicketContainer>
             new GrammarTransition<TicketContainer>(
                 TicketStatesEnum.TICKET_VNO_TAG_STATE,
                 TicketStatesEnum.TICKET_VNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreTktVno() );
 
         // --------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ public final class TicketGrammar extends AbstractGrammar<TicketContainer>
             new GrammarTransition<TicketContainer>(
                 TicketStatesEnum.TICKET_REALM_TAG_STATE,
                 TicketStatesEnum.TICKET_REALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreRealm() );
 
         // --------------------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
             new GrammarTransition<EncryptionKeyContainer>(
                 EncryptionKeyStatesEnum.START_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new EncryptionKeyInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
             new GrammarTransition<EncryptionKeyContainer>(
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreKeyType() );
 
         // --------------------------------------------------------------------------------------------
@@ -124,7 +124,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
             .getValue()] =
             new GrammarTransition<EncryptionKeyContainer>(
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE,
-                EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_STATE, UniversalTag.OCTET_STRING.getValue(),
+                EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_STATE,
+                UniversalTag.OCTET_STRING,
                 new StoreKeyValue() );
     }
 

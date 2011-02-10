@@ -74,7 +74,7 @@ public final class ETypeInfoEntryGrammar extends AbstractGrammar<ETypeInfoEntryC
             new GrammarTransition<ETypeInfoEntryContainer>(
                 ETypeInfoEntryStatesEnum.START_STATE,
                 ETypeInfoEntryStatesEnum.ETYPE_INFO_ENTRY_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new ETypeInfoEntryInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class ETypeInfoEntryGrammar extends AbstractGrammar<ETypeInfoEntryC
             new GrammarTransition<ETypeInfoEntryContainer>(
                 ETypeInfoEntryStatesEnum.ETYPE_INFO_ENTRY_ETYPE_TAG_STATE,
                 ETypeInfoEntryStatesEnum.ETYPE_INFO_ENTRY_ETYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreEType() );
 
         // --------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public final class ETypeInfoEntryGrammar extends AbstractGrammar<ETypeInfoEntryC
             new GrammarTransition<ETypeInfoEntryContainer>(
                 ETypeInfoEntryStatesEnum.ETYPE_INFO_ENTRY_SALT_TAG_STATE,
                 ETypeInfoEntryStatesEnum.ETYPE_INFO_ENTRY_SALT_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreSalt() );
     }
 

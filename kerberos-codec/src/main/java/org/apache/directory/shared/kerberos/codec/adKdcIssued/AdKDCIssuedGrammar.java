@@ -76,7 +76,7 @@ public final class AdKDCIssuedGrammar extends AbstractGrammar<AdKdcIssuedContain
             new GrammarTransition<AdKdcIssuedContainer>(
                 AdKDCIssuedStatesEnum.START_STATE,
                 AdKDCIssuedStatesEnum.AD_KDC_ISSUED_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AdKdcIssuedInit() );
 
         super.transitions[AdKDCIssuedStatesEnum.AD_KDC_ISSUED_SEQ_STATE.ordinal()][KerberosConstants.AD_KDC_ISSUED_AD_CHECKSUM_TAG] =
@@ -111,7 +111,7 @@ public final class AdKDCIssuedGrammar extends AbstractGrammar<AdKdcIssuedContain
             new GrammarTransition<AdKdcIssuedContainer>(
                 AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_TAG_STATE,
                 AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreIRealm() );
 
         super.transitions[AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_STATE.ordinal()][KerberosConstants.AD_KDC_ISSUED_I_SNAME_TAG] =

@@ -74,7 +74,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
             new GrammarTransition<PrincipalNameContainer>(
                 PrincipalNameStatesEnum.START_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new PrincipalNameInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
             new GrammarTransition<PrincipalNameContainer>(
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreNameType() );
 
         // --------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
             new GrammarTransition<PrincipalNameContainer>(
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<PrincipalNameContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
             new GrammarTransition<PrincipalNameContainer>(
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreNameString() );
     }
 

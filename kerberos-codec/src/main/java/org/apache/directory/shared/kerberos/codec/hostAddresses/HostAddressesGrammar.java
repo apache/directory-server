@@ -71,7 +71,7 @@ public final class HostAddressesGrammar extends AbstractGrammar<HostAddressesCon
             new GrammarTransition<HostAddressesContainer>(
                 HostAddressesStatesEnum.START_STATE,
                 HostAddressesStatesEnum.HOST_ADDRESSES_ADDRESS_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<HostAddressesContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ public final class HostAddressesGrammar extends AbstractGrammar<HostAddressesCon
             new GrammarTransition<HostAddressesContainer>(
                 HostAddressesStatesEnum.HOST_ADDRESSES_ADDRESS_STATE,
                 HostAddressesStatesEnum.HOST_ADDRESSES_ADDRESS_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AddHostAddress() );
     }
 

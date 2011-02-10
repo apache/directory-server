@@ -88,7 +88,7 @@ public final class ApReqGrammar extends AbstractGrammar<ApReqContainer>
             new GrammarTransition<ApReqContainer>(
                 ApReqStatesEnum.AP_REQ_STATE,
                 ApReqStatesEnum.AP_REQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<ApReqContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public final class ApReqGrammar extends AbstractGrammar<ApReqContainer>
             new GrammarTransition<ApReqContainer>(
                 ApReqStatesEnum.AP_REQ_PVNO_TAG_STATE,
                 ApReqStatesEnum.AP_REQ_PVNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ public final class ApReqGrammar extends AbstractGrammar<ApReqContainer>
             new GrammarTransition<ApReqContainer>(
                 ApReqStatesEnum.AP_REQ_MSG_TYPE_TAG_STATE,
                 ApReqStatesEnum.AP_REQ_MSG_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ public final class ApReqGrammar extends AbstractGrammar<ApReqContainer>
             new GrammarTransition<ApReqContainer>(
                 ApReqStatesEnum.AP_REQ_AP_OPTIONS_TAG_STATE,
                 ApReqStatesEnum.AP_REQ_AP_OPTIONS_STATE,
-                UniversalTag.BIT_STRING.getValue(),
+                UniversalTag.BIT_STRING,
                 new StoreApOptions() );
 
         // --------------------------------------------------------------------------------------------

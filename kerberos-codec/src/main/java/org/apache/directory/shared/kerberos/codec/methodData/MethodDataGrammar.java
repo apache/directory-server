@@ -71,7 +71,7 @@ public final class MethodDataGrammar extends AbstractGrammar<MethodDataContainer
             new GrammarTransition<MethodDataContainer>(
             MethodDataStatesEnum.START_STATE,
             MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
-            UniversalTag.SEQUENCE.getValue(),
+            UniversalTag.SEQUENCE,
             new CheckNotNullLength<MethodDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public final class MethodDataGrammar extends AbstractGrammar<MethodDataContainer
             new GrammarTransition<MethodDataContainer>(
             MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
             MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
-            UniversalTag.SEQUENCE.getValue(),
+            UniversalTag.SEQUENCE,
             new AddPaData() );
     }
 

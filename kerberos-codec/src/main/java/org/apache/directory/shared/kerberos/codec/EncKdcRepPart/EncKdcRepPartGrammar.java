@@ -84,7 +84,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.START_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SEQ_TAG_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new EncKdcRepPartInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreNonce() );
 
         // --------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreKeyExpiration() );
 
         // --------------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_STATE,
-                UniversalTag.BIT_STRING.getValue(),
+                UniversalTag.BIT_STRING,
                 new StoreFlags() );
 
         // --------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreAuthTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -265,7 +265,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreStartTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -291,7 +291,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreEndTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreRenewTill() );
 
         // --------------------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreSRealm() );
 
         // --------------------------------------------------------------------------------------------
@@ -382,7 +382,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SNAME_TAG_STATE.ordinal()][KerberosConstants.ENC_KDC_REP_PART_CADDR_TAG] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SNAME_TAG_STATE,
-                EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_CADDR_TAG_STATE, KerberosConstants.ENC_KDC_REP_PART_CADDR_TAG,
+                EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_CADDR_TAG_STATE,
+                KerberosConstants.ENC_KDC_REP_PART_CADDR_TAG,
                 new StoreCAddr() );
     }
 

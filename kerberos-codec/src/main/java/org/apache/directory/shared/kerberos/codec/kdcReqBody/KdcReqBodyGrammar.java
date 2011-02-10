@@ -86,7 +86,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.START_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new KdcReqBodyInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -97,7 +97,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE, KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE,
+                KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +110,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             .getValue()] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_KDC_OPTIONS_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE, UniversalTag.BIT_STRING.getValue(),
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE,
+                UniversalTag.BIT_STRING,
                 new StoreKdcOptions() );
 
         // --------------------------------------------------------------------------------------------
@@ -121,7 +123,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_CNAME_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_STATE, KerberosConstants.KDC_REQ_BODY_CNAME_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_STATE,
+                KerberosConstants.KDC_REQ_BODY_CNAME_TAG,
                 new StoreCName() );
 
         // --------------------------------------------------------------------------------------------
@@ -133,7 +136,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_REALM_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE, KerberosConstants.KDC_REQ_BODY_REALM_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE,
+                KerberosConstants.KDC_REQ_BODY_REALM_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -160,7 +164,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_REALM_TAG_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreRealm() );
 
         // --------------------------------------------------------------------------------------------
@@ -172,7 +176,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_SNAME_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE, KerberosConstants.KDC_REQ_BODY_SNAME_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_STATE,
+                KerberosConstants.KDC_REQ_BODY_SNAME_TAG,
                 new StoreSName() );
 
         // --------------------------------------------------------------------------------------------
@@ -184,7 +189,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_FROM_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE, KerberosConstants.KDC_REQ_BODY_FROM_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE,
+                KerberosConstants.KDC_REQ_BODY_FROM_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -196,7 +202,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_TILL_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE, KerberosConstants.KDC_REQ_BODY_TILL_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE,
+                KerberosConstants.KDC_REQ_BODY_TILL_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -236,7 +243,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_FROM_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_TAG_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreFrom() );
 
         // --------------------------------------------------------------------------------------------
@@ -262,7 +269,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             .getValue()] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_TILL_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,
+                UniversalTag.GENERALIZED_TIME,
                 new StoreTill() );
 
         // --------------------------------------------------------------------------------------------
@@ -274,7 +282,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_RTIME_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE, KerberosConstants.KDC_REQ_BODY_RTIME_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE,
+                KerberosConstants.KDC_REQ_BODY_RTIME_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -286,7 +295,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE.ordinal()][KerberosConstants.KDC_REQ_BODY_NONCE_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE, KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_STATE,
+                KerberosConstants.KDC_REQ_BODY_NONCE_TAG,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -300,7 +310,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_RTIME_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreRTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -326,7 +336,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_NONCE_TAG_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_TAG_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreNonce() );
 
         // --------------------------------------------------------------------------------------------
@@ -352,7 +362,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_SEQ_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new ETypeSequence() );
 
         // --------------------------------------------------------------------------------------------
@@ -365,7 +375,7 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE,
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ETYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new AddEType() );
 
         // --------------------------------------------------------------------------------------------
@@ -457,7 +467,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
             .getValue()] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE, UniversalTag.SEQUENCE.getValue(),
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE,
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<KdcReqBodyContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -469,7 +480,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE.ordinal()][KerberosConstants.TICKET_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, KerberosConstants.TICKET_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,
+                KerberosConstants.TICKET_TAG,
                 new AddTicket() );
 
         // --------------------------------------------------------------------------------------------
@@ -481,7 +493,8 @@ public final class KdcReqBodyGrammar extends AbstractGrammar<KdcReqBodyContainer
         super.transitions[KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE.ordinal()][KerberosConstants.TICKET_TAG] =
             new GrammarTransition<KdcReqBodyContainer>(
                 KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,
-                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, KerberosConstants.TICKET_TAG,
+                KdcReqBodyStatesEnum.KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,
+                KerberosConstants.TICKET_TAG,
                 new AddTicket() );
     }
 

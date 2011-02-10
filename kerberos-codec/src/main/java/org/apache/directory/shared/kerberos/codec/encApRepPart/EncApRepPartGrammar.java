@@ -87,7 +87,7 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncApRepPartContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreCTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreCusec() );
 
         // --------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreSeqNumber() );
     }
 

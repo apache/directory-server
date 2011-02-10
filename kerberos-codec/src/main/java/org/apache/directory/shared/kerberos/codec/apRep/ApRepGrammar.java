@@ -86,7 +86,7 @@ public final class ApRepGrammar extends AbstractGrammar<ApRepContainer>
             new GrammarTransition<ApRepContainer>(
                 ApRepStatesEnum.AP_REP_STATE,
                 ApRepStatesEnum.AP_REP_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<ApRepContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ public final class ApRepGrammar extends AbstractGrammar<ApRepContainer>
             new GrammarTransition<ApRepContainer>(
                 ApRepStatesEnum.AP_REP_PVNO_TAG_STATE,
                 ApRepStatesEnum.AP_REP_PVNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePvno() );
 
         // --------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ public final class ApRepGrammar extends AbstractGrammar<ApRepContainer>
             new GrammarTransition<ApRepContainer>(
                 ApRepStatesEnum.AP_REP_MSG_TYPE_TAG_STATE,
                 ApRepStatesEnum.AP_REP_MSG_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new CheckMsgType() );
 
         // --------------------------------------------------------------------------------------------

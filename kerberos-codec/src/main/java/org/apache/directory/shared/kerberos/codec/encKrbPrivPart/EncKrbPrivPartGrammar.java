@@ -76,7 +76,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
         // EncKrbPrivPart  ::= [APPLICATION 28] EncKrbPrivPart   ::= SEQUENCE {
         super.transitions[EncKrbPrivPartStatesEnum.START_STATE.ordinal()][KerberosConstants.ENC_KRB_PRIV_PART_TAG] =
             new GrammarTransition<EncKrbPrivPartContainer>(
-                EncKrbPrivPartStatesEnum.START_STATE, EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TAG_STATE,
+                EncKrbPrivPartStatesEnum.START_STATE,
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TAG_STATE,
                 KerberosConstants.ENC_KRB_PRIV_PART_TAG,
                 new EncKrbPrivPartInit() );
 
@@ -88,7 +89,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
             .getValue()] =
             new GrammarTransition<EncKrbPrivPartContainer>(
                 EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TAG_STATE,
-                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_TAG_STATE, UniversalTag.SEQUENCE.getValue(),
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_TAG_STATE,
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncKrbPrivPartContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -112,7 +114,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
             .getValue()] =
             new GrammarTransition<EncKrbPrivPartContainer>(
                 EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USER_DATA_TAG_STATE,
-                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USER_DATA_STATE, UniversalTag.OCTET_STRING.getValue(),
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USER_DATA_STATE,
+                UniversalTag.OCTET_STRING,
                 new StoreUserData() );
 
         // --------------------------------------------------------------------------------------------
@@ -136,7 +139,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
             .getValue()] =
             new GrammarTransition<EncKrbPrivPartContainer>(
                 EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_TAG_STATE,
-                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE, UniversalTag.GENERALIZED_TIME.getValue(),
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE,
+                UniversalTag.GENERALIZED_TIME,
                 new StoreTimestamp() );
 
         // --------------------------------------------------------------------------------------------
@@ -160,7 +164,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
             .getValue()] =
             new GrammarTransition<EncKrbPrivPartContainer>(
                 EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USEC_TAG_STATE,
-                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USEC_STATE, UniversalTag.INTEGER.getValue(),
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_USEC_STATE,
+                UniversalTag.INTEGER,
                 new StoreUsec() );
 
         // --------------------------------------------------------------------------------------------
@@ -184,7 +189,8 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
             .getValue()] =
             new GrammarTransition<EncKrbPrivPartContainer>(
                 EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG_STATE,
-                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_NUMBER_STATE, UniversalTag.INTEGER.getValue(),
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_NUMBER_STATE,
+                UniversalTag.INTEGER,
                 new StoreSeqNumber() );
 
         // --------------------------------------------------------------------------------------------

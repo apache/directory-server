@@ -74,7 +74,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.START_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AuthorizationDataInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<AuthorizationDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreAdType() );
 
         // --------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreAdData() );
 
         // --------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<AuthorizationDataContainer>() );
     }
 

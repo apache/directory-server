@@ -74,7 +74,7 @@ public final class AdAndOrGrammar extends AbstractGrammar<AdAndOrContainer>
             new GrammarTransition<AdAndOrContainer>(
                 AdAndOrStatesEnum.START_STATE,
                 AdAndOrStatesEnum.AD_AND_OR_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new AdAndOrInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ public final class AdAndOrGrammar extends AbstractGrammar<AdAndOrContainer>
             new GrammarTransition<AdAndOrContainer>(
                 AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_TAG_STATE,
                 AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreConditionCount() );
 
         // --------------------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ public final class ChecksumGrammar extends AbstractGrammar<ChecksumContainer>
             new GrammarTransition<ChecksumContainer>(
                 ChecksumStatesEnum.START_STATE,
                 ChecksumStatesEnum.CHECKSUM_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new ChecksumInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ public final class ChecksumGrammar extends AbstractGrammar<ChecksumContainer>
             new GrammarTransition<ChecksumContainer>(
                 ChecksumStatesEnum.CHECKSUM_TYPE_TAG_STATE,
                 ChecksumStatesEnum.CHECKSUM_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreCksumType() );
 
         // --------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public final class ChecksumGrammar extends AbstractGrammar<ChecksumContainer>
             new GrammarTransition<ChecksumContainer>(
                 ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE,
                 ChecksumStatesEnum.CHECKSUM_CHECKSUM_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreChecksum() );
     }
 

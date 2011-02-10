@@ -74,7 +74,7 @@ public final class TypedDataGrammar extends AbstractGrammar<TypedDataContainer>
             new GrammarTransition<TypedDataContainer>(
                 TypedDataStatesEnum.START_STATE,
                 TypedDataStatesEnum.TYPED_DATA_SEQ_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new TypedDataInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public final class TypedDataGrammar extends AbstractGrammar<TypedDataContainer>
             new GrammarTransition<TypedDataContainer>(
                 TypedDataStatesEnum.TYPED_DATA_SEQ_SEQ_STATE,
                 TypedDataStatesEnum.TYPED_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<TypedDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ public final class TypedDataGrammar extends AbstractGrammar<TypedDataContainer>
             new GrammarTransition<TypedDataContainer>(
                 TypedDataStatesEnum.TYPED_DATA_TDTYPE_TAG_STATE,
                 TypedDataStatesEnum.TYPED_DATA_TDTYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreTdType() );
 
         // --------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ public final class TypedDataGrammar extends AbstractGrammar<TypedDataContainer>
             new GrammarTransition<TypedDataContainer>(
                 TypedDataStatesEnum.TYPED_DATA_TDDATA_TAG_STATE,
                 TypedDataStatesEnum.TYPED_DATA_TDDATA_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreDataValue() );
 
         // --------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ public final class TypedDataGrammar extends AbstractGrammar<TypedDataContainer>
             new GrammarTransition<TypedDataContainer>(
                 TypedDataStatesEnum.TYPED_DATA_TDDATA_STATE,
                 TypedDataStatesEnum.TYPED_DATA_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<TypedDataContainer>() );
     }
 

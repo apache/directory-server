@@ -74,7 +74,7 @@ public final class TransitedEncodingGrammar extends AbstractGrammar<TransitedEnc
             new GrammarTransition<TransitedEncodingContainer>(
                 TransitedEncodingStatesEnum.START_STATE,
                 TransitedEncodingStatesEnum.TRANSITED_ENCODING_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new TransitedEncodingInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class TransitedEncodingGrammar extends AbstractGrammar<TransitedEnc
             new GrammarTransition<TransitedEncodingContainer>(
                 TransitedEncodingStatesEnum.TRANSITED_ENCODING_TR_TYPE_TAG_STATE,
                 TransitedEncodingStatesEnum.TRANSITED_ENCODING_TR_TYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreTrType() );
 
         // --------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public final class TransitedEncodingGrammar extends AbstractGrammar<TransitedEnc
             new GrammarTransition<TransitedEncodingContainer>(
                 TransitedEncodingStatesEnum.TRANSITED_ENCODING_CONTENTS_TAG_STATE,
                 TransitedEncodingStatesEnum.TRANSITED_ENCODING_CONTENTS_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreContents() );
     }
 

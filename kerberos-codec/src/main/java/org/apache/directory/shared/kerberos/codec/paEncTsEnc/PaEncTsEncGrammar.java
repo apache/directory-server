@@ -74,7 +74,7 @@ public final class PaEncTsEncGrammar extends AbstractGrammar<PaEncTsEncContainer
             new GrammarTransition<PaEncTsEncContainer>(
                 PaEncTsEncStatesEnum.START_STATE,
                 PaEncTsEncStatesEnum.PA_ENC_TS_ENC_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new PaEncTsEncInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class PaEncTsEncGrammar extends AbstractGrammar<PaEncTsEncContainer
             new GrammarTransition<PaEncTsEncContainer>(
                 PaEncTsEncStatesEnum.PA_ENC_TS_ENC_PA_TIMESTAMP_TAG_STATE,
                 PaEncTsEncStatesEnum.PA_ENC_TS_PA_TIMESTAMP_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StorePaTimestamp() );
 
         // --------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ public final class PaEncTsEncGrammar extends AbstractGrammar<PaEncTsEncContainer
             new GrammarTransition<PaEncTsEncContainer>(
                 PaEncTsEncStatesEnum.PA_ENC_TS_ENC_PA_USEC_TAG_STATE,
                 PaEncTsEncStatesEnum.PA_ENC_TS_ENC_PA_USEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StorePaUsec() );
     }
 

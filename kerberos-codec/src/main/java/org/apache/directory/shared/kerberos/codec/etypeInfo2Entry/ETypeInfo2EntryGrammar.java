@@ -75,7 +75,7 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.START_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new ETypeInfo2EntryInit() );
 
         // --------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreEType() );
 
         // --------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreSalt() );
 
         // --------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_STATE,
-                UniversalTag.OCTET_STRING.getValue(),
+                UniversalTag.OCTET_STRING,
                 new StoreS2KParams() );
     }
 

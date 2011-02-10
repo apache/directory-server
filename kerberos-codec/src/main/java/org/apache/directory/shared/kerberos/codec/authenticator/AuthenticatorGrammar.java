@@ -92,7 +92,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_STATE,
-                UniversalTag.SEQUENCE.getValue(),
+                UniversalTag.SEQUENCE,
                 new CheckNotNullLength<AuthenticatorContainer>() );
 
         // --------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreAuthenticatorVno() );
 
         // --------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_STATE,
-                UniversalTag.GENERAL_STRING.getValue(),
+                UniversalTag.GENERAL_STRING,
                 new StoreCRealm() );
 
         // --------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreCusec() );
 
         // --------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_STATE,
-                UniversalTag.GENERALIZED_TIME.getValue(),
+                UniversalTag.GENERALIZED_TIME,
                 new StoreCTime() );
 
         // --------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_STATE,
-                UniversalTag.INTEGER.getValue(),
+                UniversalTag.INTEGER,
                 new StoreSeqNumber() );
 
         // --------------------------------------------------------------------------------------------
