@@ -29,7 +29,7 @@ import java.util.Iterator;
 
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
+import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
@@ -68,7 +68,7 @@ public class ReplicaEventMessage implements Externalizable
     public ReplicaEventMessage()
     {
         // used by deserializer
-        codec = new DefaultLdapCodecService();
+        codec = new StandaloneLdapCodecService();
     }
 
 
@@ -81,7 +81,7 @@ public class ReplicaEventMessage implements Externalizable
 
     public ReplicaEventMessage( SyncModifyDnDecorator modDnControl, Entry entry )
     {
-        codec = new DefaultLdapCodecService();
+        codec = new StandaloneLdapCodecService();
         this.modDnControl = modDnControl;
         this.entry = entry;
     }
