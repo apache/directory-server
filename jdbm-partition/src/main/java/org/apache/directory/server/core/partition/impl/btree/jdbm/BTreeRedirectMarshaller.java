@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.Hex;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -66,15 +66,15 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
 
 
     /**
-     * @see Marshaller#deserialize(byte[]) 
+     * @see Marshaller#deserialize(byte[])
      */
-    public final BTreeRedirect deserialize( byte[] bites ) throws IOException
+    public final BTreeRedirect deserialize( byte[] bytes ) throws IOException
     {
-        if ( bites == null || bites.length != SIZE || bites[0] != 1 )
+        if ( ( bytes == null ) || ( bytes.length != SIZE ) || ( bytes[0] != 1 ) )
         {
-            if ( bites != null )
+            if ( bytes != null )
             {
-                throw new IOException( I18n.err( I18n.ERR_568, new String( Hex.encodeHex(bites) ) ) );
+                throw new IOException( I18n.err( I18n.ERR_568, Strings.dumpBytes( bytes ) ) );
             }
             else
             {
@@ -83,21 +83,21 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
         }
 
         long recId;
-        recId = bites[1] + ( ( bites[1] < 0 ) ? 256 : 0 );
+        recId = bytes[1] + ( ( bytes[1] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[2] + ( ( bites[2] < 0 ) ? 256 : 0 );
+        recId += bytes[2] + ( ( bytes[2] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[3] + ( ( bites[3] < 0 ) ? 256 : 0 );
+        recId += bytes[3] + ( ( bytes[3] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[4] + ( ( bites[4] < 0 ) ? 256 : 0 );
+        recId += bytes[4] + ( ( bytes[4] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[5] + ( ( bites[5] < 0 ) ? 256 : 0 );
+        recId += bytes[5] + ( ( bytes[5] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[6] + ( ( bites[6] < 0 ) ? 256 : 0 );
+        recId += bytes[6] + ( ( bytes[6] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[7] + ( ( bites[7] < 0 ) ? 256 : 0 );
+        recId += bytes[7] + ( ( bytes[7] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[8] + ( ( bites[8] < 0 ) ? 256 : 0 );
+        recId += bytes[8] + ( ( bytes[8] < 0 ) ? 256 : 0 );
 
         return new BTreeRedirect( recId );
     }
@@ -111,6 +111,6 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
      */
     public static boolean isRedirect( byte[] bites )
     {
-        return bites != null && bites.length == SIZE && bites[0] == 1;
+        return ( bites != null ) && ( bites.length == SIZE ) && ( bites[0] == 1 );
     }
 }
