@@ -525,7 +525,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder();
+            LdapEncoder encoder = new LdapEncoder( ldapServer.getDirectoryService().getLdapCodecService() );
             ByteBuffer bb = encoder.encodeMessage( request );
 
             bb.flip();
@@ -565,7 +565,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder();
+            LdapEncoder encoder = new LdapEncoder( ldapServer.getDirectoryService().getLdapCodecService() );
             ByteBuffer bb = encoder.encodeMessage( request );
             bb.flip();
 
