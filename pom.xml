@@ -766,6 +766,12 @@
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-extras-trigger</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-util</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
