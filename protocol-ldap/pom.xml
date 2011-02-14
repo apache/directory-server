@@ -97,7 +97,7 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
+      <artifactId>shared-ldap-extras-sp</artifactId>
     </dependency>
     
     <dependency>
