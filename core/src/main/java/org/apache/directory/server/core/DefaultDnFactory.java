@@ -78,7 +78,7 @@ public class DefaultDnFactory implements DnFactory
 
         if ( dn.trim().length() == 0 )
         {
-            return Dn.EMPTY_DN;
+            return Dn.ROOT_DSE;
         }
 
         Dn cachedDn = null;

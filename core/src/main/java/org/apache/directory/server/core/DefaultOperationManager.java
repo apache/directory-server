@@ -149,7 +149,7 @@ public class DefaultOperationManager implements OperationManager
 
                 StringBuilder urlString = new StringBuilder();
 
-                if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == Dn.EMPTY_DN ) )
+                if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == Dn.ROOT_DSE ) )
                 {
                     ldapUrl.setDn( parentEntry.getDn() );
                 }

@@ -286,7 +286,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory();
 
-            Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
+            Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, service.getSchemaManager() );
 
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service
                 .getSchemaManager().getRegistries(), schemaName );
@@ -1424,7 +1424,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );
@@ -1487,7 +1487,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );
@@ -1551,7 +1551,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
 
-        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service
             .getSchemaManager().getRegistries(), "nis" );

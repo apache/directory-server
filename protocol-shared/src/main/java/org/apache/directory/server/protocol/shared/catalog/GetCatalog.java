@@ -54,7 +54,7 @@ public class GetCatalog implements DirectoryServiceOperation
         String filter = "(objectClass=" + ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC + ")";
 
         EntryFilteringCursor list = session.search( 
-            Dn.EMPTY_DN,
+            Dn.ROOT_DSE,
             SearchScope.SUBTREE, 
             FilterParser.parse(session.getDirectoryService().getSchemaManager(), filter),
             AliasDerefMode.DEREF_ALWAYS,

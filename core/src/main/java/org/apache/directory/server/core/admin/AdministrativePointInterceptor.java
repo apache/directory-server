@@ -768,7 +768,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.EMPTY_DN, filter,
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
 
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
