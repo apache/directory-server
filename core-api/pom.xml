@@ -109,6 +109,11 @@
     </dependency>
     
     <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-extras-util</artifactId>
+    </dependency>
+    
+    <dependency>
        <groupId>net.sf.ehcache</groupId>
        <artifactId>ehcache-core</artifactId>
    </dependency>
