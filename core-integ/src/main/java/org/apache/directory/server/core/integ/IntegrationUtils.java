@@ -205,7 +205,7 @@ public class IntegrationUtils
 
     public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
     {
-        Dn dn = new Dn( entry.getDn() );
+        Dn dn = entry.getDn();
         CoreSession session = service.getAdminSession();
 
         switch( entry.getChangeType().getChangeType() )

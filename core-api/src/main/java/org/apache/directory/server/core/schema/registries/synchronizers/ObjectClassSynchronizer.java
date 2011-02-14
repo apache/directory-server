@@ -213,7 +213,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new Dn
-        Dn newDn = new Dn( targetEntry.getDn() );
+        Dn newDn = targetEntry.getDn();
         newDn = newDn.remove( newDn.size() - 1 );
         newDn = newDn.add( newRdn );
 

@@ -32,8 +32,6 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -50,6 +48,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -107,7 +108,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd( new Dn( forward.getDn() ) );
+        LdifEntry reverse = LdifRevertor.reverseAdd( forward.getDn() );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
@@ -128,10 +129,10 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
         
-        Dn reverseDn = new Dn( forward.getDn() );
+        Dn reverseDn = forward.getDn();
         reverseDn.normalize( oidsMap );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd(reverseDn);
+        LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );
 
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;
