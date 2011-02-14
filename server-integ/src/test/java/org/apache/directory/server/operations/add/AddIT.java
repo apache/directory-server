@@ -87,7 +87,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -739,7 +739,7 @@ public class AddIT extends AbstractLdapTestUnit
             principalDn = "";
         }
 
-        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )

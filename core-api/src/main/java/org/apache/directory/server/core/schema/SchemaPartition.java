@@ -46,7 +46,6 @@ import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -54,6 +53,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
@@ -211,7 +211,7 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        schemaDn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
+        schemaDn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         
         wrapped.setId( ID );
         wrapped.setSuffix(schemaDn);
@@ -236,7 +236,7 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        schemaModificationDn = new Dn( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, schemaManager );
+        schemaModificationDn = new Dn( schemaManager, ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
     }
 
 

@@ -32,8 +32,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.OID;
-import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapCodecService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
@@ -738,10 +738,10 @@ public class LdapCoreSessionConnection implements LdapConnection
 
             if ( modDnRequest.getNewRdn() != null )
             {
-                newRdn = new Dn( modDnRequest.getNewRdn().getName(), schemaManager );
+                newRdn = new Dn( schemaManager, modDnRequest.getNewRdn().getName() );
             }
 
-            Dn oldRdn = new Dn( modDnRequest.getName().getRdn().getName(), schemaManager );
+            Dn oldRdn = new Dn( schemaManager, modDnRequest.getName().getRdn().getName() );
 
             boolean rdnChanged = modDnRequest.getNewRdn() != null
                 && !newRdn.getNormName().equals( oldRdn.getNormName() );

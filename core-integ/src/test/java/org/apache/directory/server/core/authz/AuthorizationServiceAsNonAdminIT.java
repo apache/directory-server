@@ -38,18 +38,18 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -143,7 +143,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         mods.add( mod );
       
-        Dn userDn = new Dn( "uid=akarasulu,ou=users,ou=system", service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         CoreSession akarasuluSession = service.getSession( principal );
 

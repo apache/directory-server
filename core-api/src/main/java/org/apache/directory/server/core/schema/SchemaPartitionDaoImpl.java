@@ -195,7 +195,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
     private EntryFilteringCursor listSchemas() throws Exception
     {
-        Dn base = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn base = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
 
@@ -213,7 +213,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public Schema getSchema( String schemaName ) throws Exception
     {
-        Dn dn = new Dn( "cn=" + schemaName + ",ou=schema", schemaManager );
+        Dn dn = new Dn( schemaManager, "cn=" + schemaName + ",ou=schema" );
         return factory.getSchema( partition.lookup( new LookupOperationContext( null, dn ) ) );
     }
 
@@ -565,7 +565,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public void enableSchema( String schemaName ) throws Exception
     {
-        Dn dn = new Dn( "cn=" + schemaName + ",ou=schema", schemaManager );
+        Dn dn = new Dn( schemaManager, "cn=" + schemaName + ",ou=schema" );
         Entry entry = partition.lookup( new LookupOperationContext( null, dn ) );
         EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );

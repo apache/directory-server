@@ -75,9 +75,9 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
         try
         {
             SchemaManager schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
-            Dn newRdn = new Dn( req.getNewRdn().getName(), schemaManager );
+            Dn newRdn = new Dn( schemaManager, req.getNewRdn().getName() );
             
-            Dn oldRdn = new Dn( req.getName().getRdn().getName(), schemaManager );
+            Dn oldRdn = new Dn( schemaManager, req.getName().getRdn().getName() );
             
             boolean rdnChanged = req.getNewRdn() != null && 
                 ! newRdn.getNormName().equals( oldRdn.getNormName() );

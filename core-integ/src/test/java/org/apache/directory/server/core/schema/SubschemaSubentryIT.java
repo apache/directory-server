@@ -77,8 +77,6 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.model.schema.parsers.*;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
@@ -87,7 +85,9 @@ import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleDescrip
 import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Base64;
@@ -1923,7 +1923,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttr = subentry.get( "modifiersName" );
         Attribute modifyTimestampAttr = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttr );
-        Dn expectedDn = new Dn( "uid=admin,ou=system", service.getSchemaManager() );
+        Dn expectedDn = new Dn( service.getSchemaManager(), "uid=admin,ou=system" );
         assertEquals( expectedDn.getName(), modifiersNameAttr.get() );
         assertNotNull( modifyTimestampAttr );
 
@@ -1959,7 +1959,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute modifiersNameAttrAfter = subentry.get( "modifiersName" );
         Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
-        expectedDn = new Dn( "uid=admin,ou=system", service.getSchemaManager() );
+        expectedDn = new Dn( service.getSchemaManager(), "uid=admin,ou=system" );
         assertEquals( expectedDn.getName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
 

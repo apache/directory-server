@@ -1339,7 +1339,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDn = new Dn( subschemaSubentry.getString(), ds.getSchemaManager() );
+        Dn subschemaSubentryDn = new Dn( ds.getSchemaManager(), subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         return subschemaSubentryDnNorm.equals( baseNormForm );
@@ -1387,8 +1387,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // Normalize the Dn to check for same dn
-            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
-                .getSchemaManager() );
+            Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
+                .getSchemaManager(), ldapUrl.getDn().getName() );
 
             if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
             {
@@ -1467,8 +1467,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
 
-            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
-                .getSchemaManager() );
+            Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
+                .getSchemaManager(), ldapUrl.getDn().getName() );
 
             if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
             {

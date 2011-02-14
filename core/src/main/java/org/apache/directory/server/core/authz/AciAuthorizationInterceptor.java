@@ -74,13 +74,13 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -178,7 +178,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void initTupleCache() throws LdapException
     {
         // Load all the prescriptiveACI : they are stored in AccessControlSubentry entries
-        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -222,7 +222,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void initGroupCache() throws LdapException
     {
         // Load all the member/uniqueMember : they are stored in groupOfNames/groupOfUniqueName
-        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

@@ -62,7 +62,7 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
         // Test AddContextPartition
         service.addPartition( partition );
 
-        Dn suffixDn = new Dn( "ou=removable", service.getSchemaManager() );
+        Dn suffixDn = new Dn( service.getSchemaManager(), "ou=removable" );
 
         Entry ctxEntry = LdifUtils.createEntry( service.getSchemaManager(), suffixDn,
             "objectClass: top",

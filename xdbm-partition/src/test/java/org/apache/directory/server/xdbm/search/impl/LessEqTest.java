@@ -631,7 +631,7 @@ public class LessEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        Dn dn = new Dn( "cn=jane doe,o=good times co.", schemaManager );
+        Dn dn = new Dn( schemaManager, "cn=jane doe,o=good times co." );
         Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "c-street", "1" );

@@ -67,9 +67,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -755,7 +755,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     {
         List<Entry> entries = new ArrayList<Entry>();
 
-        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -1139,7 +1139,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Load all the AdministratvePoint :
         // Autonomous Administrative Point first, then Specific
         // administrative point, finally the Inner administrative Point
-        Dn adminDn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, schemaManager );
+        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

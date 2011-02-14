@@ -190,7 +190,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         cookieModLst = new ArrayList<Modification>( 1 );
         cookieModLst.add( cookieMod );
 
-        configEntryDn = new Dn( config.getConfigEntryDn(), schemaManager );
+        configEntryDn = new Dn( schemaManager, config.getConfigEntryDn() );
 
         prepareSyncSearchRequest();
     }
@@ -926,7 +926,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
         }
 
-        Dn dn = new Dn( config.getBaseDn(), schemaManager );
+        Dn dn = new Dn( schemaManager, config.getBaseDn() );
 
         LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
         EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,

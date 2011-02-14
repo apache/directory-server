@@ -150,7 +150,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -172,7 +172,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )

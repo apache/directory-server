@@ -603,7 +603,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
-        Dn dn = new Dn( getSubschemaSubentryDN(), service.getSchemaManager() );
+        Dn dn = new Dn( service.getSchemaManager(), getSubschemaSubentryDN() );
         Attribute attr = new BasicAttribute( opAttr );
 
         for ( String description : descriptions )

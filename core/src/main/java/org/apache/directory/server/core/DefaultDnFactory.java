@@ -99,7 +99,7 @@ public class DefaultDnFactory implements DnFactory
         {
             LOG.debug( "Dn {} not found in the cache, creating", dn );
 
-            cachedDn = new Dn( dn, schemaManager );
+            cachedDn = new Dn( schemaManager, dn );
 
             if ( dnCache != null )
             {

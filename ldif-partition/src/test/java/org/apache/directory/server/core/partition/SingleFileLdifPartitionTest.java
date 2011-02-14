@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -70,17 +70,21 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.apache.directory.shared.util.Strings;
-import org.junit.*;
+import org.apache.directory.shared.util.exception.Exceptions;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 
@@ -136,7 +140,7 @@ public class SingleFileLdifPartitionTest
 
         defaultCSNFactory = new CsnFactory( 0 );
 
-        Dn adminDn = new Dn( "uid=admin,ou=system", schemaManager );
+        Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
         mockSession = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
 
@@ -164,7 +168,7 @@ public class SingleFileLdifPartitionTest
     private ClonedServerEntry createEntry( String dn ) throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new Dn( dn, schemaManager ) );
+        entry.setDn( new Dn( schemaManager, dn ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
@@ -680,10 +684,8 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( "dc=child1,ou=test,ou=system",
-            schemaManager ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( "dc=child2,ou=test,ou=system",
-            schemaManager ) ) );
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -705,10 +707,8 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( "dc=grandChild11,dc=child1,ou=test,ou=system",
-            schemaManager ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( "dc=child2,ou=test,ou=system",
-            schemaManager ) ) );
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -731,7 +731,7 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( "dc=child1,ou=test,ou=system", schemaManager );
+        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, true );
@@ -739,7 +739,7 @@ public class SingleFileLdifPartitionTest
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( "dc=renamedChild1,ou=test,ou=system", schemaManager );
+        childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
@@ -753,7 +753,7 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( "dc=child1,ou=test,ou=system", schemaManager );
+        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, false );
@@ -761,7 +761,7 @@ public class SingleFileLdifPartitionTest
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( "dc=renamedChild1,ou=test,ou=system", schemaManager );
+        childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
@@ -775,9 +775,9 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( "dc=child1,ou=test,ou=system", schemaManager );
+        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
-        Dn childDn2 = new Dn( "dc=child2,ou=test,ou=system", schemaManager );
+        Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
@@ -786,7 +786,7 @@ public class SingleFileLdifPartitionTest
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
+        childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
@@ -802,9 +802,9 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( "dc=child1,ou=test,ou=system", schemaManager );
+        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
-        Dn childDn2 = new Dn( "dc=child2,ou=test,ou=system", schemaManager );
+        Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
@@ -813,7 +813,7 @@ public class SingleFileLdifPartitionTest
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( "dc=movedChild1,dc=child2,ou=test,ou=system", schemaManager );
+        childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
@@ -1028,7 +1028,7 @@ public class SingleFileLdifPartitionTest
                 
                 try
                 {
-                    Dn dn = new Dn( "dc=grandChild12,dc=child1,ou=test,ou=system", schemaManager );
+                    Dn dn = new Dn( schemaManager, "dc=grandChild12,dc=child1,ou=test,ou=system" );
 
                     Rdn oldRdn = new Rdn( SchemaConstants.DC_AT + "=" + "grandChild12" );
 
@@ -1084,10 +1084,10 @@ public class SingleFileLdifPartitionTest
                 
                 try
                 {
-                    Dn originalDn = new Dn( "dc=grandChild11,dc=child1,ou=test,ou=system", schemaManager );
+                    Dn originalDn = new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" );
 
-                    Dn originalParent = new Dn( "dc=child1,ou=test,ou=system", schemaManager );
-                    Dn newParent = new Dn( "dc=child2,ou=test,ou=system", schemaManager );
+                    Dn originalParent = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
+                    Dn newParent = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
                     Dn tmpDn = originalDn;
                     Dn tmpParentDn = newParent;

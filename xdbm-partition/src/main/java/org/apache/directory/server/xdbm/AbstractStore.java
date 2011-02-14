@@ -53,7 +53,6 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1471,7 +1470,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ID parentId = id;
 
         List<Rdn> rdnList = new ArrayList<Rdn>();
-        String upName = "";
+        StringBuilder upName = new StringBuilder();
         String normName = "";
 
         do
@@ -1484,12 +1483,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 if ( rdnList.isEmpty() )
                 {
                     normName = rdn.getNormName();
-                    upName = rdn.getName();
+                    upName.append( rdn.getName() );
                 }
                 else
                 {
                     normName = normName + "," + rdn.getNormName();
-                    upName = upName + "," + rdn.getName();
+                    upName.append( ',' ).append( rdn.getName() );
                 }
 
                 rdnList.add( rdn );
@@ -1499,7 +1498,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
         while ( !parentId.equals( getRootId() ) );
 
-        Dn dn = new Dn( upName, normName, Strings.getBytesUtf8(normName), rdnList );
+        Dn dn = new Dn( schemaManager, upName.toString() );
 
         return dn;
     }
@@ -1785,7 +1784,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ID ancestorId; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name
-        normalizedAliasTargetDn = new Dn( aliasTarget, schemaManager );
+        normalizedAliasTargetDn = new Dn( schemaManager, aliasTarget );
 
         /*
          * Check For Cycles
@@ -1923,7 +1922,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected void dropAliasIndices( ID aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new Dn( targetDn, schemaManager ) );
+        ID targetId = getEntryId( new Dn( schemaManager, targetDn ) );
 
         if ( targetId == null )
         {
@@ -1995,7 +1994,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected void dropAliasIndices( ID aliasId, Dn movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        ID targetId = getEntryId( new Dn( targetDn, schemaManager ) );
+        ID targetId = getEntryId( new Dn( schemaManager, targetDn ) );
         Dn aliasDn = getEntryDn( aliasId );
 
         /*
