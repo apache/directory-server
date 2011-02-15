@@ -161,7 +161,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Dn dn = entry.getDn();
         Dn parentDn = dn;
         parentDn = parentDn.remove( parentDn.size() - 1 );
-        parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        parentDn.normalize( schemaManager );
 
         if ( !parentDn.equals(ouSchemaDn) )
         {
