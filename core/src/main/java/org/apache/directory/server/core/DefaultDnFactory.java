@@ -91,7 +91,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCacheEntry != null )
             {
-                cachedDn = (Dn) dnCacheEntry.getValue();
+                cachedDn = (Dn) dnCacheEntry.getObjectValue();
             }
         }
 
