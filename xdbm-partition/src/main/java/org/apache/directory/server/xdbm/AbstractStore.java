@@ -1953,7 +1953,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
-            ancestorDn = ancestorDn.getPrefix( ancestorDn.size() - 1 );
+            ancestorDn = ancestorDn.getParent();
             ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
@@ -2001,7 +2001,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * Start droping index tuples with the first ancestor right above the
          * moved base.  This is the first ancestor effected by the move.
          */
-        Dn ancestorDn = movedBase.getPrefix( 1 );
+        Dn ancestorDn = new Dn( schemaManager, movedBase.getRdn( 0 ) );
         ID ancestorId = getEntryId( ancestorDn );
 
         /*
@@ -2025,7 +2025,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         while ( !ancestorDn.equals( suffixDn ) )
         {
-            ancestorDn = ancestorDn.getPrefix( 1 );
+            ancestorDn = new Dn( schemaManager, ancestorDn.getRdn( 0 ) );
             ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
