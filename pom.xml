@@ -44,9 +44,9 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.20-SNAPSHOT</org.apache.directory.shared.version>
-    <org.apache.directory.checkstyle-configuration.version>0.2-SNAPSHOT</org.apache.directory.checkstyle-configuration.version>
-    <org.apache.directory.junit.junit-addons.version>0.1-SNAPSHOT</org.apache.directory.junit.junit-addons.version>
+    <org.apache.directory.shared.version>1.0.0-M2-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
+    <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
@@ -67,7 +67,6 @@
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
-    <mycila-junit.version>1.0.ga</mycila-junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.16</log4j.version>
     <maven.archiver.version>2.4.1</maven.archiver.version>
@@ -846,12 +845,6 @@
         <groupId>org.apache.directory.junit</groupId>
         <artifactId>junit-addons</artifactId>
         <version>${org.apache.directory.junit.junit-addons.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.mycila</groupId>
-        <artifactId>mycila-junit</artifactId>
-        <version>${mycila-junit.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->
