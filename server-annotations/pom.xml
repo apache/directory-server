@@ -73,6 +73,12 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-codec-standalone</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
     

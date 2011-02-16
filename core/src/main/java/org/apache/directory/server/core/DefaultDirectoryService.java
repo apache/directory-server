@@ -81,7 +81,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -1477,7 +1477,7 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
         
-                cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( this );
 
         // Initialize the AP caches
@@ -1488,7 +1488,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
-        ldapCodecService = new StandaloneLdapCodecService();
+        ldapCodecService = LdapCodecServiceFactory.getSingleton();
         
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();

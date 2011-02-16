@@ -126,6 +126,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-codec-standalone</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
         <groupId>bouncycastle</groupId>
         <artifactId>bcprov-jdk15</artifactId>
     </dependency>

@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core;
 
 
@@ -33,7 +32,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.OID;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
@@ -113,7 +112,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** The MessageId counter */
     private AtomicInteger messageId = new AtomicInteger( 0 );
 
-    private LdapCodecService codec = new StandaloneLdapCodecService();
+    private LdapCodecService codec = LdapCodecServiceFactory.getSingleton();
 
 
     public LdapCoreSessionConnection()
