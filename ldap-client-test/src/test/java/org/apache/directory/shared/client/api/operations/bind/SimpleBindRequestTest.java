@@ -77,7 +77,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
     }
 
 
@@ -143,7 +143,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testSimpleBindAnonymous() throws Exception
     {
         //System.out.println( "------------------Create connection" + i + "-------------" );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
@@ -161,7 +161,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with empty strings
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         bindResponse = connection.bind( "", "" );
 
         assertNotNull( bindResponse );
@@ -175,7 +175,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with null parameters
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         bindResponse = connection.bind( ( String ) null, ( String ) null );
 
         assertNotNull( bindResponse );
@@ -189,7 +189,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
         connection.close();
 
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         //System.out.println( "----------------Unbind done" + i + "-------------" );
         assertFalse( connection.isConnected() );

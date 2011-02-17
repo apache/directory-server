@@ -172,19 +172,19 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        oldMaxTimeLimit = ldapServer.getMaxTimeLimit();
-        oldMaxSizeLimit = ldapServer.getMaxSizeLimit();
+        oldMaxTimeLimit = getLdapServer().getMaxTimeLimit();
+        oldMaxSizeLimit = getLdapServer().getMaxSizeLimit();
         delayInterceptor = new DelayInducingInterceptor();
-        ldapServer.getDirectoryService().getInterceptorChain().addFirst( delayInterceptor );
+        getLdapServer().getDirectoryService().getInterceptorChain().addFirst( delayInterceptor );
     }
     
     
     @After
     public void tearDown() throws Exception
     {
-        ldapServer.setMaxTimeLimit( oldMaxTimeLimit );
-        ldapServer.setMaxSizeLimit( oldMaxSizeLimit );
-        ldapServer.getDirectoryService().getInterceptorChain().remove( DelayInducingInterceptor.class.getName() );
+        getLdapServer().setMaxTimeLimit( oldMaxTimeLimit );
+        getLdapServer().setMaxSizeLimit( oldMaxSizeLimit );
+        getLdapServer().getDirectoryService().getInterceptorChain().remove( DelayInducingInterceptor.class.getName() );
     }
     
 
@@ -201,7 +201,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = TimeLimitExceededException.class )
     public void testRequestConstrainedUnlimitByConfiguration() throws Exception
     {
-        ldapServer.setMaxTimeLimit( LdapServer.NO_TIME_LIMIT );
+        getLdapServer().setMaxTimeLimit( LdapServer.NO_TIME_LIMIT );
         delayInterceptor.setDelayMillis( 500 );
         
         getActorsWithLimit( "(objectClass=*)", 499, LdapServer.NO_SIZE_LIMIT );
@@ -216,7 +216,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = TimeLimitExceededException.class )
     public void testRequestConstrainedLessThanConfiguration() throws Exception
     {
-        ldapServer.setMaxTimeLimit( 10000 ); // this is in seconds
+        getLdapServer().setMaxTimeLimit( 10000 ); // this is in seconds
         delayInterceptor.setDelayMillis( 500 );
         
         getActorsWithLimit( "(objectClass=*)", 499, LdapServer.NO_SIZE_LIMIT );
@@ -231,7 +231,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = TimeLimitExceededException.class )
     public void testRequestConstrainedGreaterThanConfiguration() throws Exception
     {
-        ldapServer.setMaxTimeLimit( 1 ); // this is in seconds
+        getLdapServer().setMaxTimeLimit( 1 ); // this is in seconds
         delayInterceptor.setDelayMillis( 1100 );
         
         getActorsWithLimit( "(objectClass=*)", 100000, LdapServer.NO_SIZE_LIMIT );
@@ -245,7 +245,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test 
     public void testRequestUnlimitedConfigurationLimited() throws Exception
     {
-        ldapServer.setMaxTimeLimit( 1 ); // this is in seconds
+        getLdapServer().setMaxTimeLimit( 1 ); // this is in seconds
         delayInterceptor.setDelayMillis( 500 );
         
         getActorsWithLimit( "(objectClass=*)", 
@@ -260,7 +260,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = TimeLimitExceededException.class ) 
     public void testNonAdminRequestUnlimitedConfigurationLimited() throws Exception
     {
-        ldapServer.setMaxTimeLimit( 1 ); // this is in seconds
+        getLdapServer().setMaxTimeLimit( 1 ); // this is in seconds
         delayInterceptor.setDelayMillis( 500 );
         
         getActorsWithLimitNonAdmin( "(objectClass=*)", 
@@ -281,7 +281,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test (expected = SizeLimitExceededException.class)
     public void testRequestConstrainedUnlimitByConfigurationSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         
         getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 1 );
     }
@@ -295,7 +295,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = SizeLimitExceededException.class )
     public void testRequestConstrainedLessThanConfigurationSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( 10000 ); 
+        getLdapServer().setMaxSizeLimit( 10000 ); 
 
         getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 1 );
     }
@@ -309,7 +309,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test
     public void testRequestConstrainedGreaterThanConfigurationSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( 1 ); 
+        getLdapServer().setMaxSizeLimit( 1 ); 
         Set<String> set = getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 100000 );
         assertEquals( 4, set.size() );
     }
@@ -323,7 +323,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test (expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestConstrainedGreaterThanConfigurationSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( 1 ); 
+        getLdapServer().setMaxSizeLimit( 1 ); 
         
         // We are not using the admin : it should fail
         getActorsWithLimitNonAdmin( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 100000 );
@@ -337,7 +337,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test 
     public void testRequestUnlimitedConfigurationLimitedSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( 1 ); 
+        getLdapServer().setMaxSizeLimit( 1 ); 
         Set<String> set = getActorsWithLimit( "(objectClass=*)", 
             LdapServer.NO_TIME_LIMIT, LdapServer.NO_SIZE_LIMIT );
         
@@ -352,7 +352,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestUnlimitedConfigurationLimitedSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( 1 );
+        getLdapServer().setMaxSizeLimit( 1 );
         getActorsWithLimitNonAdmin( "(objectClass=*)", 
             LdapServer.NO_TIME_LIMIT, LdapServer.NO_SIZE_LIMIT );
     }
@@ -372,7 +372,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test ( expected = SizeLimitExceededException.class )
     public void testRequestConstraintedLessThanExpectedSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         
         getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 3 );
     }
@@ -387,7 +387,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test
     public void testRequestConstraintedEqualToExpectedSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         Set<String> set = getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 4 );
         assertEquals( 4, set.size() );
     }
@@ -402,7 +402,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test
     public void testRequestConstraintedGreaterThanExpectedSize() throws Exception
     {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         Set<String> set = getActorsWithLimit( "(objectClass=*)", LdapServer.NO_TIME_LIMIT, 5 );
         assertEquals( 4, set.size() );
     }
@@ -416,9 +416,9 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Test
     public void testRequestObjectScopeAndSizeLimit() throws Exception
     {
-        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
 
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         String filter = "(objectClass=*)";
         SearchControls controls = new SearchControls();
         controls.setTimeLimit( 0 );
@@ -444,7 +444,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
      */
     private Set<String> getActorsWithLimit( String filter, int timeLimitMillis, long sizeLimit ) throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         Set<String> results = new HashSet<String>();
         SearchControls controls = new SearchControls();
         controls.setTimeLimit( timeLimitMillis );
@@ -469,7 +469,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     private Set<String> getActorsWithLimitNonAdmin( String filter, int timeLimitMillis, long sizeLimit ) 
         throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer, "uid=jblack,ou=actors,ou=system", "secret" );
+        DirContext ctx = getWiredContext( getLdapServer(), "uid=jblack,ou=actors,ou=system", "secret" );
         Set<String> results = new HashSet<String>();
         SearchControls controls = new SearchControls();
         controls.setTimeLimit( timeLimitMillis );

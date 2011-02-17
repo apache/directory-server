@@ -36,7 +36,7 @@ public abstract class AbstractLdapTestUnit
     private static DirectoryService service;
 
     /** The used LdapServer instance */
-    public static LdapServer ldapServer;
+    private static LdapServer ldapServer;
 
     /** The used KdcServer instance */
     public static KdcServer kdcServer;

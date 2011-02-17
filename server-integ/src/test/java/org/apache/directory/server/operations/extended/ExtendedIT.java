@@ -61,7 +61,7 @@ public class ExtendedIT extends AbstractLdapTestUnit
     @Test
     public void testUnknownExtendedOperation() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( "ou=system" );
         try
         {
             ctx.extendedOperation( new UnknownExtendedOperationRequest() );

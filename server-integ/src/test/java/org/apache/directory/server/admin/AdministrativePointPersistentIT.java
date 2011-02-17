@@ -137,7 +137,7 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
     }
 
 
@@ -167,23 +167,23 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     @Test
     public void testPersistAutonomousArea() throws Exception
     {
-        assertTrue( ldapServer.isStarted() );
+        assertTrue( getLdapServer().isStarted() );
 
         // Stop the server now, we will restart it immediately 
-        ldapServer.stop();
-        assertFalse( ldapServer.isStarted() );
+        getLdapServer().stop();
+        assertFalse( getLdapServer().isStarted() );
 
         // And shutdown the DS too
-        ldapServer.getDirectoryService().shutdown();
-        assertFalse( ldapServer.getDirectoryService().isStarted() );
+        getLdapServer().getDirectoryService().shutdown();
+        assertFalse( getLdapServer().getDirectoryService().isStarted() );
 
         // And restart
-        ldapServer.getDirectoryService().startup();
-        ldapServer.start();
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        getLdapServer().getDirectoryService().startup();
+        getLdapServer().start();
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
 
         assertTrue( getService().isStarted() );
-        assertTrue( ldapServer.getDirectoryService().isStarted() );
+        assertTrue( getLdapServer().getDirectoryService().isStarted() );
         
         // Check that the roles are present
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );
@@ -191,12 +191,12 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
         // Check the caches
-        DnNode<AccessControlAdministrativePoint> acCache = ldapServer.getDirectoryService().getAccessControlAPCache();
-        DnNode<CollectiveAttributeAdministrativePoint> caCache = ldapServer.getDirectoryService()
+        DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
+        DnNode<CollectiveAttributeAdministrativePoint> caCache = getLdapServer().getDirectoryService()
             .getCollectiveAttributeAPCache();
-        DnNode<TriggerExecutionAdministrativePoint> teCache = ldapServer.getDirectoryService()
+        DnNode<TriggerExecutionAdministrativePoint> teCache = getLdapServer().getDirectoryService()
             .getTriggerExecutionAPCache();
-        DnNode<SubschemaAdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
+        DnNode<SubschemaAdministrativePoint> ssCache = getLdapServer().getDirectoryService().getSubschemaAPCache();
 
         // The ACs
         AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );

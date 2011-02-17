@@ -129,8 +129,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     private void setUpListener( boolean returnECs, PersistentSearch persistentSearch, boolean ignoreEmptyRegistryCheck )
         throws Exception
     {
-        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
-        eventService = ldapServer.getDirectoryService().getEventService();
+        ctx = ( EventDirContext ) getWiredContext( getLdapServer()).lookup( BASE );
+        eventService = getLdapServer().getDirectoryService().getEventService();
         List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
         
         if ( ! ignoreEmptyRegistryCheck )
@@ -156,8 +156,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     
     private void setUpListener() throws Exception
     {
-        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
-        eventService = ldapServer.getDirectoryService().getEventService();
+        ctx = ( EventDirContext ) getWiredContext( getLdapServer()).lookup( BASE );
+        eventService = getLdapServer().getDirectoryService().getEventService();
         List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
         assertTrue( registrationEntryList.isEmpty() );
         
@@ -530,14 +530,14 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         
         PSearchListener()
         {
-            persistentSearch = new PersistentSearchDecorator( ldapServer.getDirectoryService().getLdapCodecService() );
+            persistentSearch = new PersistentSearchDecorator( getLdapServer().getDirectoryService().getLdapCodecService() );
         }
 
 
         PSearchListener( PersistentSearch persistentSearch )
         {
             CodecControl<? extends Control> wrapped = 
-                ldapServer.getDirectoryService().getLdapCodecService().newControl( persistentSearch );
+                getLdapServer().getDirectoryService().getLdapCodecService().newControl( persistentSearch );
             this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
         }
 
@@ -575,7 +575,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
-            LdapCodecService codec = ldapServer.getDirectoryService().getLdapCodecService();
+            LdapCodecService codec = getLdapServer().getDirectoryService().getLdapCodecService();
             persistentSearch.setCritical( true );
             persistentSearch.setValue( persistentSearch.getValue() );
 
@@ -583,7 +583,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
             try
             {
-                ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
+                ctx = ( LdapContext ) getWiredContext( getLdapServer()).lookup( BASE );
                 ctx.setRequestControls( JndiUtils.toJndiControls( codec, ctxCtls) );
                 isReady = true;
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );

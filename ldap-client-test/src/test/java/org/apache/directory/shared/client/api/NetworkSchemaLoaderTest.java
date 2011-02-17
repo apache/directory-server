@@ -53,14 +53,14 @@ public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 
     @After
     public void shutdown() throws Exception
     {
-        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
 
 

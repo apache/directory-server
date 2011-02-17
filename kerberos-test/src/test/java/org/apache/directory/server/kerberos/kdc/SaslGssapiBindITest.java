@@ -180,7 +180,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
             hostName = "localhost";
         }
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
-        ldapServer.setSaslPrincipal( servicePrincipal );
+        getLdapServer().setSaslPrincipal( servicePrincipal );
 
         Attributes attrs;
 
@@ -316,7 +316,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
                     // Create the initial context
                     Hashtable<String, String> env = new Hashtable<String, String>();
                     env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
                     // Request the use of the "GSSAPI" SASL mechanism
                     // Authenticate by using already established Kerberos credentials

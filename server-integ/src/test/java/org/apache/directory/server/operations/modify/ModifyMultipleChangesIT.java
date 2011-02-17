@@ -106,7 +106,7 @@ public class ModifyMultipleChangesIT  extends AbstractLdapTestUnit
     @Test
     public void testAddNewAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Add telephoneNumber attribute
         String[] newValues =
@@ -138,7 +138,7 @@ public class ModifyMultipleChangesIT  extends AbstractLdapTestUnit
     @Test
     public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception 
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");

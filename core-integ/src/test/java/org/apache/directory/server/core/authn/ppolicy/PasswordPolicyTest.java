@@ -154,7 +154,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -163,7 +163,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
@@ -195,7 +195,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "12345" );
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
@@ -206,7 +206,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMinAge( 5 );
 
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = LdifUtils.createEntry(userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
@@ -238,7 +238,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, userDn.getName(), "123456" );
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "123456" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }

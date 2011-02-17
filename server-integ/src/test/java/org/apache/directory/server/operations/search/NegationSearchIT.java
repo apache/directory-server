@@ -164,7 +164,7 @@ public class NegationSearchIT extends AbstractLdapTestUnit
     
     Set<SearchResult> getResults( String filter ) throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         Set<SearchResult> results = new HashSet<SearchResult>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );

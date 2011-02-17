@@ -101,7 +101,7 @@ public class BindIT extends AbstractLdapTestUnit
     {
         try
         {
-            getWiredContext( ldapServer, "cn=bogus", "blah" );
+            getWiredContext( getLdapServer(), "cn=bogus", "blah" );
             fail( "should never get here due to a " );
         }
         catch ( AuthenticationException e )
@@ -118,7 +118,7 @@ public class BindIT extends AbstractLdapTestUnit
     {
         try
         {
-            getWiredContext( ldapServer, "system", "blah" );
+            getWiredContext( getLdapServer(), "system", "blah" );
             fail( "should never get here due to a " );
         }
         catch ( InvalidNameException e ){}
@@ -134,7 +134,7 @@ public class BindIT extends AbstractLdapTestUnit
     {
         try
         {
-            getWiredContext( ldapServer, "cn=bogus,ou=system", "blah" );
+            getWiredContext( getLdapServer(), "cn=bogus,ou=system", "blah" );
             fail( "should never get here due to a " );
         }
         catch ( AuthenticationException e )
@@ -151,7 +151,7 @@ public class BindIT extends AbstractLdapTestUnit
         try
         {
             conn = new LDAPConnection();
-            conn.connect( 100, "localhost", ldapServer.getPort(), "uid=admin,ou=system", "secret" );
+            conn.connect( 100, "localhost", getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
         catch ( LDAPException e )
@@ -182,7 +182,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getPort(),
+            conn.connect( 3, "localhost", getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
@@ -193,7 +193,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getPort(),
+            conn.connect( 3, "localhost", getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }

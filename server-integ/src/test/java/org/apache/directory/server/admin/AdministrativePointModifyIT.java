@@ -266,7 +266,7 @@ public class AdministrativePointModifyIT extends AbstractLdapTestUnit
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
     }
 
 
@@ -296,7 +296,7 @@ public class AdministrativePointModifyIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAAPToSAPWithIAPBelow() throws Exception
     {
-        assertTrue( ldapServer.isStarted() );
+        assertTrue( getLdapServer().isStarted() );
 
         // Remove the AAP
         Modification modificationDelAap = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,

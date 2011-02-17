@@ -88,12 +88,12 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig = new LdapConnectionConfig();
         sslConfig.setLdapHost( "localhost" );
         sslConfig.setUseSsl( true );
-        sslConfig.setLdapPort( ldapServer.getPortSSL() );
+        sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
         
         tlsConfig = new LdapConnectionConfig();
         tlsConfig.setLdapHost( "localhost" );
-        tlsConfig.setLdapPort( ldapServer.getPort() );
+        tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
     }
 

@@ -124,7 +124,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         }
         
         ksFile = File.createTempFile( "testStore", "ks" );
-        CoreSession session = ldapServer.getDirectoryService().getAdminSession();
+        CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
@@ -138,7 +138,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
         
-        oldConfidentialityRequiredValue = ldapServer.isConfidentialityRequired();
+        oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
     
     
@@ -154,7 +154,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         }
         
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
-        ldapServer.setConfidentialityRequired( oldConfidentialityRequiredValue );
+        getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
     
 
@@ -170,7 +170,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         
         // Must use the name of the server that is found in its certificate?
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
         // Create initial context
         LOG.debug( "About to get initial context" );
@@ -198,7 +198,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
     @Test
     public void testConfidentiality() throws Exception
     {
-        ldapServer.setConfidentialityRequired( true );
+        getLdapServer().setConfidentialityRequired( true );
 
         // -------------------------------------------------------------------
         // Unsecured bind should fail
@@ -206,7 +206,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 
         try
         {
-            ServerIntegrationUtils.getWiredContext( ldapServer );
+            ServerIntegrationUtils.getWiredContext( getLdapServer() );
             fail( "Should not get here due to violation of confidentiality requirements" );
         }
         catch( AuthenticationNotSupportedException e )

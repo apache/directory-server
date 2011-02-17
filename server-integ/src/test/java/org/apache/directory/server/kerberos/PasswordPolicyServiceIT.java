@@ -118,7 +118,7 @@ public class PasswordPolicyServiceIT extends AbstractLdapTestUnit
         Attributes attrs;
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() + "/dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() + "/dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

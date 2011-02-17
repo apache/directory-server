@@ -181,7 +181,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        DirContext schemaRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( "ou=schema" );
+        DirContext schemaRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( "ou=schema" );
 
         // -------------------------------------------------------------------
         // Enable the krb5kdc schema
@@ -205,7 +205,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( "dc=example,dc=com" );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( "dc=example,dc=com" );
         Attributes attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
 
@@ -225,7 +225,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -296,7 +296,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -433,7 +433,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -562,7 +562,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() + "/ou=users,dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() + "/ou=users,dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

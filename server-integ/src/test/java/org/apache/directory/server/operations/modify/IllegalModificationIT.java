@@ -82,7 +82,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalModification() throws Exception
     {
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new Dn( DN ) );
@@ -100,7 +100,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalModification2() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( getLdapServer() );
 
         // first a valid attribute
         LDAPAttribute attr = new LDAPAttribute( "description", "The description" );

@@ -73,14 +73,14 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 
     @After
     public void shutdown() throws Exception
     {
-        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
 
 
@@ -92,7 +92,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequest() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         try
         {
             BindResponse bindResponse = connection.bind( ADMIN_DN, "secret" );
@@ -215,7 +215,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testAnonBind() throws Exception
     {
-        LdapNetworkConnection conn = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapNetworkConnection conn = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         
         BindResponse resp = conn.bind();
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );

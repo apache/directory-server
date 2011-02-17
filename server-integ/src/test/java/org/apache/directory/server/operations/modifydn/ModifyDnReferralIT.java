@@ -110,7 +110,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -133,7 +133,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testNewSuperiorOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -162,7 +162,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -191,7 +191,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testNewSupierorOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -219,7 +219,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
         
         // ModifyDN referrals failure
         try
@@ -245,7 +245,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 
@@ -273,7 +273,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 

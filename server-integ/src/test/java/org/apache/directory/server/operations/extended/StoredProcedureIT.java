@@ -77,7 +77,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

@@ -144,7 +144,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
     }
 
 
@@ -174,7 +174,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
     @Test
     public void testAddIAP() throws Exception
     {
-        assertTrue( ldapServer.isStarted() );
+        assertTrue( getLdapServer().isStarted() );
 
         // First check that we can't add an IAP in the DIT if there is no
         // parent AAP or SAP with the same role
@@ -306,7 +306,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
     @Test
     public void testAddSAP() throws Exception
     {
-        assertTrue( ldapServer.isStarted() );
+        assertTrue( getLdapServer().isStarted() );
 
         // First check that we can add a SAP in the DIT if there is no
         // parent AAP or SAP

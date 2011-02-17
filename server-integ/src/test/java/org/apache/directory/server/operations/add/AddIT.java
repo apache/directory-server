@@ -192,7 +192,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddObjectClasses() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // modify object classes, add two more
         Attributes attributes = LdifUtils.createAttributes("objectClass: organizationalPerson",
@@ -224,7 +224,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDescription() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         String newDescription = "More info on the user ...";
 
@@ -253,7 +253,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddWithMissingRequiredAttributes() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // person without sn
         Attributes attrs = new BasicAttributes( true );
@@ -285,7 +285,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( new Dn( dn ) );
@@ -325,7 +325,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( new Dn( dn ) );
@@ -365,7 +365,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( new Dn( dn ) );
@@ -405,7 +405,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddWithInvalidNumberOfAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // add inetOrgPerson with two displayNames
         Attributes attrs = new BasicAttributes( true );
@@ -439,7 +439,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create entry
         Attributes entry = new BasicAttributes( true );
@@ -479,7 +479,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAliasInContainer() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create container
         Attributes container = new BasicAttributes( true );
@@ -551,7 +551,7 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
 
         // Remove alias and entry
@@ -573,7 +573,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddDeleteAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create entry ou=favorite,ou=system
         Attributes entry = new BasicAttributes( true );
@@ -616,7 +616,7 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddDeleteAlias2() throws Exception
     {
         // use a partition with suffix size 2
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE_EXAMPLE_COM );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE_EXAMPLE_COM );
 
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new BasicAttributes( true );
@@ -659,7 +659,7 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddDeleteAlias3() throws Exception
     {
         // use a partition with suffix size 3
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE_DIRECTORY_APACHE_ORG );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE_DIRECTORY_APACHE_ORG );
 
         // Create entry ou=favorite,dc=directory,dc=apache,dc=org
         Attributes entry = new BasicAttributes( true );
@@ -696,7 +696,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -759,7 +759,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWitJNDIIgnore() throws Exception
     {
-        LdapContext MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, ldapServer.getDirectoryService(),
+        LdapContext MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getLdapServer().getDirectoryService(),
             "uid=akarasuluref,ou=users,ou=system" );
 
         // Set to 'ignore'
@@ -791,7 +791,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 
@@ -824,7 +824,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -860,7 +860,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[0] );
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -893,7 +893,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testDIRSERVER_1183() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
         attrs.get( "objectClass" ).add( "person" );
@@ -911,7 +911,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryNoRDNInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -950,7 +950,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryDifferentRDNInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -997,7 +997,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryDifferentRDNSingleValuedInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -1039,7 +1039,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryComposedRDN() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -1090,8 +1090,8 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddPDUExceedingMaxSizeJNDI() throws Exception
     {
         // Limit the PDU size to 1024
-        ldapServer.getDirectoryService().setMaxPDUSize( 1024 );
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
@@ -1122,9 +1122,9 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Test again with a bigger size
         // Limit the PDU size to 1024
-        ldapServer.getDirectoryService().setMaxPDUSize( 4096 );
+        getLdapServer().getDirectoryService().setMaxPDUSize( 4096 );
 
-        ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         person = ( DirContext ) ctx.lookup( RDN );
 
         try
@@ -1138,7 +1138,7 @@ public class AddIT extends AbstractLdapTestUnit
         }
 
         // Read again from directory
-        ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         person = ( DirContext ) ctx.lookup( RDN );
 
         assertNotNull( person );
@@ -1159,8 +1159,8 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddPDUExceedingMaxSizeLdapApi() throws Exception
     {
         // Limit the PDU size to 1024
-        ldapServer.getDirectoryService().setMaxPDUSize( 1024 );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         connection.setTimeOut( Integer.MAX_VALUE );
         connection.bind( "uid=admin,ou=system", "secret" );
 
@@ -1205,7 +1205,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddUnescapedRdnValue_DIRSERVER_1311() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         Attributes tori = new BasicAttributes( true );
         Attribute toriOC = new BasicAttribute( "objectClass" );
@@ -1265,7 +1265,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryUUIDAndCSNAttributes() throws Exception
     {
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry entry = new DefaultEntry( new Dn( dn ) );
@@ -1344,7 +1344,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void test_DIRSERVER_1357() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
 
         Attributes salesAttrs = getOrgUnitAttributes( "sales" );
         ctx.createSubcontext( "ou=sales", salesAttrs );

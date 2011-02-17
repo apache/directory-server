@@ -47,15 +47,15 @@ public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
         {
             assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
             // the SuiteDS is the name given to the DS instance in the enclosing TestSuite
-            assertEquals( "SuiteDS", ldapServer.getDirectoryService().getInstanceId() );
+            assertEquals( "SuiteDS", getLdapServer().getDirectoryService().getInstanceId() );
         }
         else // should run with a default DS created in FrameworkRunner
         {
-            assertTrue( ldapServer.getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
+            assertTrue( getLdapServer().getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
         }
         
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
         
-        assertNotNull( ldapServer );
+        assertNotNull( getLdapServer() );
     }
 }

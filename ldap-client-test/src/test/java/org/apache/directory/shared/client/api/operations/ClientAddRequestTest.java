@@ -71,15 +71,15 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
-        session = ldapServer.getDirectoryService().getAdminSession();
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
 
     @After
     public void shutdown() throws Exception
     {
-        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
 
 
