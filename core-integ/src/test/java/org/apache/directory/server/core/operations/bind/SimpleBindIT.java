@@ -95,7 +95,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -138,7 +138,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -177,7 +177,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -216,7 +216,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -257,7 +257,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         // Bind on the rootDSE
@@ -336,7 +336,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         // Bind on the rootDSE
@@ -371,10 +371,10 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", null );
+        LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
         assertFalse( connection.isAuthenticated() );
 
-        connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
+        connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
 
         BindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, bindResp.getLdapResult().getResultCode() );
@@ -392,7 +392,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         // Bind on the rootDSE
@@ -430,7 +430,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // We will bind using JNDI
         // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

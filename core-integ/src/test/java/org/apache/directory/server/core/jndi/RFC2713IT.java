@@ -53,7 +53,7 @@ public class RFC2713IT extends AbstractLdapTestUnit
     @SuppressWarnings("unchecked")
     public void testSerialization() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         ArrayList<String> colors = new ArrayList<String>();
         colors.add( "red" );

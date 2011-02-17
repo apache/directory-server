@@ -217,7 +217,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
         
@@ -255,7 +255,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
+        return getSystemContext( getService() ).createSubcontext( "cn="+name+",ou=groups", attrs );
     }
 
 
@@ -282,7 +282,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A new description attribute value
@@ -308,7 +308,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyAddExistingEntryNotExistingATNotInMayValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A valid AT not in MUST or MAY
@@ -325,7 +325,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATNotInMayExtensibleObjectOCValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
@@ -350,7 +350,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingAtEmptyValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
@@ -375,7 +375,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntrySingleValuedATWithTwoValues() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // 
@@ -396,7 +396,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributesException.class )
     public void testModifyAddExistingEntryNotExistingATInvalidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An invalid AT
@@ -412,7 +412,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributesException.class )
     public void testModifyAddExistingEntryNotExistingATInvalidAVAExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An invalid AT
@@ -428,7 +428,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATInvalidValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An invalid AT value
@@ -445,7 +445,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATInvalidValueExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An invalid AT value
@@ -461,7 +461,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = NoPermissionException.class )
     public void testModifyAddExistingEntryOperationalAttribute() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An operationalAttribute
@@ -477,7 +477,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = NoPermissionException.class )
     public void testModifyAddExistingEntryOperationalAttributeExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An operational attribute
@@ -497,7 +497,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingATValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A new description attribute value
@@ -524,7 +524,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = AttributeInUseException.class )
     public void testModifyAddExistingEntryExistingATExistingValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
@@ -540,7 +540,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingAtEmptyValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345".getBytes(), true );
@@ -569,7 +569,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingSingleValuedAT() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // The initial value
@@ -592,7 +592,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = AttributeInUseException.class )
     public void testModifyAddExistingEntryExistingSingleValuedATExistingValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // The initial value
@@ -615,7 +615,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATBadValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // The added value
@@ -659,7 +659,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test( expected = NameNotFoundException.class )
     public void testModifyAddNotExistingEntry() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An operational attribute

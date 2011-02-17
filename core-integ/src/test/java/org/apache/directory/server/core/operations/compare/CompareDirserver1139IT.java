@@ -66,7 +66,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         // Enable the nis schema
         // -------------------------------------------------------------------
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
         
@@ -88,9 +88,9 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         // Enable the krb5kdc schema
         // -------------------------------------------------------------------
         // Check if krb5kdc is loaded
-        if ( !service.getSchemaManager().isSchemaLoaded( "krb5kdc" ) )
+        if ( !getService().getSchemaManager().isSchemaLoaded( "krb5kdc" ) )
         {
-            service.getSchemaManager().load( "krb5kdc" );
+            getService().getSchemaManager().load( "krb5kdc" );
         }
 
         // check if krb5kdc is disabled
@@ -159,7 +159,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     @Test
     public void testCompare() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         
         injectEntries( sysRoot);
 

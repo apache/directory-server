@@ -63,7 +63,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testGetInitialContext() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -85,7 +85,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -112,7 +112,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -140,7 +140,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testGetInitialContextLookupAttributesByNameWithOC() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -168,7 +168,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testDelete() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -203,7 +203,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testRename() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -238,7 +238,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testModify() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -273,7 +273,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     public void testModify2() throws NamingException
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

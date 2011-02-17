@@ -88,7 +88,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Before
     public void setup()
     {
-        schemaManager = service.getSchemaManager();
+        schemaManager = getService().getSchemaManager();
     }
 
 
@@ -109,10 +109,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
@@ -136,10 +136,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries",
@@ -161,12 +161,12 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail( "Should not be there" );
         }
         catch ( NameNotFoundException nnfe )
@@ -202,10 +202,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
@@ -238,10 +238,10 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries",
@@ -267,7 +267,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( isOnDisk( dn ) );
 
         // Deletion
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         // Post-checks
         assertFalse( "comparator should be removed from the registry after being deleted", schemaManager
@@ -299,7 +299,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( isOnDisk( dn ) );
 
         // Deletion
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         // Post-checks
         assertFalse( "comparator should be removed from the registry after being deleted", schemaManager
@@ -327,7 +327,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         // Create a new Comparator
         testAddComparatorToEnabledSchema();
         assertTrue( isOnDisk( cDn ) );
-        assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertTrue( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Create a MR using this comparator
         Attributes attrs = LdifUtils.createAttributes(
@@ -343,18 +343,18 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( mrDn ) );
-        assertFalse( service.getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         // MatchingRule Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( mrDn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( mrDn ), attrs );
 
         // Post-checks
         assertTrue( isOnDisk( mrDn ) );
-        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+        assertTrue( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         try
         {
-            getSchemaContext( service ).destroySubcontext( JndiUtils.toName( cDn ) );
+            getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( cDn ) );
             fail( "should not be able to delete a comparator in use" );
         }
         catch ( OperationNotSupportedException e )
@@ -381,7 +381,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-fqcn", BooleanComparator.class.getName() );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -404,7 +404,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-fqcn", BooleanComparator.class.getName() );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName(dn), DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName(dn), DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -429,7 +429,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn newdn = getComparatorContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old comparator OID should be removed from the registry after being renamed", schemaManager
             .getComparatorRegistry().contains( OID ) );
@@ -463,7 +463,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to rename a comparator in use" );
         }
         catch ( LdapUnwillingToPerformException e )
@@ -474,7 +474,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "comparator should still be in the registry after rename failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
+        getService().getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -493,7 +493,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -517,7 +517,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getComparatorContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old comparator OID should NOT be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -549,7 +549,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a comparator in use" );
         }
         catch ( LdapUnwillingToPerformException e )
@@ -560,7 +560,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
+        getService().getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -579,7 +579,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a comparator in use" );
         }
         catch ( LdapUnwillingToPerformException e )
@@ -590,7 +590,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
+        getService().getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -612,7 +612,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
             fail( "should not be able to move a comparator up to ou=schema" );
         }
         catch ( LdapInvalidDnException e )
@@ -639,7 +639,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a comparator up to normalizers container" );
         }
         catch ( LdapInvalidDnException e )
@@ -665,7 +665,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getComparatorContainer( "nis" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "comparator OID should no longer be present", schemaManager.getComparatorRegistry().contains( OID ) );
     }
@@ -687,7 +687,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getComparatorContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertTrue( "comparator OID should be present when moved to enabled schema", schemaManager
             .getComparatorRegistry().contains( OID ) );

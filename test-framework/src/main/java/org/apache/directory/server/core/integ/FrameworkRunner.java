@@ -20,6 +20,7 @@ package org.apache.directory.server.core.integ;
 
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -59,6 +60,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The 'service' field in the run tests */
     private static final String DIRECTORY_SERVICE_FIELD_NAME = "service";
+    private static final String GET_SERVICE_METHOD_NAME = "getService";
+    private static final String SET_SERVICE_METHOD_NAME = "setService";
 
     /** The 'ldapServer' field in the run tests */
     private static final String LDAP_SERVER_FIELD_NAME = "ldapServer";
@@ -389,16 +392,15 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // At this point, we know which service to use.
             // Inject it into the class
-            Field dirServiceField = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
-            dirServiceField.set( getTestClass().getJavaClass(), directoryService );
+            Method setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME, DirectoryService.class );
+            Method getService = getTestClass().getJavaClass().getMethod( GET_SERVICE_METHOD_NAME );
+            setService.invoke( getTestClass().getJavaClass(), directoryService );
 
             // if we run this class in a suite, tell it to the test
             Field runInSuiteField = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             runInSuiteField.set( getTestClass().getJavaClass(), suite != null );
 
             Field ldapServerField = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
-
-            dirServiceField.set( getTestClass().getJavaClass(), directoryService );
 
             DirectoryService oldLdapServerDirService = null;
             DirectoryService oldKdcServerDirService = null;

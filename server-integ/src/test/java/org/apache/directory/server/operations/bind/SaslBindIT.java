@@ -193,7 +193,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         modifyRequest.setName( new Dn( "uid=ldap,ou=users,dc=example,dc=com" ) );
         modifyRequest.replace( "userPassword", "randall" );
         modifyRequest.replace( "krb5PrincipalName", servicePrincipal );
-        service.getAdminSession().modify( modifyRequest );
+        getService().getAdminSession().modify( modifyRequest );
     }
 
 

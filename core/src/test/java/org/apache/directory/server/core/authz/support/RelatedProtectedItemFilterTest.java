@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,8 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -49,19 +46,20 @@ import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -100,19 +98,10 @@ public class RelatedProtectedItemFilterTest
     @BeforeClass 
     public static void setup() throws Exception
     {
-        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        schemaManager = new DefaultSchemaManager();
 
-        schemaManager = new DefaultSchemaManager( loader );
-
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
-
-        GROUP_NAME = new Dn( "ou=test,ou=groups,ou=system" );
-        USER_NAME = new Dn( "ou=test, ou=users, ou=system" );
+        GROUP_NAME = new Dn( schemaManager, "ou=test,ou=groups,ou=system" );
+        USER_NAME = new Dn( schemaManager, "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );

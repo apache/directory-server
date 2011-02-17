@@ -43,8 +43,8 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfGetRootDSE() throws Exception
     {
-        GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( service.getAdminSession() );
-        Entry rootDSE = service.getOperationManager().getRootDSE( getRootDseContext );
+        GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( getService().getAdminSession() );
+        Entry rootDSE = getService().getOperationManager().getRootDSE( getRootDseContext );
 
         assertNotNull( rootDSE );
         int nbIterations = 150000;
@@ -68,7 +68,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            rootDSE = service.getOperationManager().getRootDSE( getRootDseContext );
+            rootDSE = getService().getOperationManager().getRootDSE( getRootDseContext );
         }
         
         long t1 = System.currentTimeMillis();

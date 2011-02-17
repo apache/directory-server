@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -72,7 +72,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
 
         // add this entry before each test because we want 
         // to check that operational attributes are added

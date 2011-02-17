@@ -69,12 +69,12 @@ public class RenamePerfIT extends AbstractLdapTestUnit
     @Test
     public void testRenamePerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         String oldDn ="cn=test0,ou=system";
 
         Dn dn = new Dn( oldDn );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test0" );

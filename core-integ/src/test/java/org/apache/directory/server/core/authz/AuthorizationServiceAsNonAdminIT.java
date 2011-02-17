@@ -75,12 +75,12 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
 
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
-            service.getAdminSession().delete( new Dn( "uid=admin,ou=system") );
+            getService().getAdminSession().delete( new Dn( "uid=admin,ou=system") );
             fail( "User 'admin' should not be able to delete his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -100,12 +100,12 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
 
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         try
         {
-            service.getAdminSession().rename( 
+            getService().getAdminSession().rename( 
                 new Dn( "uid=admin,ou=system" ),
                 new Rdn( "uid=alex" ),
                 false );
@@ -128,11 +128,11 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
         
         // Read the entry we just created using the akarasuluSession
-        Entry readEntry = service.getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
+        Entry readEntry = getService().getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
         
         assertTrue( Arrays.equals( akarasulu.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" ).getBytes() ) );
 
@@ -143,9 +143,9 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         mods.add( mod );
       
-        Dn userDn = new Dn( service.getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
+        Dn userDn = new Dn( getService().getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
-        CoreSession akarasuluSession = service.getSession( principal );
+        CoreSession akarasuluSession = getService().getSession( principal );
 
         try
         {
@@ -169,13 +169,13 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
-            ExprNode filter = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
-            service.getAdminSession().search( new Dn( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            ExprNode filter = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
+            getService().getAdminSession().search( new Dn( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
         }
         catch ( LdapNoPermissionException e )
         {

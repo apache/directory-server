@@ -56,8 +56,8 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
-        service.setAccessControlEnabled( true );
+        AutzIntegUtils.service = getService();
+        getService().setAccessControlEnabled( true );
     }
 
 
@@ -167,13 +167,13 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         // Now, make sure the ACI is persisted if we stop and restart the server
         // Stop the server now, we will restart it immediately 
         // And shutdown the DS too
-        service.shutdown();
-        assertFalse( service.isStarted() );
+        getService().shutdown();
+        assertFalse( getService().isStarted() );
 
         // And restart
-        service.startup();
+        getService().startup();
 
-        assertTrue( service.isStarted() );
+        assertTrue( getService().isStarted() );
 
         // try an add operation which should succeed with ACI and group membership change
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );

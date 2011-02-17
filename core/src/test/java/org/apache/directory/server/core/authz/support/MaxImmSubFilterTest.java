@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,8 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.MockOperation;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -42,12 +39,13 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -69,7 +67,7 @@ public class MaxImmSubFilterTest
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
         .unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static final Dn ROOTDSE_NAME = new Dn();
+    private static final Dn ROOTDSE_NAME = Dn.ROOT_DSE;
     private static Dn ENTRY_NAME;
     private static Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static Entry ENTRY;
@@ -81,18 +79,9 @@ public class MaxImmSubFilterTest
     @BeforeClass
     public static void setup() throws Exception
     {
-        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        schemaManager = new DefaultSchemaManager();
 
-        schemaManager = new DefaultSchemaManager( loader );
-
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
-
-        ENTRY_NAME = new Dn( "ou=test, ou=system" );
+        ENTRY_NAME = new Dn( schemaManager, "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, ENTRY_NAME );
     }

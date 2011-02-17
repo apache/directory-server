@@ -56,7 +56,7 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void init()
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.service = getService();
     }
 
     
@@ -66,12 +66,12 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
     @Test
     public void testLookupACIEnabled() throws Exception
     {
-        service.setAccessControlEnabled( true );
+        getService().setAccessControlEnabled( true );
         Dn dn = new Dn( "cn=test,ou=system" );
         
         try
         {      
-            Entry entry = service.getSession().lookup( dn );
+            Entry entry = getService().getSession().lookup( dn );
             fail();
         }
         catch ( LdapNoPermissionException lnpe )
@@ -98,7 +98,7 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
             "  } " +
             "}" );
         
-        Entry entry = service.getSession().lookup( dn );
+        Entry entry = getService().getSession().lookup( dn );
         
         assertNotNull( entry );
         

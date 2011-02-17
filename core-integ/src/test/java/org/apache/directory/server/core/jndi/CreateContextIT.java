@@ -78,7 +78,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testMultiValuedRdn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
@@ -113,7 +113,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateContexts() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         /*
          * create ou=testing00,ou=system
@@ -214,7 +214,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testFailCreateExisting() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attribute attribute;
         Attributes attributes;
@@ -271,7 +271,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateContextWithCompositeName() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute objclass = new BasicAttribute( "objectClass" );
@@ -295,7 +295,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateContextWithBasicAttributesCaseSensitive() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         /*
          * create ou=testing00,ou=system
@@ -396,7 +396,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateContextWithNoObjectClass() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
 
@@ -415,7 +415,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateJavaContainer() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         
         DirContext ctx = (DirContext)sysRoot.createSubcontext( "cn=subtest" );
         assertNotNull( ctx );
@@ -434,7 +434,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     @Test
     public void testCreateJavaContainerBadRDN() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         try
         {

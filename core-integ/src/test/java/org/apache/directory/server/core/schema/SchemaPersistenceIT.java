@@ -112,14 +112,14 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
             checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
 
             // sync operation happens anyway on shutdowns but just to make sure we can do it again
-            service.sync();
+            getService().sync();
 
-            service.shutdown();
-            service.startup();
+            getService().shutdown();
+            getService().startup();
 
             Attributes attrs = new BasicAttributes( "objectClass", "metaSchema", true );
             attrs.put( "cn", "blah" );
-            getSchemaContext( service ).createSubcontext( "cn=blah", attrs );
+            getSchemaContext( getService() ).createSubcontext( "cn=blah", attrs );
 
             checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
             checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
@@ -148,7 +148,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         Attributes mods = new BasicAttributes( true );
         mods.put( attr );
 
-        getRootContext( service ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
+        getRootContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
     }
 
 
@@ -158,7 +158,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
+        getSchemaContext( getService() ).modifyAttributes( "cn=" + schemaName, mods );
     }
 
 
@@ -175,7 +175,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { SUBSCHEMA_SUBENTRY } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( service ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -196,7 +196,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( service ).search( getSubschemaSubentryDN(),
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( getSubschemaSubentryDN(),
             "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
@@ -244,7 +244,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            attrs = getSchemaContext( getService() ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else
@@ -252,7 +252,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
             //noinspection EmptyCatchBlock
             try
             {
-                attrs = getSchemaContext( service ).getAttributes(
+                attrs = getSchemaContext( getService() ).getAttributes(
                     "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
                 fail( "should never get here" );
             }
@@ -268,11 +268,11 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
+            assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
+            assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
     }
 }

@@ -65,10 +65,10 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     protected void createData() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         /*
          * create ou=testing00,ou=system
@@ -177,7 +177,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     {
         createData();
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attribute attr = new BasicAttribute( "description" );
         Attributes attrs = new BasicAttributes( true );
@@ -205,7 +205,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     {
         createData();
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.ADD_ATTRIBUTE, attributes );
@@ -239,7 +239,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     {
         createData();
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         
@@ -261,7 +261,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     {
         createData();
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );

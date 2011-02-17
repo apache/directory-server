@@ -65,7 +65,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
     @Test
     public void testLdapClassLoaderWithClassLoadedAnywhere() throws Exception
     {
-        LdapContext root = getRootContext( service );
+        LdapContext root = getRootContext( getService() );
 
         // get default naming context to work on
         ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
@@ -81,7 +81,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( service );
+        LdapClassLoader loader = new LdapClassLoader( getService() );
         Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
@@ -92,7 +92,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
     @Test
     public void testLdapClassLoaderWithClassLoadedAtDefaultSearchSubtree() throws Exception
     {
-        LdapContext root = getRootContext( service );
+        LdapContext root = getRootContext( getService() );
 
         // get default naming context to work on
         ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
@@ -130,7 +130,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( service );
+        LdapClassLoader loader = new LdapClassLoader( getService() );
         Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully

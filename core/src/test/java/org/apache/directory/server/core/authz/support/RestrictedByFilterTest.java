@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,8 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -45,12 +42,13 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -83,18 +81,9 @@ public class RestrictedByFilterTest
     @BeforeClass 
     public static void setup() throws Exception
     {
-        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        schemaManager = new DefaultSchemaManager();
 
-        schemaManager = new DefaultSchemaManager( loader );
-
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
-
-        Dn entryName = new Dn( "ou=test, ou=system" );
+        Dn entryName = new Dn( schemaManager, "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, entryName );
 

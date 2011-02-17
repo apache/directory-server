@@ -78,7 +78,7 @@ public class DIRSERVER783IT extends AbstractLdapTestUnit
         String rdn = "cn=Fiona Apple";
 
         Hashtable<String,Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

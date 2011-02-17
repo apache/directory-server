@@ -59,7 +59,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.service = getService();
     }
 
 

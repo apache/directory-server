@@ -104,7 +104,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = LdifUtils.createAttributes(
                 "ObjectClass: top",
@@ -134,7 +134,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributesBadSyntax() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = LdifUtils.createAttributes( 
             "ObjectClass: top",
@@ -170,7 +170,7 @@ public class AddIT extends AbstractLdapTestUnit
             "cn: John\\+Doe",
             "sn: \\+Name\\+" );
         
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", entry );
         
         ServerLdapContext sc = ( ServerLdapContext ) dc;

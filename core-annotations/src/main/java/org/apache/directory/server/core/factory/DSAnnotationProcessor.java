@@ -158,7 +158,7 @@ public class DSAnnotationProcessor
                 // that type.
                 partition = createPartition.type().newInstance();
                 partition.setId( createPartition.name() );
-                partition.setSuffix( new Dn( createPartition.suffix() ) );
+                partition.setSuffix( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
 
                 if ( partition instanceof BTreePartition<?> )
                 {

@@ -327,8 +327,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         for ( Entry result : results )
         {
-            Dn dn = result.getDn();
-            dn.normalize( schemaManager );
+            Dn dn = new Dn( schemaManager, result.getDn() );
             oids.add( dn.getRdn().getNormValue().getString() );
         }
 

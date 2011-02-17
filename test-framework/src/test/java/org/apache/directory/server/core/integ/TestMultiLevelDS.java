@@ -44,10 +44,10 @@ public class TestMultiLevelDS extends AbstractLdapTestUnit
         // to make this test pass standalone
         if( isRunInSuite )
         {
-            assertTrue( ldapServer.getDirectoryService() == service );
+            assertTrue( ldapServer.getDirectoryService() == getService() );
         }
-        assertFalse( service.isAccessControlEnabled() );
-        assertEquals( "TestMultiLevelDS-class", service.getInstanceId() );
+        assertFalse( getService().isAccessControlEnabled() );
+        assertEquals( "TestMultiLevelDS-class", getService().getInstanceId() );
     }
     
     
@@ -58,9 +58,9 @@ public class TestMultiLevelDS extends AbstractLdapTestUnit
         // to make this test pass standalone
         if( isRunInSuite )
         {
-            assertTrue( ldapServer.getDirectoryService() == service );
+            assertTrue( ldapServer.getDirectoryService() == getService() );
         }
-        assertTrue( service.isAccessControlEnabled() );
-        assertEquals( "testMethodWithClassLevelDs-method", service.getInstanceId() );
+        assertTrue( getService().isAccessControlEnabled() );
+        assertEquals( "testMethodWithClassLevelDs-method", getService().getInstanceId() );
     }
 }

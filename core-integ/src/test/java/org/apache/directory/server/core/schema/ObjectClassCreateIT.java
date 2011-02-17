@@ -108,7 +108,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         Dn dn = new Dn( "ou=attributeTypes,cn=apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
 
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attributes );
 
         //--------------------------------------------------------------------
         // The extendPerson OC
@@ -146,7 +146,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         dn = new Dn( "ou=objectClasses,cn=apachemeta" );
         dn = dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
 
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attributes );
     }
 
     /**
@@ -187,7 +187,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -222,7 +222,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attributes );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -261,7 +261,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         entry.put(  "accountStatus", "test" );
 
         // Create the context
-        DirContext system = getSystemContext( service );
+        DirContext system = getSystemContext( getService() );
 
         try
         {
@@ -304,7 +304,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         entry.put( "accountStatus", "accountStatusValue" );
 
         // Create the context
-        DirContext system = getSystemContext( service );
+        DirContext system = getSystemContext( getService() );
 
         try
         {

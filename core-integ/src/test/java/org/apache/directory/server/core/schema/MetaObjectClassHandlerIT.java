@@ -74,7 +74,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private static ObjectClassRegistry getObjectClassRegistry()
     {
-        return service.getSchemaManager().getObjectClassRegistry();
+        return getService().getSchemaManager().getObjectClassRegistry();
     }
 
 
@@ -93,7 +93,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         return dn;
     }
@@ -143,7 +143,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail( "Should not be there" );
         }
         catch( NameNotFoundException nnfe )
@@ -168,7 +168,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             getObjectClassRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
@@ -197,7 +197,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             getObjectClassRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
@@ -225,7 +225,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn newdn = getObjectClassContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed",
             getObjectClassRegistry().contains( OID ) );
@@ -256,7 +256,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getObjectClassContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -278,7 +278,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getObjectClassContainer( "apache" );
         newdn = newdn.add( "m-oid" + "=" + NEW_OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old objectClass OID should NOT be present",
             getObjectClassRegistry().contains( OID ) );
@@ -309,7 +309,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new BasicAttribute( "m-name", NEW_NAME );
         mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -339,7 +339,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
         mods.put( "m-name", NEW_NAME );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -373,7 +373,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + DEPENDEE_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( DEPENDEE_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
@@ -390,7 +390,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+            getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
             fail( "should not be able to delete a objectClass in use" );
         }
         catch( OperationNotSupportedException e )
@@ -417,7 +417,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName(dn), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName(dn), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a objectClass in use" );
         }
         catch( OperationNotSupportedException e )
@@ -444,7 +444,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move an objectClass in use" );
         }
         catch( OperationNotSupportedException e )
@@ -470,7 +470,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to rename an objectClass in use" );
         }
         catch( OperationNotSupportedException e )
@@ -499,7 +499,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
             fail( "should not be able to move a objectClass up to ou=schema" );
         }
         catch( InvalidNameException e )
@@ -525,7 +525,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a objectClass into comparators container" );
         }
         catch( InvalidNameException e )
@@ -552,7 +552,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "nis" );
         dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         return dn;
     }
@@ -571,7 +571,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getObjectClassContainer( "nis" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "objectClass OID should no longer be present",
             getObjectClassRegistry().contains( OID ) );
@@ -594,7 +594,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getObjectClassContainer( "apachemeta" );
         newdn = newdn.add( "m-oid" + "=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertTrue( "objectClass OID should be present when moved to enabled schema",
             getObjectClassRegistry().contains( OID ) );
@@ -628,7 +628,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -664,7 +664,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail();
         }
         catch ( NamingException ne )
@@ -703,7 +703,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail();
         }
         catch ( NamingException ne )
@@ -735,7 +735,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -768,7 +768,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -804,7 +804,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail();
         }
         catch ( NamingException ne )
@@ -836,7 +836,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -872,7 +872,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail();
         }
         catch ( NamingException ne )
@@ -908,7 +908,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getObjectClassContainer( "apachemeta" );
         dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );

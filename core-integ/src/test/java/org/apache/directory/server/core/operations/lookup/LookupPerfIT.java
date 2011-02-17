@@ -56,7 +56,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     @Ignore("Ignore atm, this is a perf test")
     public void testPerfLookup() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
 
@@ -98,7 +98,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     @Before
     public void init()
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.service= getService();
     }
 
 
@@ -108,9 +108,9 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     @Test
     public void testLookupPerfACIEnabled() throws Exception
     {
-        service.setAccessControlEnabled( true );
+        getService().setAccessControlEnabled( true );
         Dn dn = new Dn( "cn=test,ou=system" );
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         createAccessControlSubentry( "anybodySearch", "{ " + "  identificationTag \"searchAci\", "
             + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "

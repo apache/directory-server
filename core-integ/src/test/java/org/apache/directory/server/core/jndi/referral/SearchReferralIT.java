@@ -131,7 +131,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -141,7 +141,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -234,7 +234,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     @Test
     public void testSearchWithReferralAncestorCoreAPIWithoutManageDSAIt() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
@@ -269,7 +269,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     @Test
     public void testSearchWithReferralAncestorCoreAPIWithManageDSAIt() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
@@ -386,7 +386,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     @Test
     public void testSearchExistingReferralCoreAPIWithoutManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
@@ -420,7 +420,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     @Test
     public void testSearchExistingReferralCoreAPIWithManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "ou=roles,o=Mnn,c=WW,ou=system" );
         
         EntryFilteringCursor cursor = coreSession.search( dn, "(ObjectClass=*)", true );

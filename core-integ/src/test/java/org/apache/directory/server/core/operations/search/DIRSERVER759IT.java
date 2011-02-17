@@ -61,7 +61,7 @@ public class DIRSERVER759IT extends AbstractLdapTestUnit
      */
     protected void createData() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         /*
          * create ou=testing00,ou=system
@@ -166,7 +166,7 @@ public class DIRSERVER759IT extends AbstractLdapTestUnit
     public void testSearchBadDN() throws Exception
     {
         createData();
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );

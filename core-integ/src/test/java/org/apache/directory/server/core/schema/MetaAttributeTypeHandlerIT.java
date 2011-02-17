@@ -96,14 +96,14 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
-        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "2.5.4.58" ), "apachemeta" );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
+        assertEquals( getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( "2.5.4.58" ), "apachemeta" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -127,14 +127,14 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        assertEquals( getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -158,7 +158,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
             fail( "Should not be there" );
         }
         catch( NameNotFoundException nnfe )
@@ -167,7 +167,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertFalse( "adding new attributeType to disabled schema should not register it into the registries",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // The added entry must not be present on disk
         assertFalse( isOnDisk( dn ) );
@@ -191,13 +191,13 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn dn = getAttributeTypeContainer( "nis" );
         dn = dn.add( "m-oid=" + OID );
 
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertFalse( "adding new attributeType to disabled schema should not register it into the registries",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // The GlobalOidRegistries must not contain the AT
-        assertFalse( service.getSchemaManager().getGlobalOidRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getGlobalOidRegistry().contains( OID ) );
 
         // The added entry must be present on disk
         assertTrue( isOnDisk( dn ) );
@@ -230,14 +230,14 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
 
         // Addition
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         // Post-checks
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
-        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "1.3.6.1.4.1.8104.1.1.37" ), "apachemeta" );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "1.3.6.1.4.1.8104.1.1.37" ) );
+        assertEquals( getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( "1.3.6.1.4.1.8104.1.1.37" ), "apachemeta" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -255,16 +255,16 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Check in Registries
         assertTrue( "attributeType should be removed from the registry after being deleted",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // Check on disk that the added SchemaObject exist
         assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // Check on disk that the deleted SchemaObject does not exist anymore
         assertFalse( isOnDisk( dn ) );
@@ -287,18 +287,18 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // Check on disk that the added SchemaObject exists
         assertTrue( isOnDisk( dn ) );
 
         // Remove the AT
-        getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-        assertFalse( service.getSchemaManager().getGlobalOidRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        assertFalse( getService().getSchemaManager().getGlobalOidRegistry().contains( OID ) );
 
         // Check on disk that the deleted SchemaObject does not exist anymore
         assertFalse( isOnDisk( dn ) );
@@ -316,7 +316,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).destroySubcontext( JndiUtils.toName( dn ) );
+            getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
             fail( "should not be able to delete a attributeType in use" );
         }
         catch( OperationNotSupportedException e )
@@ -324,7 +324,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after delete failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -337,7 +337,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        AttributeType at = service.getSchemaManager().lookupAttributeTypeRegistry( OID );
+        AttributeType at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
@@ -349,15 +349,15 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new BasicAttribute( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX );
         mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), mods );
 
         assertTrue( "attributeType OID should still be present",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         assertEquals( "attributeType schema should be set to apachemeta",
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
 
-        at = service.getSchemaManager().lookupAttributeTypeRegistry( OID );
+        at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
@@ -369,7 +369,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        AttributeType at = service.getSchemaManager().lookupAttributeTypeRegistry( OID );
+        AttributeType at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
@@ -379,15 +379,15 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
         mods.put( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX );
-        getSchemaContext( service ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "attributeType OID should still be present",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         assertEquals( "attributeType schema should be set to apachemeta",
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
 
-        at = service.getSchemaManager().lookupAttributeTypeRegistry( OID );
+        at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
@@ -402,7 +402,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Dn dn = getAttributeTypeContainer( "apachemeta" );
         dn = dn.add( "m-oid=" + OID );
 
@@ -411,12 +411,12 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         schemaRoot.rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old attributeType OID should be removed from the registry after being renamed",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
-        service.getSchemaManager().getAttributeTypeRegistry().lookup( OID );
+        getService().getSchemaManager().getAttributeTypeRegistry().lookup( OID );
         fail( "attributeType lookup should fail after renaming the attributeType" );
 
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
     }
 
 
@@ -435,7 +435,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to rename a attributeType in use" );
         }
         catch( LdapUnwillingToPerformException e )
@@ -444,7 +444,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after rename failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -463,13 +463,13 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getAttributeTypeContainer( "apache" );
         newdn = newdn.add( "m-oid=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName(newdn) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName(newdn) );
 
         assertTrue( "attributeType OID should still be present",
-                service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+                getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         assertEquals( "attributeType schema should be set to apache not apachemeta",
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
+            getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
     }
 
 
@@ -485,16 +485,16 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getAttributeTypeContainer( "apache" );
         newdn = newdn.add( "m-oid=" + NEW_OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "old attributeType OID should NOT be present",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         assertTrue( "new attributeType OID should be present",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
 
         assertEquals( "attributeType with new oid should have schema set to apache NOT apachemeta",
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
+            getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
     }
 
 
@@ -512,7 +512,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
             fail( "should not be able to move a attributeType up to ou=schema" );
         }
         catch( LdapInvalidDnException e )
@@ -521,7 +521,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after move failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -539,7 +539,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a attributeType into comparators container" );
         }
         catch( LdapInvalidDnException e )
@@ -548,7 +548,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after move failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -565,10 +565,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn newdn = getAttributeTypeContainer( "nis" );
         newdn = newdn.add( "m-oid=" + OID );
 
-        getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
 
         assertFalse( "attributeType OID should no longer be present",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -587,7 +587,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a attributeType in use" );
         }
         catch( LdapUnwillingToPerformException e )
@@ -596,7 +596,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after move failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -615,7 +615,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         try
         {
-            getSchemaContext( service ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
             fail( "should not be able to move a attributeType in use" );
         }
         catch( LdapUnwillingToPerformException e )
@@ -624,7 +624,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         assertTrue( "attributeType should still be in the registry after move failure",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
     }
 
 
@@ -647,10 +647,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Dn dn = getAttributeTypeContainer( "apachemeta" );
         dn = dn.add( "m-oid=" + DEPENDEE_OID );
-        getSchemaContext( service ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
-        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
+        assertEquals( getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
     }
 
 
@@ -669,18 +669,18 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         dn.add( "m-oid=" + OID );
 
         assertFalse( "attributeType OID should NOT be present when added to disabled nis schema",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         Dn newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + OID );
 
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( getService() ).rename( dn, newdn );
 
         assertTrue( "attributeType OID should be present when moved to enabled schema",
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+            getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         assertEquals( "attributeType should be in apachemeta schema after move",
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
     }
     */
 }

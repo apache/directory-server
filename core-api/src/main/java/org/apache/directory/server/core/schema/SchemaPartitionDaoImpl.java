@@ -506,8 +506,8 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public Dn findDn( String entityName ) throws Exception
     {
         Entry sr = find( entityName );
-        Dn dn = sr.getDn();
-        dn.normalize( schemaManager );
+        Dn dn = new Dn( schemaManager, sr.getDn() );
+
         return dn;
     }
 

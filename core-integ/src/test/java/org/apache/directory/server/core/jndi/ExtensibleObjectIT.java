@@ -53,7 +53,7 @@ public class ExtensibleObjectIT extends AbstractLdapTestUnit
     @Test
     public void testExtensibleObjectModify() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
@@ -101,7 +101,7 @@ public class ExtensibleObjectIT extends AbstractLdapTestUnit
     @Test
     public void testExtensibleObjectAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );

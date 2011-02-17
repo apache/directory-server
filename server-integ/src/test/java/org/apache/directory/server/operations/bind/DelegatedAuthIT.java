@@ -92,8 +92,8 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @Test
     public void testDelegatedAuthentication() throws Exception
     {
-        assertTrue( service.isStarted() );
-        assertEquals( "DelegatedAuthIT-method", service.getInstanceId() );
+        assertTrue( getService().isStarted() );
+        assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         
@@ -170,8 +170,8 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @Test
     public void testMultipleAuthenticators() throws Exception
     {
-        assertTrue( service.isStarted() );
-        assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", service.getInstanceId() );
+        assertTrue( getService().isStarted() );
+        assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 

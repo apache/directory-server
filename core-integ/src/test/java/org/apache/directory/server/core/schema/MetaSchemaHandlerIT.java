@@ -108,7 +108,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Before
     public void checkSambaSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // check that there is a samba schema installed and that is is disabled
         Attributes attributes = schemaRoot.getAttributes( "cn=samba" );
@@ -119,13 +119,13 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( attributes.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
         
         // Disable the NIS schema
-        IntegrationUtils.disableSchema( service, "nis" );
+        IntegrationUtils.disableSchema( getService(), "nis" );
     }
 
     
     private void createDisabledBrokenSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // Create the schema
         Attributes dummySchema = LdifUtils.createAttributes( 
@@ -140,7 +140,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     
     private void createEnabledValidSchema( String schemaName ) throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // Create the schema
         Attributes dummySchema = LdifUtils.createAttributes( 
@@ -165,24 +165,24 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testEnableExistingSchema() throws Exception
     {
         // Chck that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded( service, "nis" ) );
+        assertTrue( IntegrationUtils.isLoaded( getService(), "nis" ) );
 
         // check that the nis schema is not enabled
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
         
         // now enable the test schema
-        IntegrationUtils.enableSchema( service, "nis" );
+        IntegrationUtils.enableSchema( getService(), "nis" );
         
         // now test that the schema is loaded 
-        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
 
@@ -195,12 +195,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testEnableNotExistingSchema() throws Exception
     {
         // check that the 'wrong' schema is not loaded
-        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
         
         // now enable the 'wrong' schema
         try
         {
-            IntegrationUtils.enableSchema( service, "wrong" );
+            IntegrationUtils.enableSchema( getService(), "wrong" );
             fail();
         }
         catch ( NameNotFoundException lnnfe )
@@ -210,7 +210,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         
         // Test again that the schema is not loaded 
-        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
     }
 
     
@@ -224,27 +224,27 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testEnableSchemaAlreadyEnabled() throws Exception
     {
         // check that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded(  service, "nis" ) );
+        assertTrue( IntegrationUtils.isLoaded(  getService(), "nis" ) );
         
         // Ceck that it's not enabled
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
         
         // now enable the test schema
-        IntegrationUtils.enableSchema( service, "nis" );
+        IntegrationUtils.enableSchema( getService(), "nis" );
         
         // and enable it again (it should not do anything)
-        IntegrationUtils.enableSchema( service, "nis" );
+        IntegrationUtils.enableSchema( getService(), "nis" );
         
         // now test that the schema is loaded 
-        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
     
@@ -275,24 +275,24 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDisableExistingSchema() throws Exception
     {
         // Check that the krb5kdc schema is loaded
-        assertTrue( IntegrationUtils.isLoaded( service, "krb5kdc" ) );
+        assertTrue( IntegrationUtils.isLoaded( getService(), "krb5kdc" ) );
 
         // check that the krb5kdc schema is enabled
-        assertTrue( IntegrationUtils.isEnabled( service, "krb5kdc" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "krb5kdc" ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
         
         // now disable the krb5kdc schema
-        IntegrationUtils.disableSchema( service, "krb5kdc" );
+        IntegrationUtils.disableSchema( getService(), "krb5kdc" );
         
         // now test that the schema is not enabled 
-        assertTrue( IntegrationUtils.isDisabled( service, "krb5kdc" ) );
+        assertTrue( IntegrationUtils.isDisabled( getService(), "krb5kdc" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
     }
 
 
@@ -305,12 +305,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDisableNotExistingSchema() throws Exception
     {
         // check that the 'wrong' schema is not loaded
-        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
         
         // now disable the 'wrong' schema
         try
         {
-            IntegrationUtils.disableSchema( service, "wrong" );
+            IntegrationUtils.disableSchema( getService(), "wrong" );
             fail();
         }
         catch ( NameNotFoundException lnnfe )
@@ -320,7 +320,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         
         // Test again that the schema is not loaded 
-        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
     }
 
     
@@ -334,24 +334,24 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDisableSchemaAlreadyDisabled() throws Exception
     {
         // check that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded(  service, "nis" ) );
+        assertTrue( IntegrationUtils.isLoaded(  getService(), "nis" ) );
         
         // Check that it's not enabled
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
         
         // now disable the test schema again
-        IntegrationUtils.disableSchema( service, "nis" );
+        IntegrationUtils.disableSchema( getService(), "nis" );
 
         // now test that the schema is not loaded 
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is not loaded and present within the attr registry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
     
@@ -365,24 +365,24 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDisableSchemaBreakingRegistries() throws Exception
     {
         // check that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded(  service, "system" ) );
+        assertTrue( IntegrationUtils.isLoaded(  getService(), "system" ) );
         
         // Check that it's enabled
-        assertTrue( IntegrationUtils.isEnabled( service, "system" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "system" ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
         
         // now disable the system schema : it should break the registries, thus being rejected
-        IntegrationUtils.disableSchema( service, "system" );
+        IntegrationUtils.disableSchema( getService(), "system" );
 
         // now test that the schema is not loaded 
-        assertTrue( IntegrationUtils.isEnabled( service, "system" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "system" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is loaded and present within the attr registry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
     }
 
     // -----------------------------------------------------------------------
@@ -398,11 +398,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( isOnDisk( dn ) );
 
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         
         createEnabledValidSchema( "dummy" );
         
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
         
         assertTrue( isOnDisk( dn ) );
@@ -419,7 +419,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( isOnDisk( dn ) );
 
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes(
                 "objectClass: top",
                 "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -430,7 +430,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
         
         assertTrue( isOnDisk( dn ) );
@@ -447,7 +447,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( isOnDisk( dn ) );
 
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -466,7 +466,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected        
         }
         
-        assertFalse( IntegrationUtils.isLoaded( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
         assertFalse( isOnDisk( dn ) );
     }
     
@@ -481,7 +481,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( isOnDisk( dn ) );
 
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -500,7 +500,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected       
         }
         
-        assertFalse( IntegrationUtils.isLoaded( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
         assertFalse( isOnDisk( dn ) );
     }
 
@@ -515,18 +515,18 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteEnabledValidSchema() throws Exception
     {
         Dn dn = getSchemaContainer( "dummy" );
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         
         // Create a schema we will delete
         createEnabledValidSchema( "dummy" );
         assertTrue( isOnDisk( dn ) );
-        assertTrue( IntegrationUtils.isLoaded( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isLoaded( getService(), "dummy" ) );
 
         // Delete the schema
         schemaRoot.destroySubcontext( "cn=dummy" );
 
         assertFalse( isOnDisk( dn ) );
-        assertFalse( IntegrationUtils.isLoaded( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
     }
 
     
@@ -543,7 +543,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -552,7 +552,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -567,7 +567,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -578,7 +578,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -593,7 +593,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -611,7 +611,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected        
         }
         
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -634,7 +634,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaSchema",
@@ -643,7 +643,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -658,7 +658,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
@@ -675,7 +675,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected        
         }
         
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -703,15 +703,15 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testDeleteSchemaNoDependents() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // add the dummy schema enabled 
         testAddEnabledSchemaNoDeps();
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         
         // delete it now
         schemaRoot.destroySubcontext( "cn=dummy" );
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
     }
     
     
@@ -724,11 +724,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectSchemaDeleteWithDependents() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         
         // make the nis schema depend on the dummy schema
         ModificationItem[] mods = new ModificationItem[1];
@@ -747,7 +747,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected        
         }
 
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
     }
     
     
@@ -761,7 +761,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectEnabledSchemaAddWithMisingDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         Attributes dummySchema = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -779,7 +779,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // expected        
         }
         
-        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -804,7 +804,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testDisableSchemaWithEnabledDependents() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         // let's enable the test schema and add the dummy schema
         // as enabled by default and dependends on the test schema
@@ -822,12 +822,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
-        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
         
         // now try to disable the test schema which should fail 
         // since it's dependent, the dummy schema, is enabled
@@ -846,12 +846,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         
         // now test that both schema are still loaded 
-        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
-        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
+        assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
     
     
@@ -869,7 +869,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testSchemaRenameDisabledSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
 
@@ -904,7 +904,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectSchemaRenameWithDeps() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         try
         {
             schemaRoot.rename( "cn=nis", "cn=foo" );
@@ -940,16 +940,16 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testSchemaRenameEnabledSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
-        IntegrationUtils.enableSchema( service, "samba" );
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
-        assertEquals( "samba", service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        IntegrationUtils.enableSchema( getService(), "samba" );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
+        assertEquals( "samba", getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
         
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
-        assertEquals( "foo", service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
+        assertEquals( "foo", getService().getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -976,7 +976,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectAddBogusDependency() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
 
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "bogus" );
@@ -1006,8 +1006,8 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
-        IntegrationUtils.enableSchema( service, "nis" );
+        LdapContext schemaRoot = getSchemaContext( getService() );
+        IntegrationUtils.enableSchema( getService(), "nis" );
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
@@ -1034,7 +1034,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testAddOfDisabledDependencyToDisabledSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
@@ -1055,7 +1055,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testAddOfEnabledDependencyToDisabledSchema() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "java" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );

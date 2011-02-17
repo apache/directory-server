@@ -31,9 +31,12 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -263,7 +266,7 @@ public class AdministrativePointModifyDelIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = ldapServer.getDirectoryService().getSchemaManager();
     }
 

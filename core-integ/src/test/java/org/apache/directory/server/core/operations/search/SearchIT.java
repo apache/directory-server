@@ -60,9 +60,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.*;
-import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.model.filter.LessEqNode;
+import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
@@ -116,9 +117,9 @@ public class SearchIT extends AbstractLdapTestUnit
     @Before
     public void createData() throws Exception
     {
-        service.getSchemaManager().enable( "nis" );
+        getService().getSchemaManager().enable( "nis" );
 
-        sysRoot = getSystemContext( service );
+        sysRoot = getSystemContext( getService() );
 
         /*
          * Check ou=testing00,ou=system
@@ -187,7 +188,7 @@ public class SearchIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
 
@@ -224,7 +225,7 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: posixGroup", "cn", name,
                 "gidNumber", String.valueOf(gid));
 
-        return getSystemContext( service ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
+        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }
 
 
@@ -351,8 +352,8 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testBogusAttributeInSearchFilter() throws Exception
     {
-        boolean oldSetAllowAnnonymousAccess = service.isAllowAnonymousAccess();
-        service.setAllowAnonymousAccess( true );
+        boolean oldSetAllowAnnonymousAccess = getService().isAllowAnonymousAccess();
+        getService().setAllowAnonymousAccess( true );
 
         SearchControls cons = new SearchControls();
         NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
@@ -377,7 +378,7 @@ public class SearchIT extends AbstractLdapTestUnit
         e = sysRoot.search( "", "(objectclass=*)", cons );
         assertNotNull( e );
 
-        service.setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
+        getService().setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
     }
 
 
@@ -584,7 +585,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testOpAttrDenormalizationOn() throws Exception
     {
-        service.setDenormalizeOpAttrsEnabled( true );
+        getService().setDenormalizeOpAttrsEnabled( true );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -1003,7 +1004,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "ou=groups", filter, controls );
 
         while ( list.hasMore() )
         {
@@ -1042,7 +1043,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "", filter, controls );
 
         while ( list.hasMore() )
         {
@@ -1071,7 +1072,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "", filter, controls );
 
         while ( list.hasMore() )
         {
@@ -1359,7 +1360,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchWithQuotesInBase() throws NamingException
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         SearchControls ctls = new SearchControls();
@@ -1530,7 +1531,7 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: groupOfUniqueNames",
             "cn: testGroup3", "uniqueMember: uid=admin,ou=system" );
 
-        getSystemContext( service ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
+        getSystemContext( getService() ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         String filter = "(|(&(|(2.5.4.0=posixgroup)(2.5.4.0=groupofuniquenames)(2.5.4.0=groupofnames)(2.5.4.0=group))(!(|(2.5.4.50=uid=admin,ou=system)(2.5.4.31=0.9.2342.19200300.100.1.1=admin,2.5.4.11=system))))(objectClass=referral))";
@@ -1667,7 +1668,7 @@ public class SearchIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
 
-        LdapContext nullRootCtx = getRootContext( service );
+        LdapContext nullRootCtx = getRootContext( getService() );
 
         NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=*)", controls );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1692,7 +1693,7 @@ public class SearchIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
 
-        LdapContext nullRootCtx = getRootContext( service );
+        LdapContext nullRootCtx = getRootContext( getService() );
 
         NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=organizationalUnit)", controls );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1717,7 +1718,7 @@ public class SearchIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setDerefLinkFlag( false );
 
-        LdapContext nullRootCtx = getRootContext( service );
+        LdapContext nullRootCtx = getRootContext( getService() );
 
         NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=domain)", controls );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1742,7 +1743,7 @@ public class SearchIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
 
-        LdapContext nullRootCtx = getRootContext( service );
+        LdapContext nullRootCtx = getRootContext( getService() );
 
         NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(cn=*)", controls );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1763,7 +1764,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testCsnLessEqualitySearch() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn dn = new Dn( "cn=testLowerCsnAdd,ou=system" );
         Entry entry = new DefaultEntry( dn );
@@ -1811,7 +1812,7 @@ public class SearchIT extends AbstractLdapTestUnit
         throws Exception
     {
         Value<String> val = new StringValue( filterCsnVal );
-        AttributeType entryCsnAt = service.getSchemaManager().getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        AttributeType entryCsnAt = getService().getSchemaManager().getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ExprNode filter = null;
 
         if ( useCaseNum == 1 )

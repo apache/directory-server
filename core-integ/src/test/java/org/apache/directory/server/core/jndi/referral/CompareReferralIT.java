@@ -121,7 +121,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -131,7 +131,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -230,7 +230,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     @Test
     public void testCompareEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -264,7 +264,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     @Test
     public void testCompareEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -384,7 +384,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     @Test
     public void testCompareExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -418,7 +418,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     @Test
     public void testCompareExistingEntryReferralCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         assertTrue( session.compare( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", true ) );
     }

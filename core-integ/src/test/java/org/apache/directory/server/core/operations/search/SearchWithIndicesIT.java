@@ -68,7 +68,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
 
@@ -86,7 +86,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
             schemaRoot.modifyAttributes( "cn=nis", mods );
         }
 
-        Partition systemPartition = service.getSystemPartition();
+        Partition systemPartition = getService().getSystemPartition();
         DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
 
         // -------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( service ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
+        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }
 
 
@@ -128,7 +128,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "ou=groups", filter, controls );
 
         while ( list.hasMore() )
         {

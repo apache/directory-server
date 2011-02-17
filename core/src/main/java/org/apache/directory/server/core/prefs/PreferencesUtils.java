@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.prefs;
 
  
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -39,7 +36,7 @@ class PreferencesUtils
      * @param absPrefPath the absolute path to the system preferences node
      * @return the distinguished name of the entry representing the system preferences node
      * @throws LdapInvalidDnException if there are namespace problems while translating the path
-     */
+     *
     public static Dn toSysDn( String absPrefPath ) throws LdapInvalidDnException
     {
         Dn dn = new Dn( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
@@ -55,5 +52,5 @@ class PreferencesUtils
         }
 
         return dn;
-    }
+    }*/
 }

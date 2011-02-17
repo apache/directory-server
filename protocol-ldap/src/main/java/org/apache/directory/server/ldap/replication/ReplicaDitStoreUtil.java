@@ -33,6 +33,7 @@ import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -40,7 +41,6 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
@@ -82,7 +82,7 @@ public class ReplicaDitStoreUtil
 
     private void init() throws Exception
     {
-        Dn replConsumerDn = new Dn( REPL_CONSUMER_DN );
+        Dn replConsumerDn = new Dn( schemaManager, REPL_CONSUMER_DN );
 
         if ( !adminSession.exists( replConsumerDn ) )
         {
@@ -106,7 +106,7 @@ public class ReplicaDitStoreUtil
         }
 
         Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new Dn( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
+        entry.setDn( new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
 
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replConsumer" );
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
@@ -146,7 +146,7 @@ public class ReplicaDitStoreUtil
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = new Dn( "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
     }
 
@@ -181,7 +181,7 @@ public class ReplicaDitStoreUtil
         searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( Integer.parseInt( aliasMode ) ) );
 
         String baseDn = entry.get( "ads-searchBaseDN" ).getString();
-        searchCriteria.setBase( baseDn );
+        searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
 
         String lastSentCsn = entry.get( "ads-replLastSentCsn" ).getString();
         replica.setLastSentCsn( lastSentCsn );

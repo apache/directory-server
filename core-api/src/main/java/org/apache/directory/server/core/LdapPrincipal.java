@@ -44,7 +44,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private Dn dn;
+    private Dn dn = Dn.EMPTY_DN;
 
     /** the no name anonymous user whose Dn is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
@@ -104,7 +104,6 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public LdapPrincipal()
     {
-        dn = new Dn();
         authenticationLevel = AuthenticationLevel.NONE;
         userPassword = null;
     }

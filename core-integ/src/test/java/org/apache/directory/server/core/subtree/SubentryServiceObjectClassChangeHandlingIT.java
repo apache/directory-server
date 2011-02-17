@@ -89,7 +89,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
 
     public void addAdministrativeRoles() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "collectiveAttributeSpecificArea" );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
@@ -100,7 +100,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
 
     public Map<String, Attributes> getAllEntries() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -120,7 +120,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
     @Test
     public void testTrackingOfOCChangesInSubentryServiceModifyRoutine() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRoles();
         sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
             getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );

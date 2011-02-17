@@ -54,8 +54,8 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
-        service.setAccessControlEnabled( true );
+        AutzIntegUtils.service = getService();
+        getService().setAccessControlEnabled( true );
     }
 
 

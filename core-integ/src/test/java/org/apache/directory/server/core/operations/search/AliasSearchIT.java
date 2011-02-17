@@ -439,9 +439,9 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             Dn base = new Dn( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
-            ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
+            ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-            EntryFilteringCursor cursor = service.getAdminSession()
+            EntryFilteringCursor cursor = getService().getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode, null );
 
             // advancing the cursor forward and backward must give the same result
@@ -482,9 +482,9 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             Dn base = new Dn( "dc=example,dc=com" );
             SearchScope scope = SearchScope.SUBTREE;
-            ExprNode exprNode = FilterParser.parse( service.getSchemaManager(), "(objectClass=*)" );
+            ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-            EntryFilteringCursor cursor = service.getAdminSession()
+            EntryFilteringCursor cursor = getService().getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode, null );
 
             // advancing the cursor backward and forward must give the same result
@@ -573,8 +573,8 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> nextResults = new ArrayList<String>();
 
-        ExprNode exprNode = FilterParser.parse(service.getSchemaManager(), filter);
-        EntryFilteringCursor cursor = service.getAdminSession().search( new Dn( base ), scope, exprNode,
+        ExprNode exprNode = FilterParser.parse(getService().getSchemaManager(), filter);
+        EntryFilteringCursor cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();
         while ( cursor.next() )

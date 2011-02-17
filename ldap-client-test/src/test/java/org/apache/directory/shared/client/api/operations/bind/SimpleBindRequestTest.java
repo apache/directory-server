@@ -24,10 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -42,8 +40,11 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -314,7 +315,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             // Inject the interceptor that waits 1 second when binding 
             // in order to be able to send a request before we get the response
-            service.getInterceptorChain().addFirst( new BaseInterceptor()
+            getService().getInterceptorChain().addFirst( new BaseInterceptor()
             {
                 /**
                  * Wait 1 second before going any further
@@ -360,7 +361,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         }
         finally
         {
-            service.getInterceptorChain().remove( this.getClass().getName() + "$1" );
+            getService().getInterceptorChain().remove( this.getClass().getName() + "$1" );
         }
     }
 

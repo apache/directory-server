@@ -106,7 +106,7 @@ public final class PartitionIT extends AbstractLdapTestUnit
          */
         HashMap<String, Partition> partitionMap = new HashMap<String, Partition>();
 
-        for ( Partition partition : service.getPartitions() )
+        for ( Partition partition : getService().getPartitions() )
         {
             LOG.debug( "partition id = {}", partition.getId() );
             partitionMap.put( partition.getId(), partition );
@@ -119,7 +119,7 @@ public final class PartitionIT extends AbstractLdapTestUnit
          * Confirm presence and publishing of foo and bar partitions as 
          * namingContexts as values innamingContexts attribute of the rootDSE
          */
-        LdapContext rootDSE = getRootContext( service );
+        LdapContext rootDSE = getRootContext( getService() );
         Attribute namingContexts = rootDSE.getAttributes( "", new String[]
             { "namingContexts" } ).get( "namingContexts" );
         assertTrue( namingContexts.contains( "dc=foo,dc=com" ) );
@@ -142,7 +142,7 @@ public final class PartitionIT extends AbstractLdapTestUnit
      */
     public void addLookupDelete( String partitionSuffix ) throws Exception
     {
-        LdapContext rootDSE = getRootContext( service );
+        LdapContext rootDSE = getRootContext( getService() );
         Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "people" );
         String entryDn = "ou=people," + partitionSuffix;

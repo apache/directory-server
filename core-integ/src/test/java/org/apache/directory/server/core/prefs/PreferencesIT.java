@@ -47,7 +47,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testSystemRoot()
     {
-        ServerPreferencesFactory factory = new ServerPreferencesFactory( service );
+        ServerPreferencesFactory factory = new ServerPreferencesFactory( getService() );
         Preferences prefs = factory.systemRoot();
 
         assertNotNull( prefs );
@@ -63,7 +63,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testRoot() throws Exception
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "not the value" ) );
     }
 
@@ -76,7 +76,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreate() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
 
         testNode.put( "cn", "testNodeValue" );
@@ -92,7 +92,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndSetBoolean() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putBoolean( "cn", false );
         testNode.sync();
@@ -127,7 +127,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndSetDouble() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putDouble( "cn", 3.14 );
         testNode.sync();
@@ -144,7 +144,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndSetFloat() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putFloat( "cn", ( float ) 9.20 );
         testNode.sync();
@@ -161,7 +161,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndSetInt() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putInt( "cn", 345 );
         testNode.sync();
@@ -178,7 +178,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndSetLong() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putLong( "cn", 75449559185447L );
         testNode.sync();
@@ -195,7 +195,7 @@ public class PreferencesIT extends AbstractLdapTestUnit
     @Test
     public void testCreateAndRemove() throws BackingStoreException
     {
-        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
+        ServerSystemPreferences prefs = new ServerSystemPreferences( getService() );
         Preferences testNode = prefs.node( "testNode" );
 
         testNode.put( "cn", "testNodeValue" );

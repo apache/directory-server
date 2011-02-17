@@ -100,11 +100,11 @@ public class ReferralIT extends AbstractLdapTestUnit
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
         String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";
         String ref2 = "ldap://maxwell:10389/ou=users,ou=system";
-        td.rootCtx = getSystemContext( service );
+        td.rootCtx = getSystemContext( getService() );
 
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ), true ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ), true ); 
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -329,7 +329,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
         Dn userDn = new Dn( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
-        Entry userEntry = new DefaultEntry( service.getSchemaManager(), userDn);
+        Entry userEntry = new DefaultEntry( getService().getSchemaManager(), userDn);
         
         userEntry.add(  "ObjectClass", "top", "person" );
         userEntry.add( "sn", "karasulu" );
@@ -337,7 +337,7 @@ public class ReferralIT extends AbstractLdapTestUnit
 
         try
         {
-            service.getAdminSession().add( userEntry );
+            getService().getAdminSession().add( userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
         catch ( LdapPartialResultException lpre )
@@ -1184,7 +1184,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1221,7 +1221,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1257,7 +1257,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1293,7 +1293,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1329,7 +1329,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1365,7 +1365,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         //create subcontext
         try
         {
-            getSystemContext( service ).createSubcontext( base, attrs );
+            getSystemContext( getService() ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )

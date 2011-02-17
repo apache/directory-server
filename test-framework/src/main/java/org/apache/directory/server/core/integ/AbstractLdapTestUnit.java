@@ -33,7 +33,7 @@ import org.apache.directory.server.ldap.LdapServer;
 public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
-    public static DirectoryService service;
+    private static DirectoryService service;
 
     /** The used LdapServer instance */
     public static LdapServer ldapServer;
@@ -43,7 +43,7 @@ public abstract class AbstractLdapTestUnit
 
     /** A flag set if the test is run in a suite */
     public static boolean isRunInSuite;
-
+    
 
     public static DirectoryService getService()
     {

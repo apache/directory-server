@@ -136,7 +136,7 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = ldapServer.getDirectoryService().getSchemaManager();
     }
 
@@ -182,7 +182,7 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         ldapServer.start();
         schemaManager = ldapServer.getDirectoryService().getSchemaManager();
 
-        assertTrue( service.isStarted() );
+        assertTrue( getService().isStarted() );
         assertTrue( ldapServer.getDirectoryService().isStarted() );
         
         // Check that the roles are present

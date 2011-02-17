@@ -43,19 +43,27 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.codec.api.CodecControl;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.AddRequest;
+import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
+import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.model.message.ModifyResponse;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -101,9 +109,9 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
         policyContainer.setDefaultPolicy( policyConfig );
-        service.setPwdPolicies( policyContainer );
+        getService().setPwdPolicies( policyContainer );
         
-        AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) service
+        AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
         .getInterceptor( AuthenticationInterceptor.class.getName() );
         
         authInterceptor.loadPwdPolicyStateAtributeTypes();
@@ -120,7 +128,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithClearTextPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( ldapServer );
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
         
         Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",

@@ -63,7 +63,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
     public void testRemoveNamingListener() throws Exception
     {
         TestListener listener = new TestListener();
-        EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
+        EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
         Attributes testEntry = LdifUtils.createAttributes(
@@ -115,7 +115,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
     public void testContextClose() throws Exception
     {
         TestListener listener = new TestListener();
-        EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
+        EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
         Attributes testEntry = LdifUtils.createAttributes( 
@@ -134,7 +134,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( ctx, rec.event.getSource() );
 
         ctx.close();
-        ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
+        ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.destroySubcontext( "ou=testentry" );
 
         //  Wait 1 second, as the process is asynchronous

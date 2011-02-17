@@ -44,10 +44,10 @@ public class TestClassB extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
     
     
@@ -57,12 +57,12 @@ public class TestClassB extends AbstractLdapTestUnit
         // this assertion will only work if ran as part of TestSuite
         // commenting this to make maven report test success, uncomment in an IDE
         // while running the TestSuite
-        // assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+        // assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 }

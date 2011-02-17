@@ -143,7 +143,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = ldapServer.getDirectoryService().getSchemaManager();
     }
 

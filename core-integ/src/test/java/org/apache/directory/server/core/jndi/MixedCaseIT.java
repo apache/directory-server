@@ -83,7 +83,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
     @Test
     public void testSearch() throws Exception
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", getService(), SUFFIX_DN );
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -100,7 +100,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
     @Test
     public void testAdd() throws Exception
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", getService(), SUFFIX_DN );
 
         String dn = "ou=Test";
 
@@ -125,7 +125,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
     @Test
     public void testModify() throws Exception
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", getService(), SUFFIX_DN );
 
         String dn = "ou=Test";
         String description = "New Value";
@@ -161,7 +161,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
     @Test
     public void testDelete() throws Exception
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", getService(), SUFFIX_DN );
 
         String dn = "ou=Test";
 
