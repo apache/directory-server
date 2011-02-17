@@ -89,7 +89,8 @@ public class SaslFilter extends IoFilterAdapter
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
         String qop = ( String ) saslServer.getNegotiatedProperty( Sasl.QOP );
-        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
+        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.AUTH_INT.getValue() ) || qop
+            .equals( SaslQoP.AUTH_CONF.getValue() ) ) );
 
         if ( hasSecurityLayer )
         {
@@ -133,7 +134,8 @@ public class SaslFilter extends IoFilterAdapter
          * Wrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
         String qop = ( String ) saslServer.getNegotiatedProperty( Sasl.QOP );
-        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
+        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.AUTH_INT.getValue() ) || qop
+            .equals( SaslQoP.AUTH_CONF.getValue() ) ) );
 
         IoBuffer saslLayerBuffer = null;
 

@@ -226,10 +226,10 @@ public class LdapServer extends DirectoryBackedService
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
         saslQop = new HashSet<String>();
-        saslQop.add( SaslQoP.QOP_AUTH );
-        saslQop.add( SaslQoP.QOP_AUTH_INT );
-        saslQop.add( SaslQoP.QOP_AUTH_CONF );
-        saslQopString = SaslQoP.QOP_AUTH + ',' + SaslQoP.QOP_AUTH_INT + ',' + SaslQoP.QOP_AUTH_CONF;
+        saslQop.add( SaslQoP.AUTH.getValue() );
+        saslQop.add( SaslQoP.AUTH_INT.getValue() );
+        saslQop.add( SaslQoP.AUTH_CONF.getValue() );
+        saslQopString = SaslQoP.AUTH.getValue() + ',' + SaslQoP.AUTH_INT.getValue() + ',' + SaslQoP.AUTH_CONF.getValue();
 
         saslRealms = new ArrayList<String>();
         saslRealms.add( "example.com" );
