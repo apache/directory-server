@@ -177,14 +177,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.size() > 2 && !isAnAdministrator(principalDn) )
         {
-            if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
+            if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) )
             {
                 String msg = I18n.err( I18n.ERR_15, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( dn.isChildOf( GROUP_BASE_DN ) )
+            if ( dn.isDescendantOf( GROUP_BASE_DN ) )
             {
                 String msg = I18n.err( I18n.ERR_16, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
@@ -268,14 +268,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
             if ( dn.size() > 2 )
             {
-                if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
+                if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) )
                 {
                     String msg = I18n.err( I18n.ERR_19, principalDn.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
 
-                if ( dn.isChildOf( GROUP_BASE_DN ) )
+                if ( dn.isDescendantOf( GROUP_BASE_DN ) )
                 {
                     String msg = I18n.err( I18n.ERR_20, principalDn.getName(), dn.getName() );
                     LOG.error( msg );
@@ -357,14 +357,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( ( dn.size() > 2 ) && dn.isChildOf( ADMIN_SYSTEM_DN ) && !isAnAdministrator( principalDn ) )
+        if ( ( dn.size() > 2 ) && dn.isDescendantOf( ADMIN_SYSTEM_DN ) && !isAnAdministrator( principalDn ) )
         {
             String msg = I18n.err( I18n.ERR_23, principalDn.getName(), dn.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( ( dn.size() > 2 ) && dn.isChildOf( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
+        if ( ( dn.size() > 2 ) && dn.isDescendantOf( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
             String msg = I18n.err( I18n.ERR_24, principalDn.getName(), dn.getName() );
             LOG.error( msg );
@@ -395,7 +395,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             if ( normalizedDn.size() > 2 )
             {
-                if ( normalizedDn.isChildOf( ADMIN_SYSTEM_DN ) )
+                if ( normalizedDn.isDescendantOf( ADMIN_SYSTEM_DN ) )
                 {
                     // allow for self reads
                     if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
@@ -408,7 +408,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                     throw new LdapNoPermissionException( msg );
                 }
 
-                if ( normalizedDn.isChildOf( GROUP_BASE_DN ) )
+                if ( normalizedDn.isDescendantOf( GROUP_BASE_DN ) )
                 {
                     // allow for self reads
                     if ( normalizedDn.equals( principalDn ) )
@@ -512,7 +512,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // stuff this if in here instead of up in outer if to prevent
             // constant needless reexecution for all entries in other depths
 
-            if ( dn.isChildOf( ADMIN_SYSTEM_DN ) || dn.isChildOf( GROUP_BASE_DN ) )
+            if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) || dn.isDescendantOf( GROUP_BASE_DN ) )
             {
                 return false;
             }

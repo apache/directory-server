@@ -894,7 +894,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 Dn apDn = subentryDn.getParent();
 
                 // No need to evaluate the entry if it's not below an AP.
-                if ( dn.isChildOf( apDn ) )
+                if ( dn.isDescendantOf( apDn ) )
                 {
                     Subentry subentry = subentryCache.getSubentry( subentryDn );
                     SubtreeSpecification ss = subentry.getSubtreeSpecification();

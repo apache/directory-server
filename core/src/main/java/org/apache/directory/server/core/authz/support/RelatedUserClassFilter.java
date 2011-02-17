@@ -111,7 +111,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else if ( userClass == UserClass.PARENT_OF_ENTRY )
             {
-                if ( entryName.isChildOf( userName ) )
+                if ( entryName.isDescendantOf( userName ) )
                 {
                     return true;
                 }

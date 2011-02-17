@@ -1796,7 +1796,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * entry Dn starts with the target Dn.  If it does then we know the
          * aliased target is a relative and we have a perspecitive cycle.
          */
-        if ( aliasDn.isChildOf( normalizedAliasTargetDn ) )
+        if ( aliasDn.isDescendantOf( normalizedAliasTargetDn ) )
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
@@ -1820,7 +1820,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( !normalizedAliasTargetDn.isChildOf( suffixDn ) )
+        if ( !normalizedAliasTargetDn.isDescendantOf( suffixDn ) )
         {
             String msg = I18n.err( I18n.ERR_225, suffixDn.getName() );
             LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
@@ -1882,7 +1882,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         Dn normalizedAliasTargetParentDn = normalizedAliasTargetDn;
         normalizedAliasTargetParentDn = normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
 
-        if ( !aliasDn.isChildOf( normalizedAliasTargetParentDn ) )
+        if ( !aliasDn.isDescendantOf( normalizedAliasTargetParentDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
         }
@@ -1899,7 +1899,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          */
         while ( !ancestorDn.equals( suffixDn ) && null != ancestorId )
         {
-            if ( !normalizedAliasTargetDn.isChildOf( ancestorDn ) )
+            if ( !normalizedAliasTargetDn.isDescendantOf( ancestorDn ) )
             {
                 subAliasIdx.add( ancestorId, targetId );
             }

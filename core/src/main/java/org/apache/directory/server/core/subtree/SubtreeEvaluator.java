@@ -80,7 +80,7 @@ public class SubtreeEvaluator
         Dn subentryBaseDn = apDn;
         subentryBaseDn = subentryBaseDn.addAll( subtree.getBase() );
         
-        if ( !entryDn.isChildOf( subentryBaseDn ) )
+        if ( !entryDn.isDescendantOf( subentryBaseDn ) )
         {
             // The entry Dn is not part of the subtree specification, get out
             return false;
@@ -123,7 +123,7 @@ public class SubtreeEvaluator
             
             for ( Dn chopBeforeDn : subtree.getChopBeforeExclusions() )
             {
-                if ( entryRelativeDn.isChildOf( chopBeforeDn ) )
+                if ( entryRelativeDn.isDescendantOf( chopBeforeDn ) )
                 {
                     return false;
                 }
@@ -131,7 +131,7 @@ public class SubtreeEvaluator
     
             for ( Dn chopAfterDn : subtree.getChopAfterExclusions() )
             {
-                if ( entryRelativeDn.isChildOf( chopAfterDn ) && !chopAfterDn.equals( entryRelativeDn ) )
+                if ( entryRelativeDn.isDescendantOf( chopAfterDn ) && !chopAfterDn.equals( entryRelativeDn ) )
                 {
                     return false;
                 }
