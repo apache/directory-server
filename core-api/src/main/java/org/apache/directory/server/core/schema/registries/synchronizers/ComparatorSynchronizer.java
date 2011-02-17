@@ -100,8 +100,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = dn;
-        parentDn = parentDn.remove( parentDn.size() - 1 );
+        Dn parentDn = dn.getParent();
 
         // The parent Dn must be ou=comparators,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.COMPARATOR );
@@ -148,8 +147,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = dn;
-        parentDn = parentDn.remove( parentDn.size() - 1 );
+        Dn parentDn = dn.getParent();
 
         // The parent Dn must be ou=comparators,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.COMPARATOR );
@@ -247,8 +245,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
             // Inject the new Dn
-            Dn newDn = targetEntry.getDn();
-            newDn = newDn.remove( newDn.size() - 1 );
+            Dn newDn = targetEntry.getDn().getParent();
             newDn = newDn.add( newRdn );
             targetEntry.setDn( newDn );
 

@@ -1043,7 +1043,7 @@ public class SingleFileLdifPartitionTest
                             true );
 
                         partition.rename( renameOpCtx );
-                        tmpDn = dn.remove( dn.size() - 1 );
+                        tmpDn = dn.getParent();
                         tmpDn = tmpDn.add( newRdn );
                         tmpRdn = oldRdn;
 

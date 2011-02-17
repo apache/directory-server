@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
@@ -1599,14 +1598,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         Entry farthestReferralAncestor = null;
         Dn dn = target;
 
-        try
-        {
-            dn = dn.remove( dn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException e2 )
-        {
-            // never thrown
-        }
+        dn = dn.getParent();
 
         while ( !dn.isEmpty() )
         {
@@ -1624,21 +1616,14 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                     farthestReferralAncestor = entry;
                 }
 
-                dn = dn.remove( dn.size() - 1 );
+                dn = dn.getParent();
             }
             catch ( LdapException e )
             {
                 LOG.debug( "Entry for {} not found.", dn );
 
                 // update the Dn as we strip last component
-                try
-                {
-                    dn = dn.remove( dn.size() - 1 );
-                }
-                catch ( LdapInvalidDnException e1 )
-                {
-                    // never happens
-                }
+                dn = dn.getParent();
             }
         }
 

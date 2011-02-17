@@ -1874,13 +1874,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * index.  If the target is not a sibling of the alias then we add the
          * index entry maping the parent's id to the aliased target id.
          */
-        ancestorDn = aliasDn;
-        ancestorDn = ancestorDn.remove( aliasDn.size() - 1 );
+        ancestorDn = aliasDn.getParent();
         ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
-        Dn normalizedAliasTargetParentDn = normalizedAliasTargetDn;
-        normalizedAliasTargetParentDn = normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
+        Dn normalizedAliasTargetParentDn = normalizedAliasTargetDn.getParent();
 
         if ( !aliasDn.isDescendantOf( normalizedAliasTargetParentDn ) )
         {
@@ -1904,7 +1902,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 subAliasIdx.add( ancestorId, targetId );
             }
 
-            ancestorDn = ancestorDn.remove( ancestorDn.size() - 1 );
+            ancestorDn = ancestorDn.getParent();
             ancestorId = getEntryId( ancestorDn );
         }
     }
@@ -1933,8 +1931,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         Dn aliasDn = getEntryDn( aliasId );
 
-        Dn ancestorDn = aliasDn;
-        ancestorDn = ancestorDn.remove( aliasDn.size() - 1 );
+        Dn ancestorDn = aliasDn.getParent();
         ID ancestorId = getEntryId( ancestorDn );
 
         /*

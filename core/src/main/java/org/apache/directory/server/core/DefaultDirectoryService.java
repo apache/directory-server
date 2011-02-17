@@ -790,10 +790,8 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // calculate parents
-        Dn oldBase = oldDn;
-        oldBase = oldBase.remove( oldDn.size() - 1 );
-        Dn newBase = newDn;
-        newBase = newBase.remove( newDn.size() - 1 );
+        Dn oldBase = oldDn.getParent();
+        Dn newBase = newDn.getParent();
 
         // Compute the Rdn for each of the Dn
         Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
@@ -813,8 +811,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         else
         {
-            Dn target = newDn;
-            target = target.remove( newDn.size() - 1 );
+            Dn target = newDn.getParent();
 
             if ( newRdn.equals( oldRdn ) )
             {

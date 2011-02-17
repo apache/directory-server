@@ -363,8 +363,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          */
         if ( oc.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            Dn parentDn = dn;
-            parentDn = parentDn.remove( dn.size() - 1 );
+            Dn parentDn = dn.getParent();
             originalEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 

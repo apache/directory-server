@@ -75,8 +75,6 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.api.CodecControl;
 import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-
-// @TODO - all these controls should not be imported !!!! ALEX !!!
 import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
@@ -1227,25 +1225,11 @@ public abstract class ServerContext implements EventContext
         // calculate parents
         Dn oldParent = oldDn;
 
-        try
-        {
-            oldParent = oldParent.remove( oldDn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
-        }
+        oldParent = oldParent.getParent();
 
         Dn newParent = newDn;
 
-        try
-        {
-            newParent = newParent.remove( newDn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
-        }
+        newParent = newParent.getParent();
 
 
         Rdn oldRdn = oldDn.getRdn();

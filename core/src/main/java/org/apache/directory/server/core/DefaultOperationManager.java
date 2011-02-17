@@ -866,8 +866,7 @@ public class DefaultOperationManager implements OperationManager
             // Inject the new Dn into the context
             if ( !dn.isEmpty() )
             {
-                Dn newDn = dn;
-                newDn = newDn.remove( dn.size() - 1 );
+                Dn newDn = dn.getParent();
                 newDn = newDn.add( renameContext.getNewRdn() );
                 renameContext.setNewDn( newDn );
             }

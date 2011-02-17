@@ -60,8 +60,8 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +126,7 @@ public class TriggerInterceptor extends BaseInterceptor
          */
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            Dn parentDn = dn;
-            parentDn = parentDn.remove( dn.size() - 1 );
+            Dn parentDn = dn.getParent();
 
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
@@ -375,8 +374,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         // @TODO : To be completely reviewed !!!
         Rdn oldRdn = name.getRdn();
-        Dn oldSuperiorDn = (Dn) name;
-        oldSuperiorDn = oldSuperiorDn.remove( oldSuperiorDn.size() - 1 );
+        Dn oldSuperiorDn = name.getParent();
         Dn newSuperiorDn = oldSuperiorDn;
         Dn oldDn = name;
         Dn newDn = name;
@@ -420,8 +418,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
         Rdn oldRdn = oldDn.getRdn();
-        Dn oldSuperiorDn = oldDn;
-        oldSuperiorDn = oldSuperiorDn.remove( oldSuperiorDn.size() - 1 );
+        Dn oldSuperiorDn = oldDn.getParent();
         Dn oldDN = oldDn;
         Dn newDn = moveAndRenameContext.getNewDn();
 
