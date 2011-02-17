@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
@@ -100,21 +99,17 @@ public class DefaultOperationManager implements OperationManager
             {
                 // we have to replace the parent by the referral
                 LdapURL ldapUrl = new LdapURL( url.getString() );
-
+    
                 // We have a problem with the Dn : we can't use the UpName,
                 // as we may have some spaces around the ',' and '+'.
                 // So we have to take the Rdn one by one, and create a
                 // new Dn with the type and value UP form
-
+    
                 Dn urlDn = ldapUrl.getDn().addAll( childDn );
-
+    
                 ldapUrl.setDn( urlDn );
                 urls.add( ldapUrl.toString() );
             }
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new LdapOperationErrorException( lide.getMessage() );
         }
         catch ( LdapURLEncodingException luee )
         {
