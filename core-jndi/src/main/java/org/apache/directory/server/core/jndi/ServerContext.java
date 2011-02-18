@@ -1589,7 +1589,7 @@ public abstract class ServerContext implements EventContext
     public Name composeName( Name name, Name prefix ) throws NamingException
     {
         // No prefix reduces to name, or the name relative to this context
-        if ( prefix == null || prefix.size() == 0 )
+        if ( ( prefix == null ) || ( prefix.size() == 0 ) )
         {
             return name;
         }

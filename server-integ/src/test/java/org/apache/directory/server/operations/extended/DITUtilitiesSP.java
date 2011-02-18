@@ -20,10 +20,7 @@
 package org.apache.directory.server.operations.extended;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +38,15 @@ public class DITUtilitiesSP
      * http://kahuna.telstra.net/ietf/all-ids/draft-armijo-ldap-treedelete-02.txt
      * you can do it yourself!
      * 
-     * @param ctx an LDAP context to perform operations on
-     * @param rdn ctx relative name of the entry which is root of
-     *        the subtree to be deleted
+     * @param session The LDAP session
+     * @param dn Starting DN from which we the entries will be deleted
      * @throws LdapException
      */
-    public static void deleteSubtree( CoreSession session, Dn rdn ) throws Exception
+    public static void deleteSubtree( CoreSession session, Dn dn ) throws Exception
     {
-        EntryFilteringCursor results = session.list( rdn, AliasDerefMode.DEREF_ALWAYS, null );
+        // TODO : This code don't simply work. Fix it.
+        /*
+        EntryFilteringCursor results = session.list( dn, AliasDerefMode.DEREF_ALWAYS, null );
         
         results.beforeFirst();
         
@@ -56,11 +54,12 @@ public class DITUtilitiesSP
         {
             ClonedServerEntry result = results.get();
             Dn childRdn = result.getDn();
-            childRdn = childRdn.remove( 0 );
+            childRdn = childRdn.getParent();
             deleteSubtree( session, childRdn );
         }
         
-        session.delete( (Dn)rdn );
-        log.info( "Deleted: " + rdn );
+        session.delete( dn );
+        log.info( "Deleted: " + dn );
+        */
     }
 }
