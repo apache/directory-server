@@ -1611,32 +1611,8 @@ public abstract class ServerContext implements EventContext
 
         // 1). Find the Dn for name and walk it from the head to tail
         Dn fqn = buildTarget( JndiUtils.fromName( name ) );
-        String head = prefix.get( 0 );
-
-        // 2). Walk the fqn trying to match for the head of the prefix
-        while ( fqn.size() > 0 )
-        {
-            // match found end loop
-            if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
-            {
-                return JndiUtils.toName( fqn );
-            }
-            else
-            // 2). Remove name components from the Dn until a match
-            {
-                try
-                {
-                    fqn = fqn.remove( 0 );
-                }
-                catch ( LdapInvalidDnException lide )
-                {
-                    throw new NamingException( lide.getMessage() );
-                }
-            }
-        }
-
-        String msg = I18n.err( I18n.ERR_498, prefix, dn );
-        throw new NamingException( msg );
+        
+        return JndiUtils.toName( JndiUtils.fromName( prefix ).addAll( fqn ) );
     }
 
 
