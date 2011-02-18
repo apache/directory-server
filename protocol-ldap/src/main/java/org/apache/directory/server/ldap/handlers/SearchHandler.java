@@ -1403,19 +1403,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
              * name past the farthest referral Dn which the target name extends.
              */
-            int diff = req.getBase().size() - referralAncestor.getDn().size();
-            Dn extra = new Dn();
-
-            // TODO - fix this by access unormalized Rdn values
-            // seems we have to do this because get returns normalized rdns
-            Dn reqUnnormalizedDn = new Dn( req.getBase().getName() );
-            for ( int jj = 0; jj < diff; jj++ )
-            {
-                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
-            }
-
-            urlDn = urlDn.addAll( extra );
-            ldapUrl.setDn( urlDn );
+            Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
+            Dn refDn = urlDn.addAll( suffix );
+            
+            ldapUrl.setDn( refDn );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
             ldapUrl.setScope( req.getScope().getScope() );
@@ -1491,18 +1482,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
              * name past the farthest referral Dn which the target name extends.
              */
-            int diff = reqTargetDn.size() - referralAncestor.getDn().size();
-            Dn extra = new Dn();
-
-            // TODO - fix this by access unormalized Rdn values
-            // seems we have to do this because get returns normalized rdns
-            Dn reqUnnormalizedDn = new Dn( reqTargetDn.getName() );
-            for ( int jj = 0; jj < diff; jj++ )
-            {
-                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
-            }
-
-            urlDn = urlDn.addAll( extra );
+            Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
+            urlDn = urlDn.addAll( suffix );
 
             StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
