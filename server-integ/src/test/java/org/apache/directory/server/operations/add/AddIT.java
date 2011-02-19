@@ -1161,7 +1161,6 @@ public class AddIT extends AbstractLdapTestUnit
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        connection.setTimeOut( Integer.MAX_VALUE );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Inject a 1024 bytes long description

@@ -433,7 +433,6 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindInvalidFwdByValidOnSameCon() throws Exception
     {
-        connection.setTimeOut( Integer.MAX_VALUE );
         BindResponse response = connection.bind( "uid=admin,ou=system", "wrongpwd" );
         LdapResult ldapResult = response.getLdapResult();
         assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
