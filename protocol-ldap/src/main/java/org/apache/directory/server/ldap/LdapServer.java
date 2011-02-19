@@ -769,9 +769,9 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler getExtendedOperationHandler( String oid )
+    public ExtendedOperationHandler<ExtendedRequest> getExtendedOperationHandler( String oid )
     {
-        for ( ExtendedOperationHandler h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<ExtendedRequest> h : extendedOperationHandlers )
         {
             if ( h.getOid().equals( oid ) )
             {
