@@ -130,6 +130,8 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+        
+        ldapConnection.close();
     }
     
     
@@ -235,5 +237,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+
+        ldapConnection.close();
     }
 }

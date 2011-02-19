@@ -453,5 +453,6 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
         assertEquals( 1, response.getMessageId() );
         assertTrue( connection.isAuthenticated() );
+        connection.close();
     }
 }

@@ -99,6 +99,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
+        conn.close();
     }
 
 
@@ -119,6 +120,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
+        conn.close();
     }
 
 
@@ -136,6 +138,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
+        conn.close();
     }
 
 
@@ -282,5 +285,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         {
             // expected
         }
+        
+        conn.close();
     }
 }

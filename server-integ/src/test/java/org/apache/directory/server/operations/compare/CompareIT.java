@@ -105,6 +105,7 @@ public class CompareIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.COMPARE_FALSE, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
+        conn.close();
     }
 
 

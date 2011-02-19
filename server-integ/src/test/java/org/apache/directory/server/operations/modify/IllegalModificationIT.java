@@ -94,6 +94,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         // Check whether entry is unmodified, i.e. no description
         Entry entry = con.lookup( DN );
         assertEquals( "description exists?", null, entry.get( "description" ) );
+        con.close();
     }
 
 

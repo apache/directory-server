@@ -1643,6 +1643,7 @@ public class SearchIT extends AbstractLdapTestUnit
         finally
         {
             asyncCnx.unBind();
+            asyncCnx.close();
         }
     }
 
@@ -1685,6 +1686,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertEquals( sizeLimit, i );
+        connection.close();
     }
 
 
@@ -1718,6 +1720,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertTrue( newCount < count );
+        connection.close();
     }
 
 

@@ -124,17 +124,18 @@ public class MoveIT extends AbstractLdapTestUnit
         //now do something bad: make the parent a child of its own child 
         ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        con.close();
     }
 
 
     @Test
     public void testIllegalMoveToSameDN() throws Exception
     {
-
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         //now do something bad: try to move the entry to the same Dn
         ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        con.close();
     }
 }

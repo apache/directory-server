@@ -58,7 +58,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         //getLdapServer().getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );
         //getLdapServer().getDirectoryService().getInterceptorChain().addLast( new TimerInterceptor( "End" ) );
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        connection.setTimeOut( 0 );
 
         try
         {
@@ -121,6 +120,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         finally
         {
             connection.unBind();
+            connection.close();
         }
     }
 }
