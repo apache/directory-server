@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,15 +29,9 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.CertGenerationContainer;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.CertGenerationDecoder;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.CertGenerationObject;
 import org.apache.directory.shared.ldap.extras.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.extras.extended.CertGenerationResponse;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -47,9 +40,8 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CertGenerationRequestHandler implements ExtendedOperationHandler
+public class CertGenerationRequestHandler implements ExtendedOperationHandler<CertGenerationRequest>
 {
-
     private static final Set<String> EXTENSION_OIDS;
 
     static
@@ -61,47 +53,46 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getOid()
     {
         return CertGenerationRequest.EXTENSION_OID;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void handleExtendedOperation( LdapSession session, CertGenerationRequest req ) throws Exception
     {
-        ByteBuffer bb = ByteBuffer.wrap( req.getRequestValue() );
-        Asn1Decoder decoder = new CertGenerationDecoder();
-        CertGenerationContainer container = new CertGenerationContainer();
-
-        try
-        {
-            decoder.decode( bb, container );
-        }
-        catch ( DecoderException e )
-        {
-            throw e;
-        }
-
-        CertGenerationObject certGenObj = container.getCertGenerationObject();
-
-        Entry entry = session.getCoreSession().lookup( new Dn( certGenObj.getTargetDN() ) );
+        Entry entry = session.getCoreSession().lookup( new Dn( req.getTargetDN() ) );
 
         if ( entry != null )
         {
-            TlsKeyGenerator.addKeyPair( ( ( ClonedServerEntry ) entry ).getOriginalEntry(), certGenObj.getIssuerDN(),
-                certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
+            TlsKeyGenerator.addKeyPair( 
+                ( ( ClonedServerEntry ) entry ).getOriginalEntry(), 
+                req.getIssuerDN(),
+                req.getSubjectDN(), 
+                req.getKeyAlgorithm() );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setLdapServer( LdapServer ldapServer )
     {
     }
-
 }
