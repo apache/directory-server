@@ -60,7 +60,6 @@ import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
@@ -76,7 +75,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 {
 
     /** The logger */
-    private static Logger LOG = LoggerFactory.getLogger( LdapDecoder.class );
+    private static Logger LOG = LoggerFactory.getLogger( KerberosDecoder.class );
 
     /** A speedup for logger */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
