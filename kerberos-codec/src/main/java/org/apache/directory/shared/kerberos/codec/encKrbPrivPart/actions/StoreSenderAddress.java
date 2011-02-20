@@ -21,7 +21,6 @@
 package org.apache.directory.shared.kerberos.codec.encKrbPrivPart.actions;
 
 
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.kerberos.codec.actions.AbstractReadHostAddress;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.components.HostAddress;
@@ -32,7 +31,7 @@ import org.apache.directory.shared.kerberos.components.HostAddress;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreSenderAddress extends AbstractReadHostAddress
+public class StoreSenderAddress extends AbstractReadHostAddress<EncKrbPrivPartContainer>
 {
     public StoreSenderAddress()
     {
@@ -44,11 +43,10 @@ public class StoreSenderAddress extends AbstractReadHostAddress
      * {@inheritDoc}
      */
     @Override
-    protected void setAddress( HostAddress hostAddress, Asn1Container container )
+    protected void setAddress( HostAddress hostAddress, EncKrbPrivPartContainer encKrbPrivPartContainer )
     {
-        EncKrbPrivPartContainer encKrbPrivPartContainer = ( EncKrbPrivPartContainer ) container;
         encKrbPrivPartContainer.getEncKrbPrivPart().setSenderAddress( hostAddress );
-        
-        container.setGrammarEndAllowed( true );
+
+        encKrbPrivPartContainer.setGrammarEndAllowed( true );
     }
 }

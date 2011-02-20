@@ -225,7 +225,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
         
@@ -267,7 +267,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
         test.put( "homeDirectory", "/" );
         test.put( "description", "A test account" );
         
-        getSystemContext( service ).createSubcontext( "cn=test", test );
+        getSystemContext( getService() ).createSubcontext( "cn=test", test );
         
     }
 
@@ -281,7 +281,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
+        return getSystemContext( getService() ).createSubcontext( "cn="+name+",ou=groups", attrs );
     }
 
 
@@ -304,7 +304,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotSV() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A new description attribute value
@@ -330,7 +330,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotInMustNotSVAllValues() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A new description attribute value
@@ -355,7 +355,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNotInRdnNotSVAllValues() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes sn = new BasicAttributes( "sn", "Wilde", true );
@@ -374,7 +374,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryNonExistingATInMay() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A non existing AT 
@@ -390,7 +390,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryNonExistingATNotInMayMust() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // A non existing AT 
@@ -406,7 +406,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnSV() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "c", "FR", true );
@@ -426,7 +426,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNotInRdnSVInMust() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "uidNumber", "1", true );
@@ -441,7 +441,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATPartOfRdn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "cn", "test", true );
@@ -456,7 +456,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNoInRdnNotInMust() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "description", null, true );
@@ -476,7 +476,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNoInRdnInMust() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "sn", null, true );
@@ -491,7 +491,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATInRdn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "cn", null, true );
@@ -506,7 +506,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryValueNotPresentInExistingAT() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         Attributes attrs = new BasicAttributes( "description", "Not present", true );
@@ -547,7 +547,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test( expected = NameNotFoundException.class )
     public void testModifyDelNotExistingEntry() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // An operational attribute

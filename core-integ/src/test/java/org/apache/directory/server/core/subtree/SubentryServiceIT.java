@@ -47,9 +47,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
-import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -57,7 +56,14 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
+import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
@@ -171,6 +177,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private class JndiSubentriesControl implements javax.naming.ldap.Control
     {
+        private static final long serialVersionUID = -5773336005348321396L;
 
         public boolean isCritical()
         {
@@ -259,7 +266,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( String role ) throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
@@ -279,7 +286,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private Map<String, Attributes> getAllEntries() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -322,7 +329,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testEntryAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
@@ -396,7 +403,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryAdd() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Add the subentry
         Entry subEntryA = LdifUtils.createEntry( new Dn( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ),
@@ -516,7 +523,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public void testSubentryAddOld() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Entry subEntry = getSubentry( "cn=testsubentry,ou=system" );
         AddResponse response = connection.add( subEntry );
@@ -566,7 +573,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryModify() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
@@ -692,7 +699,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryModify2() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
@@ -817,7 +824,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryDelete() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.destroySubcontext( "cn=testsubentry" );
@@ -885,7 +892,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryModifyRdn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.rename( "cn=testsubentry", "cn=newname" );
@@ -949,7 +956,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testEntryModifyRdn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
@@ -1050,7 +1057,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testEntryMoveWithRdnChange() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
@@ -1151,7 +1158,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testEntryMove() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
@@ -1244,7 +1251,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubentriesControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
@@ -1265,7 +1272,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries
         // except subentries disappear
-        LdapCodecService codec = new DefaultLdapCodecService();
+        LdapCodecService codec = LdapCodecServiceFactory.getSingleton();
         SubentriesDecorator decorator = new SubentriesDecorator( codec );
         Subentries ctl = ( Subentries ) decorator.getDecorated();
         ctl.setVisibility( true );
@@ -1282,7 +1289,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
@@ -1306,7 +1313,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubtreeScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
@@ -1329,7 +1336,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSubtreeScopeSearchSubentryVisibilityWithTheSubentriesControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
@@ -1353,7 +1360,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testLookupSubentryWithTheSubentriesControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         
@@ -1369,7 +1376,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testLookupSubentryAPIWithTheSubentriesControl() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
@@ -1386,7 +1393,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testLookupSubentryAPIWithoutTheSubentriesControl() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
@@ -1402,7 +1409,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testUserInjectAccessControlSubentries() throws Exception
     {
-        userConnection = IntegrationUtils.getConnectionAs( service, "cn=testUser,ou=system", "test" );
+        userConnection = IntegrationUtils.getConnectionAs( getService(), "cn=testUser,ou=system", "test" );
 
         Entry sap = LdifUtils.createEntry(
             "ou=dummy,ou=system",

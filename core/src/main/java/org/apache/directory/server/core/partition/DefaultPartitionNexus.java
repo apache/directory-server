@@ -57,17 +57,10 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.model.message.controls.Cascade;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
-import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
@@ -87,6 +80,13 @@ import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.message.controls.Cascade;
+import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
+import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -760,7 +760,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // return nothing
         if ( noAttribute )
         {
-            Entry serverEntry = new DefaultEntry( schemaManager, Dn.EMPTY_DN );
+            Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
         }
 
@@ -771,7 +771,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
         }
 
-        Entry serverEntry = new DefaultEntry( schemaManager, Dn.EMPTY_DN );
+        Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
 
         Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchContext.getSession() ) );
 

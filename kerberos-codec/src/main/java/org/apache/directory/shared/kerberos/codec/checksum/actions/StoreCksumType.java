@@ -21,13 +21,12 @@
 package org.apache.directory.shared.kerberos.codec.checksum.actions;
 
 
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.DecoderException;
+import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreCksumType extends GrammarAction
+public class StoreCksumType extends GrammarAction<ChecksumContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreCksumType.class );
@@ -57,15 +56,13 @@ public class StoreCksumType extends GrammarAction
     {
         super( "Checksum cksumtype" );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( ChecksumContainer checksumContainer ) throws DecoderException
     {
-        ChecksumContainer checksumContainer = ( ChecksumContainer ) container;
-
         TLV tlv = checksumContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -76,11 +73,11 @@ public class StoreCksumType extends GrammarAction
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
-        
+
         Checksum checksum = checksumContainer.getChecksum();
         // The Checksum's type is an integer
         Value value = tlv.getValue();
-        
+
         try
         {
             int cksumType = IntegerDecoder.parse( value );

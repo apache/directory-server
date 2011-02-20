@@ -74,7 +74,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
     @Test
     public void testDestroyContext() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         /*
          * delete ou=testing00,ou=system

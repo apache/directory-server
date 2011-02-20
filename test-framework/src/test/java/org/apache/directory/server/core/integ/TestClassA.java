@@ -59,11 +59,11 @@ public class TestClassA extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
         
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
     }
 
 
@@ -79,12 +79,12 @@ public class TestClassA extends AbstractLdapTestUnit
     {
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
-        assertFalse( service.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
+        assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
     }
 }

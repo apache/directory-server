@@ -59,7 +59,7 @@ public class ExistsIT extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
     }
 
 

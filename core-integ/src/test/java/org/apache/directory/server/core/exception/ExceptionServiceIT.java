@@ -39,11 +39,14 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
+import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.junit.After;
@@ -77,7 +80,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.CN_AT, value );
         entry.add( SchemaConstants.SN_AT, value );
 
-        AddResponse resp = getAdminConnection( service ).add( entry );
+        AddResponse resp = getAdminConnection( getService() ).add( entry );
 
         return resp;
     }
@@ -102,7 +105,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailSearchNoSuchObject() throws Exception
     {
-        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=blah", "(objectClass=*)",
+        Cursor<Response> cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
         assertFalse( cursor.next() );
     }
@@ -117,7 +120,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchControl() throws Exception
     {
-        Cursor<Response> cursor = getAdminConnection( service ).search( "ou=users,ou=system", "(objectClass=*)",
+        Cursor<Response> cursor = getAdminConnection( getService() ).search( "ou=users,ou=system", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
@@ -136,7 +139,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailMoveEntryAlreadyExists() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         Entry entry = new DefaultEntry( new Dn( "ou=users,ou=groups,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
@@ -165,7 +168,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailMoveNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         ModifyDnResponse resp = connection.rename( "ou=blah,ou=groups,ou=system", "ou=blah1" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
@@ -184,7 +187,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testMoveControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         connection.move( "ou=users,ou=system", "ou=groups,ou=system" );
         Entry entry = connection.lookup( "ou=users,ou=groups,ou=system" );
@@ -207,7 +210,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         ModifyDnResponse resp = connection.rename( "ou=users,ou=system", "ou=groups" );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
@@ -222,7 +225,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailModifyRdnNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         ModifyDnResponse resp = connection.rename( "ou=blah,ou=system", "ou=asdf" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
@@ -238,7 +241,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         connection.rename( "ou=users,ou=system", "ou=asdf" );
         assertNotNull( connection.lookup( "ou=asdf,ou=system" ) );
@@ -259,7 +262,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailModifyNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new Dn( "ou=blah,ou=system" ) );
@@ -279,7 +282,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new Dn( "ou=users,ou=system" ) );
@@ -305,7 +308,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailLookupNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         assertNull( connection.lookup( "ou=blah,ou=system" ) );
     }
@@ -320,7 +323,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testLookupControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         Entry entry = connection.lookup( "ou=users,ou=system" );
         assertNotNull( entry );
@@ -340,7 +343,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailListNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         try
         {
@@ -363,7 +366,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testListControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         NamingEnumeration<?> list = connection.list( "ou=users" );
 
@@ -391,7 +394,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailAddOnAlias() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         Entry entry = new DefaultEntry( new Dn( "cn=toanother,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
@@ -431,7 +434,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         AddResponse resp = createSubContext( "ou", "blah" );
         resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
@@ -452,7 +455,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         AddResponse resp = createSubContext( "ou", "blah" );
         resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
@@ -471,7 +474,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailDeleteNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         DeleteResponse delResp = connection.delete( "ou=blah,ou=system" );
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, delResp.getLdapResult().getResultCode() );
@@ -486,7 +489,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteControl() throws Exception
     {
-        LdapConnection connection = getAdminConnection( service );
+        LdapConnection connection = getAdminConnection( getService() );
 
         AddResponse resp = createSubContext( "ou", "blah" );
 

@@ -75,8 +75,6 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.api.CodecControl;
 import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-
-// @TODO - all these controls should not be imported !!!! ALEX !!!
 import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
@@ -1227,25 +1225,11 @@ public abstract class ServerContext implements EventContext
         // calculate parents
         Dn oldParent = oldDn;
 
-        try
-        {
-            oldParent = oldParent.remove( oldDn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
-        }
+        oldParent = oldParent.getParent();
 
         Dn newParent = newDn;
 
-        try
-        {
-            newParent = newParent.remove( newDn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
-        }
+        newParent = newParent.getParent();
 
 
         Rdn oldRdn = oldDn.getRdn();
@@ -1605,7 +1589,7 @@ public abstract class ServerContext implements EventContext
     public Name composeName( Name name, Name prefix ) throws NamingException
     {
         // No prefix reduces to name, or the name relative to this context
-        if ( prefix == null || prefix.size() == 0 )
+        if ( ( prefix == null ) || ( prefix.size() == 0 ) )
         {
             return name;
         }
@@ -1627,32 +1611,8 @@ public abstract class ServerContext implements EventContext
 
         // 1). Find the Dn for name and walk it from the head to tail
         Dn fqn = buildTarget( JndiUtils.fromName( name ) );
-        String head = prefix.get( 0 );
-
-        // 2). Walk the fqn trying to match for the head of the prefix
-        while ( fqn.size() > 0 )
-        {
-            // match found end loop
-            if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
-            {
-                return JndiUtils.toName( fqn );
-            }
-            else
-            // 2). Remove name components from the Dn until a match
-            {
-                try
-                {
-                    fqn = fqn.remove( 0 );
-                }
-                catch ( LdapInvalidDnException lide )
-                {
-                    throw new NamingException( lide.getMessage() );
-                }
-            }
-        }
-
-        String msg = I18n.err( I18n.ERR_498, prefix, dn );
-        throw new NamingException( msg );
+        
+        return JndiUtils.toName( JndiUtils.fromName( prefix ).addAll( fqn ) );
     }
 
 

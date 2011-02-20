@@ -31,12 +31,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.extras.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownResponse;
-import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IoSession;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @todo : missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownHandler implements ExtendedOperationHandler
+public class GracefulShutdownHandler implements ExtendedOperationHandler<GracefulShutdownRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( GracefulShutdownHandler.class );
     public static final Set<String> EXTENSION_OIDS;
@@ -69,7 +68,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession requestor, GracefulShutdownRequest req ) throws Exception
     {
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
@@ -93,16 +92,15 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         IoAcceptor acceptor = ( IoAcceptor ) requestor.getIoSession().getService();
         List<IoSession> sessions = new ArrayList<IoSession>(
                 acceptor.getManagedSessions().values() );
-        GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
         // build the graceful disconnect message with replicationContexts
-        GracefulDisconnect notice = getGracefulDisconnect( gsreq.getTimeOffline(), gsreq.getDelay() );
+        GracefulDisconnect notice = getGracefulDisconnect( req.getTimeOffline(), req.getDelay() );
 
         // send (synch) the GracefulDisconnect to each client before unbinding
         sendGracefulDisconnect( sessions, notice, requestor.getIoSession() );
 
         // wait for the specified delay before we unbind the service 
-        waitForDelay( gsreq.getDelay() );
+        waitForDelay( req.getDelay() );
 
         // -------------------------------------------------------------------
         // unbind the server socket for the LDAP service here so no new 

@@ -180,7 +180,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
             hostName = "localhost";
         }
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
-        ldapServer.setSaslPrincipal( servicePrincipal );
+        getLdapServer().setSaslPrincipal( servicePrincipal );
 
         Attributes attrs;
 
@@ -209,7 +209,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -316,7 +316,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
                     // Create the initial context
                     Hashtable<String, String> env = new Hashtable<String, String>();
                     env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
                     // Request the use of the "GSSAPI" SASL mechanism
                     // Authenticate by using already established Kerberos credentials
@@ -383,7 +383,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     protected void setContexts( String user, String passwd ) throws Exception
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -406,7 +406,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         sysRoot = new InitialLdapContext( envFinal, null );
 
         envFinal.put( Context.PROVIDER_URL, "" );
-        rootDSE = service.getAdminSession();
+        rootDSE = getService().getAdminSession();
 
         envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
         schemaRoot = new InitialLdapContext( envFinal, null );

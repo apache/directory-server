@@ -57,9 +57,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.DateUtils;
@@ -533,9 +533,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return the distinuished name denormalized
      * @throws Exception if there are problems denormalizing
      */
-    public Dn denormalizeTypes( Dn dn ) throws LdapException
+    private Dn denormalizeTypes( Dn dn ) throws LdapException
     {
-        Dn newDn = new Dn();
+        Dn newDn = new Dn( schemaManager );
 
         for ( int ii = 0; ii < dn.size(); ii++ )
         {

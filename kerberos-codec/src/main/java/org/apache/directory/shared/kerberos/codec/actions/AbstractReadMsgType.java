@@ -6,27 +6,27 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.actions;
 
 
+import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
@@ -38,10 +38,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to read and validate the msg-type
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractReadMsgType extends GrammarAction
+public abstract class AbstractReadMsgType<E extends Asn1Container> extends GrammarAction<E>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractReadMsgType.class );
@@ -57,7 +57,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
         super( name );
     }
 
-    
+
     /**
      * Instantiates a new StoreMsgType action.
      */
@@ -67,11 +67,11 @@ public abstract class AbstractReadMsgType extends GrammarAction
         this.msgType = msgType;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public final void action( Asn1Container container ) throws DecoderException
+    public final void action( E container ) throws DecoderException
     {
         TLV tlv = container.getCurrentTLV();
 
@@ -89,13 +89,13 @@ public abstract class AbstractReadMsgType extends GrammarAction
         try
         {
             int msgTypeValue = IntegerDecoder.parse( value );
-            
+
             if ( msgType != null )
             {
                 if ( msgType.getValue() == msgTypeValue )
                 {
                     LOG.debug( "msg-type : {}", msgType );
-                    
+
                     return;
                 }
 
@@ -108,7 +108,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
             else
             {
                 KerberosMessageType messageType = KerberosMessageType.getTypeByValue( msgTypeValue );
-                
+
                 if ( container instanceof KdcReqContainer )
                 {
                     if ( ((KdcReqContainer)container).getKdcReq().getMessageType() == messageType )
@@ -123,7 +123,7 @@ public abstract class AbstractReadMsgType extends GrammarAction
                         return;
                     }
                 }
-                
+
                 String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
                 LOG.error( message );
 

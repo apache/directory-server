@@ -39,7 +39,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     @Before
     public final void init()
     {
-        workingDir = service.getInstanceLayout().getPartitionsDirectory().getAbsolutePath();
+        workingDir = getService().getInstanceLayout().getPartitionsDirectory().getAbsolutePath();
     }
 
 
@@ -52,7 +52,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( workingDir ).append( '/' ).append( service.getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
+        sb.append( workingDir ).append( '/' ).append( getService().getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
 
         for ( Rdn rdn : dn )
         {

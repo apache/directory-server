@@ -64,7 +64,7 @@ import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -226,10 +226,10 @@ public class LdapServer extends DirectoryBackedService
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
         saslQop = new HashSet<String>();
-        saslQop.add( SaslQoP.QOP_AUTH );
-        saslQop.add( SaslQoP.QOP_AUTH_INT );
-        saslQop.add( SaslQoP.QOP_AUTH_CONF );
-        saslQopString = SaslQoP.QOP_AUTH + ',' + SaslQoP.QOP_AUTH_INT + ',' + SaslQoP.QOP_AUTH_CONF;
+        saslQop.add( SaslQoP.AUTH.getValue() );
+        saslQop.add( SaslQoP.AUTH_INT.getValue() );
+        saslQop.add( SaslQoP.AUTH_CONF.getValue() );
+        saslQopString = SaslQoP.AUTH.getValue() + ',' + SaslQoP.AUTH_INT.getValue() + ',' + SaslQoP.AUTH_CONF.getValue();
 
         saslRealms = new ArrayList<String>();
         saslRealms.add( "example.com" );
@@ -769,9 +769,9 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler getExtendedOperationHandler( String oid )
+    public ExtendedOperationHandler<ExtendedRequest> getExtendedOperationHandler( String oid )
     {
-        for ( ExtendedOperationHandler h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<ExtendedRequest> h : extendedOperationHandlers )
         {
             if ( h.getOid().equals( oid ) )
             {

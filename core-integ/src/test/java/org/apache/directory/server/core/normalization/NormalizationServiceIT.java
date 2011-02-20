@@ -65,7 +65,7 @@ ou: corporate category\, operations
 
          */
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "direct report view" );

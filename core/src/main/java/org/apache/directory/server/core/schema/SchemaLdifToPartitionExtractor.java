@@ -94,7 +94,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
         this.schemaManager = schemaManager;
         this.partition = partition;
 
-        Dn dn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn dn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         EntryOperationContext hasEntryContext = new EntryOperationContext( null, dn );
         if ( partition.hasEntry( hasEntryContext ) )
         {

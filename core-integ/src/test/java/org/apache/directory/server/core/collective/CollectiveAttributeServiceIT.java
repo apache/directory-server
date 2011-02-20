@@ -184,7 +184,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
     }
 
 

@@ -29,27 +29,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -63,29 +61,14 @@ public class MemoryChangeLogStoreTest
 {
     private static MemoryChangeLogStore store;
 
-    private static Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
-    
+    private static SchemaManager schemaManager;
     
     @BeforeClass
     public static void setUp() throws Exception
     {
-        store = new MemoryChangeLogStore();
+        schemaManager = new DefaultSchemaManager();
 
-        // The uid/UserId/0.9.2342.19200300.100.1.1 normalizer
-        OidNormalizer uidOidNormalizer = new OidNormalizer( SchemaConstants.UID_AT_OID,
-            new NoOpNormalizer( SchemaConstants.UID_AT_OID ) );
-        
-        oidsMap.put( SchemaConstants.UID_AT, uidOidNormalizer );
-        oidsMap.put( SchemaConstants.USER_ID_AT, uidOidNormalizer );
-        oidsMap.put( SchemaConstants.UID_AT_OID, uidOidNormalizer );
-        
-        // The ou/organizationalUnit/2.5.4.11 normalizer
-        OidNormalizer ouOidNormalizer = new OidNormalizer( SchemaConstants.OU_AT_OID, 
-            new NoOpNormalizer( SchemaConstants.OU_AT_OID ) );
-        
-        oidsMap.put( SchemaConstants.OU_AT, ouOidNormalizer );
-        oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, ouOidNormalizer );
-        oidsMap.put( SchemaConstants.OU_AT_OID, ouOidNormalizer );
+        store = new MemoryChangeLogStore();
     }
 
 
@@ -107,7 +90,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd( new Dn( forward.getDn() ) );
+        LdifEntry reverse = LdifRevertor.reverseAdd( forward.getDn() );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
@@ -116,11 +99,11 @@ public class MemoryChangeLogStoreTest
     @Test
     public void testChangeLogSerialization() throws LdapException, IOException, ClassNotFoundException
     {
-        Dn systemDn = new Dn( "ou=system" );
-        systemDn.normalize( oidsMap );
+        Dn systemDn = new Dn( schemaManager, "ou=system" );
+        systemDn.normalize( schemaManager );
         
-        Dn adminDn = new Dn( "uid=admin, ou=system" );
-        adminDn.normalize( oidsMap );
+        Dn adminDn = new Dn( schemaManager, "uid=admin, ou=system" );
+        adminDn.normalize( schemaManager );
 
         LdifEntry forward = new LdifEntry();
         forward.setDn( systemDn );
@@ -128,10 +111,10 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
         
-        Dn reverseDn = new Dn( forward.getDn() );
-        reverseDn.normalize( oidsMap );
+        Dn reverseDn = forward.getDn();
+        reverseDn.normalize( schemaManager );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd(reverseDn);
+        LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );
 
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;

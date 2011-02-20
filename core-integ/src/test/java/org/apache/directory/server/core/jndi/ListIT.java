@@ -57,10 +57,10 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListSystemAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
 
-        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
@@ -80,10 +80,10 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListUsersAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
-        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
 
@@ -101,7 +101,7 @@ public class ListIT extends AbstractLdapTestUnit
     @Test
     public void testListSystemAsAdmin() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
@@ -120,11 +120,11 @@ public class ListIT extends AbstractLdapTestUnit
     @Test
     public void testListUsersAsAdmin() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         HashSet<String> set = new HashSet<String>();
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
                 
 
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );

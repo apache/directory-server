@@ -92,9 +92,9 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @Test
     public void testDelegatedAuthentication() throws Exception
     {
-        assertTrue( service.isStarted() );
-        assertEquals( "DelegatedAuthIT-method", service.getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
+        assertTrue( getService().isStarted() );
+        assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -130,6 +130,8 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+        
+        ldapConnection.close();
     }
     
     
@@ -170,9 +172,9 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @Test
     public void testMultipleAuthenticators() throws Exception
     {
-        assertTrue( service.isStarted() );
-        assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", service.getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", ldapServer.getPort() );
+        assertTrue( getService().isStarted() );
+        assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
         BindResponse bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
         if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -235,5 +237,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+
+        ldapConnection.close();
     }
 }

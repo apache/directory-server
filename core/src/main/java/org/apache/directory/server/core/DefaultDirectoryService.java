@@ -80,32 +80,32 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.ldif.ChangeType;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.util.exception.NotImplementedException;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.ldif.ChangeType;
+import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -790,10 +790,8 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // calculate parents
-        Dn oldBase = oldDn;
-        oldBase = oldBase.remove( oldDn.size() - 1 );
-        Dn newBase = newDn;
-        newBase = newBase.remove( newDn.size() - 1 );
+        Dn oldBase = oldDn.getParent();
+        Dn newBase = newDn.getParent();
 
         // Compute the Rdn for each of the Dn
         Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
@@ -813,8 +811,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         else
         {
-            Dn target = newDn;
-            target = target.remove( newDn.size() - 1 );
+            Dn target = newDn.getParent();
 
             if ( newRdn.equals( oldRdn ) )
             {
@@ -1477,7 +1474,7 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
         
-                cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( this );
 
         // Initialize the AP caches
@@ -1488,7 +1485,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
-        ldapCodecService = new DefaultLdapCodecService();
+        ldapCodecService = LdapCodecServiceFactory.getSingleton();
         
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
@@ -1502,7 +1499,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.EMPTY_DN ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.ROOT_DSE ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
 

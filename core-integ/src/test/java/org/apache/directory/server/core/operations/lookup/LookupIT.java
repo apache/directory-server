@@ -66,7 +66,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
+        connection = IntegrationUtils.getAdminConnection( getService() );
     }
 
 
@@ -104,7 +104,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Ignore( "The '+' special attribute is not correctly handled." )
     public void testLookupPlus() throws Exception
     {
-        service.setDenormalizeOpAttrsEnabled( true );
+        getService().setDenormalizeOpAttrsEnabled( true );
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
 

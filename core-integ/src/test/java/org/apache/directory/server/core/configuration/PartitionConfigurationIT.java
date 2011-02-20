@@ -56,29 +56,29 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
     public void testAddAndRemove() throws Exception
     {
         PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
-        Partition partition = partitionFactory.createPartition( "removable", "ou=removable", 100, service
+        Partition partition = partitionFactory.createPartition( "removable", "ou=removable", 100, getService()
             .getInstanceLayout().getPartitionsDirectory() );
 
         // Test AddContextPartition
-        service.addPartition( partition );
+        getService().addPartition( partition );
 
-        Dn suffixDn = new Dn( "ou=removable", service.getSchemaManager() );
+        Dn suffixDn = new Dn( getService().getSchemaManager(), "ou=removable" );
 
-        Entry ctxEntry = LdifUtils.createEntry( service.getSchemaManager(), suffixDn,
+        Entry ctxEntry = LdifUtils.createEntry( getService().getSchemaManager(), suffixDn,
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou: removable",
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
             "entryUUID", UUID.randomUUID().toString() );
 
-        partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
+        partition.add( new AddOperationContext( getService().getAdminSession(), ctxEntry ) );
 
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         assertNotNull( connection.lookup( "ou=removable" ) );
 
         // Test removeContextPartition
-        service.removePartition( partition );
+        getService().removePartition( partition );
 
         assertNull( connection.lookup( "ou=removable" ) );
     }

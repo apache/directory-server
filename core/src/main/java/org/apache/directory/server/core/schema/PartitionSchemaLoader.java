@@ -49,8 +49,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.registries.AbstractSchemaLoader;
-import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.model.schema.registries.Registries;
+import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private void initializeSchemas() throws Exception
     {
-        Dn dn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
+        Dn dn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
 
         // Check that the ou=schema entry exists
         if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )

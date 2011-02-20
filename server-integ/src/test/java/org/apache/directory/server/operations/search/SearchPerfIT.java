@@ -29,7 +29,6 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
@@ -50,19 +49,15 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
-
     /**
      * test a search request perf.
      */
     @Test
     public void testSearchRequestPerf() throws Exception
     {
-        //ldapServer.getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );
-        //ldapServer.getDirectoryService().getInterceptorChain().addLast( new TimerInterceptor( "End" ) );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        connection.setTimeOut( 0 );
+        //getLdapServer().getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );
+        //getLdapServer().getDirectoryService().getInterceptorChain().addLast( new TimerInterceptor( "End" ) );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         try
         {
@@ -125,6 +120,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         finally
         {
             connection.unBind();
+            connection.close();
         }
     }
 }

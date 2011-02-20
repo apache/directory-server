@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapPartialResultException;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,7 +127,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -137,7 +137,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -172,7 +172,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
     @Test
     public void testRenameNotExistingSuperiorReferralAncestorCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         try
         {
             Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
@@ -237,7 +237,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
     @Test
     public void testRenameExistingReferralCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         Dn dnRoles = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
         Dn dnGroups = new Dn( "ou=Groups,o=MNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "ou=Groups" );
@@ -304,7 +304,7 @@ public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
     @Test
     public void testRenameRdnExistIsReferralCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "ou=People" );
 

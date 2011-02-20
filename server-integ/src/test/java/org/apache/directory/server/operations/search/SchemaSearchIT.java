@@ -188,7 +188,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     @Test
     public void testRequestOperationalAttributes() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls ctls = new SearchControls();
 
         String[] attrNames =
@@ -220,7 +220,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     @Test
     public void testRequestAllOperationalAttributes() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -252,7 +252,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchingNewSchemaElements() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
         
         // create an entry with the schema objectClass personActiveDirectory
         Attributes person = new BasicAttributes( "objectClass", "top", true );
@@ -297,7 +297,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     @Test
     public void testRequestWithoutManageDsaITControl() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
 
         // this removes the ManageDsaIT decorator from the search request
         ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
@@ -331,7 +331,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubSchemaSubEntrySearch() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( getLdapServer() );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );

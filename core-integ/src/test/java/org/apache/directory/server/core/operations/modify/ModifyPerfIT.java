@@ -30,15 +30,16 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.*;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
@@ -73,10 +74,10 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
     @Ignore ( "We should not have performance tests mixed with integration tests" )
     public void testModifyPerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn dn = new Dn( "cn=test,ou=system" );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );

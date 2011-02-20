@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.krbCred.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -39,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreTickets extends GrammarAction
+public class StoreTickets extends GrammarAction<KrbCredContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreTickets.class );
@@ -51,10 +50,8 @@ public class StoreTickets extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( KrbCredContainer krbCredContainer ) throws DecoderException
     {
-        KrbCredContainer krbCredContainer = ( KrbCredContainer ) container;
-
         TLV tlv = krbCredContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -70,14 +67,14 @@ public class StoreTickets extends GrammarAction
         Asn1Decoder decoder = new Asn1Decoder();
 
         // Ticket container
-        TicketContainer ticketContainer = new TicketContainer( container.getStream() );
+        TicketContainer ticketContainer = new TicketContainer( krbCredContainer.getStream() );
 
-        container.rewind();
-        
+        krbCredContainer.rewind();
+
         try
         {
             // decode Ticket
-            decoder.decode( container.getStream(), ticketContainer );
+            decoder.decode( krbCredContainer.getStream(), ticketContainer );
         }
         catch ( DecoderException e )
         {
@@ -92,7 +89,7 @@ public class StoreTickets extends GrammarAction
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        krbCredContainer.updateParent();
 
         if ( IS_DEBUG )
         {

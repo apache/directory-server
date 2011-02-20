@@ -32,13 +32,13 @@ public class TestClassServer extends AbstractLdapTestUnit
     @ApplyLdifFiles( "test-entry.ldif" )
     public void testWithApplyLdifFiles() throws Exception
     {
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
         
         if ( isRunInSuite )
         {
-            assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
+            assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
         }
         
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
     }
 }

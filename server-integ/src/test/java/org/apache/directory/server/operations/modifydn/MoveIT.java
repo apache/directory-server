@@ -76,7 +76,7 @@ public class MoveIT extends AbstractLdapTestUnit
     @Test
     public void testMoveNoRdnChange() throws Exception
     {
-        LdapContext ctx = getWiredContext( ldapServer );
+        LdapContext ctx = getWiredContext( getLdapServer() );
         ctx.rename( DN, NEW_DN );
 
         SearchControls controls = new SearchControls();
@@ -97,7 +97,7 @@ public class MoveIT extends AbstractLdapTestUnit
     @Test
     public void testMoveAndRdnChange() throws Exception
     {
-        LdapContext ctx = getWiredContext( ldapServer );
+        LdapContext ctx = getWiredContext( getLdapServer() );
         ctx.rename( DN, NEW_DN2 );
 
         SearchControls controls = new SearchControls();
@@ -119,22 +119,23 @@ public class MoveIT extends AbstractLdapTestUnit
     public void testIllegalMove() throws Exception
     {
 
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         //now do something bad: make the parent a child of its own child 
         ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        con.close();
     }
 
 
     @Test
     public void testIllegalMoveToSameDN() throws Exception
     {
-
-        LdapConnection con = getClientApiConnection( ldapServer );
+        LdapConnection con = getClientApiConnection( getLdapServer() );
 
         //now do something bad: try to move the entry to the same Dn
         ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        con.close();
     }
 }

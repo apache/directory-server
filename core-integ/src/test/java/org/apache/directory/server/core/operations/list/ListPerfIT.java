@@ -47,8 +47,8 @@ public class ListPerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfList() throws Exception
     {
-        ListOperationContext listContext = new ListOperationContext( service.getAdminSession(), new Dn( "ou=system" ) );
-        EntryFilteringCursor cursor = service.getOperationManager().list( listContext );
+        ListOperationContext listContext = new ListOperationContext( getService().getAdminSession(), new Dn( "ou=system" ) );
+        EntryFilteringCursor cursor = getService().getOperationManager().list( listContext );
 
         assertNotNull( cursor );
         int nb = 0;
@@ -87,7 +87,7 @@ public class ListPerfIT extends AbstractLdapTestUnit
             }
 
             nb = 0;
-            cursor = service.getOperationManager().list( listContext );
+            cursor = getService().getOperationManager().list( listContext );
 
             while ( cursor.next() )
             {

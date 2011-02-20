@@ -623,8 +623,8 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing3() throws Exception
     {
-        Dn dn = new Dn( SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
-            + SchemaConstants.O_AT_OID + "=good times co.", schemaManager );
+        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
+            + SchemaConstants.O_AT_OID + "=good times co." );
 
         Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "alias", "extensibleObject" );
@@ -634,8 +634,8 @@ public class SubtreeScopeTest
         attrs.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( attrs );
 
-        dn = new Dn( SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
-            + SchemaConstants.O_AT_OID + "=good times co.", schemaManager );
+        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
+            + SchemaConstants.O_AT_OID + "=good times co." );
 
         attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );

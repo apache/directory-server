@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://www.ietf.org/rfc/rfc2830.txt">RFC 2830</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StartTlsHandler implements ExtendedOperationHandler
+public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest>
 {
     public static final String EXTENSION_OID = "1.3.6.1.4.1.1466.20037";
 

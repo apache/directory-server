@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -31,13 +33,13 @@ import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -100,7 +102,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
 
-        ouSchemaDn = new Dn( SchemaConstants.OU_SCHEMA, schemaManager );
+        ouSchemaDn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
     }
 
 
@@ -157,9 +159,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = dn;
-        parentDn = parentDn.remove( parentDn.size() - 1 );
-        parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        Dn parentDn = new Dn( schemaManager, dn.getParent() );
 
         if ( !parentDn.equals(ouSchemaDn) )
         {

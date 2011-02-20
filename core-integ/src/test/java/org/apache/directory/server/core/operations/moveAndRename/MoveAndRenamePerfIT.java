@@ -74,12 +74,12 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
     @Test
     public void testMovePerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn oldDn = new Dn( "cn=testOld,ou=system" );
         Dn newDn = new Dn( "cn=testNew,ou=users,ou=system" );
 
-        Entry entry = new DefaultEntry( service.getSchemaManager(), oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), oldDn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TESTOld" );
         entry.add( "cn", "testOld" );

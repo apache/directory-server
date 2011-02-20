@@ -72,7 +72,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Create connection
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         long t2 = System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Getting the connection
-        DirContext ctx = jndiEnv( "localhost", ldapServer.getPort(), "", "uid=admin,ou=system", "secret", false );
+        DirContext ctx = jndiEnv( "localhost", getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
 
         long t2 = System.currentTimeMillis();
 

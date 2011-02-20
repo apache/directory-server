@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec;
 
@@ -39,16 +39,16 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
  * <li>0x76 : KRB-CRED</li>
  * <li>0x7E : KRB-ERROR</li>
  * </ul>
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public enum KerberosMessageStatesEnum implements States
 {
     // Start
     START_STATE,
-    
+
     // ----- Kerberos message --------------------------------------------
-    
+
     AS_REQ_STATE,       // 0x6A
     AS_REP_TAG_STATE,   // 0x6B
     TGS_REQ_TAG_STATE,  // 0x6C
@@ -63,10 +63,10 @@ public enum KerberosMessageStatesEnum implements States
     // End
     LAST_KERBEROS_MESSAGE_STATE;
 
-    
+
     /**
      * Get the grammar name
-     * 
+     *
      * @param grammar The grammar code
      * @return The grammar name
      */
@@ -78,11 +78,11 @@ public enum KerberosMessageStatesEnum implements States
 
     /**
      * Get the grammar name
-     * 
+     *
      * @param grammar The grammar class
      * @return The grammar name
      */
-    public String getGrammarName( Grammar grammar )
+    public String getGrammarName( Grammar<KerberosMessageContainer> grammar )
     {
         if ( grammar instanceof KerberosMessageGrammar )
         {
@@ -97,7 +97,7 @@ public enum KerberosMessageStatesEnum implements States
 
     /**
      * Get the string representing the state
-     * 
+     *
      * @param state The state number
      * @return The String representing the state
      */
@@ -106,7 +106,7 @@ public enum KerberosMessageStatesEnum implements States
         return ( ( state == LAST_KERBEROS_MESSAGE_STATE.ordinal() ) ? "KERBEROS_MESSAGE_END_STATE" : name() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -114,8 +114,8 @@ public enum KerberosMessageStatesEnum implements States
     {
         return this == LAST_KERBEROS_MESSAGE_STATE;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

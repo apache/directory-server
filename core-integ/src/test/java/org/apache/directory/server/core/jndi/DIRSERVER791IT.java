@@ -92,7 +92,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
     protected void createData() throws Exception
     {
         Attributes entry = this.getTestEntryAttributes();
-        getSystemContext( service ).createSubcontext( "cn=test", entry );
+        getSystemContext( getService() ).createSubcontext( "cn=test", entry );
     }
 
 
@@ -111,7 +111,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
     {
         createData();
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         DirContext ctx = new InitialDirContext( env );
@@ -146,7 +146,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
     {
         createData();
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         DirContext ctx = new InitialDirContext( env );
@@ -184,7 +184,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
     {
         createData();
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         DirContext ctx = new InitialDirContext( env );
@@ -238,7 +238,7 @@ public class DIRSERVER791IT extends AbstractLdapTestUnit
     {
         createData();
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         DirContext ctx = new InitialDirContext( env );

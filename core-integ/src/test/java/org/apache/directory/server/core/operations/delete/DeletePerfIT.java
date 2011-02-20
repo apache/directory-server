@@ -70,10 +70,10 @@ public class DeletePerfIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteOne() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn dn = new Dn( "cn=test,dc=example,dc=com" );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );
@@ -95,10 +95,10 @@ public class DeletePerfIT extends AbstractLdapTestUnit
     @Test
     public void testDeletePerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn dn = new Dn( "cn=test,dc=example,dc=com" );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );
@@ -120,7 +120,7 @@ public class DeletePerfIT extends AbstractLdapTestUnit
             
             String name = "test" + i;
             dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
-            entry = new DefaultEntry( service.getSchemaManager(), dn );
+            entry = new DefaultEntry( getService().getSchemaManager(), dn );
             entry.add( "ObjectClass", "top", "person" );
             entry.add( "sn", name.toUpperCase() );
             entry.add( "cn", name );

@@ -133,7 +133,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
     @Test
     public void testSearchWithIndexBinaryAttribute() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Do a search with a filter based on certificate, get back all the entries
         Cursor<Response> responses = connection.search( "ou=system", "(userCertificate=*)",
@@ -209,7 +209,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
     // This test fails atm. Cf DIRSERVER-1389
     public void testSearchSubstrOnBinaryAttribute() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Check that searching for an entry using a valid SUBSTR filter works
         Cursor<Response> responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)",

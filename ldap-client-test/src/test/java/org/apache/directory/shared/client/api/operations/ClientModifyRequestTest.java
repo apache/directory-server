@@ -82,15 +82,15 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( ldapServer );
-        session = ldapServer.getDirectoryService().getAdminSession();
+        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
 
     @After
     public void shutdown() throws Exception
     {
-        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, ldapServer );
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
 
 
@@ -220,7 +220,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         modResp = connection.modify( modifyRequest );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
         
-        LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
         nonAdminConnection.bind( bindDn.getName(), "secret" );

@@ -21,7 +21,6 @@
 package org.apache.directory.shared.kerberos.codec.encryptionKey.actions;
 
 
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreKeyType extends AbstractReadInteger
+public class StoreKeyType extends AbstractReadInteger<EncryptionKeyContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreKeyType.class );
@@ -56,13 +55,12 @@ public class StoreKeyType extends AbstractReadInteger
      * {@inheritDoc}
      */
     @Override
-    protected void setIntegerValue( int value, Asn1Container container )
+    protected void setIntegerValue( int value, EncryptionKeyContainer encryptionKeyContainer )
     {
-        EncryptionKeyContainer encKeyContainer = ( EncryptionKeyContainer ) container;
-        EncryptionKey encKey = encKeyContainer.getEncryptionKey();
-        
+        EncryptionKey encKey = encryptionKeyContainer.getEncryptionKey();
+
         EncryptionType encryptionType = EncryptionType.getTypeByValue( value );
-        
+
         encKey.setKeyType( encryptionType );
 
         if ( IS_DEBUG )

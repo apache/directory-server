@@ -22,12 +22,11 @@ package org.apache.directory.shared.kerberos.codec.padata.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
+import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreDataType extends GrammarAction
+public class StoreDataType extends GrammarAction<PaDataContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreDataType.class );
@@ -63,10 +62,8 @@ public class StoreDataType extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( PaDataContainer paDataContainer ) throws DecoderException
     {
-        PaDataContainer paDataContainer = ( PaDataContainer ) container;
-
         TLV tlv = paDataContainer.getCurrentTLV();
 
         // The Length should not be null

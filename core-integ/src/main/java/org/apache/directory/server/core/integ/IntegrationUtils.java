@@ -150,7 +150,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -172,7 +172,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        Dn userDn = new Dn( principalDn, service.getSchemaManager() );
+        Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -205,7 +205,7 @@ public class IntegrationUtils
 
     public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
     {
-        Dn dn = new Dn( entry.getDn() );
+        Dn dn = entry.getDn();
         CoreSession session = service.getAdminSession();
 
         switch( entry.getChangeType().getChangeType() )

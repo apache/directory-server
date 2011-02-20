@@ -139,9 +139,9 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
-        PNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=PNN,c=WW,ou=system" );
-        WWCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
+        PNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=PNN,c=WW,ou=system" );
+        WWCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -151,7 +151,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -237,7 +237,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testMoveAndRenameEntrySuperiorHasReferralAncestorCoreAPIWithoutManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         Dn newParent = new Dn( "o=PNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "cn=Alex" );
@@ -274,7 +274,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testMoveAndRenameSuperiorHasReferralAncestorCoreAPIWithManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         Dn newParent = new Dn( "o=PNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "cn=Alex" );
@@ -425,7 +425,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testMoveAndRenameIsReferralCoreAPIWithoutManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
         Dn newParent = new Dn( "o=PNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "cn=Alex" );
@@ -462,7 +462,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testMoveAndRenameIsReferralCoreAPIWithManageDsaIT() throws Exception
     {
-        CoreSession coreSession = service.getAdminSession();
+        CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         Dn newParent = new Dn( "o=PNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "cn=Alex" );

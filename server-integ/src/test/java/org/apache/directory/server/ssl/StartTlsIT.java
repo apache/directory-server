@@ -118,7 +118,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
         }
         
         ksFile = File.createTempFile( "testStore", "ks" );
-        CoreSession session = ldapServer.getDirectoryService().getAdminSession();
+        CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
@@ -132,7 +132,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
         
-        oldConfidentialityRequiredValue = ldapServer.isConfidentialityRequired();
+        oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
     
     
@@ -148,7 +148,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
         }
         
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
-        ldapServer.setConfidentialityRequired( oldConfidentialityRequiredValue );
+        getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
     
 
@@ -222,7 +222,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
             env.put( "java.naming.security.authentication", "simple" );
             
             // Must use the name of the server that is found in its certificate?
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
     
             // Create initial context
             LOG.debug( "About to get initial context" );

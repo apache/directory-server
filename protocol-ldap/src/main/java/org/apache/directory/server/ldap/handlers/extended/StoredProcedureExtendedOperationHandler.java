@@ -20,8 +20,7 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
-import java.io.Serializable;
-import java.nio.ByteBuffer;
+import java.io.Serializable; 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,26 +36,18 @@ import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.StoredProcedure;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.StoredProcedureContainer;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.StoredProcedureDecoder;
-import org.apache.directory.shared.ldap.extras.extended.ads_impl.StoredProcedure.StoredProcedureParameter;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
-import org.apache.directory.shared.util.Strings;
 
 
 /**
  * @todo : Missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler
+public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler<StoredProcedureRequest>
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
@@ -75,21 +66,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, StoredProcedureRequest req ) throws Exception
     {
-        StoredProcedure spBean = decodeBean( req.getRequestValue() );
-
-        String procedure = Strings.utf8ToString(spBean.getProcedure());
+        String procedure = req.getProcedureSpecification();
         ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
 
-        List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
-
-        for ( StoredProcedureParameter pPojo : spBean.getParameters() )
+        List<Object> valueList = new ArrayList<Object>( req.size() );
+        for ( int ii = 0; ii < req.size(); ii++ )
         {
-            byte[] serializedValue = pPojo.getValue();
+            byte[] serializedValue = ( byte[] ) req.getParameterValue( ii );
             Object value = SerializationUtils.deserialize( serializedValue );
-
+            
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
@@ -98,39 +86,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 
             valueList.add( value );
         }
-
+        
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
-
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
-
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         ( ( ExtendedResponse ) ( req.getResultResponse() ) ).setResponseValue( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
-
     }
 
-
-    private StoredProcedure decodeBean( byte[] payload )
-    {
-        Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
-        ByteBuffer stream = ByteBuffer.wrap( payload );
-        Asn1Container storedProcedureContainer = new StoredProcedureContainer();
-
-        try
-        {
-            storedProcedureDecoder.decode( stream, storedProcedureContainer );
-        }
-        catch ( Exception de )
-        {
-            de.printStackTrace();
-        }
-
-        StoredProcedure spBean = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
-
-        return spBean;
-    }
-
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public String getOid()
     {
         return StoredProcedureRequest.EXTENSION_OID;
@@ -147,12 +114,18 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setLdapServer( LdapServer ldapServer )
     {
     }

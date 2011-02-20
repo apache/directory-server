@@ -48,12 +48,12 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.*;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -124,7 +124,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -134,7 +134,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -237,7 +237,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -265,7 +265,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -373,7 +373,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -414,7 +414,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyExistingEntryReferralCoreAPIManageDsaIT() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         EntryAttribute attr = new DefaultEntryAttribute( "Description", "This is a description" );
         Modification mod = new DefaultModification(

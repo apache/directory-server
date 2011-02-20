@@ -33,11 +33,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -88,7 +88,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void testAdminAccountCreation() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "secret" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "secret" );
 
         Entry entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
@@ -96,10 +96,10 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
             .getBytesUtf8("secret") ) );
         connection.close();
 
-        service.shutdown();
-        service.startup();
+        getService().shutdown();
+        getService().startup();
 
-        connection = getConnectionAs( service, userDn, "secret" );
+        connection = getConnectionAs( getService(), userDn, "secret" );
         entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
@@ -111,9 +111,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void test3UseAkarasulu() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         Entry entry = connection.lookup( userDn );
         EntryAttribute ou = entry.get( "ou" );
@@ -149,7 +149,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "secret" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "secret" );
         assertTrue( connection.isAuthenticated() );
         connection.close();
     }
@@ -164,9 +164,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void test10TestNonAdminUser() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
         assertTrue( connection.isAuthenticated() );
         connection.close();
     }
@@ -175,10 +175,10 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void test11InvalidateCredentialCache() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
 
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         Entry entry = connection.lookup( userDn );
         EntryAttribute ou = entry.get( "ou" );
@@ -242,9 +242,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testSHA() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
 
@@ -285,9 +285,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testSSHA() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = connection.lookup( userDn );
@@ -325,9 +325,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testSSHA4BytesSalt() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = connection.lookup( userDn );
@@ -365,9 +365,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testMD5() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = connection.lookup( userDn );
@@ -406,9 +406,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testSMD5() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = connection.lookup( userDn );
@@ -446,9 +446,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testCRYPT() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = connection.lookup( userDn );
@@ -485,11 +485,11 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     @Test
     public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws Exception
     {
-        apply( service, getUserAddLdif() );
+        apply( getService(), getUserAddLdif() );
 
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = getConnectionAs( service, userDn, "test" );
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
         connection.close();
 
         // bind as admin

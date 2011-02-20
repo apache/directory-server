@@ -44,12 +44,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
       <version>${project.version}</version>

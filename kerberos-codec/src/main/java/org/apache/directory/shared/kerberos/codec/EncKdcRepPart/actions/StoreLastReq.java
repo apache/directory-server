@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.EncKdcRepPart.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -35,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to set the LastReq
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreLastReq extends GrammarAction
+public class StoreLastReq extends GrammarAction<EncKdcRepPartContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreLastReq.class );
@@ -59,9 +58,9 @@ public class StoreLastReq extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public final void action( Asn1Container container ) throws DecoderException
+    public final void action( EncKdcRepPartContainer encKdcRepPartContainer ) throws DecoderException
     {
-        TLV tlv = container.getCurrentTLV();
+        TLV tlv = encKdcRepPartContainer.getCurrentTLV();
 
         // The Length should not be null
         if ( tlv.getLength() == 0 )
@@ -80,7 +79,7 @@ public class StoreLastReq extends GrammarAction
         // Decode the LastReq PDU
         try
         {
-            lastReqDecoder.decode( container.getStream(), lastReqContainer );
+            lastReqDecoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -94,12 +93,12 @@ public class StoreLastReq extends GrammarAction
             LOG.debug( "LastReq : " + lastReq );
         }
 
-        ((EncKdcRepPartContainer)container).getEncKdcRepPart().setLastReq( lastReq );
-        
+        encKdcRepPartContainer.getEncKdcRepPart().setLastReq( lastReq );
+
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        encKdcRepPartContainer.updateParent();
     }
 }

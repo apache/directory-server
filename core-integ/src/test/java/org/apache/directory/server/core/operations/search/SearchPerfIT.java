@@ -49,7 +49,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchPerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Cursor<Response> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
             SearchScope.OBJECT, "*" );

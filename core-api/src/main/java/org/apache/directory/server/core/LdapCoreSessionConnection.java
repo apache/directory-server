@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core;
 
 
@@ -32,8 +31,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.OID;
-import org.apache.directory.shared.ldap.codec.api.DefaultLdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
@@ -113,7 +112,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** The MessageId counter */
     private AtomicInteger messageId = new AtomicInteger( 0 );
 
-    private LdapCodecService codec = new DefaultLdapCodecService();
+    private LdapCodecService codec = LdapCodecServiceFactory.getSingleton();
 
 
     public LdapCoreSessionConnection()
@@ -289,7 +288,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
-        return compare( new Dn( dn ), attributeName, value );
+        return compare( new Dn( schemaManager, dn ), attributeName, value );
     }
 
 
@@ -298,7 +297,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, String value ) throws LdapException
     {
-        return compare( new Dn( dn ), attributeName, value );
+        return compare( new Dn( schemaManager, dn ), attributeName, value );
     }
 
 
@@ -329,7 +328,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public CompareResponse compare( String dn, String attributeName, Value<?> value ) throws LdapException
     {
-        return compare( new Dn( dn ), attributeName, value );
+        return compare( new Dn( schemaManager, dn ), attributeName, value );
     }
 
 
@@ -385,7 +384,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public DeleteResponse delete( String dn ) throws LdapException
     {
-        return delete( new Dn( dn ) );
+        return delete( new Dn( schemaManager, dn ) );
     }
 
 
@@ -484,7 +483,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
-        return _lookup( new Dn( dn ), null, attributes );
+        return _lookup( new Dn( schemaManager, dn ), null, attributes );
     }
 
 
@@ -493,7 +492,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
     {
-        return _lookup( new Dn( dn ), controls, attributes );
+        return _lookup( new Dn( schemaManager, dn ), controls, attributes );
     }
 
 
@@ -525,7 +524,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public boolean exists( String dn ) throws LdapException
     {
-        return exists( new Dn( dn ) );
+        return exists( new Dn( schemaManager, dn ) );
     }
 
 
@@ -566,7 +565,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return _lookup( new Dn( dn ), null );
+        return _lookup( new Dn( schemaManager, dn ), null );
     }
 
 
@@ -624,7 +623,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyResponse modify( String dn, Modification... modifications ) throws LdapException
     {
-        return modify( new Dn( dn ), modifications );
+        return modify( new Dn( schemaManager, dn ), modifications );
     }
 
 
@@ -738,10 +737,10 @@ public class LdapCoreSessionConnection implements LdapConnection
 
             if ( modDnRequest.getNewRdn() != null )
             {
-                newRdn = new Dn( modDnRequest.getNewRdn().getName(), schemaManager );
+                newRdn = new Dn( schemaManager, modDnRequest.getNewRdn().getName() );
             }
 
-            Dn oldRdn = new Dn( modDnRequest.getName().getRdn().getName(), schemaManager );
+            Dn oldRdn = new Dn( schemaManager, modDnRequest.getName().getRdn().getName() );
 
             boolean rdnChanged = modDnRequest.getNewRdn() != null
                 && !newRdn.getNormName().equals( oldRdn.getNormName() );
@@ -829,7 +828,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        return move( new Dn( entryDn ), new Dn( newSuperiorDn ) );
+        return move( new Dn( schemaManager, entryDn ), new Dn( schemaManager, newSuperiorDn ) );
     }
 
 
@@ -875,7 +874,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse rename( String entryDn, String newRdn, boolean deleteOldRdn ) throws LdapException
     {
-        return rename( new Dn( entryDn ), new Rdn( newRdn ), deleteOldRdn );
+        return rename( new Dn( schemaManager, entryDn ), new Rdn( newRdn ), deleteOldRdn );
     }
 
 
@@ -898,7 +897,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        return rename( new Dn( entryDn ), new Rdn( newRdn ) );
+        return rename( new Dn( schemaManager, entryDn ), new Rdn( newRdn ) );
     }
 
 
@@ -920,7 +919,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse moveAndRename( String entryDn, String newDn ) throws LdapException
     {
-        return moveAndRename( new Dn( entryDn ), new Dn( newDn ), true );
+        return moveAndRename( new Dn( schemaManager, entryDn ), new Dn( schemaManager, newDn ), true );
     }
 
 
@@ -977,7 +976,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public ModifyDnResponse moveAndRename( String entryDn, String newDn, boolean deleteOldRdn ) throws LdapException
     {
-        return moveAndRename( new Dn( entryDn ), new Dn( newDn ), deleteOldRdn );
+        return moveAndRename( new Dn( schemaManager, entryDn ), new Dn( schemaManager, newDn ), deleteOldRdn );
     }
 
 
@@ -1045,7 +1044,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public SearchCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
-        return search( new Dn( baseDn ), filter, scope, attributes );
+        return search( new Dn( schemaManager, baseDn ), filter, scope, attributes );
     }
 
 
@@ -1174,7 +1173,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( new Dn( bindRequest.getName() ) );
+        bindContext.setDn( bindRequest.getName() );
 
         OperationManager operationManager = directoryService.getOperationManager();
 
@@ -1225,7 +1224,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( String name, String credentials ) throws LdapException, IOException
     {
-        return bind( new Dn( name ), credentials );
+        return bind( new Dn( schemaManager, name ), credentials );
     }
 
 

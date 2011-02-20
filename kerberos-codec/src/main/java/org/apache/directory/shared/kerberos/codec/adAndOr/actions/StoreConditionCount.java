@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.adAndOr.actions;
 
 
 import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
 
 
@@ -31,7 +30,7 @@ import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreConditionCount extends AbstractReadInteger
+public class StoreConditionCount extends AbstractReadInteger<AdAndOrContainer>
 {
     /**
      * Creates a new instance of StoreConditionCount.
@@ -46,9 +45,8 @@ public class StoreConditionCount extends AbstractReadInteger
      * {@inheritDoc}
      */
     @Override
-    protected void setIntegerValue( int value, Asn1Container container )
+    protected void setIntegerValue( int value, AdAndOrContainer adAndOrContainer )
     {
-        AdAndOrContainer adAndOrContainer = ( AdAndOrContainer ) container;
         adAndOrContainer.getAdAndOr().setConditionCount( value );
     }
 }

@@ -36,7 +36,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -68,7 +68,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     @Test
     public void testAddWithPlainPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         byte[] plainPwd = "secret".getBytes();
         Dn dn = new Dn( "cn=test,ou=system" );
@@ -84,12 +84,12 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     @Test
     public void testModifyWithPlainPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         byte[] plainPwd = "newsecret".getBytes();
         Dn dn = new Dn( "cn=test,ou=system" );
 
-        AttributeType pwdAtType = service.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
         EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( plainPwd );
@@ -108,13 +108,13 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     @Test
     public void testAddWithHashedPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         byte[] plainPwd = "secret".getBytes();
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA );
         
         Dn dn = new Dn( "cn=testHash,ou=system" );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "testHash" );
@@ -132,14 +132,14 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     @Test
     public void testModifyWithHashedPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         byte[] plainPwd = "xyzsecret".getBytes();
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA256 );
 
         Dn dn = new Dn( "cn=test,ou=system" );
 
-        AttributeType pwdAtType = service.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
         EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( hashedPwd );

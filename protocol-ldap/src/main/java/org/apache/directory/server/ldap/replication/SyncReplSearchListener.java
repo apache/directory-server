@@ -260,7 +260,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            if ( !moveContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if ( !moveContext.getNewSuperior().isDescendantOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
                 sendDeletedEntry( moveContext.getEntry() );
                 return;
@@ -310,7 +310,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            if ( !moveAndRenameContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if ( !moveAndRenameContext.getNewSuperiorDn().isDescendantOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
                 sendDeletedEntry( moveAndRenameContext.getEntry() );
                 return;

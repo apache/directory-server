@@ -51,7 +51,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      */
     public LdapProtocolCodecFactory( final DirectoryService directoryService )
     {
-        encoder = new LdapProtocolEncoder();
+        encoder = new LdapProtocolEncoder( directoryService.getLdapCodecService() );
         decoder = new LdapDecoder();
     }
 

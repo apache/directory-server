@@ -252,7 +252,7 @@ public class ApacheDsService
         configPartition = new SingleFileLdifPartition();
         configPartition.setId( "config" );
         configPartition.setPartitionPath( confFile.toURI() );
-        configPartition.setSuffix( new Dn( "ou=config", schemaManager ) );
+        configPartition.setSuffix( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.initialize();

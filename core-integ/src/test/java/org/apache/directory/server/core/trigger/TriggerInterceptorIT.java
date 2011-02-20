@@ -81,11 +81,11 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
             "objectClass: organizationalUnit\n" +
             "ou: testEntry\n";
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // Inject the ldif file into the server.
-        injectEntries( service, ldif );
+        injectEntries( getService(), ldif );
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
@@ -114,7 +114,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
     
     public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // Load the stored procedure unit which has the stored procedure to be triggered.
@@ -130,7 +130,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
             "ou: backupContext\n";
         
         // Inject the ldif file into the server.
-        injectEntries( service, ldif );
+        injectEntries( getService(), ldif );
         
         // Create the Trigger Specification within a Trigger Subentry.
         TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
@@ -159,7 +159,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
             "ou: testou\n";
         
         // Inject the ldif file into the server.
-        injectEntries( service, ldif2 );
+        injectEntries( getService(), ldif2 );
         
         // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testou" );
@@ -175,7 +175,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
     
     public void testAfterAddSubscribeUserToSomeGroupsPrescriptiveTrigger() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // Create two groups to be subscribed to : staff and teachers.
@@ -198,7 +198,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
 
         // Inject the ldif file into the server
-        injectEntries( service, ldif );
+        injectEntries( getService(), ldif );
             
         // Create the Trigger Specification within a Trigger Subentry.
         String staffDN = "cn=staff, ou=system";
@@ -234,7 +234,7 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
             "sn: TheTeacher";
 
         // Inject the entry into the server
-        injectEntries( service, testEntry );
+        injectEntries( getService(), testEntry );
 
         // ------------------------------------------
         // The trigger should be fired at this point.

@@ -42,8 +42,6 @@ import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
  */
 public class RelatedUserClassFilter implements ACITupleFilter
 {
-    private static final Dn ROOTDSE_NAME = Dn.EMPTY_DN;
-
     private final SubtreeEvaluator subtreeEvaluator;
 
 
@@ -113,7 +111,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else if ( userClass == UserClass.PARENT_OF_ENTRY )
             {
-                if ( entryName.isChildOf( userName ) )
+                if ( entryName.isDescendantOf( userName ) )
                 {
                     return true;
                 }
@@ -169,7 +167,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     {
         for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )
         {
-            if ( subtreeEvaluator.evaluate( subtreeSpec, ROOTDSE_NAME, userName, userEntry ) )
+            if ( subtreeEvaluator.evaluate( subtreeSpec, Dn.ROOT_DSE, userName, userEntry ) )
             {
                 return true;
             }

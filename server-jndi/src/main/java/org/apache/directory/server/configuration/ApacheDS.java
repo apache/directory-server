@@ -29,6 +29,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -391,7 +393,7 @@ public class ApacheDS
         }
 
 
-        Dn dn = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN, directoryService.getSchemaManager() );
+        Dn dn = new Dn( directoryService.getSchemaManager(), ServerDNConstants.ADMIN_SYSTEM_DN );
         
         ensureLdifFileBase();
 

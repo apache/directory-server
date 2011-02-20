@@ -51,7 +51,6 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -77,6 +76,7 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
@@ -577,7 +577,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
 
-        Entry attrs = new DefaultEntry( schemaManager, Dn.EMPTY_DN );
+        Entry attrs = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
         attrs.put( ocFinalState );
         return getSubentryAdminRoles( attrs );
     }
@@ -894,7 +894,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 Dn apDn = subentryDn.getParent();
 
                 // No need to evaluate the entry if it's not below an AP.
-                if ( dn.isChildOf( apDn ) )
+                if ( dn.isDescendantOf( apDn ) )
                 {
                     Subentry subentry = subentryCache.getSubentry( subentryDn );
                     SubtreeSpecification ss = subentry.getSubtreeSpecification();

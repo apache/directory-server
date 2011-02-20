@@ -78,7 +78,7 @@ public class DefaultDnFactory implements DnFactory
 
         if ( dn.trim().length() == 0 )
         {
-            return Dn.EMPTY_DN;
+            return Dn.ROOT_DSE;
         }
 
         Dn cachedDn = null;
@@ -91,7 +91,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCacheEntry != null )
             {
-                cachedDn = (Dn) dnCacheEntry.getValue();
+                cachedDn = (Dn) dnCacheEntry.getObjectValue();
             }
         }
 
@@ -99,7 +99,7 @@ public class DefaultDnFactory implements DnFactory
         {
             LOG.debug( "Dn {} not found in the cache, creating", dn );
 
-            cachedDn = new Dn( dn, schemaManager );
+            cachedDn = new Dn( schemaManager, dn );
 
             if ( dnCache != null )
             {

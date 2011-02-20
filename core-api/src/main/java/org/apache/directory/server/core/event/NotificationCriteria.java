@@ -40,7 +40,7 @@ public class NotificationCriteria
 {
     public static final SearchScope DEFAULT_SCOPE = SearchScope.ONELEVEL;
     public static final AliasDerefMode DEFAULT_ALIAS_DEREF_MODE = AliasDerefMode.DEREF_ALWAYS;
-    public static final Dn DEFAULT_BASE = new Dn();
+    public static final Dn DEFAULT_BASE = null;
     public static final ExprNode DEFAULT_FILTER = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
     
     private SearchScope scope = DEFAULT_SCOPE;
@@ -106,15 +106,6 @@ public class NotificationCriteria
     public void setBase( Dn base )
     {
         this.base = base;
-    }
-
-
-    /**
-     * @param base the base to set
-     */
-    public void setBase( String base ) throws Exception
-    {
-        this.base = new Dn( base );
     }
 
 

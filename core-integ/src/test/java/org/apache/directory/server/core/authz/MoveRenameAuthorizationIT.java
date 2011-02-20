@@ -61,8 +61,8 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
-        service.setAccessControlEnabled( true );
+        AutzIntegUtils.service = getService();
+        getService().setAccessControlEnabled( true );
     }
 
 
@@ -169,7 +169,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         {
             if ( isMoved )
             {
-                entryDn = entryDn.add( 1, newParentRdn );
+                entryDn = entryDn.add( newParentRdn );
                 adminConnection.delete(entryDn);
             }
 

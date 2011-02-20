@@ -76,7 +76,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService() throws Exception
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.service = getService();
         reusableAdminCon = getAdminConnection();
     }
 

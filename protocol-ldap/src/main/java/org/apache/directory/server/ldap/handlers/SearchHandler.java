@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
@@ -1339,7 +1338,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDn = new Dn( subschemaSubentry.getString(), ds.getSchemaManager() );
+        Dn subschemaSubentryDn = new Dn( ds.getSchemaManager(), subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         return subschemaSubentryDnNorm.equals( baseNormForm );
@@ -1387,8 +1386,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // Normalize the Dn to check for same dn
-            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
-                .getSchemaManager() );
+            Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
+                .getSchemaManager(), ldapUrl.getDn().getName() );
 
             if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
             {
@@ -1404,19 +1403,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
              * name past the farthest referral Dn which the target name extends.
              */
-            int diff = req.getBase().size() - referralAncestor.getDn().size();
-            Dn extra = new Dn();
-
-            // TODO - fix this by access unormalized Rdn values
-            // seems we have to do this because get returns normalized rdns
-            Dn reqUnnormalizedDn = new Dn( req.getBase().getName() );
-            for ( int jj = 0; jj < diff; jj++ )
-            {
-                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
-            }
-
-            urlDn = urlDn.addAll( extra );
-            ldapUrl.setDn( urlDn );
+            Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
+            Dn refDn = urlDn.addAll( suffix );
+            
+            ldapUrl.setDn( refDn );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
             ldapUrl.setScope( req.getScope().getScope() );
@@ -1467,8 +1457,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
 
-            Dn urlDn = new Dn( ldapUrl.getDn().getName(), session.getCoreSession().getDirectoryService()
-                .getSchemaManager() );
+            Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
+                .getSchemaManager(), ldapUrl.getDn().getName() );
 
             if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
             {
@@ -1492,18 +1482,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * Dn of the ref LDAP URL.  We must calculate the remaining (difference)
              * name past the farthest referral Dn which the target name extends.
              */
-            int diff = reqTargetDn.size() - referralAncestor.getDn().size();
-            Dn extra = new Dn();
-
-            // TODO - fix this by access unormalized Rdn values
-            // seems we have to do this because get returns normalized rdns
-            Dn reqUnnormalizedDn = new Dn( reqTargetDn.getName() );
-            for ( int jj = 0; jj < diff; jj++ )
-            {
-                extra = extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
-            }
-
-            urlDn = urlDn.addAll( extra );
+            Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
+            urlDn = urlDn.addAll( suffix );
 
             StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
@@ -1599,14 +1579,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         Entry farthestReferralAncestor = null;
         Dn dn = target;
 
-        try
-        {
-            dn = dn.remove( dn.size() - 1 );
-        }
-        catch ( LdapInvalidDnException e2 )
-        {
-            // never thrown
-        }
+        dn = dn.getParent();
 
         while ( !dn.isEmpty() )
         {
@@ -1624,21 +1597,14 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                     farthestReferralAncestor = entry;
                 }
 
-                dn = dn.remove( dn.size() - 1 );
+                dn = dn.getParent();
             }
             catch ( LdapException e )
             {
                 LOG.debug( "Entry for {} not found.", dn );
 
                 // update the Dn as we strip last component
-                try
-                {
-                    dn = dn.remove( dn.size() - 1 );
-                }
-                catch ( LdapInvalidDnException e1 )
-                {
-                    // never happens
-                }
+                dn = dn.getParent();
             }
         }
 

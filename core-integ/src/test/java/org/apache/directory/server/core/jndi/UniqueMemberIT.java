@@ -69,7 +69,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testValidUniqueMember() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -141,7 +141,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testValidUniqueMemberWithOptionnalUID() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -213,7 +213,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testInvalidUniqueMemberBadDN() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -247,7 +247,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testInvalidUniqueMemberBadUID() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -276,7 +276,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testSearchUniqueMemberFilter() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -328,7 +328,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testSearchUniqueMemberFilterWithSpaces() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -380,7 +380,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testSearchUniqueMemberFilterWithBadDN() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );
@@ -419,7 +419,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
     @Test
     public void testSearchUniqueMemberFilterWithUID() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute oc = new BasicAttribute( "ObjectClass", "top" );

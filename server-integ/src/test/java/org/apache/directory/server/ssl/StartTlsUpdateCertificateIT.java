@@ -114,7 +114,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         }
         
         ksFile = File.createTempFile( "testStore", "ks" );
-        CoreSession session = ldapServer.getDirectoryService().getAdminSession();
+        CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
@@ -128,7 +128,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
         
-        oldConfidentialityRequiredValue = ldapServer.isConfidentialityRequired();
+        oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
     
     
@@ -144,7 +144,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         }
         
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
-        ldapServer.setConfidentialityRequired( oldConfidentialityRequiredValue );
+        getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
     
 
@@ -157,7 +157,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a secure connection
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
@@ -174,7 +174,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a new certificate
         String newIssuerDN = "cn=new_issuer_dn";
         String newSubjectDN = "cn=new_subject_dn";
-        Entry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
+        Entry entry = getLdapServer().getDirectoryService().getAdminSession().lookup(
             new Dn( "uid=admin,ou=system" ) );
         TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
 
@@ -189,7 +189,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         ctx.modifyAttributes( "uid=admin,ou=system", mods );
         ctx.close();
 
-        ldapServer.reloadSslContext();
+        getLdapServer().reloadSslContext();
         
         // create a new secure connection
         ctx = new InitialLdapContext( env, null );

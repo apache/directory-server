@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.krbSafe;
 
@@ -27,36 +27,36 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 /**
  * This class stores the KRB-SAFE grammar's constants. It is also used for debugging
  * purpose
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public enum KrbSafeStatesEnum implements States
 {
     // Start
     START_STATE,                       // 0
-    
+
     // ----- KRB-SAFE component --------------------------------------
     KRB_SAFE_TAG_STATE,               // 1
-    
+
     KRB_SAFE_SEQ_STATE,               // 2
-    
+
     KRB_SAFE_PVNO_TAG_STATE,          // 3
     KRB_SAFE_PVNO_STATE,              // 4
-    
+
     KRB_SAFE_MSGTYPE_TAG_STATE,       // 5
     KRB_SAFE_MSGTYPE_STATE,           // 6
-    
+
     KRB_SAFE_SAFE_BODY_TAG_STATE,     // 7
-    
+
     KRB_SAFE_CKSUM_TAG_STATE,         // 8
-    
+
     // End
     LAST_KRB_SAFE_STATE;              // 9
 
-    
+
     /**
      * Get the grammar name
-     * 
+     *
      * @param grammar The grammar code
      * @return The grammar name
      */
@@ -68,11 +68,11 @@ public enum KrbSafeStatesEnum implements States
 
     /**
      * Get the grammar name
-     * 
+     *
      * @param grammar The grammar class
      * @return The grammar name
      */
-    public String getGrammarName( Grammar grammar )
+    public String getGrammarName( Grammar<KrbSafeContainer> grammar )
     {
         if ( grammar instanceof KrbSafeGrammar )
         {
@@ -87,7 +87,7 @@ public enum KrbSafeStatesEnum implements States
 
     /**
      * Get the string representing the state
-     * 
+     *
      * @param state The state number
      * @return The String representing the state
      */
@@ -96,7 +96,7 @@ public enum KrbSafeStatesEnum implements States
         return ( ( state == LAST_KRB_SAFE_STATE.ordinal() ) ? "LAST_KRB_SAFE_STATE" : name() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -104,8 +104,8 @@ public enum KrbSafeStatesEnum implements States
     {
         return this == LAST_KRB_SAFE_STATE;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

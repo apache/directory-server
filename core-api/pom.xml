@@ -84,7 +84,8 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
+      <artifactId>shared-ldap-codec-standalone</artifactId>
+      <scope>provided</scope>
     </dependency>
     
     <dependency>
@@ -105,6 +106,11 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-util</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-extras-util</artifactId>
     </dependency>
     
     <dependency>

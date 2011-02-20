@@ -130,7 +130,7 @@ public class LdapJndiProperties
 
         if ( url.trim().equals( "" ) )
         {
-            props.providerDn = Dn.EMPTY_DN;
+            props.providerDn = Dn.ROOT_DSE;
         }
         else
         {

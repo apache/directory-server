@@ -87,7 +87,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     @Test
     public void testCaseIgnoreMatch() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
         
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
@@ -125,7 +125,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     @Test
     public void testDistinguishedNameMatch() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
         
         // determine member Dn of person
         DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );

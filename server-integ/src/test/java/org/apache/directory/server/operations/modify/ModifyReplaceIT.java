@@ -91,7 +91,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceToRemoveNotPresentAttribute() throws Exception
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -125,7 +125,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceToAddNotPresentAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -161,7 +161,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceNonExistingAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -201,7 +201,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceNonExistingAttributeManyMods() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -242,7 +242,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceNonExistingIndexedAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         String rdn = "cn=Kim Wilde";
 
@@ -275,7 +275,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceCaseOfAttributeDescription() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         String rdn = "cn=Kate Bush";
 
         // Replace telephoneNumber
@@ -301,7 +301,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceAttributeNotInOC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         String rdn = "cn=Kate Bush";
 
         // Replace ou

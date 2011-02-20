@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -38,10 +36,14 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -66,17 +68,19 @@ public class RelatedUserClassFilterTest
     private static SubtreeEvaluator SUBTREE_EVALUATOR;
 
     private static RelatedUserClassFilter filter;
+    private static SchemaManager schemaManager;
 
     @BeforeClass
     public static void init() throws Exception
     {
+        schemaManager = new DefaultSchemaManager();
         SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager( null ) );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
         
         try
         {
-            GROUP_NAME = new Dn( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new Dn( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new Dn( schemaManager, "ou=test,ou=groups,ou=system" );
+            USER_NAME = new Dn( schemaManager, "ou=test, ou=users, ou=system" );
         }
         catch ( LdapInvalidDnException e )
         {
@@ -127,7 +131,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new Dn( "ou=unrelated" ) );
+        aciContext.setEntryDn( new Dn( schemaManager, "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -142,7 +146,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new Dn( "ou=phoneBook, ou=test, ou=users, ou=system" ) );
+        aciContext.setEntryDn( new Dn( schemaManager, "ou=phoneBook, ou=test, ou=users, ou=system" ) );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
@@ -150,7 +154,7 @@ public class RelatedUserClassFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
-        aciContext.setEntryDn( new Dn( "ou=unrelated" ) );
+        aciContext.setEntryDn( new Dn( schemaManager, "ou=unrelated" ) );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
@@ -170,7 +174,7 @@ public class RelatedUserClassFilterTest
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
-        aciContext.setUserDn( new Dn( "ou=unrelateduser, ou=users" ) );
+        aciContext.setUserDn( new Dn( schemaManager, "ou=unrelateduser, ou=users" ) );
         aciContext.setAuthenticationLevel( AuthenticationLevel.NONE );
         aciContext.setEntryDn( USER_NAME );
 
@@ -192,7 +196,7 @@ public class RelatedUserClassFilterTest
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         Set<Dn> wrongGroupNames = new HashSet<Dn>();
-        wrongGroupNames.add( new Dn( "ou=unrelatedgroup" ) );
+        wrongGroupNames.add( new Dn( schemaManager, "ou=unrelatedgroup" ) );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -286,7 +290,7 @@ public class RelatedUserClassFilterTest
             
             try
             {
-                names.add( new Dn( "dummy=dummy" ) );
+                names.add( new Dn( schemaManager, "dummy=dummy" ) );
             }
             catch ( LdapInvalidDnException e )
             {

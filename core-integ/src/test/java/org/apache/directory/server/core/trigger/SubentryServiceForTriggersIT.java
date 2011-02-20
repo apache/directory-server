@@ -105,7 +105,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 
     public void addTheAdministrativeRole() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "triggerSpecificArea" );
@@ -116,7 +116,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 
     public Map<String, Attributes> getAllEntries() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -136,7 +136,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testEntryAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addTheAdministrativeRole();        
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
@@ -169,7 +169,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         //noinspection EmptyCatchBlock
         try
@@ -216,7 +216,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryModify() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addTheAdministrativeRole();
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
@@ -289,7 +289,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryDelete() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addTheAdministrativeRole();
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.destroySubcontext( "cn=testsubentry" );
@@ -325,7 +325,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     public void testSubentryModifyRdn() throws Exception
     {
         addTheAdministrativeRole();
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.rename( "cn=testsubentry", "cn=newname" );
         Map<String, Attributes> results = getAllEntries();
@@ -362,7 +362,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     public void testEntryModifyRdn() throws Exception
     {
         addTheAdministrativeRole();
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -436,7 +436,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testEntryMoveWithRdnChange() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addTheAdministrativeRole();
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
@@ -511,7 +511,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testEntryMove() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addTheAdministrativeRole();
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );

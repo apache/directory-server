@@ -116,7 +116,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -126,7 +126,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -188,7 +188,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
     @Test
     public void testAddNewEntryWithReferralAncestorCoreAPImanageDsaIT() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         
         try
         {
@@ -247,7 +247,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
     @Test
     public void testAddNewEntryWithReferralAncestorCoreAPINoManageDsaIT() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
 
         try
         {

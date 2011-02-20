@@ -63,11 +63,11 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
     public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        service.getAdminSession().add( 
-            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) );
+        getService().getAdminSession().add( 
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
         Object obj = sysRoot.lookup( "uid=akarasulu, ou=users" );
         Attributes attrs = sysRoot.getAttributes( "uid=akarasulu, ou=users" );
@@ -85,7 +85,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
     @Test
     public void testStateFactory() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
         Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "sn=erodriguez", "committer" );

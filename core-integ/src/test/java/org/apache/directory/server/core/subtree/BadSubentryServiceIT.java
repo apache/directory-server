@@ -132,7 +132,7 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
     public void addAdministrativeRoles() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "collectiveAttributeSpecificArea" );
         attribute.add( "accessControlSpecificArea" );
@@ -143,7 +143,7 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
     public Map<String, Attributes> getAllEntries() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -163,7 +163,7 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
     @Test
     public void testTrackingOfSubentryOperationals() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRoles();
         sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
             getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );

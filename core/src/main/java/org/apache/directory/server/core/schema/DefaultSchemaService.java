@@ -359,7 +359,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDn = new Dn( ServerDNConstants.SCHEMA_MODIFICATIONS_DN, getSchemaManager() );
+            schemaModificationAttributesDn = new Dn( getSchemaManager(), ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         }
         catch ( LdapException e )
         {
@@ -394,7 +394,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        Entry attrs = new DefaultEntry( getSchemaManager(), Dn.EMPTY_DN );
+        Entry attrs = new DefaultEntry( getSchemaManager(), Dn.ROOT_DSE );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )

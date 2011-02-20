@@ -22,29 +22,25 @@ package org.apache.directory.server.core.security;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -67,6 +63,7 @@ public class TlsKeyGeneratorTest
     @BeforeClass
     public static void setup() throws Exception
     {
+        /*
         String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
@@ -79,15 +76,9 @@ public class TlsKeyGeneratorTest
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
-        loader = new LdifSchemaLoader( schemaRepository );
-        schemaManager = new DefaultSchemaManager( loader );
-
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
+        */
+        
+        schemaManager = new DefaultSchemaManager();
     }
 
 
@@ -97,7 +88,7 @@ public class TlsKeyGeneratorTest
     @Test
     public void testAll() throws Exception
     {
-        Entry entry = new DefaultEntry( schemaManager, new Dn() );
+        Entry entry = new DefaultEntry( schemaManager, new Dn( schemaManager ) );
         TlsKeyGenerator.addKeyPair( entry );
         LOG.debug( "Entry: {}", entry );
         assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, TlsKeyGenerator.TLS_KEY_INFO_OC ) );

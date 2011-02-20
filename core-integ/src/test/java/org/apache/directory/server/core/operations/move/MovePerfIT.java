@@ -70,7 +70,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
     @Test
     public void testMovePerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         String oldDn = "cn=test,ou=system";
         String newDn = "cn=test,ou=users,ou=system";
@@ -78,7 +78,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
         String newSuperior = "ou=users,ou=system";
 
         Dn dn = new Dn( oldDn );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );

@@ -6,22 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.kerberos.codec.kdcRep.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -36,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The action used to add a PaData
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddPaData extends GrammarAction
+public class AddPaData extends GrammarAction<KdcRepContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( AddPaData.class );
@@ -59,14 +58,12 @@ public class AddPaData extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( KdcRepContainer kdcRepContainer ) throws DecoderException
     {
-        KdcRepContainer kdcRepContainer = ( KdcRepContainer ) container;
-
         TLV tlv = kdcRepContainer.getCurrentTLV();
 
         // The Length can't be null
-        if ( tlv.getLength() == 0 ) 
+        if ( tlv.getLength() == 0 )
         {
             LOG.error( I18n.err( I18n.ERR_04066 ) );
 
@@ -76,25 +73,25 @@ public class AddPaData extends GrammarAction
 
         // Now, let's decode the PA-DATA
         Asn1Decoder paDataDecoder = new Asn1Decoder();
-        
+
         PaDataContainer paDataContainer = new PaDataContainer();
-        paDataContainer.setStream( container.getStream() );
+        paDataContainer.setStream( kdcRepContainer.getStream() );
 
         // We have to move back to the PA-DATA tag
-        container.rewind();
+        kdcRepContainer.rewind();
 
         // Decode the PA-DATA PDU
         try
         {
-            paDataDecoder.decode( container.getStream(), paDataContainer );
+            paDataDecoder.decode( kdcRepContainer.getStream(), paDataContainer );
         }
         catch ( DecoderException de )
         {
             throw de;
         }
-        
+
         // Update the parent
-        container.updateParent();
+        kdcRepContainer.updateParent();
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

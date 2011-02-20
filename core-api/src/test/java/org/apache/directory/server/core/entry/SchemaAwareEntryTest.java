@@ -40,8 +40,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -60,11 +58,14 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -139,7 +140,7 @@ public class SchemaAwareEntryTest
         atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
         atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
 
-        EXAMPLE_DN = new Dn( "dc=example,dc=com" );
+        EXAMPLE_DN = new Dn( schemaManager, "dc=example,dc=com" );
     }
 
 
@@ -650,7 +651,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddAtStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test that we can't inject a null AT
@@ -711,7 +712,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddAtBytesElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -792,7 +793,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddAtServerValueElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -909,7 +910,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test a simple addition
@@ -962,7 +963,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdBytesElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -1020,7 +1021,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdServerValueElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -1132,7 +1133,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdAtStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test a simple addition
@@ -1182,7 +1183,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdAtBytesElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -1240,7 +1241,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testAddUpIdAtServerValueElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -1803,7 +1804,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( EXAMPLE_DN, entry.getDn() );
 
-        Dn testDn = new Dn( "cn=test" );
+        Dn testDn = new Dn( schemaManager, "cn=test" );
         entry.setDn( testDn );
 
         assertEquals( testDn, entry.getDn() );
@@ -1821,7 +1822,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( entry1.hashCode(), entry2.hashCode() );
 
-        entry2.setDn( new Dn( "ou=system,dc=com" ) );
+        entry2.setDn( new Dn( schemaManager, "ou=system,dc=com" ) );
         assertNotSame( entry1.hashCode(), entry2.hashCode() );
 
         entry2.setDn( EXAMPLE_DN );
@@ -2603,7 +2604,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutServerAttributeElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // first test a null SA addition. It should be allowed.
@@ -2684,7 +2685,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutAtStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "dc=test" );
+        Dn dn = new Dn( schemaManager, "dc=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test an empty AT
@@ -2741,7 +2742,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutAtByteElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test an empty AT
@@ -2804,7 +2805,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutAtSVs() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Adding a null value to an attribute
@@ -2865,7 +2866,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIdStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "dc=test" );
+        Dn dn = new Dn( schemaManager, "dc=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Adding a null value should be possible
@@ -2927,7 +2928,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIdBytesElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -2991,7 +2992,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIDAtStringElipsis() throws Exception
     {
-        Dn dn = new Dn( "dc=test" );
+        Dn dn = new Dn( schemaManager, "dc=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test that we get an error when the ID or AT are null
@@ -3055,7 +3056,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIDAtBytesElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -3130,7 +3131,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIDAtSVElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test that we get an error when the ID or AT are null
@@ -3201,7 +3202,7 @@ public class SchemaAwareEntryTest
     @Test
     public void tesPutUpIDSVElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test that we get an error when the ID or AT are null
@@ -3537,7 +3538,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testRemoveUpIdElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
@@ -3597,7 +3598,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testSetATElipsis() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         List<EntryAttribute> result = null;
@@ -3677,7 +3678,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testSetUpID() throws Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         List<EntryAttribute> result = null;
 
@@ -3859,7 +3860,7 @@ public class SchemaAwareEntryTest
     @Test
     public void testToBasicAttributes() throws InvalidNameException, Exception
     {
-        Dn dn = new Dn( "cn=test" );
+        Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -3950,7 +3951,7 @@ public class SchemaAwareEntryTest
     public void testCopyConstructorClientEntry() throws LdapException
     {
         Entry clientEntry = new DefaultEntry();
-        clientEntry.setDn( new Dn( "ou=system" ) );
+        clientEntry.setDn( new Dn( schemaManager, "ou=system" ) );
         clientEntry.add( "cn", "test1", "test2" );
         clientEntry.add( "objectClass", "top", "person" );
 

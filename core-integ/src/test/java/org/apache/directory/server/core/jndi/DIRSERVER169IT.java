@@ -64,7 +64,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
      */
     protected void createData() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes people = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
@@ -96,10 +96,10 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
         // @todo replace with ldif tags
         createData();
 
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -144,7 +144,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
         createData();
 
         Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

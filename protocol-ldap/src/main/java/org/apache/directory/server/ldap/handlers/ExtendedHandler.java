@@ -38,7 +38,8 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
 {
     public void handle( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getRequestName() );
+        ExtendedOperationHandler<ExtendedRequest> handler = 
+            getLdapServer().getExtendedOperationHandler( req.getRequestName() );
 
         if ( handler == null )
         {

@@ -24,10 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -42,8 +40,11 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -76,7 +77,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
     }
 
 
@@ -142,7 +143,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testSimpleBindAnonymous() throws Exception
     {
         //System.out.println( "------------------Create connection" + i + "-------------" );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
@@ -160,7 +161,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with empty strings
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         bindResponse = connection.bind( "", "" );
 
         assertNotNull( bindResponse );
@@ -174,7 +175,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with null parameters
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         bindResponse = connection.bind( ( String ) null, ( String ) null );
 
         assertNotNull( bindResponse );
@@ -188,7 +189,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
         connection.close();
 
-        connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         //System.out.println( "----------------Unbind done" + i + "-------------" );
         assertFalse( connection.isConnected() );
@@ -314,7 +315,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             // Inject the interceptor that waits 1 second when binding 
             // in order to be able to send a request before we get the response
-            service.getInterceptorChain().addFirst( new BaseInterceptor()
+            getService().getInterceptorChain().addFirst( new BaseInterceptor()
             {
                 /**
                  * Wait 1 second before going any further
@@ -360,7 +361,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         }
         finally
         {
-            service.getInterceptorChain().remove( this.getClass().getName() + "$1" );
+            getService().getInterceptorChain().remove( this.getClass().getName() + "$1" );
         }
     }
 
@@ -432,7 +433,6 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindInvalidFwdByValidOnSameCon() throws Exception
     {
-        connection.setTimeOut( Integer.MAX_VALUE );
         BindResponse response = connection.bind( "uid=admin,ou=system", "wrongpwd" );
         LdapResult ldapResult = response.getLdapResult();
         assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );

@@ -136,8 +136,8 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( service );
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        connection = IntegrationUtils.getAdminConnection( getService() );
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
     }
 
 
@@ -167,23 +167,23 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     @Test
     public void testPersistAutonomousArea() throws Exception
     {
-        assertTrue( ldapServer.isStarted() );
+        assertTrue( getLdapServer().isStarted() );
 
         // Stop the server now, we will restart it immediately 
-        ldapServer.stop();
-        assertFalse( ldapServer.isStarted() );
+        getLdapServer().stop();
+        assertFalse( getLdapServer().isStarted() );
 
         // And shutdown the DS too
-        ldapServer.getDirectoryService().shutdown();
-        assertFalse( ldapServer.getDirectoryService().isStarted() );
+        getLdapServer().getDirectoryService().shutdown();
+        assertFalse( getLdapServer().getDirectoryService().isStarted() );
 
         // And restart
-        ldapServer.getDirectoryService().startup();
-        ldapServer.start();
-        schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+        getLdapServer().getDirectoryService().startup();
+        getLdapServer().start();
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
 
-        assertTrue( service.isStarted() );
-        assertTrue( ldapServer.getDirectoryService().isStarted() );
+        assertTrue( getService().isStarted() );
+        assertTrue( getLdapServer().getDirectoryService().isStarted() );
         
         // Check that the roles are present
         assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );
@@ -191,55 +191,51 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
         assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
         // Check the caches
-        DnNode<AccessControlAdministrativePoint> acCache = ldapServer.getDirectoryService().getAccessControlAPCache();
-        DnNode<CollectiveAttributeAdministrativePoint> caCache = ldapServer.getDirectoryService()
+        DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
+        DnNode<CollectiveAttributeAdministrativePoint> caCache = getLdapServer().getDirectoryService()
             .getCollectiveAttributeAPCache();
-        DnNode<TriggerExecutionAdministrativePoint> teCache = ldapServer.getDirectoryService()
+        DnNode<TriggerExecutionAdministrativePoint> teCache = getLdapServer().getDirectoryService()
             .getTriggerExecutionAPCache();
-        DnNode<SubschemaAdministrativePoint> ssCache = ldapServer.getDirectoryService().getSubschemaAPCache();
+        DnNode<SubschemaAdministrativePoint> ssCache = getLdapServer().getDirectoryService().getSubschemaAPCache();
 
         // The ACs
-        AdministrativePoint aap1 = acCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
         assertNotNull( aap1 );
 
-        AdministrativePoint aap2 = acCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
+        AdministrativePoint aap2 = acCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
         assertNotNull( aap2 );
 
-        AdministrativePoint subAap1 = acCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-            schemaManager ) );
+        AdministrativePoint subAap1 = acCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
         assertNotNull( subAap1 );
 
         // The ACs
-        aap1 = caCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = caCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
         assertNotNull( aap1 );
 
-        aap2 = caCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = caCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
         assertNotNull( aap2 );
 
-        subAap1 = caCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-            schemaManager ) );
+        subAap1 = caCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
         assertNotNull( subAap1 );
 
         // The TEs
-        aap1 = teCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = teCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
         assertNotNull( aap1 );
 
-        aap2 = teCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = teCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
         assertNotNull( aap2 );
 
-        subAap1 = teCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-            schemaManager ) );
+        subAap1 = teCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
         assertNotNull( subAap1 );
 
         // The SSs
-        aap1 = ssCache.getElement( new Dn( "ou=AAP1,ou=noAP1,ou=system", schemaManager ) );
+        aap1 = ssCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
         assertNotNull( aap1 );
 
-        aap2 = ssCache.getElement( new Dn( "ou=AAP2,ou=system", schemaManager ) );
+        aap2 = ssCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
         assertNotNull( aap2 );
 
-        subAap1 = ssCache.getElement( new Dn( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system",
-            schemaManager ) );
+        subAap1 = ssCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
         assertNotNull( subAap1 );
     }
 }

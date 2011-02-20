@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public interface ExtendedOperationHandler
+public interface ExtendedOperationHandler<R extends ExtendedRequest>
 {
     /**
      * Returns the EXTENSION_OID of the extended request this handler can handle.
@@ -58,7 +58,7 @@ public interface ExtendedOperationHandler
      * 
      * @throws Exception if failed to handle the operation
      */
-    void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception;
+    void handleExtendedOperation( LdapSession session, R req ) throws Exception;
 
 
     /**

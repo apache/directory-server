@@ -121,7 +121,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddNewAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add telephoneNumber attribute
         String newValue = "1234567890";
@@ -146,7 +146,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddNewAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add telephoneNumber attribute
         String[] newValues =
@@ -177,7 +177,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddAdditionalAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // A new description attribute value
         String newValue = "A new description for this person";
@@ -207,7 +207,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddExistingAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Change description attribute
         Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
@@ -244,7 +244,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddExistingNthAttributesDirServer664() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
@@ -292,7 +292,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testTwoDescriptionDirServer643() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
@@ -321,7 +321,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddDuplicateValueToExistingAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // modify object classes, add a new value twice
         Attribute ocls = new BasicAttribute( "objectClass", "organizationalPerson" );
@@ -354,7 +354,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddDuplicateValueToNewAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // add the same description value twice
         Attribute desc = new BasicAttribute( "description", "another description value besides songwriter" );
@@ -382,7 +382,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testSearchBadAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add a not existing attribute
         String newValue = "unbelievable";
@@ -410,7 +410,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
@@ -464,7 +464,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testModifyOperationalAttributeAdd() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "subschemaSubentry", "cn=anotherSchema" ) );
@@ -496,7 +496,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testDNAttributeMemberModificationDIRSERVER_687() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
@@ -537,7 +537,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         Attributes attrs = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute( "objectClass" );
@@ -573,7 +573,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddNewBinaryAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add a binary attribute
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
@@ -597,7 +597,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testAddNewBinaryAttributeValueAbove0x80() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add a binary attribute
         byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
@@ -621,7 +621,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     @Test
     public void testRetrieveEntryWithBinaryAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add a ;binary attribute
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
@@ -663,7 +663,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
      */
     public void testAddNewBinaryAttributeValue0x80() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // Add a ;binary attribute with high-bytes
         byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};

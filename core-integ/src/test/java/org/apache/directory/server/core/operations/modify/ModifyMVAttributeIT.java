@@ -64,7 +64,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
     @Ignore( "Ignore atm, this is a perf test" )
     public void testAdd1000Members() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         
         // Add 10000 members
         Attributes attrs = new BasicAttributes( "uniqueMember", true );
@@ -91,7 +91,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
     @Ignore( "Ignore atm, this is a perf test" )
     public void testAdd500Members() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         long t0 = System.currentTimeMillis();
         
         // Add 600 members

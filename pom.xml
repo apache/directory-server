@@ -50,7 +50,7 @@
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.1</ant.version>
+    <ant.version>1.8.2</ant.version>
     <antlr.version>2.7.7</antlr.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
@@ -61,24 +61,24 @@
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>2.2</commons.net.version>
     <commons.pool.version>1.5.5</commons.pool.version>
-    <derby.version>10.4.2.0</derby.version>
-    <dnsjava.version>2.0.1</dnsjava.version>
-    <ehcache.version>2.2.0</ehcache.version>
+    <derby.version>10.7.1.1</derby.version>
+    <dnsjava.version>2.1.0</dnsjava.version>
+    <ehcache.version>2.3.2</ehcache.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.16</log4j.version>
-    <maven.archiver.version>2.2</maven.archiver.version>
-    <maven.artifact.version>2.2.1</maven.artifact.version>
-    <maven.plugin.api.version>2.2.1</maven.plugin.api.version>
-    <maven.project.version>2.0.9</maven.project.version>
+    <maven.archiver.version>2.4.1</maven.archiver.version>
+    <maven.artifact.version>3.0.2</maven.artifact.version>
+    <maven.plugin.api.version>3.0.2</maven.plugin.api.version>
+    <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.2</mina.core.version>
     <plexus.utils.version>2.0.5</plexus.utils.version>
-    <quartz.version>1.6.0</quartz.version>
+    <quartz.version>1.6.3</quartz.version>
     <slf4j.api.version>1.6.1</slf4j.api.version>
     <slf4j.log4j12.version>1.6.1</slf4j.log4j12.version>
-    <velocity.version>1.5</velocity.version>
+    <velocity.version>1.7-beta1</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.9.1</xercesImpl.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -729,13 +729,19 @@
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap</artifactId>
+        <artifactId>shared-ldap-extras-sp</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-codec</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-codec-standalone</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
@@ -748,6 +754,24 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-schema</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-extras-aci</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-extras-trigger</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-extras-util</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       

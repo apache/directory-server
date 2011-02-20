@@ -22,9 +22,9 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
@@ -85,12 +85,10 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
             throwReferral();
         }
 
-        newDn = newSuperiorDn.add(newRdn);
 
         try
         {
-            newDn.normalize( session.getDirectoryService()
-                .getSchemaManager() );
+            newDn = new Dn( session.getDirectoryService().getSchemaManager(), newSuperiorDn.add(newRdn) );
         }
         catch ( LdapInvalidDnException lide )
         {

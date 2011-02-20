@@ -85,7 +85,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
         // Enable the nis schema
         // -------------------------------------------------------------------
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
         
@@ -127,7 +127,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
         test.put( "homeDirectory", "/" );
         test.put( "description", "A test account" );
         
-        getSystemContext( service ).createSubcontext( "cn=test", test );
+        getSystemContext( getService() ).createSubcontext( "cn=test", test );
     }
 
 
@@ -140,7 +140,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
+        return getSystemContext( getService() ).createSubcontext( "cn="+name+",ou=groups", attrs );
     }
 
 
@@ -151,7 +151,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultipleChangeDeleteAddSnInMust() throws Exception 
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
         
         // Try to delete and add the SN which is in MUST

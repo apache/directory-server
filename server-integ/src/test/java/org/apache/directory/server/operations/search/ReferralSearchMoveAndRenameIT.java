@@ -116,7 +116,7 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
     @Before
     public void setupReferrals() throws Exception
     {
-        ldapServer.getDirectoryService().getChangeLog().setEnabled( false );
+        getLdapServer().getDirectoryService().getChangeLog().setEnabled( false );
         
         String ldif =
         "dn: c=europ,ou=Countries,ou=system\n" +
@@ -124,22 +124,22 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: europ\n" +
-        "ref: ldap://localhost:" + ldapServer.getPort() + "/c=france,ou=system\n\n" +
+        "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=france,ou=system\n\n" +
 
         "dn: c=america,ou=Countries,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: america\n" +
-        "ref: ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system\n\n";
+        "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system\n\n";
 
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
         
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
-            ldapServer.getDirectoryService().getAdminSession().add( 
-                new DefaultEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
+            getLdapServer().getDirectoryService().getAdminSession().add( 
+                new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
         }
     }
     
@@ -156,7 +156,7 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
     @Test
     public void testSearchBaseWithReferralThrowAfterMoveAndRename() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -169,7 +169,7 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
         }
         
         ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
@@ -191,7 +191,7 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
         }
     }
 }

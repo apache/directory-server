@@ -102,7 +102,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndDeleteOld() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -151,7 +151,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndDontDeleteOldFalse() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -198,7 +198,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndKeepOld() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -246,7 +246,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndDeleteOldVariant() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -301,7 +301,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnDifferentAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -351,7 +351,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnDifferentAttributeDeleteOldFails() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -386,7 +386,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndDeleteOldWithChild() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an organizational unit, ou value is rdn
         String oldOu = "Writers";
@@ -456,7 +456,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
@@ -509,7 +509,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
@@ -563,7 +563,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant1() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -603,7 +603,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant2() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -643,7 +643,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant3() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
@@ -683,7 +683,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant4() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
@@ -725,7 +725,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant5() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
@@ -771,7 +771,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant6() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
@@ -831,7 +831,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant7() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
@@ -873,7 +873,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyMultiValuedRdnVariant8() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
@@ -930,7 +930,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnOperationalAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // create the entry
         Attributes attributes = createPerson( "cn" );
@@ -975,7 +975,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnObjectClassAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // create the entry
         Attributes attributes = createPerson( "cn" );
@@ -1020,7 +1020,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
     private Attributes createPerson( String... rdnTypes ) throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",

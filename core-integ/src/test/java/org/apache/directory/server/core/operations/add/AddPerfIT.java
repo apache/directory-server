@@ -71,10 +71,10 @@ public class AddPerfIT extends AbstractLdapTestUnit
     @Test
     public void testAddPerf() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Dn dn = new Dn( "cn=test,ou=system" );
-        Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );
@@ -103,7 +103,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
             String name = "test" + i;
             dn = new Dn( "cn=" + name + ",ou=system" );
-            entry = new DefaultEntry( service.getSchemaManager(), dn );
+            entry = new DefaultEntry( getService().getSchemaManager(), dn );
             entry.add( "ObjectClass", "top", "person" );
             entry.add( "sn", name.toUpperCase() );
             entry.add( "cn", name );

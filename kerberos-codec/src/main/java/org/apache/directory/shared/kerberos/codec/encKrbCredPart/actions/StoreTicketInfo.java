@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.codec.encKrbCredPart.actions;
 
 
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -39,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreTicketInfo extends GrammarAction
+public class StoreTicketInfo extends GrammarAction<EncKrbCredPartContainer>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( StoreTicketInfo.class );
@@ -51,10 +50,8 @@ public class StoreTicketInfo extends GrammarAction
     /**
      * {@inheritDoc}
      */
-    public void action( Asn1Container container ) throws DecoderException
+    public void action( EncKrbCredPartContainer encKrbCredPartContainer ) throws DecoderException
     {
-        EncKrbCredPartContainer encKrbCredPartContainer = ( EncKrbCredPartContainer ) container;
-
         TLV tlv = encKrbCredPartContainer.getCurrentTLV();
 
         // The Length should not be null
@@ -71,14 +68,14 @@ public class StoreTicketInfo extends GrammarAction
 
         // KrbCredInfo container
         KrbCredInfoContainer ticketInfoContainer = new KrbCredInfoContainer();
-        ticketInfoContainer.setStream( container.getStream() );
+        ticketInfoContainer.setStream( encKrbCredPartContainer.getStream() );
 
-        container.rewind();
-        
+        encKrbCredPartContainer.rewind();
+
         try
         {
             // decode KrbCredInfo
-            decoder.decode( container.getStream(), ticketInfoContainer );
+            decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
         }
         catch ( DecoderException e )
         {
@@ -93,9 +90,9 @@ public class StoreTicketInfo extends GrammarAction
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 
         // Update the parent
-        container.updateParent();
+        encKrbCredPartContainer.updateParent();
 
-        container.setGrammarEndAllowed( true );
+        encKrbCredPartContainer.setGrammarEndAllowed( true );
 
         if ( IS_DEBUG )
         {

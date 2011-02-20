@@ -53,7 +53,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.service = getService();
     }
 
 
@@ -119,7 +119,7 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
         Dn billydDn = createUser( "billyd", "s3kr3t" );
-        assertFalse( service.isAccessControlEnabled() );
+        assertFalse( getService().isAccessControlEnabled() );
         LdapConnection connection = getConnectionAs( billydDn, "s3kr3t" );
 
         // billyd should not be able to read the admin group

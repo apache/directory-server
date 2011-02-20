@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.trigger;
 
 
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -33,20 +31,20 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     
     static
     {
-        try
+        //try
         {
-            adminName = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            //adminName = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         }
-        catch ( LdapInvalidDnException e )
+        //catch ( LdapInvalidDnException e )
         {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+        //    e.printStackTrace();
         }
     }
     
     public boolean hasPermission( OperationContext opContext ) throws LdapException
     {
         Dn principalName = opContext.getSession().getEffectivePrincipal().getDN();
-        return principalName.equals( adminName );
+        return principalName.equals( opContext.getSession().getDirectoryService().getAdminSession().getAuthenticatedPrincipal().getDN() );
     }
 }

@@ -97,8 +97,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = dn;
-        parentDn = parentDn.remove( parentDn.size() - 1 );
+        Dn parentDn = dn.getParent();
 
         // The parent Dn must be ou=matchingrules,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.MATCHING_RULE );
@@ -145,8 +144,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = dn;
-        parentDn = parentDn.remove( parentDn.size() - 1 );
+        Dn parentDn = dn.getParent();
 
         // The parent Dn must be ou=matchingrules,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.MATCHING_RULE );

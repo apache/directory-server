@@ -94,7 +94,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompare() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( getLdapServer() );
 
         // comparison success
         CompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
@@ -105,6 +105,7 @@ public class CompareIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.COMPARE_FALSE, resp.getLdapResult().getResultCode() );
 
         conn.unBind();
+        conn.close();
     }
 
 
@@ -116,7 +117,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompareMissingAttribute() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
 
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
@@ -145,7 +146,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -171,7 +172,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -205,7 +206,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[0] );
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -244,9 +245,9 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testCompareWithoutAuthentication() throws LDAPException
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
-        conn.connect( "localhost", ldapServer.getPort() );
+        conn.connect( "localhost", getLdapServer().getPort() );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
 
         try
@@ -269,7 +270,7 @@ public class CompareIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConnection conn = getWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 

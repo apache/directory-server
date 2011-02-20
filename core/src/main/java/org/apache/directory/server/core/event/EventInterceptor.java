@@ -302,7 +302,7 @@ public class EventInterceptor extends BaseInterceptor
             }
 
             // fix for DIRSERVER-1502
-            if ( ( name.equals( base ) || name.isChildOf( base ) )
+            if ( ( name.equals( base ) || name.isDescendantOf( base ) )
                 && evaluator.evaluate( criteria.getFilter(), base, entry ) )
             {
                 selecting.add( registration );

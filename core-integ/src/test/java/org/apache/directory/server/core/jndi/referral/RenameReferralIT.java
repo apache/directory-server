@@ -129,7 +129,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "o=MNN,c=WW,ou=system" );
+        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
         // JNDI entry
         userEntry = new BasicAttributes( "objectClass", "top", true );
@@ -139,7 +139,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         
         // Core API entry
         Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( service.getSchemaManager(), dn );
+        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );
@@ -206,7 +206,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testRenameNotExistingSuperiorReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
 
         try
         {
@@ -316,7 +316,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testRenameExistingReferralCoreApiWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
 
         try
         {
@@ -403,7 +403,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     @Test
     public void testRenameRdnExistIsReferralCoreAPIWithoutManageDsaIt() throws Exception
     {
-        CoreSession session = service.getAdminSession();
+        CoreSession session = getService().getAdminSession();
         Dn dn = new Dn( "ou=Roles,o=MNN,c=WW,ou=system" );
         Rdn newRdn = new Rdn( "ou=People" );
 

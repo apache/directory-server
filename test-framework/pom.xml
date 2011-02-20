@@ -50,11 +50,6 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
     
@@ -68,4 +63,29 @@
       <artifactId>commons-io</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <configuration>
+          <systemPropertyVariables>
+            <felix.cache.rootdir>
+              ${project.build.directory}
+            </felix.cache.rootdir>
+            <felix.cache.locking>
+              false
+            </felix.cache.locking>
+            <org.osgi.framework.storage.clean>
+              onFirstInit
+            </org.osgi.framework.storage.clean>
+            <org.osgi.framework.storage>
+              ${project.build.directory}/osgi-cache
+            </org.osgi.framework.storage>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>  
 </project>

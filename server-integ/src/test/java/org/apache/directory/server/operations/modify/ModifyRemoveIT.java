@@ -86,7 +86,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
      @Before
     public void setUp() throws Exception
     {
-        DirContext schemaRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( "ou=schema" );
+        DirContext schemaRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( "ou=schema" );
 
         // -------------------------------------------------------------------
         // Enable the krb5kdc schema
@@ -157,7 +157,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveAttemptWithoutChange() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Get the attributes and check the contents
         Attributes tori = ctx.getAttributes( RDN );
@@ -209,7 +209,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveNotRequiredAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove description Attribute
         Attribute attr = new BasicAttribute( "description" );
@@ -233,7 +233,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveTwoNotRequiredAttributes() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // add telephoneNumber to entry
         Attributes tn = new BasicAttributes( "telephoneNumber", "12345678", true );
@@ -263,7 +263,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveRequiredAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove sn attribute
         Attribute attr = new BasicAttribute( "sn" );
@@ -290,7 +290,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemovePartOfRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove sn attribute
         Attribute attr = new BasicAttribute( "cn" );
@@ -317,7 +317,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemovePartOfRdnNotRequired() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Change Rdn to another attribute
         String newRdn = "description=an American singer-songwriter";
@@ -354,7 +354,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveAttributeNotPresent() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove telephoneNumber Attribute
         Attribute attr = new BasicAttribute( "telephoneNumber" );
@@ -382,7 +382,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveAttributeValueNotPresent() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove telephoneNumber Attribute
         Attribute attr = new BasicAttribute( "telephoneNumber", "12345" );
@@ -418,7 +418,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveAttributeNotValid() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Remove phantasy attribute
         Attribute attr = new BasicAttribute( "XXX" );
@@ -447,7 +447,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceNonExistingAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes( "Bush", "Kate Bush" );
@@ -493,7 +493,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testReplaceRdnByEmptyValueAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
@@ -525,7 +525,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveRdnAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
@@ -557,7 +557,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveRdnAttributeValue() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
@@ -589,7 +589,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws Exception 
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
@@ -622,7 +622,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws Exception 
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
@@ -651,7 +651,7 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveObjectClassAndMandatoryAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
         // add objectClass:krb5Principal and krb5PrincipalName:test to entry
         Attributes tn = new BasicAttributes( true );
