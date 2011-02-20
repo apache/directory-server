@@ -101,5 +101,4 @@ public class ExtendedIT extends AbstractLdapTestUnit
             return null;
         }
     }
-
 }
