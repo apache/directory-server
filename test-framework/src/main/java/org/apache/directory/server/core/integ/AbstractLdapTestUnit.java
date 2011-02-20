@@ -33,10 +33,10 @@ import org.apache.directory.server.ldap.LdapServer;
 public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
-    private static DirectoryService service;
+    public static DirectoryService service;
 
     /** The used LdapServer instance */
-    private static LdapServer ldapServer;
+    public static LdapServer ldapServer;
 
     /** The used KdcServer instance */
     public static KdcServer kdcServer;
