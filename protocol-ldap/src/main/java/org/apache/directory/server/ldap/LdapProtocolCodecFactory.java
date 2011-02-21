@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.protocol.mina.LdapProtocolDecoder;
 import org.apache.directory.shared.ldap.codec.protocol.mina.LdapProtocolEncoder;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -52,7 +52,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
     public LdapProtocolCodecFactory( final DirectoryService directoryService )
     {
         encoder = new LdapProtocolEncoder( directoryService.getLdapCodecService() );
-        decoder = new LdapDecoder();
+        decoder = new LdapProtocolDecoder( directoryService.getLdapCodecService() );
     }
 
 
