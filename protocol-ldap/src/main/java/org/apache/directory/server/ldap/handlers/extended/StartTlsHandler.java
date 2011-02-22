@@ -40,6 +40,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.codec.api.ExtendedResponseDecorator;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponseImpl;
@@ -57,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://www.ietf.org/rfc/rfc2830.txt">RFC 2830</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest>
+public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>
 {
     public static final String EXTENSION_OID = "1.3.6.1.4.1.1466.20037";
 
@@ -74,7 +76,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest<ExtendedResponse> req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
 
@@ -90,7 +92,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
+        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>( 
+            LdapCodecServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
