@@ -20,11 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.ExtendedRequestDecorator;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
+import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.model.message.Control;

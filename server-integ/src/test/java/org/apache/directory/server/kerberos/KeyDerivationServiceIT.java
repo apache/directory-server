@@ -211,6 +211,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret", "hnelson@EXAMPLE.COM" );
         users.createSubcontext( "uid=hnelson", attrs );
+        ctx.close();
     }
 
 
@@ -281,6 +282,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Key version number", 0, keyVersionNumber );
+        ctx.close();
     }
 
 
@@ -417,6 +419,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
+        ctx.close();
     }
 
 
@@ -547,6 +550,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
+        ctx.close();
     }
 
 
@@ -653,6 +657,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         assertTrue( DESKeySpec.isParityAdjusted( tquistKey, 0 ) );
         assertTrue( DESKeySpec.isParityAdjusted( jfryerKey, 0 ) );
+        ctx.close();
     }
 
 
