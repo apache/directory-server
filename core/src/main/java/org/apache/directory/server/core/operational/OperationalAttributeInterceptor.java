@@ -548,7 +548,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                String value = rdn.getAVA().getNormValue().getString();
+                String value = rdn.getNormValue().getString();
                 newDn = newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }
