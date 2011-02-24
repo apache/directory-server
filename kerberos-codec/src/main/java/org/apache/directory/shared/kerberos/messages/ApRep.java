@@ -60,11 +60,11 @@ public class ApRep extends KerberosMessage
     private EncryptedData encPart;
 
     // Storage for computed lengths
-    private transient int pvnoLength;
-    private transient int msgTypeLength;
-    private transient int encPartLength;
-    private transient int apRepLength;
-    private transient int apRepSeqLength;
+    private int pvnoLength;
+    private int msgTypeLength;
+    private int encPartLength;
+    private int apRepLength;
+    private int apRepSeqLength;
 
     /**
      * Creates a new instance of AP-REP.

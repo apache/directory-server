@@ -69,9 +69,9 @@ public class TransitedEncoding extends AbstractAsn1Object
     private byte[] contents;
 
     // Storage for computed lengths
-    private transient int trTypeLength;
-    private transient int contentsLength;
-    private transient int transitedEncodingLength;
+    private int trTypeLength;
+    private int contentsLength;
+    private int transitedEncodingLength;
 
 
     /**

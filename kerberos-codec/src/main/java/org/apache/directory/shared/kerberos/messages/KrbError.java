@@ -24,10 +24,10 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -103,24 +103,24 @@ public class KrbError extends KerberosMessage
     private byte[] eData;
 
     // Storage for computed lengths
-    private transient int pvnoLength;
-    private transient int msgTypeLength;
-    private transient int cTimeLength;
-    private transient int cusecLength;
-    private transient int sTimeLength;
-    private transient int susecLength;
-    private transient int errorCodeLength;
-    private transient int cRealmLength;
-    private transient byte[] crealmBytes;
-    private transient int cNameLength;
-    private transient int realmLength;
-    private transient byte[] realmBytes;
-    private transient int sNameLength;
-    private transient int eTextLength;
-    private transient byte[] eTextBytes;
-    private transient int eDataLength;
-    private transient int krbErrorSeqLength;
-    private transient int krbErrorLength;
+    private int pvnoLength;
+    private int msgTypeLength;
+    private int cTimeLength;
+    private int cusecLength;
+    private int sTimeLength;
+    private int susecLength;
+    private int errorCodeLength;
+    private int cRealmLength;
+    private byte[] crealmBytes;
+    private int cNameLength;
+    private int realmLength;
+    private byte[] realmBytes;
+    private int sNameLength;
+    private int eTextLength;
+    private byte[] eTextBytes;
+    private int eDataLength;
+    private int krbErrorSeqLength;
+    private int krbErrorLength;
 
 
     /**

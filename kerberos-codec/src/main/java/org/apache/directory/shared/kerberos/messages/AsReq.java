@@ -40,7 +40,7 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
 public class AsReq extends KdcReq
 {
     // Storage for computed lengths
-    private transient int kdcReqLength;
+    private int kdcReqLength;
 
     /**
      * Creates a new instance of AS-REQ.

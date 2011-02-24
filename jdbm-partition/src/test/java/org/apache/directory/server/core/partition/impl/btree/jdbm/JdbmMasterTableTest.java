@@ -52,10 +52,10 @@ public class JdbmMasterTableTest
     private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient JdbmMasterTable<Integer> table;
-    transient File dbFile;
-    transient RecordManager recman;
-    transient SchemaManager schemaManager = null;
+    JdbmMasterTable<Integer> table;
+    File dbFile;
+    RecordManager recman;
+    SchemaManager schemaManager = null;
 
 
     public JdbmMasterTableTest() throws Exception

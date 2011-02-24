@@ -106,25 +106,25 @@ public class KdcReqBody extends AbstractAsn1Object
     private List<Ticket> additionalTickets;
 
     // Storage for computed lengths
-    private transient int kdcOptionsLength;
-    private transient int cNameLength;
-    private transient int realmLength;
-    private transient byte[] realmBytes;
-    private transient int sNameLength;
-    private transient int fromLength;
-    private transient int tillLength;
-    private transient int rtimeLength;
-    private transient int nonceLength;
-    private transient int eTypeLength;
-    private transient int eTypeSeqLength;
-    private transient int[] eTypeLengths;
-    private transient int addressesLength;
-    private transient int encAuthzDataLength;
-    private transient int additionalTicketLength;
-    private transient int additionalTicketSeqLength;
-    private transient int[] additionalTicketsLengths;
-    private transient int kdcReqBodySeqLength;
-    private transient int kdcReqBodyLength;
+    private int kdcOptionsLength;
+    private int cNameLength;
+    private int realmLength;
+    private byte[] realmBytes;
+    private int sNameLength;
+    private int fromLength;
+    private int tillLength;
+    private int rtimeLength;
+    private int nonceLength;
+    private int eTypeLength;
+    private int eTypeSeqLength;
+    private int[] eTypeLengths;
+    private int addressesLength;
+    private int encAuthzDataLength;
+    private int additionalTicketLength;
+    private int additionalTicketSeqLength;
+    private int[] additionalTicketsLengths;
+    private int kdcReqBodySeqLength;
+    private int kdcReqBodyLength;
 
     /**
      * Creates a new instance of RequestBody.
@@ -727,7 +727,7 @@ public class KdcReqBody extends AbstractAsn1Object
 
 
     /**
-     * reset the transient fields used while computing length
+     * reset the fields used while computing length
      */
     private void reset()
     {

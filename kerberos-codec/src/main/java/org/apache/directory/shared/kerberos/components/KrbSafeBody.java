@@ -26,10 +26,10 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
@@ -79,13 +79,13 @@ public class KrbSafeBody extends AbstractAsn1Object
     private HostAddress recipientAddress;
 
     // Storage for computed lengths
-    private transient int userDataLen;
-    private transient int timestampLen;
-    private transient int usecLen;
-    private transient int seqNumberLen;
-    private transient int senderAddressLen;
-    private transient int recipientAddressLen;
-    private transient int krbSafeBodySeqLen;
+    private int userDataLen;
+    private int timestampLen;
+    private int usecLen;
+    private int seqNumberLen;
+    private int senderAddressLen;
+    private int recipientAddressLen;
+    private int krbSafeBodySeqLen;
 
 
     /**

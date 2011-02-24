@@ -76,17 +76,17 @@ public class KdcRep extends KerberosMessage
     protected EncKdcRepPart encKdcRepPart;
 
     // Storage for computed lengths
-    private transient int pvnoLength;
-    private transient int msgTypeLength;
-    private transient int paDataLength;
-    private transient int paDataSeqLength;
-    private transient int[] paDataLengths;
-    private transient int cnameLength;
-    private transient int crealmLength;
-    private transient int ticketLength;
-    private transient int encPartLength;
-    private transient int kdcRepSeqLength;
-    private transient int kdcRepLength;
+    private int pvnoLength;
+    private int msgTypeLength;
+    private int paDataLength;
+    private int paDataSeqLength;
+    private int[] paDataLengths;
+    private int cnameLength;
+    private int crealmLength;
+    private int ticketLength;
+    private int encPartLength;
+    private int kdcRepSeqLength;
+    private int kdcRepLength;
 
     /**
      * Creates a new instance of KDC-REP.

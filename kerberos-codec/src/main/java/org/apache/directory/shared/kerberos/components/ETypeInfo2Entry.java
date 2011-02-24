@@ -68,10 +68,10 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
     private byte[] s2kparams;
 
     // Storage for computed lengths
-    private transient int etypeTagLength;
-    private transient int saltTagLength;
-    private transient int s2kparamsTagLength;
-    private transient int etypeInfo2EntrySeqLength;
+    private int etypeTagLength;
+    private int saltTagLength;
+    private int s2kparamsTagLength;
+    private int etypeInfo2EntrySeqLength;
 
     /**
      * Creates a new instance of ETypeInfo2Entry.

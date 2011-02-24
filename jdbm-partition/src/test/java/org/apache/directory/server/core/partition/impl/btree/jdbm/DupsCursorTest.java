@@ -63,9 +63,9 @@ public class DupsCursorTest
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
 
-    transient Table<String,String> table;
-    transient File dbFile;
-    transient RecordManager recman;
+    Table<String,String> table;
+    File dbFile;
+    RecordManager recman;
     private static SchemaManager schemaManager;
 
 

@@ -105,15 +105,15 @@ public class EncKdcRepPart extends AbstractAsn1Object
     private HostAddresses caddr; //optional
 
     // Storage for computed lengths
-    private transient int keyLength;
-    private transient int lastReqLength;
-    private transient int nonceLength;
-    private transient int flagsLength;
-    private transient byte[] srealmBytes;
-    private transient int srealmLength;
-    private transient int snameLength;
-    private transient int caddrLength;
-    private transient int encKdcRepPartSeqLength;
+    private int keyLength;
+    private int lastReqLength;
+    private int nonceLength;
+    private int flagsLength;
+    private byte[] srealmBytes;
+    private int srealmLength;
+    private int snameLength;
+    private int caddrLength;
+    private int encKdcRepPartSeqLength;
 
     /**
      * Creates a new instance of EncKdcRepPart.

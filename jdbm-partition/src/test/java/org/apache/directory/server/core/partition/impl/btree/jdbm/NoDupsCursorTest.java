@@ -61,9 +61,9 @@ public class NoDupsCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient Table<String,String> table;
-    transient File dbFile;
-    transient RecordManager recman;
+    Table<String,String> table;
+    File dbFile;
+    RecordManager recman;
     private static SchemaManager schemaManager;
 
 

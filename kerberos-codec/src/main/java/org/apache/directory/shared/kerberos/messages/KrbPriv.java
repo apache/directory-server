@@ -62,11 +62,11 @@ public class KrbPriv extends KerberosMessage
     private EncryptedData encPart;
 
     // Storage for computed lengths
-    private transient int pvnoLen;
-    private transient int msgTypeLength;
-    private transient int encPartLen;
-    private transient int krbPrivSeqLen;
-    private transient int krbPrivLen;
+    private int pvnoLen;
+    private int msgTypeLength;
+    private int encPartLen;
+    private int krbPrivSeqLen;
+    private int krbPrivLen;
 
 
     /**

@@ -77,15 +77,15 @@ public class Ticket extends KerberosMessage
     private EncryptedData encPart;
     
     /** The encoded ticket part, stored in its original form (not encoded) */
-    private transient EncTicketPart encTicketPart;
+    private EncTicketPart encTicketPart;
     
     // Storage for computed lengths
-    private transient int tktvnoLength;
-    private transient int realmLength;
-    private transient int sNameLength;
-    private transient int encPartLength;
-    private transient int ticketSeqLength;
-    private transient int ticketLength;
+    private int tktvnoLength;
+    private int realmLength;
+    private int sNameLength;
+    private int encPartLength;
+    private int ticketSeqLength;
+    private int ticketLength;
 
     /**
      * Creates a new instance of Ticket.

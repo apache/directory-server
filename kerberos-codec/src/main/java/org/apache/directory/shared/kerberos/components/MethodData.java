@@ -56,7 +56,7 @@ public class MethodData extends AbstractAsn1Object
     private List<PaData> paDatas;
 
     // Storage for computed lengths
-    private transient int methodDataLength;
+    private int methodDataLength;
 
 
     /**

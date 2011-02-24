@@ -34,9 +34,9 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -62,7 +62,7 @@ public class ReplicaEventMessage implements Externalizable
 
     private static SchemaManager schemaManager;
     
-    private transient LdapCodecService codec;
+    private LdapCodecService codec;
 
 
     public ReplicaEventMessage()

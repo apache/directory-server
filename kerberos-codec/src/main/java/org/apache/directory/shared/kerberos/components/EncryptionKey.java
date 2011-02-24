@@ -68,10 +68,9 @@ public class EncryptionKey extends AbstractAsn1Object
     private int keyVersion;
 
     // Storage for computed lengths
-    private transient int keyTypeLength;
-    private transient int keyValueLength;
-    private transient int encryptionKeyLength;
-
+    private int keyTypeLength;
+    private int keyValueLength;
+    private int encryptionKeyLength;
 
     /**
      * Creates a new instance of EncryptionKey.

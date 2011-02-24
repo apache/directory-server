@@ -60,9 +60,9 @@ public class AdAndOr extends AbstractAsn1Object
     private AuthorizationData elements;
 
     // Storage for computed lengths
-    private transient int conditionCountTagLength;
-    private transient int elementsTagLength;
-    private transient int adAndOrSeqLength;
+    private int conditionCountTagLength;
+    private int elementsTagLength;
+    private int adAndOrSeqLength;
 
     /**
      * Creates a new instance of AdAndOr
