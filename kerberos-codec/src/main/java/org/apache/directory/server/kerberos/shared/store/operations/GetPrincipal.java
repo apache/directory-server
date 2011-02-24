@@ -49,8 +49,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public class GetPrincipal implements DirectoryServiceOperation
 {
-    private static final long serialVersionUID = 4598007518413451945L;
-
     /** The name of the principal to get. */
     private final KerberosPrincipal principal;
 

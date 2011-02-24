@@ -20,8 +20,6 @@
 package org.apache.directory.server.protocol.shared.store;
 
 
-import java.io.Serializable;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -31,7 +29,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface DirectoryServiceOperation extends Serializable
+public interface DirectoryServiceOperation
 {
     /**
      * The command pattern execute method.
