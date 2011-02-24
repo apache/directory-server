@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.io.Serializable;
-
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 
 
@@ -30,7 +28,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyOnlyComparator<K, V> implements TupleComparator<K, V>, Serializable
+public class KeyOnlyComparator<K, V> implements TupleComparator<K, V>
 {
     private static final long serialVersionUID = 3544956549803161397L;
 

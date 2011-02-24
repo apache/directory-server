@@ -64,8 +64,6 @@ public class TestServerEntryUtils
      */
     static class MR extends MatchingRule
     {
-        private static final long serialVersionUID = 0L;
-
         protected MR( String oid )
         {
             super( oid );
@@ -104,8 +102,6 @@ public class TestServerEntryUtils
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
         {
-            private static final long serialVersionUID = 0L;
-
             public boolean isValidSyntax( Object value )
             {
                 if ( !( value instanceof String ) )
@@ -132,8 +128,6 @@ public class TestServerEntryUtils
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
-            private static final long serialVersionUID = 0L;
-
             public int compare( String o1, String o2 )
             {
                 return ( o1 == null ? 
@@ -162,8 +156,6 @@ public class TestServerEntryUtils
         
         Normalizer normalizer = new Normalizer( "1.1.1" )
         {
-            private static final long serialVersionUID = 0L;
-
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( !value.isBinary() )
@@ -198,8 +190,6 @@ public class TestServerEntryUtils
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2" )
         {
-            private static final long serialVersionUID = 0L;
-
             public boolean isValidSyntax( Object value )
             {
                 return ((String)value == null) || (((String)value).length() < 7) ;
@@ -212,8 +202,6 @@ public class TestServerEntryUtils
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
-            private static final long serialVersionUID = 0L;
-
             public int compare( String o1, String o2 )
             {
                 return ( ( o1 == null ) ? 
@@ -238,8 +226,6 @@ public class TestServerEntryUtils
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
         {
-            private static final long serialVersionUID = 0L;
-
             public boolean isValidSyntax( Object value )
             {
                 return ( value == null ) || ( ((byte[])value).length < 5 );
@@ -253,9 +239,6 @@ public class TestServerEntryUtils
         
         matchingRule.setNormalizer( new Normalizer( "1.1.1" )
         {
-            // The serial UID
-            private static final long serialVersionUID = 1L;
-            
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( value.isBinary() )
