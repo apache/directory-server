@@ -49,8 +49,6 @@ import org.apache.directory.server.dns.store.jndi.DnsOperation;
  */
 public class GetFlatRecord implements DnsOperation
 {
-    private static final long serialVersionUID = 4931303293468915435L;
-
     /** The name of the question to get. */
     private final QuestionRecord question;
 

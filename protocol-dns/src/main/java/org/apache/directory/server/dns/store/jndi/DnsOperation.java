@@ -20,7 +20,6 @@
 package org.apache.directory.server.dns.store.jndi;
 
 
-import java.io.Serializable;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -34,7 +33,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface DnsOperation extends Serializable
+public interface DnsOperation
 {
     /**
      * The command pattern execute method.
