@@ -144,7 +144,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         mods.add( mod );
       
         Dn userDn = new Dn( getService().getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
-        LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
+        LdapPrincipal principal = new LdapPrincipal( getService().getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
         CoreSession akarasuluSession = getService().getSession( principal );
 
         try

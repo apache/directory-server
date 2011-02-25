@@ -176,7 +176,7 @@ public class LdifPartitionTest
     public void testLdifAddEntries() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -221,7 +221,7 @@ public class LdifPartitionTest
     public void testLdifAddExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -275,7 +275,7 @@ public class LdifPartitionTest
     public void testLdifDeleteExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -361,7 +361,7 @@ public class LdifPartitionTest
     public void testLdifSearchExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -585,7 +585,7 @@ public class LdifPartitionTest
     public void testSpecialCharacters() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -613,7 +613,7 @@ public class LdifPartitionTest
     public void testControlCharacters() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -644,7 +644,7 @@ public class LdifPartitionTest
     private CoreSession injectEntries() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 

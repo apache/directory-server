@@ -55,9 +55,9 @@ public class NtlmSaslServer extends AbstractSaslServer
     private final NtlmProvider provider;
 
 
-    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession )
+    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession, CoreSession adminSession )
     {
-        super( ldapSession, null, bindRequest );
+        super( ldapSession, adminSession, bindRequest );
         this.provider = provider;
     }
 
@@ -158,7 +158,8 @@ public class NtlmSaslServer extends AbstractSaslServer
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
                     Dn dn = getBindRequest().getName();
                     dn.normalize( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager() );
-                    LdapPrincipal ldapPrincipal = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
+                    LdapPrincipal ldapPrincipal = new LdapPrincipal( getAdminSession().getDirectoryService().getSchemaManager(), 
+                        dn, AuthenticationLevel.STRONG );
                     getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
                     getLdapSession().putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }

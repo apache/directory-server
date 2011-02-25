@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -144,7 +145,17 @@ public class ReplicaEventMessage implements Externalizable
         entry = new DefaultEntry( schemaManager );
 
         // Read the Dn
-        Dn dn = DnSerializer.deserialize(in);
+        Dn dn = null;
+        
+        try
+        {
+            dn = DnSerializer.deserialize( schemaManager, in );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IOException( lide.getMessage() );
+        }
+        
         entry.setDn( dn );
 
         // Read the number of attributes

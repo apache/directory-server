@@ -44,7 +44,7 @@ public class MockOperation implements OperationContext
     public MockOperation( int count ) throws Exception 
     {
         this.count = count;
-        this.session = new MockCoreSession( new LdapPrincipal( new Dn(), AuthenticationLevel.STRONG ),
+        this.session = new MockCoreSession( new LdapPrincipal( null, new Dn(), AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
     }
 

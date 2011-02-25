@@ -58,9 +58,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationExcept
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Base64;
-import org.apache.directory.shared.util.UnixCrypt;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.UnixCrypt;
 
 
 /**
@@ -184,7 +184,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
 
             // Now, update the local cache ONLY if pwdpolicy is not enabled.
             if( !getDirectoryService().isPwdPolicyEnabled() )

@@ -870,7 +870,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             // bind succeeded if we got this far
             // TODO - authentication level not being set
-            LdapPrincipal principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE );
+            LdapPrincipal principal = new LdapPrincipal( schemaManager, bindContext.getDn(), AuthenticationLevel.SIMPLE );
             CoreSession session = new DefaultCoreSession( principal, directoryService );
             bindContext.setSession( session );
 

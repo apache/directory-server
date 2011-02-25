@@ -143,7 +143,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             }
             
             // Create the new principal
-            principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE,
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
             
             return principal;
