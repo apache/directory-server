@@ -26,10 +26,10 @@ import java.util.Arrays;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -71,11 +71,10 @@ public class EncryptedData extends AbstractAsn1Object
     public static final boolean HAS_KVNO = true;
 
     // Storage for computed lengths
-    private transient int eTypeTagLength;
-    private transient int kvnoTagLength;
-    private transient int cipherTagLength;
-    private transient int encryptedDataSeqLength;
-
+    private int eTypeTagLength;
+    private int kvnoTagLength;
+    private int cipherTagLength;
+    private int encryptedDataSeqLength;
 
     /**
      * Creates a new instance of EncryptedData.

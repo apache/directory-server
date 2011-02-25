@@ -54,9 +54,8 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     
     /** The userPassword
      * @todo security risk remove this immediately
-     * The field is transient to avoid being serialized
      */
-    transient private byte[] userPassword;
+    private byte[] userPassword;
 
 
     /**

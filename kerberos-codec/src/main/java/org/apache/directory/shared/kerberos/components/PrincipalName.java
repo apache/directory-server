@@ -133,14 +133,14 @@ public class PrincipalName extends AbstractAsn1Object
     private List<String> nameString = new ArrayList<String>();
     
     /** The principal name as a byte[], for encoding purpose */
-    private transient List<byte[]> nameBytes;
+    private List<byte[]> nameBytes;
     
     // Storage for computed lengths
-    private transient int principalNameSeqLength;
-    private transient int principalTypeTagLength;
-    private transient int principalTypeLength;
-    private transient int principalStringsTagLength;
-    private transient int principalStringsSeqLength;
+    private int principalNameSeqLength;
+    private int principalTypeTagLength;
+    private int principalTypeLength;
+    private int principalStringsTagLength;
+    private int principalStringsSeqLength;
 
     /**
      * Creates a new empty instance of PrincipalName.

@@ -47,8 +47,6 @@ import org.apache.directory.shared.util.Strings;
  */
 public class ChangePassword implements DirectoryServiceOperation
 {
-    private static final long serialVersionUID = -7147685183641418353L;
-
     /** The Kerberos principal who's password is to be changed. */
     protected KerberosPrincipal principal;
     /** The new password for the update. */

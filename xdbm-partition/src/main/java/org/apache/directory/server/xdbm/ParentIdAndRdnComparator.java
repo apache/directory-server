@@ -31,8 +31,8 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
  */
 public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {
-    private static final long serialVersionUID = 5414960421568991202L;
-
+    /** The serial version UID */
+    private static final long serialVersionUID = 2L;
 
     /**
      * Creates a new instance of ParentIdAndRdnComparator.

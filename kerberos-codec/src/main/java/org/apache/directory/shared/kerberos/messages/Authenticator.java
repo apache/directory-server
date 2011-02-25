@@ -95,18 +95,18 @@ public class Authenticator extends KerberosMessage
     private AuthorizationData authorizationData;
 
     // Storage for computed lengths
-    private transient int authenticatorVnoLength;
-    private transient int crealmLength;
-    private transient byte[] crealmBytes;
-    private transient int cnameLength;
-    private transient int cksumLength;
-    private transient int cusecLength;
-    private transient int ctimeLength;
-    private transient int subkeyLength;
-    private transient int seqNumberLength;
-    private transient int authorizationDataLength;
-    private transient int authenticatorSeqLength;
-    private transient int authenticatorLength;
+    private int authenticatorVnoLength;
+    private int crealmLength;
+    private byte[] crealmBytes;
+    private int cnameLength;
+    private int cksumLength;
+    private int cusecLength;
+    private int ctimeLength;
+    private int subkeyLength;
+    private int seqNumberLength;
+    private int authorizationDataLength;
+    private int authenticatorSeqLength;
+    private int authenticatorLength;
     
 
 
@@ -533,7 +533,7 @@ public class Authenticator extends KerberosMessage
 
 
     /**
-     * reset the transient fields used while computing length
+     * reset the fields used while computing length
      */
     private void reset()
     {

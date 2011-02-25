@@ -660,7 +660,5 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             super( OID );
             addName( "dummy" );
         }
-
-        private static final long serialVersionUID = 1L;
     }
 }

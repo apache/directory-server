@@ -43,7 +43,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 public class TgsRep extends KdcRep
 {
     // Storage for computed lengths
-    private transient int kdcRepLength;
+    private int kdcRepLength;
 
     /**
      * Creates a new instance of TGS-REP.

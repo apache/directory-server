@@ -22,8 +22,8 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.EncoderException;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
@@ -43,7 +43,7 @@ public class EncAsRepPart extends KerberosMessage
     private EncKdcRepPart encKdcRepPart;
     
     // Storage for computed lengths
-    private transient int encKdcRepPartLength;
+    private int encKdcRepPartLength;
 
     /**
      * Creates a new instance of EncAsRepPart.

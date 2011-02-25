@@ -42,9 +42,6 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
 
     private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
     {
-        private static final long serialVersionUID = -4049615866911565018L;
-
-
         public int compare( Integer i1, Integer i2 )
         {
             return i1.compareTo( i2 );

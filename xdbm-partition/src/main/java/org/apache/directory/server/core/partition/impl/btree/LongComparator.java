@@ -30,8 +30,9 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
 public class LongComparator extends SerializableComparator<Long>
 {
     public static final LongComparator INSTANCE = new LongComparator();
-    private static final long serialVersionUID = 3690478030414165816L;
 
+    /** The serial version UID */
+    private static final long serialVersionUID = 2L;
 
     public LongComparator()
     {

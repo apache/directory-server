@@ -43,8 +43,8 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 public class AsRep extends KdcRep
 {
     // Storage for computed lengths
-    private transient int kdcRepLength;
-    private transient int asRepLength;
+    private int kdcRepLength;
+    private int asRepLength;
 
     /**
      * Creates a new instance of AS-REP.

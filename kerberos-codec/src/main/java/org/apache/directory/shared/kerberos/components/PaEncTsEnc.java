@@ -25,10 +25,10 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
@@ -63,9 +63,9 @@ public class PaEncTsEnc extends AbstractAsn1Object
     private Integer pausec;
 
     // Storage for computed lengths
-    private transient int paTimestampLength;
-    private transient int paUsecLength;
-    private transient int paEncTsEncLength;
+    private int paTimestampLength;
+    private int paUsecLength;
+    private int paEncTsEncLength;
 
 
     /**

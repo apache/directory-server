@@ -79,16 +79,14 @@ public class EncKrbPrivPart extends AbstractAsn1Object
     private HostAddress recipientAddress;
 
     // Storage for computed lengths
-    private transient int userDataLen;
-    private transient int timestampLen;
-    private transient int usecLen;
-    private transient int seqNumberLen;
-    private transient int senderAddressLen;
-    private transient int recipientAddressLen;
-    private transient int encKrbPrivPartSeqLen;
-    private transient int encKrbPrivPartLen;
-
-
+    private int userDataLen;
+    private int timestampLen;
+    private int usecLen;
+    private int seqNumberLen;
+    private int senderAddressLen;
+    private int recipientAddressLen;
+    private int encKrbPrivPartSeqLen;
+    private int encKrbPrivPartLen;
 
     /**
      * @return the userData

@@ -67,10 +67,10 @@ public class LastReq extends AbstractAsn1Object
 
 
     // Storage for computed lengths
-    private transient int lrTypeTagLen[];
-    private transient int lrValueTagLen[];
-    private transient int lastReqSeqLen[];
-    private transient int lastReqSeqSeqLen;
+    private int lrTypeTagLen[];
+    private int lrValueTagLen[];
+    private int lastReqSeqLen[];
+    private int lastReqSeqSeqLen;
 
 
     /**

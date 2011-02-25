@@ -65,10 +65,10 @@ public class AuthorizationData extends AbstractAsn1Object
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     // Storage for computed lengths
-    private transient int adTypeTagLen[];
-    private transient int adDataTagLen[];
-    private transient int authorizationDataSeqLen[];
-    private transient int authorizationDataSeqSeqLen;
+    private int adTypeTagLen[];
+    private int adDataTagLen[];
+    private int authorizationDataSeqLen[];
+    private int authorizationDataSeqSeqLen;
 
 
     /**

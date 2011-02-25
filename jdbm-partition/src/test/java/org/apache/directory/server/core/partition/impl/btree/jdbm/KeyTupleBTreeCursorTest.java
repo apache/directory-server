@@ -95,17 +95,16 @@ public class KeyTupleBTreeCursorTest
     @Before
     public void createTree() throws Exception
     {
-      comparator = new Comparator<String>() 
-      {
-
-          public int compare( String i1, String i2 )
-          {
-              return i1.compareTo( i2 );
-          }
-        
+        comparator = new Comparator<String>() 
+        {
+            public int compare( String i1, String i2 )
+            {
+                return i1.compareTo( i2 );
+            }
         };
 
         File tmpDir = null;
+        
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
