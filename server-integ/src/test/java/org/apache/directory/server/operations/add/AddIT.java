@@ -27,6 +27,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -78,6 +79,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -89,10 +91,12 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -195,8 +199,8 @@ public class AddIT extends AbstractLdapTestUnit
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // modify object classes, add two more
-        Attributes attributes = LdifUtils.createAttributes("objectClass: organizationalPerson",
-                "objectClass: inetOrgPerson");
+        Attributes attributes = LdifUtils.createAttributes( "objectClass: organizationalPerson",
+                "objectClass: inetOrgPerson" );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
         person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
@@ -551,7 +555,8 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system",
+            sr.getName() );
         assertFalse( ne.hasMore() );
 
         // Remove alias and entry
@@ -1255,8 +1260,8 @@ public class AddIT extends AbstractLdapTestUnit
         assertTrue( res.hasMore() );
         Attribute userPasswordAttribute = res.next().getAttributes().get( "userPassword" );
         assertEquals( 2, userPasswordAttribute.size() );
-        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8("test") ) );
-        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8("ABC") ) );
+        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8( "test" ) ) );
+        assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8( "ABC" ) ) );
         assertFalse( res.hasMore() );
     }
 
@@ -1329,6 +1334,7 @@ public class AddIT extends AbstractLdapTestUnit
         return attrs;
     }
 
+
     /**
      * <pre>
      * ou=system
@@ -1373,4 +1379,44 @@ public class AddIT extends AbstractLdapTestUnit
         // When trying to delete the alias entry an exception occurs.
         ctx.destroySubcontext( "cn=alias,ou=engineering" );
     }*/
+
+    /**
+     * Adding an entry with a non existing attribute type.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    @Ignore
+    public void testAddEntryNonExistingAT() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+
+        Dn dn = new Dn( "cn=Kate Bush," + BASE );
+
+        Entry personEntry = new DefaultEntry();
+        personEntry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
+        personEntry.add( SchemaConstants.CN_AT, "Kate Bush" );
+        personEntry.add( SchemaConstants.SN_AT, "Bush" );
+        personEntry.add( "nonExistingAttribute", "value" );
+        personEntry.setDn( dn );
+
+        boolean exceptionThrown = false;
+
+        try
+        {
+            connection.add( personEntry );
+        }
+        catch ( LdapException e )
+        {
+            // Should happen
+            exceptionThrown = true;
+        }
+
+        assertTrue( exceptionThrown );
+
+        Entry entry = connection.lookup( dn );
+        assertNull( entry );
+
+        connection.close();
+    }
 }
