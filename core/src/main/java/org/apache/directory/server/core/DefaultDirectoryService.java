@@ -126,7 +126,7 @@ public class DefaultDirectoryService implements DirectoryService
     private SchemaManager schemaManager;
     
     /** The LDAP Codec Service */
-    private LdapCodecService ldapCodecService;
+    private LdapCodecService ldapCodecService = LdapCodecServiceFactory.getSingleton();
 
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
@@ -1484,8 +1484,6 @@ public class DefaultDirectoryService implements DirectoryService
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
-
-        ldapCodecService = LdapCodecServiceFactory.getSingleton();
         
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
