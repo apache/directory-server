@@ -62,13 +62,13 @@ public final class LdapPrincipalSerializer
         out.writeInt( principal.getAuthenticationLevel().getLevel() );
         
         // The principal's DN
-        if ( principal.getDn() == null )
+        if ( principal.getDN() == null )
         {
             DnSerializer.serialize( Dn.EMPTY_DN, out );
         }
         else
         {
-            DnSerializer.serialize( principal.getDn(), out );
+            DnSerializer.serialize( principal.getDN(), out );
         }
     }
     
