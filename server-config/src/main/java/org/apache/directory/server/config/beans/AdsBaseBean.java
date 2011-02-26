@@ -40,7 +40,10 @@ public abstract class AdsBaseBean
     @ConfigurationElement(attributeType = "description")
     private String description;
 
+    /** the DN of the entry with which this bean is associated */
+    private Dn dn;
 
+    
     /**
      * Create a new BaseBean instance
      */
@@ -177,8 +180,31 @@ public abstract class AdsBaseBean
         {
             sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }
+        
+        if ( dn != null )
+        {
+            sb.append( tabs ).append( "DN: " ).append( dn ).append( "'\n" );
+        }
 
         return sb.toString();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDn( Dn dn )
+    {
+        this.dn = dn;
+    }
+
+
+     /**
+      * {@inheritDoc}
+      */
+    public Dn getDn()
+    {
+        return dn;
     }
 
 
