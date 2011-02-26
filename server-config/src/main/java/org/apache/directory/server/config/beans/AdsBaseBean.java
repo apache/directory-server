@@ -32,9 +32,17 @@ import org.apache.directory.shared.util.Strings;
  */
 public abstract class AdsBaseBean
 {
-    /** The enabled flag */
+    /**
+     * The enabled flag, by default we treat every config entry
+     * as enabled if ads-enabled attribute is not present or if its
+     * value is set to 'TRUE'.
+     * A config entry is treated as disabled only if the value of 
+     * ads-enabled attribute is set to 'FALSE'
+     * 
+     * Note: the value true/false is case <b>insensitive</b>
+     */
     @ConfigurationElement(attributeType = "ads-enabled")
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /** The description */
     @ConfigurationElement(attributeType = "description")
