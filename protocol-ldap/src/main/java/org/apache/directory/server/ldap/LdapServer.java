@@ -60,6 +60,8 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.protocol.mina.LdapProtocolCodecFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
@@ -192,7 +194,7 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<UnbindRequest> unbindHandler;
 
     /** the underlying provider codec factory */
-    private ProtocolCodecFactory codecFactory;
+    private ProtocolCodecFactory codecFactory = LdapCodecServiceFactory.getSingleton().newProtocolCodecFactory();
 
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler( this );
@@ -1017,7 +1019,7 @@ public class LdapServer extends DirectoryBackedService
     public void setDirectoryService( DirectoryService directoryService )
     {
         super.setDirectoryService( directoryService );
-        this.codecFactory = new LdapProtocolCodecFactory( directoryService );
+        this.codecFactory = new LdapProtocolCodecFactory();
     }
 
 
