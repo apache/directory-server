@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.codec.api.ExtendedRequestDecorator;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
@@ -29,8 +28,6 @@ import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnec
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.Message;
 import org.apache.directory.shared.ldap.model.message.Request;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -194,18 +191,16 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequestDecorator<ExtendedRequest<ExtendedResponse>, ExtendedResponse> req = 
-                new ExtendedRequestDecorator( LdapCodecServiceFactory.getSingleton(), new ExtendedRequestImpl( 0 ) );
-            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
-            req.setRequestValue( "SECURED".getBytes( "ISO-8859-1" ) );
+            ExtendedRequest<?> req = 
+                LdapCodecServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+                    "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequestDecorator<ExtendedRequest<ExtendedResponse>, ExtendedResponse> req = 
-                new ExtendedRequestDecorator( LdapCodecServiceFactory.getSingleton(), new ExtendedRequestImpl( 0 ) );
-            req.setRequestName( "1.3.6.1.4.1.1466.20037" );
-            req.setRequestValue( "UNSECURED".getBytes( "ISO-8859-1" ) );
+            ExtendedRequest<?> req = 
+                LdapCodecServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+                    "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
 
