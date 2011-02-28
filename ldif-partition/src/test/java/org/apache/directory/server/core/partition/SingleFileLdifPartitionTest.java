@@ -135,13 +135,13 @@ public class SingleFileLdifPartitionTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         defaultCSNFactory = new CsnFactory( 0 );
 
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        mockSession = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        mockSession = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
 
         String contextEntryStr =

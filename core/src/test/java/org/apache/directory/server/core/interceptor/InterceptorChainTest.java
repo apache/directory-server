@@ -93,7 +93,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn(schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn(schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         InvocationStack.getInstance().push( lookupContext );
@@ -119,7 +119,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         lookupContext.setByPassed( Collections.singleton( "0" ) );
@@ -146,7 +146,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
@@ -176,7 +176,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
@@ -205,7 +205,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
@@ -234,7 +234,7 @@ public class InterceptorChainTest
     {
         Dn dn = new Dn( schemaManager, "ou=system" );
         DirectoryService ds = new MockDirectoryService( 0 );
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             ds );
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         lookupContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );

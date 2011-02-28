@@ -84,7 +84,8 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
         LOG.debug( "Converted username {} to Dn {}.", username, bindDn );
 
-        LdapPrincipal ldapPrincipal = new LdapPrincipal( new Dn( entry.getDistinguishedName() ),
+        LdapPrincipal ldapPrincipal = new LdapPrincipal( adminSession.getDirectoryService().getSchemaManager(), 
+            new Dn( entry.getDistinguishedName() ),
             AuthenticationLevel.STRONG, StringConstants.EMPTY_BYTES );
         ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );

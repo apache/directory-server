@@ -131,7 +131,7 @@ public class TriggerSpecCache
 
             Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+                new LdapPrincipal( directoryService.getSchemaManager(), adminDn, AuthenticationLevel.STRONG ), directoryService );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );

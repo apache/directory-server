@@ -28,8 +28,10 @@ import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnSerializer;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -46,9 +48,6 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     /** the normalized distinguished name of the principal */
     private Dn dn = Dn.EMPTY_DN;
 
-    /** the no name anonymous user whose Dn is the empty String */
-    public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
-
     /** the authentication level for this principal */
     private AuthenticationLevel authenticationLevel;
     
@@ -56,6 +55,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @todo security risk remove this immediately
      */
     private byte[] userPassword;
+    
+    /** The SchemaManager */
+    private SchemaManager schemaManager;
 
 
     /**
@@ -66,8 +68,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      */
-    public LdapPrincipal( Dn dn, AuthenticationLevel authenticationLevel )
+    public LdapPrincipal( SchemaManager schemaManager, Dn dn, AuthenticationLevel authenticationLevel )
     {
+        this.schemaManager = schemaManager;
         this.dn = dn;
         
         if ( ! dn.isNormalized() )
@@ -78,6 +81,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         this.authenticationLevel = authenticationLevel;
         this.userPassword = null;
     }
+    
 
     /**
      * Creates a new LDAP/X500 principal without any group associations.  Keep
@@ -88,13 +92,14 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    public LdapPrincipal( Dn dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal(  SchemaManager schemaManager, Dn dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
     {
         this.dn = dn;
         this.authenticationLevel = authenticationLevel;
         this.userPassword = new byte[ userPassword.length ];
         System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
-    }
+        this.schemaManager = schemaManager;
+}
 
 
     /**
@@ -105,6 +110,18 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     {
         authenticationLevel = AuthenticationLevel.NONE;
         userPassword = null;
+    }
+
+
+    /**
+     * Creates a principal for the no name anonymous user whose Dn is the empty
+     * String.
+     */
+    public LdapPrincipal( SchemaManager schemaManager )
+    {
+        authenticationLevel = AuthenticationLevel.NONE;
+        userPassword = null;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -152,16 +169,6 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     }
 
 
-    /**
-     * Returns string representation of the normalized distinguished name
-     * of this principal.
-     */
-    public String toString()
-    {
-        return "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
-    }
-
-
     public byte[] getUserPassword()
     {
         return userPassword;
@@ -202,7 +209,14 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the name
-        dn = DnSerializer.deserialize( in );
+        try
+        {
+            dn = DnSerializer.deserialize( schemaManager, in );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IOException( lide.getMessage() );
+        }
         
         // read the authentication level
         int level = in.readInt();
@@ -241,5 +255,42 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         {
             out.writeInt( authenticationLevel.getLevel() );
         }
+    }
+
+
+    /**
+     * @return the schemaManager
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+
+
+    /**
+     * @param schemaManager the schemaManager to set
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+        
+        try
+        {
+            dn.normalize( schemaManager );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            // TODO: manage this exception
+        }
+    }
+
+
+    /**
+     * Returns string representation of the normalized distinguished name
+     * of this principal.
+     */
+    public String toString()
+    {
+        return (dn.isNormalized() ? "(n)" : "" ) + "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
     }
 }

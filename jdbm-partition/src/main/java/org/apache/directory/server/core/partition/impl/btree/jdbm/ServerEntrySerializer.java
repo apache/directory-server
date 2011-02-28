@@ -30,6 +30,7 @@ import jdbm.helper.Serializer;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +151,14 @@ public class ServerEntrySerializer implements Serializer
         
         try
         {
-            ((DefaultEntry)serverEntry).deserialize( in );
+            try
+            {
+                ((DefaultEntry)serverEntry).deserialize( in );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                throw new IOException( lide.getMessage() );
+            }
             
             return serverEntry;
         }

@@ -765,7 +765,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Search for all the adminstrativePoints in the base
         ExprNode filter = new PresenceNode( ADMINISTRATIVE_ROLE_AT );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,

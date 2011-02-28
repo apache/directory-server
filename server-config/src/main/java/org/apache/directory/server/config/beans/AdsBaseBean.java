@@ -32,15 +32,26 @@ import org.apache.directory.shared.util.Strings;
  */
 public abstract class AdsBaseBean
 {
-    /** The enabled flag */
+    /**
+     * The enabled flag, by default we treat every config entry
+     * as enabled if ads-enabled attribute is not present or if its
+     * value is set to 'TRUE'.
+     * A config entry is treated as disabled only if the value of 
+     * ads-enabled attribute is set to 'FALSE'
+     * 
+     * Note: the value true/false is case <b>insensitive</b>
+     */
     @ConfigurationElement(attributeType = "ads-enabled")
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /** The description */
     @ConfigurationElement(attributeType = "description")
     private String description;
 
+    /** the DN of the entry with which this bean is associated */
+    private Dn dn;
 
+    
     /**
      * Create a new BaseBean instance
      */
@@ -177,8 +188,31 @@ public abstract class AdsBaseBean
         {
             sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }
+        
+        if ( dn != null )
+        {
+            sb.append( tabs ).append( "DN: " ).append( dn ).append( "'\n" );
+        }
 
         return sb.toString();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDn( Dn dn )
+    {
+        this.dn = dn;
+    }
+
+
+     /**
+      * {@inheritDoc}
+      */
+    public Dn getDn()
+    {
+        return dn;
     }
 
 

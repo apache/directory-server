@@ -69,6 +69,14 @@ public interface CoreSession
 
     
     /**
+     * Gets the anonymous LDAP principal used to authenticate.
+     *
+     * @return the LdapPrincipal used to authenticate.
+     */
+    LdapPrincipal getAnonymousPrincipal();
+
+    
+    /**
      * Gets the LDAP principal used to authenticate.  This is the identity 
      * used to establish this session on authentication.
      *

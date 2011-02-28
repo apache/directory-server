@@ -84,6 +84,7 @@ public class DefaultCoreSession implements CoreSession
 {
     private final DirectoryService directoryService;
     private final LdapPrincipal authenticatedPrincipal;
+    private final LdapPrincipal anonymousPrincipal;
     private LdapPrincipal authorizedPrincipal;
 
 
@@ -91,6 +92,7 @@ public class DefaultCoreSession implements CoreSession
     {
         this.directoryService = directoryService;
         this.authenticatedPrincipal = principal;
+        this.anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
     }
 
 
@@ -304,6 +306,15 @@ public class DefaultCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.CoreSession#getAuthenticatedPrincipal()
+     */
+    public LdapPrincipal getAnonymousPrincipal()
+    {
+        return anonymousPrincipal;
     }
 
 
