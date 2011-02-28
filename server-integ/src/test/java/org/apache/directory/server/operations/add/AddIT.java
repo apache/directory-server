@@ -91,8 +91,8 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -1400,19 +1400,40 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.add( "nonExistingAttribute", "value" );
         personEntry.setDn( dn );
 
-        boolean exceptionThrown = false;
+        AddResponse response = connection.add( personEntry );
 
-        try
-        {
-            connection.add( personEntry );
-        }
-        catch ( LdapException e )
-        {
-            // Should happen
-            exceptionThrown = true;
-        }
+        assertNotNull( response );
+        assertTrue( !ResultCodeEnum.SUCCESS.equals( response.getLdapResult().getResultCode() ) );
 
-        assertTrue( exceptionThrown );
+        Entry entry = connection.lookup( dn );
+        assertNull( entry );
+
+        connection.close();
+    }
+
+
+    /**
+     * Adding an entry with a non existing attribute type.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    public void testAddEntryNonExistingOC() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+
+        Dn dn = new Dn( "cn=Kate Bush," + BASE );
+
+        Entry personEntry = new DefaultEntry();
+        personEntry.add( SchemaConstants.OBJECT_CLASS_AT, "nonexistingOC" );
+        personEntry.add( SchemaConstants.CN_AT, "Kate Bush" );
+        personEntry.add( SchemaConstants.SN_AT, "Bush" );
+        personEntry.setDn( dn );
+
+        AddResponse response = connection.add( personEntry );
+
+        assertNotNull( response );
+        assertTrue( !ResultCodeEnum.SUCCESS.equals( response.getLdapResult().getResultCode() ) );
 
         Entry entry = connection.lookup( dn );
         assertNull( entry );
