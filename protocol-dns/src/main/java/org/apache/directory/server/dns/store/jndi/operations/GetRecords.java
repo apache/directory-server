@@ -56,8 +56,6 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
  */
 public class GetRecords implements DnsOperation
 {
-    private static final long serialVersionUID = 1077580995617778894L;
-
     /** The name of the question to get. */
     private final QuestionRecord question;
 

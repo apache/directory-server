@@ -126,7 +126,7 @@ public class DefaultDirectoryService implements DirectoryService
     private SchemaManager schemaManager;
     
     /** The LDAP Codec Service */
-    private LdapCodecService ldapCodecService;
+    private LdapCodecService ldapCodecService = LdapCodecServiceFactory.getSingleton();
 
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
@@ -709,7 +709,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     public CoreSession getSession()
     {
-        return new DefaultCoreSession( new LdapPrincipal(), this );
+        return new DefaultCoreSession( new LdapPrincipal( schemaManager ), this );
     }
 
 
@@ -1484,8 +1484,6 @@ public class DefaultDirectoryService implements DirectoryService
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
-
-        ldapCodecService = LdapCodecServiceFactory.getSingleton();
         
         // triggers partition to load schema fully from schema partition
         schemaService.initialize();
@@ -1496,7 +1494,7 @@ public class DefaultDirectoryService implements DirectoryService
         pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
         
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
+        adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), this );
 
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.ROOT_DSE ) );

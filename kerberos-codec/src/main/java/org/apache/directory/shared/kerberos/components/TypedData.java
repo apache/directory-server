@@ -28,10 +28,10 @@ import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -90,10 +90,10 @@ public class TypedData extends AbstractAsn1Object
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     // Storage for computed lengths
-    private transient int dataTypeTagLength[];
-    private transient int dataValueTagLength[];
-    private transient int typedDataSeqLength[];
-    private transient int typedDataSeqSeqLength;
+    private int dataTypeTagLength[];
+    private int dataValueTagLength[];
+    private int typedDataSeqLength[];
+    private int typedDataSeqSeqLength;
 
 
     /**

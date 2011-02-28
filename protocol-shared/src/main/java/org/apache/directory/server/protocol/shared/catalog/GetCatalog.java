@@ -43,9 +43,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public class GetCatalog implements DirectoryServiceOperation
 {
-    private static final long serialVersionUID = -6657995003127926278L;
-
-
     /**
      * Note that the base is relative to the existing context.
      */

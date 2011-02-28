@@ -42,11 +42,11 @@ public class LinkedAvlNode<T>
     /** The previous node, inferior to the current node */
     LinkedAvlNode<T> previous;
     
-    transient int depth;
-    transient int index;
+    int depth;
+    int index;
     
     boolean isLeft;
-    transient int height = 1;
+    int height = 1;
     
     
     /**

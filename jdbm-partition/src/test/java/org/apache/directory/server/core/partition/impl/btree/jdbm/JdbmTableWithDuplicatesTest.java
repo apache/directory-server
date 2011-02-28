@@ -71,9 +71,9 @@ public class JdbmTableWithDuplicatesTest
     private static final String SIZE2_STR = "30";
     private static final String SIZE2_PLUS_ONE_STR = "31";
     
-    transient JdbmTable<String,String> table;
-    transient File dbFile;
-    transient RecordManager recman;
+    JdbmTable<String,String> table;
+    File dbFile;
+    RecordManager recman;
     private static SchemaManager schemaManager;
 
 

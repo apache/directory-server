@@ -46,10 +46,10 @@ public class AttributesTableModel extends AbstractTableModel
     public static final String VAL_COL = "Values";
 
     /** list of attribute ids */
-    private final transient ArrayList<Object> keyList;
+    private final ArrayList<Object> keyList;
     
     /** list of attribute values */
-    private final transient ArrayList<Object> valList;
+    private final ArrayList<Object> valList;
 
     /** the unique id of the entry  */
     private final Long id;

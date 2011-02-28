@@ -153,7 +153,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         return compareTo( ( ParentIdAndRdn<ID> ) obj ) == 0;
     }
 
-
+    
     /**
      * {@inheritDoc}
      */
@@ -168,7 +168,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
         for ( int i = 0; i < this.rdns.length; i++ )
         {
-            val = this.rdns[i].compareTo( that.rdns[i] );
+            val = this.rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
             
             if ( val != 0 )
             {

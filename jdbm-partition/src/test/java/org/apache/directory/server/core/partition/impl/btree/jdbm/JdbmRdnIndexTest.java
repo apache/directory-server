@@ -292,7 +292,7 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key", schemaManager ) );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=key" ) );
         
         assertNull( idx.forwardLookup( key ) );
 
@@ -302,7 +302,7 @@ public class JdbmRdnIndexTest
         
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
-        key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=KEY", schemaManager ) );
+        key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=KEY" ) );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
         assertEquals( key, idx.reverseLookup( 0l ) );
     }

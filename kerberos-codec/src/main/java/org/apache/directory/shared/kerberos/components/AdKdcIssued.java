@@ -68,12 +68,12 @@ public class AdKdcIssued extends AbstractAsn1Object
     
 
     // Storage for computed lengths
-    private transient int adCheksumTagLength;
-    private transient int irealmTagLength;
-    private transient byte[] irealmBytes;
-    private transient int isnameTagLength;
-    private transient int elementsTagLength;
-    private transient int adKdcIssuedSeqLength;
+    private int adCheksumTagLength;
+    private int irealmTagLength;
+    private byte[] irealmBytes;
+    private int isnameTagLength;
+    private int elementsTagLength;
+    private int adKdcIssuedSeqLength;
 
     /**
      * Creates a new instance of AdKdcIssued

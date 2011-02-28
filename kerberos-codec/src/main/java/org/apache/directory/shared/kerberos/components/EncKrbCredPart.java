@@ -77,16 +77,16 @@ public class EncKrbCredPart extends AbstractAsn1Object
     /** the recipient's address */
     private HostAddress recipientAddress;
 
-    private transient int ticketInfoSeqLen;
-    private transient int ticketInfoLen;
-    private transient int nonceLen;
-    private transient int timestampLen;
-    private transient byte[] timestampBytes;
-    private transient int usecLen;
-    private transient int senderAddressLen;
-    private transient int recipientAddressLen;
-    private transient int encKrbCredPartSeqLen;
-    private transient int encKrbCredPartLen;
+    private int ticketInfoSeqLen;
+    private int ticketInfoLen;
+    private int nonceLen;
+    private int timestampLen;
+    private byte[] timestampBytes;
+    private int usecLen;
+    private int senderAddressLen;
+    private int recipientAddressLen;
+    private int encKrbCredPartSeqLen;
+    private int encKrbCredPartLen;
 
 
     /**

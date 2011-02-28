@@ -32,7 +32,9 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.extras.extended.GracefulDisconnect;
+import org.apache.directory.shared.ldap.extras.extended.GracefulDisconnectResponseImpl;
+import org.apache.directory.shared.ldap.extras.extended.GracefulDisconnectResponse;
+import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownResponseImpl;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.extras.extended.GracefulShutdownResponse;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @todo : missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownHandler implements ExtendedOperationHandler<GracefulShutdownRequest>
+public class GracefulShutdownHandler implements ExtendedOperationHandler<GracefulShutdownRequest, GracefulShutdownResponse>
 {
     private static final Logger LOG = LoggerFactory.getLogger( GracefulShutdownHandler.class );
     public static final Set<String> EXTENSION_OIDS;
@@ -57,7 +59,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
         Set<String> set = new HashSet<String>( 3 );
         set.add( GracefulShutdownRequest.EXTENSION_OID );
         set.add( GracefulShutdownResponse.EXTENSION_OID );
-        set.add( GracefulDisconnect.EXTENSION_OID );
+        set.add( GracefulDisconnectResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
@@ -80,7 +82,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
                     + requestor.getCoreSession().getEffectivePrincipal().getName() );
             }
 
-            requestor.getIoSession().write( new GracefulShutdownResponse( 
+            requestor.getIoSession().write( new GracefulShutdownResponseImpl( 
                 req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
             return;
         }
@@ -94,7 +96,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
                 acceptor.getManagedSessions().values() );
 
         // build the graceful disconnect message with replicationContexts
-        GracefulDisconnect notice = getGracefulDisconnect( req.getTimeOffline(), req.getDelay() );
+        GracefulDisconnectResponse notice = getGracefulDisconnect( req.getTimeOffline(), req.getDelay() );
 
         // send (synch) the GracefulDisconnect to each client before unbinding
         sendGracefulDisconnect( sessions, notice, requestor.getIoSession() );
@@ -139,7 +141,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
      */
     public static void sendShutdownResponse( IoSession requestor, int messageId )
     {
-        GracefulShutdownResponse msg = new GracefulShutdownResponse( messageId, ResultCodeEnum.SUCCESS );
+        GracefulShutdownResponse msg = new GracefulShutdownResponseImpl( messageId, ResultCodeEnum.SUCCESS );
         WriteFuture future = requestor.write( msg );
         future.awaitUninterruptibly();
         if ( future.isWritten() )
@@ -165,7 +167,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
      * @param requestor the session of the graceful shutdown requestor
      * @param sessions the IoSessions to send disconnect message to
      */
-    public static void sendGracefulDisconnect( List<IoSession> sessions, GracefulDisconnect msg, IoSession requestor )
+    public static void sendGracefulDisconnect( List<IoSession> sessions, GracefulDisconnectResponse msg, IoSession requestor )
     {
         List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
 
@@ -263,10 +265,10 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
     }
 
 
-    public static GracefulDisconnect getGracefulDisconnect( int timeOffline, int delay )
+    public static GracefulDisconnectResponse getGracefulDisconnect( int timeOffline, int delay )
     {
         // build the graceful disconnect message with replicationContexts
-        return new GracefulDisconnect( timeOffline, delay );
+        return new GracefulDisconnectResponseImpl( timeOffline, delay );
     }
 
 

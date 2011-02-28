@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
@@ -58,14 +58,14 @@ public abstract class KdcReq extends KerberosMessage
     private KdcReqBody kdcReqBody;
 
     // Storage for computed lengths
-    private transient int pvnoLength;
-    private transient int msgTypeLength;
-    private transient int paDataLength;
-    private transient int paDataSeqLength;
-    private transient int[] paDataLengths;
-    private transient int kdcReqBodyLength;
-    private transient int kdcReqSeqLength;
-    private transient int kdcReqLength;
+    private int pvnoLength;
+    private int msgTypeLength;
+    private int paDataLength;
+    private int paDataSeqLength;
+    private int[] paDataLengths;
+    private int kdcReqBodyLength;
+    private int kdcReqSeqLength;
+    private int kdcReqLength;
 
     /**
      * Creates a new instance of KDC-REQ.

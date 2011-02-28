@@ -208,7 +208,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn suffixDn = directoryService.getDnFactory().create( suffix );
 
             CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+                new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), directoryService );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, filter,
                 controls );

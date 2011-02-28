@@ -53,7 +53,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
         // We only allow Anonymous binds if the service allows them
         if ( getDirectoryService().isAllowAnonymousAccess() )
         {
-            return LdapPrincipal.ANONYMOUS;
+            return getDirectoryService().getAdminSession().getAnonymousPrincipal();
         }
         else
         {

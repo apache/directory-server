@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 
 
 /**
@@ -32,7 +33,7 @@ import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public interface ExtendedOperationHandler<R extends ExtendedRequest>
+public interface ExtendedOperationHandler<R extends ExtendedRequest<P>, P extends ExtendedResponse>
 {
     /**
      * Returns the EXTENSION_OID of the extended request this handler can handle.

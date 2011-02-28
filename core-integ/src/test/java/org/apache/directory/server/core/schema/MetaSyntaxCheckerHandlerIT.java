@@ -624,9 +624,6 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
     public static class BogusSyntaxChecker extends SyntaxChecker
     {
-        private static final long serialVersionUID = 1L;
-
-
         public BogusSyntaxChecker()
         {
             super( OID );
@@ -641,9 +638,6 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
     class DummySyntax extends LdapSyntax
     {
-        private static final long serialVersionUID = 1L;
-
-
         public DummySyntax()
         {
             super( OID );

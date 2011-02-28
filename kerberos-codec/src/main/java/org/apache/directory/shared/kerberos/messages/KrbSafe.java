@@ -66,12 +66,12 @@ public class KrbSafe extends KerberosMessage
     private Checksum checksum;
 
     // Storage for computed lengths
-    private transient int pvnoLen;
-    private transient int msgTypeLength;
-    private transient int krbSafeBodyLen;
-    private transient int checksumLen;
-    private transient int krbSafeSeqLen;
-    private transient int krbSafeLen;
+    private int pvnoLen;
+    private int msgTypeLength;
+    private int krbSafeBodyLen;
+    private int checksumLen;
+    private int krbSafeSeqLen;
+    private int krbSafeLen;
 
 
     /**

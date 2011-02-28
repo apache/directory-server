@@ -26,11 +26,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -49,7 +50,7 @@ public class LdapPrincipalTest
     @Test
     public void testStaticSerializeEmptyLdapPrincipal() throws Exception
     {
-        LdapPrincipal principal = new LdapPrincipal();
+        LdapPrincipal principal = new LdapPrincipal( null );
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );

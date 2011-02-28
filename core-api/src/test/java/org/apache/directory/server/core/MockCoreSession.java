@@ -45,22 +45,26 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
+import org.apache.directory.shared.ldap.model.entry.StringValue;
+import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
-import org.apache.directory.shared.ldap.model.message.*;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.CompareRequest;
+import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -81,12 +85,14 @@ public class MockCoreSession implements CoreSession
     private DirectoryService directoryService;
     private final LdapPrincipal authenticatedPrincipal;
     private LdapPrincipal authorizedPrincipal;
+    private LdapPrincipal anonymousPrincipal;
 
 
     public MockCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         this.authenticatedPrincipal = principal;
+        this.anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
     }
 
 
@@ -292,6 +298,15 @@ public class MockCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.CoreSession#getAuthenticatedPrincipal()
+     */
+    public LdapPrincipal getAnonymousPrincipal()
+    {
+        return anonymousPrincipal;
     }
 
 

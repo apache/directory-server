@@ -91,7 +91,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "ou", "system" );
 
         LdifEntry reverse = LdifRevertor.reverseAdd( forward.getDn() );
-        assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
+        assertEquals( 1, store.log( new LdapPrincipal( schemaManager ), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
     
@@ -119,7 +119,7 @@ public class MemoryChangeLogStoreTest
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;
         
-        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE, Strings.getBytesUtf8("secret") );
+        LdapPrincipal principal = new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.SIMPLE, Strings.getBytesUtf8("secret") );
         ChangeLogEvent event = new ChangeLogEvent( revision, zuluTime, principal, forward, reverse );
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

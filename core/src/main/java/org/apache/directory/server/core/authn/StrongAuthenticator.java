@@ -52,6 +52,6 @@ public class StrongAuthenticator extends AbstractAuthenticator
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         // Possibly check if user account is disabled, other account checks.
-        return new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.STRONG );
+        return new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.STRONG );
     }
 }

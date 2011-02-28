@@ -22,8 +22,8 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.EncoderException;
+import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.KdcReq;
@@ -40,8 +40,8 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
 public class TgsReq extends KdcReq
 {
     // Storage for computed lengths
-    private transient int kdcReqLength;
-    private transient int tgsReqLength;
+    private int kdcReqLength;
+    private int tgsReqLength;
 
     /**
      * Creates a new instance of TGS-REQ.

@@ -26,10 +26,10 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
@@ -98,24 +98,24 @@ public class EncTicketPart extends AbstractAsn1Object
     private AuthorizationData authorizationData;
 
 
-    private transient int flagsLen;
-    private transient int keyLen;
-    private transient int cRealmLen;
-    private transient byte[] cRealmBytes;
-    private transient int cNameLen;
-    private transient int transitedLen;
-    private transient int authTimeLen;
-    private transient byte[] authTimeBytes;
-    private transient int startTimeLen;
-    private transient byte[] startTimeBytes;
-    private transient int endTimeLen;
-    private transient byte[] endTimeBytes;
-    private transient int renewtillLen;
-    private transient byte[] renewtillBytes;
-    private transient int clientAddressesLen;
-    private transient int authzDataLen;
-    private transient int encTikcetPartSeqLen;
-    private transient int encTikcetPartLen;
+    private int flagsLen;
+    private int keyLen;
+    private int cRealmLen;
+    private byte[] cRealmBytes;
+    private int cNameLen;
+    private int transitedLen;
+    private int authTimeLen;
+    private byte[] authTimeBytes;
+    private int startTimeLen;
+    private byte[] startTimeBytes;
+    private int endTimeLen;
+    private byte[] endTimeBytes;
+    private int renewtillLen;
+    private byte[] renewtillBytes;
+    private int clientAddressesLen;
+    private int authzDataLen;
+    private int encTikcetPartSeqLen;
+    private int encTikcetPartLen;
 
     /**
      * compute length for EncTicketPart:

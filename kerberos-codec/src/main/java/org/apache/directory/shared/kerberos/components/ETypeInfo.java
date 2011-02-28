@@ -57,7 +57,7 @@ public class ETypeInfo extends AbstractAsn1Object
     private List<ETypeInfoEntry> etypeInfoEntries;
 
     // Storage for computed lengths
-    private transient int etypeInfoLength;
+    private int etypeInfoLength;
 
 
     /**

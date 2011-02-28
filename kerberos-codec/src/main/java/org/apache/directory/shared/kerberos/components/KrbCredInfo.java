@@ -96,24 +96,24 @@ public class KrbCredInfo extends AbstractAsn1Object
     /** the addresses for which the ticket can be used */
     private HostAddresses clientAddresses;
 
-    private transient int keyLen;
-    private transient int pRealmLen;
-    private transient byte[] pRealmBytes;
-    private transient int pNameLen;
-    private transient int ticketFlagsLen;
-    private transient int authTimeLen;
-    private transient byte[] authTimeBytes;
-    private transient int startTimeLen;
-    private transient byte[] startTimeBytes;
-    private transient int endTimeLen;
-    private transient byte[] endTimeBytes;
-    private transient int renewtillLen;
-    private transient byte[] renewtillBytes;
-    private transient int sRealmLen;
-    private transient byte[] sRealmBytes;
-    private transient int sNameLen;
-    private transient int clientAddressesLen;
-    private transient int krbKredInfoSeqLen;
+    private int keyLen;
+    private int pRealmLen;
+    private byte[] pRealmBytes;
+    private int pNameLen;
+    private int ticketFlagsLen;
+    private int authTimeLen;
+    private byte[] authTimeBytes;
+    private int startTimeLen;
+    private byte[] startTimeBytes;
+    private int endTimeLen;
+    private byte[] endTimeBytes;
+    private int renewtillLen;
+    private byte[] renewtillBytes;
+    private int sRealmLen;
+    private byte[] sRealmBytes;
+    private int sNameLen;
+    private int clientAddressesLen;
+    private int krbKredInfoSeqLen;
 
 
     /**

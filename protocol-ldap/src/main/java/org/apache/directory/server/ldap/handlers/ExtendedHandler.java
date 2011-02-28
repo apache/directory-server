@@ -34,12 +34,13 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
+public class ExtendedHandler<Q extends ExtendedRequest<R>, R extends ExtendedResponse> extends LdapRequestHandler<Q>
 {
-    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handle( LdapSession session, Q req ) throws Exception
     {
-        ExtendedOperationHandler<ExtendedRequest> handler = 
-            getLdapServer().getExtendedOperationHandler( req.getRequestName() );
+        @SuppressWarnings("unchecked")
+        ExtendedOperationHandler<Q, R> handler = 
+            ( ExtendedOperationHandler<Q, R> ) getLdapServer().getExtendedOperationHandler( req.getRequestName() );
 
         if ( handler == null )
         {
@@ -64,9 +65,8 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
             result.setErrorMessage( ResultCodeEnum.OTHER
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getRequestName()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-            ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
-            resp.setResponseValue( new byte[0] );
-            session.getIoSession().write( req.getResultResponse() );
+            ExtendedResponse resp = req.getResultResponse();
+            session.getIoSession().write( resp );
         }
     }
 }

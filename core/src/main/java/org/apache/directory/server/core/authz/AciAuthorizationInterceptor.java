@@ -188,7 +188,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ExprNode filter =
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
@@ -234,7 +234,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
@@ -278,7 +278,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
 
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
         chain = directoryService.getInterceptorChain();
 

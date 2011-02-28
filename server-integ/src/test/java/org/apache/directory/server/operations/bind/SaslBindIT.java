@@ -64,7 +64,8 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapEncoder;
-import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -73,6 +74,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.message.Message;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -633,10 +635,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer container = new LdapMessageContainer(
+            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
-            decoder.setLdapMessageContainer( container );
-            return ( BindResponse ) decoder.decode( null, _input_ );
+            return ( BindResponse ) decoder.decode( _input_, container );
         }
 
 
@@ -672,10 +673,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer container = new LdapMessageContainer(
-                getLdapServer().getDirectoryService().getLdapCodecService() );
-            decoder.setLdapMessageContainer( container );
-            return ( BindResponse ) decoder.decode( null, _input_ );
+            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
+                ldapServer.getDirectoryService().getLdapCodecService() );
+            return ( BindResponse ) decoder.decode( _input_ , container );
         }
     }
 

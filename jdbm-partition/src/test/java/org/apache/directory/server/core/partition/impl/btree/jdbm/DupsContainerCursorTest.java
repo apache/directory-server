@@ -60,10 +60,10 @@ public class DupsContainerCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient JdbmTable<String,String> table;
-    transient File dbFile;
+    JdbmTable<String,String> table;
+    File dbFile;
     private static SchemaManager schemaManager;
-    transient RecordManager recman;
+    RecordManager recman;
     private static final int SIZE = 15;
 
 

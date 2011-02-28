@@ -77,10 +77,10 @@ public class HostAddress extends AbstractAsn1Object
     private byte[] address;
 
     // Storage for computed lengths
-    private transient int addrTypeLength;
-    private transient int addressLength;
-    private transient int hostAddressLength;
-    private transient int hostAddressSeqLength;
+    private int addrTypeLength;
+    private int addressLength;
+    private int hostAddressLength;
+    private int hostAddressSeqLength;
 
     
     /**

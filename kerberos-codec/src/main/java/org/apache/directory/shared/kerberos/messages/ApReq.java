@@ -67,13 +67,13 @@ public class ApReq extends KerberosMessage
     private EncryptedData authenticator;
 
     // Storage for computed lengths
-    private transient int pvnoLength;
-    private transient int msgTypeLength;
-    private transient int apOptionsLength;
-    private transient int ticketLength;
-    private transient int authenticatorLength;
-    private transient int apReqLength;
-    private transient int apReqSeqLength;
+    private int pvnoLength;
+    private int msgTypeLength;
+    private int apOptionsLength;
+    private int ticketLength;
+    private int authenticatorLength;
+    private int apReqLength;
+    private int apReqSeqLength;
 
     /**
      * Creates a new instance of ApplicationRequest.
@@ -329,7 +329,7 @@ public class ApReq extends KerberosMessage
 
 
     /**
-     * reset the transient fields used while computing length
+     * reset the fields used while computing length
      */
     private void reset()
     {

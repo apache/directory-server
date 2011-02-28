@@ -23,10 +23,10 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -71,12 +71,12 @@ public class EncApRepPart extends KerberosMessage
     private Integer seqNumber; //optional
 
     // Storage for computed lengths
-    private transient int ctimeLength;
-    private transient int cusecLength;
-    private transient int subKeyLength;
-    private transient int seqNumberLength;
-    private transient int encApRepPartSeqLength;
-    private transient int encApRepPartLength;
+    private int ctimeLength;
+    private int cusecLength;
+    private int subKeyLength;
+    private int seqNumberLength;
+    private int encApRepPartSeqLength;
+    private int encApRepPartLength;
 
     /**
      * Creates a new instance of EncApRepPart.

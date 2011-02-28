@@ -68,6 +68,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     
     private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
     private File workingDirectory;
+    
+    /** The DirectoryService */
+    private DirectoryService directoryService;
 
 
     /**
@@ -121,6 +124,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         loadRevision();
         loadTags();
         loadChangeLog();
+        this.directoryService = service;
     }
 
 
@@ -345,6 +349,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
                 for ( int i = 0; i < size; i++ )
                 {
                     ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
+                    event.getCommitterPrincipal().setSchemaManager( directoryService.getSchemaManager() );
                     changeLogEvents.add( event );
                 }
 

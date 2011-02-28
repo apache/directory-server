@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.authn.ppolicy;
 
 

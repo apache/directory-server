@@ -36,7 +36,7 @@ import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.sp.LdapContextParameter;
  * @todo : Missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler<StoredProcedureRequest>
+public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler<StoredProcedureRequest, StoredProcedureResponse>
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
@@ -90,8 +90,9 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( ExtendedResponse ) ( req.getResultResponse() ) ).setResponseValue( serializedResponse );
-        session.getIoSession().write( req.getResultResponse() );
+        StoredProcedureResponse resp = 
+            LdapCodecServiceFactory.getSingleton().newExtendedResponse( req, serializedResponse );
+        session.getIoSession().write( resp );
     }
 
     

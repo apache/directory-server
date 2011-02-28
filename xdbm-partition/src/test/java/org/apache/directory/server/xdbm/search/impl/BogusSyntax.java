@@ -32,9 +32,6 @@ import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringS
  */
 public class BogusSyntax extends LdapSyntax
 {
-    private static final long serialVersionUID = 1L;
-
-
     protected BogusSyntax( int oidVal )
     {
         super( "1.3.6.1.4.1.18060.0.4.1.1.100000." + oidVal );

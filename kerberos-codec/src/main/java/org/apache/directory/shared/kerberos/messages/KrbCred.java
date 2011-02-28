@@ -64,13 +64,13 @@ public class KrbCred extends KerberosMessage
     private EncryptedData encPart;
 
 
-    private transient int pvnoLen;
-    private transient int msgTypeLen;
-    private transient int ticketsSeqLen;
-    private transient int ticketsLen;
-    private transient int encPartLen;
-    private transient int krbCredSeqLen;
-    private transient int krbCredLen;
+    private int pvnoLen;
+    private int msgTypeLen;
+    private int ticketsSeqLen;
+    private int ticketsLen;
+    private int encPartLen;
+    private int krbCredSeqLen;
+    private int krbCredLen;
 
     /**
      * Creates a new instance of KrbCred.

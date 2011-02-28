@@ -108,6 +108,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
             {
                 entry = cursor.get();
                 LdapPrincipal ldapPrincipal = new LdapPrincipal( 
+                    schemaManager, 
                     entry.getDn(), 
                     AuthenticationLevel.STRONG,
                     entry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes() );
