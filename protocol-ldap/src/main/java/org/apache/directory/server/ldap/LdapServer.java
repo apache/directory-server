@@ -60,6 +60,7 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
@@ -73,6 +74,7 @@ import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
@@ -184,14 +186,14 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<BindRequest> bindHandler;
     private LdapRequestHandler<CompareRequest> compareHandler;
     private LdapRequestHandler<DeleteRequest> deleteHandler;
-    private LdapRequestHandler<ExtendedRequest> extendedHandler;
+    private ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> extendedHandler;
     private LdapRequestHandler<ModifyRequest> modifyHandler;
     private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
     private LdapRequestHandler<SearchRequest> searchHandler;
     private LdapRequestHandler<UnbindRequest> unbindHandler;
 
     /** the underlying provider codec factory */
-    private ProtocolCodecFactory codecFactory;
+    private ProtocolCodecFactory codecFactory = LdapCodecServiceFactory.getSingleton().getProtocolCodecFactory();
 
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler( this );
@@ -283,7 +285,7 @@ public class LdapServer extends DirectoryBackedService
 
         if ( getExtendedHandler() == null )
         {
-            setExtendedHandler( new ExtendedHandler() );
+            setExtendedHandler( new ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>() );
         }
 
         if ( getModifyHandler() == null )
@@ -769,9 +771,10 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler<ExtendedRequest> getExtendedOperationHandler( String oid )
+    public ExtendedOperationHandler<? extends ExtendedRequest<? extends ExtendedResponse>,? extends ExtendedResponse> 
+        getExtendedOperationHandler( String oid )
     {
-        for ( ExtendedOperationHandler<ExtendedRequest> h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> h : extendedOperationHandlers )
         {
             if ( h.getOid().equals( oid ) )
             {
@@ -1015,7 +1018,6 @@ public class LdapServer extends DirectoryBackedService
     public void setDirectoryService( DirectoryService directoryService )
     {
         super.setDirectoryService( directoryService );
-        this.codecFactory = new LdapProtocolCodecFactory( directoryService );
     }
 
 
@@ -1124,7 +1126,7 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public LdapRequestHandler<ExtendedRequest> getExtendedHandler()
+    public LdapRequestHandler<ExtendedRequest<ExtendedResponse>> getExtendedHandler()
     {
         return extendedHandler;
     }
@@ -1133,12 +1135,13 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param extendedHandler The ExtendedRequest handler
      */
-    public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void setExtendedHandler( ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> extendedHandler )
     {
         this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
         this.extendedHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ExtendedRequest.class, this.extendedHandler );
+        this.handler.addReceivedMessageHandler( ExtendedRequest.class, ( LdapRequestHandler ) this.extendedHandler );
     }
 
 

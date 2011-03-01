@@ -103,7 +103,12 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-codec</artifactId>
+      <artifactId>shared-ldap-codec-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-extras-codec</artifactId>
     </dependency>
 
     <dependency>
@@ -147,7 +152,7 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>ldap-client-api</artifactId>
+      <artifactId>shared-ldap-client-api</artifactId>
     </dependency>  
   </dependencies>
 
@@ -164,8 +169,35 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.directory.shared</groupId>
+                  <artifactId>shared-ldap-extras-codec</artifactId>
+                  <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+
+  <properties>
+    <codec.plugin.directory>${project.build.directory}/pluginDirectory</codec.plugin.directory>
+  </properties>
 
   <profiles>
     <profile>
@@ -191,6 +223,9 @@
                 <org.osgi.framework.storage>
                   ${project.build.directory}/osgi-cache
                 </org.osgi.framework.storage>
+                <codec.plugin.directory>
+                  ${codec.plugin.directory}
+                </codec.plugin.directory>
               </systemPropertyVariables>
               <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
               <includes>
@@ -244,6 +279,9 @@
                 <org.osgi.framework.storage>
                   ${project.build.directory}/osgi-cache
                 </org.osgi.framework.storage>
+                <codec.plugin.directory>
+                  ${codec.plugin.directory}
+                </codec.plugin.directory>
               </systemPropertyVariables>              
             </configuration>
             <executions>
@@ -268,6 +306,9 @@
 	                <org.osgi.framework.storage>
 	                  ${project.build.directory}/osgi-cache
 	                </org.osgi.framework.storage>
+                        <codec.plugin.directory>
+                          ${codec.plugin.directory}
+                        </codec.plugin.directory>
                   </systemPropertyVariables>
                 </configuration>
               </execution>
@@ -292,6 +333,9 @@
 	                <org.osgi.framework.storage>
 	                  ${project.build.directory}/osgi-cache
 	                </org.osgi.framework.storage>
+                        <codec.plugin.directory>
+                          ${codec.plugin.directory}
+                        </codec.plugin.directory>
                   </systemPropertyVariables>
                 </configuration>
               </execution>
