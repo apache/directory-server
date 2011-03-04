@@ -125,12 +125,12 @@ public class MemoryChangeLogStoreTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        out.writeObject( event );
+        ChangeLogEventSerializer.serialize( event, out );
         
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
         
-        ChangeLogEvent read = (ChangeLogEvent)in.readObject(); 
+        ChangeLogEvent read = ChangeLogEventSerializer.deserialize( schemaManager, in ); 
         
         // The read event should not be equal to the written event, as
         // the principal's password has not been stored
@@ -140,7 +140,7 @@ public class MemoryChangeLogStoreTest
         
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
-        assertEquals( principal.getDN(), readPrincipal.getDN() );
+        assertEquals( principal.getDn(), readPrincipal.getDn() );
         assertNull( readPrincipal.getUserPassword() );
         
         assertEquals( zuluTime, read.getZuluTime() );

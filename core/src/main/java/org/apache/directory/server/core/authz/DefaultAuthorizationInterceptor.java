@@ -166,7 +166,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        Dn principalDn = getPrincipal().getDNRef();
+        Dn principalDn = getPrincipal().getDn();
 
         if ( dn.equals( ADMIN_SYSTEM_DN ) )
         {
@@ -242,7 +242,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectModifyAlterations( Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDN();
+        Dn principalDn = getPrincipal().getDn();
 
         if ( dn.isEmpty() )
         {
@@ -334,7 +334,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectDnAlterations( Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDN();
+        Dn principalDn = getPrincipal().getDn();
 
         if ( dn.isEmpty() )
         {
@@ -383,7 +383,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return entry;
         }
 
-        protectLookUp( session.getEffectivePrincipal().getDNRef(), lookupContext.getDn() );
+        protectLookUp( session.getEffectivePrincipal().getDn(), lookupContext.getDn() );
 
         return entry;
     }
@@ -484,7 +484,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     @SuppressWarnings("PMD.CollapsibleIfStatements")
     private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
-        Dn principalDn = opContext.getSession().getEffectivePrincipal().getDN();
+        Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = result.getDn();
 
         if ( !dn.isNormalized() )

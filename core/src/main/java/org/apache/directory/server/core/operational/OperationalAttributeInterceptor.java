@@ -237,7 +237,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // otherwise, inject those values into the list of modifications
         List<Modification> mods = modifyContext.getModItems();
 
-        boolean isAdmin = modifyContext.getSession().getAuthenticatedPrincipal().getDN().equals( adminDn );
+        boolean isAdmin = modifyContext.getSession().getAuthenticatedPrincipal().getDn().equals( adminDn );
 
         boolean modifierAtPresent = false;
         boolean modifiedTimeAtPresent = false;

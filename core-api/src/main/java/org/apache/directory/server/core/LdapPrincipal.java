@@ -20,17 +20,12 @@
 package org.apache.directory.server.core;
 
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 
@@ -41,7 +36,7 @@ import org.apache.directory.shared.util.Strings;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public final class LdapPrincipal implements Principal, Cloneable, Externalizable
+public final class LdapPrincipal implements Principal, Cloneable
 {
     private static final long serialVersionUID = 3906650782395676720L;
 
@@ -126,24 +121,12 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
 
     /**
-     * Gets a reference to the distinguished name of this
-     * principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}.
-     *
-     * @return the distinguished name of the principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}
-     */
-    public Dn getDNRef()
-    {
-        return dn;
-    }
-
-
-    /**
      * Gets a cloned copy of the normalized distinguished name of this
      * principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}.
      *
      * @return the cloned distinguished name of the principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}
      */
-    public Dn getDN()
+    public Dn getDn()
     {
         return dn;
     }
@@ -199,65 +182,6 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     }
     
     
-    /**
-     * @see Externalizable#readExternal(ObjectInput)
-     * 
-     * @param in The stream from which the LdapPrincipal is read
-     * @throws IOException If the stream can't be read
-     * @throws ClassNotFoundException If the LdapPrincipal can't be created 
-     */
-    public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
-    {
-        // Read the name
-        try
-        {
-            dn = DnSerializer.deserialize( schemaManager, in );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new IOException( lide.getMessage() );
-        }
-        
-        // read the authentication level
-        int level = in.readInt();
-        
-        authenticationLevel = AuthenticationLevel.getLevel( level );
-    }
-
-
-    /**
-     * Note: The password won't be written !
-     * 
-     * @see Externalizable#readExternal(ObjectInput)
-     *
-     * @param out The stream in which the LdapPrincipal will be serialized. 
-     *
-     * @throws IOException If the serialization fail
-     */
-    public void writeExternal( ObjectOutput out ) throws IOException
-    {
-        // Write the name
-        if ( dn == null )
-        {
-            DnSerializer.serialize( Dn.EMPTY_DN, out );
-        }
-        else
-        {
-            DnSerializer.serialize( dn, out );
-        }
-        
-        // write the authentication level
-        if ( authenticationLevel == null )
-        {
-            out.writeInt( AuthenticationLevel.NONE.getLevel() );
-        }
-        else
-        {
-            out.writeInt( authenticationLevel.getLevel() );
-        }
-    }
-
-
     /**
      * @return the schemaManager
      */

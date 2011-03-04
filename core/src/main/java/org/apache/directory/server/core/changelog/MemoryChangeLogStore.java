@@ -348,7 +348,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
                 for ( int i = 0; i < size; i++ )
                 {
-                    ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
+                    ChangeLogEvent event = ChangeLogEventSerializer.deserialize( directoryService.getSchemaManager(), in );
                     event.getCommitterPrincipal().setSchemaManager( directoryService.getSchemaManager() );
                     changeLogEvents.add( event );
                 }
@@ -412,7 +412,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             
             for ( ChangeLogEvent event : events )
             {
-                out.writeObject( event );
+                ChangeLogEventSerializer.serialize( event, out  );
             }
 
             out.flush();

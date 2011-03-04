@@ -38,25 +38,22 @@ import org.apache.directory.shared.util.Unicode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogEvent implements Externalizable
+public class ChangeLogEvent
 {
-    private static final long serialVersionUID = 1L;
+    /** */
     private String zuluTime;
+    
+    /** The committer */
+    private LdapPrincipal committer;
+    
+    /** The revision number for this event */
     private long revision;
+    
+    /** The modification */
     private LdifEntry forwardLdif;
     
     /** The revert changes. Can contain more than one single change */
     private List<LdifEntry> reverseLdifs;
-    private LdapPrincipal committer;
-
-
-    /**
-     * Creates a new instance of ChangeLogEvent, used during the deserialization
-     * process
-     */
-    public ChangeLogEvent()
-    {
-    }
 
 
     /**
