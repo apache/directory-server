@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>20</version>
+    <version>21</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -156,6 +156,51 @@
   </profiles>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <configuration>
+            <excludeSubProjects>false</excludeSubProjects>
+            <excludes>
+              <!-- MAVEN_DEFAULT_EXCLUDES -->
+              <exclude>**/target/**/*</exclude>
+              <exclude>**/cobertura.ser</exclude>
+              <!-- ECLIPSE_DEFAULT_EXCLUDES -->
+              <exclude>**/.classpath</exclude>
+              <exclude>**/.project</exclude>
+              <exclude>**/.settings/**/*</exclude>
+              <!-- IDEA_DEFAULT_EXCLUDES -->
+              <exclude>**/*.iml</exclude>
+              <exclude>**/*.ipr</exclude>
+              <exclude>**/*.iws</exclude>
+              <!-- MANIFEST_MF_EXCLUDES -->
+              <exclude>**/MANIFEST.MF</exclude>
+              <!-- Missing license header in dependency reduced pom, see http://jira.codehaus.org/browse/MSHADE-48 -->
+              <exclude>**/dependency-reduced-pom.xml</exclude>
+              <!-- LDIF_FILES_EXCLUDES -->
+              <exclude>**/*.ldif</exclude>
+              <!-- PDU_FILES_EXCLUDES -->
+              <exclude>**/*.pdu</exclude>
+              <!-- JDBM_FILES_EXCLUDES -->
+              <exclude>jdbm/**/*</exclude>
+              <!-- INSTALLERS_FILES_EXCLUDES -->
+              <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/deb/control</exclude>
+              <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/macosxpkg/License.rtf</exclude>
+              <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/solarispkg/pkginfo</exclude>
+              <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/solarispkg/Prototype</exclude>
+              <!-- OSGI_FILES_EXCLUDES -->
+              <exclude>osgi/src/main/resources/META-INF/spring.handlers</exclude>
+              <exclude>osgi/src/main/resources/META-INF/spring.schemas</exclude>
+              <!-- LOG_FILES_EXCLUDES -->
+              <exclude>**/*.log</exclude>
+            </excludes>
+          </configuration>
+         </plugin>
+      </plugins>
+    </pluginManagement>
+    
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -221,28 +266,6 @@
                   </reports>
                 </reportSet>
               </reportSets>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.rat</groupId>
-              <artifactId>apache-rat-plugin</artifactId>
-              <configuration>
-                <excludeSubProjects>false</excludeSubProjects>
-                <excludes>
-                  <!-- MAVEN_DEFAULT_EXCLUDES -->
-                  <exclude>**/target/**/*</exclude>
-                  <exclude>**/cobertura.ser</exclude>
-                  <!-- ECLIPSE_DEFAULT_EXCLUDES -->
-                  <exclude>**/.classpath</exclude>
-                  <exclude>**/.project</exclude>
-                  <exclude>**/.settings/**/*</exclude>
-                  <!-- IDEA_DEFAULT_EXCLUDES -->
-                  <exclude>**/*.iml</exclude>
-                  <exclude>**/*.ipr</exclude>
-                  <exclude>**/*.iws</exclude>
-                  <!-- MANIFEST_MF_EXCLUDES -->
-                  <exclude>**/MANIFEST.MF</exclude>
-                </excludes>
-              </configuration>
             </plugin>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
