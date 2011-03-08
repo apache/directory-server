@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -188,7 +187,6 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    @Ignore
     public void testGrantAddByName() throws Exception
     {
         // create the non-admin user
@@ -227,7 +225,6 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    @Ignore
     public void testGrantAddBySubtree() throws Exception
     {
         // create the non-admin user
@@ -269,7 +266,6 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    @Ignore
     public void testGrantAddAllUsers() throws Exception
     {
         // create the non-admin user

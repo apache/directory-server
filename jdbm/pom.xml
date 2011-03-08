@@ -42,4 +42,21 @@
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
   </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <configuration>
+            <excludeSubProjects>false</excludeSubProjects>
+            <excludes>
+              <exclude>**/*</exclude>
+            </excludes>
+          </configuration>
+         </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

@@ -101,6 +101,7 @@ class JavaLdapSupport
         {
             byte[] data = ( byte[] ) serverEntry.get( JSERIALDATA_ATTR ).getBytes();
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            
             return in.readObject();
         }
         catch ( Exception e )

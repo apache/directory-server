@@ -512,7 +512,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
         
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
-        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDN();
+        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
 
         PwdModDetailsHolder pwdModDetails = null;
         if ( policyConfig.isPwdSafeModify() || pwdResetSet.contains( userDn ) || ( policyConfig.getPwdMinAge() > 0 ) )
@@ -1380,7 +1380,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             CoreSession session = opContext.getSession();
 
-            Dn userDn = session.getAuthenticatedPrincipal().getDN();
+            Dn userDn = session.getAuthenticatedPrincipal().getDn();
 
             if ( pwdResetSet.contains( userDn ) )
             {
