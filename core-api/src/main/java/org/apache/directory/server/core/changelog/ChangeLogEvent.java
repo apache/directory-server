@@ -20,17 +20,12 @@
 package org.apache.directory.server.core.changelog;
 
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.util.Unicode;
 
 
 /**
@@ -38,25 +33,22 @@ import org.apache.directory.shared.util.Unicode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangeLogEvent implements Externalizable
+public class ChangeLogEvent
 {
-    private static final long serialVersionUID = 1L;
+    /** */
     private String zuluTime;
+    
+    /** The committer */
+    private LdapPrincipal committer;
+    
+    /** The revision number for this event */
     private long revision;
+    
+    /** The modification */
     private LdifEntry forwardLdif;
     
     /** The revert changes. Can contain more than one single change */
     private List<LdifEntry> reverseLdifs;
-    private LdapPrincipal committer;
-
-
-    /**
-     * Creates a new instance of ChangeLogEvent, used during the deserialization
-     * process
-     */
-    public ChangeLogEvent()
-    {
-    }
 
 
     /**
@@ -149,112 +141,6 @@ public class ChangeLogEvent implements Externalizable
     public EntryAttribute get( String attributeName )
     {
         return forwardLdif.get( attributeName );
-    }
-
-
-    /**
-     * @see Externalizable#readExternal(ObjectInput)
-     * 
-     * @param in The stream from which the ChangeOlgEvent is read
-     * @throws IOException If the stream can't be read
-     * @throws ClassNotFoundException If the ChangeLogEvent can't be created 
-     */
-    public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
-    {
-        // Read the committer
-        committer = (LdapPrincipal)in.readObject();
-        
-        // Read the revision
-        revision = in.readLong();
-        
-        // Read the time
-        boolean hasZuluTime = in.readBoolean();
-        
-        if ( hasZuluTime )
-        {
-            zuluTime = Unicode.readUTF(in);
-        }
-        
-        // Read the forward LDIF
-        boolean hasForwardLdif = in.readBoolean();
-        
-        if ( hasForwardLdif )
-        {
-            forwardLdif = (LdifEntry)in.readObject();
-        }
-        
-        // Read the reverse LDIF number
-        int nbReverseLdif = in.readInt();
-        
-        if ( nbReverseLdif > 0 )
-        {
-            // Read each reverse ldif
-            reverseLdifs = new ArrayList<LdifEntry>(nbReverseLdif);
-            
-            for ( int i = 0; i < nbReverseLdif; i++ )
-            {
-                reverseLdifs.add( (LdifEntry)in.readObject() ); 
-            }
-        }
-    }
-
-
-    /**
-     * @see Externalizable#readExternal(ObjectInput)
-     *
-     * @param out The stream in which the ChangeLogEvent will be serialized. 
-     *
-     * @throws IOException If the serialization fail
-     */
-    public void writeExternal( ObjectOutput out ) throws IOException
-    {
-        // Write the committer
-        out.writeObject( committer );
-        
-        // write the revision
-        out.writeLong( revision );
-        
-        // write the time
-        
-        if ( zuluTime != null )
-        {
-            out.writeBoolean( true );
-            Unicode.writeUTF(out, zuluTime);
-        }
-        else
-        {
-            out.writeBoolean( false );
-        }
-        
-        // write the forward LDIF
-        if ( forwardLdif != null )
-        {
-            out.writeBoolean( true );
-            out.writeObject( forwardLdif );
-        }
-        else
-        {
-            out.writeBoolean( false );
-        }
-        
-        // write the reverse LDIF
-        if ( reverseLdifs != null )
-        {
-            out.writeInt( reverseLdifs.size() );
-            
-            // write each reverse
-            for ( LdifEntry reverseLdif:reverseLdifs )
-            {
-                out.writeObject( reverseLdif );
-            }
-        }
-        else
-        {
-            out.writeBoolean( false );
-        }
-        
-        // and flush the result
-        out.flush();
     }
 
 

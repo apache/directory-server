@@ -27,7 +27,9 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.shared.ldap.model.name.RdnSerializer;
 
 
 /**
@@ -189,7 +191,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
         for ( Rdn rdn : rdns )
         {
-            rdn.writeExternal( out );
+            RdnSerializer.serialize( rdn, out );
         }
     }
 
@@ -203,9 +205,14 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         
         for ( int i = 0; i < size; i++ )
         {
-            Rdn rdn = new Rdn();
-            rdn.readExternal( in );
-            rdns[i] = rdn;
+            try
+            {
+                rdns[i] = RdnSerializer.deserialize( null, in );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                throw new IOException( lide.getMessage() );
+            }
         }
     }
     

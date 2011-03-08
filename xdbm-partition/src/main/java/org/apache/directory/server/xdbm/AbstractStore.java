@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -83,7 +84,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected URI partitionPath;
 
     /** true if we sync disks on every write operation */
-    protected boolean isSyncOnWrite = true;
+    protected AtomicBoolean isSyncOnWrite = new AtomicBoolean( true );
 
     /** The store cache size */
     protected int cacheSize = DEFAULT_CACHE_SIZE;
@@ -187,13 +188,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public void setSyncOnWrite( boolean isSyncOnWrite )
     {
         protect( "syncOnWrite" );
-        this.isSyncOnWrite = isSyncOnWrite;
+        this.isSyncOnWrite.set( isSyncOnWrite );
     }
 
 
     public boolean isSyncOnWrite()
     {
-        return isSyncOnWrite;
+        return isSyncOnWrite.get();
     }
 
 
@@ -1012,7 +1013,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         master.put( id, entry );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1059,7 +1060,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         updateCsnIndex( entry, id );
         master.put( id, entry );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1100,7 +1101,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         updateCsnIndex( entry, id );
         master.put( id, entry );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1156,7 +1157,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         master.delete( id );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1287,7 +1288,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         master.put( id, entry );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1347,7 +1348,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
         moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }
@@ -1447,7 +1448,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             master.put( entryId, modifiedEntry );
         }
 
-        if ( isSyncOnWrite )
+        if ( isSyncOnWrite.get() )
         {
             sync();
         }

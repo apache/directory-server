@@ -34,13 +34,11 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedHandler<Q extends ExtendedRequest<R>, R extends ExtendedResponse> extends LdapRequestHandler<Q>
+public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest<ExtendedResponse>>
 {
-    public void handle( LdapSession session, Q req ) throws Exception
+    public void handle( LdapSession session, ExtendedRequest<ExtendedResponse> req ) throws Exception
     {
-        @SuppressWarnings("unchecked")
-        ExtendedOperationHandler<Q, R> handler = 
-            ( ExtendedOperationHandler<Q, R> ) getLdapServer().getExtendedOperationHandler( req.getRequestName() );
+        ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> handler = getLdapServer().getExtendedOperationHandler( req.getRequestName() );
 
         if ( handler == null )
         {

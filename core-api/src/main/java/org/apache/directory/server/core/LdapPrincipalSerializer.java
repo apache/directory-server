@@ -52,8 +52,8 @@ public final class LdapPrincipalSerializer
     /**
      * Serializes a LdapPrincipal instance.
      * 
-     * @param principal The LsapPrincipal instance to serialize
-     * @param out The stream into which we will write teh serialized instance
+     * @param principal The LdapPrincipal instance to serialize
+     * @param out The stream into which we will write the serialized instance
      * @throws IOException If the stream can't be written
      */
     public static void serialize( LdapPrincipal principal, ObjectOutput out ) throws IOException
@@ -62,13 +62,13 @@ public final class LdapPrincipalSerializer
         out.writeInt( principal.getAuthenticationLevel().getLevel() );
         
         // The principal's DN
-        if ( principal.getDN() == null )
+        if ( principal.getDn() == null )
         {
             DnSerializer.serialize( Dn.EMPTY_DN, out );
         }
         else
         {
-            DnSerializer.serialize( principal.getDN(), out );
+            DnSerializer.serialize( principal.getDn(), out );
         }
     }
     
@@ -77,8 +77,8 @@ public final class LdapPrincipalSerializer
      * Deserializes a LdapPrincipal instance.
      * 
      * @param schemaManager The SchemaManager (can be null)
-     * @param in The input stream from which the Rdn is read
-     * @return a deserialized Rdn
+     * @param in The input stream from which the LdapPrincipal is read
+     * @return a deserialized LdapPrincipal
      * @throws IOException If the stream can't be read
      */
     public static LdapPrincipal deserialize( SchemaManager schemaManager, ObjectInput in )

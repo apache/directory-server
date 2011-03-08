@@ -186,7 +186,7 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<BindRequest> bindHandler;
     private LdapRequestHandler<CompareRequest> compareHandler;
     private LdapRequestHandler<DeleteRequest> deleteHandler;
-    private ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> extendedHandler;
+    private ExtendedHandler extendedHandler;
     private LdapRequestHandler<ModifyRequest> modifyHandler;
     private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
     private LdapRequestHandler<SearchRequest> searchHandler;
@@ -285,7 +285,7 @@ public class LdapServer extends DirectoryBackedService
 
         if ( getExtendedHandler() == null )
         {
-            setExtendedHandler( new ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>() );
+            setExtendedHandler( new ExtendedHandler() );
         }
 
         if ( getModifyHandler() == null )
@@ -771,7 +771,7 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler<? extends ExtendedRequest<? extends ExtendedResponse>,? extends ExtendedResponse> 
+    public ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>,ExtendedResponse> 
         getExtendedOperationHandler( String oid )
     {
         for ( ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> h : extendedOperationHandlers )
@@ -1136,7 +1136,7 @@ public class LdapServer extends DirectoryBackedService
      * @param extendedHandler The ExtendedRequest handler
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void setExtendedHandler( ExtendedHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> extendedHandler )
+    public void setExtendedHandler( ExtendedHandler extendedHandler )
     {
         this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
