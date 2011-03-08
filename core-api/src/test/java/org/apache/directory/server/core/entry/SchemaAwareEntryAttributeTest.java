@@ -42,8 +42,6 @@ import java.util.Set;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -57,12 +55,15 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -161,7 +162,7 @@ public class SchemaAwareEntryAttributeTest
         try
         {
             oOut = new ObjectOutputStream( out );
-            value.serialize( oOut );
+            value.writeExternal( oOut );
         }
         catch ( IOException ioe )
         {
@@ -201,7 +202,7 @@ public class SchemaAwareEntryAttributeTest
             oIn = new ObjectInputStream( in );
 
             DefaultEntryAttribute value = new DefaultEntryAttribute( at );
-            value.deserialize( oIn );
+            value.readExternal( oIn );
 
             return value;
         }

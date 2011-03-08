@@ -34,13 +34,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -52,6 +50,9 @@ import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -82,7 +83,7 @@ public class SchemaAwareModificationTest
         try
         {
             oOut = new ObjectOutputStream( out );
-            value.serialize( oOut );
+            value.writeExternal( oOut );
             oOut.flush();
         }
         catch ( IOException ioe )
@@ -123,7 +124,7 @@ public class SchemaAwareModificationTest
             oIn = new ObjectInputStream( in );
 
             DefaultModification value = new DefaultModification();
-            value.deserialize( oIn, schemaManager );
+            value.readExternal( oIn );
 
             return value;
         }
@@ -269,6 +270,7 @@ public class SchemaAwareModificationTest
         DefaultModification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
 
         Modification modSer = deserializeValue( serializeValue( mod ) );
+        modSer.setAttribute( attribute );
 
         assertEquals( mod, modSer );
     }
@@ -283,6 +285,7 @@ public class SchemaAwareModificationTest
         DefaultModification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
         Modification modSer = deserializeValue( serializeValue( mod ) );
+        modSer.setAttribute( attribute );
 
         assertEquals( mod, modSer );
     }
@@ -297,6 +300,7 @@ public class SchemaAwareModificationTest
         DefaultModification mod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
 
         Modification modSer = deserializeValue( serializeValue( mod ) );
+        modSer.setAttribute( attribute );
 
         assertEquals( mod, modSer );
     }
@@ -309,14 +313,8 @@ public class SchemaAwareModificationTest
 
         mod.setOperation( ModificationOperation.ADD_ATTRIBUTE );
 
-        try
-        {
-            deserializeValue( serializeValue( ( DefaultModification ) mod ) );
-            fail();
-        }
-        catch ( IOException ioe )
-        {
-            assertTrue( true );
-        }
+        Modification modSer = deserializeValue( serializeValue( ( DefaultModification ) mod ) );
+
+        assertEquals( mod, modSer );
     }
 }

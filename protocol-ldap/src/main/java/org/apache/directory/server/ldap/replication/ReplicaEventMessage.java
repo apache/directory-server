@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Unicode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,22 +116,22 @@ public class ReplicaEventMessage implements Externalizable
             modDnControl = new SyncModifyDnDecorator( codec );
             modDnControl.setModDnType( modDnType );
             
-            modDnControl.setEntryDn( Unicode.readUTF(in) );
+            modDnControl.setEntryDn( in.readUTF() );
             
             switch( modDnType )
             {
                 case MOVE:
-                    modDnControl.setNewSuperiorDn( Unicode.readUTF(in) );
+                    modDnControl.setNewSuperiorDn( in.readUTF() );
                     break;
                    
                 case RENAME:
-                    modDnControl.setNewRdn( Unicode.readUTF(in) );
+                    modDnControl.setNewRdn( in.readUTF() );
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
                     break;
                     
                 case MOVEANDRENAME:
-                    modDnControl.setNewSuperiorDn( Unicode.readUTF(in) );
-                    modDnControl.setNewRdn( Unicode.readUTF(in) );
+                    modDnControl.setNewSuperiorDn( in.readUTF() );
+                    modDnControl.setNewRdn( in.readUTF() );
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
             }
         }
@@ -165,7 +164,7 @@ public class ReplicaEventMessage implements Externalizable
         for ( int i = 0; i < nbAttributes; i++ )
         {
             // Read the attribute's OID
-            String oid = Unicode.readUTF(in);
+            String oid = in.readUTF();
 
             try
             {
@@ -175,7 +174,7 @@ public class ReplicaEventMessage implements Externalizable
                 DefaultEntryAttribute attribute = new DefaultEntryAttribute( attributeType );
 
                 // Read the attribute
-                attribute.deserialize( in );
+                attribute.readExternal( in );
 
                 entry.add( attribute );
             }
@@ -197,22 +196,22 @@ public class ReplicaEventMessage implements Externalizable
             
             SyncModifyDnType modDnType = modDnControl.getModDnType();
             out.writeShort( modDnType.getValue() );
-            Unicode.writeUTF(out, modDnControl.getEntryDn());
+            out.writeUTF( modDnControl.getEntryDn() );
             
             switch( modDnType )
             {
                 case MOVE:
-                    Unicode.writeUTF(out, modDnControl.getNewSuperiorDn());
+                    out.writeUTF( modDnControl.getNewSuperiorDn() );
                     break;
                    
                 case RENAME:
-                    Unicode.writeUTF(out, modDnControl.getNewRdn());
+                    out.writeUTF( modDnControl.getNewRdn() );
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
                     break;
                     
                 case MOVEANDRENAME:
-                    Unicode.writeUTF(out, modDnControl.getNewSuperiorDn());
-                    Unicode.writeUTF(out, modDnControl.getNewRdn());
+                    out.writeUTF( modDnControl.getNewSuperiorDn() );
+                    out.writeUTF( modDnControl.getNewRdn() );
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
             }
         }
@@ -223,7 +222,7 @@ public class ReplicaEventMessage implements Externalizable
         }
 
         // then Dn
-        DnSerializer.serialize( entry.getDn(), out );
+        entry.getDn().writeExternal( out );
 
         // Then the attributes.
         out.writeInt( entry.size() );
@@ -233,15 +232,16 @@ public class ReplicaEventMessage implements Externalizable
         // we need access to the registries, which are not available
         // in the ServerAttribute class.
         Iterator<EntryAttribute> attrItr = entry.iterator();
+        
         while ( attrItr.hasNext() )
         {
             DefaultEntryAttribute attribute = ( DefaultEntryAttribute ) attrItr.next();
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
-            Unicode.writeUTF(out, attribute.getAttributeType().getOid());
+            out.writeUTF( attribute.getAttributeType().getOid() );
 
             // Write the attribute
-            attribute.serialize( out );
+            attribute.writeExternal( out );
         }
     }
 
