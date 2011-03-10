@@ -34,9 +34,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.CompareResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -93,14 +92,17 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         throws Exception
     {
 
-        Dn entryDn = new Dn( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( service.getSchemaManager(), entryRdn + ",ou=system" );
         boolean result = true;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry(entryDn);
-        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
-        testEntry.add( SchemaConstants.OU_AT, "testou" );
-        testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
+        Entry testEntry = LdifUtils.createEntry( 
+            service.getSchemaManager(),
+            entryDn,
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: testou",
+            "telephoneNumber: 867-5309" ); // jenny don't change your number
 
         LdapConnection adminConnection = getAdminConnection();
 
@@ -110,7 +112,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
-        CompareResponse resp = userConnection.compare(entryDn, "telephoneNumber", number );
+        CompareResponse resp = userConnection.compare( entryDn, "telephoneNumber", number );
 
         // don't set based on compare result success/failure but based on whether the op was permitted or not
         if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
@@ -141,12 +143,24 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantCompare, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }" + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems { entry, allUserAttributeTypesAndValues }, "
-            + "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( 
+            "administratorAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }" + 
+            "    userPermissions " +
+            "    { " + 
+            "      { " + 
+            "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
+            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -249,12 +263,17 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection adminCtx = getAdminConnection();
 
         Dn userDn = new Dn( "uid=bob,ou=users,ou=system" );
-        Entry user = new DefaultEntry(userDn);
-        user.add( SchemaConstants.UID_AT, "bob" );
-        user.add( SchemaConstants.USER_PASSWORD_AT, "bobspassword" );
-        user.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
-        user.add( SchemaConstants.SN_AT, "bob" );
-        user.add( SchemaConstants.CN_AT, "bob" );
+        Entry user = LdifUtils.createEntry(
+            service.getSchemaManager(),
+            userDn,
+            "uid: bob",
+            "userPassword: bobspassword",
+            "ObjectClass: top", 
+            "ObjectClass: person", 
+            "ObjectClass: organizationalPerson", 
+            "ObjectClass: inetOrgPerson",
+            "sn: bob",
+            "cn: bob" );
 
         adminCtx.add( user );
 

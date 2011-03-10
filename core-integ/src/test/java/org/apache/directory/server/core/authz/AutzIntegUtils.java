@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -82,10 +82,13 @@ public class AutzIntegUtils
     public static Dn createGroup( String cn, String firstMemberDn ) throws Exception
     {
         Dn groupDn = new Dn( "cn=" + cn + ",ou=groups,ou=system" );
-        Entry entry = new DefaultEntry(groupDn);
-        entry.add( "ObjectClass", "groupOfUniqueNames" );
-        entry.add( "uniqueMember", firstMemberDn );
-        entry.add( "cn", cn );
+        Entry entry = LdifUtils.createEntry( 
+            service.getSchemaManager(),
+            groupDn, 
+            "ObjectClass: top", 
+            "ObjectClass: groupOfUniqueNames",
+            "uniqueMember:", firstMemberDn,
+            "cn:", cn );
 
         getAdminConnection().add( entry );
 
@@ -120,12 +123,17 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry entry = new DefaultEntry( new Dn( "uid=" + uid + ",ou=users,ou=system" ) );
-        entry.add( "uid", uid );
-        entry.add( "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson" );
-        entry.add( "sn", uid );
-        entry.add( "cn", uid );
-        entry.add( "userPassword", password );
+        Entry entry = LdifUtils.createEntry( 
+            service.getSchemaManager(),
+            "uid=" + uid + ",ou=users,ou=system",
+            "uid", uid,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson", 
+            "objectClass: inetOrgPerson",
+            "sn", uid,
+            "cn", uid,
+            "userPassword", password );
 
         connection.add( entry );
 
@@ -146,11 +154,13 @@ public class AutzIntegUtils
     {
         Dn groupDn = new Dn( "cn=" + groupName + ",ou=groups,ou=system" );
 
-        Entry entry = new DefaultEntry(groupDn);
-        entry.add( "objectClass", "top", "groupOfUniqueNames" );
-        // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
-        entry.add( "uniqueMember", "uid=admin, ou=system" );
-        entry.add( "cn", groupName );
+        Entry entry = LdifUtils.createEntry( 
+            service.getSchemaManager(),
+            groupDn,
+            "objectClass: top", 
+            "objectClass: groupOfUniqueNames",
+            "uniqueMember: uid=admin, ou=system",
+            "cn", groupName );
 
         getAdminConnection().add( entry );
 
@@ -171,7 +181,7 @@ public class AutzIntegUtils
         LdapConnection connection = getAdminConnection();
 
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new Dn( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        modReq.setName( new Dn( service.getSchemaManager(), "cn=" + groupCn + ",ou=groups,ou=system" ) );
         modReq.add( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system" );
 
         connection.modify( modReq ).getLdapResult().getResultCode();
@@ -242,10 +252,13 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultEntry( new Dn( "cn=" + cn + ",ou=system" ) );
-        subEntry.add( "objectClass", "top", "subentry", "accessControlSubentry" );
-        subEntry.add( "subtreeSpecification", subtree );
-        subEntry.add( "prescriptiveACI", aciItem );
+        Entry subEntry = LdifUtils.createEntry( 
+            "cn=" + cn + ",ou=system",
+            "objectClass: top", 
+            "objectClass: subentry", 
+            "objectClass: accessControlSubentry",
+            "subtreeSpecification", subtree,
+            "prescriptiveACI", aciItem );
 
         AddResponse addResp = connection.add( subEntry );
 

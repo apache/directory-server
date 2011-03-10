@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -126,6 +127,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
+    @Ignore
     public void testGrantDeleteAdministrators() throws Exception
     {
         // create the non-admin user

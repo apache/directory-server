@@ -56,6 +56,7 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
         IntegrationUtils.closeConnections();
     }
     
+    
     /**
      * Checks to make sure we cannot create a malformed ACI missing two
      * last brackets.
@@ -82,6 +83,7 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
             "        grantsAndDenials { grantAdd, grantBrowse } " +
             "      } " +
             "    }" );
+        
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, result );
     }
 }

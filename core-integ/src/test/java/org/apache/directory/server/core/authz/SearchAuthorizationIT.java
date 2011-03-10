@@ -47,7 +47,9 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -102,24 +104,19 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @param count the number of entries to produce
      * @return an array of entries with length = count
      */
-    private Entry[] getTestNodes( final int count )
+    private Entry[] getTestNodes( Dn base, final int count ) throws LdapException
     {
         Entry[] entries = new DefaultEntry[count];
 
         for ( int i = 0; i < count; i++ )
         {
-            Entry entry = new DefaultEntry();
-
-            try
-            {
-                entry.add( "objectClass", "organizationalUnit" );
-                entry.add( "ou", "testEntry", String.valueOf( i ) );
-                entry.add( "telephoneNumber", String.valueOf( count ) );
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
+            Entry entry = LdifUtils.createEntry(
+                base,
+                "ObjectClass: top",
+                "ObjectClass: organizationalUnit",
+                "ou: testEntry",
+                "ou", String.valueOf( i ),
+                "telephoneNumber", String.valueOf( count ) );
 
             entries[i] = entry;
         }
@@ -171,13 +168,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     private Dn addSearchData( Dn parent, int branchingFactor, long sizelimit ) throws Exception
     {
         Dn base = new Dn( "ou=tests," + parent.getName() );
-        Entry entry = getTestNodes( 1 )[0];
-        entry.add( SchemaConstants.OU_AT, "tests" );
-        entry.setDn( base );
+        Entry entry = getTestNodes( base, 1 )[0];
+        entry.add( "ou", "tests" );
 
         reusableAdminCon.add( entry );
 
-        recursivelyAddSearchData( base, getTestNodes( branchingFactor ), sizelimit, new long[]
+        recursivelyAddSearchData( base, getTestNodes( base, branchingFactor ), sizelimit, new long[]
             { 1 } );
         return base;
     }
