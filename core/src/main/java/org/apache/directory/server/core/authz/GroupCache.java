@@ -31,8 +31,8 @@ import net.sf.ehcache.Element;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -385,19 +385,19 @@ public class GroupCache
         throws LdapException
     {
         EntryAttribute members = null;
-        String memberAttrId = null;
+        AttributeType memberAttr = null;
         EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) )
         {
             members = entry.get( MEMBER_AT );
-            memberAttrId = SchemaConstants.MEMBER_AT;
+            memberAttr = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
         }
 
         if ( oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) )
         {
             members = entry.get( UNIQUE_MEMBER_AT );
-            memberAttrId = SchemaConstants.UNIQUE_MEMBER_AT;
+            memberAttr = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
         }
 
         if ( members == null )
@@ -407,7 +407,7 @@ public class GroupCache
 
         for ( Modification modification : mods )
         {
-            if ( memberAttrId.equalsIgnoreCase( modification.getAttribute().getId() ) )
+            if ( memberAttr.getOid() == modification.getAttribute().getId() )
             {
                 Element memSetElement = ehCache.get( name.getNormName() );
                 

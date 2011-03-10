@@ -213,7 +213,7 @@ public class SchemaAwareEntryTest
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 1, entry.size() );
         assertTrue( entry.containsAttribute( atOC ) );
-        assertEquals( "objectclass", entry.get( atOC ).getId() );
+        assertEquals( "2.5.4.0", entry.get( atOC ).getId() );
         assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
     }
 
@@ -229,10 +229,10 @@ public class SchemaAwareEntryTest
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 2, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
-        assertEquals( "objectclass", entry.get( atOC ).getId() );
+        assertEquals( "2.5.4.0", entry.get( atOC ).getId() );
         assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
         assertTrue( entry.containsAttribute( "2.5.4.3" ) );
-        assertEquals( "cn", entry.get( atCN ).getId() );
+        assertEquals( "2.5.4.3", entry.get( atCN ).getId() );
         assertEquals( " Cn ", entry.get( atCN ).getUpId() );
     }
 
@@ -527,7 +527,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atPwd, BYTES1, BYTES2 ) );
         assertEquals( "UserPassword", entry.get( atPwd ).getUpId() );
-        assertEquals( "userpassword", entry.get( atPwd ).getId() );
+        assertEquals( "2.5.4.35", entry.get( atPwd ).getId() );
 
         entry.add( "  UserPassword  ", atPwd, ( byte[] ) null, BYTES1 );
         assertEquals( 1, entry.size() );
@@ -538,7 +538,7 @@ public class SchemaAwareEntryTest
         assertTrue( attribute.contains( BYTES2 ) );
         assertTrue( attribute.contains( ( byte[] ) null ) );
         assertEquals( "  UserPassword  ", attribute.getUpId() );
-        assertEquals( "userpassword", attribute.getId() );
+        assertEquals( "2.5.4.35", attribute.getId() );
 
         try
         {
@@ -564,7 +564,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atDC, "test1", "test2" ) );
         assertEquals( "DomainComponent", entry.get( atDC ).getUpId() );
-        assertEquals( "domaincomponent", entry.get( atDC ).getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getId() );
 
         entry.add( "  DC  ", atDC, ( String ) null, "test1" );
         assertEquals( 1, entry.size() );
@@ -575,7 +575,7 @@ public class SchemaAwareEntryTest
         assertTrue( attribute.contains( ( String ) null ) );
         assertTrue( attribute.contains( "test2" ) );
         assertEquals( "  DC  ", attribute.getUpId() );
-        assertEquals( "dc", attribute.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attribute.getId() );
 
         entry.clear();
 
@@ -621,9 +621,9 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( atCN, "test1", "test2" ) );
         assertTrue( entry.contains( atPwd, BYTES1, BYTES2 ) );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getId() );
+        assertEquals( "2.5.4.3", entry.get( atCN ).getId() );
         assertEquals( "UserPassword", entry.get( atPwd ).getUpId() );
-        assertEquals( "userpassword", entry.get( atPwd ).getId() );
+        assertEquals( "2.5.4.35", entry.get( atPwd ).getId() );
 
         entry.add( "CN", atCN, strValue3, strNullValue );
 
@@ -917,7 +917,7 @@ public class SchemaAwareEntryTest
         entry.add( "DC", "test1" );
         assertNotNull( entry.get( atDC ) );
         assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "dc", entry.get( atDC ).getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getId() );
         assertEquals( "DC", entry.get( atDC ).getUpId() );
         assertEquals( 1, entry.get( atDC ).size() );
         assertEquals( "test1", entry.get( atDC ).get().getString() );
@@ -2443,7 +2443,7 @@ public class SchemaAwareEntryTest
         EntryAttribute attribute = entry.get( "userPassword" );
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
-        assertEquals( "userpassword", attribute.getId() );
+        assertEquals( "2.5.4.35", attribute.getId() );
         assertEquals( "userPassword", attribute.getUpId() );
     }
 
@@ -2512,7 +2512,7 @@ public class SchemaAwareEntryTest
         EntryAttribute attribute = entry.get( "cn" );
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( "test2" ) );
-        assertEquals( "cn", attribute.getId() );
+        assertEquals( "2.5.4.3", attribute.getId() );
         assertEquals( "cN", attribute.getUpId() );
     }
 
@@ -2589,7 +2589,7 @@ public class SchemaAwareEntryTest
         EntryAttribute attribute = entry.get( "cn" );
         assertTrue( attribute.contains( strValue1 ) );
         assertTrue( attribute.contains( strValue2 ) );
-        assertEquals( "cn", attribute.getId() );
+        assertEquals( "2.5.4.3", attribute.getId() );
         assertEquals( "cN", attribute.getUpId() );
 
         // Bin values are not allowed, so the new CN will be empty
@@ -3105,7 +3105,7 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        assertEquals( "userpassword", entry.get( atPassword ).getId() );
+        assertEquals( "2.5.4.35", entry.get( atPassword ).getId() );
 
         // Test that we can add some new attributes with values
         byte[] test1 = Strings.getBytesUtf8("test1");
@@ -3707,7 +3707,7 @@ public class SchemaAwareEntryTest
 
         EntryAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( "sn", sa.getId() );
+        assertEquals( "2.5.4.4", sa.getId() );
 
         // Add different upIds now
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
@@ -3721,13 +3721,13 @@ public class SchemaAwareEntryTest
         sa = entry.get( "l" );
         assertNotNull( sa );
         assertEquals( atL, sa.getAttributeType() );
-        assertEquals( "l", sa.getId() );
+        assertEquals( "2.5.4.7", sa.getId() );
         assertEquals( "L", sa.getUpId() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
         assertEquals( atC, sa.getAttributeType() );
-        assertEquals( "countryname", sa.getId() );
+        assertEquals( "2.5.4.6", sa.getId() );
         assertEquals( "CountryName", sa.getUpId() );
 
         sa = entry.get( "2.5.4.9" );
@@ -3739,7 +3739,7 @@ public class SchemaAwareEntryTest
         sa = entry.get( "givenName" );
         assertNotNull( sa );
         assertEquals( atGN, sa.getAttributeType() );
-        assertEquals( "gn", sa.getId() );
+        assertEquals( "2.5.4.42", sa.getId() );
         assertEquals( "gn", sa.getUpId() );
 
         // Now try to add existing ATs

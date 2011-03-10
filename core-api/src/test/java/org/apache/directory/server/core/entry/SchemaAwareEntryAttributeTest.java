@@ -412,15 +412,17 @@ public class SchemaAwareEntryAttributeTest
     {
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
 
-        attr.setId( "  CN  " );
-        assertEquals( "cn", attr.getId() );
+        attr.setUpId( "  CN  " );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "  CN  ", attr.getUpId() );
 
-        attr.setId( "  CommonName  " );
-        assertEquals( "commonname", attr.getId() );
+        attr.setUpId( "  CommonName  " );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "  CommonName  ", attr.getUpId() );
 
-        attr.setId( "  2.5.4.3  " );
+        attr.setUpId( "  2.5.4.3  " );
         assertEquals( "2.5.4.3", attr.getId() );
     }
 
@@ -555,51 +557,37 @@ public class SchemaAwareEntryAttributeTest
     {
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
-        attr.setId( "Cn" );
-        assertEquals( "cn", attr.getId() );
+        attr.setUpId( "Cn" );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "Cn", attr.getUpId() );
 
-        attr.setId( " CN " );
-        assertEquals( "cn", attr.getId() );
+        attr.setUpId( " CN " );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( " CN ", attr.getUpId() );
 
-        attr.setId( " 2.5.4.3 " );
+        attr.setUpId( " 2.5.4.3 " );
+        assertEquals( " 2.5.4.3 ", attr.getUpId() );
         assertEquals( "2.5.4.3", attr.getId() );
 
-        attr.setId( " commonName " );
-        assertEquals( "commonname", attr.getId() );
+        attr.setUpId( " commonName " );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( " commonName ", attr.getUpId() );
+
+        attr.setUpId( null );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "cn", attr.getUpId() );
+
+        attr.setUpId( "" );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "cn", attr.getUpId() );
+
+        attr.setUpId( "  " );
+        assertEquals( "2.5.4.3", attr.getId() );
+        assertEquals( "cn", attr.getUpId() );
 
         try
         {
-            attr.setId( null );
-            fail();
-        }
-        catch ( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
-
-        try
-        {
-            attr.setId( "" );
-            fail();
-        }
-        catch ( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
-
-        try
-        {
-            attr.setId( "  " );
-            fail();
-        }
-        catch ( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
-
-        try
-        {
-            attr.setId( " SN " );
+            attr.setUpId( " SN " );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -1002,10 +990,10 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.equals( attr2 ) );
 
-        attr2.setId( "CN" );
+        attr2.setUpId( "CN" );
         assertTrue( attr1.equals( attr2 ) );
 
-        attr1.setId( "CommonName" );
+        attr1.setUpId( "CommonName" );
         assertTrue( attr1.equals( attr2 ) );
 
         attr1.setUpId( "CN" );
@@ -1568,22 +1556,22 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr = new DefaultEntryAttribute( atSN );
 
         attr.setUpId( null, atCN );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
         attr.setUpId( "  ", atCN );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
         attr.setUpId( "  CN  ", atCN );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "  CN  ", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
         attr.setUpId( "  CommonName  ", atCN );
-        assertEquals( "commonname", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "  CommonName  ", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
@@ -1624,17 +1612,17 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
         attr.setUpId( "cn" );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
         attr.setUpId( "  CN  " );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "  CN  ", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
         attr.setUpId( "  CommonName  " );
-        assertEquals( "commonname", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "  CommonName  ", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
@@ -1645,23 +1633,60 @@ public class SchemaAwareEntryAttributeTest
 
         // Now check wrong IDs
         attr = new DefaultEntryAttribute( atCN );
-        attr.setUpId( "sn" );
-        assertEquals( "cn", attr.getId() );
+        
+        try
+        {
+            attr.setUpId( "sn" );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+        
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
-        attr.setUpId( "  SN  " );
-        assertEquals( "cn", attr.getId() );
+        try
+        {
+            attr.setUpId( "  SN  " );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+    
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
-        attr.setUpId( "  surname  " );
-        assertEquals( "cn", attr.getId() );
+        try
+        {
+            attr.setUpId( "  surname  " );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+        
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
 
-        attr.setUpId( "  2.5.4.4  " );
-        assertEquals( "cn", attr.getId() );
+        try
+        {
+            attr.setUpId( "  2.5.4.4  " );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
     }
@@ -1688,7 +1713,7 @@ public class SchemaAwareEntryAttributeTest
         attr.setAttributeType( atSN );
 
         assertTrue( attr.instanceOf( "Surname" ) );
-        assertEquals( "sn", attr.getId() );
+        assertEquals( "2.5.4.4", attr.getId() );
         assertEquals( "sn", attr.getUpId() );
     }
 
@@ -1714,7 +1739,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr.isHR() );
         assertEquals( 0, attr.size() );
-        assertEquals( "cn", attr.getId() );
+        assertEquals( "2.5.4.3", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
         assertEquals( atCN, attr.getAttributeType() );
     }
@@ -1730,7 +1755,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.isHR() );
         assertEquals( 0, attr1.size() );
-        assertEquals( "cn", attr1.getId() );
+        assertEquals( "2.5.4.3", attr1.getId() );
         assertEquals( "cn", attr1.getUpId() );
         assertEquals( atCN, attr1.getAttributeType() );
 
@@ -1738,7 +1763,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr2.isHR() );
         assertEquals( 0, attr2.size() );
-        assertEquals( "commonname", attr2.getId() );
+        assertEquals( "2.5.4.3", attr2.getId() );
         assertEquals( "  CommonName  ", attr2.getUpId() );
         assertEquals( atCN, attr2.getAttributeType() );
 
@@ -1746,7 +1771,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr3.isHR() );
         assertEquals( 0, attr3.size() );
-        assertEquals( "cn", attr3.getId() );
+        assertEquals( "2.5.4.3", attr3.getId() );
         assertEquals( "cn", attr3.getUpId() );
         assertEquals( atCN, attr3.getAttributeType() );
     }
@@ -1762,7 +1787,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "dc", attr1.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
         assertEquals( "dc", attr1.getUpId() );
         assertEquals( atDC, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
@@ -1772,7 +1797,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
-        assertEquals( "dc", attr2.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
         assertEquals( "dc", attr2.getUpId() );
         assertEquals( atDC, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a" ) );
@@ -1790,7 +1815,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "dc", attr1.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
         assertEquals( "dc", attr1.getUpId() );
         assertEquals( atDC, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
@@ -1800,7 +1825,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
-        assertEquals( "dc", attr2.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
         assertEquals( "dc", attr2.getUpId() );
         assertEquals( atDC, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a" ) );
@@ -1811,7 +1836,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr3.isHR() );
         assertEquals( 3, attr3.size() );
-        assertEquals( "domaincomponent", attr3.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr3.getId() );
         assertEquals( "DomainComponent", attr3.getUpId() );
         assertEquals( atDC, attr3.getAttributeType() );
         assertTrue( attr3.contains( "a", "b" ) );
@@ -1840,7 +1865,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "dc", attr1.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
         assertEquals( "dc", attr1.getUpId() );
         assertEquals( atDC, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
@@ -1850,7 +1875,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
-        assertEquals( "dc", attr2.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
         assertEquals( "dc", attr2.getUpId() );
         assertEquals( atDC, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a" ) );
@@ -1868,7 +1893,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "dc", attr1.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
         assertEquals( "dc", attr1.getUpId() );
         assertEquals( atDC, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
@@ -1878,7 +1903,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertTrue( attr2.isHR() );
         assertEquals( 3, attr2.size() );
-        assertEquals( "domaincomponent", attr2.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
         assertEquals( "DomainComponent", attr2.getUpId() );
         assertEquals( atDC, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a", "b" ) );
@@ -1907,7 +1932,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertFalse( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "userPassword", attr1.getId() );
+        assertEquals( "2.5.4.35", attr1.getId() );
         assertEquals( "userPassword", attr1.getUpId() );
         assertEquals( atPwd, attr1.getAttributeType() );
         assertTrue( attr1.contains( BYTES1, BYTES2 ) );
@@ -1917,7 +1942,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertFalse( attr2.isHR() );
         assertEquals( 2, attr2.size() );
-        assertEquals( "userPassword", attr2.getId() );
+        assertEquals( "2.5.4.35", attr2.getId() );
         assertEquals( "userPassword", attr2.getUpId() );
         assertEquals( atPwd, attr2.getAttributeType() );
         assertTrue( attr2.contains( BYTES2 ) );
@@ -1935,7 +1960,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertFalse( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "userpassword", attr1.getId() );
+        assertEquals( "2.5.4.35", attr1.getId() );
         assertEquals( "userPassword", attr1.getUpId() );
         assertEquals( atPwd, attr1.getAttributeType() );
         assertTrue( attr1.contains( BYTES1, BYTES2 ) );
@@ -1965,7 +1990,7 @@ public class SchemaAwareEntryAttributeTest
 
         assertEquals( attr, clone );
         attr.setUpId( "CommonName" );
-        assertEquals( "cn", clone.getId() );
+        assertEquals( "2.5.4.3", clone.getId() );
 
         attr.add( "a", ( String ) null, "b" );
         clone = attr.clone();
@@ -2035,7 +2060,7 @@ public class SchemaAwareEntryAttributeTest
         assertTrue( clientAttribute instanceof EntryAttribute );
 
         assertTrue( clientAttribute.contains( "test", "test2" ) );
-        assertEquals( "cn", clientAttribute.getId() );
+        assertEquals( "2.5.4.3", clientAttribute.getId() );
 
         attribute.remove( "test", "test2" );
         assertTrue( clientAttribute.contains( "test", "test2" ) );
@@ -2055,7 +2080,7 @@ public class SchemaAwareEntryAttributeTest
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
         assertEquals( dsa.toString(), dsaSer.toString() );
-        assertEquals( "commonname", dsaSer.getId() );
+        assertEquals( "2.5.4.3", dsaSer.getId() );
         assertEquals( "CommonName", dsaSer.getUpId() );
         assertEquals( "test1", dsaSer.getString() );
         assertTrue( dsaSer.contains( "test2", "test1" ) );
@@ -2072,11 +2097,11 @@ public class SchemaAwareEntryAttributeTest
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atCN );
         dsa.setHR( true );
-        dsa.setId( "cn" );
+        dsa.setUpId( "cn" );
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
         assertEquals( dsa.toString(), dsaSer.toString() );
-        assertEquals( "cn", dsaSer.getId() );
+        assertEquals( "2.5.4.3", dsaSer.getId() );
         assertEquals( "cn", dsaSer.getUpId() );
         assertEquals( 0, dsaSer.size() );
         assertTrue( dsaSer.isHR() );
@@ -2097,7 +2122,7 @@ public class SchemaAwareEntryAttributeTest
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atDC );
         assertEquals( dsa.toString(), dsaSer.toString() );
-        assertEquals( "domaincomponent", dsaSer.getId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", dsaSer.getId() );
         assertEquals( "DomainComponent", dsaSer.getUpId() );
         assertEquals( "", dsaSer.getString() );
         assertEquals( 1, dsaSer.size() );
@@ -2120,7 +2145,7 @@ public class SchemaAwareEntryAttributeTest
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );
         assertEquals( dsa.toString(), dsaSer.toString() );
-        assertEquals( "userpassword", dsaSer.getId() );
+        assertEquals( "2.5.4.35", dsaSer.getId() );
         assertEquals( "userPassword", dsaSer.getUpId() );
         assertTrue( Arrays.equals( dsa.getBytes(), dsaSer.getBytes() ) );
         assertEquals( 1, dsaSer.size() );
