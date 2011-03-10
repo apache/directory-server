@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -143,9 +144,9 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Check if a syntax is used by an AT or a MR
      */
-    private List<SchemaObject> checkInUse( String oid )
+    private List<MutableSchemaObject> checkInUse( String oid )
     {
-        List<SchemaObject> dependees = new ArrayList<SchemaObject>();
+        List<MutableSchemaObject> dependees = new ArrayList<MutableSchemaObject>();
 
         for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
@@ -170,7 +171,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Get the list of SchemaObject's name using a given syntax
      */
-    private String getNames( List<SchemaObject> schemaObjects )
+    private String getNames( List<MutableSchemaObject> schemaObjects )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
@@ -255,7 +256,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
 
         // Check that this syntax is not used by an AttributeType
-        List<SchemaObject> dependees = checkInUse( oldOid );
+        List<MutableSchemaObject> dependees = checkInUse( oldOid );
 
         if ( dependees.size() != 0 )
         {
@@ -295,7 +296,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String newSchemaName = getSchemaName( newParentName );
 
         // Check that this syntax is not used by an AttributeType
-        List<SchemaObject> dependees = checkInUse( oldOid );
+        List<MutableSchemaObject> dependees = checkInUse( oldOid );
 
         if ( dependees.size() != 0 )
         {

@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectWrapper;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
@@ -243,7 +244,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Add a new SchemaObject to the schema content, assuming that
      * it has an associated schema and that this schema is loaded
      */
-    protected void addToSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
+    protected void addToSchema( MutableSchemaObject schemaObject, String schemaName ) throws LdapException
     {
         if ( isSchemaLoaded( schemaName ) )
         {
@@ -285,7 +286,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Delete a SchemaObject from the schema registry, assuming that
      * it has an associated schema and that this schema is loaded
      */
-    protected void deleteFromSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
+    protected void deleteFromSchema( MutableSchemaObject schemaObject, String schemaName ) throws LdapException
     {
         if ( isSchemaLoaded( schemaName ) )
         {
@@ -366,7 +367,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @param obj The SchemaObject to register
      * @throws Exception If the registering failed
      */
-    protected void registerOids( SchemaObject obj ) throws LdapException
+    protected void registerOids( MutableSchemaObject obj ) throws LdapException
     {
         schemaManager.getGlobalOidRegistry().register( obj );
     }
@@ -379,7 +380,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @param schemaObject The SchemaObject we want the referencing SchemaObjects for
      * @return A String containing all the SchemaObjects referencing the give SchemaObject
      */
-    protected String getReferenced( SchemaObject schemaObject )
+    protected String getReferenced( MutableSchemaObject schemaObject )
     {
         StringBuilder sb = new StringBuilder();
 

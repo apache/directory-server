@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
@@ -186,7 +187,7 @@ public class SchemaSubentryModifier
     }
     
     
-    public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
+    public void addSchemaObject( OperationContext opContext, MutableSchemaObject obj ) throws LdapException
     {
         Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
         Dn dn = getDn( obj );

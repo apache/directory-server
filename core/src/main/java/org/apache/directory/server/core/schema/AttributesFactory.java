@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
@@ -55,7 +56,7 @@ import org.apache.directory.shared.util.DateUtils;
  */
 public class AttributesFactory
 {
-    public Entry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( MutableSchemaObject obj, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         if ( obj instanceof LdapSyntax )
         {
