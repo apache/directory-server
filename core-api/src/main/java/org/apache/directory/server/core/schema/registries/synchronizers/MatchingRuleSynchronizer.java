@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -72,7 +72,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
-        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
             schemaName );
 
         String oldOid = getOid( entry );
@@ -108,7 +108,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         // Build the new MatchingRule from the given entry
         String schemaName = getSchemaName( dn );
 
-        MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
         
         // At this point, the constructed MatchingRule has not been checked against the 
@@ -165,7 +165,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         }
 
         // Test that the Oid exists
-        MatchingRule matchingRule = ( MatchingRule ) checkOidExists( entry );
+        MutableMatchingRuleImpl matchingRule = ( MutableMatchingRuleImpl ) checkOidExists( entry );
 
         if ( schema.isEnabled() && matchingRule.isEnabled() )
         {
@@ -196,13 +196,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
-        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        MutableMatchingRuleImpl oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         Entry targetEntry = (Entry) entry.clone();
         String newOid = newRdn.getNormValue().getString();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
             schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -224,14 +224,14 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
         Entry targetEntry = ( Entry ) entry.clone();
         String newOid = newRdn.getNormValue().getString();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
@@ -259,9 +259,9 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
-        MatchingRule newMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
+        MutableMatchingRuleImpl newMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )

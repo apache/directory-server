@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
@@ -156,7 +156,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             }
         }
 
-        for ( MatchingRule matchingRule : schemaManager.getMatchingRuleRegistry() )
+        for ( MutableMatchingRuleImpl matchingRule : schemaManager.getMatchingRuleRegistry() )
         {
             if ( oid.equals( matchingRule.getSyntax().getOid() ) )
             {

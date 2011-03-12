@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 
 
@@ -60,7 +60,7 @@ public class SubstringEvaluator implements Evaluator
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
         AttributeType attributeType = snode.getAttributeType();
-        MatchingRule matchingRule = attributeType.getSubstring();
+        MutableMatchingRuleImpl matchingRule = attributeType.getSubstring();
         
         if ( matchingRule == null )
         {

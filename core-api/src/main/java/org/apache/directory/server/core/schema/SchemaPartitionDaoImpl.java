@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
@@ -649,7 +649,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listMatchingRuleDependents(org.apache.directory.shared.ldap.schema.MatchingRule)
      */
-    public Set<Entry> listMatchingRuleDependents( MatchingRule mr ) throws Exception
+    public Set<Entry> listMatchingRuleDependents( MutableMatchingRuleImpl mr ) throws Exception
     {
         Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();

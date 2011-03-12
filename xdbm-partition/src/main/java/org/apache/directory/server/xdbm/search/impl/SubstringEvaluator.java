@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
@@ -86,7 +86,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
 
-        MatchingRule rule = attributeType.getSubstring();
+        MutableMatchingRuleImpl rule = attributeType.getSubstring();
 
         if ( rule == null )
         {

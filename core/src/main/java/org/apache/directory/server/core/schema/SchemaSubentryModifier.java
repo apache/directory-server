@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -109,7 +109,7 @@ public class SchemaSubentryModifier
         {
             buf.append( "syntaxes" );
         }
-        else if ( obj instanceof MatchingRule )
+        else if ( obj instanceof MutableMatchingRuleImpl )
         {
             buf.append( SchemaConstants.MATCHING_RULES_AT );
         }

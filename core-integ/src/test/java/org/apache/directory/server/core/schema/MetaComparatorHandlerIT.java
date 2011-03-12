@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
@@ -73,7 +73,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
     public static SchemaManager schemaManager;
 
-    class DummyMR extends MatchingRule
+    class DummyMR extends MutableMatchingRuleImpl
     {
         public DummyMR()
         {

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.util.SynchronizedLRUMap;
@@ -210,7 +210,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         SerializableComparator<K> comp;
 
-        MatchingRule mr = attributeType.getEquality();
+        MutableMatchingRuleImpl mr = attributeType.getEquality();
 
         if ( mr == null )
         {

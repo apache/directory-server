@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.NotImplementedException;
@@ -322,7 +322,7 @@ public class LeafEvaluator implements Evaluator
      */
     private AbstractLdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
     {
-        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        MutableMatchingRuleImpl mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
         return mrule.getLdapComparator();
     }
@@ -337,7 +337,7 @@ public class LeafEvaluator implements Evaluator
      */
     private Normalizer getNormalizer( AttributeType attributeType ) throws LdapException
     {
-        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        MutableMatchingRuleImpl mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
         return mrule.getNormalizer();
     }
@@ -350,9 +350,9 @@ public class LeafEvaluator implements Evaluator
      * @return the matching rule
      * @throws LdapException if there is a failure
      */
-    private MatchingRule getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
+    private MutableMatchingRuleImpl getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
     {
-        MatchingRule mrule = null;
+        MutableMatchingRuleImpl mrule = null;
 
         switch ( matchType )
         {

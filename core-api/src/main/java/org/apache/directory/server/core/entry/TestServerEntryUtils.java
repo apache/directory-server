@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
 import org.apache.directory.shared.ldap.model.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
@@ -54,16 +54,16 @@ public class TestServerEntryUtils
         }
     }
 
-    public static MatchingRule matchingRuleFactory( String oid )
+    public static MutableMatchingRuleImpl matchingRuleFactory( String oid )
     {
-        MatchingRule matchingRule = new MatchingRule( oid );
+        MutableMatchingRuleImpl matchingRule = new MutableMatchingRuleImpl( oid );
         
         return matchingRule;
     }
     /**
      * A local MatchingRule class for tests
      */
-    static class MR extends MatchingRule
+    static class MR extends MutableMatchingRuleImpl
     {
         private static final long serialVersionUID = -5428997199906309370L;
 
@@ -131,7 +131,7 @@ public class TestServerEntryUtils
             }
         } );
         
-        MatchingRule matchingRule = new MatchingRule( "1.1.2.1" );
+        MutableMatchingRuleImpl matchingRule = new MutableMatchingRuleImpl( "1.1.2.1" );
         matchingRule.setSyntax( syntax );
 
 
@@ -216,7 +216,7 @@ public class TestServerEntryUtils
             }
         } );
         
-        MatchingRule matchingRule = new MatchingRule( "1.1.2" );
+        MutableMatchingRuleImpl matchingRule = new MutableMatchingRuleImpl( "1.1.2" );
         matchingRule.setSyntax( syntax );
 
 
@@ -261,7 +261,7 @@ public class TestServerEntryUtils
             }
         } );
 
-        MatchingRule matchingRule = new MatchingRule( "1.2.2" );
+        MutableMatchingRuleImpl matchingRule = new MutableMatchingRuleImpl( "1.2.2" );
         matchingRule.setSyntax( syntax );
 
         matchingRule.setLdapComparator( new ByteArrayComparator( "1.2.2" ) );

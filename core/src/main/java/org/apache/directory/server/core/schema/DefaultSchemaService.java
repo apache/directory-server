@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
@@ -182,7 +182,7 @@ public class DefaultSchemaService implements SchemaService
         EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULES_AT ) );
 
-        for ( MatchingRule matchingRule : getSchemaManager().getMatchingRuleRegistry() )
+        for ( MutableMatchingRuleImpl matchingRule : getSchemaManager().getMatchingRuleRegistry() )
         {
             attr.add( SchemaUtils.render( matchingRule ).toString() );
         }

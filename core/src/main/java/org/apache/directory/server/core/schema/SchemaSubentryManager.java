@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -246,9 +246,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( MATCHING_RULE_INDEX ):
-                MatchingRule[] mrs = parsers.parseMatchingRules( mods );
+                MutableMatchingRuleImpl[] mrs = parsers.parseMatchingRules( mods );
                 
-                for ( MatchingRule mr : mrs )
+                for ( MutableMatchingRuleImpl mr : mrs )
                 {
                     subentryModifier.deleteSchemaObject( modifyContext, mr );
                 }
@@ -384,9 +384,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( MATCHING_RULE_INDEX ):
-                MatchingRule[] mrs = parsers.parseMatchingRules( mods );
+                MutableMatchingRuleImpl[] mrs = parsers.parseMatchingRules( mods );
                 
-                for ( MatchingRule mr : mrs )
+                for ( MutableMatchingRuleImpl mr : mrs )
                 {
                     subentryModifier.addSchemaObject( modifyContext, mr );
                 }

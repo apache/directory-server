@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,7 +276,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             // check that the attributeType has an EQUALITY matchingRule
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-            MatchingRule mr = attributeType.getEquality();
+            MutableMatchingRuleImpl mr = attributeType.getEquality();
 
             if ( mr != null )
             {

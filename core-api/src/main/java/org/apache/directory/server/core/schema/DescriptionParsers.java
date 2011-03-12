@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -71,7 +71,7 @@ public class DescriptionParsers
     private static final NormalizerDescription[]     EMPTY_NORMALIZERS         = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
     private static final MutableLdapSyntaxImpl[]                EMPTY_SYNTAXES            = new MutableLdapSyntaxImpl[0];
-    private static final MatchingRule[]              EMPTY_MATCHING_RULES      = new MatchingRule[0];
+    private static final MutableMatchingRuleImpl[]              EMPTY_MATCHING_RULES      = new MutableMatchingRuleImpl[0];
     private static final AttributeType[]             EMPTY_ATTRIBUTE_TYPES     = new AttributeType[0];
     private static final ObjectClass[]               EMPTY_OBJECT_CLASSES      = new ObjectClass[0];
     private static final MatchingRuleUse[]           EMPTY_MATCHING_RULE_USES  = new MatchingRuleUse[0];
@@ -471,20 +471,20 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public MatchingRule[] parseMatchingRules( EntryAttribute attr ) throws LdapException
+    public MutableMatchingRuleImpl[] parseMatchingRules( EntryAttribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_MATCHING_RULES;
         }
 
-        MatchingRule[] matchingRules = new MatchingRule[attr.size()];
+        MutableMatchingRuleImpl[] matchingRules = new MutableMatchingRuleImpl[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            MatchingRule matchingRule = null;
+            MutableMatchingRuleImpl matchingRule = null;
 
             try
             {

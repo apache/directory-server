@@ -27,7 +27,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 
@@ -140,7 +140,7 @@ public interface SchemaPartitionDao
     Set<Entry> listSyntaxDependents( String numericOid ) throws Exception;
 
 
-    Set<Entry> listMatchingRuleDependents( MatchingRule mr ) throws Exception;
+    Set<Entry> listMatchingRuleDependents( MutableMatchingRuleImpl mr ) throws Exception;
 
 
     EntryFilteringCursor listAllNames() throws Exception;

@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
@@ -713,7 +713,7 @@ public class GreaterEqTest
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
         MutableLdapSyntaxImpl syntax = new BogusSyntax( 1 );
-        MatchingRule mr = new MatchingRule( "1.1" );
+        MutableMatchingRuleImpl mr = new MutableMatchingRuleImpl( "1.1" );
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
 

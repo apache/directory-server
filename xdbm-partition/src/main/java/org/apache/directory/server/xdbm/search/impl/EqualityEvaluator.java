@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
@@ -70,7 +70,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
         {
             idx = null;
 
-            MatchingRule mr = attributeType.getEquality();
+            MutableMatchingRuleImpl mr = attributeType.getEquality();
 
             if ( mr == null )
             {

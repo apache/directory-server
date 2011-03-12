@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
@@ -653,7 +653,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
 
-    class DummyMR extends MatchingRule
+    class DummyMR extends MutableMatchingRuleImpl
     {
         public DummyMR()
         {
