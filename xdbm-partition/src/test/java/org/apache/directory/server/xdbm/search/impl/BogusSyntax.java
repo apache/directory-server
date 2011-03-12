@@ -21,7 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 
 
@@ -43,7 +43,7 @@ public class BogusSyntax extends LdapSyntax
     }
 
 
-    public SyntaxChecker getSyntaxChecker()
+    public MutableSyntaxCheckerImpl getSyntaxChecker()
     {
         return new OctetStringSyntaxChecker();
     }

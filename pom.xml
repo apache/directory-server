@@ -172,6 +172,7 @@
               <exclude>**/.project</exclude>
               <exclude>**/.settings/**/*</exclude>
               <!-- IDEA_DEFAULT_EXCLUDES -->
+              <exclude>**/*.bytecode</exclude>
               <exclude>**/*.iml</exclude>
               <exclude>**/*.ipr</exclude>
               <exclude>**/*.iws</exclude>

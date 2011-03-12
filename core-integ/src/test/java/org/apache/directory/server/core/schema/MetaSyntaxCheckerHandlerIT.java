@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Before;
@@ -622,8 +622,12 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             .getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
     }
 
-    public static class BogusSyntaxChecker extends SyntaxChecker
+    
+    public static class BogusSyntaxChecker extends MutableSyntaxCheckerImpl
     {
+        private static final long serialVersionUID = 5090483112935298981L;
+
+
         public BogusSyntaxChecker()
         {
             super( OID );
@@ -634,10 +638,20 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             return false;
         }
+
+
+        @Override
+        public MutableSyntaxCheckerImpl copy()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
+    
     class DummySyntax extends LdapSyntax
     {
+        private static final long serialVersionUID = 5090483112935298981L;
         public DummySyntax()
         {
             super( OID );

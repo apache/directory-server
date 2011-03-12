@@ -74,7 +74,7 @@ import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
@@ -288,7 +288,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
             Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, getService().getSchemaManager() );
 
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, getService()
+            MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, getService()
                 .getSchemaManager().getRegistries(), schemaName );
             assertEquals( oid, syntaxChecker.getOid() );
         }

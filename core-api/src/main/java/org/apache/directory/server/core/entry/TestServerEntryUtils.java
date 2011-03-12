@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.util.Strings;
@@ -64,6 +64,8 @@ public class TestServerEntryUtils
      */
     static class MR extends MatchingRule
     {
+        private static final long serialVersionUID = -5428997199906309370L;
+
         protected MR( String oid )
         {
             super( oid );
@@ -93,15 +95,15 @@ public class TestServerEntryUtils
     }
 
     /* no protection*/ 
-    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
-    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     static AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
         AttributeType attributeType = new AttributeType( "1.1.3.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1.1", "", true );
 
-        syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
+        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.1.2.1" )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
+
             public boolean isValidSyntax( Object value )
             {
                 if ( !( value instanceof String ) )
@@ -120,6 +122,12 @@ public class TestServerEntryUtils
                 }
                 return true;
             }
+
+            @Override
+            public MutableSyntaxCheckerImpl copy()
+            {
+                return null;
+            }
         } );
         
         MatchingRule matchingRule = new MatchingRule( "1.1.2.1" );
@@ -128,6 +136,7 @@ public class TestServerEntryUtils
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
             public int compare( String o1, String o2 )
             {
                 return ( o1 == null ? 
@@ -135,6 +144,7 @@ public class TestServerEntryUtils
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
 
+            @SuppressWarnings("unused")
             int getValue( String val )
             {
                 if ( val.equals( "LOW" ) ) 
@@ -156,6 +166,7 @@ public class TestServerEntryUtils
         
         Normalizer normalizer = new Normalizer( "1.1.1" )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( !value.isBinary() )
@@ -188,11 +199,19 @@ public class TestServerEntryUtils
         attributeType.addName( "1.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1", "", true );
 
-        syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2" )
+        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.1.2" )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
+
             public boolean isValidSyntax( Object value )
             {
                 return ((String)value == null) || (((String)value).length() < 7) ;
+            }
+
+            @Override
+            public MutableSyntaxCheckerImpl copy()
+            {
+                return null;
             }
         } );
         
@@ -202,6 +221,7 @@ public class TestServerEntryUtils
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
             public int compare( String o1, String o2 )
             {
                 return ( ( o1 == null ) ? 
@@ -224,11 +244,19 @@ public class TestServerEntryUtils
         AttributeType attributeType = new AttributeType( "1.2" );
         LdapSyntax syntax = new LdapSyntax( "1.2.1", "", true );
 
-        syntax.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
+        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.2.1" )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
             public boolean isValidSyntax( Object value )
             {
                 return ( value == null ) || ( ((byte[])value).length < 5 );
+            }
+            
+            @Override
+            public MutableSyntaxCheckerImpl copy()
+            {
+                // TODO Auto-generated method stub
+                return null;
             }
         } );
 
@@ -239,6 +267,7 @@ public class TestServerEntryUtils
         
         matchingRule.setNormalizer( new Normalizer( "1.1.1" )
         {
+            private static final long serialVersionUID = -5428997199906309370L;
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( value.isBinary() )

@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.DateUtils;
 
@@ -127,7 +127,7 @@ public class AttributesFactory
     }
     
     
-    public Entry getAttributes( SyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( MutableSyntaxCheckerImpl syntaxChecker, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
 

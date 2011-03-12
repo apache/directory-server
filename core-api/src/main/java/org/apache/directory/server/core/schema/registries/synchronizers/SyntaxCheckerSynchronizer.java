@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -75,7 +76,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
+        MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
             .getRegistries(), schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -109,7 +110,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new SyntaxChecker from the given entry
         String schemaName = getSchemaName( dn );
 
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
+        MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
 
         // At this point, the constructed SyntaxChecker has not been checked against the 
@@ -164,11 +165,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         // Test that the Oid exists
-        SyntaxChecker syntaxChecker = null;
+        MutableSyntaxCheckerImpl syntaxChecker = null;
 
         try
         {
-            syntaxChecker = ( SyntaxChecker ) checkSyntaxCheckerOidExists( entry );
+            syntaxChecker = ( MutableSyntaxCheckerImpl ) checkSyntaxCheckerOidExists( entry );
         }
         catch ( LdapSchemaViolationException lsve )
         {
@@ -240,7 +241,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
+            MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
                 .getRegistries(), schemaName );
             schemaManager.unregisterSyntaxChecker( oldOid );
             schemaManager.add( syntaxChecker );
@@ -273,7 +274,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
+        MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
             .getRegistries(), newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
@@ -301,7 +302,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_393, oid ) );
         }
 
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
+        MutableSyntaxCheckerImpl syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
