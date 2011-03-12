@@ -25,7 +25,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -54,7 +54,7 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
     protected Normalizer normalizer;
     
     /** The associated comparator */
-    protected LdapComparator<? super Object> ldapComparator;
+    protected AbstractLdapComparator<? super Object> ldapComparator;
     
     /** The index to use if any */
     protected Index<T, Entry, ID> idx;
@@ -91,7 +91,7 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
     /**
      * @return The LdapComparator associated with the AttributeType
      */
-    public LdapComparator<? super Object> getComparator()
+    public AbstractLdapComparator<? super Object> getComparator()
     {
         return ldapComparator;
     }

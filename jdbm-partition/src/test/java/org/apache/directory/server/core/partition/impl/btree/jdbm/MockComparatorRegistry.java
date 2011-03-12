@@ -23,7 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.util.Iterator;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.registries.DefaultComparatorRegistry;
 
@@ -40,7 +40,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
         super();
     }
 
-    private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
+    private AbstractLdapComparator<Integer> comparator = new AbstractLdapComparator<Integer>( "1.1.1" )
     {
         public int compare( Integer i1, Integer i2 )
         {
@@ -55,18 +55,18 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws LdapException
+    public void register( LdapComparatorDescription description, AbstractLdapComparator<?> comparator ) throws LdapException
     {
     }
 
 
-    public LdapComparator<?> lookup( String oid ) throws LdapException
+    public AbstractLdapComparator<?> lookup( String oid ) throws LdapException
     {
         return comparator;
     }
 
 
-    public void register( LdapComparator<?> comparator ) throws LdapException
+    public void register( AbstractLdapComparator<?> comparator ) throws LdapException
     {
     }
 
@@ -77,7 +77,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public Iterator<LdapComparator<?>> iterator()
+    public Iterator<AbstractLdapComparator<?>> iterator()
     {
         return null;
     }
@@ -95,7 +95,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public LdapComparator<Integer> unregister( String oid ) throws LdapException
+    public AbstractLdapComparator<Integer> unregister( String oid ) throws LdapException
     {
         return this.comparator;
     }

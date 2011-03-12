@@ -24,7 +24,7 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -135,7 +135,7 @@ public class TestServerEntryUtils
         matchingRule.setSyntax( syntax );
 
 
-        matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
+        matchingRule.setLdapComparator( new AbstractLdapComparator<String>( matchingRule.getOid() )
         {
             private static final long serialVersionUID = -5428997199906309370L;
             public int compare( String o1, String o2 )
@@ -220,7 +220,7 @@ public class TestServerEntryUtils
         matchingRule.setSyntax( syntax );
 
 
-        matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
+        matchingRule.setLdapComparator( new AbstractLdapComparator<String>( matchingRule.getOid() )
         {
             private static final long serialVersionUID = -5428997199906309370L;
             public int compare( String o1, String o2 )

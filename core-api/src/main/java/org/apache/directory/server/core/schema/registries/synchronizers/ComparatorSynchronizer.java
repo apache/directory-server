@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -77,7 +77,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, targetEntry, schemaManager
+        AbstractLdapComparator<?> comparator = factory.getLdapComparator( schemaManager, targetEntry, schemaManager
             .getRegistries(), schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -111,7 +111,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Comparator from the given entry
         String schemaName = getSchemaName( dn );
 
-        LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
+        AbstractLdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
 
         // At this point, the constructed LdapComparator has not been checked against the 
@@ -167,11 +167,11 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
 
         // Test that the Oid exists
-        LdapComparator<?> comparator = null;
+        AbstractLdapComparator<?> comparator = null;
 
         try
         {
-            comparator = ( LdapComparator<?> ) checkComparatorOidExists( entry );
+            comparator = ( AbstractLdapComparator<?> ) checkComparatorOidExists( entry );
         }
         catch ( LdapSchemaViolationException lsve )
         {
@@ -250,7 +250,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             targetEntry.setDn( newDn );
 
             // Register the new comparator, and unregister the old one
-            LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, targetEntry, schemaManager
+            AbstractLdapComparator<?> comparator = factory.getLdapComparator( schemaManager, targetEntry, schemaManager
                 .getRegistries(), schemaName );
             schemaManager.unregisterComparator( oldOid );
             schemaManager.add( comparator );
@@ -275,7 +275,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         String newSchemaName = getSchemaName( newParentName );
 
-        LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
+        AbstractLdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         String oldSchemaName = getSchemaName( oriChildName );
@@ -305,7 +305,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         String newSchemaName = getSchemaName( newParentName );
 
-        LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
+        AbstractLdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         String oldSchemaName = getSchemaName( oriChildName );
@@ -348,13 +348,13 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
      * Check that a Comparator exists in the ComparatorRegistry, and if so,
      * return it.
      */
-    protected LdapComparator<?> checkComparatorOidExists( Entry entry ) throws LdapException
+    protected AbstractLdapComparator<?> checkComparatorOidExists( Entry entry ) throws LdapException
     {
         String oid = getOid( entry );
 
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
-            return ( LdapComparator<?> ) schemaManager.getComparatorRegistry().get( oid );
+            return ( AbstractLdapComparator<?> ) schemaManager.getComparatorRegistry().get( oid );
         }
         else
         {

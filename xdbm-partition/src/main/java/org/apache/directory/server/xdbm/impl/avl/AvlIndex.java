@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -84,7 +84,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
             throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
-        LdapComparator<K> comp = ( LdapComparator<K> ) mr.getLdapComparator();
+        AbstractLdapComparator<K> comp = ( AbstractLdapComparator<K> ) mr.getLdapComparator();
 
         /*
          * The forward key/value map stores attribute values to master table 

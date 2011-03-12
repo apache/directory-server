@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -320,7 +320,7 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws LdapException if there is a failure
      */
-    private LdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
+    private AbstractLdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         

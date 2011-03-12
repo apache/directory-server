@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -110,7 +110,7 @@ public class DefaultSchemaService implements SchemaService
         EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
-        for ( LdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
+        for ( AbstractLdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
         {
             attr.add( SchemaUtils.render( comparator ) );
         }
