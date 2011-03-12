@@ -44,7 +44,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
@@ -649,7 +649,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
     
-    class DummySyntax extends LdapSyntax
+    class DummySyntax extends MutableLdapSyntaxImpl
     {
         private static final long serialVersionUID = 5090483112935298981L;
         public DummySyntax()

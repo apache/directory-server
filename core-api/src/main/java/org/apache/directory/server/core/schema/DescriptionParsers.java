@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
@@ -70,7 +70,7 @@ public class DescriptionParsers
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS         = new LdapComparatorDescription[0];
     private static final NormalizerDescription[]     EMPTY_NORMALIZERS         = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
-    private static final LdapSyntax[]                EMPTY_SYNTAXES            = new LdapSyntax[0];
+    private static final MutableLdapSyntaxImpl[]                EMPTY_SYNTAXES            = new MutableLdapSyntaxImpl[0];
     private static final MatchingRule[]              EMPTY_MATCHING_RULES      = new MatchingRule[0];
     private static final AttributeType[]             EMPTY_ATTRIBUTE_TYPES     = new AttributeType[0];
     private static final ObjectClass[]               EMPTY_OBJECT_CLASSES      = new ObjectClass[0];
@@ -422,20 +422,20 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
-    public LdapSyntax[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
+    public MutableLdapSyntaxImpl[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_SYNTAXES;
         }
 
-        LdapSyntax[] syntaxes = new LdapSyntax[attr.size()];
+        MutableLdapSyntaxImpl[] syntaxes = new MutableLdapSyntaxImpl[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            LdapSyntax ldapSyntax = null;
+            MutableLdapSyntaxImpl ldapSyntax = null;
 
             try
             {
@@ -648,7 +648,7 @@ public class DescriptionParsers
      * @param desc the ldapSyntax 
      * @return true if the syntax is human readable, false otherwise
      */
-    private boolean isHumanReadable( LdapSyntax ldapSyntax )
+    private boolean isHumanReadable( MutableLdapSyntaxImpl ldapSyntax )
     {
         List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
 

@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
@@ -79,7 +79,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String oid = getOid( entry );
-        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( name ) );
         String schemaName = getSchemaName( entry.getDn() );
 
@@ -112,7 +112,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Syntax from the given entry
         String schemaName = getSchemaName( dn );
 
-        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // At this point, the constructed Syntax has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
@@ -221,7 +221,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         // Test that the Oid exists
-        LdapSyntax syntax = ( LdapSyntax ) checkOidExists( entry );
+        MutableLdapSyntaxImpl syntax = ( MutableLdapSyntaxImpl ) checkOidExists( entry );
 
         List<Throwable> errors = new ArrayList<Throwable>();
 
@@ -269,7 +269,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( entry.getDn() ) );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -309,7 +309,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( newParentName ) );
 
         if ( isSchemaEnabled( oldSchemaName ) )
@@ -353,7 +353,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         //                ResultCodeEnum.UNWILLING_TO_PERFORM );
         //        }
 
-        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(),
+        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(),
             getSchemaName( newParentName ) );
 
         if ( isSchemaEnabled( oldSchemaName ) )

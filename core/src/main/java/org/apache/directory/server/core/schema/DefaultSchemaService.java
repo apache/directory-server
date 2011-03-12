@@ -36,7 +36,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
@@ -210,7 +211,7 @@ public class DefaultSchemaService implements SchemaService
         EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        for ( LdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
+        for ( MutableLdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
         {
             attr.add( SchemaUtils.render( syntax ).toString() );
         }

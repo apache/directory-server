@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectType;
@@ -75,7 +75,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
         }
         else
         {
-            LdapSyntax syntax = new LdapSyntax( "1.1.1" );
+            MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.1.1" );
             syntax.setHumanReadable( true );
 
             attributeType.setSyntax( syntax );

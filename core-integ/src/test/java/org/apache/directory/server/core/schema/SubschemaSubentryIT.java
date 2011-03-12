@@ -70,7 +70,7 @@ import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -737,7 +737,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "ldapSyntaxes" );
-        LdapSyntax ldapSyntax = null;
+        MutableLdapSyntaxImpl ldapSyntax = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {

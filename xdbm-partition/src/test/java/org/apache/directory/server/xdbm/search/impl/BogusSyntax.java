@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 
@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringS
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BogusSyntax extends LdapSyntax
+public class BogusSyntax extends MutableLdapSyntaxImpl
 {
     protected BogusSyntax( int oidVal )
     {

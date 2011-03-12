@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
@@ -687,7 +687,7 @@ public class GreaterEqTest
     @Test(expected = IllegalStateException.class)
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        LdapSyntax syntax = new BogusSyntax( 1 );
+        MutableLdapSyntaxImpl syntax = new BogusSyntax( 1 );
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
@@ -712,7 +712,7 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
-        LdapSyntax syntax = new BogusSyntax( 1 );
+        MutableLdapSyntaxImpl syntax = new BogusSyntax( 1 );
         MatchingRule mr = new MatchingRule( "1.1" );
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );

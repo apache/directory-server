@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
@@ -60,7 +61,7 @@ public class AttributesFactory
     {
         if ( obj instanceof LdapSyntax )
         {
-            return getAttributes( ( LdapSyntax ) obj, schema, schemaManager );
+            return getAttributes( ( MutableLdapSyntaxImpl ) obj, schema, schemaManager );
         }
         else if ( obj instanceof MatchingRule )
         {
@@ -141,7 +142,7 @@ public class AttributesFactory
     }
 
     
-    public Entry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( MutableLdapSyntaxImpl syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
 

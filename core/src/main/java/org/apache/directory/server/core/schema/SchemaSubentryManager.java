@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
@@ -236,9 +236,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( SYNTAX_INDEX ):
-                LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
+                MutableLdapSyntaxImpl[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
-                for ( LdapSyntax syntax : syntaxes )
+                for ( MutableLdapSyntaxImpl syntax : syntaxes )
                 {
                     subentryModifier.deleteSchemaObject( modifyContext, syntax );
                 }
@@ -374,9 +374,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( SYNTAX_INDEX ):
-                LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
+                MutableLdapSyntaxImpl[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
-                for ( LdapSyntax syntax : syntaxes )
+                for ( MutableLdapSyntaxImpl syntax : syntaxes )
                 {
                     subentryModifier.addSchemaObject( modifyContext, syntax );
                 }
