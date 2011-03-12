@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
@@ -58,7 +58,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
 
     public AttributeType lookup( final String id ) throws LdapException
     {
-        Normalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
+        AbstractNormalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
 
         MatchingRule equality = new MatchingRule( "1.1.1" );
         equality.setNormalizer( normalizer );

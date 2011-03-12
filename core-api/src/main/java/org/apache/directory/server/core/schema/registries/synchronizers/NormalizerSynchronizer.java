@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -76,7 +76,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oldOid = getOid( entry );
-        Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(),
+        AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(),
             schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -110,7 +110,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Normalizer from the given entry
         String schemaName = getSchemaName( dn );
 
-        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // At this point, the constructed Normalizer has not been checked against the 
         // existing Registries. It will be checked there, if the schema and the 
@@ -163,7 +163,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the Normalizer from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         String oid = normalizer.getOid();
 
@@ -221,7 +221,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             newDn = newDn.add( newRdn );
             targetEntry.setDn( newDn );
 
-            Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(),
+            AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(),
                 schemaName );
             schemaManager.unregisterNormalizer( oldOid );
             schemaManager.add( normalizer );
@@ -245,7 +245,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         String oid = newRdn.getNormValue().getString();
         checkOidIsUniqueForNormalizer( oid );
-        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
+        AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
@@ -273,7 +273,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_368, oid ) );
         }
 
-        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
+        AbstractNormalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )

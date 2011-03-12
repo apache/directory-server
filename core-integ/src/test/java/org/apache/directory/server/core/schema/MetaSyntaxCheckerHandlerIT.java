@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
+import org.apache.directory.shared.ldap.model.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Before;
@@ -623,7 +623,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
     
-    public static class BogusSyntaxChecker extends MutableSyntaxCheckerImpl
+    public static class BogusSyntaxChecker extends AbstractSyntaxChecker
     {
         private static final long serialVersionUID = 5090483112935298981L;
 
@@ -641,7 +641,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
         @Override
-        public MutableSyntaxCheckerImpl copy()
+        public AbstractSyntaxChecker copy()
         {
             // TODO Auto-generated method stub
             return null;

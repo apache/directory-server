@@ -28,8 +28,8 @@ import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
-import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
+import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
+import org.apache.directory.shared.ldap.model.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.util.Strings;
@@ -101,7 +101,7 @@ public class TestServerEntryUtils
         AttributeType attributeType = new AttributeType( "1.1.3.1" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.1.1.1", "", true );
 
-        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.1.2.1" )
+        syntax.setSyntaxChecker( new AbstractSyntaxChecker( "1.1.2.1" )
         {
             private static final long serialVersionUID = -5428997199906309370L;
 
@@ -125,7 +125,7 @@ public class TestServerEntryUtils
             }
 
             @Override
-            public MutableSyntaxCheckerImpl copy()
+            public AbstractSyntaxChecker copy()
             {
                 return null;
             }
@@ -165,7 +165,7 @@ public class TestServerEntryUtils
             }
         } );
         
-        Normalizer normalizer = new Normalizer( "1.1.1" )
+        AbstractNormalizer normalizer = new AbstractNormalizer( "1.1.1" )
         {
             private static final long serialVersionUID = -5428997199906309370L;
             public Value<?> normalize( Value<?> value ) throws LdapException
@@ -200,7 +200,7 @@ public class TestServerEntryUtils
         attributeType.addName( "1.1" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.1.1", "", true );
 
-        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.1.2" )
+        syntax.setSyntaxChecker( new AbstractSyntaxChecker( "1.1.2" )
         {
             private static final long serialVersionUID = -5428997199906309370L;
 
@@ -210,7 +210,7 @@ public class TestServerEntryUtils
             }
 
             @Override
-            public MutableSyntaxCheckerImpl copy()
+            public AbstractSyntaxChecker copy()
             {
                 return null;
             }
@@ -245,7 +245,7 @@ public class TestServerEntryUtils
         AttributeType attributeType = new AttributeType( "1.2" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.2.1", "", true );
 
-        syntax.setSyntaxChecker( new MutableSyntaxCheckerImpl( "1.2.1" )
+        syntax.setSyntaxChecker( new AbstractSyntaxChecker( "1.2.1" )
         {
             private static final long serialVersionUID = -5428997199906309370L;
             public boolean isValidSyntax( Object value )
@@ -254,7 +254,7 @@ public class TestServerEntryUtils
             }
             
             @Override
-            public MutableSyntaxCheckerImpl copy()
+            public AbstractSyntaxChecker copy()
             {
                 // TODO Auto-generated method stub
                 return null;
@@ -266,7 +266,7 @@ public class TestServerEntryUtils
 
         matchingRule.setLdapComparator( new ByteArrayComparator( "1.2.2" ) );
         
-        matchingRule.setNormalizer( new Normalizer( "1.1.1" )
+        matchingRule.setNormalizer( new AbstractNormalizer( "1.1.1" )
         {
             private static final long serialVersionUID = -5428997199906309370L;
             public Value<?> normalize( Value<?> value ) throws LdapException

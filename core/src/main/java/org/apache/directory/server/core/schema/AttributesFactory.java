@@ -39,12 +39,12 @@ import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
+import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
-import org.apache.directory.shared.ldap.model.schema.MutableSyntaxCheckerImpl;
+import org.apache.directory.shared.ldap.model.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.DateUtils;
 
@@ -128,7 +128,7 @@ public class AttributesFactory
     }
     
     
-    public Entry getAttributes( MutableSyntaxCheckerImpl syntaxChecker, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( AbstractSyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
 
@@ -156,7 +156,7 @@ public class AttributesFactory
     }
 
     
-    public Entry getAttributes( String oid, Normalizer normalizer, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( String oid, AbstractNormalizer normalizer, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
 
