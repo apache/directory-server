@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -58,7 +58,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
         {
             idx = null;
 
-            MutableMatchingRuleImpl mr = attributeType.getEquality();
+            MatchingRule mr = attributeType.getEquality();
 
             if ( mr == null )
             {

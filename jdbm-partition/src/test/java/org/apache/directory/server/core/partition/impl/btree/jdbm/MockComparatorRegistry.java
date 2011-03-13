@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.registries.DefaultComparatorRegistry;
 
@@ -42,6 +43,8 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
 
     private AbstractLdapComparator<Integer> comparator = new AbstractLdapComparator<Integer>( "1.1.1" )
     {
+        private static final long serialVersionUID = 1L;
+
         public int compare( Integer i1, Integer i2 )
         {
             return i1.compareTo( i2 );
@@ -77,7 +80,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public Iterator<AbstractLdapComparator<?>> iterator()
+    public Iterator<MutableLdapComparator<?>> iterator()
     {
         return null;
     }

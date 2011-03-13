@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -250,7 +250,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddMatchingRuleToEnabledSchema();
 
-        MutableMatchingRuleImpl mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
+        MatchingRule mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
         assertEquals( mr.getDescription(), DESCRIPTION0 );
         assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
@@ -282,7 +282,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddMatchingRuleToEnabledSchema();
 
-        MutableMatchingRuleImpl mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
+        MatchingRule mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
         assertEquals( mr.getDescription(), DESCRIPTION0 );
         assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 

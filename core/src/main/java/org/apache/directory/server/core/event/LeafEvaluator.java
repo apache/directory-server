@@ -22,8 +22,6 @@ package org.apache.directory.server.core.event;
 
 import java.util.Comparator;
 
-import javax.management.modelmbean.ModelMBean;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -42,8 +40,8 @@ import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.LdapComparator;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.NotImplementedException;
@@ -65,9 +63,6 @@ public class LeafEvaluator implements Evaluator
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-    /** SchemaManager needed for normalizing and comparing values */
-    private SchemaManager schemaManager;
-    
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
     
@@ -87,7 +82,6 @@ public class LeafEvaluator implements Evaluator
     public LeafEvaluator( SchemaManager schemaManager,
         SubstringEvaluator substringEvaluator )
     {
-        this.schemaManager = schemaManager;
         this.scopeEvaluator = new ScopeEvaluator();
         this.substringEvaluator = substringEvaluator;
     }
@@ -157,7 +151,6 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws LdapException if there is a database access failure
      */
-    @SuppressWarnings("unchecked")
     private boolean evalGreaterOrLesser( SimpleNode<?> node, Entry entry, boolean isGreaterOrLesser )
         throws LdapException
     {
@@ -177,7 +170,7 @@ public class LeafEvaluator implements Evaluator
          * and use the comparator to determine if a match exists.
          */
         Normalizer normalizer = getNormalizer( attributeType );
-        Comparator comparator = getComparator( attributeType );
+        Comparator<Object> comparator = getComparator( attributeType );
         Object filterValue = normalizer.normalize( node.getValue() );
 
         /*
@@ -244,11 +237,10 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there is a database access failure
      */
-    @SuppressWarnings("unchecked")
     private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException
     {
         Normalizer normalizer = getNormalizer( node.getAttributeType() );
-        Comparator comparator = getComparator( node.getAttributeType() );
+        Comparator<Object> comparator = getComparator( node.getAttributeType() );
 
         // get the attribute associated with the node
         EntryAttribute attr = entry.get( node.getAttribute() );
@@ -320,9 +312,9 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws LdapException if there is a failure
      */
-    private AbstractLdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
+    private LdapComparator<Object> getComparator( AttributeType attributeType ) throws LdapException
     {
-        MutableMatchingRuleImpl mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
         return mrule.getLdapComparator();
     }
@@ -337,7 +329,7 @@ public class LeafEvaluator implements Evaluator
      */
     private Normalizer getNormalizer( AttributeType attributeType ) throws LdapException
     {
-        MutableMatchingRuleImpl mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
+        MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
         return mrule.getNormalizer();
     }
@@ -350,9 +342,9 @@ public class LeafEvaluator implements Evaluator
      * @return the matching rule
      * @throws LdapException if there is a failure
      */
-    private MutableMatchingRuleImpl getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
+    private MatchingRule getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
     {
-        MutableMatchingRuleImpl mrule = null;
+        MatchingRule mrule = null;
 
         switch ( matchType )
         {

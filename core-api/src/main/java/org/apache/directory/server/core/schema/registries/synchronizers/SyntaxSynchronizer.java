@@ -35,10 +35,9 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -79,7 +78,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         Dn name = modifyContext.getDn();
         Entry entry = modifyContext.getEntry();
         String oid = getOid( entry );
-        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( name ) );
         String schemaName = getSchemaName( entry.getDn() );
 
@@ -112,7 +111,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Syntax from the given entry
         String schemaName = getSchemaName( dn );
 
-        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        MutableLdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // At this point, the constructed Syntax has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
@@ -144,9 +143,9 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Check if a syntax is used by an AT or a MR
      */
-    private List<MutableSchemaObject> checkInUse( String oid )
+    private List<SchemaObject> checkInUse( String oid )
     {
-        List<MutableSchemaObject> dependees = new ArrayList<MutableSchemaObject>();
+        List<SchemaObject> dependees = new ArrayList<SchemaObject>();
 
         for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
@@ -156,7 +155,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             }
         }
 
-        for ( MutableMatchingRuleImpl matchingRule : schemaManager.getMatchingRuleRegistry() )
+        for ( MatchingRule matchingRule : schemaManager.getMatchingRuleRegistry() )
         {
             if ( oid.equals( matchingRule.getSyntax().getOid() ) )
             {
@@ -171,7 +170,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Get the list of SchemaObject's name using a given syntax
      */
-    private String getNames( List<MutableSchemaObject> schemaObjects )
+    private String getNames( List<SchemaObject> schemaObjects )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
@@ -221,7 +220,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         // Test that the Oid exists
-        MutableLdapSyntaxImpl syntax = ( MutableLdapSyntaxImpl ) checkOidExists( entry );
+        MutableLdapSyntax syntax = ( MutableLdapSyntax ) checkOidExists( entry );
 
         List<Throwable> errors = new ArrayList<Throwable>();
 
@@ -256,7 +255,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
 
         // Check that this syntax is not used by an AttributeType
-        List<MutableSchemaObject> dependees = checkInUse( oldOid );
+        List<SchemaObject> dependees = checkInUse( oldOid );
 
         if ( dependees.size() != 0 )
         {
@@ -269,7 +268,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( entry.getDn() ) );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -296,7 +295,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String newSchemaName = getSchemaName( newParentName );
 
         // Check that this syntax is not used by an AttributeType
-        List<MutableSchemaObject> dependees = checkInUse( oldOid );
+        List<SchemaObject> dependees = checkInUse( oldOid );
 
         if ( dependees.size() != 0 )
         {
@@ -309,7 +308,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableLdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( newParentName ) );
 
         if ( isSchemaEnabled( oldSchemaName ) )
@@ -353,7 +352,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         //                ResultCodeEnum.UNWILLING_TO_PERFORM );
         //        }
 
-        MutableLdapSyntaxImpl syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(),
+        MutableLdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(),
             getSchemaName( newParentName ) );
 
         if ( isSchemaEnabled( oldSchemaName ) )

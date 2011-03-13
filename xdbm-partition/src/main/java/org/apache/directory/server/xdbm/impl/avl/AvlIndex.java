@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -65,7 +65,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         this.attributeType = attributeType;
 
-        MutableMatchingRuleImpl mr = attributeType.getEquality();
+        MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
         {

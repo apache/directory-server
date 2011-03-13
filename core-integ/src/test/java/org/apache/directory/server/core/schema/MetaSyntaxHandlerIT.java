@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -309,7 +309,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxToEnabledSchema();
 
-        MutableLdapSyntax syntax = schemaManager.getLdapSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = schemaManager.getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         Dn dn = getSyntaxContainer( "apachemeta" );
@@ -337,7 +337,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxToEnabledSchema();
 
-        MutableLdapSyntax syntax = schemaManager.getLdapSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = schemaManager.getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         Dn dn = getSyntaxContainer( "apachemeta" );

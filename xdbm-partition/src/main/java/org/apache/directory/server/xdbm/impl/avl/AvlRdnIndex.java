@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.xdbm.impl.avl;
 
 
@@ -26,7 +25,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -53,7 +52,7 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
     {
         this.attributeType = attributeType;
 
-        MutableMatchingRuleImpl mr = attributeType.getEquality();
+        MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
         {

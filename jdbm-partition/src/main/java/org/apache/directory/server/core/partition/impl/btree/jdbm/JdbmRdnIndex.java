@@ -17,7 +17,6 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
@@ -36,7 +35,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
@@ -128,7 +127,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {
-        MutableMatchingRuleImpl mr = attributeType.getEquality();
+        MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
         {

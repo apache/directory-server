@@ -1987,6 +1987,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_PRINCIPAL, "cn=bogus user,ou=system" );
         env.put( DirectoryService.JNDI_KEY, getService() );
+        @SuppressWarnings("unused")
         InitialDirContext ctx = new InitialDirContext( env );
 
         // now let's add another attribute type definition to the schema but
