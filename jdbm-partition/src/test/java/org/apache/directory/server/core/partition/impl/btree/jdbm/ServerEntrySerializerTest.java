@@ -28,13 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.*;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -43,11 +41,14 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -145,8 +146,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeDNServerEntry() throws Exception
     {
-        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
-        dn.normalize( schemaManager );
+        Dn dn = new Dn( schemaManager, "cn=text, dc=example, dc=com" );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
 
