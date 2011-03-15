@@ -29,18 +29,29 @@ import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
+ * Serialize and deserialize a ServerEntry. There is a big difference with the standard
+ * Entry serialization : we don't serialize the entry's Dn, we just serialize it's Rdn.
+ * </br></br>
+ * <b>This class must *not* be used outside of the server.</b>
+ *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ServerEntrySerializer implements Serializer
 {
+    /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     /** the logger for this class */
@@ -75,42 +86,18 @@ public class ServerEntrySerializer implements Serializer
      * access to the registries to read back the values.
      * <p>
      * The structure used to store the entry is the following :
-     * <li><b>[Dn length]</b> : can be -1 if we don't have a Dn, 0 if the
-     * Dn is empty, otherwise contains the Dn's length.<p>
-     * <b>NOTE :</b>This should be unnecessary, as the Dn should always exists
-     * <p>
-     * </li>
-     * <li>
-     * <b>Dn</b> : The entry's Dn. Can be empty (rootDSE)<p>
-     * </li>
-     * <li>
-     * <b>[nb attributes]</b> The number of attributes
-     * </li>
-     * <br>
-     * For each attribute :
-     * <li>
-     * <b>[upId]</b> The attribute user provided ID (it can't be null)
-     * </li>
-     * <li>
-     * <b>[nb values]</b> The number of values
-     * </li>
-     * <br>
-     * For each value :
-     * <li>
-     *  <b>[is valid]</b> if the value is valid
-     * </li>
-     * <li>
-     *  <b>[HR flag]</b> if the value is a String
-     * </li>
-     * <li>
-     *  <b>[Streamed flag]</b> if the value is streamed
-     * </li>
-     * <li>
-     *  <b>[UP value]</b> the user provided value
-     * </li>
-     * <li>
-     *  <b>[Norm value]</b> (will be null if normValue == upValue)
-     * </li>
+     * <ul>
+     *   <li><b>[a byte]</b> : if the Dn is empty 0 will be written else 1</li>
+     *   <li><b>[Rdn]</b> : The entry's Rdn.</li>
+     *   <li><b>[numberAttr]</b> : the bumber of attributes. Can be 0</li>
+     *   <li>For each Attribute :
+     *     <ul>
+     *       <li><b>[attribute's oid]</b> : The attribute's OID to get back
+     *       the attributeType on deserialization</li>
+     *       <li><b>[Attribute]</b> The attribute</li>
+     *     </ul>
+     *   </li>
+     * </ul>
      */
     public byte[] serialize( Object object ) throws IOException
     {
@@ -119,12 +106,47 @@ public class ServerEntrySerializer implements Serializer
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        ((DefaultEntry)entry).serialize( out );
+        // First, the Dn
+        Dn dn = entry.getDn();
+        
+        // Write the Rdn of the Dn
+        if ( dn.isEmpty() )
+        {
+            out.writeByte( 0 );
+        }
+        else
+        {
+            out.writeByte( 1 );
+            Rdn rdn = dn.getRdn();
+            rdn.writeExternal( out );
+        }
 
-        // Note : we don't store the ObjectClassAttribute. I has already
-        // been stored as an attribute.
+        // Then the attributes.
+        out.writeInt( entry.getAttributeTypes().size() );
 
+        // Iterate through the keys. We store the Attribute
+        // here, to be able to restore it in the readExternal :
+        // we need access to the registries, which are not available
+        // in the ServerAttribute class.
+        for ( AttributeType attributeType : entry.getAttributeTypes() )
+        {
+            // Write the oid to be able to restore the AttributeType when deserializing
+            // the attribute
+            String oid = attributeType.getOid();
+
+            out.writeUTF( oid );
+
+            // Get the attribute
+            EntryAttribute attribute = entry.get( attributeType );;
+
+            // Write the attribute
+            attribute.writeExternal( out );
+        }
+        
         out.flush();
+
+        // Note : we don't store the ObjectClassAttribute. It has already
+        // been stored as an attribute.
 
         if ( IS_DEBUG )
         {
@@ -147,25 +169,58 @@ public class ServerEntrySerializer implements Serializer
     {
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( bytes ) );
 
-        Entry serverEntry = new DefaultEntry( schemaManager );
-        
         try
         {
-            try
+            Entry entry = new DefaultEntry( schemaManager );
+
+            // Read the Dn, if any
+            byte hasDn = in.readByte();
+
+            if ( hasDn == 1 )
             {
-                ((DefaultEntry)serverEntry).deserialize( in );
+                Rdn rdn = new Rdn( schemaManager );
+                rdn.readExternal( in );
+                entry.setDn( new Dn( schemaManager, rdn ) );
             }
-            catch ( LdapInvalidDnException lide )
+            else
             {
-                throw new IOException( lide.getMessage() );
+                entry.setDn( Dn.EMPTY_DN );
+            }
+
+            // Read the number of attributes
+            int nbAttributes = in.readInt();
+
+            // Read the attributes
+            for ( int i = 0; i < nbAttributes; i++ )
+            {
+                // Read the attribute's OID
+                String oid = in.readUTF();
+
+                try
+                {
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+
+                    // Create the attribute we will read
+                    EntryAttribute attribute = new DefaultEntryAttribute( attributeType );
+
+                    // Read the attribute
+                    attribute.readExternal( in );
+
+                    entry.add( attribute );
+                }
+                catch ( LdapException ne )
+                {
+                    // We weren't able to find the OID. The attribute will not be added
+                    throw new ClassNotFoundException( ne.getMessage() );
+                }
             }
             
-            return serverEntry;
+            return entry;
         }
         catch ( ClassNotFoundException cnfe )
         {
             LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
-            return null;
+            throw new IOException( cnfe.getLocalizedMessage() );
         }
     }
 }
