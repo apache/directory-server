@@ -81,6 +81,8 @@ public final class ChangeLogEventSerializer
         {
             LdifEntrySerializer.serialize( reverseLdif, out );
         }
+        
+        out.flush();
     }
     
     
