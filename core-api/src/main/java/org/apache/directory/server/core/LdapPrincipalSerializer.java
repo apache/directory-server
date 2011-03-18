@@ -26,7 +26,6 @@ import java.io.ObjectOutput;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +63,11 @@ public final class LdapPrincipalSerializer
         // The principal's DN
         if ( principal.getDn() == null )
         {
-            DnSerializer.serialize( Dn.EMPTY_DN, out );
+            Dn.EMPTY_DN.writeExternal( out );
         }
         else
         {
-            DnSerializer.serialize( principal.getDn(), out );
+            principal.getDn().writeExternal( out );
         }
     }
     
@@ -88,7 +87,16 @@ public final class LdapPrincipalSerializer
         AuthenticationLevel authenticationLevel = AuthenticationLevel.getLevel( in.readInt() );
         
         // Read the principal's DN
-        Dn dn = DnSerializer.deserialize( schemaManager, in );
+        Dn dn = new Dn( schemaManager );
+        
+        try
+        {
+            dn.readExternal( in );
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            throw new IOException( cnfe.getMessage() );
+        }
         
         LdapPrincipal principal = new LdapPrincipal( schemaManager, dn, authenticationLevel );
         

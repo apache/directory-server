@@ -37,9 +37,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.DnSerializer;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -148,11 +146,12 @@ public class ReplicaEventMessage implements Externalizable
         
         try
         {
-            dn = DnSerializer.deserialize( schemaManager, in );
+            dn = new Dn( schemaManager );
+            dn.readExternal( in );
         }
-        catch ( LdapInvalidDnException lide )
+        catch ( ClassNotFoundException cnfe )
         {
-            throw new IOException( lide.getMessage() );
+            throw new IOException( cnfe.getMessage() );
         }
         
         entry.setDn( dn );
