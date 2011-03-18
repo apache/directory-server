@@ -29,7 +29,6 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.LdapPrincipalSerializer;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntrySerializer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +70,7 @@ public final class ChangeLogEventSerializer
         out.writeLong( event.getRevision() );
         
         // The forward LDIF
-        LdifEntrySerializer.serialize( event.getForwardLdif(), out );
+        event.getForwardLdif().writeExternal( out );
         
         // The reverse LDIFs number
         int nbReverses = event.getReverseLdifs().size();
@@ -79,7 +78,7 @@ public final class ChangeLogEventSerializer
         
         for ( LdifEntry reverseLdif : event.getReverseLdifs() )
         {
-            LdifEntrySerializer.serialize( reverseLdif, out );
+            reverseLdif.writeExternal( out );
         }
         
         out.flush();
@@ -107,7 +106,16 @@ public final class ChangeLogEventSerializer
         long revision = in.readLong();
         
         // The forward LDIF
-        LdifEntry forwardEntry = LdifEntrySerializer.deserialize( schemaManager, in );
+        LdifEntry forwardEntry = new LdifEntry();
+        
+        try
+        {
+            forwardEntry.readExternal( in );
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            throw new IOException( cnfe.getMessage() );
+        }
         
         // The reverse LDIFs number
         int nbReverses = in.readInt();
@@ -116,7 +124,17 @@ public final class ChangeLogEventSerializer
         
         for ( int i = 0; i < nbReverses; i++ )
         {
-            LdifEntry reverseEntry = LdifEntrySerializer.deserialize( schemaManager, in );
+            LdifEntry reverseEntry = new LdifEntry();
+
+            try
+            {
+                reverseEntry.readExternal( in );
+            }
+            catch ( ClassNotFoundException cnfe )
+            {
+                throw new IOException( cnfe.getMessage() );
+            }
+            
             reverses.add( reverseEntry );
         }
         
