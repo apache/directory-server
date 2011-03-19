@@ -256,7 +256,7 @@ public class ServerEntryUtils
     {
         Entry targetEntry = ( Entry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
-        String id = mod.getAttribute().getId();
+        String id = mod.getAttribute().getUpId();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
         
         switch ( modOp )
@@ -454,7 +454,7 @@ public class ServerEntryUtils
     
             for ( Modification modification: modifications )
             {
-                String attributeId = modification.getAttribute().getId();
+                String attributeId = modification.getAttribute().getUpId();
                 String id = stripOptions( attributeId );
                 modification.getAttribute().setUpId( id );
                 Set<String> options = getOptions( attributeId );
