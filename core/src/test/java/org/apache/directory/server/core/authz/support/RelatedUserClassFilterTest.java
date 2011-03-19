@@ -290,7 +290,7 @@ public class RelatedUserClassFilterTest
             
             try
             {
-                names.add( new Dn( schemaManager, "dummy=dummy" ) );
+                names.add( new Dn( schemaManager, "cn=dummy" ) );
             }
             catch ( LdapInvalidDnException e )
             {
