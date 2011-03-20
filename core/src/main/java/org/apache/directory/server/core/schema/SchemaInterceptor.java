@@ -86,7 +86,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.ObjectClassTypeEnum;
@@ -151,13 +151,13 @@ public class SchemaInterceptor extends BaseInterceptor
     private Map<String, List<ObjectClass>> superiors;
 
     /** A map used to store all the objectClasses may attributes */
-    private Map<String, List<AttributeType>> allMay;
+    private Map<String, List<MutableAttributeTypeImpl>> allMay;
 
     /** A map used to store all the objectClasses must */
-    private Map<String, List<AttributeType>> allMust;
+    private Map<String, List<MutableAttributeTypeImpl>> allMust;
 
     /** A map used to store all the objectClasses allowed attributes (may + must) */
-    private Map<String, List<AttributeType>> allowed;
+    private Map<String, List<MutableAttributeTypeImpl>> allowed;
 
 
     /**
@@ -218,8 +218,8 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
-        List<AttributeType> mustList = new ArrayList<AttributeType>();
-        List<AttributeType> allowedList = new ArrayList<AttributeType>();
+        List<MutableAttributeTypeImpl> mustList = new ArrayList<MutableAttributeTypeImpl>();
+        List<MutableAttributeTypeImpl> allowedList = new ArrayList<MutableAttributeTypeImpl>();
         Set<String> mustSeen = new HashSet<String>();
 
         allMust.put( objectClass.getOid(), mustList );
@@ -227,11 +227,11 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ObjectClass parent : parents )
         {
-            List<AttributeType> mustParent = parent.getMustAttributeTypes();
+            List<MutableAttributeTypeImpl> mustParent = parent.getMustAttributeTypes();
 
             if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
-                for ( AttributeType attributeType : mustParent )
+                for ( MutableAttributeTypeImpl attributeType : mustParent )
                 {
                     String oid = attributeType.getOid();
 
@@ -262,19 +262,19 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
-        List<AttributeType> mayList = new ArrayList<AttributeType>();
+        List<MutableAttributeTypeImpl> mayList = new ArrayList<MutableAttributeTypeImpl>();
         Set<String> maySeen = new HashSet<String>();
-        List<AttributeType> allowedList = allowed.get( objectClass.getOid() );
+        List<MutableAttributeTypeImpl> allowedList = allowed.get( objectClass.getOid() );
 
         allMay.put( objectClass.getOid(), mayList );
 
         for ( ObjectClass parent : parents )
         {
-            List<AttributeType> mustParent = parent.getMustAttributeTypes();
+            List<MutableAttributeTypeImpl> mustParent = parent.getMustAttributeTypes();
 
             if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
-                for ( AttributeType attributeType : mustParent )
+                for ( MutableAttributeTypeImpl attributeType : mustParent )
                 {
                     String oid = attributeType.getOid();
 
@@ -361,9 +361,9 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         Iterator<ObjectClass> objectClasses = schemaManager.getObjectClassRegistry().iterator();
         superiors = new ConcurrentHashMap<String, List<ObjectClass>>();
-        allMust = new ConcurrentHashMap<String, List<AttributeType>>();
-        allMay = new ConcurrentHashMap<String, List<AttributeType>>();
-        allowed = new ConcurrentHashMap<String, List<AttributeType>>();
+        allMust = new ConcurrentHashMap<String, List<MutableAttributeTypeImpl>>();
+        allMay = new ConcurrentHashMap<String, List<MutableAttributeTypeImpl>>();
+        allowed = new ConcurrentHashMap<String, List<MutableAttributeTypeImpl>>();
 
         while ( objectClasses.hasNext() )
         {
@@ -515,7 +515,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Value<?> convert( AttributeType attributeType, Value<?> value ) throws LdapException
+    private Value<?> convert( MutableAttributeTypeImpl attributeType, Value<?> value ) throws LdapException
     {
         if ( attributeType.getSyntax().isHumanReadable() )
         {
@@ -698,7 +698,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
                 }
 
-                AttributeType nodeAt = node.getAttributeType();
+                MutableAttributeTypeImpl nodeAt = node.getAttributeType();
 
                 // see if node attribute is objectClass
                 if ( nodeAt.equals( OBJECT_CLASS_AT )
@@ -821,12 +821,12 @@ public class SchemaInterceptor extends BaseInterceptor
             String ocName = value.getString();
             ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
-            List<AttributeType> types = oc.getMustAttributeTypes();
+            List<MutableAttributeTypeImpl> types = oc.getMustAttributeTypes();
 
             // For each objectClass, loop on all MUST attributeTypes, if any
             if ( ( types != null ) && ( types.size() > 0 ) )
             {
-                for ( AttributeType type : types )
+                for ( MutableAttributeTypeImpl type : types )
                 {
                     must.add( type.getOid() );
                 }
@@ -850,12 +850,12 @@ public class SchemaInterceptor extends BaseInterceptor
             String ocName = objectClass.getString();
             ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
-            List<AttributeType> types = oc.getMayAttributeTypes();
+            List<MutableAttributeTypeImpl> types = oc.getMayAttributeTypes();
 
             // For each objectClass, loop on all MAY attributeTypes, if any
             if ( ( types != null ) && ( types.size() > 0 ) )
             {
-                for ( AttributeType type : types )
+                for ( MutableAttributeTypeImpl type : types )
                 {
                     String oid = type.getOid();
 
@@ -951,14 +951,14 @@ public class SchemaInterceptor extends BaseInterceptor
             // are still present in the entry.
             for ( Ava atav : oldRdn)
             {
-                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+                MutableAttributeTypeImpl type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
                 entry.remove( type, atav.getUpValue() );
             }
 
             // Check that no operational attributes are removed
             for ( Ava atav : oldRdn)
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+                MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
                 if ( !attributeType.isUserModifiable() )
                 {
@@ -969,7 +969,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( Ava atav : newRdn )
         {
-            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+            MutableAttributeTypeImpl type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
             if ( !entry.contains( type, atav.getNormValue() ) )
             {
@@ -991,7 +991,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private EntryAttribute createNewAttribute( EntryAttribute attribute )
     {
-        AttributeType attributeType = attribute.getAttributeType();
+        MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
 
         // Create the new Attribute
         EntryAttribute newAttribute = new DefaultEntryAttribute( attribute.getUpId(), attributeType );
@@ -1021,7 +1021,7 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( Modification mod : mods )
         {
             EntryAttribute attribute = mod.getAttribute();
-            AttributeType attributeType = attribute.getAttributeType();
+            MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
 
             // We don't allow modification of operational attributes
             if ( !attributeType.isUserModifiable()
@@ -1215,7 +1215,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             for ( Modification mod : mods )
             {
-                AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
+                MutableAttributeTypeImpl at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
 
                 if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) )
                 {
@@ -1355,7 +1355,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, make sure all attributes are valid schema defined attributes
         // ---------------------------------------------------------------
 
-        for ( AttributeType attributeType : entry.getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType : entry.getAttributeTypes() )
         {
             if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
@@ -1572,7 +1572,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String attrOid = attribute.getAttributeType().getOid();
 
-            AttributeType attributeType = attribute.getAttributeType();
+            MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
 
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 && !allowed.contains( attrOid ) )
@@ -1727,7 +1727,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, loop on all attributes
         for ( EntryAttribute attribute : entry )
         {
-            AttributeType attributeType = attribute.getAttributeType();
+            MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
             SyntaxChecker syntaxChecker = attributeType.getSyntax().getSyntaxChecker();
 
             if ( syntaxChecker instanceof OctetStringSyntaxChecker )
@@ -1881,7 +1881,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loops on all attributes
         for ( EntryAttribute attribute : entry )
         {
-            AttributeType attributeType = attribute.getAttributeType();
+            MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )

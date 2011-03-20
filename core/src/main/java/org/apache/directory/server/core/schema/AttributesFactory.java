@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
@@ -68,9 +68,9 @@ public class AttributesFactory
         {
             return getAttributes( ( MutableMatchingRuleImpl ) obj, schema, schemaManager );
         }
-        else if ( obj instanceof AttributeType )
+        else if ( obj instanceof MutableAttributeTypeImpl )
         {
-            return getAttributes( ( AttributeType ) obj, schema, schemaManager );
+            return getAttributes( ( MutableAttributeTypeImpl ) obj, schema, schemaManager );
         }
         else if ( obj instanceof ObjectClass )
         {
@@ -264,7 +264,7 @@ public class AttributesFactory
      * @return Attributes
      * @throws LdapException
      */
-    public Entry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( MutableAttributeTypeImpl attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
 

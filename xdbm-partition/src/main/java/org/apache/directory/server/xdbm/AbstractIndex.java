@@ -21,7 +21,7 @@ package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -36,7 +36,7 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
     protected String attributeId;
     
     /** the attribute type resolved for this JdbmIndex */
-    protected AttributeType attributeType;
+    protected MutableAttributeTypeImpl attributeType;
 
     /** the size (number of index entries) for the cache */
     protected int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
@@ -74,7 +74,7 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
     /**
      * {@inheritDoc}
      */
-    public AttributeType getAttribute()
+    public MutableAttributeTypeImpl getAttribute()
     {
         return attributeType;
     }

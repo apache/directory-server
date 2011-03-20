@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
@@ -72,10 +72,10 @@ public class RestrictedByFilterTest
     private static SchemaManager schemaManager;
     
     /** The CN attribute Type */
-    private static AttributeType CN_AT;
+    private static MutableAttributeTypeImpl CN_AT;
 
     /** The SN attribute Type */
-    private static AttributeType SN_AT;
+    private static MutableAttributeTypeImpl SN_AT;
 
     
     @BeforeClass 

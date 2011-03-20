@@ -60,7 +60,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
@@ -245,7 +245,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         for ( Modification modification : mods )
         {
-            AttributeType attributeType = modification.getAttribute().getAttributeType();
+            MutableAttributeTypeImpl attributeType = modification.getAttribute().getAttributeType();
 
             if ( attributeType.equals( MODIFIERS_NAME_AT ) )
             {
@@ -434,10 +434,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     private boolean filterOperationalAttributes( Entry attributes ) throws LdapException
     {
-        Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> removedAttributes = new HashSet<MutableAttributeTypeImpl>();
 
         // Build a list of attributeType to remove
-        for ( AttributeType attributeType : attributes.getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType : attributes.getAttributeTypes() )
         {
             if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
@@ -446,7 +446,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         // Now remove the attributes which are not USERs
-        for ( AttributeType attributeType : removedAttributes )
+        for ( MutableAttributeTypeImpl attributeType : removedAttributes )
         {
             attributes.removeAttributes( attributeType );
         }
@@ -467,11 +467,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+        Set<MutableAttributeTypeImpl> attributeTypes = entry.getAttributeTypes();
 
         if ( dn.size() == 0 )
         {
-            for ( AttributeType attributeType : attributeTypes )
+            for ( MutableAttributeTypeImpl attributeType : attributeTypes )
             {
                 if ( !ids.contains( attributeType.getOid() ) )
                 {

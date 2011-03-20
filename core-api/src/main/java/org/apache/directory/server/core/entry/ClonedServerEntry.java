@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -91,73 +91,73 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public void add( AttributeType attributeType, byte[]... values ) throws LdapException
+    public void add( MutableAttributeTypeImpl attributeType, byte[]... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, String... values ) throws LdapException
+    public void add( MutableAttributeTypeImpl attributeType, String... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public void add( MutableAttributeTypeImpl attributeType, Value<?>... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
+    public void add( String upId, MutableAttributeTypeImpl attributeType, byte[]... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, String... values ) throws LdapException
+    public void add( String upId, MutableAttributeTypeImpl attributeType, String... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public void add( String upId, MutableAttributeTypeImpl attributeType, Value<?>... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public boolean contains( AttributeType attributeType, byte[]... values )
+    public boolean contains( MutableAttributeTypeImpl attributeType, byte[]... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
-    public boolean contains( AttributeType attributeType, String... values )
+    public boolean contains( MutableAttributeTypeImpl attributeType, String... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
-    public boolean contains( AttributeType attributeType, Value<?>... values )
+    public boolean contains( MutableAttributeTypeImpl attributeType, Value<?>... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
-    public boolean containsAttribute( AttributeType attributeType )
+    public boolean containsAttribute( MutableAttributeTypeImpl attributeType )
     {
         return clonedEntry.containsAttribute( attributeType );
     }
 
 
-    public EntryAttribute get( AttributeType attributeType )
+    public EntryAttribute get( MutableAttributeTypeImpl attributeType )
     {
         return clonedEntry.get( attributeType );
     }
 
 
-    public Set<AttributeType> getAttributeTypes()
+    public Set<MutableAttributeTypeImpl> getAttributeTypes()
     {
         return clonedEntry.getAttributeTypes();
     }
@@ -187,55 +187,55 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException
+    public EntryAttribute put( MutableAttributeTypeImpl attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException
+    public EntryAttribute put( MutableAttributeTypeImpl attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public EntryAttribute put( MutableAttributeTypeImpl attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
+    public EntryAttribute put( String upId, MutableAttributeTypeImpl attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
+    public EntryAttribute put( String upId, MutableAttributeTypeImpl attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public EntryAttribute put( String upId, MutableAttributeTypeImpl attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException
+    public boolean remove( MutableAttributeTypeImpl attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, String... values ) throws LdapException
+    public boolean remove( MutableAttributeTypeImpl attributeType, String... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public boolean remove( MutableAttributeTypeImpl attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
@@ -247,13 +247,13 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<EntryAttribute> removeAttributes( AttributeType... attributes )
+    public List<EntryAttribute> removeAttributes( MutableAttributeTypeImpl... attributes )
     {
         return clonedEntry.removeAttributes( attributes );
     }
 
 
-    public List<EntryAttribute> set( AttributeType... attributeTypes )
+    public List<EntryAttribute> set( MutableAttributeTypeImpl... attributeTypes )
     {
         return clonedEntry.set( attributeTypes );
     }

@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1812,7 +1812,7 @@ public class SearchIT extends AbstractLdapTestUnit
         throws Exception
     {
         Value<String> val = new StringValue( filterCsnVal );
-        AttributeType entryCsnAt = getService().getSchemaManager().getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        MutableAttributeTypeImpl entryCsnAt = getService().getSchemaManager().getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ExprNode filter = null;
 
         if ( useCaseNum == 1 )

@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
@@ -74,7 +74,7 @@ public class DescriptionParsers
     private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
     private static final MutableLdapSyntaxImpl[]                EMPTY_SYNTAXES            = new MutableLdapSyntaxImpl[0];
     private static final MutableMatchingRuleImpl[]              EMPTY_MATCHING_RULES      = new MutableMatchingRuleImpl[0];
-    private static final AttributeType[]             EMPTY_ATTRIBUTE_TYPES     = new AttributeType[0];
+    private static final MutableAttributeTypeImpl[]             EMPTY_ATTRIBUTE_TYPES     = new MutableAttributeTypeImpl[0];
     private static final ObjectClass[]               EMPTY_OBJECT_CLASSES      = new ObjectClass[0];
     private static final MatchingRuleUse[]           EMPTY_MATCHING_RULE_USES  = new MatchingRuleUse[0];
     private static final DITStructureRule[]          EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
@@ -214,20 +214,20 @@ public class DescriptionParsers
      * @return the set of attributeType objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws LdapException
+    public MutableAttributeTypeImpl[] parseAttributeTypes( EntryAttribute attr ) throws LdapException
     {
         if ( ( attr == null ) || ( attr.size() == 0 ) )
         {
             return EMPTY_ATTRIBUTE_TYPES;
         }
 
-        AttributeType[] attributeTypes = new AttributeType[attr.size()];
+        MutableAttributeTypeImpl[] attributeTypes = new MutableAttributeTypeImpl[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            AttributeType attributeType = null;
+            MutableAttributeTypeImpl attributeType = null;
 
             try
             {

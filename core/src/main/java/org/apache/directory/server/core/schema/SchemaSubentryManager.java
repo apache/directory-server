@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
@@ -91,7 +91,7 @@ public class SchemaSubentryManager
     private static final String CASCADING_ERROR =
             "Cascading has not yet been implemented: standard operation is in effect.";
 
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
+    private static MutableAttributeTypeImpl ENTRY_CSN_ATTRIBUTE_TYPE;
     
     static 
     {
@@ -256,9 +256,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( ATTRIBUTE_TYPE_INDEX ):
-                AttributeType[] ats = parsers.parseAttributeTypes( mods );
+                MutableAttributeTypeImpl[] ats = parsers.parseAttributeTypes( mods );
                 
-                for ( AttributeType at : ats )
+                for ( MutableAttributeTypeImpl at : ats )
                 {
                     subentryModifier.deleteSchemaObject( modifyContext, at );
                 }
@@ -394,9 +394,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( ATTRIBUTE_TYPE_INDEX ):
-                AttributeType[] ats = parsers.parseAttributeTypes( mods );
+                MutableAttributeTypeImpl[] ats = parsers.parseAttributeTypes( mods );
                 
-                for ( AttributeType at : ats )
+                for ( MutableAttributeTypeImpl at : ats )
                 {
                     subentryModifier.addSchemaObject( modifyContext, at );
                 }

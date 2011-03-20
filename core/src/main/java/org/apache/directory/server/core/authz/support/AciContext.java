@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 /**
@@ -58,7 +58,7 @@ public class AciContext
     private Dn entryDn;
     
     /** The AttributeType */
-    private AttributeType attributeType;
+    private MutableAttributeTypeImpl attributeType;
     
     /** The attribute's values */
     private Value<?> attrValue;
@@ -187,7 +187,7 @@ public class AciContext
     /**
      * @return the attributeType
      */
-    public AttributeType getAttributeType()
+    public MutableAttributeTypeImpl getAttributeType()
     {
         return attributeType;
     }
@@ -195,7 +195,7 @@ public class AciContext
     /**
      * @param attributeType the attributeType to set
      */
-    public void setAttributeType( AttributeType attributeType )
+    public void setAttributeType( MutableAttributeTypeImpl attributeType )
     {
         this.attributeType = attributeType;
     }

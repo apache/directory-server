@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.NotNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
@@ -59,10 +59,10 @@ public class RefinementEvaluatorTest
     private static RefinementEvaluator evaluator;
 
     /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private static MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     /** The CN_AT AttributeType */
-    private static AttributeType CN_AT;
+    private static MutableAttributeTypeImpl CN_AT;
     
     
     /**

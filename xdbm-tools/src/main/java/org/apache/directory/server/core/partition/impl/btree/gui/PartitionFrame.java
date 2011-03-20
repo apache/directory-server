@@ -73,7 +73,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -790,7 +790,7 @@ public class PartitionFrame extends JFrame
      */
     public void showIndexDialog( String idxAttr ) throws Exception
     {
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( idxAttr );
+        MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( idxAttr );
         
         Index index;
         boolean isSystem = partition.hasSystemIndexOn( attributeType );

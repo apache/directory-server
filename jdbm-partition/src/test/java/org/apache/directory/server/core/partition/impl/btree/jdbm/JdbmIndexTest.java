@@ -35,7 +35,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -150,7 +150,7 @@ public class JdbmIndexTest
             jdbmIdx = new JdbmIndex<String, Entry>();
         }
         
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
+        MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIdx.init( schemaManager, attributeType );
         this.idx = jdbmIdx;
@@ -575,7 +575,7 @@ public class JdbmIndexTest
 
         try
         {
-            AttributeType noEqMatchAttribute = new AttributeType( "1.1" );
+            MutableAttributeTypeImpl noEqMatchAttribute = new MutableAttributeTypeImpl( "1.1" );
             jdbmIndex.setWkDirPath( dbFileDir.toURI() );
             jdbmIndex.init( schemaManager, noEqMatchAttribute );
             fail( "should not get here" );

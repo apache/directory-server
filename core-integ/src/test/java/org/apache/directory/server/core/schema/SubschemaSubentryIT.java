@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -1114,7 +1114,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1404,7 +1404,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1426,7 +1426,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, getService().getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
+        MutableAttributeTypeImpl at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
             .getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperiorOid() );
@@ -1459,7 +1459,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1489,7 +1489,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, getService().getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
+        MutableAttributeTypeImpl at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
             .getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperiorOid() );
@@ -1522,7 +1522,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // Get back the list of attributes, and find the one we just added
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1553,7 +1553,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, Dn.ROOT_DSE, getService().getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
+        MutableAttributeTypeImpl at = factory.getAttributeType( getService().getSchemaManager(), serverEntry, getService()
             .getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperiorOid() );

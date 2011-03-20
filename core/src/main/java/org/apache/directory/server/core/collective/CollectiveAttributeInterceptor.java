@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeType
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,7 +251,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             // TODO: handle http://issues.apache.org/jira/browse/DIRSERVER-1198
             EntryAttribute attr = mod.getAttribute();
-            AttributeType attrType = attr.getAttributeType();
+            MutableAttributeTypeImpl attrType = attr.getAttributeType();
 
             // Defensive programming. Very unlikely to happen here...
             if ( attrType == null )
@@ -285,9 +285,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private boolean containsAnyCollectiveAttributes( Entry entry ) throws LdapException
     {
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+        Set<MutableAttributeTypeImpl> attributeTypes = entry.getAttributeTypes();
 
-        for ( AttributeType attributeType : attributeTypes )
+        for ( MutableAttributeTypeImpl attributeType : attributeTypes )
         {
             if ( attributeType.isCollective() )
             {
@@ -351,7 +351,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             for ( Value<?> value : collectiveExclusions )
             {
-                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
+                MutableAttributeTypeImpl attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
                 exclusions.add( attrType.getOid() );
             }
         }
@@ -403,7 +403,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
 
-            for ( AttributeType attributeType : subentry.getAttributeTypes() )
+            for ( MutableAttributeTypeImpl attributeType : subentry.getAttributeTypes() )
             {
                 String attrId = attributeType.getName();
 
@@ -421,7 +421,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                Set<AttributeType> allSuperTypes = getAllSuperTypes( attributeType );
+                Set<MutableAttributeTypeImpl> allSuperTypes = getAllSuperTypes( attributeType );
 
                 for ( String retId : retIdsSet )
                 {
@@ -431,7 +431,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                         continue;
                     }
 
-                    AttributeType retType = schemaManager.lookupAttributeTypeRegistry( retId );
+                    MutableAttributeTypeImpl retType = schemaManager.lookupAttributeTypeRegistry( retId );
 
                     if ( allSuperTypes.contains( retType ) )
                     {
@@ -476,10 +476,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws LdapException
+    private Set<MutableAttributeTypeImpl> getAllSuperTypes( MutableAttributeTypeImpl id ) throws LdapException
     {
-        Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
-        AttributeType superType = id;
+        Set<MutableAttributeTypeImpl> allSuperTypes = new HashSet<MutableAttributeTypeImpl>();
+        MutableAttributeTypeImpl superType = id;
 
         while ( superType != null )
         {

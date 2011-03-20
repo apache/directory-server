@@ -24,7 +24,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -48,7 +48,7 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
     protected final SchemaManager schemaManager;
     
     /** The AttributeType we will use for the evaluation */
-    protected final AttributeType attributeType;
+    protected final MutableAttributeTypeImpl attributeType;
     
     /** The associated normalizer */
     protected Normalizer normalizer;
@@ -73,7 +73,7 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
     /**
      * @return The AttributeType
      */
-    public AttributeType getAttributeType()
+    public MutableAttributeTypeImpl getAttributeType()
     {
         return attributeType;
     }

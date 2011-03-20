@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 
@@ -120,7 +120,7 @@ public class PagedSearchContext
         {
             try
             {
-                AttributeType at = schemaManager.lookupAttributeTypeRegistry( attribute );
+                MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( attribute );
                 requestSet.add( at.getOid() );
             }
             catch ( LdapException le )

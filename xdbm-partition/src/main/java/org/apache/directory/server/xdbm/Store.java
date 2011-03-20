@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -347,7 +347,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * User's <strong>or</strong> System's index list 
      * @throws Exception If something went wrong
      */
-    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
     /**
@@ -367,7 +367,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * User's index list 
      * @throws Exception If something went wrong
      */
-    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasUserIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
     /**
@@ -387,7 +387,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * System's index list 
      * @throws Exception If something went wrong
      */
-    boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasSystemIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
     /**
@@ -405,7 +405,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, ID> getIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -423,7 +423,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, ID> getUserIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -441,7 +441,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, ID> getSystemIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException;
 
 
     /**

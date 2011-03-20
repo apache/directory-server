@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -48,7 +48,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     private final Store<Entry, ID> db;
 
     /** The AttributeType we will use for the evaluation */
-    private final AttributeType attributeType;
+    private final MutableAttributeTypeImpl attributeType;
 
     /** The SchemaManager instance */
     private final SchemaManager schemaManager;
@@ -82,7 +82,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     }
 
 
-    public AttributeType getAttributeType()
+    public MutableAttributeTypeImpl getAttributeType()
     {
         return attributeType;
     }
@@ -151,11 +151,11 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+            Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             do
             {
-                AttributeType descendant = descendants.next();
+                MutableAttributeTypeImpl descendant = descendants.next();
 
                 attr = entry.get( descendant );
 

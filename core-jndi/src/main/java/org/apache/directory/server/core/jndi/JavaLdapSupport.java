@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -197,7 +197,7 @@ class JavaLdapSupport
 
         // Add all the class names this object can be cast to:
         Class<?>[] classes = obj.getClass().getClasses();
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( JCLASSNAMES_ATTR );
+        MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( JCLASSNAMES_ATTR );
         EntryAttribute javaClassNames = new DefaultEntryAttribute( attributeType, JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )

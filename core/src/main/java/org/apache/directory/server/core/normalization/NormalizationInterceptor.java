@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -352,7 +352,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         // Get the attributeType from the OID
         try
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
+            MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
 
             // Translate the value from binary to String if the AT is HR
             if ( attributeType.getSyntax().isHumanReadable() && ( compareContext.getValue().isBinary() ) )
@@ -420,7 +420,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // 2) The attribute exists
                 else
                 {
-                    AttributeType at = schemaManager.lookupAttributeTypeRegistry( upId );
+                    MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( upId );
 
                     // 2.1 if the attribute is single valued, replace the value
                     if ( at.isSingleValued() )

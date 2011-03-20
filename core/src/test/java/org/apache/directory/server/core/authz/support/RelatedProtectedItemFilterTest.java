@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
@@ -86,13 +86,13 @@ public class RelatedProtectedItemFilterTest
     private static RelatedProtectedItemFilter filterB;
     
     /** The CN attribute Type */
-    private static AttributeType CN_AT;
+    private static MutableAttributeTypeImpl CN_AT;
     
     /** The OU attribute Type */
-    private static AttributeType OU_AT;
+    private static MutableAttributeTypeImpl OU_AT;
     
     /** The SN attribute Type */
-    private static AttributeType SN_AT;
+    private static MutableAttributeTypeImpl SN_AT;
 
     
     @BeforeClass 
@@ -192,7 +192,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAllAttributeValues() throws Exception
     {
-        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> attrTypes = new HashSet<MutableAttributeTypeImpl>();
         attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new AllAttributeValuesItem( attrTypes ) );
 
@@ -225,7 +225,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeType() throws Exception
     {
-        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> attrTypes = new HashSet<MutableAttributeTypeImpl>();
         attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new AttributeTypeItem( attrTypes ) );
 
@@ -434,7 +434,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testSelfValue() throws Exception
     {
-        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> attrTypes = new HashSet<MutableAttributeTypeImpl>();
         attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new SelfValueItem( attrTypes ) );
 

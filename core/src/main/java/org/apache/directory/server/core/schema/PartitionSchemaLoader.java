@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.registries.AbstractSchemaLoader;
@@ -71,7 +71,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /** The attributeType registry */
     private SchemaManager schemaManager;
 
-    private final AttributeType cnAT;
+    private final MutableAttributeTypeImpl cnAT;
 
 
     public PartitionSchemaLoader( Partition partition, SchemaManager schemaManager ) throws Exception

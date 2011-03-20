@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.AbstractNormalizer;
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.registries.SchemaObjectRegi
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType>
+public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<MutableAttributeTypeImpl>
 {
     private final boolean returnOperational;
 
@@ -56,14 +56,14 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public AttributeType lookup( final String id ) throws LdapException
+    public MutableAttributeTypeImpl lookup( final String id ) throws LdapException
     {
         AbstractNormalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
 
         MutableMatchingRuleImpl equality = new MutableMatchingRuleImpl( "1.1.1" );
         equality.setNormalizer( normalizer );
 
-        AttributeType attributeType = new AttributeType( id );
+        MutableAttributeTypeImpl attributeType = new MutableAttributeTypeImpl( id );
         attributeType.setEquality( equality );
         attributeType.setSingleValued( false );
         attributeType.setCollective( false );
@@ -98,9 +98,9 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public Iterator<AttributeType> list()
+    public Iterator<MutableAttributeTypeImpl> list()
     {
-        return new ArrayList<AttributeType>().iterator();
+        return new ArrayList<MutableAttributeTypeImpl>().iterator();
     }
 
 
@@ -110,7 +110,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public Iterator<AttributeType> descendants( String ancestorId ) throws LdapException
+    public Iterator<MutableAttributeTypeImpl> descendants( String ancestorId ) throws LdapException
     {
         return null;
     }
@@ -122,19 +122,19 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public Iterator<AttributeType> iterator()
+    public Iterator<MutableAttributeTypeImpl> iterator()
     {
         return null;
     }
 
 
-    public AttributeType unregister( String numericOid ) throws LdapException
+    public MutableAttributeTypeImpl unregister( String numericOid ) throws LdapException
     {
         return null;
     }
 
 
-    public void register( AttributeType attributeType ) throws LdapException
+    public void register( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
     }
 
@@ -145,22 +145,22 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) throws LdapException
+    public void unregisterDescendants( MutableAttributeTypeImpl attributeType, MutableAttributeTypeImpl ancestor ) throws LdapException
     {
     }
 
 
-    public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) throws LdapException
+    public void registerDescendants( MutableAttributeTypeImpl attributeType, MutableAttributeTypeImpl ancestor ) throws LdapException
     {
     }
 
 
-    public void addMappingFor( AttributeType attributeType ) throws LdapException
+    public void addMappingFor( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
     }
 
 
-    public SchemaObjectRegistry<AttributeType> copy()
+    public SchemaObjectRegistry<MutableAttributeTypeImpl> copy()
     {
         return null;
     }

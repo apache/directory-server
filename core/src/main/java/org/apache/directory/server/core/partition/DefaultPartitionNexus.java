@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnUtils;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -138,10 +138,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     private boolean initialized;
 
     /** A reference to the EntryCSN attributeType */
-    private static AttributeType ENTRY_CSN_AT;
+    private static MutableAttributeTypeImpl ENTRY_CSN_AT;
 
     /** A reference to the ObjectClass attributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private static MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     final List<Modification> mods = new ArrayList<Modification>( 2 );
 
@@ -611,11 +611,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( dn.size() == 0 )
         {
             ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
-            Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
+            Set<MutableAttributeTypeImpl> attributeTypes = rootDSE.getAttributeTypes();
 
             if ( lookupContext.getAttrsId() != null && !lookupContext.getAttrsId().isEmpty() )
             {
-                for ( AttributeType attributeType : attributeTypes )
+                for ( MutableAttributeTypeImpl attributeType : attributeTypes )
                 {
                     String oid = attributeType.getOid();
 
@@ -777,7 +777,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         for ( EntryAttribute attribute : rootDSE )
         {
-            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
+            MutableAttributeTypeImpl type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
 
             if ( realIds.contains( type.getOid() ) )
             {

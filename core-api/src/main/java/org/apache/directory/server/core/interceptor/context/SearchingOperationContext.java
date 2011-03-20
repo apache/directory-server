@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeExcep
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.StringConstants;
@@ -158,7 +158,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     String id = SchemaUtils.stripOptions( returnAttribute );
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
                     
-                    AttributeType attributeType = session.getDirectoryService()
+                    MutableAttributeTypeImpl attributeType = session.getDirectoryService()
                         .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
                    

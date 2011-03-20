@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -337,7 +337,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        AttributeType at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
+        MutableAttributeTypeImpl at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
@@ -369,7 +369,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        AttributeType at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
+        MutableAttributeTypeImpl at = getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 

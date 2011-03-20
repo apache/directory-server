@@ -67,7 +67,7 @@ import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.util.Strings;
 
@@ -190,7 +190,7 @@ public class MockCoreSession implements CoreSession
     {
         Value<?> val = null;
 
-        AttributeType attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
+        MutableAttributeTypeImpl attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
 
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )

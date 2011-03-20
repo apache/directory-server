@@ -99,7 +99,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -983,7 +983,7 @@ public class ServiceBuilder
         
         try
         {
-            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( indexFileName );
+            MutableAttributeTypeImpl indexAT = schemaManager.lookupAttributeTypeRegistry( indexFileName );
             indexFileName = indexAT.getOid();
         }
         catch ( LdapException le )

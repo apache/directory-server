@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -91,7 +91,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName, AttributeType attributeType,
+    private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName, MutableAttributeTypeImpl attributeType,
                                Value<?> attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;
@@ -139,9 +139,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 AllAttributeValuesItem aav = ( AllAttributeValuesItem ) item;
 
-                for ( Iterator<AttributeType> iterator = aav.iterator(); iterator.hasNext(); )
+                for ( Iterator<MutableAttributeTypeImpl> iterator = aav.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attr = iterator.next();
+                    MutableAttributeTypeImpl attr = iterator.next();
                     
                     if ( oid.equals( attr.getOid() ) )
                     {
@@ -158,9 +158,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 AttributeTypeItem at = ( AttributeTypeItem ) item;
                 
-                for ( Iterator<AttributeType> iterator = at.iterator(); iterator.hasNext(); )
+                for ( Iterator<MutableAttributeTypeImpl> iterator = at.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attr = iterator.next();
+                    MutableAttributeTypeImpl attr = iterator.next();
                     
                     if ( oid.equals( attr.getOid() ) )
                     {
@@ -181,7 +181,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     EntryAttribute entryAttribute = j.next();
                     
-                    AttributeType attr =  entryAttribute.getAttributeType();
+                    MutableAttributeTypeImpl attr =  entryAttribute.getAttributeType();
                     String attrOid = null;
                     
                     if ( attr != null )
@@ -270,9 +270,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 SelfValueItem sv = ( SelfValueItem ) item;
                 
-                for ( Iterator<AttributeType> iterator = sv.iterator(); iterator.hasNext(); )
+                for ( Iterator<MutableAttributeTypeImpl> iterator = sv.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attr = iterator.next();
+                    MutableAttributeTypeImpl attr = iterator.next();
                     
                     if ( oid.equals( attr.getOid() ) )
                     {

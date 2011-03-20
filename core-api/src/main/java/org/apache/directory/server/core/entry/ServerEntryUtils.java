@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.EmptyEnumeration;
@@ -69,7 +69,7 @@ public class ServerEntryUtils
      */
     public static Attribute toBasicAttribute( EntryAttribute entryAttribute )
     {
-        AttributeType attributeType = entryAttribute.getAttributeType();
+        MutableAttributeTypeImpl attributeType = entryAttribute.getAttributeType();
         
         Attribute attribute = new BasicAttribute( attributeType.getName() );
         
@@ -98,7 +98,7 @@ public class ServerEntryUtils
         
         Attributes attributes = new BasicAttributes( true );
 
-        for ( AttributeType attributeType:entry.getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType:entry.getAttributeTypes() )
         {
             EntryAttribute attr = entry.get( attributeType );
             
@@ -125,7 +125,7 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
+    public static EntryAttribute toServerAttribute( Attribute attribute, MutableAttributeTypeImpl attributeType ) throws LdapInvalidAttributeTypeException
     {
         if ( attribute == null )
         {
@@ -219,7 +219,7 @@ public class ServerEntryUtils
                     String id = SchemaUtils.stripOptions( attributeId );
                     Set<String> options = SchemaUtils.getOptions( attributeId );
                     // TODO : handle options.
-                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+                    MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                     EntryAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
                     if ( serverAttribute != null )
@@ -256,7 +256,7 @@ public class ServerEntryUtils
         Entry targetEntry = ( Entry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getId();
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+        MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( id );
         
         switch ( modOp )
         {
@@ -364,7 +364,7 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
+    private static Modification toServerModification( ModificationItem modificationImpl, MutableAttributeTypeImpl attributeType ) throws LdapInvalidAttributeTypeException
 
     {
         ModificationOperation operation;
@@ -413,7 +413,7 @@ public class ServerEntryUtils
 
             for ( ModificationItem modificationItem: modificationItems )
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( modificationItem.getAttribute().getID() );
+                MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( modificationItem.getAttribute().getID() );
                 modifications.add( toServerModification( modificationItem, attributeType ) );
             }
         
@@ -433,7 +433,7 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( Modification modification, AttributeType attributeType ) 
+    private static Modification toServerModification( Modification modification, MutableAttributeTypeImpl attributeType ) 
     {
         Modification serverModification = new DefaultModification( 
             modification.getOperation(),
@@ -474,7 +474,7 @@ public class ServerEntryUtils
                 else
                 {
                     // TODO : handle options
-                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+                    MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                     modificationsList.add( toServerModification( modification, attributeType ) );
                 }
             }
@@ -522,7 +522,7 @@ public class ServerEntryUtils
                 
                 
                 // TODO : handle options
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+                MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                 modificationsList.add( toServerModification( (ModificationItem)modification, attributeType ) );
             }
         
@@ -542,7 +542,7 @@ public class ServerEntryUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public static final Modification getModificationItem( List<Modification> mods, AttributeType type )
+    public static final Modification getModificationItem( List<Modification> mods, MutableAttributeTypeImpl type )
     {
         for ( Modification modification:mods )
         {
@@ -565,7 +565,7 @@ public class ServerEntryUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public static EntryAttribute getAttribute( List<Modification> mods, AttributeType type )
+    public static EntryAttribute getAttribute( List<Modification> mods, MutableAttributeTypeImpl type )
     {
         Modification mod = getModificationItem( mods, type );
         

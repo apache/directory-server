@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -193,7 +193,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
+    public final boolean hasUserIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return store.hasUserIndexOn( attributeType );
     }
@@ -202,7 +202,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
+    public final boolean hasSystemIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return store.hasSystemIndexOn( attributeType );
     }
@@ -211,7 +211,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public final Index<?, Entry, ID> getUserIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException
     {
         return store.getUserIndex( attributeType );
     }
@@ -220,7 +220,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public final Index<?, Entry, ID> getSystemIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException
     {
         return store.getSystemIndex( attributeType );
     }

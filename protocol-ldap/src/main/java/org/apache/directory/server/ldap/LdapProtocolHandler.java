@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.message.Request;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.service.IoHandler;
@@ -100,7 +100,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     
                     try
                     {
-                        AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
+                        MutableAttributeTypeImpl type = schemaManager.lookupAttributeTypeRegistry( id );
                         return !type.getSyntax().isHumanReadable();
                     }
                     catch ( Exception e )

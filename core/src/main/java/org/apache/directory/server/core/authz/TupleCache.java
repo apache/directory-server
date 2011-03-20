@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
@@ -86,10 +86,10 @@ public class TupleCache
     private final ACIItemParser aciParser;
 
     /** A storage for the PrescriptiveACI attributeType */
-    private AttributeType PRESCRIPTIVE_ACI_AT;
+    private MutableAttributeTypeImpl PRESCRIPTIVE_ACI_AT;
 
     /** A storage for the ObjectClass attributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private static MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
 
     /**

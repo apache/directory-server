@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.LessEqNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -164,7 +164,7 @@ public class LessEqTest
     @Test
     public void testCursorIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
@@ -421,7 +421,7 @@ public class LessEqTest
     @Test
     public void testCursorNotIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
@@ -575,7 +575,7 @@ public class LessEqTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
@@ -621,7 +621,7 @@ public class LessEqTest
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
@@ -649,7 +649,7 @@ public class LessEqTest
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
@@ -667,7 +667,7 @@ public class LessEqTest
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        MutableAttributeTypeImpl at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
@@ -714,7 +714,7 @@ public class LessEqTest
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
         MutableLdapSyntaxImpl syntax = new BogusSyntax( 1 );
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        MutableAttributeTypeImpl at = new MutableAttributeTypeImpl( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
@@ -745,7 +745,7 @@ public class LessEqTest
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
 
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
+        MutableAttributeTypeImpl at = new MutableAttributeTypeImpl( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );

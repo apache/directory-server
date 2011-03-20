@@ -57,7 +57,7 @@ import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -100,23 +100,23 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     private final SchemaEntityFactory factory;
     private final SchemaManager schemaManager;
 
-    private final AttributeType M_NAME_AT;
-    private final AttributeType M_OID_AT;
-    private final AttributeType OBJECT_CLASS_AT;
-    private final AttributeType M_SYNTAX_AT;
-    private final AttributeType M_ORDERING_AT;
-    private final AttributeType M_SUBSTRING_AT;
-    private final AttributeType M_EQUALITY_AT;
-    private final AttributeType M_SUP_ATTRIBUTE_TYPE_AT;
-    private final AttributeType M_MUST_AT;
-    private final AttributeType M_MAY_AT;
-    private final AttributeType M_AUX_AT;
-    private final AttributeType M_OC_AT;
-    private final AttributeType M_SUP_OBJECT_CLASS_AT;
-    private final AttributeType M_DEPENDENCIES_AT;
+    private final MutableAttributeTypeImpl M_NAME_AT;
+    private final MutableAttributeTypeImpl M_OID_AT;
+    private final MutableAttributeTypeImpl OBJECT_CLASS_AT;
+    private final MutableAttributeTypeImpl M_SYNTAX_AT;
+    private final MutableAttributeTypeImpl M_ORDERING_AT;
+    private final MutableAttributeTypeImpl M_SUBSTRING_AT;
+    private final MutableAttributeTypeImpl M_EQUALITY_AT;
+    private final MutableAttributeTypeImpl M_SUP_ATTRIBUTE_TYPE_AT;
+    private final MutableAttributeTypeImpl M_MUST_AT;
+    private final MutableAttributeTypeImpl M_MAY_AT;
+    private final MutableAttributeTypeImpl M_AUX_AT;
+    private final MutableAttributeTypeImpl M_OC_AT;
+    private final MutableAttributeTypeImpl M_SUP_OBJECT_CLASS_AT;
+    private final MutableAttributeTypeImpl M_DEPENDENCIES_AT;
 
     private final Set<AttributeTypeOptions> schemaAttributesToReturn = new HashSet<AttributeTypeOptions>();
-    private final AttributeType disabledAttributeType;
+    private final MutableAttributeTypeImpl disabledAttributeType;
 
 
     /**
@@ -729,7 +729,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listAttributeTypeDependents(org.apache.directory.shared.ldap.schema.AttributeType)
      */
-    public Set<Entry> listAttributeTypeDependents( AttributeType at ) throws Exception
+    public Set<Entry> listAttributeTypeDependents( MutableAttributeTypeImpl at ) throws Exception
     {
         /*
          * Right now the following inefficient filter is being used:

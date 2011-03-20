@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
@@ -118,7 +118,7 @@ public class TriggerSpecCache
         // add that subentry to the hash
         Set<String> suffixes = nexus.listSuffixes();
 
-        AttributeType objectClassAt = directoryService.getSchemaManager().
+        MutableAttributeTypeImpl objectClassAt = directoryService.getSchemaManager().
             getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
         for ( String suffix:suffixes )

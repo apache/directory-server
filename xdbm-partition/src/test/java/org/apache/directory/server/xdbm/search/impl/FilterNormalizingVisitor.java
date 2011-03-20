@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,7 +138,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         {
             Value<?> normalized = null;
 
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
+            MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {

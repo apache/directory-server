@@ -78,7 +78,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecificationParser;
@@ -101,7 +101,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private static final String SUBENTRY_CONTROL = Subentries.OID;
 
     /** The set of Subentry operational attributes */
-    public static AttributeType[] SUBENTRY_OPATTRS;
+    public static MutableAttributeTypeImpl[] SUBENTRY_OPATTRS;
 
     /** the hash mapping the Dn of a subentry to its SubtreeSpecification/types */
     private final SubentryCache subentryCache = new SubentryCache();
@@ -180,7 +180,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        SUBENTRY_OPATTRS = new AttributeType[]
+        SUBENTRY_OPATTRS = new MutableAttributeTypeImpl[]
             {
                 ACCESS_CONTROL_SUBENTRIES_AT,
                 SUBSCHEMA_SUBENTRY_AT,
@@ -503,7 +503,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldNameSelected && !isNewNameSelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( MutableAttributeTypeImpl operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
                     EntryAttribute opAttr = entry.get( operationalAttribute );
@@ -525,7 +525,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewNameSelected && !isOldNameSelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( MutableAttributeTypeImpl operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
@@ -587,7 +587,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * Update the list of modifications with a modification associated with a specific
      * role, if it's requested.
      */
-    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications )
+    private void getOperationalModForReplace( boolean hasRole, MutableAttributeTypeImpl attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications )
     {
         String oldDnStr = oldDn.getNormName();
         String newDnStr = newDn.getNormName();
@@ -683,7 +683,7 @@ public class SubentryInterceptor extends BaseInterceptor
         List<Modification> modifications = new ArrayList<Modification>();
         String dn = subentryDn.getNormName();
 
-        for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+        for ( MutableAttributeTypeImpl operationalAttribute : SUBENTRY_OPATTRS )
         {
             EntryAttribute opAttr = candidate.get( operationalAttribute );
 
@@ -758,7 +758,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldEntrySelected && !isNewEntrySelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( MutableAttributeTypeImpl operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
                     EntryAttribute opAttr = oldEntry.get( operationalAttribute );
@@ -780,7 +780,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewEntrySelected && !isOldEntrySelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( MutableAttributeTypeImpl operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
@@ -797,7 +797,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Update the Operational Attribute with the reference to the subentry
      */
-    private void setOperationalAttribute( Entry entry, Dn subentryDn, AttributeType opAttr) throws LdapException
+    private void setOperationalAttribute( Entry entry, Dn subentryDn, MutableAttributeTypeImpl opAttr) throws LdapException
     {
         EntryAttribute operational = entry.get( opAttr );
 

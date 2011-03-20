@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,7 +89,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         byte[] plainPwd = "newsecret".getBytes();
         Dn dn = new Dn( "cn=test,ou=system" );
 
-        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+        MutableAttributeTypeImpl pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
         EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( plainPwd );
@@ -139,7 +139,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         Dn dn = new Dn( "cn=test,ou=system" );
 
-        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+        MutableAttributeTypeImpl pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
         EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( hashedPwd );

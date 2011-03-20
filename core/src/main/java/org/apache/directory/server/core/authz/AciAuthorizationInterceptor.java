@@ -82,7 +82,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1280,7 +1280,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+        MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
         aciContext = new AciContext( schemaManager, compareContext );
         aciContext.setUserGroupNames( userGroups );
@@ -1341,9 +1341,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * not allowed are removed from the attribute.  If the attribute has no more
          * values remaining then the entire attribute is removed.
          */
-        List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
+        List<MutableAttributeTypeImpl> attributeToRemove = new ArrayList<MutableAttributeTypeImpl>();
 
-        for ( AttributeType attributeType : clonedEntry.getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType : clonedEntry.getAttributeTypes() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             EntryAttribute attr = clonedEntry.get( attributeType );
@@ -1398,7 +1398,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
         }
 
-        for ( AttributeType attributeType : attributeToRemove )
+        for ( MutableAttributeTypeImpl attributeType : attributeToRemove )
         {
             clonedEntry.removeAttributes( attributeType );
         }

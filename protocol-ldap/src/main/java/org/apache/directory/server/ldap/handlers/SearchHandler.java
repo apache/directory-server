@@ -70,7 +70,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** cached to save redundant lookups into registries */
-    private AttributeType OBJECT_CLASS_AT;
+    private MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     protected ReplicationProvider replicationProvider;
 
@@ -936,7 +936,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             if ( presenceNode.isSchemaAware() )
             {
-                AttributeType attributeType = presenceNode.getAttributeType();
+                MutableAttributeTypeImpl attributeType = presenceNode.getAttributeType();
 
                 if ( attributeType.equals( OBJECT_CLASS_AT ) )
                 {
@@ -1292,7 +1292,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             if ( filter.isSchemaAware() )
             {
-                AttributeType attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
+                MutableAttributeTypeImpl attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
                 isRootDSEFilter = attributeType.equals( OBJECT_CLASS_AT );
             }
             else

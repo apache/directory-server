@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -147,7 +147,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     {
         List<SchemaObject> dependees = new ArrayList<SchemaObject>();
 
-        for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
+        for ( MutableAttributeTypeImpl attributeType : schemaManager.getAttributeTypeRegistry() )
         {
             if ( oid.equals( attributeType.getSyntax().getOid() ) )
             {

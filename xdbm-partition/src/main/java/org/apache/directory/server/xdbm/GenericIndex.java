@@ -23,7 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.net.URI;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -208,7 +208,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public AttributeType getAttribute()
+    public MutableAttributeTypeImpl getAttribute()
     {
         throw new UnsupportedOperationException();
     }

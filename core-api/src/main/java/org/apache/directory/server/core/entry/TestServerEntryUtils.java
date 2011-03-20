@@ -23,7 +23,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -45,7 +45,7 @@ public class TestServerEntryUtils
     /**
      * A local Syntax class for tests
      */
-    static class AT extends AttributeType
+    static class AT extends MutableAttributeTypeImpl
     {
         private static final long serialVersionUID = 0L;
 
@@ -97,9 +97,9 @@ public class TestServerEntryUtils
     }
 
     /* no protection*/ 
-    static AttributeType getCaseIgnoringAttributeNoNumbersType()
+    static MutableAttributeTypeImpl getCaseIgnoringAttributeNoNumbersType()
     {
-        AttributeType attributeType = new AttributeType( "1.1.3.1" );
+        MutableAttributeTypeImpl attributeType = new MutableAttributeTypeImpl( "1.1.3.1" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.1.1.1", "", true );
 
         syntax.setSyntaxChecker( new AbstractSyntaxChecker( "1.1.2.1" )
@@ -195,9 +195,9 @@ public class TestServerEntryUtils
     }
 
 
-    /* no protection*/ static AttributeType getIA5StringAttributeType()
+    /* no protection*/ static MutableAttributeTypeImpl getIA5StringAttributeType()
     {
-        AttributeType attributeType = new AttributeType( "1.1" );
+        MutableAttributeTypeImpl attributeType = new MutableAttributeTypeImpl( "1.1" );
         attributeType.addName( "1.1" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.1.1", "", true );
 
@@ -241,9 +241,9 @@ public class TestServerEntryUtils
     }
 
 
-    /* No protection */ static AttributeType getBytesAttributeType()
+    /* No protection */ static MutableAttributeTypeImpl getBytesAttributeType()
     {
-        AttributeType attributeType = new AttributeType( "1.2" );
+        MutableAttributeTypeImpl attributeType = new MutableAttributeTypeImpl( "1.2" );
         MutableLdapSyntaxImpl syntax = new MutableLdapSyntaxImpl( "1.2.1", "", true );
 
         syntax.setSyntaxChecker( new AbstractSyntaxChecker( "1.2.1" )

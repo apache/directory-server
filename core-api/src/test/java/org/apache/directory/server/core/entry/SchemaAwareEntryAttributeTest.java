@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -76,15 +76,15 @@ public class SchemaAwareEntryAttributeTest
 {
     private static LdifSchemaLoader loader;
 
-    private static AttributeType atCN;
-    private static AttributeType atDC;
-    private static AttributeType atSN;
+    private static MutableAttributeTypeImpl atCN;
+    private static MutableAttributeTypeImpl atDC;
+    private static MutableAttributeTypeImpl atSN;
 
     // A SINGLE-VALUE attribute
-    private static AttributeType atC;
+    private static MutableAttributeTypeImpl atC;
 
     // A Binary attribute
-    private static AttributeType atPwd;
+    private static MutableAttributeTypeImpl atPwd;
 
     private static final Value<String> NULL_STRING_VALUE = new StringValue( ( String ) null );
     private static final Value<byte[]> NULL_BINARY_VALUE = new BinaryValue( ( byte[] ) null );
@@ -190,7 +190,7 @@ public class SchemaAwareEntryAttributeTest
     /**
      * Deserialize a DefaultEntryAttribute
      */
-    private DefaultEntryAttribute deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException,
+    private DefaultEntryAttribute deserializeValue( ByteArrayOutputStream out, MutableAttributeTypeImpl at ) throws IOException,
         ClassNotFoundException
     {
         ObjectInputStream oIn = null;
@@ -229,7 +229,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testAddOneValue() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        MutableAttributeTypeImpl at = TestServerEntryUtils.getIA5StringAttributeType();
 
         DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
 
@@ -279,7 +279,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testAddTwoValue() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        MutableAttributeTypeImpl at = TestServerEntryUtils.getIA5StringAttributeType();
 
         DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
 
@@ -314,7 +314,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testAddNullValue() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        MutableAttributeTypeImpl at = TestServerEntryUtils.getIA5StringAttributeType();
 
         DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
 
@@ -335,7 +335,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testGetAttribute() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        MutableAttributeTypeImpl at = TestServerEntryUtils.getIA5StringAttributeType();
 
         DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
 
@@ -357,7 +357,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testContains() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        MutableAttributeTypeImpl at = TestServerEntryUtils.getIA5StringAttributeType();
 
         DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
 

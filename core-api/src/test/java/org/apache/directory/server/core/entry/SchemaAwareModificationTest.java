@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -65,10 +65,10 @@ public class SchemaAwareModificationTest
 {
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
-    private static AttributeType atCN;
+    private static MutableAttributeTypeImpl atCN;
 
     // A SINGLE-VALUE attribute
-    private static AttributeType atC;
+    private static MutableAttributeTypeImpl atC;
 
 
     /**

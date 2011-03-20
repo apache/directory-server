@@ -121,7 +121,7 @@ import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
@@ -147,7 +147,7 @@ public abstract class ServerContext implements EventContext
     protected SchemaManager schemaManager;
 
     /** A reference to the ObjectClass AT */
-    protected AttributeType OBJECT_CLASS_AT;
+    protected MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     /** The cloned environment used by this Context */
     private final Hashtable<String, Object> env;

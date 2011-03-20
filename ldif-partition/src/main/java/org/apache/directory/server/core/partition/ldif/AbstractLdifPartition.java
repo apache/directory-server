@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -226,7 +226,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
+    public Index<?, Entry, Long> getSystemIndex( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return wrappedPartition.getSystemIndex( attributeType );
     }
@@ -246,7 +246,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public Index<?, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
+    public Index<?, Entry, Long> getUserIndex( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return wrappedPartition.getUserIndex( attributeType );
     }
@@ -266,7 +266,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
+    public boolean hasSystemIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return wrappedPartition.hasSystemIndexOn( attributeType );
     }
@@ -276,7 +276,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
+    public boolean hasUserIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception
     {
         return wrappedPartition.hasUserIndexOn( attributeType );
     }

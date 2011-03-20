@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnSerializer;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Unicode;
 import org.slf4j.Logger;
@@ -169,7 +169,7 @@ public class ReplicaEventMessage implements Externalizable
 
             try
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+                MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
                 // Create the attribute we will read
                 DefaultEntryAttribute attribute = new DefaultEntryAttribute( attributeType );

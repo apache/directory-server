@@ -30,7 +30,7 @@ import java.util.Set;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -89,12 +89,12 @@ public class SchemaServiceTest
     @Test
     public void testDescendants() throws Exception
     {
-        Iterator<AttributeType> list = schemaManager.getAttributeTypeRegistry().descendants( "name" );
+        Iterator<MutableAttributeTypeImpl> list = schemaManager.getAttributeTypeRegistry().descendants( "name" );
         Set<String> nameAttrs = new HashSet<String>();
 
         while ( list.hasNext() )
         {
-            AttributeType type = list.next();
+            MutableAttributeTypeImpl type = list.next();
             nameAttrs.add( type.getName() );
         }
 

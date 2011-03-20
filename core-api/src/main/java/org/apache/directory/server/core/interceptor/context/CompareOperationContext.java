@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -43,7 +43,7 @@ public class CompareOperationContext extends AbstractOperationContext
     private String oid;
     
     /** The associated AttributeType */
-    private AttributeType attributeType;
+    private MutableAttributeTypeImpl attributeType;
 
     /** The value to be compared */
     private Value<?> value;
@@ -167,7 +167,7 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      *  @return The AttributeType for the compared value
      */
-    public AttributeType getAttributeType()
+    public MutableAttributeTypeImpl getAttributeType()
     {
         return attributeType;
     }
@@ -178,7 +178,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * 
      * @param attributeType The AttributeType
      */
-    public void setAttributeType( AttributeType attributeType )
+    public void setAttributeType( MutableAttributeTypeImpl attributeType )
     {
         this.attributeType = attributeType;
     }

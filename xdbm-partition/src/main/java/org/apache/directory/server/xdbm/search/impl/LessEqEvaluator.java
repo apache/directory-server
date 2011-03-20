@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.LessEqNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -137,11 +137,11 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+            Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
-                AttributeType descendant = descendants.next();
+                MutableAttributeTypeImpl descendant = descendants.next();
 
                 attr = entry.get( descendant );
 
@@ -177,11 +177,11 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+            Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
-                AttributeType descendant = descendants.next();
+                MutableAttributeTypeImpl descendant = descendants.next();
 
                 attr = entry.get( descendant );
 

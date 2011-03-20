@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
@@ -79,7 +79,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
 
-        AttributeType attributeType = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl attributeType = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
 
         // At this point, the constructed AttributeType has not been checked against the 
@@ -118,7 +118,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        AttributeType at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
             schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -164,7 +164,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         }
         
         // Test that the Oid exists
-        AttributeType attributeType = ( AttributeType ) checkOidExists( entry );
+        MutableAttributeTypeImpl attributeType = ( MutableAttributeTypeImpl ) checkOidExists( entry );
 
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
@@ -194,7 +194,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType oldAt = factory
+        MutableAttributeTypeImpl oldAt = factory
             .getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // Inject the new OID
@@ -208,7 +208,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         newDn = newDn.add( newRdn );
         targetEntry.setDn( newDn );
 
-        AttributeType at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
             schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -238,13 +238,13 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
         Entry targetEntry = ( Entry ) entry.clone();
         String newOid = newRn.getNormValue().getString();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
-        AttributeType newAt = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl newAt = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( !isSchemaLoaded( oldSchemaName ) )
@@ -289,9 +289,9 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
-        AttributeType newAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
+        MutableAttributeTypeImpl newAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
 
         if ( !isSchemaLoaded( oldSchemaName ) )

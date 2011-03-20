@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
     
     /** used to ignore modify operations to tombstone entries */
-    private AttributeType entryDeleted;
+    private MutableAttributeTypeImpl entryDeleted;
     
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
@@ -119,9 +119,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Add );
         forward.setDn( addContext.getDn() );
 
-        Set<AttributeType> list = addEntry.getAttributeTypes();
+        Set<MutableAttributeTypeImpl> list = addEntry.getAttributeTypes();
         
-        for ( AttributeType attributeType:list )
+        for ( MutableAttributeTypeImpl attributeType:list )
         {
             forward.addAttribute( addEntry.get( attributeType).clone() );
         }
@@ -170,7 +170,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         for ( EntryAttribute attribute : serverEntry )
         {
             // filter collective attributes, they can't be added by the revert operation
-            AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
+            MutableAttributeTypeImpl at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
             
             if ( !at.isCollective() || isCollectiveSubentry )
             {

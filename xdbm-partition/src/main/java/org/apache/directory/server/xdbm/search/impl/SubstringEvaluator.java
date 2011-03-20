@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -60,7 +60,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     private final Pattern regex;
 
     /** The AttributeType we will use for the evaluation */
-    private final AttributeType attributeType;
+    private final MutableAttributeTypeImpl attributeType;
 
     /** The associated normalizer */
     private final Normalizer normalizer;
@@ -289,11 +289,11 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+            Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
-                AttributeType descendant = descendants.next();
+                MutableAttributeTypeImpl descendant = descendants.next();
 
                 attr = entry.get( descendant );
 
@@ -406,11 +406,11 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+            Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
 
             while ( descendants.hasNext() )
             {
-                AttributeType descendant = descendants.next();
+                MutableAttributeTypeImpl descendant = descendants.next();
 
                 attr = entry.get( descendant );
 

@@ -104,7 +104,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
@@ -137,19 +137,19 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private Set<Dn> pwdResetSet = new HashSet<Dn>();
 
     // pwdpolicy state attribute types
-    private AttributeType AT_PWD_RESET;
+    private MutableAttributeTypeImpl AT_PWD_RESET;
 
-    private AttributeType AT_PWD_CHANGED_TIME;
+    private MutableAttributeTypeImpl AT_PWD_CHANGED_TIME;
 
-    private AttributeType AT_PWD_HISTORY;
+    private MutableAttributeTypeImpl AT_PWD_HISTORY;
 
-    private AttributeType AT_PWD_FAILURE_TIME;
+    private MutableAttributeTypeImpl AT_PWD_FAILURE_TIME;
 
-    private AttributeType AT_PWD_ACCOUNT_LOCKED_TIME;
+    private MutableAttributeTypeImpl AT_PWD_ACCOUNT_LOCKED_TIME;
 
-    private AttributeType AT_PWD_LAST_SUCCESS;
+    private MutableAttributeTypeImpl AT_PWD_LAST_SUCCESS;
 
-    private AttributeType AT_PWD_GRACE_USE_TIME;
+    private MutableAttributeTypeImpl AT_PWD_GRACE_USE_TIME;
 
 
     /**

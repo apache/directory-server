@@ -81,7 +81,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
@@ -140,7 +140,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /** the cookie that was saved last time */
     private byte[] lastSavedCookie;
 
-    private static AttributeType ENTRY_UUID_AT;
+    private static MutableAttributeTypeImpl ENTRY_UUID_AT;
 
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
@@ -150,7 +150,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
     private Dn configEntryDn;
 
-    private static AttributeType COOKIE_AT_TYPE;
+    private static MutableAttributeTypeImpl COOKIE_AT_TYPE;
 
 
     /**

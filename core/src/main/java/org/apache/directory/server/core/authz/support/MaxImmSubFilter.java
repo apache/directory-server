@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -70,7 +70,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
     public MaxImmSubFilter( SchemaManager schemaManager )
     {
-        AttributeType objectClassAt = null;
+        MutableAttributeTypeImpl objectClassAt = null;
 
         try
         {

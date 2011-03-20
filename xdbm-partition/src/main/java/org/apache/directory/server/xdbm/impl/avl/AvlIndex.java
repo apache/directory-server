@@ -30,7 +30,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AbstractLdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
@@ -61,7 +61,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws Exception
+    public void init( SchemaManager schemaManager, MutableAttributeTypeImpl attributeType ) throws Exception
     {
         this.attributeType = attributeType;
 

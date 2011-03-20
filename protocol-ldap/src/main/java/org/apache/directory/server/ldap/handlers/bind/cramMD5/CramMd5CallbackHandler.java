@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             ExprNode filter = FilterParser.parse( schemaManager, "(uid=" + username + ")" );
             Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
             
-            AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+            MutableAttributeTypeImpl passwordAT = adminSession.getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
             returningAttributes.add( new AttributeTypeOptions( passwordAT) );
             bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
             

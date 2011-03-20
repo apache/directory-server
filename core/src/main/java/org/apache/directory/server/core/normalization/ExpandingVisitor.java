@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.filter.LessEqNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -112,12 +112,12 @@ public class ExpandingVisitor implements FilterVisitor
                         children.set( childNumber++, orNode );
 
                         // iterate through descendants adding them to the orNode
-                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttributeType() );
+                        Iterator<MutableAttributeTypeImpl> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttributeType() );
 
                         while ( descendants.hasNext() )
                         {
                             LeafNode newLeaf = null;
-                            AttributeType descendant = descendants.next();
+                            MutableAttributeTypeImpl descendant = descendants.next();
 
                             if ( leaf instanceof PresenceNode )
                             {

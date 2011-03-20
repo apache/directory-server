@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.model.schema.SchemaObject;
@@ -66,7 +66,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected final SchemaManager schemaManager;
 
     /** The m-oid AttributeType */
-    protected final AttributeType m_oidAT;
+    protected final MutableAttributeTypeImpl m_oidAT;
 
     /** The Schema objetc factory */
     protected final SchemaEntityFactory factory;

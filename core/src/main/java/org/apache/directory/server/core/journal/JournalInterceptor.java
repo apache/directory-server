@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,9 +114,9 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.Add );
             ldif.setDn( addContext.getDn() );
 
-            Set<AttributeType> list = addEntry.getAttributeTypes();
+            Set<MutableAttributeTypeImpl> list = addEntry.getAttributeTypes();
             
-            for ( AttributeType attributeType:list )
+            for ( MutableAttributeTypeImpl attributeType:list )
             {
                 ldif.addAttribute( addEntry.get( attributeType).clone() );
             }

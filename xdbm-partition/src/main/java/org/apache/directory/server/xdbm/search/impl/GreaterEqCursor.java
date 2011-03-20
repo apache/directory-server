@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -70,7 +70,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     {
         this.greaterEqEvaluator = greaterEqEvaluator;
 
-        AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();
+        MutableAttributeTypeImpl attributeType = greaterEqEvaluator.getExpression().getAttributeType();
         
         if ( db.hasIndexOn( attributeType ) )
         {

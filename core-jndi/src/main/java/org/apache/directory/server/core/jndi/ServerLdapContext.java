@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -190,7 +190,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         Value<?> val = null;
 
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         try
         {

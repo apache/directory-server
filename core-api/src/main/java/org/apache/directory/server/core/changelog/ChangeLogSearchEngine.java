@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 
 
@@ -191,7 +191,7 @@ public interface ChangeLogSearchEngine
      * @return the set of ChangeLogEvents on a particular attributeType
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( MutableAttributeTypeImpl attributeType, RevisionOrder order ) throws Exception;
     
 
     /**

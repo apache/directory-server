@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
@@ -113,7 +113,7 @@ public class SchemaSubentryModifier
         {
             buf.append( SchemaConstants.MATCHING_RULES_AT );
         }
-        else if ( obj instanceof AttributeType )
+        else if ( obj instanceof MutableAttributeTypeImpl )
         {
             buf.append( SchemaConstants.ATTRIBUTE_TYPES_AT );
         }

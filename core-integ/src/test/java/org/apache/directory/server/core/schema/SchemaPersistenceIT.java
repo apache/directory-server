@@ -47,7 +47,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
@@ -212,7 +212,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeType attributeType = null;
+        MutableAttributeTypeImpl attributeType = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {

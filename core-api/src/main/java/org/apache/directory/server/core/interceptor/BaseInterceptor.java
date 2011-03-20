@@ -47,7 +47,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -67,52 +67,52 @@ public abstract class BaseInterceptor implements Interceptor
     protected SchemaManager schemaManager;
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
-    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+    protected static final Set<MutableAttributeTypeImpl> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<MutableAttributeTypeImpl>();
 
     /** The AccessControlSubentries AttributeType */
-    protected static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
+    protected static MutableAttributeTypeImpl ACCESS_CONTROL_SUBENTRIES_AT;
 
     /** A reference to the AdministrativeRole AT */
-    protected static AttributeType ADMINISTRATIVE_ROLE_AT;
+    protected static MutableAttributeTypeImpl ADMINISTRATIVE_ROLE_AT;
 
     /** The CollectiveAttributeSubentries AttributeType */
-    protected static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+    protected static MutableAttributeTypeImpl COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
 
     /** The CollectiveExclusions AttributeType */
-    protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
+    protected static MutableAttributeTypeImpl COLLECTIVE_EXCLUSIONS_AT;
 
     /** A storage for the entryACI attributeType */
-    protected static AttributeType ENTRY_ACI_AT;
+    protected static MutableAttributeTypeImpl ENTRY_ACI_AT;
 
     /** A reference to the EntryCSN AT */
-    protected static AttributeType ENTRY_CSN_AT;
+    protected static MutableAttributeTypeImpl ENTRY_CSN_AT;
 
     /** A reference to the EntryUUID AT */
-    protected static AttributeType ENTRY_UUID_AT;
+    protected static MutableAttributeTypeImpl ENTRY_UUID_AT;
 
     /** A reference to the ModifiersName AT */
-    protected static AttributeType MODIFIERS_NAME_AT;
+    protected static MutableAttributeTypeImpl MODIFIERS_NAME_AT;
 
     /** A reference to the ModifyTimestamp AT */
-    protected static AttributeType MODIFY_TIMESTAMP_AT;
+    protected static MutableAttributeTypeImpl MODIFY_TIMESTAMP_AT;
 
     /** The ObjectClass AttributeType */
-    protected static AttributeType OBJECT_CLASS_AT;
+    protected static MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     /** the subentry ACI attribute type */
-    protected static AttributeType SUBENTRY_ACI_AT;
+    protected static MutableAttributeTypeImpl SUBENTRY_ACI_AT;
 
     /** A reference to the AccessControlSubentries AT */
-    protected static AttributeType SUBSCHEMA_SUBENTRY_AT;
+    protected static MutableAttributeTypeImpl SUBSCHEMA_SUBENTRY_AT;
 
     /** A reference to the SubtreeSpecification AT */
-    protected static AttributeType SUBTREE_SPECIFICATION_AT;
+    protected static MutableAttributeTypeImpl SUBTREE_SPECIFICATION_AT;
 
     /** A reference to the TriggerExecutionSubentries AT */
-    protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+    protected static MutableAttributeTypeImpl TRIGGER_EXECUTION_SUBENTRIES_AT;
 
     /** A starage for the uniqueMember attributeType */
-    protected static AttributeType UNIQUE_MEMBER_AT;
+    protected static MutableAttributeTypeImpl UNIQUE_MEMBER_AT;
 
 
 

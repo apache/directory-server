@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -70,7 +70,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     {
         this.lessEqEvaluator = lessEqEvaluator;
 
-        AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
+        MutableAttributeTypeImpl attributeType = lessEqEvaluator.getExpression().getAttributeType();
         
         if ( db.hasIndexOn( attributeType ) )
         {

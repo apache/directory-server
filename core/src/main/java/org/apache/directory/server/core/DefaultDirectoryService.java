@@ -100,7 +100,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.apache.directory.shared.util.DateUtils;
@@ -270,7 +270,7 @@ public class DefaultDirectoryService implements DirectoryService
     private PpolicyConfigContainer pwdPolicyContainer;
 
     /** the pwdPolicySubentry AT */
-    private AttributeType pwdPolicySubentryAT;
+    private MutableAttributeTypeImpl pwdPolicySubentryAT;
 
     /** The Dn factory */
     private DnFactory dnFactory;

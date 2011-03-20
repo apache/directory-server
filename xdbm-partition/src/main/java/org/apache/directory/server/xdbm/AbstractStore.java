@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -72,10 +72,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
     /** Cached attributes types to avoid lookup all over the code */
-    protected AttributeType OBJECT_CLASS_AT;
-    protected AttributeType ENTRY_CSN_AT;
-    protected AttributeType ENTRY_UUID_AT;
-    protected AttributeType ALIASED_OBJECT_NAME_AT;
+    protected MutableAttributeTypeImpl OBJECT_CLASS_AT;
+    protected MutableAttributeTypeImpl ENTRY_CSN_AT;
+    protected MutableAttributeTypeImpl ENTRY_UUID_AT;
+    protected MutableAttributeTypeImpl ALIASED_OBJECT_NAME_AT;
 
     /** true if initialized */
     protected boolean initialized;
@@ -275,7 +275,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         for ( String oid : userIndices.keySet() )
         {
             // check that the attributeType has an EQUALITY matchingRule
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+            MutableAttributeTypeImpl attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
             MatchingRule mr = attributeType.getEquality();
 
             if ( mr != null )
@@ -453,7 +453,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public boolean hasIndexOn( AttributeType attributeType ) throws LdapException
+    public boolean hasIndexOn( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
         return hasUserIndexOn( attributeType ) || hasSystemIndexOn( attributeType );
     }
@@ -471,7 +471,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
+    public boolean hasUserIndexOn( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
         return userIndices.containsKey( attributeType.getOid() );
     }
@@ -489,7 +489,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
+    public boolean hasSystemIndexOn( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
         return systemIndices.containsKey( attributeType.getOid() );
     }
@@ -525,7 +525,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, E, ID> getIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException
     {
         String id = attributeType.getOid();
 
@@ -564,7 +564,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, E, ID> getUserIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException
     {
         String id = attributeType.getOid();
 
@@ -598,7 +598,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, E, ID> getSystemIndex( MutableAttributeTypeImpl attributeType ) throws IndexNotFoundException
     {
         String id = attributeType.getOid();
 
@@ -1033,7 +1033,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
 
-        for ( AttributeType attributeType : mods.getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType : mods.getAttributeTypes() )
         {
             EntryAttribute attr = mods.get( attributeType );
 
@@ -1195,7 +1195,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().get();
 
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
+            MutableAttributeTypeImpl newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
             entry.add( newRdnAttrType, newAtav.getUpValue() );
 
@@ -1252,7 +1252,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 {
                     String oldNormType = oldAtav.getNormType();
                     String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
+                    MutableAttributeTypeImpl oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 
                     if ( hasUserIndexOn( oldNormType ) )
@@ -1728,7 +1728,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
-        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
+        MutableAttributeTypeImpl attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
 
         /*
          * If there are no attribute values in the modifications then this

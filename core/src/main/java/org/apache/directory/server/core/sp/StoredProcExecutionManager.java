@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
@@ -86,7 +86,7 @@ public class StoredProcExecutionManager
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         
-        AttributeType storeProcUnitNamAT = session.getDirectoryService()
+        MutableAttributeTypeImpl storeProcUnitNamAT = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT, new StringValue( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );

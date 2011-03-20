@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
@@ -57,10 +57,10 @@ public class RefinementLeafEvaluatorTest
     private static SchemaManager schemaManager;
 
     /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private static MutableAttributeTypeImpl OBJECT_CLASS_AT;
     
     /** The CN AttributeType */
-    private static AttributeType CN_AT;
+    private static MutableAttributeTypeImpl CN_AT;
     
     /** the refinement leaf evaluator to test */
     private static RefinementLeafEvaluator evaluator;

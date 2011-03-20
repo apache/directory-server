@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
@@ -168,7 +168,7 @@ public class DefaultSchemaService implements SchemaService
         EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
-        for ( AttributeType attributeType : getSchemaManager().getAttributeTypeRegistry() )
+        for ( MutableAttributeTypeImpl attributeType : getSchemaManager().getAttributeTypeRegistry() )
         {
             attr.add( SchemaUtils.render( attributeType ).toString() );
         }

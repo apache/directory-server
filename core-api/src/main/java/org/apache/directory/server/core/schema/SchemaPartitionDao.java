@@ -26,7 +26,7 @@ import java.util.Set;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
@@ -146,7 +146,7 @@ public interface SchemaPartitionDao
     EntryFilteringCursor listAllNames() throws Exception;
 
 
-    Set<Entry> listAttributeTypeDependents( AttributeType at ) throws Exception;
+    Set<Entry> listAttributeTypeDependents( MutableAttributeTypeImpl at ) throws Exception;
 
 
     /**

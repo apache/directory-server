@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.slf4j.Logger;
@@ -387,7 +387,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     public void buildUserIndex( Index userIdx ) throws Exception
     {
-        AttributeType atType = userIdx.getAttribute();
+        MutableAttributeTypeImpl atType = userIdx.getAttribute();
 
         LOG.info( "building the index for attribute type {}", atType );
         

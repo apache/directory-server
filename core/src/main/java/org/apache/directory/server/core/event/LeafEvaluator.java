@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
@@ -154,7 +154,7 @@ public class LeafEvaluator implements Evaluator
     private boolean evalGreaterOrLesser( SimpleNode<?> node, Entry entry, boolean isGreaterOrLesser )
         throws LdapException
     {
-        AttributeType attributeType = node.getAttributeType();
+        MutableAttributeTypeImpl attributeType = node.getAttributeType();
 
         // get the attribute associated with the node
         EntryAttribute attr = entry.get( node.getAttribute() );
@@ -217,7 +217,7 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( AttributeType attributeType, Entry entry ) throws LdapException
+    private boolean evalPresence( MutableAttributeTypeImpl attributeType, Entry entry ) throws LdapException
     {
         if ( entry == null )
         {
@@ -252,7 +252,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if Ava value exists in attribute
-        AttributeType attributeType = node.getAttributeType();
+        MutableAttributeTypeImpl attributeType = node.getAttributeType();
         Value<?> value = null;
         
         if ( attributeType.getSyntax().isHumanReadable() )
@@ -312,7 +312,7 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws LdapException if there is a failure
      */
-    private LdapComparator<Object> getComparator( AttributeType attributeType ) throws LdapException
+    private LdapComparator<Object> getComparator( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
@@ -327,7 +327,7 @@ public class LeafEvaluator implements Evaluator
      * @return the normalizer for equality matching
      * @throws LdapException if there is a failure
      */
-    private Normalizer getNormalizer( AttributeType attributeType ) throws LdapException
+    private Normalizer getNormalizer( MutableAttributeTypeImpl attributeType ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
         
@@ -342,7 +342,7 @@ public class LeafEvaluator implements Evaluator
      * @return the matching rule
      * @throws LdapException if there is a failure
      */
-    private MatchingRule getMatchingRule( AttributeType attributeType, int matchType ) throws LdapException
+    private MatchingRule getMatchingRule( MutableAttributeTypeImpl attributeType, int matchType ) throws LdapException
     {
         MatchingRule mrule = null;
 

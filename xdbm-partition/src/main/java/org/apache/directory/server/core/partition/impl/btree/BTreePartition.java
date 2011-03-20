@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorExcept
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -307,7 +307,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return entry;
         }
 
-        for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+        for ( MutableAttributeTypeImpl attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
         {
             if ( !lookupContext.getAttrsId().contains( attributeType.getOid() ) )
             {
@@ -347,10 +347,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract void addIndexOn( Index<?, Entry, ID> index ) throws Exception;
 
 
-    public abstract boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+    public abstract boolean hasUserIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
-    public abstract boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+    public abstract boolean hasSystemIndexOn( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
     public abstract Index<String, Entry, ID> getPresenceIndex();
@@ -426,10 +426,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
+    public abstract Index<?, Entry, ID> getUserIndex( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
-    public abstract Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
+    public abstract Index<?, Entry, ID> getSystemIndex( MutableAttributeTypeImpl attributeType ) throws Exception;
 
 
     public abstract ID getEntryId( Dn dn ) throws LdapException;

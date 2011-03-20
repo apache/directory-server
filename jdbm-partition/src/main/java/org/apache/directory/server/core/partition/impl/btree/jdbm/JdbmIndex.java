@@ -39,7 +39,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -153,7 +153,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
      */
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    public void init( SchemaManager schemaManager, MutableAttributeTypeImpl attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
         

@@ -23,7 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.net.URI;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -123,7 +123,7 @@ public interface Index<K, O, ID>
      *
      * @return the id of the Index's attribute
      */
-    AttributeType getAttribute();
+    MutableAttributeTypeImpl getAttribute();
 
 
     /**

@@ -57,7 +57,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectExceptio
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -89,16 +89,16 @@ public class JdbmStoreTest
     private static Dn EXAMPLE_COM;
 
     /** The OU AttributeType instance */
-    private static AttributeType OU_AT;
+    private static MutableAttributeTypeImpl OU_AT;
 
     /** The ApacheAlias AttributeType instance */
-    private static AttributeType APACHE_ALIAS_AT;
+    private static MutableAttributeTypeImpl APACHE_ALIAS_AT;
 
     /** The DC AttributeType instance */
-    private static AttributeType DC_AT;
+    private static MutableAttributeTypeImpl DC_AT;
 
     /** The SN AttributeType instance */
-    private static AttributeType SN_AT;
+    private static MutableAttributeTypeImpl SN_AT;
 
 
     @BeforeClass

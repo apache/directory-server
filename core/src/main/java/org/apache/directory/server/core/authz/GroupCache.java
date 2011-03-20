@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,13 +74,13 @@ public class GroupCache
     private final PartitionNexus nexus;
 
     /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
+    private MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
     /** A storage for the member attributeType */
-    private AttributeType MEMBER_AT;
+    private MutableAttributeTypeImpl MEMBER_AT;
 
     /** A storage for the uniqueMember attributeType */
-    private AttributeType UNIQUE_MEMBER_AT;
+    private MutableAttributeTypeImpl UNIQUE_MEMBER_AT;
 
     /**
      * the schema manager

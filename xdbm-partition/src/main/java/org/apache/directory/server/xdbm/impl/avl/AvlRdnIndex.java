@@ -24,7 +24,7 @@ import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -48,7 +48,7 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws Exception
+    public void init( SchemaManager schemaManager, MutableAttributeTypeImpl attributeType ) throws Exception
     {
         this.attributeType = attributeType;
 

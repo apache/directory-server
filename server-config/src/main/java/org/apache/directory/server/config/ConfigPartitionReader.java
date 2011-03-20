@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -481,10 +481,10 @@ public class ConfigPartitionReader
     /**
      * Read all the required fields (AttributeTypes) for a given Entry.
      */
-    private void readFields( AdsBaseBean bean, Entry entry, Set<AttributeType> attributeTypes, boolean mandatory )
+    private void readFields( AdsBaseBean bean, Entry entry, Set<MutableAttributeTypeImpl> attributeTypes, boolean mandatory )
         throws NoSuchFieldException, IllegalAccessException, Exception
     {
-        for ( AttributeType attributeType : attributeTypes )
+        for ( MutableAttributeTypeImpl attributeType : attributeTypes )
         {
             String fieldName = attributeType.getName();
             String beanFieldName = fieldName;
@@ -513,10 +513,10 @@ public class ConfigPartitionReader
             }
 
             // Get the associated AttributeType
-            AttributeType beanAT = schemaManager.getAttributeType( fieldName );
+            MutableAttributeTypeImpl beanAT = schemaManager.getAttributeType( fieldName );
 
             // Check if this AT has the ads-compositeElement as a superior
-            AttributeType superior = beanAT.getSuperior();
+            MutableAttributeTypeImpl superior = beanAT.getSuperior();
 
             if ( ( superior != null )
                 && superior.getOid().equals( ConfigSchemaConstants.ADS_COMPOSITE_ELEMENT_AT.getOid() ) )
@@ -624,9 +624,9 @@ public class ConfigPartitionReader
     /**
      * Get the list of MUST AttributeTypes for an objectClass
      */
-    private Set<AttributeType> getAllMusts( ObjectClass objectClass )
+    private Set<MutableAttributeTypeImpl> getAllMusts( ObjectClass objectClass )
     {
-        Set<AttributeType> musts = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> musts = new HashSet<MutableAttributeTypeImpl>();
 
         // First, gets the direct MUST
         musts.addAll( objectClass.getMustAttributeTypes() );
@@ -649,9 +649,9 @@ public class ConfigPartitionReader
     /**
      * Get the list of MAY AttributeTypes for an objectClass
      */
-    private Set<AttributeType> getAllMays( ObjectClass objectClass )
+    private Set<MutableAttributeTypeImpl> getAllMays( ObjectClass objectClass )
     {
-        Set<AttributeType> mays = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> mays = new HashSet<MutableAttributeTypeImpl>();
 
         // First, gets the direct MAY
         mays.addAll( objectClass.getMayAttributeTypes() );
@@ -674,7 +674,7 @@ public class ConfigPartitionReader
     /**
      * Helper method to print a list of AT's names.
      */
-    private String dumpATs( Set<AttributeType> attributeTypes )
+    private String dumpATs( Set<MutableAttributeTypeImpl> attributeTypes )
     {
         if ( ( attributeTypes == null ) || ( attributeTypes.size() == 0 ) )
         {
@@ -685,7 +685,7 @@ public class ConfigPartitionReader
         boolean isFirst = true;
         sb.append( '{' );
 
-        for ( AttributeType attributeType : attributeTypes )
+        for ( MutableAttributeTypeImpl attributeType : attributeTypes )
         {
             if ( isFirst )
             {
@@ -715,7 +715,7 @@ public class ConfigPartitionReader
 
         // Search for the element starting at some point in the DIT
         // Prepare the search request
-        AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        MutableAttributeTypeImpl adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope.ordinal() );
@@ -767,12 +767,12 @@ public class ConfigPartitionReader
 
                 // Now, read the AttributeTypes and store the values into the bean fields
                 // The MAY
-                Set<AttributeType> mays = getAllMays( objectClass );
+                Set<MutableAttributeTypeImpl> mays = getAllMays( objectClass );
                 LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( mays ) );
                 readFields( bean, entry, mays, OPTIONNAL );
 
                 // The MUST
-                Set<AttributeType> musts = getAllMusts( objectClass );
+                Set<MutableAttributeTypeImpl> musts = getAllMusts( objectClass );
                 LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( musts ) );
                 readFields( bean, entry, musts, MANDATORY );
                 

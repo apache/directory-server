@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
@@ -58,7 +58,7 @@ public class ReferralManagerImpl implements ReferralManager
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
     /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
+    private MutableAttributeTypeImpl OBJECT_CLASS_AT;
 
 
     /**

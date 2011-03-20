@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -73,7 +73,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value<?> attrValue, Entry entry ) throws LdapException
+    public boolean isRemovable( ACITuple tuple, MutableAttributeTypeImpl attributeType, Value<?> attrValue, Entry entry ) throws LdapException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {

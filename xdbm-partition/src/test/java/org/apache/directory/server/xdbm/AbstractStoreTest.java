@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -74,13 +74,13 @@ public class AbstractStoreTest
     private static Dn EXAMPLE_COM;
     
     /** The OU AttributType instance */
-    private static AttributeType OU_AT;
+    private static MutableAttributeTypeImpl OU_AT;
 
     /** The CN AttributType instance */
-    private static AttributeType CN_AT;
+    private static MutableAttributeTypeImpl CN_AT;
 
     /** The UID AttributType instance */
-    private static AttributeType UID_AT;
+    private static MutableAttributeTypeImpl UID_AT;
 
 
     @BeforeClass
@@ -332,7 +332,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        MutableAttributeTypeImpl csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
         EntryAttribute attrib = new DefaultEntryAttribute( csnAt );
         
         CsnFactory csnF = new CsnFactory( 0 );

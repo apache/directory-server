@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.slf4j.Logger;
@@ -383,7 +383,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 
         if ( getOperationContext().isNoAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( MutableAttributeTypeImpl at : entry.getOriginalEntry().getAttributeTypes() )
             {
                 entry.remove( entry.get( at ) );
             }
@@ -394,7 +394,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllUserAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( MutableAttributeTypeImpl at : entry.getOriginalEntry().getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 
@@ -424,7 +424,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllOperationalAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( MutableAttributeTypeImpl at : entry.getOriginalEntry().getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 
@@ -454,7 +454,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().getReturningAttributes() != null )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( MutableAttributeTypeImpl at : entry.getOriginalEntry().getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 

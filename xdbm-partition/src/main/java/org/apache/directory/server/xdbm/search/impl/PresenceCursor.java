@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -47,7 +47,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public PresenceCursor( Store<Entry, ID> db, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
     {
         this.presenceEvaluator = presenceEvaluator;
-        AttributeType type = presenceEvaluator.getAttributeType();
+        MutableAttributeTypeImpl type = presenceEvaluator.getAttributeType();
 
         // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
         // as it doesn't make sense because every entry has such an attribute

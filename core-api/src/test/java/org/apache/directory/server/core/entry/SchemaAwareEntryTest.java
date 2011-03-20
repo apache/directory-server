@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -87,16 +87,16 @@ public class SchemaAwareEntryTest
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
 
-    private static AttributeType atObjectClass;
-    private static AttributeType atCN;
-    private static AttributeType atDC;
-    private static AttributeType atSN;
-    private static AttributeType atC;
-    private static AttributeType atL;
-    private static AttributeType atOC;
+    private static MutableAttributeTypeImpl atObjectClass;
+    private static MutableAttributeTypeImpl atCN;
+    private static MutableAttributeTypeImpl atDC;
+    private static MutableAttributeTypeImpl atSN;
+    private static MutableAttributeTypeImpl atC;
+    private static MutableAttributeTypeImpl atL;
+    private static MutableAttributeTypeImpl atOC;
 
     // A Binary attribute
-    private static AttributeType atPwd;
+    private static MutableAttributeTypeImpl atPwd;
 
     private static Dn EXAMPLE_DN;
 
@@ -490,7 +490,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.add( ( AttributeType ) null, strValue1 );
+            entry.add( ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -606,7 +606,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.add( "cn", ( AttributeType ) null, strValue1 );
+            entry.add( "cn", ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -657,7 +657,7 @@ public class SchemaAwareEntryTest
         // Test that we can't inject a null AT
         try
         {
-            entry.add( ( AttributeType ) null, "test" );
+            entry.add( ( MutableAttributeTypeImpl ) null, "test" );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -715,8 +715,8 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
-        AttributeType atJpegPhoto = schemaManager.lookupAttributeTypeRegistry( "jpegPhoto" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atJpegPhoto = schemaManager.lookupAttributeTypeRegistry( "jpegPhoto" );
 
         byte[] test1 = Strings.getBytesUtf8("test1");
         byte[] test2 = Strings.getBytesUtf8("test2");
@@ -725,7 +725,7 @@ public class SchemaAwareEntryTest
         // Test that we can't inject a null AT
         try
         {
-            entry.add( ( AttributeType ) null, test1 );
+            entry.add( ( MutableAttributeTypeImpl ) null, test1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -796,7 +796,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] b1 = Strings.getBytesUtf8("test1");
         byte[] b2 = Strings.getBytesUtf8("test2");
@@ -813,7 +813,7 @@ public class SchemaAwareEntryTest
         // Test that we can't inject a null AT
         try
         {
-            entry.add( ( AttributeType ) null, test1 );
+            entry.add( ( MutableAttributeTypeImpl ) null, test1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -966,7 +966,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] test1 = Strings.getBytesUtf8("test1");
         byte[] test2 = Strings.getBytesUtf8("test2");
@@ -1024,7 +1024,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] b1 = Strings.getBytesUtf8("test1");
         byte[] b2 = Strings.getBytesUtf8("test2");
@@ -1186,7 +1186,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] test1 = Strings.getBytesUtf8("test1");
         byte[] test2 = Strings.getBytesUtf8("test2");
@@ -1244,7 +1244,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] b1 = Strings.getBytesUtf8("test1");
         byte[] b2 = Strings.getBytesUtf8("test2");
@@ -1416,7 +1416,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        assertFalse( entry.contains( ( AttributeType ) null, BYTES1 ) );
+        assertFalse( entry.contains( ( MutableAttributeTypeImpl ) null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
 
         EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
@@ -1439,7 +1439,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        assertFalse( entry.contains( ( AttributeType ) null, "test" ) );
+        assertFalse( entry.contains( ( MutableAttributeTypeImpl ) null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
 
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -1727,7 +1727,7 @@ public class SchemaAwareEntryTest
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+        Set<MutableAttributeTypeImpl> attributeTypes = entry.getAttributeTypes();
 
         assertEquals( 4, attributeTypes.size() );
         assertTrue( attributeTypes.contains( atOC ) );
@@ -1747,7 +1747,7 @@ public class SchemaAwareEntryTest
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
         assertNull( entry.get( atCN ) );
-        assertNull( entry.get( ( AttributeType ) null ) );
+        assertNull( entry.get( ( MutableAttributeTypeImpl ) null ) );
 
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -1947,7 +1947,7 @@ public class SchemaAwareEntryTest
 
         assertTrue( iterator.hasNext() );
 
-        Set<AttributeType> expectedIds = new HashSet<AttributeType>();
+        Set<MutableAttributeTypeImpl> expectedIds = new HashSet<MutableAttributeTypeImpl>();
         expectedIds.add( atOC );
         expectedIds.add( atCN );
         expectedIds.add( atSN );
@@ -1957,7 +1957,7 @@ public class SchemaAwareEntryTest
         {
             EntryAttribute attribute = iterator.next();
 
-            AttributeType attributeType = attribute.getAttributeType();
+            MutableAttributeTypeImpl attributeType = attribute.getAttributeType();
             assertTrue( expectedIds.contains( attributeType ) );
             expectedIds.remove( attributeType );
         }
@@ -1979,7 +1979,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( AttributeType ) null, BYTES1 );
+            entry.put( ( MutableAttributeTypeImpl ) null, BYTES1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2021,7 +2021,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( AttributeType ) null, "test" );
+            entry.put( ( MutableAttributeTypeImpl ) null, "test" );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2069,7 +2069,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( AttributeType ) null, strValue1 );
+            entry.put( ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2160,7 +2160,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( String ) null, ( AttributeType ) null, BYTES1 );
+            entry.put( ( String ) null, ( MutableAttributeTypeImpl ) null, BYTES1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2170,7 +2170,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( " ", ( AttributeType ) null, BYTES1 );
+            entry.put( " ", ( MutableAttributeTypeImpl ) null, BYTES1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2180,7 +2180,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( "badAttr", ( AttributeType ) null, BYTES1 );
+            entry.put( "badAttr", ( MutableAttributeTypeImpl ) null, BYTES1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2235,7 +2235,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( String ) null, ( AttributeType ) null, "test" );
+            entry.put( ( String ) null, ( MutableAttributeTypeImpl ) null, "test" );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2245,7 +2245,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( " ", ( AttributeType ) null, "test" );
+            entry.put( " ", ( MutableAttributeTypeImpl ) null, "test" );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2255,7 +2255,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( "badAttr", ( AttributeType ) null, "test" );
+            entry.put( "badAttr", ( MutableAttributeTypeImpl ) null, "test" );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2316,7 +2316,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( ( String ) null, ( AttributeType ) null, strValue1 );
+            entry.put( ( String ) null, ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2326,7 +2326,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( " ", ( AttributeType ) null, strValue1 );
+            entry.put( " ", ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2336,7 +2336,7 @@ public class SchemaAwareEntryTest
 
         try
         {
-            entry.put( "badAttr", ( AttributeType ) null, strValue1 );
+            entry.put( "badAttr", ( MutableAttributeTypeImpl ) null, strValue1 );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2620,8 +2620,8 @@ public class SchemaAwareEntryTest
 
         // Adding some serverAttributes
         //AttributeType atCo = registries.lookupAttributeTypeRegistry( "countryName" );
-        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
-        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
+        MutableAttributeTypeImpl atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        MutableAttributeTypeImpl atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
         EntryAttribute sa = new DefaultEntryAttribute( atL, "france" );
         entry.put( sa );
@@ -2660,7 +2660,7 @@ public class SchemaAwareEntryTest
         assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
 
         // test an ObjectClass replacement
-        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        MutableAttributeTypeImpl OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         EntryAttribute oc = new DefaultEntryAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<EntryAttribute> oldOc = entry.put( oc );
 
@@ -2697,7 +2697,7 @@ public class SchemaAwareEntryTest
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( ( AttributeType ) null, ( String ) null );
+            entry.put( ( MutableAttributeTypeImpl ) null, ( String ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2754,7 +2754,7 @@ public class SchemaAwareEntryTest
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( ( AttributeType ) null, ( byte[] ) null );
+            entry.put( ( MutableAttributeTypeImpl ) null, ( byte[] ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2817,7 +2817,7 @@ public class SchemaAwareEntryTest
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( ( AttributeType ) null, ( Value<?> ) null );
+            entry.put( ( MutableAttributeTypeImpl ) null, ( Value<?> ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2931,7 +2931,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         // Adding a null value should be possible
         entry.put( "userPassword", ( byte[] ) null );
@@ -2998,7 +2998,7 @@ public class SchemaAwareEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, ( AttributeType ) null, ( String ) null );
+            entry.put( null, ( MutableAttributeTypeImpl ) null, ( String ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3014,7 +3014,7 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( atDC ).get().get() );
 
         // Check that we can use a null AttributeType
-        entry.put( "domaincomponent", ( AttributeType ) null, ( String ) null );
+        entry.put( "domaincomponent", ( MutableAttributeTypeImpl ) null, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
@@ -3059,12 +3059,12 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, ( AttributeType ) null, ( String ) null );
+            entry.put( null, ( MutableAttributeTypeImpl ) null, ( String ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3080,7 +3080,7 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( atPassword ).get().get() );
 
         // Check that we can use a null AttributeType
-        entry.put( "userPassword", ( AttributeType ) null, ( byte[] ) null );
+        entry.put( "userPassword", ( MutableAttributeTypeImpl ) null, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
@@ -3137,7 +3137,7 @@ public class SchemaAwareEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, ( AttributeType ) null, ( Value<?> ) null );
+            entry.put( null, ( MutableAttributeTypeImpl ) null, ( Value<?> ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3153,7 +3153,7 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( atCN ).get().get() );
 
         // Check that we can use a null AttributeType
-        entry.put( "commonName", ( AttributeType ) null, ( Value<?> ) null );
+        entry.put( "commonName", ( MutableAttributeTypeImpl ) null, ( Value<?> ) null );
 
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
@@ -3390,7 +3390,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.containsAttribute( "objectclass", "userpassword" ) );
 
-        List<EntryAttribute> removed = entry.removeAttributes( ( AttributeType ) null );
+        List<EntryAttribute> removed = entry.removeAttributes( ( MutableAttributeTypeImpl ) null );
         assertNull( removed );
 
         removed = entry.removeAttributes( atC );
@@ -3541,7 +3541,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        MutableAttributeTypeImpl atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
 
         byte[] b1 = Strings.getBytesUtf8("test1");
         byte[] b2 = Strings.getBytesUtf8("test2");
@@ -3571,7 +3571,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( atCN ) );
         assertNotNull( entry.get( atPassword ) );
 
-        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        MutableAttributeTypeImpl OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         entry.removeAttributes( "cN", "UsErPaSsWoRd" );
         assertEquals( 0, entry.size() );
@@ -3604,7 +3604,7 @@ public class SchemaAwareEntryTest
         List<EntryAttribute> result = null;
 
         // First check that this method fails if we pass an empty list of ATs
-        result = entry.set( ( AttributeType ) null );
+        result = entry.set( ( MutableAttributeTypeImpl ) null );
         assertNull( result );
 
         // Now, check what we get when adding one existing AT
@@ -3617,8 +3617,8 @@ public class SchemaAwareEntryTest
         assertEquals( "sn", sa.getAttributeType().getName() );
 
         // Add two AT now
-        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
-        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
+        MutableAttributeTypeImpl atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        MutableAttributeTypeImpl atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
         result = entry.set( atL, atC, atGN, atStreet );
 
         assertNull( result );
@@ -3652,14 +3652,14 @@ public class SchemaAwareEntryTest
         assertEquals( "test", entry.get( "sn" ).get().getString() );
 
         // Now add a new SN empty AT : it should replace the existing one.
-        AttributeType atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
+        MutableAttributeTypeImpl atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
         assertEquals( "test", sa.get().getString() );
         assertNotNull( entry.get( "sn" ) );
         assertNull( entry.get( "sn" ).get() );
 
         // Last, not least, put an ObjectClass AT
-        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        MutableAttributeTypeImpl OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         entry.set( OBJECT_CLASS_AT );
 
@@ -3710,8 +3710,8 @@ public class SchemaAwareEntryTest
         assertEquals( "sn", sa.getId() );
 
         // Add different upIds now
-        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
-        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
+        MutableAttributeTypeImpl atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        MutableAttributeTypeImpl atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
         entry.set( "L" );
         entry.set( "CountryName" );
@@ -3751,7 +3751,7 @@ public class SchemaAwareEntryTest
         assertEquals( "test", entry.get( "sn" ).get().getString() );
 
         // Now add a new SN empty AT : it should replace the existing one.
-        AttributeType atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
+        MutableAttributeTypeImpl atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
         assertEquals( "test", sa.get().getString() );
         assertNotNull( entry.get( "sn" ) );
@@ -3863,7 +3863,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
-        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        MutableAttributeTypeImpl OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.put( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ), "test" );

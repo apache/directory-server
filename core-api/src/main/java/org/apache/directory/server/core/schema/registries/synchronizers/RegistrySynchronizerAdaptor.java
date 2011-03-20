@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
@@ -97,7 +97,7 @@ public class RegistrySynchronizerAdaptor
     };
 
     private final Registries registries;
-    private final AttributeType objectClassAT;
+    private final MutableAttributeTypeImpl objectClassAT;
     private final RegistrySynchronizer[] registrySynchronizers = new RegistrySynchronizer[11];
     private final Map<String, RegistrySynchronizer> objectClass2synchronizerMap = new HashMap<String, RegistrySynchronizer>();
     private final SchemaSynchronizer schemaSynchronizer;

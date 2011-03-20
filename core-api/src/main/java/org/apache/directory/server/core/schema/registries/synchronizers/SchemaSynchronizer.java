@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
@@ -75,13 +75,13 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private final Registries registries;
 
     /** The m-disable AttributeType */
-    private final AttributeType disabledAT;
+    private final MutableAttributeTypeImpl disabledAT;
 
     /** The CN attributeType */
-    private final AttributeType cnAT;
+    private final MutableAttributeTypeImpl cnAT;
 
     /** The m-dependencies AttributeType */
-    private final AttributeType dependenciesAT;
+    private final MutableAttributeTypeImpl dependenciesAT;
 
     /** A static Dn referencing ou=schema */
     private final Dn ouSchemaDn;

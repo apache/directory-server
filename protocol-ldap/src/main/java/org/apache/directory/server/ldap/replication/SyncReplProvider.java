@@ -87,7 +87,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +113,7 @@ public class SyncReplProvider implements ReplicationProvider
     /** The reference on the Ldap server instance */
     protected LdapServer ldapServer;
 
-    private AttributeType objectClassAttributeType;
+    private MutableAttributeTypeImpl objectClassAttributeType;
 
     private Map<Integer, ReplicaEventLog> replicaLogMap = new HashMap<Integer, ReplicaEventLog>();
 
@@ -782,7 +782,7 @@ public class SyncReplProvider implements ReplicationProvider
         {
             PresenceNode presenceNode = ( PresenceNode ) req.getFilter();
 
-            AttributeType at = session.getCoreSession().getDirectoryService().getSchemaManager()
+            MutableAttributeTypeImpl at = session.getCoreSession().getDirectoryService().getSchemaManager()
                 .lookupAttributeTypeRegistry( presenceNode.getAttribute() );
             if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {

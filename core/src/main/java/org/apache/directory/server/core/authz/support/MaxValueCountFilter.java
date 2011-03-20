@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeTypeImpl;
 
 
 /**
@@ -83,7 +83,7 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( MaxValueCountItem mvc, AttributeType attributeType, Entry entryView ) throws LdapException
+    private boolean isRemovable( MaxValueCountItem mvc, MutableAttributeTypeImpl attributeType, Entry entryView ) throws LdapException
     {
         for ( Iterator<MaxValueCountElem> k = mvc.iterator(); k.hasNext(); )
         {
