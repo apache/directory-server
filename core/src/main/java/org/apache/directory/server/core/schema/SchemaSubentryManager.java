@@ -37,8 +37,8 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
-import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -236,9 +236,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( SYNTAX_INDEX ):
-                MutableLdapSyntaxImpl[] syntaxes = parsers.parseLdapSyntaxes( mods );
+                MutableLdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
-                for ( MutableLdapSyntaxImpl syntax : syntaxes )
+                for ( MutableLdapSyntax syntax : syntaxes )
                 {
                     subentryModifier.deleteSchemaObject( modifyContext, syntax );
                 }
@@ -246,9 +246,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( MATCHING_RULE_INDEX ):
-                MutableMatchingRuleImpl[] mrs = parsers.parseMatchingRules( mods );
+                MutableMatchingRule[] mrs = parsers.parseMatchingRules( mods );
                 
-                for ( MutableMatchingRuleImpl mr : mrs )
+                for ( MutableMatchingRule mr : mrs )
                 {
                     subentryModifier.deleteSchemaObject( modifyContext, mr );
                 }
@@ -374,9 +374,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( SYNTAX_INDEX ):
-                MutableLdapSyntaxImpl[] syntaxes = parsers.parseLdapSyntaxes( mods );
+                MutableLdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
-                for ( MutableLdapSyntaxImpl syntax : syntaxes )
+                for ( MutableLdapSyntax syntax : syntaxes )
                 {
                     subentryModifier.addSchemaObject( modifyContext, syntax );
                 }
@@ -384,9 +384,9 @@ public class SchemaSubentryManager
                 break;
                 
             case( MATCHING_RULE_INDEX ):
-                MutableMatchingRuleImpl[] mrs = parsers.parseMatchingRules( mods );
+                MutableMatchingRule[] mrs = parsers.parseMatchingRules( mods );
                 
-                for ( MutableMatchingRuleImpl mr : mrs )
+                for ( MutableMatchingRule mr : mrs )
                 {
                     subentryModifier.addSchemaObject( modifyContext, mr );
                 }

@@ -75,6 +75,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
     class DummyMR extends MutableMatchingRuleImpl
     {
+        private static final long serialVersionUID = 663235361551754739L;
+
         public DummyMR()
         {
             super( OID );

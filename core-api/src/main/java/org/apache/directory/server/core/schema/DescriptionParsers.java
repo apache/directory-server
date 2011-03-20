@@ -35,7 +35,9 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.model.schema.NameForm;
@@ -422,20 +424,20 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
-    public MutableLdapSyntaxImpl[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
+    public MutableLdapSyntax[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_SYNTAXES;
         }
 
-        MutableLdapSyntaxImpl[] syntaxes = new MutableLdapSyntaxImpl[attr.size()];
+        MutableLdapSyntax[] syntaxes = new MutableLdapSyntaxImpl[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            MutableLdapSyntaxImpl ldapSyntax = null;
+            MutableLdapSyntax ldapSyntax = null;
 
             try
             {
@@ -471,20 +473,20 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public MutableMatchingRuleImpl[] parseMatchingRules( EntryAttribute attr ) throws LdapException
+    public MutableMatchingRule[] parseMatchingRules( EntryAttribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_MATCHING_RULES;
         }
 
-        MutableMatchingRuleImpl[] matchingRules = new MutableMatchingRuleImpl[attr.size()];
+        MutableMatchingRule[] matchingRules = new MutableMatchingRuleImpl[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            MutableMatchingRuleImpl matchingRule = null;
+            MutableMatchingRule matchingRule = null;
 
             try
             {
@@ -648,7 +650,7 @@ public class DescriptionParsers
      * @param desc the ldapSyntax 
      * @return true if the syntax is human readable, false otherwise
      */
-    private boolean isHumanReadable( MutableLdapSyntaxImpl ldapSyntax )
+    private boolean isHumanReadable( MutableLdapSyntax ldapSyntax )
     {
         List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
 

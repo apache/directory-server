@@ -70,8 +70,8 @@ import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntaxImpl;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRuleImpl;
+import org.apache.directory.shared.ldap.model.schema.MutableLdapSyntax;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.AbstractSyntaxChecker;
@@ -737,7 +737,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "ldapSyntaxes" );
-        MutableLdapSyntaxImpl ldapSyntax = null;
+        MutableLdapSyntax ldapSyntax = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -906,7 +906,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "matchingRules" );
-        MutableMatchingRuleImpl matchingRule = null;
+        MutableMatchingRule matchingRule = null;
 
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
