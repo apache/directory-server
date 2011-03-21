@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.util.OID;
+import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -621,7 +621,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Check that the index ID is valid
         String oid = index.getAttributeId();
 
-        if ( !OID.isOID( oid ) )
+        if ( !Oid.isOid( oid ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_309, oid ) );
         }

@@ -30,7 +30,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.shared.asn1.util.OID;
+import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -1093,7 +1093,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ExtendedResponse extended( OID oid, byte[] value ) throws LdapException
+    public ExtendedResponse extended( Oid oid, byte[] value ) throws LdapException
     {
         return extended( ( String ) null );
     }
@@ -1102,7 +1102,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ExtendedResponse extended( OID oid ) throws LdapException
+    public ExtendedResponse extended( Oid oid ) throws LdapException
     {
         return extended( ( String ) null );
     }
