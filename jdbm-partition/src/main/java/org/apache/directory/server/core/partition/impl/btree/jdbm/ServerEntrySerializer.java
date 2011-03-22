@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -180,7 +181,15 @@ public class ServerEntrySerializer implements Serializer
             {
                 Rdn rdn = new Rdn( schemaManager );
                 rdn.readExternal( in );
-                entry.setDn( new Dn( schemaManager, rdn ) );
+                
+                try
+                {
+                    entry.setDn( new Dn( schemaManager, rdn ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    throw new IOException( lide.getMessage() );
+                }
             }
             else
             {
