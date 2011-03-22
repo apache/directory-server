@@ -317,8 +317,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
             systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-            systemEntry.put( DnUtils.getRdnAttribute(ServerDNConstants.SYSTEM_DN), DnUtils
-                .getRdnValue(ServerDNConstants.SYSTEM_DN) );
+            systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
+                .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
             
             AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
             system.add( addOperationContext );
