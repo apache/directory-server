@@ -364,7 +364,7 @@ public class ConfigPartitionReader
             {
                 if ( type == String.class )
                 {
-                    beanField.set( bean, value.getString() );
+                    beanField.set( bean, valueStr );
                 }
                 else if ( type == int.class )
                 {
@@ -775,7 +775,7 @@ public class ConfigPartitionReader
                 Set<AttributeType> musts = getAllMusts( objectClass );
                 LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( musts ) );
                 readFields( bean, entry, musts, MANDATORY );
-                
+
                 bean.setDn( entry.getDn() );
 
                 // Done, we can add the bean into the list
