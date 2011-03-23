@@ -119,7 +119,7 @@ public class SubtreeEvaluator
         if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || 
              ( subtree.getChopAfterExclusions().size() != 0 ) )
         {
-            Dn entryRelativeDn = entryDn.getSuffix( apDn.size() + subtree.getBase().size() );
+            Dn entryRelativeDn = entryDn.getDescendantOf( apDn ).getDescendantOf( subtree.getBase() );
             
             for ( Dn chopBeforeDn : subtree.getChopBeforeExclusions() )
             {

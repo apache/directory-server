@@ -230,7 +230,7 @@ public class DefaultOperationManager implements OperationManager
             if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
@@ -318,7 +318,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -397,7 +397,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -586,7 +586,7 @@ public class DefaultOperationManager implements OperationManager
                         referralManager.unlock();
 
                         // We have found a parent referral for the current Dn
-                        Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                        Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
@@ -603,7 +603,7 @@ public class DefaultOperationManager implements OperationManager
                         referralManager.unlock();
 
                         // We have found a parent referral for the current Dn
-                        Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                        Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                         LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
@@ -614,7 +614,7 @@ public class DefaultOperationManager implements OperationManager
                         referralManager.unlock();
 
                         // We have found a parent referral for the current Dn
-                        Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                        Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
@@ -669,7 +669,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -767,7 +767,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -880,7 +880,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -962,7 +962,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current Dn
-                Dn childDn = dn.getSuffix( parentEntry.getDn().size() );
+                Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {

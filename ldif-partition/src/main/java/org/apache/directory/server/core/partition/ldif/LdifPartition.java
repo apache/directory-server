@@ -505,7 +505,7 @@ public class LdifPartition extends AbstractLdifPartition
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        Dn baseDn = entryDn.getSuffix( suffix.size() );
+        Dn baseDn = entryDn.getDescendantOf( suffix );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
