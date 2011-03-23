@@ -68,7 +68,7 @@ public final class LdapPrincipal implements Principal, Cloneable
         this.schemaManager = schemaManager;
         this.dn = dn;
         
-        if ( ! dn.isNormalized() )
+        if ( ! dn.isSchemaAware() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_436 ) );
         }
@@ -215,6 +215,6 @@ public final class LdapPrincipal implements Principal, Cloneable
      */
     public String toString()
     {
-        return (dn.isNormalized() ? "(n)" : "" ) + "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
+        return (dn.isSchemaAware() ? "(n)" : "" ) + "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
     }
 }

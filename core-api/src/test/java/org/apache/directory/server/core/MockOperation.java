@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 public class MockOperation implements OperationContext
 {
@@ -41,10 +42,10 @@ public class MockOperation implements OperationContext
     final CoreSession session;
 
 
-    public MockOperation( int count ) throws Exception 
+    public MockOperation( SchemaManager schemaManager, int count ) throws Exception 
     {
         this.count = count;
-        this.session = new MockCoreSession( new LdapPrincipal( null, new Dn(), AuthenticationLevel.STRONG ),
+        this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
     }
 

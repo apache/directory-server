@@ -174,14 +174,14 @@ public class MaxImmSubFilterTest
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
-        AciContext aciContext = new AciContext( schemaManager, new MockOperation( 1 ) );
+        AciContext aciContext = new AciContext( schemaManager, new MockOperation( schemaManager, 1 ) );
         aciContext.setEntryDn( ENTRY_NAME );
         aciContext.setAciTuples( tuples );
         aciContext.setEntry( ENTRY );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
-        aciContext = new AciContext( schemaManager, new MockOperation( 3 ) );
+        aciContext = new AciContext( schemaManager, new MockOperation( schemaManager, 3 ) );
         aciContext.setEntryDn( ENTRY_NAME );
         aciContext.setAciTuples( tuples );
         aciContext.setEntry( ENTRY );

@@ -66,7 +66,7 @@ public class LdapPrincipalTest
     @Test
     public void testStaticSerializeEmptyLdapPrincipal() throws Exception
     {
-        LdapPrincipal principal = new LdapPrincipal( null );
+        LdapPrincipal principal = new LdapPrincipal( schemaManager );
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
@@ -77,7 +77,7 @@ public class LdapPrincipalTest
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( null, in );
+        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
     }
@@ -100,7 +100,7 @@ public class LdapPrincipalTest
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( null, in );
+        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
     }

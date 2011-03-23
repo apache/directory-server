@@ -123,7 +123,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         Dn dn = deleteContext.getDn();
 
-        if ( !dn.isNormalized() )
+        if ( !dn.isSchemaAware() )
         {
             dn.normalize( schemaManager );
         }
@@ -137,7 +137,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
     {
-        if ( !modifyContext.getDn().isNormalized() )
+        if ( !modifyContext.getDn().isSchemaAware() )
         {
             modifyContext.getDn().normalize( schemaManager );
         }
@@ -162,14 +162,14 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         // Normalize the new Rdn and the Dn if needed
 
-        if ( !renameContext.getDn().isNormalized() )
+        if ( !renameContext.getDn().isSchemaAware() )
         {
             renameContext.getDn().normalize( schemaManager );
         }
 
         renameContext.getNewRdn().applySchemaManager( schemaManager );
 
-        if ( !renameContext.getNewDn().isNormalized() )
+        if ( !renameContext.getNewDn().isSchemaAware() )
         {
             renameContext.getNewDn().normalize( schemaManager );
         }
@@ -184,22 +184,22 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
-        if ( !moveContext.getDn().isNormalized() )
+        if ( !moveContext.getDn().isSchemaAware() )
         {
             moveContext.getDn().normalize( schemaManager );
         }
 
-        if ( !moveContext.getOldSuperior().isNormalized() )
+        if ( !moveContext.getOldSuperior().isSchemaAware() )
         {
             moveContext.getOldSuperior().normalize( schemaManager );
         }
 
-        if ( !moveContext.getNewSuperior().isNormalized() )
+        if ( !moveContext.getNewSuperior().isSchemaAware() )
         {
             moveContext.getNewSuperior().normalize( schemaManager );
         }
 
-        if ( !moveContext.getNewDn().isNormalized() )
+        if ( !moveContext.getNewDn().isSchemaAware() )
         {
             moveContext.getNewDn().normalize( schemaManager );
         }
@@ -225,17 +225,17 @@ public class NormalizationInterceptor extends BaseInterceptor
             moveAndRenameContext.getNewRdn().applySchemaManager( schemaManager );
         }
 
-        if ( !moveAndRenameContext.getDn().isNormalized() )
+        if ( !moveAndRenameContext.getDn().isSchemaAware() )
         {
             moveAndRenameContext.getDn().normalize( schemaManager );
         }
 
-        if ( !moveAndRenameContext.getNewDn().isNormalized() )
+        if ( !moveAndRenameContext.getNewDn().isSchemaAware() )
         {
             moveAndRenameContext.getNewDn().normalize( schemaManager );
         }
 
-        if ( !moveAndRenameContext.getNewSuperiorDn().isNormalized() )
+        if ( !moveAndRenameContext.getNewSuperiorDn().isSchemaAware() )
         {
             moveAndRenameContext.getNewSuperiorDn().normalize( schemaManager );
         }
@@ -252,7 +252,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         Dn dn = searchContext.getDn();
 
-        if ( !dn.isNormalized() )
+        if ( !dn.isSchemaAware() )
         {
             dn.normalize( schemaManager );
         }
@@ -354,7 +354,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
-        if ( !compareContext.getDn().isNormalized() )
+        if ( !compareContext.getDn().isSchemaAware() )
         {
             compareContext.getDn().normalize( schemaManager );
         }

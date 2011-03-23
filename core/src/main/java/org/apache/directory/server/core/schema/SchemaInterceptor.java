@@ -651,7 +651,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // We also have to check the H/R flag for the filter attributes
         checkFilter( filter );
 
-        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.getNormName() );
+        String baseNormForm = ( base.isSchemaAware() ? base.getNormName() : base.getNormName() );
 
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )

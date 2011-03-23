@@ -113,7 +113,7 @@ public class DefaultDnFactory implements DnFactory
         }
         else
         {
-            if ( !cachedDn.isNormalized() && ( schemaManager != null ) )
+            if ( !cachedDn.isSchemaAware() && ( schemaManager != null ) )
             {
                 cachedDn.normalize( schemaManager );
             }
@@ -130,7 +130,7 @@ public class DefaultDnFactory implements DnFactory
         {
             //System.out.println( "Dn '" + cachedDn + "' found in the cache and isNormalized " + cachedDn.isNormalized() );
             System.out.println( "Dn cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
-                + cachedDn.isNormalized() );
+                + cachedDn.isSchemaAware() );
         }
 
         return cachedDn;

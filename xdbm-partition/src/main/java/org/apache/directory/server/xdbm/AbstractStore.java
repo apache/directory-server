@@ -228,7 +228,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         protect( "suffixDn" );
 
-        if ( !suffixDn.isNormalized() )
+        if ( !suffixDn.isSchemaAware() )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_218, suffixDn.getName() ) );
         }
@@ -773,7 +773,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public ID getEntryId( Dn dn ) throws Exception
     {
         // Just to be sure that the Dn is normalized
-        if ( !dn.isNormalized() )
+        if ( !dn.isSchemaAware() )
         {
             dn.normalize( schemaManager );
         }

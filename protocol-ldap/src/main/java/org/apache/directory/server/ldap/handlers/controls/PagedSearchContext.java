@@ -233,7 +233,7 @@ public class PagedSearchContext
         {
             request.getBase().normalize( schemaManager );
 
-            if ( !previousSearchRequest.getBase().isNormalized() )
+            if ( !previousSearchRequest.getBase().isSchemaAware() )
             {
                 previousSearchRequest.getBase().normalize( schemaManager );
             }

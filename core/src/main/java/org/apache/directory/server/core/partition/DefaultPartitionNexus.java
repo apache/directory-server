@@ -885,7 +885,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             throw new LdapNoSuchObjectException();
         }
 
-        if ( !base.isNormalized() )
+        if ( !base.isSchemaAware() )
         {
             base.normalize( schemaManager );
         }

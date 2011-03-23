@@ -1333,7 +1333,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     private boolean isSubSchemaSubEntrySearch( LdapSession session, SearchRequest req ) throws Exception
     {
         Dn base = req.getBase();
-        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.getNormName() );
+        String baseNormForm = ( base.isSchemaAware() ? base.getNormName() : base.getNormName() );
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();

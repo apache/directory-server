@@ -487,7 +487,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = result.getDn();
 
-        if ( !dn.isNormalized() )
+        if ( !dn.isSchemaAware() )
         {
             dn.normalize( opContext.getSession().getDirectoryService().getSchemaManager() );
         }

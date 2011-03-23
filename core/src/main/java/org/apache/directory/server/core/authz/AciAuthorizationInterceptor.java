@@ -933,7 +933,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
-        if ( !principalDn.isNormalized() )
+        if ( !principalDn.isSchemaAware() )
         {
             principalDn.normalize( schemaManager );
         }

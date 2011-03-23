@@ -154,7 +154,7 @@ public class LdifPartition extends AbstractLdifPartition
             throw new LdapInvalidDnException( msg );
         }
 
-        if ( !suffix.isNormalized() )
+        if ( !suffix.isSchemaAware() )
         {
             suffix.normalize( schemaManager );
         }
