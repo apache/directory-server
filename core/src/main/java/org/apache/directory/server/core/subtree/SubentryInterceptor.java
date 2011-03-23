@@ -1192,7 +1192,7 @@ public class SubentryInterceptor extends BaseInterceptor
             baseDn = baseDn.addAll( ss.getBase() );
             Dn newName = newSuperiorDn;
             newName = newName.add( oldDn.getRdn() );
-            newName.normalize( schemaManager );
+            newName.applySchemaManager( schemaManager );
 
             subentryCache.addSubentry( newName, subentry );
 
@@ -1219,7 +1219,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.normalize( schemaManager );
+                    dn.applySchemaManager( schemaManager );
 
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {
@@ -1284,7 +1284,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn newName = newSuperiorDn.getParent();
 
             newName = newName.add( moveAndRenameContext.getNewRdn() );
-            newName.normalize( schemaManager );
+            newName.applySchemaManager( schemaManager );
 
             subentryCache.addSubentry( newName, subentry );
 
@@ -1310,7 +1310,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.normalize( schemaManager );
+                    dn.applySchemaManager( schemaManager );
 
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {
@@ -1367,7 +1367,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn newName = oldDn.getParent();
 
             newName = newName.add( renameContext.getNewRdn() );
-            newName.normalize( schemaManager );
+            newName.applySchemaManager( schemaManager );
 
             subentryCache.addSubentry( newName, subentry );
             next.rename( renameContext );
@@ -1391,7 +1391,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.normalize( schemaManager );
+                    dn.applySchemaManager( schemaManager );
 
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {

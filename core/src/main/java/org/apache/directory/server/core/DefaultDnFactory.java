@@ -115,7 +115,7 @@ public class DefaultDnFactory implements DnFactory
         {
             if ( !cachedDn.isSchemaAware() && ( schemaManager != null ) )
             {
-                cachedDn.normalize( schemaManager );
+                cachedDn.applySchemaManager( schemaManager );
             }
 
             if ( enableStats )

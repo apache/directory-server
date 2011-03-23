@@ -1489,7 +1489,7 @@ public class DefaultDirectoryService implements DirectoryService
         schemaService.initialize();
         schemaService.getSchemaPartition().initialize();
         partitions.add( schemaService.getSchemaPartition() );
-        systemPartition.getSuffix().normalize( schemaManager );
+        systemPartition.getSuffix().applySchemaManager( schemaManager );
 
         pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
         

@@ -935,7 +935,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( !principalDn.isSchemaAware() )
         {
-            principalDn.normalize( schemaManager );
+            principalDn.applySchemaManager( schemaManager );
         }
 
         // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
@@ -1413,7 +1413,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
-            Dn normName = entry.getDn().normalize( schemaManager );
+            Dn normName = entry.getDn().applySchemaManager( schemaManager );
             return filter( searchContext, normName, entry );
         }
     }

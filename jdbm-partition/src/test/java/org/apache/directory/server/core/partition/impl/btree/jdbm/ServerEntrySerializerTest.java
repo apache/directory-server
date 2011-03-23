@@ -167,7 +167,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryOC() throws Exception
     {
         Dn dn = new Dn( "cn=text, dc=example, dc=com" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
@@ -190,7 +190,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntry() throws Exception
     {
         Dn dn = new Dn( "cn=text, dc=example, dc=com" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
@@ -216,7 +216,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
         Dn dn = new Dn( "" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
@@ -238,7 +238,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryWithNoAttributes() throws Exception
     {
         Dn dn = new Dn( "" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
 
@@ -256,7 +256,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryWithAttributeNoValue() throws Exception
     {
         Dn dn = new Dn( "" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
 
@@ -277,7 +277,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryWithAttributeStringValue() throws Exception
     {
         Dn dn = new Dn( "" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
 
@@ -296,7 +296,7 @@ public class ServerEntrySerializerTest
     public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
     {
         Dn dn = new Dn( "" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
 

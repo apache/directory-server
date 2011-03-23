@@ -1704,7 +1704,7 @@ public abstract class ServerContext implements EventContext
         // Add to left hand side of cloned Dn the relative name arg
         try
         {
-            relativeName.normalize( schemaManager );
+            relativeName.applySchemaManager( schemaManager );
             target = target.addAllNormalized( target.size(), relativeName );
         }
         catch (LdapInvalidDnException lide )

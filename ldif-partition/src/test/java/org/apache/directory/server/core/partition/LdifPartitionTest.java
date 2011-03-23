@@ -389,7 +389,7 @@ public class LdifPartitionTest
         SearchOperationContext searchCtx = new SearchOperationContext( session );
 
         Dn dn = new Dn( "dc=test,ou=test,ou=system" );
-        dn.normalize( schemaManager );
+        dn.applySchemaManager( schemaManager );
         searchCtx.setDn( dn );
         ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=domain)" );
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );

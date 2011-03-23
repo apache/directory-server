@@ -144,7 +144,7 @@ public class TupleCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    Dn subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager() );
+                    Dn subentryDn = result.getDn().applySchemaManager( session.getDirectoryService().getSchemaManager() );
                     EntryAttribute aci = result.get( PRESCRIPTIVE_ACI_AT );
 
                     if ( aci == null )

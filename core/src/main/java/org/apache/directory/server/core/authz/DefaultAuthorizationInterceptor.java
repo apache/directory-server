@@ -489,7 +489,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( !dn.isSchemaAware() )
         {
-            dn.normalize( opContext.getSession().getDirectoryService().getSchemaManager() );
+            dn.applySchemaManager( opContext.getSession().getDirectoryService().getSchemaManager() );
         }
 
         // Admin users gets full access to all entries

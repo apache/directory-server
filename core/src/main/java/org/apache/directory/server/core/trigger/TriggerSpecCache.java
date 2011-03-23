@@ -153,7 +153,7 @@ public class TriggerSpecCache
                         continue;
                     }
 
-                    Dn normSubentryName = subentryDn.normalize( directoryService.getSchemaManager() );
+                    Dn normSubentryName = subentryDn.applySchemaManager( directoryService.getSchemaManager() );
                     subentryAdded( normSubentryName, resultEntry );
                 }
 

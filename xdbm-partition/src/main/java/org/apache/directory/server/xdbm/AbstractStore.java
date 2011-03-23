@@ -775,7 +775,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Just to be sure that the Dn is normalized
         if ( !dn.isSchemaAware() )
         {
-            dn.normalize( schemaManager );
+            dn.applySchemaManager( schemaManager );
         }
 
         int dnSize = dn.size();

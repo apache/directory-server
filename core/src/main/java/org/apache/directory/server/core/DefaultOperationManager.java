@@ -222,7 +222,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the addContext Dn
             Dn dn = addContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -307,7 +307,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the compareContext Dn
             Dn dn = compareContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -387,7 +387,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the deleteContext Dn
             Dn dn = deleteContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -563,7 +563,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the modifyContext Dn
             Dn dn = modifyContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             ReferralManager referralManager = directoryService.getReferralManager();
 
@@ -654,11 +654,11 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the moveContext Dn
             Dn dn = moveContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // Normalize the moveContext superior Dn
             Dn newSuperiorDn = moveContext.getNewSuperior();
-            newSuperiorDn.normalize( directoryService.getSchemaManager() );
+            newSuperiorDn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -756,7 +756,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the moveAndRenameContext Dn
             Dn dn = moveAndRenameContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -810,7 +810,7 @@ public class DefaultOperationManager implements OperationManager
             // Now, check the destination
             // Normalize the moveAndRenameContext Dn
             Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-            newSuperiorDn.normalize( directoryService.getSchemaManager() );
+            newSuperiorDn.applySchemaManager( directoryService.getSchemaManager() );
 
             // If he parent Dn is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
@@ -860,7 +860,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the renameContext Dn
             Dn dn = renameContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // Inject the newDn into the operation context
             // Inject the new Dn into the context
@@ -951,7 +951,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the searchContext Dn
             Dn dn = searchContext.getDn();
-            dn.normalize( directoryService.getSchemaManager() );
+            dn.applySchemaManager( directoryService.getSchemaManager() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();

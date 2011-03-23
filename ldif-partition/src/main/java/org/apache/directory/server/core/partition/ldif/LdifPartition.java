@@ -156,7 +156,7 @@ public class LdifPartition extends AbstractLdifPartition
 
         if ( !suffix.isSchemaAware() )
         {
-            suffix.normalize( schemaManager );
+            suffix.applySchemaManager( schemaManager );
         }
 
         String suffixDirName = getFileName( suffix );

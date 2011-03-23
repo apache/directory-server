@@ -412,7 +412,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
         if ( schemaManager != null )
         {
-            this.suffix.normalize( schemaManager );
+            this.suffix.applySchemaManager( schemaManager );
         }
     }
 

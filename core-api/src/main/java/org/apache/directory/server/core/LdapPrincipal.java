@@ -200,7 +200,7 @@ public final class LdapPrincipal implements Principal, Cloneable
         
         try
         {
-            dn.normalize( schemaManager );
+            dn.applySchemaManager( schemaManager );
         }
         catch ( LdapInvalidDnException lide )
         {
