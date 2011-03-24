@@ -22,9 +22,10 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
@@ -67,8 +68,16 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         super( session, oldDn );
         this.newSuperior = newSuperior;
         oldSuperior = oldDn.getParent();
-        rdn = (Rdn)(oldDn.getRdn().clone());
-        newDn = newSuperior.add( rdn );
+        rdn = (Rdn)( oldDn.getRdn().clone() );
+        
+        try
+        {
+            newDn = newSuperior.add( rdn );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IllegalArgumentException( lide.getMessage() );
+        }
     }
 
     
@@ -100,7 +109,15 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
         oldSuperior = modifyDnRequest.getName().getParent();
         rdn = (Rdn)(modifyDnRequest.getName().getRdn().clone());
-        newDn = newSuperior.add( rdn );
+        
+        try
+        { 
+            newDn = newSuperior.add( rdn );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IllegalArgumentException( lide.getMessage() );
+        }
     }
 
 

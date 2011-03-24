@@ -61,7 +61,15 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.newSuperiorDn = newSuperiorDn;
-        newDn = newSuperiorDn.add( newRdn );
+        
+        try
+        {
+            newDn = newSuperiorDn.add( newRdn );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IllegalArgumentException( lide.getMessage() );
+        }
     }
 
 
