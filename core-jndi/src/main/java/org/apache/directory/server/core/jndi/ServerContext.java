@@ -1612,7 +1612,14 @@ public abstract class ServerContext implements EventContext
         // 1). Find the Dn for name and walk it from the head to tail
         Dn fqn = buildTarget( JndiUtils.fromName( name ) );
         
-        return JndiUtils.toName( JndiUtils.fromName( prefix ).addAll( fqn ) );
+        try
+        {
+            return JndiUtils.toName( JndiUtils.fromName( prefix ).addAll( fqn ) );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new InvalidNameException( lide.getMessage() );
+        }
     }
 
 
