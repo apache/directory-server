@@ -536,10 +536,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private Dn denormalizeTypes( Dn dn ) throws LdapException
     {
         Dn newDn = new Dn( schemaManager );
+        int size = dn.size();
 
-        for ( int ii = 0; ii < dn.size(); ii++ )
+        for ( int pos = 0; pos < size; pos++ )
         {
-            Rdn rdn = dn.getRdn( ii );
+            Rdn rdn = dn.getRdn( size - 1 - pos );
             
             if ( rdn.size() == 0 )
             {

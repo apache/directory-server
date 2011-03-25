@@ -151,12 +151,14 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected String getSchemaName( Dn dn ) throws LdapException
     {
-        if ( dn.size() < 2 )
+        int size = dn.size();
+        
+        if ( size < 2 )
         {
             throw new LdapInvalidDnException( I18n.err( I18n.ERR_276 ) );
         }
 
-        Rdn rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( size - 2 );
         
         return rdn.getNormValue().getString();
     }

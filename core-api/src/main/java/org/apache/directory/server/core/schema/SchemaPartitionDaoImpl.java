@@ -490,7 +490,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             return null;
         }
 
-        Rdn rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( dn.size() - 2 );
 
         if ( !rdn.getNormType().equalsIgnoreCase( SchemaConstants.CN_AT_OID ) )
         {

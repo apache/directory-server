@@ -1540,12 +1540,14 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private String getSchemaName( Dn dn ) throws LdapException
     {
-        if ( dn.size() < 2 )
+        int size = dn.size();
+        
+        if ( size < 2 )
         {
             throw new LdapException( I18n.err( I18n.ERR_276 ) );
         }
 
-        Rdn rdn = dn.getRdn( 1 );
+        Rdn rdn = dn.getRdn( size - 2 );
         
         return rdn.getNormValue().getString();
     }

@@ -506,10 +506,11 @@ public class LdifPartition extends AbstractLdifPartition
         filePath.append( suffixDirectory ).append( File.separator );
 
         Dn baseDn = entryDn.getDescendantOf( suffix );
+        int size = baseDn.size();
 
-        for ( int i = 0; i < baseDn.size() - 1; i++ )
+        for ( int i = 0; i < size - 1; i++ )
         {
-            String rdnFileName = getFileName( baseDn.getRdn( i ) );
+            String rdnFileName = getFileName( baseDn.getRdn( size - 1 - i ) );
 
             filePath.append( rdnFileName ).append( File.separator );
         }

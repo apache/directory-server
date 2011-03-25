@@ -165,7 +165,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
         try
         {
-            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(), entryName.getRdn( 0 ) );
+            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(), entryName.getRdn( entryName.size() - 1 ) );
             SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(),
                 baseDn, childrenFilter, childrenSearchControls );
             searchContext.setByPassed( SEARCH_BYPASS );
