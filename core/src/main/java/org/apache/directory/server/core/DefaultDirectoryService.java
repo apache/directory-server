@@ -794,8 +794,8 @@ public class DefaultDirectoryService implements DirectoryService
         Dn newBase = newDn.getParent();
 
         // Compute the Rdn for each of the Dn
-        Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
-        Rdn oldRdn = oldDn.getRdn( oldDn.size() - 1 );
+        Rdn newRdn = newDn.getRdn();
+        Rdn oldRdn = oldDn.getRdn();
 
         /*
          * We need to determine if this rename operation corresponds to a simple

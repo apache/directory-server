@@ -1028,7 +1028,7 @@ public abstract class ServerContext implements EventContext
     private void injectRdnAttributeValues( Dn target, Entry serverEntry ) throws NamingException
     {
         // Add all the Rdn attributes and their values to this entry
-        Rdn rdn = target.getRdn( target.size() - 1 );
+        Rdn rdn = target.getRdn();
 
         if ( rdn.size() == 1 )
         {

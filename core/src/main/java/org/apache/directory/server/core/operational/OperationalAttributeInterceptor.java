@@ -540,6 +540,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
             Rdn rdn = dn.getRdn( ii );
+            
             if ( rdn.size() == 0 )
             {
                 newDn = newDn.add( new Rdn() );

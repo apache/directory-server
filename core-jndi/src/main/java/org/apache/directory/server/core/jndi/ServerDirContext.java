@@ -566,7 +566,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         Dn target = buildTarget( JndiUtils.fromName( name ) );
-        Rdn rdn = target.getRdn( target.size() - 1 );
+        Rdn rdn = target.getRdn();
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();

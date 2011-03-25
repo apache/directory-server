@@ -157,6 +157,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
 
         Rdn rdn = dn.getRdn( 1 );
+        
         return rdn.getNormValue().getString();
     }
 

@@ -484,6 +484,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public String findSchema( String entityName ) throws Exception
     {
         Dn dn = findDn( entityName );
+        
         if ( dn == null )
         {
             return null;
