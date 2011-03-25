@@ -105,7 +105,7 @@ public class DefaultOperationManager implements OperationManager
                 // So we have to take the Rdn one by one, and create a
                 // new Dn with the type and value UP form
     
-                Dn urlDn = ldapUrl.getDn().addAll( childDn );
+                Dn urlDn = ldapUrl.getDn().add( childDn );
     
                 ldapUrl.setDn( urlDn );
                 urls.add( ldapUrl.toString() );
@@ -155,7 +155,7 @@ public class DefaultOperationManager implements OperationManager
                     // So we have to take the Rdn one by one, and create a
                     // new Dn with the type and value UP form
 
-                    Dn urlDn = ldapUrl.getDn().addAll( childDn );
+                    Dn urlDn = ldapUrl.getDn().add( childDn );
 
                     ldapUrl.setDn( urlDn );
                 }

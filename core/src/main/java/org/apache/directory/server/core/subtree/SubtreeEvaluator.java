@@ -78,7 +78,7 @@ public class SubtreeEvaluator
         // First construct the subtree base, which is the concatenation of the
         // AP Dn and the subentry base
         Dn subentryBaseDn = apDn;
-        subentryBaseDn = subentryBaseDn.addAll( subtree.getBase() );
+        subentryBaseDn = subentryBaseDn.add( subtree.getBase() );
         
         String s = subentryBaseDn.toString();
         

@@ -1404,7 +1404,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * name past the farthest referral Dn which the target name extends.
              */
             Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
-            Dn refDn = urlDn.addAll( suffix );
+            Dn refDn = urlDn.add( suffix );
             
             ldapUrl.setDn( refDn );
             ldapUrl.setForceScopeRendering( true );
@@ -1483,7 +1483,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              * name past the farthest referral Dn which the target name extends.
              */
             Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
-            urlDn = urlDn.addAll( suffix );
+            urlDn = urlDn.add( suffix );
 
             StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );

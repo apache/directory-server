@@ -1614,7 +1614,7 @@ public abstract class ServerContext implements EventContext
         
         try
         {
-            return JndiUtils.toName( JndiUtils.fromName( prefix ).addAll( fqn ) );
+            return JndiUtils.toName( JndiUtils.fromName( prefix ).add( fqn ) );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -1711,7 +1711,7 @@ public abstract class ServerContext implements EventContext
         // Add to left hand side of cloned Dn the relative name arg
         try
         {
-            target = target.addAll( relativeName );
+            target = target.add( relativeName );
             target.applySchemaManager( schemaManager );
         }
         catch (LdapInvalidDnException lide )
