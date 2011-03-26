@@ -772,7 +772,14 @@ public class LdifPartition extends AbstractLdifPartition
             // What can we do here ???
         }
 
-        this.contextEntry = new DefaultEntry( schemaManager, entries.get( 0 ).getEntry() );
+        try
+        { 
+            this.contextEntry = new DefaultEntry( schemaManager, entries.get( 0 ).getEntry() );
+        }
+        catch ( LdapException le )
+        {
+            throw new LdapLdifException( le.getMessage() );
+        }
     }
 
 

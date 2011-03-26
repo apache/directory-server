@@ -433,21 +433,11 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testGetString() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
-        assertEquals( 0, attr1.add( ( String ) null ) );
+        assertEquals( 1, attr1.add( ( String ) null ) );
 
-        try
-        {
-            attr1.getString();
-            fail();
-        }
-        catch ( LdapInvalidAttributeValueException liave )
-        {
-            // expected
-        }
-
-        EntryAttribute attr2 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC );
 
         attr2.add( "a", "b" );
         assertEquals( "a", attr2.getString() );
@@ -494,13 +484,13 @@ public class SchemaAwareEntryAttributeTest
      * Test method hashCode()
      */
     @Test
-    public void testHashCode()
+    public void testHashCode() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         EntryAttribute attr2 = new DefaultEntryAttribute( atSN );
         assertNotSame( attr1.hashCode(), attr2.hashCode() );
 
-        attr2.setAttributeType( atCN );
+        attr2.setAttributeType( atDC );
         assertEquals( attr1.hashCode(), attr2.hashCode() );
 
         attr1.add( ( String ) null );
@@ -631,11 +621,11 @@ public class SchemaAwareEntryAttributeTest
      * Test method add( Value... )
      */
     @Test
-    public void testAddValueArray()
+    public void testAddValueArray() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
-        int nbAdded = attr1.add( new StringValue( atCN, null ) );
+        int nbAdded = attr1.add( (String)null );
         assertEquals( 1, nbAdded );
         assertTrue( attr1.isHR() );
         assertEquals( NULL_STRING_VALUE, attr1.get() );
@@ -849,7 +839,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method clear()
      */
     @Test
-    public void testClear()
+    public void testClear() throws LdapException
     {
         EntryAttribute attr = new DefaultEntryAttribute( "dc", atDC );
 
@@ -866,10 +856,10 @@ public class SchemaAwareEntryAttributeTest
 
 
     /**
-     * Test method contains( Value... )
+     * Test method contains( Value... ) throws LdapException
      */
     @Test
-    public void testContainsValueArray()
+    public void testContainsValueArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
@@ -920,7 +910,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method contains( String... )
      */
     @Test
-    public void testContainsStringArray()
+    public void testContainsStringArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
@@ -950,7 +940,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method contains( byte[]... )
      */
     @Test
-    public void testContainsByteArray()
+    public void testContainsByteArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
 
@@ -980,7 +970,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method testEquals()
      */
     @Test
-    public void testEquals()
+    public void testEquals() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
 
@@ -1015,7 +1005,7 @@ public class SchemaAwareEntryAttributeTest
         assertTrue( attr3.equals( attr4 ) );
 
         EntryAttribute attr5 = new DefaultEntryAttribute( atPwd );
-        EntryAttribute attr6 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atDC );
         assertFalse( attr5.equals( attr6 ) );
 
         attr5.add( NULL_BINARY_VALUE );
@@ -1043,7 +1033,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method get()
      */
     @Test
-    public void testGet()
+    public void testGet() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC );
 
@@ -1084,9 +1074,9 @@ public class SchemaAwareEntryAttributeTest
      * Test method getAll()
      */
     @Test
-    public void testGetAll()
+    public void testGetAll() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atDC );
 
         Iterator<Value<?>> iterator = attr.getAll();
         assertFalse( iterator.hasNext() );
@@ -1487,7 +1477,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method iterator()
      */
     @Test
-    public void testIterator()
+    public void testIterator() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
         attr1.add( "a", "b", "c" );
@@ -1512,7 +1502,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method toString
      */
     @Test
-    public void testToString()
+    public void testToString() throws LdapException
     {
         EntryAttribute attr = new DefaultEntryAttribute( atDC );
 
@@ -1809,7 +1799,7 @@ public class SchemaAwareEntryAttributeTest
      * Test constructor DefaultEntryAttribute( String, AttributeType, Value... )
      */
     @Test
-    public void testDefaultServerAttributeStringAttributeTypeValueArray()
+    public void testDefaultServerAttributeStringAttributeTypeValueArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
 
@@ -1859,7 +1849,7 @@ public class SchemaAwareEntryAttributeTest
      * Test constructor DefaultEntryAttribute( AttributeType, String... ) 
      */
     @Test
-    public void testDefaultServerAttributeAttributeTypeStringArray()
+    public void testDefaultServerAttributeAttributeTypeStringArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atDC, "a", "b", ( String ) null );
 
@@ -1887,7 +1877,7 @@ public class SchemaAwareEntryAttributeTest
      * Test constructor DefaultEntryAttribute( String, AttributeType, String... )
      */
     @Test
-    public void testDefaultServerAttributeStringAttributeTypeStringArray()
+    public void testDefaultServerAttributeStringAttributeTypeStringArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC, "a", "b", ( String ) null );
 
@@ -1926,7 +1916,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method DefaultEntryAttribute( AttributeType, byte[]... ) 
      */
     @Test
-    public void testDefaultServerAttributeAttributeTypeByteArray()
+    public void testDefaultServerAttributeAttributeTypeByteArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, ( byte[] ) null );
 
@@ -1954,7 +1944,7 @@ public class SchemaAwareEntryAttributeTest
      * Test method DefaultEntryAttribute( String, AttributeType, byte[]... )
      */
     @Test
-    public void testDefaultServerAttributeStringAttributeTypeByteArray()
+    public void testDefaultServerAttributeStringAttributeTypeByteArray() throws LdapException
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2, ( byte[] ) null );
 
@@ -1982,15 +1972,15 @@ public class SchemaAwareEntryAttributeTest
      * Test method testClone()
      */
     @Test
-    public void testClone()
+    public void testClone() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atDC );
 
         EntryAttribute clone = attr.clone();
 
         assertEquals( attr, clone );
-        attr.setUpId( "CommonName" );
-        assertEquals( "2.5.4.3", clone.getId() );
+        attr.setUpId( "DomainComponent" );
+        assertEquals( "0.9.2342.19200300.100.1.25", clone.getId() );
 
         attr.add( "a", ( String ) null, "b" );
         clone = attr.clone();
@@ -2008,7 +1998,7 @@ public class SchemaAwareEntryAttributeTest
      * Test the copy constructor of a EntryAttribute
      */
     @Test
-    public void testCopyConstructorServerAttribute() throws LdapInvalidAttributeValueException
+    public void testCopyConstructorServerAttribute() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
 
@@ -2031,7 +2021,7 @@ public class SchemaAwareEntryAttributeTest
      * Test the copy constructor of a ClientAttribute
      */
     @Test
-    public void testCopyConstructorClientAttribute() throws LdapInvalidAttributeValueException
+    public void testCopyConstructorClientAttribute() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( "commonName" );
         attribute.add( "test" );
@@ -2051,7 +2041,7 @@ public class SchemaAwareEntryAttributeTest
      * Test the conversion method 
      */
     @Test
-    public void testToClientAttribute()
+    public void testToClientAttribute() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN, "test", "test2" );
 

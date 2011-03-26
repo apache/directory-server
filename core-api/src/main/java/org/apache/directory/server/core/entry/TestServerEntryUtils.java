@@ -158,7 +158,7 @@ public class TestServerEntryUtils
         {
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
-                if ( !value.isBinary() )
+                if ( value.isHR() )
                 {
                     return new StringValue( value.getString().toLowerCase() );
                 }
@@ -241,7 +241,7 @@ public class TestServerEntryUtils
         {
             public Value<?> normalize( Value<?> value ) throws LdapException
             {
-                if ( value.isBinary() )
+                if ( !value.isHR() )
                 {
                     byte[] val = value.getBytes();
                     

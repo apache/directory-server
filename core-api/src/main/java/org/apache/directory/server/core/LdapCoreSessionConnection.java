@@ -310,13 +310,13 @@ public class LdapCoreSessionConnection implements LdapConnection
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
 
-        if ( value.isBinary() )
+        if ( value.isHR() )
         {
-            compareRequest.setAssertionValue( value.getBytes() );
+            compareRequest.setAssertionValue( value.getString() );
         }
         else
         {
-            compareRequest.setAssertionValue( value.getString() );
+            compareRequest.setAssertionValue( value.getBytes() );
         }
 
         return compare( compareRequest );

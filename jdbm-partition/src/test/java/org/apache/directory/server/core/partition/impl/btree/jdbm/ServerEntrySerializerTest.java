@@ -195,7 +195,7 @@ public class ServerEntrySerializerTest
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
-        entry.add( "SN", ( String ) null );
+        entry.add( "SN", "Test" );
         entry.add( "userPassword", Strings.getBytesUtf8("password") );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
@@ -221,7 +221,7 @@ public class ServerEntrySerializerTest
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
-        entry.add( "SN", ( String ) null );
+        entry.add( "SN", "Test" );
         entry.add( "userPassword", Strings.getBytesUtf8("password") );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );

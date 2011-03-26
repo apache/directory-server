@@ -268,8 +268,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
              */
             for ( Value<?> value : attr )
             {
-                value.normalize( normalizer );
-                String strValue = ( String ) value.getNormalizedValue();
+                String strValue = ( String ) value.getNormValue();
 
                 // Once match is found cleanup and return true
                 if ( regex.matcher( strValue ).matches() )
@@ -308,8 +307,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                      */
                     for ( Value<?> value : attr )
                     {
-                        value.normalize( normalizer );
-                        String strValue = ( String ) value.getNormalizedValue();
+                        String strValue = ( String ) value.getNormValue();
 
                         // Once match is found cleanup and return true
                         if ( regex.matcher( strValue ).matches() )
@@ -361,8 +359,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             {
                 for ( Value<?> value : attr )
                 {
-                    value.normalize( normalizer );
-                    String strValue = ( String ) value.getNormalizedValue();
+                    String strValue = ( String ) value.getNormValue();
     
                     // Once match is found cleanup and return true
                     if ( regex.matcher( strValue ).matches() )
@@ -379,8 +376,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                 // the value.
                 for ( Value<?> value : attr )
                 {
-                    value.normalize( normalizer );
-                    byte[] byteValue = (byte[])value.getNormalizedValue();
+                    byte[] byteValue = (byte[])value.getNormValue();
     
                     // Once match is found cleanup and return true
                     // @TODO : implement this check.
@@ -425,8 +421,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                      */
                     for ( Value<?> value : attr )
                     {
-                        value.normalize( normalizer );
-                        String strValue = ( String ) value.getNormalizedValue();
+                        String strValue = ( String ) value.getNormValue();
 
                         // Once match is found cleanup and return true
                         if ( regex.matcher( strValue ).matches() )

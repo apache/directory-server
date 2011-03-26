@@ -603,7 +603,7 @@ public class ConfigWriter
      * @param value
      *      the value
      */
-    private void addAttributeTypeValue( EntryAttribute attribute, Object value )
+    private void addAttributeTypeValue( EntryAttribute attribute, Object value ) throws LdapException
     {
         // We don't store a 'null' value
         if ( value != null )

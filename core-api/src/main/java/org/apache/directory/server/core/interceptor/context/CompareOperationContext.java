@@ -21,11 +21,11 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.Strings;
@@ -201,9 +201,9 @@ public class CompareOperationContext extends AbstractOperationContext
         return "CompareContext for Dn '" + getDn().getName() + "'" +
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
-                    ( ( !value.isBinary() ) ?
+                    ( ( value.isHR() ) ?
                             value.getString() :
-                            ( ( value.isBinary() ) ?
+                            ( ( !value.isHR() ) ?
                                     Strings.dumpBytes(((BinaryValue) value).getReference()) :
                                         "unknown value type" ) )
                         + "'"

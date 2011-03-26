@@ -989,7 +989,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Create a new attribute using the given values
      */
-    private EntryAttribute createNewAttribute( EntryAttribute attribute )
+    private EntryAttribute createNewAttribute( EntryAttribute attribute ) throws LdapException
     {
         AttributeType attributeType = attribute.getAttributeType();
 
@@ -1743,7 +1743,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // Then loop on all values
             for ( Value<?> value : attribute )
             {
-                if ( value.isValid() )
+                if ( value.isSchemaAware() )
                 {
                     // No need to validate something which is already ok
                     continue;

@@ -147,7 +147,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
-    // TODO - determine if comaparator and index entry should have the Value
+    // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( EntryAttribute attribute ) throws Exception
     {
@@ -160,10 +160,8 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
 
         for ( Value value : attribute )
         {
-            value.normalize( normalizer );
-
             //noinspection unchecked
-            if ( ldapComparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
+            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) == 0 )
             {
                 return true;
             }

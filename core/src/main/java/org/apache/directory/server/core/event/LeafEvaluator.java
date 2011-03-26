@@ -22,8 +22,6 @@ package org.apache.directory.server.core.event;
 
 import java.util.Comparator;
 
-import javax.management.modelmbean.ModelMBean;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
@@ -265,13 +263,13 @@ public class LeafEvaluator implements Evaluator
         
         if ( attributeType.getSyntax().isHumanReadable() )
         {
-            if ( node.getValue().isBinary() )
+            if ( node.getValue().isHR() )
             {
-                value = new org.apache.directory.shared.ldap.model.entry.StringValue( node.getValue().getString() );
+                value = node.getValue();
             }
             else
             {
-                value = node.getValue();
+                value = new org.apache.directory.shared.ldap.model.entry.StringValue( node.getValue().getString() );
             }
         }
         else

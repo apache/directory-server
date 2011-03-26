@@ -124,7 +124,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
      *
      * @param pwdAt the password attribute
      */
-    private void includeHashedPassword( EntryAttribute pwdAt )
+    private void includeHashedPassword( EntryAttribute pwdAt ) throws LdapException
     {
         if ( pwdAt == null )
         {

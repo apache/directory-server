@@ -39,15 +39,16 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 
 
 /**
@@ -202,39 +203,46 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
 
         // make sure we add the request controls to operation
-        if ( attributeType.getSyntax().isHumanReadable() )
-        {
-            if ( value instanceof String )
+        try
+        { 
+            if ( attributeType.getSyntax().isHumanReadable() )
             {
-                val = new StringValue( attributeType, (String)value );
-            }
-            else if ( value instanceof byte[] )
-            {
-                val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
-            }
-            else
-            {
-                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
-            }
-        }
-        else
-        {
-            if ( value instanceof String )
-            {
-                val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
-            }
-            else if ( value instanceof byte[] )
-            {
-                val = new BinaryValue( attributeType, (byte[])value );
+                if ( value instanceof String )
+                {
+                    val = new StringValue( attributeType, (String)value );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
+                }
+                else
+                {
+                    throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                }
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                if ( value instanceof String )
+                {
+                    val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    val = new BinaryValue( attributeType, (byte[])value );
+                }
+                else
+                {
+                    throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                }
             }
         }
-
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+        }
 
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
+        
         try
         {
             opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 

@@ -96,10 +96,15 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testBinaryAttributeFilterExtension() throws Exception
     {
-        Entry entry = LdifUtils
-            .createEntry( new Dn( "ou=test,ou=system" ), "objectClass: top", "objectClass: person",
-                "objectClass: organizationalPerson", "objectClass: inetOrgPerson", "ou", "test", "cn", "test", "sn",
-                "test" );
+        Entry entry = LdifUtils.createEntry( 
+            new Dn( "ou=test,ou=system" ), 
+            "objectClass: top", 
+            "objectClass: person",
+            "objectClass: organizationalPerson", 
+            "objectClass: inetOrgPerson", 
+            "ou", "test", 
+            "cn", "test", 
+            "sn", "test" );
 
         connection.add( entry );
 
@@ -115,7 +120,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
                 0x23, 0x7d, 0x7f };
         entry.put( "jpegPhoto", keyValue );
         entry.setDn( new Dn( "ou=anothertest,ou=system" ) );
-        entry.set( "ou", "anothertest" );
+        entry.put( "ou", "anothertest" );
         connection.add( entry );
         Entry loadedEntry = connection.lookup( "ou=anothertest,ou=system" );
         ou = loadedEntry.get( "ou" );

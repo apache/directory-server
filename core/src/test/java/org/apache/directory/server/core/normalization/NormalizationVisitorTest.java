@@ -27,9 +27,11 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.model.filter.*;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.NotNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -39,6 +41,9 @@ import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -87,7 +92,7 @@ public class NormalizationVisitorTest
         assertTrue( result instanceof EqualityNode<?>);
         EqualityNode<?> equalityNode = ( EqualityNode<?> ) result;
 
-        assertEquals( "test 1", equalityNode.getValue().getNormalizedValue() );
+        assertEquals( "test 1", equalityNode.getValue().getNormValue() );
         assertEquals( "2.5.4.11", equalityNode.getAttributeType().getOid() );
     }
 

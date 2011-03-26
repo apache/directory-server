@@ -151,7 +151,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
             "  authenticationLevel none, " + 
             "  itemOrUserFirst userFirst: " + 
             "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }" + 
+            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," + 
             "    userPermissions " +
             "    { " + 
             "      { " + 

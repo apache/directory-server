@@ -587,7 +587,8 @@ public class SubentryInterceptor extends BaseInterceptor
      * Update the list of modifications with a modification associated with a specific
      * role, if it's requested.
      */
-    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications )
+    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications ) 
+        throws LdapInvalidAttributeValueException
     {
         String oldDnStr = oldDn.getNormName();
         String newDnStr = newDn.getNormName();

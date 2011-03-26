@@ -126,7 +126,7 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
+    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType ) throws LdapException
     {
         if ( attribute == null )
         {
@@ -328,7 +328,7 @@ public class ServerEntryUtils
      *         arguments
      * @throws LdapException if there are problems accessing attribute values
      */
-    public static EntryAttribute getUnion( EntryAttribute attr0, EntryAttribute attr1 )
+    public static EntryAttribute getUnion( EntryAttribute attr0, EntryAttribute attr1 ) throws LdapException
     {
         if ( attr0 == null && attr1 == null )
         {
@@ -365,8 +365,7 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
-
+    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) throws LdapException
     {
         ModificationOperation operation;
         
@@ -434,7 +433,8 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( Modification modification, AttributeType attributeType ) 
+    private static Modification toServerModification( Modification modification, AttributeType attributeType )
+        throws LdapException
     {
         Modification serverModification = new DefaultModification( 
             modification.getOperation(),

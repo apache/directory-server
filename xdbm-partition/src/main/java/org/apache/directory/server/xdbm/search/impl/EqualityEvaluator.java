@@ -174,43 +174,20 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
          */
         for ( Value<?> value : attribute )
         {
-            value.normalize( normalizer );
-
             //noinspection unchecked
-            if ( value.isBinary() )
-            {
-                // Deal with a binary value
-                byte[] serverValue = ( (Value<byte[]>) value ).getNormalizedValue();
-                byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue();
-
-                if ( ldapComparator != null )
-                {
-                    if ( ldapComparator.compare( (Object)serverValue, (Object)nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if ( BINARY_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
-                }
-            }
-            else
+            if ( value.isHR() )
             {
                 // Deal with a String value
-                String serverValue = ( ( Value<String> ) value ).getNormalizedValue();
+                String serverValue = ( ( Value<String> ) value ).getNormValue();
                 String nodeValue = null;
 
-                if ( node.getValue().isBinary() )
+                if ( node.getValue().isHR() )
                 {
-                    nodeValue = Strings.utf8ToString(((Value<byte[]>) node.getValue()).getNormalizedValue());
+                    nodeValue = ( ( Value<String> ) node.getValue() ).getNormValue();
                 }
                 else
                 {
-                    nodeValue = ( ( Value<String> ) node.getValue() ).getNormalizedValue();
+                    nodeValue = Strings.utf8ToString(((Value<byte[]>) node.getValue()).getNormValue());
                 }
 
                 if ( ldapComparator != null )
@@ -223,6 +200,27 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
                 else
                 {
                     if ( STRING_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                // Deal with a binary value
+                byte[] serverValue = ( (Value<byte[]>) value ).getNormValue();
+                byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormValue();
+
+                if ( ldapComparator != null )
+                {
+                    if ( ldapComparator.compare( (Object)serverValue, (Object)nodeValue ) == 0 )
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if ( BINARY_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
                     {
                         return true;
                     }

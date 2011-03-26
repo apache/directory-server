@@ -185,7 +185,7 @@ public class SchemaAwareModificationTest
 
 
     @Test
-    public void testCreateClientModification()
+    public void testCreateClientModification() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
@@ -211,7 +211,7 @@ public class SchemaAwareModificationTest
      *
      */
     @Test
-    public void testCopyClientModification()
+    public void testCopyClientModification() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atC );
         attribute.add( "test1", "test2" );
@@ -236,7 +236,7 @@ public class SchemaAwareModificationTest
      *
      */
     @Test
-    public void testCopyModification()
+    public void testCopyModification() throws LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atC.getName() );
         attribute.add( "test1", "test2" );

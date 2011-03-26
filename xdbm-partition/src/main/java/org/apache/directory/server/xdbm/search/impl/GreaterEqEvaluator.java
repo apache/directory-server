@@ -213,14 +213,12 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
          */
         for ( Value value : attribute )
         {
-            value.normalize( normalizer );
-
             //noinspection unchecked
-            if ( ldapComparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) >= 0 )
+            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) >= 0 )
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setValue( value.getNormalizedValue() );
+                    indexEntry.setValue( value.getNormValue() );
                 }
                 return true;
             }
