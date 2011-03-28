@@ -167,7 +167,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             renameContext.getDn().applySchemaManager( schemaManager );
         }
 
-        renameContext.getNewRdn().applySchemaManager( schemaManager );
+        renameContext.getNewRdn().apply( schemaManager );
 
         if ( !renameContext.getNewDn().isSchemaAware() )
         {
@@ -206,7 +206,7 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !moveContext.getRdn().isSchemaAware() )
         {
-            moveContext.getRdn().applySchemaManager( schemaManager );
+            moveContext.getRdn().apply( schemaManager );
         }
 
         nextInterceptor.move( moveContext );
@@ -222,7 +222,7 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
         {
-            moveAndRenameContext.getNewRdn().applySchemaManager( schemaManager );
+            moveAndRenameContext.getNewRdn().apply( schemaManager );
         }
 
         if ( !moveAndRenameContext.getDn().isSchemaAware() )

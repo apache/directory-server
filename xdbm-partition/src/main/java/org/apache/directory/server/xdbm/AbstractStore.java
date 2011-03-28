@@ -1179,7 +1179,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         Dn updn = entry.getDn();
 
-        newRdn.applySchemaManager( schemaManager );
+        newRdn.apply( schemaManager );
 
         /*
          * H A N D L E   N E W   R D N
