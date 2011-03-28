@@ -332,7 +332,7 @@ public class EventInterceptor extends BaseInterceptor
          */
         public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
         {
-            criteria.getBase().applySchemaManager( directoryService.getSchemaManager() );
+            criteria.getBase().apply( directoryService.getSchemaManager() );
             ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
             criteria.setFilter( result );
             registrations.add( new RegistrationEntry( listener, criteria ) );

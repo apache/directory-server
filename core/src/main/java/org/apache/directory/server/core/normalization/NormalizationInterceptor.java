@@ -109,8 +109,8 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
-        addContext.getDn().applySchemaManager( schemaManager );
-        addContext.getEntry().getDn().applySchemaManager( schemaManager );
+        addContext.getDn().apply( schemaManager );
+        addContext.getEntry().getDn().apply( schemaManager );
         addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
         nextInterceptor.add( addContext );
     }
@@ -125,7 +125,7 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !dn.isSchemaAware() )
         {
-            dn.applySchemaManager( schemaManager );
+            dn.apply( schemaManager );
         }
 
         nextInterceptor.delete( deleteContext );
@@ -139,7 +139,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         if ( !modifyContext.getDn().isSchemaAware() )
         {
-            modifyContext.getDn().applySchemaManager( schemaManager );
+            modifyContext.getDn().apply( schemaManager );
         }
 
         if ( modifyContext.getModItems() != null )
@@ -164,14 +164,14 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !renameContext.getDn().isSchemaAware() )
         {
-            renameContext.getDn().applySchemaManager( schemaManager );
+            renameContext.getDn().apply( schemaManager );
         }
 
         renameContext.getNewRdn().apply( schemaManager );
 
         if ( !renameContext.getNewDn().isSchemaAware() )
         {
-            renameContext.getNewDn().applySchemaManager( schemaManager );
+            renameContext.getNewDn().apply( schemaManager );
         }
 
         // Push to the next interceptor
@@ -186,22 +186,22 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         if ( !moveContext.getDn().isSchemaAware() )
         {
-            moveContext.getDn().applySchemaManager( schemaManager );
+            moveContext.getDn().apply( schemaManager );
         }
 
         if ( !moveContext.getOldSuperior().isSchemaAware() )
         {
-            moveContext.getOldSuperior().applySchemaManager( schemaManager );
+            moveContext.getOldSuperior().apply( schemaManager );
         }
 
         if ( !moveContext.getNewSuperior().isSchemaAware() )
         {
-            moveContext.getNewSuperior().applySchemaManager( schemaManager );
+            moveContext.getNewSuperior().apply( schemaManager );
         }
 
         if ( !moveContext.getNewDn().isSchemaAware() )
         {
-            moveContext.getNewDn().applySchemaManager( schemaManager );
+            moveContext.getNewDn().apply( schemaManager );
         }
 
         if ( !moveContext.getRdn().isSchemaAware() )
@@ -227,17 +227,17 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !moveAndRenameContext.getDn().isSchemaAware() )
         {
-            moveAndRenameContext.getDn().applySchemaManager( schemaManager );
+            moveAndRenameContext.getDn().apply( schemaManager );
         }
 
         if ( !moveAndRenameContext.getNewDn().isSchemaAware() )
         {
-            moveAndRenameContext.getNewDn().applySchemaManager( schemaManager );
+            moveAndRenameContext.getNewDn().apply( schemaManager );
         }
 
         if ( !moveAndRenameContext.getNewSuperiorDn().isSchemaAware() )
         {
-            moveAndRenameContext.getNewSuperiorDn().applySchemaManager( schemaManager );
+            moveAndRenameContext.getNewSuperiorDn().apply( schemaManager );
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
@@ -254,7 +254,7 @@ public class NormalizationInterceptor extends BaseInterceptor
 
         if ( !dn.isSchemaAware() )
         {
-            dn.applySchemaManager( schemaManager );
+            dn.apply( schemaManager );
         }
 
         ExprNode filter = searchContext.getFilter();
@@ -288,7 +288,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext hasEntryContext ) throws LdapException
     {
-        hasEntryContext.getDn().applySchemaManager( schemaManager );
+        hasEntryContext.getDn().apply( schemaManager );
         return nextInterceptor.hasEntry( hasEntryContext );
     }
 
@@ -299,7 +299,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
     {
-        listContext.getDn().applySchemaManager( schemaManager );
+        listContext.getDn().apply( schemaManager );
         return nextInterceptor.list( listContext );
     }
 
@@ -332,7 +332,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
-        lookupContext.getDn().applySchemaManager( schemaManager );
+        lookupContext.getDn().apply( schemaManager );
 
         List<String> attrIds = lookupContext.getAttrsId();
 
@@ -356,7 +356,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         if ( !compareContext.getDn().isSchemaAware() )
         {
-            compareContext.getDn().applySchemaManager( schemaManager );
+            compareContext.getDn().apply( schemaManager );
         }
 
         // Get the attributeType from the OID
@@ -387,7 +387,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
     {
-        bindContext.getDn().applySchemaManager( schemaManager );
+        bindContext.getDn().apply( schemaManager );
         next.bind( bindContext );
     }
 

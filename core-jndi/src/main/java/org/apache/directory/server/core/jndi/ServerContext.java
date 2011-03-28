@@ -1712,7 +1712,7 @@ public abstract class ServerContext implements EventContext
         try
         {
             target = target.add( relativeName );
-            target.applySchemaManager( schemaManager );
+            target.apply( schemaManager );
         }
         catch (LdapInvalidDnException lide )
         {

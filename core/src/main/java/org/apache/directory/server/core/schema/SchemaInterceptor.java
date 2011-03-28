@@ -187,11 +187,11 @@ public class SchemaInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
-        subschemaSubentryDn.applySchemaManager( schemaManager );
+        subschemaSubentryDn.apply( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDn = directoryService.getDnFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationAttributesDn.applySchemaManager( schemaManager );
+        schemaModificationAttributesDn.apply( schemaManager );
 
         computeSuperiors();
 

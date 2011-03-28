@@ -1093,7 +1093,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         ReferralManager referralManager = directoryService.getReferralManager();
         Dn reqTargetDn = req.getBase();
 
-        reqTargetDn.applySchemaManager( directoryService.getSchemaManager() );
+        reqTargetDn.apply( directoryService.getSchemaManager() );
 
         // Check if the entry itself is a referral
         referralManager.lockRead();

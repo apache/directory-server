@@ -124,7 +124,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
         if ( !suffix.isSchemaAware() )
         {
-            suffix.applySchemaManager( schemaManager );
+            suffix.apply( schemaManager );
         }
 
         loadEntries();

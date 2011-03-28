@@ -161,7 +161,7 @@ public class GroupCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    Dn groupDn = result.getDn().applySchemaManager( schemaManager );
+                    Dn groupDn = result.getDn().apply( schemaManager );
                     EntryAttribute members = getMemberAttribute( result );
     
                     if ( members != null )

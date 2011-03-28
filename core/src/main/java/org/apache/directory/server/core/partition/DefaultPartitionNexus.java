@@ -223,7 +223,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Initialize and normalize the localy used DNs
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.applySchemaManager( schemaManager );
+        adminDn.apply( schemaManager );
 
         Value<?> attr = rootDSE.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
@@ -887,7 +887,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( !base.isSchemaAware() )
         {
-            base.applySchemaManager( schemaManager );
+            base.apply( schemaManager );
         }
 
         Partition backend = getPartition( base );

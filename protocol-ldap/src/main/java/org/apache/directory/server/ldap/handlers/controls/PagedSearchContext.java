@@ -231,11 +231,11 @@ public class PagedSearchContext
         // Compare the baseDN
         try
         {
-            request.getBase().applySchemaManager( schemaManager );
+            request.getBase().apply( schemaManager );
 
             if ( !previousSearchRequest.getBase().isSchemaAware() )
             {
-                previousSearchRequest.getBase().applySchemaManager( schemaManager );
+                previousSearchRequest.getBase().apply( schemaManager );
             }
 
             if ( !request.getBase().equals( previousSearchRequest.getBase() ) )
