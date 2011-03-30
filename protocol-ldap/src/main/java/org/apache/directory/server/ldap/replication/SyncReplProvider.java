@@ -69,7 +69,6 @@ import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.model.filter.LdapURL;
 import org.apache.directory.shared.ldap.model.filter.LessEqNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
@@ -88,6 +87,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.url.LdapUrl;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -627,7 +627,7 @@ public class SyncReplProvider implements ReplicationProvider
                     respRef.getReferral().addLdapUrl( url );
                 }
 
-                LdapURL ldapUrl = new LdapURL();
+                LdapUrl ldapUrl = new LdapUrl();
                 ldapUrl.setForceScopeRendering( true );
                 try
                 {

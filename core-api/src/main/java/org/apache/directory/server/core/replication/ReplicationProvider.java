@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.replication;
 
 import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.model.filter.LdapURL;
+import org.apache.directory.shared.ldap.model.url.LdapUrl;
 
 /**
  * The replication provider data structure.
@@ -42,7 +42,7 @@ public class ReplicationProvider
     private int timeLimit = 0;
     
     /** The search operation to conduct */
-    private LdapURL url;
+    private LdapUrl url;
     
     /** The connection to the replica */
     private ReplicaConnection connection;
@@ -147,7 +147,7 @@ public class ReplicationProvider
     /**
      * @return the url
      */
-    public LdapURL getUrl()
+    public LdapUrl getUrl()
     {
         return url;
     }
@@ -161,7 +161,7 @@ public class ReplicationProvider
     {
         try
         {
-            this.url = new LdapURL( url );
+            this.url = new LdapUrl( url );
         }
         catch ( LdapURLEncodingException luee )
         {

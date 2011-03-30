@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.LdapURL;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
@@ -71,6 +70,7 @@ import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.url.LdapUrl;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -846,7 +846,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                     respRef.getReferral().addLdapUrl( url );
                 }
 
-                LdapURL ldapUrl = new LdapURL();
+                LdapUrl ldapUrl = new LdapUrl();
                 ldapUrl.setForceScopeRendering( true );
                 try
                 {
@@ -1246,7 +1246,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // parse the ref value and normalize the Dn
-            LdapURL ldapUrl = new LdapURL();
+            LdapUrl ldapUrl = new LdapUrl();
             try
             {
                 ldapUrl.parse( refstr.toCharArray() );
@@ -1375,7 +1375,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // Parse the ref value
-            LdapURL ldapUrl = new LdapURL();
+            LdapUrl ldapUrl = new LdapUrl();
             try
             {
                 ldapUrl.parse( ref.toCharArray() );
@@ -1447,7 +1447,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // parse the ref value and normalize the Dn
-            LdapURL ldapUrl = new LdapURL();
+            LdapUrl ldapUrl = new LdapUrl();
             try
             {
                 ldapUrl.parse( ref.toCharArray() );
@@ -1496,7 +1496,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             buf.append( "/" );
-            buf.append( LdapURL.urlEncode( urlDn.getName(), false ) );
+            buf.append( LdapUrl.urlEncode( urlDn.getName(), false ) );
             referral.addLdapUrl( buf.toString() );
         }
 

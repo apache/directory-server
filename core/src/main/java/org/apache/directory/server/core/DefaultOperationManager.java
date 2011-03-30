@@ -53,10 +53,10 @@ import org.apache.directory.shared.ldap.model.exception.LdapPartialResultExcepti
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.model.exception.LdapServiceUnavailableException;
 import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.model.filter.LdapURL;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.url.LdapUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,7 @@ public class DefaultOperationManager implements OperationManager
             for ( Value<?> url : refs )
             {
                 // we have to replace the parent by the referral
-                LdapURL ldapUrl = new LdapURL( url.getString() );
+                LdapUrl ldapUrl = new LdapUrl( url.getString() );
     
                 // We have a problem with the Dn : we can't use the UpName,
                 // as we may have some spaces around the ',' and '+'.
@@ -140,7 +140,7 @@ public class DefaultOperationManager implements OperationManager
             // we have to replace the parent by the referral
             try
             {
-                LdapURL ldapUrl = new LdapURL( url.getString() );
+                LdapUrl ldapUrl = new LdapUrl( url.getString() );
 
                 StringBuilder urlString = new StringBuilder();
 
