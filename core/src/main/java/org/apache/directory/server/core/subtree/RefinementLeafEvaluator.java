@@ -101,7 +101,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_303 ) );
         }
         
-        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !objectClasses.isInstanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
         }

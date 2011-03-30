@@ -1533,12 +1533,12 @@ public class SchemaAwareEntryAttributeTest
     {
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
-        assertTrue( attr.instanceOf( "CommonName" ) );
-        assertTrue( attr.instanceOf( "2.5.4.3" ) );
-        assertTrue( attr.instanceOf( "  Cn  " ) );
-        assertFalse( attr.instanceOf( "  " ) );
-        assertFalse( attr.instanceOf( "sn" ) );
-        assertFalse( attr.instanceOf( "name" ) );
+        assertTrue( attr.isInstanceOf( "CommonName" ) );
+        assertTrue( attr.isInstanceOf( "2.5.4.3" ) );
+        assertTrue( attr.isInstanceOf( "  Cn  " ) );
+        assertFalse( attr.isInstanceOf( "  " ) );
+        assertFalse( attr.isInstanceOf( "sn" ) );
+        assertFalse( attr.isInstanceOf( "name" ) );
     }
 
 
@@ -1707,7 +1707,7 @@ public class SchemaAwareEntryAttributeTest
 
         attr.setAttributeType( atSN );
 
-        assertTrue( attr.instanceOf( "Surname" ) );
+        assertTrue( attr.isInstanceOf( "Surname" ) );
         assertEquals( "2.5.4.4", attr.getId() );
         assertEquals( "sn", attr.getUpId() );
     }

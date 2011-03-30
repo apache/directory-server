@@ -253,7 +253,7 @@ public class TupleCache
 
         for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().instanceOf( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
+            if ( mod.getAttribute().isInstanceOf( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
             {
                 subentryDeleted( normName, entry );
                 subentryAdded( normName, entry );
