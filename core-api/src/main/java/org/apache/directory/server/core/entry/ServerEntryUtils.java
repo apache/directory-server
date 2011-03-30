@@ -147,7 +147,7 @@ public class ServerEntryUtils
                     continue;
                 }
                 
-                if ( serverAttribute.isHR() )
+                if ( serverAttribute.isHumanReadable() )
                 {
                     if ( value instanceof String )
                     {

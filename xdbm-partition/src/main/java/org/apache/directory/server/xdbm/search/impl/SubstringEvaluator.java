@@ -355,7 +355,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
              * The test uses the comparator obtained from the appropriate
              * substring matching rule.
              */
-            if ( attr.isHR() )
+            if ( attr.isHumanReadable() )
             {
                 for ( Value<?> value : attr )
                 {
