@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.util.Strings;
 
 import javax.net.ssl.X509TrustManager;

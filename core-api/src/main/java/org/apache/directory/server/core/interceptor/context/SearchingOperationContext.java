@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import static org.apache.directory.shared.ldap.model.filter.SearchScope.ONELEVEL;
+import static org.apache.directory.shared.ldap.model.message.SearchScope.ONELEVEL;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,8 +33,8 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.model.filter.SearchScope;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
