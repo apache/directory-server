@@ -87,6 +87,9 @@ public class SchemaAwareEntryAttributeTest
     // A Binary attribute
     private static AttributeType atPwd;
 
+    // A String attribute which allows null value
+    private static AttributeType atEMail;
+
     private static final Value<String> NULL_STRING_VALUE = new StringValue( ( String ) null );
     private static final Value<byte[]> NULL_BINARY_VALUE = new BinaryValue( ( byte[] ) null );
     private static final byte[] BYTES1 = new byte[]
@@ -148,6 +151,7 @@ public class SchemaAwareEntryAttributeTest
         atC = schemaManager.lookupAttributeTypeRegistry( "c" );
         atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
         atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
+        atEMail = schemaManager.lookupAttributeTypeRegistry( "email" );
     }
 
 
@@ -439,7 +443,7 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atDC );
 
-        attr2.add( "a", "b" );
+        attr2.add( "a" );
         assertEquals( "a", attr2.getString() );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
@@ -596,24 +600,25 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
         // No value, this should not be valid
-        assertFalse( attr.isValid() );
+        assertFalse( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
 
         attr.add( "test", "test2", "A123\\;" );
-        assertTrue( attr.isValid() );
+        assertTrue( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
 
         // If we try to add a wrong value, it will not be added. The
         // attribute remains valid.
         assertEquals( 0, attr.add( new byte[]
             { 0x01 } ) );
-        assertTrue( attr.isValid() );
+        assertTrue( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
 
         // test a SINGLE-VALUE attribute. CountryName is SINGLE-VALUE
         attr.clear();
         attr.setAttributeType( atC );
         attr.add( "FR" );
-        assertTrue( attr.isValid() );
-        attr.add( "US" );
-        assertFalse( attr.isValid() );
+        assertTrue( attr.isValid( atC.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertEquals( 0, attr.add( "US" ) );
+        assertFalse( attr.contains( "US" ) );
+        assertTrue( attr.isValid( atC.getEquality().getSyntax().getSyntaxChecker() ) );
     }
 
 
@@ -762,7 +767,7 @@ public class SchemaAwareEntryAttributeTest
         assertTrue( attr4.contains( "e" ) );
         assertFalse( attr4.contains( "ab" ) );
 
-        EntryAttribute attr5 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atEMail );
 
         nbAdded = attr5.add( "a", "b", ( String ) null, "d" );
         assertEquals( 4, nbAdded );
@@ -841,7 +846,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testClear() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( "dc", atDC );
+        EntryAttribute attr = new DefaultEntryAttribute( "email", atEMail );
 
         assertEquals( 0, attr.size() );
 
@@ -851,7 +856,7 @@ public class SchemaAwareEntryAttributeTest
         attr.clear();
         assertTrue( attr.isHR() );
         assertEquals( 0, attr.size() );
-        assertEquals( atDC, attr.getAttributeType() );
+        assertEquals( atEMail, attr.getAttributeType() );
     }
 
 
@@ -861,7 +866,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testContainsValueArray() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atEMail );
 
         assertEquals( 0, attr1.size() );
         assertFalse( attr1.contains( STR_VALUE1 ) );
@@ -912,7 +917,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testContainsStringArray() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atEMail );
 
         assertEquals( 0, attr1.size() );
         assertFalse( attr1.contains( "a" ) );
@@ -1040,7 +1045,7 @@ public class SchemaAwareEntryAttributeTest
         attr1.add( ( String ) null );
         assertEquals( NULL_STRING_VALUE, attr1.get() );
 
-        EntryAttribute attr2 = new DefaultEntryAttribute( "dc", atDC );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "email", atEMail );
 
         attr2.add( "a", "b", "c" );
         assertEquals( "a", attr2.get().getString() );
@@ -1076,7 +1081,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testGetAll() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr = new DefaultEntryAttribute( atEMail );
 
         Iterator<Value<?>> iterator = attr.getAll();
         assertFalse( iterator.hasNext() );
@@ -1130,7 +1135,7 @@ public class SchemaAwareEntryAttributeTest
 
         // TODO : forbid addition of more than 1 value for SINGLE-VALUE attributes
         attr3.add( "FR" );
-        assertEquals( 2, attr3.size() );
+        assertEquals( 1, attr3.size() );
     }
 
 
@@ -1224,7 +1229,7 @@ public class SchemaAwareEntryAttributeTest
         assertTrue( attr3.isHR() );
         assertEquals( "t", attr3.getString() );
 
-        EntryAttribute attr4 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atEMail );
 
         nbAdded = attr4.add( "a", "b", "c", "d" );
         assertEquals( 4, nbAdded );
@@ -1251,7 +1256,7 @@ public class SchemaAwareEntryAttributeTest
         assertEquals( 0, nbAdded );
         assertTrue( attr4.isHR() );
 
-        EntryAttribute attr5 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atEMail );
 
         nbAdded = attr5.add( "a", "b", ( String ) null, "d" );
         assertEquals( 4, nbAdded );
@@ -1333,7 +1338,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testRemoveValueArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atEMail );
 
         assertFalse( attr1.remove( STR_VALUE1 ) );
 
@@ -1437,7 +1442,7 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testRemoveStringArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atEMail );
 
         assertFalse( attr1.remove( "a" ) );
 
@@ -1504,19 +1509,19 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testToString() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( atDC );
+        EntryAttribute attr = new DefaultEntryAttribute( atEMail );
 
-        assertEquals( "    dc: (null)\n", attr.toString() );
+        assertEquals( "    email: (null)\n", attr.toString() );
 
-        attr.setUpId( "DomainComponent" );
-        assertEquals( "    DomainComponent: (null)\n", attr.toString() );
+        attr.setUpId( "EMail" );
+        assertEquals( "    EMail: (null)\n", attr.toString() );
 
         attr.add( ( String ) null );
-        assertEquals( "    DomainComponent: ''\n", attr.toString() );
+        assertEquals( "    EMail: ''\n", attr.toString() );
 
         attr.clear();
         attr.add( "a", "b" );
-        assertEquals( "    DomainComponent: a\n    DomainComponent: b\n", attr.toString() );
+        assertEquals( "    EMail: a\n    EMail: b\n", attr.toString() );
     }
 
 
@@ -1851,23 +1856,23 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testDefaultServerAttributeAttributeTypeStringArray() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC, "a", "b", ( String ) null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atEMail, "a", "b", ( String ) null );
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
-        assertEquals( "dc", attr1.getUpId() );
-        assertEquals( atDC, attr1.getAttributeType() );
+        assertEquals( "1.2.840.113549.1.9.1", attr1.getId() );
+        assertEquals( "email", attr1.getUpId() );
+        assertEquals( atEMail, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultEntryAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atEMail, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
 
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
-        assertEquals( "dc", attr2.getUpId() );
-        assertEquals( atDC, attr2.getAttributeType() );
+        assertEquals( "1.2.840.113549.1.9.1", attr2.getId() );
+        assertEquals( "email", attr2.getUpId() );
+        assertEquals( atEMail, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a" ) );
         assertTrue( attr2.contains( NULL_STRING_VALUE ) );
     }
@@ -1879,34 +1884,34 @@ public class SchemaAwareEntryAttributeTest
     @Test
     public void testDefaultServerAttributeStringAttributeTypeStringArray() throws LdapException
     {
-        EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC, "a", "b", ( String ) null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "email", atEMail, "a", "b", ( String ) null );
 
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attr1.getId() );
-        assertEquals( "dc", attr1.getUpId() );
-        assertEquals( atDC, attr1.getAttributeType() );
+        assertEquals( "1.2.840.113549.1.9.1", attr1.getId() );
+        assertEquals( "email", attr1.getUpId() );
+        assertEquals( atEMail, attr1.getAttributeType() );
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultEntryAttribute( "DomainComponent", atDC, "a", "b", ( String ) null );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "EMail", atEMail, "a", "b", ( String ) null );
 
         assertTrue( attr2.isHR() );
         assertEquals( 3, attr2.size() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attr2.getId() );
-        assertEquals( "DomainComponent", attr2.getUpId() );
-        assertEquals( atDC, attr2.getAttributeType() );
+        assertEquals( "1.2.840.113549.1.9.1", attr2.getId() );
+        assertEquals( "EMail", attr2.getUpId() );
+        assertEquals( atEMail, attr2.getAttributeType() );
         assertTrue( attr2.contains( "a", "b" ) );
         assertTrue( attr2.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr3 = new DefaultEntryAttribute( " 0.9.2342.19200300.100.1.25 ", atDC, "a", "b",
+        EntryAttribute attr3 = new DefaultEntryAttribute( " 1.2.840.113549.1.9.1 ", atEMail, "a", "b",
             ( String ) null );
 
         assertTrue( attr3.isHR() );
         assertEquals( 3, attr3.size() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attr3.getId() );
-        assertEquals( " 0.9.2342.19200300.100.1.25 ", attr3.getUpId() );
-        assertEquals( atDC, attr3.getAttributeType() );
+        assertEquals( "1.2.840.113549.1.9.1", attr3.getId() );
+        assertEquals( " 1.2.840.113549.1.9.1 ", attr3.getUpId() );
+        assertEquals( atEMail, attr3.getAttributeType() );
         assertTrue( attr3.contains( "a", "b" ) );
         assertTrue( attr3.contains( NULL_STRING_VALUE ) );
     }
@@ -2075,7 +2080,6 @@ public class SchemaAwareEntryAttributeTest
         assertEquals( "test1", dsaSer.getString() );
         assertTrue( dsaSer.contains( "test2", "test1" ) );
         assertTrue( dsaSer.isHR() );
-        assertTrue( dsaSer.isValid() );
     }
 
 
@@ -2095,7 +2099,6 @@ public class SchemaAwareEntryAttributeTest
         assertEquals( "cn", dsaSer.getUpId() );
         assertEquals( 0, dsaSer.size() );
         assertTrue( dsaSer.isHR() );
-        assertFalse( dsaSer.isValid() );
     }
 
 
@@ -2118,7 +2121,6 @@ public class SchemaAwareEntryAttributeTest
         assertEquals( 1, dsaSer.size() );
         assertTrue( dsaSer.contains( ( String ) null ) );
         assertTrue( dsaSer.isHR() );
-        assertTrue( dsaSer.isValid() );
     }
 
 
@@ -2141,6 +2143,5 @@ public class SchemaAwareEntryAttributeTest
         assertEquals( 1, dsaSer.size() );
         assertTrue( dsaSer.contains( password ) );
         assertFalse( dsaSer.isHR() );
-        assertTrue( dsaSer.isValid() );
     }
 }

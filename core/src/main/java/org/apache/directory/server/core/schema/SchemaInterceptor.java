@@ -1039,14 +1039,6 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 case ADD_ATTRIBUTE:
                     // Check the syntax here
-                    if ( !attribute.isValid() )
-                    {
-                        // The value syntax is incorrect : this is an error
-                        String msg = I18n.err( I18n.ERR_53, attributeType );
-                        LOG.error( msg );
-                        throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
-                    }
-
                     EntryAttribute currentAttribute = tempEntry.get( attributeType );
 
                     // First check if the added Attribute is already present in the entry
@@ -1075,6 +1067,15 @@ public class SchemaInterceptor extends BaseInterceptor
                         // point, as one of the following modification can change the
                         // ObjectClasses.
                         EntryAttribute newAttribute = createNewAttribute( attribute );
+                        
+                        // Check that the attribute allows null values if we don'y have any value
+                        if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType.getSyntax().getSyntaxChecker() ) )
+                        {
+                            // This is an error.
+                            String msg = I18n.err( I18n.ERR_54, null );
+                            LOG.error( msg );
+                            throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
+                        }
 
                         tempEntry.put( newAttribute );
                     }

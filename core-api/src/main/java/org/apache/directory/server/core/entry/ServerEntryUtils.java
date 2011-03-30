@@ -136,7 +136,7 @@ public class ServerEntryUtils
         try 
         {
             EntryAttribute serverAttribute = new DefaultEntryAttribute( attributeType );
-        
+            
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();

@@ -93,6 +93,7 @@ public class SchemaAwareEntryTest
     private static AttributeType atDC;
     private static AttributeType atSN;
     private static AttributeType atC;
+    private static AttributeType atEMail;
     private static AttributeType atL;
     private static AttributeType atOC;
 
@@ -140,6 +141,7 @@ public class SchemaAwareEntryTest
         atOC = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
         atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
+        atEMail = schemaManager.lookupAttributeTypeRegistry( "eMail" );
 
         EXAMPLE_DN = new Dn( schemaManager, "dc=example,dc=com" );
     }
@@ -253,27 +255,27 @@ public class SchemaAwareEntryTest
         EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
         EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
         EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultEntryAttribute( atC, "FR", "US" );
+        EntryAttribute email = new DefaultEntryAttribute( atEMail, "FR", "US" );
 
-        entry.add( oc, cn, sn, c );
+        entry.add( oc, cn, sn, email );
 
         assertEquals( 4, entry.size() );
         assertTrue( entry.containsAttribute( "ObjectClass" ) );
         assertTrue( entry.containsAttribute( "CN" ) );
         assertTrue( entry.containsAttribute( "  sn  " ) );
-        assertTrue( entry.containsAttribute( " countryName  " ) );
+        assertTrue( entry.containsAttribute( " email  " ) );
 
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
 
-        EntryAttribute c2 = new DefaultEntryAttribute( atC, "UK", "DE" );
-        entry.add( c2, up );
+        EntryAttribute email2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
+        entry.add( email2, up );
         assertEquals( 5, entry.size() );
 
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertTrue( entry.containsAttribute( " countryName " ) );
+        assertTrue( entry.containsAttribute( " email " ) );
 
-        EntryAttribute attrC = entry.get( "countryName" );
+        EntryAttribute attrC = entry.get( "email" );
         assertEquals( 4, attrC.size() );
 
         entry.clear();
@@ -454,16 +456,16 @@ public class SchemaAwareEntryTest
 
         entry.add( atC, "us", "fr" );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atC, "fr", "us" ) );
+        assertFalse( entry.contains( atC, "fr", "us" ) );
 
         entry.add( atC, "de", "fr" );
         assertEquals( 1, entry.size() );
 
         EntryAttribute attribute = entry.get( atC );
-        assertEquals( 3, attribute.size() );
-        assertTrue( attribute.contains( "de" ) );
-        assertTrue( attribute.contains( "fr" ) );
-        assertTrue( attribute.contains( "us" ) );
+        assertEquals( 0, attribute.size() );
+        assertFalse( attribute.contains( "de" ) );
+        assertFalse( attribute.contains( "fr" ) );
+        assertFalse( attribute.contains( "us" ) );
 
         entry.clear();
 
@@ -560,30 +562,30 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        entry.add( "DomainComponent", atDC, "test1", "test2" );
+        entry.add( "EMail", atEMail, "test1", "test2" );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atDC, "test1", "test2" ) );
-        assertEquals( "DomainComponent", entry.get( atDC ).getUpId() );
-        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getId() );
+        assertTrue( entry.contains( atEMail, "test1", "test2" ) );
+        assertEquals( "EMail", entry.get( atEMail ).getUpId() );
+        assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getId() );
 
-        entry.add( "  DC  ", atDC, ( String ) null, "test1" );
+        entry.add( "  EMAIL  ", atEMail, ( String ) null, "test1" );
         assertEquals( 1, entry.size() );
 
-        EntryAttribute attribute = entry.get( atDC );
+        EntryAttribute attribute = entry.get( atEMail );
         assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( ( String ) null ) );
         assertTrue( attribute.contains( "test2" ) );
-        assertEquals( "  DC  ", attribute.getUpId() );
-        assertEquals( "0.9.2342.19200300.100.1.25", attribute.getId() );
+        assertEquals( "  EMAIL  ", attribute.getUpId() );
+        assertEquals( "1.2.840.113549.1.9.1", attribute.getId() );
 
         entry.clear();
 
         // Binary values are not allowed
-        entry.add( "  DC  ", atDC, BYTES1 );
+        entry.add( "  EMail  ", atEMail, BYTES1 );
         assertEquals( 1, entry.size() );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 0, entry.get( atDC ).size() );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 0, entry.get( atEMail ).size() );
     }
 
 
@@ -666,35 +668,35 @@ public class SchemaAwareEntryTest
         }
 
         // Test a simple addition
-        entry.add( atDC, "test1" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        entry.add( atEMail, "test1" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
-        entry.add( atDC, "test2", "test3" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( atEMail, "test2", "test3" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test some addition of existing values
-        entry.add( atDC, "test2" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( atEMail, "test2" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( atDC, ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( atEMail, ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
@@ -821,36 +823,36 @@ public class SchemaAwareEntryTest
             // Expected
         }
 
-        // Test a simple addition in atDC
-        entry.add( atDC, test1 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        // Test a simple addition in atEMail
+        entry.add( atEMail, test1 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
-        entry.add( atDC, test2, test3 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( atEMail, test2, test3 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test some addition of existing values
-        entry.add( atDC, test2 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( atEMail, test2 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( atDC, ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( atEMail, ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
@@ -914,38 +916,38 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test a simple addition
-        entry.add( "DC", "test1" );
-        assertNotNull( entry.get( atDC ) );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getId() );
-        assertEquals( "DC", entry.get( atDC ).getUpId() );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        entry.add( "EMail", "test1" );
+        assertNotNull( entry.get( atEMail ) );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getId() );
+        assertEquals( "EMail", entry.get( atEMail ).getUpId() );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
-        entry.add( "DC", "test2", "test3" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "EMail", "test2", "test3" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test some addition of existing values
-        entry.add( "DC", "test2" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "EMail", "test2" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( "DC", ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( "EMail", ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
@@ -1030,55 +1032,55 @@ public class SchemaAwareEntryTest
         byte[] b2 = Strings.getBytesUtf8("test2");
         byte[] b3 = Strings.getBytesUtf8("test3");
 
-        Value<String> test1 = new StringValue( atDC, "test1" );
-        Value<String> test2 = new StringValue( atDC, "test2" );
-        Value<String> test3 = new StringValue( atDC, "test3" );
+        Value<String> test1 = new StringValue( atEMail, "test1" );
+        Value<String> test2 = new StringValue( atEMail, "test2" );
+        Value<String> test3 = new StringValue( atEMail, "test3" );
 
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
 
         // Test a simple addition in atDC
-        entry.add( "dC", test1 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "dC", entry.get( atDC ).getUpId() );
+        entry.add( "eMail", test1 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
         // Test some more addition
-        entry.add( "dC", test2, test3 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "dC", entry.get( atDC ).getUpId() );
+        entry.add( "eMail", test2, test3 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
         // Test some addition of existing values
-        entry.add( "dC", test2 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "eMail", test2 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( "dC", ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( "eMail", ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = Strings.getBytesUtf8("test4");
 
-        entry.add( "dC", test4 );
+        entry.add( "eMail", test4 );
         assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
@@ -1137,43 +1139,43 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test a simple addition
-        entry.add( "dc", atDC, "test1" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        entry.add( "email", atEMail, "test1" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
-        entry.add( "DC", atDC, "test2", "test3" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "EMAIL", atEMail, "test2", "test3" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test some addition of existing values
-        entry.add( "domainComponent", atDC, "test2" );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "EMail", atEMail, "test2" );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( "DOMAINComponent", atDC, ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( "EMAIL", atEMail, ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
         // Test the addition of a binary value
         byte[] test4 = Strings.getBytesUtf8("test4");
 
-        entry.add( "dc", atDC, test4 );
-        assertFalse( entry.contains( "dc", test4 ) );
+        entry.add( "email", atEMail, test4 );
+        assertFalse( entry.contains( "email", test4 ) );
     }
 
 
@@ -1250,55 +1252,55 @@ public class SchemaAwareEntryTest
         byte[] b2 = Strings.getBytesUtf8("test2");
         byte[] b3 = Strings.getBytesUtf8("test3");
 
-        Value<String> test1 = new StringValue( atDC, "test1" );
-        Value<String> test2 = new StringValue( atDC, "test2" );
-        Value<String> test3 = new StringValue( atDC, "test3" );
+        Value<String> test1 = new StringValue( atEMail, "test1" );
+        Value<String> test2 = new StringValue( atEMail, "test2" );
+        Value<String> test3 = new StringValue( atEMail, "test3" );
 
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
 
         // Test a simple addition in atCN
-        entry.add( "dC", atDC, test1 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test1", entry.get( atDC ).get().getString() );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "dC", entry.get( atDC ).getUpId() );
+        entry.add( "eMail", atEMail, test1 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
         // Test some more addition
-        entry.add( "dC", atDC, test2, test3 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertEquals( "dC", entry.get( atDC ).getUpId() );
+        entry.add( "eMail", atEMail, test2, test3 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
         // Test some addition of existing values
-        entry.add( "dC", atDC, test2 );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
+        entry.add( "eMail", atEMail, test2 );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test the addition of a null value
-        entry.add( "dC", atDC, ( String ) null );
-        assertNotNull( entry.get( atDC ) );
-        assertEquals( 4, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test1" ) );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertTrue( entry.contains( atDC, "test3" ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        entry.add( "eMail", atEMail, ( String ) null );
+        assertNotNull( entry.get( atEMail ) );
+        assertEquals( 4, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test1" ) );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertTrue( entry.contains( atEMail, "test3" ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
         entry.clear();
 
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = Strings.getBytesUtf8("test4");
 
-        entry.add( "dC", atDC, test4 );
+        entry.add( "eMail", atEMail, test4 );
         assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
@@ -1554,16 +1556,16 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrDC = new DefaultEntryAttribute( atDC, "test1", ( String ) null, "test2" );
+        EntryAttribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
-        entry.add( attrDC );
+        entry.add( attrEMail );
 
-        assertTrue( entry.contains( "  DC  ", "test1", "test2" ) );
+        assertTrue( entry.contains( "  EMAIL  ", "test1", "test2" ) );
 
-        assertTrue( entry.contains( "  DC  ", ( String ) null ) );
-        assertFalse( entry.contains( "  DC  ", BYTES1, BYTES2 ) );
-        assertFalse( entry.contains( "  DC  ", "test3" ) );
-        assertFalse( entry.contains( "  DCC  ", "test3" ) );
+        assertTrue( entry.contains( "  EMAIL  ", ( String ) null ) );
+        assertFalse( entry.contains( "  EMAIL  ", BYTES1, BYTES2 ) );
+        assertFalse( entry.contains( "  EMAIL  ", "test3" ) );
+        assertFalse( entry.contains( "  EMMAIL  ", "test3" ) );
     }
 
 
@@ -1578,26 +1580,26 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrDC = new DefaultEntryAttribute( atDC, "test1", "test2", ( String ) null );
+        EntryAttribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", "test2", ( String ) null );
         EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, ( byte[] ) null );
 
-        entry.add( attrDC, attrPWD );
+        entry.add( attrEMail, attrPWD );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value<String> strValue1 = new StringValue( atEMail, "test1" );
+        Value<String> strValue2 = new StringValue( atEMail, "test2" );
+        Value<String> strValue3 = new StringValue( atEMail, "test3" );
+        Value<String> strNullValue = new StringValue( atEMail, null );
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
         Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
         Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
 
-        assertTrue( entry.contains( "DC", strValue1, strValue2 ) );
+        assertTrue( entry.contains( "EMail", strValue1, strValue2 ) );
         assertTrue( entry.contains( "userpassword", binValue1, binValue2, binNullValue ) );
 
-        assertFalse( entry.contains( "dc", strValue3 ) );
-        assertTrue( entry.contains( "dc", strNullValue ) );
+        assertFalse( entry.contains( "email", strValue3 ) );
+        assertTrue( entry.contains( "email", strNullValue ) );
         assertFalse( entry.contains( "UserPassword", binValue3 ) );
     }
 
@@ -2029,25 +2031,25 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        entry.put( atDC, ( String ) null );
+        entry.put( atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
 
-        EntryAttribute replaced = entry.put( atDC, "test1", "test2", "test1" );
+        EntryAttribute replaced = entry.put( atEMail, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atDC, replaced.getAttributeType() );
+        assertEquals( atEMail, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( String ) null ) );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atDC, "test1", "test2" ) );
-        assertFalse( entry.contains( atDC, "test3" ) );
-        assertEquals( 2, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atEMail, "test1", "test2" ) );
+        assertFalse( entry.contains( atEMail, "test3" ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
 
-        replaced = entry.put( atDC, BYTES1 );
+        replaced = entry.put( atEMail, BYTES1 );
         assertNotNull( replaced );
         assertTrue( replaced.contains( "test1", "test2" ) );
 
-        EntryAttribute attribute = entry.get( atDC );
+        EntryAttribute attribute = entry.get( atEMail );
         assertEquals( 0, attribute.size() );
     }
 
@@ -2112,7 +2114,7 @@ public class SchemaAwareEntryTest
         EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
         EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
         EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultEntryAttribute( atC, "FR", "US" );
+        EntryAttribute c = new DefaultEntryAttribute( atEMail, "FR", "US" );
 
         List<EntryAttribute> removed = entry.put( oc, cn, sn, c );
 
@@ -2121,12 +2123,12 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( "ObjectClass" ) );
         assertTrue( entry.containsAttribute( "CN" ) );
         assertTrue( entry.containsAttribute( "  sn  " ) );
-        assertTrue( entry.containsAttribute( " countryName  " ) );
+        assertTrue( entry.containsAttribute( " email  " ) );
 
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
 
-        EntryAttribute c2 = new DefaultEntryAttribute( atC, "UK", "DE" );
+        EntryAttribute c2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
         removed = entry.put( c2, up );
         assertEquals( 1, removed.size() );
         assertEquals( c, removed.get( 0 ) );
@@ -2136,16 +2138,16 @@ public class SchemaAwareEntryTest
         assertEquals( 5, entry.size() );
 
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertTrue( entry.containsAttribute( " countryName " ) );
+        assertTrue( entry.containsAttribute( " email " ) );
 
-        EntryAttribute attrC = entry.get( "countryName" );
+        EntryAttribute attrC = entry.get( "email" );
         assertEquals( 2, attrC.size() );
         assertTrue( attrC.contains( "UK", "DE" ) );
 
         c2.clear();
         entry.put( c2 );
         assertEquals( 5, entry.size() );
-        attrC = entry.get( "countryName" );
+        attrC = entry.get( "email" );
         assertEquals( 0, attrC.size() );
     }
 
@@ -2273,28 +2275,28 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        entry.put( "DC", atDC, ( String ) null );
+        entry.put( "EMail", atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.containsAttribute( atDC ) );
-        assertTrue( entry.contains( atDC, ( String ) null ) );
-        assertEquals( "DC", entry.get( atDC ).getUpId() );
+        assertTrue( entry.containsAttribute( atEMail ) );
+        assertTrue( entry.contains( atEMail, ( String ) null ) );
+        assertEquals( "EMail", entry.get( atEMail ).getUpId() );
 
-        EntryAttribute replaced = entry.put( "domainComponent", atDC, "test1", "test2", "test1" );
+        EntryAttribute replaced = entry.put( "eMail", atEMail, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atDC, replaced.getAttributeType() );
-        assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
+        assertEquals( atEMail, replaced.getAttributeType() );
+        assertEquals( "eMail", entry.get( atEMail ).getUpId() );
         assertTrue( replaced.contains( ( String ) null ) );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atDC, "test1", "test2" ) );
-        assertFalse( entry.contains( atDC, "test3" ) );
-        assertEquals( 2, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atEMail, "test1", "test2" ) );
+        assertFalse( entry.contains( atEMail, "test3" ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
 
-        replaced = entry.put( "0.9.2342.19200300.100.1.25", atDC, BYTES1 );
+        replaced = entry.put( "1.2.840.113549.1.9.1", atEMail, BYTES1 );
         assertNotNull( replaced );
         assertTrue( replaced.contains( "test1", "test2" ) );
-        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getUpId() );
+        assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getUpId() );
 
-        EntryAttribute attribute = entry.get( atDC );
+        EntryAttribute attribute = entry.get( atEMail );
         assertEquals( 0, attribute.size() );
     }
 
@@ -2690,10 +2692,10 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Test an empty AT
-        entry.put( atDC, ( String ) null );
+        entry.put( atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertNull( entry.get( atEMail ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -2707,33 +2709,33 @@ public class SchemaAwareEntryTest
         }
 
         // Add a single value
-        entry.put( atDC, "test" );
+        entry.put( atEMail, "test" );
 
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test", entry.get( atDC ).get().getString() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test", entry.get( atEMail ).get().getString() );
 
         // Add more than one value
-        entry.put( atDC, "test1", "test2", "test3" );
+        entry.put( atEMail, "test1", "test2", "test3" );
 
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( "dc", "test1" ) );
-        assertTrue( entry.contains( "dc", "test2" ) );
-        assertTrue( entry.contains( "dc", "test3" ) );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( "email", "test1" ) );
+        assertTrue( entry.contains( "email", "test2" ) );
+        assertTrue( entry.contains( "email", "test3" ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( atDC, "test1", "test2", "test1" );
+        EntryAttribute sa = entry.put( atEMail, "test1", "test2", "test1" );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertTrue( entry.contains( "dc", "test1" ) );
-        assertTrue( entry.contains( "dc", "test2" ) );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( "email", "test1" ) );
+        assertTrue( entry.contains( "email", "test2" ) );
     }
 
 
@@ -2871,11 +2873,11 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Adding a null value should be possible
-        entry.put( "dc", ( String ) null );
+        entry.put( "email", ( String ) null );
 
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertNull( entry.get( atEMail ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -2889,37 +2891,37 @@ public class SchemaAwareEntryTest
         }
 
         // Add a single value
-        entry.put( "dc", "test" );
+        entry.put( "email", "test" );
 
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertEquals( "test", entry.get( atDC ).get().getString() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertEquals( "test", entry.get( atEMail ).get().getString() );
 
         // Add more than one value
-        entry.put( "dc", "test1", "test2", "test3" );
+        entry.put( "email", "test1", "test2", "test3" );
 
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 3, entry.get( atDC ).size() );
-        assertTrue( entry.contains( "dc", "test1" ) );
-        assertTrue( entry.contains( "dc", "test2" ) );
-        assertTrue( entry.contains( "dc", "test3" ) );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 3, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( "email", "test1" ) );
+        assertTrue( entry.contains( "email", "test2" ) );
+        assertTrue( entry.contains( "email", "test3" ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( "dc", "test1", "test2", "test1" );
+        EntryAttribute sa = entry.put( "email", "test1", "test2", "test1" );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertTrue( entry.contains( "dc", "test1" ) );
-        assertTrue( entry.contains( "dc", "test2" ) );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( "email", "test1" ) );
+        assertTrue( entry.contains( "email", "test2" ) );
 
         // Check the UpId
-        entry.put( "DC", "test4" );
-        assertEquals( "DC", entry.get( atDC ).getUpId() );
+        entry.put( "EMail", "test4" );
+        assertEquals( "EMail", entry.get( atEMail ).getUpId() );
     }
 
 
@@ -3008,29 +3010,29 @@ public class SchemaAwareEntryTest
         }
 
         // Test an empty AT
-        entry.put( "domaincomponent", atDC, ( String ) null );
+        entry.put( "email", atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
-        assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertTrue( entry.containsAttribute( "email" ) );
+        assertNull( entry.get( atEMail ).get().getValue() );
 
         // Check that we can use a null AttributeType
-        entry.put( "domaincomponent", ( AttributeType ) null, ( String ) null );
+        entry.put( "email", ( AttributeType ) null, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
-        assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertTrue( entry.containsAttribute( "email" ) );
+        assertNull( entry.get( atEMail ).get().getValue() );
 
         // Test that we can use a null upId
-        entry.put( null, atDC, ( String ) null );
+        entry.put( null, atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
-        assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertEquals( "email", entry.get( atEMail ).getUpId() );
+        assertTrue( entry.containsAttribute( "email" ) );
+        assertNull( entry.get( atEMail ).get().getValue() );
 
         try
         {
-            entry.put( "sn", atDC, ( String ) null );
+            entry.put( "sn", atEMail, ( String ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3039,15 +3041,15 @@ public class SchemaAwareEntryTest
         }
 
         // Test that we can add some new attributes with values
-        EntryAttribute result = entry.put( "DC", atDC, "test1", "test2", "test3" );
+        EntryAttribute result = entry.put( "EMail", atEMail, "test1", "test2", "test3" );
         assertNotNull( result );
-        assertEquals( "dc", result.getUpId() );
+        assertEquals( "email", result.getUpId() );
         assertEquals( 1, entry.size() );
-        assertEquals( "DC", entry.get( atDC ).getUpId() );
-        assertNotNull( entry.get( atDC ).get() );
-        assertTrue( entry.contains( "dc", "test1" ) );
-        assertTrue( entry.contains( "DC", "test2" ) );
-        assertTrue( entry.contains( "DomainComponent", "test3" ) );
+        assertEquals( "EMail", entry.get( atEMail ).getUpId() );
+        assertNotNull( entry.get( atEMail ).get() );
+        assertTrue( entry.contains( "email", "test1" ) );
+        assertTrue( entry.contains( "EMail", "test2" ) );
+        assertTrue( entry.contains( "eMail", "test3" ) );
     }
 
 
@@ -3282,24 +3284,24 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", ( String ) null, "test2" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrCN );
-        assertTrue( entry.remove( atDC, ( String ) null ) );
-        assertTrue( entry.remove( atDC, "test1", "test2" ) );
-        assertFalse( entry.containsAttribute( atDC ) );
+        assertTrue( entry.remove( atEMail, ( String ) null ) );
+        assertTrue( entry.remove( atEMail, "test1", "test2" ) );
+        assertFalse( entry.containsAttribute( atEMail ) );
 
-        entry.add( atDC, "test1", ( String ) null, "test2" );
-        assertTrue( entry.remove( atDC, ( String ) null ) );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertFalse( entry.contains( atDC, ( String ) null ) );
-        assertTrue( entry.remove( atDC, "test1", "test3" ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertFalse( entry.contains( atDC, "test1" ) );
+        entry.add( atEMail, "test1", ( String ) null, "test2" );
+        assertTrue( entry.remove( atEMail, ( String ) null ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertFalse( entry.contains( atEMail, ( String ) null ) );
+        assertTrue( entry.remove( atEMail, "test1", "test3" ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertFalse( entry.contains( atEMail, "test1" ) );
 
-        assertFalse( entry.remove( atDC, "test3" ) );
-        assertFalse( entry.remove( atDC, "test" ) );
+        assertFalse( entry.remove( atEMail, "test3" ) );
+        assertFalse( entry.remove( atEMail, "test" ) );
     }
 
 
@@ -3311,31 +3313,31 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value<String> strValue1 = new StringValue( atEMail, "test1" );
+        Value<String> strValue2 = new StringValue( atEMail, "test2" );
+        Value<String> strValue3 = new StringValue( atEMail, "test3" );
+        Value<String> strNullValue = new StringValue( atEMail, null );
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atDC, "test1", ( String ) null, "test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrPWD );
-        assertTrue( entry.remove( atDC, strNullValue ) );
-        assertTrue( entry.remove( atDC, strValue1, strValue2 ) );
-        assertFalse( entry.containsAttribute( atDC ) );
+        assertTrue( entry.remove( atEMail, strNullValue ) );
+        assertTrue( entry.remove( atEMail, strValue1, strValue2 ) );
+        assertFalse( entry.containsAttribute( atEMail ) );
 
-        entry.add( atDC, strValue1, strNullValue, strValue2 );
-        assertTrue( entry.remove( atDC, strNullValue ) );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertFalse( entry.contains( atDC, strNullValue ) );
-        assertTrue( entry.remove( atDC, strValue1, strValue3 ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, strValue2 ) );
-        assertFalse( entry.contains( atDC, strValue1 ) );
+        entry.add( atEMail, strValue1, strNullValue, strValue2 );
+        assertTrue( entry.remove( atEMail, strNullValue ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertFalse( entry.contains( atEMail, strNullValue ) );
+        assertTrue( entry.remove( atEMail, strValue1, strValue3 ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, strValue2 ) );
+        assertFalse( entry.contains( atEMail, strValue1 ) );
 
-        assertFalse( entry.remove( atDC, strValue3 ) );
-        assertFalse( entry.remove( atDC, binValue1 ) );
+        assertFalse( entry.remove( atEMail, strValue3 ) );
+        assertFalse( entry.remove( atEMail, binValue1 ) );
     }
 
 
@@ -3472,28 +3474,28 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", ( String ) null, "test2" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         assertFalse( entry.remove( ( String ) null, "test1" ) );
         assertFalse( entry.remove( " ", "test1" ) );
         assertFalse( entry.remove( "badId", "test1" ) );
 
         entry.put( attrCN );
-        assertTrue( entry.remove( "dc", ( String ) null ) );
-        assertTrue( entry.remove( "domainComponent", "test1", "test2" ) );
-        assertFalse( entry.containsAttribute( atDC ) );
+        assertTrue( entry.remove( "email", ( String ) null ) );
+        assertTrue( entry.remove( "eMail", "test1", "test2" ) );
+        assertFalse( entry.containsAttribute( atEMail ) );
 
-        entry.add( atDC, "test1", ( String ) null, "test2" );
-        assertTrue( entry.remove( "0.9.2342.19200300.100.1.25", ( String ) null ) );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertFalse( entry.contains( atDC, ( byte[] ) null ) );
-        assertTrue( entry.remove( "DOMAINCOMPONENT", "test1", "test3" ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, "test2" ) );
-        assertFalse( entry.contains( atDC, "test1" ) );
+        entry.add( atEMail, "test1", ( String ) null, "test2" );
+        assertTrue( entry.remove( "1.2.840.113549.1.9.1", ( String ) null ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertFalse( entry.contains( atEMail, ( byte[] ) null ) );
+        assertTrue( entry.remove( "EMAIL", "test1", "test3" ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, "test2" ) );
+        assertFalse( entry.contains( atEMail, "test1" ) );
 
-        assertFalse( entry.remove( "Dc", "test3" ) );
-        assertFalse( entry.remove( "dC", "whatever" ) );
+        assertFalse( entry.remove( "Email", "test3" ) );
+        assertFalse( entry.remove( "eMail", "whatever" ) );
     }
 
 
@@ -3505,31 +3507,31 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value<String> strValue1 = new StringValue( atEMail, "test1" );
+        Value<String> strValue2 = new StringValue( atEMail, "test2" );
+        Value<String> strValue3 = new StringValue( atEMail, "test3" );
+        Value<String> strNullValue = new StringValue( atEMail, null );
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atDC, "test1", ( String ) null, "test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrPWD );
-        assertTrue( entry.remove( "DC", strNullValue ) );
-        assertTrue( entry.remove( "DomainComponent", strValue1, strValue2 ) );
-        assertFalse( entry.containsAttribute( atDC ) );
+        assertTrue( entry.remove( "EMail", strNullValue ) );
+        assertTrue( entry.remove( "eMail", strValue1, strValue2 ) );
+        assertFalse( entry.containsAttribute( atEMail ) );
 
-        entry.add( atDC, strValue1, strNullValue, strValue2 );
-        assertTrue( entry.remove( "0.9.2342.19200300.100.1.25", strNullValue ) );
-        assertEquals( 2, entry.get( atDC ).size() );
-        assertFalse( entry.contains( atDC, strNullValue ) );
-        assertTrue( entry.remove( "  dc", strValue1, strValue3 ) );
-        assertEquals( 1, entry.get( atDC ).size() );
-        assertTrue( entry.contains( atDC, strValue2 ) );
-        assertFalse( entry.contains( atDC, strValue1 ) );
+        entry.add( atEMail, strValue1, strNullValue, strValue2 );
+        assertTrue( entry.remove( "1.2.840.113549.1.9.1", strNullValue ) );
+        assertEquals( 2, entry.get( atEMail ).size() );
+        assertFalse( entry.contains( atEMail, strNullValue ) );
+        assertTrue( entry.remove( "  email", strValue1, strValue3 ) );
+        assertEquals( 1, entry.get( atEMail ).size() );
+        assertTrue( entry.contains( atEMail, strValue2 ) );
+        assertFalse( entry.contains( atEMail, strValue1 ) );
 
-        assertFalse( entry.remove( " Dc", strValue3 ) );
-        assertFalse( entry.remove( "dC ", binValue1 ) );
+        assertFalse( entry.remove( " Email", strValue3 ) );
+        assertFalse( entry.remove( "eMail ", binValue1 ) );
     }
 
 
