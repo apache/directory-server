@@ -175,13 +175,13 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
         for ( Value<?> value : attribute )
         {
             //noinspection unchecked
-            if ( value.isHR() )
+            if ( value.isHumanReadable() )
             {
                 // Deal with a String value
                 String serverValue = ( ( Value<String> ) value ).getNormValue();
                 String nodeValue = null;
 
-                if ( node.getValue().isHR() )
+                if ( node.getValue().isHumanReadable() )
                 {
                     nodeValue = ( ( Value<String> ) node.getValue() ).getNormValue();
                 }

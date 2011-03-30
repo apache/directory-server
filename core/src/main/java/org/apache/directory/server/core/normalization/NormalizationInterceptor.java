@@ -365,7 +365,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
 
             // Translate the value from binary to String if the AT is HR
-            if ( attributeType.getSyntax().isHumanReadable() && ( !compareContext.getValue().isHR() ) )
+            if ( attributeType.getSyntax().isHumanReadable() && ( !compareContext.getValue().isHumanReadable() ) )
             {
                 String value = compareContext.getValue().getString();
                 compareContext.setValue( new StringValue( value ) );

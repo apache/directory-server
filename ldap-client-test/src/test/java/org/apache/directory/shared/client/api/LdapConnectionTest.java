@@ -167,12 +167,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     public void testRetrieveBinaryAttibute() throws Exception
     {
         Entry entry = connection.lookup( "uid=admin,ou=system" );
-        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHR() );
+        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
         connection.loadSchema();
 
         entry = connection.lookup( "uid=admin,ou=system" );
-        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHR() );
+        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
 
 

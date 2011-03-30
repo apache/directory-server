@@ -263,7 +263,7 @@ public class LeafEvaluator implements Evaluator
         
         if ( attributeType.getSyntax().isHumanReadable() )
         {
-            if ( node.getValue().isHR() )
+            if ( node.getValue().isHumanReadable() )
             {
                 value = node.getValue();
             }

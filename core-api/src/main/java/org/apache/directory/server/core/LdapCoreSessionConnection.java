@@ -310,7 +310,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         compareRequest.setName( dn );
         compareRequest.setAttributeId( attributeName );
 
-        if ( value.isHR() )
+        if ( value.isHumanReadable() )
         {
             compareRequest.setAssertionValue( value.getString() );
         }

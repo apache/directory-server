@@ -201,9 +201,9 @@ public class CompareOperationContext extends AbstractOperationContext
         return "CompareContext for Dn '" + getDn().getName() + "'" +
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
-                    ( ( value.isHR() ) ?
+                    ( ( value.isHumanReadable() ) ?
                             value.getString() :
-                            ( ( !value.isHR() ) ?
+                            ( ( !value.isHumanReadable() ) ?
                                     Strings.dumpBytes(((BinaryValue) value).getReference()) :
                                         "unknown value type" ) )
                         + "'"
