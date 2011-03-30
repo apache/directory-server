@@ -277,7 +277,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
-            return idx.count( node.getValue().get() );
+            return idx.count( node.getValue().getValue() );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -302,11 +302,11 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
             Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
-                return idx.greaterThanCount( node.getValue().get() );
+                return idx.greaterThanCount( node.getValue().getValue() );
             }
             else
             {
-                return idx.lessThanCount( node.getValue().get() );
+                return idx.lessThanCount( node.getValue().getValue() );
             }
         }
 

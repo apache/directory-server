@@ -293,7 +293,7 @@ public class SchemaAwareEntryTest
         EntryAttribute attributePWD = entry.get( "userPassword" );
         assertEquals( 1, attributePWD.size() );
         assertNotNull( attributePWD.get() );
-        assertNull( attributePWD.get().get() );
+        assertNull( attributePWD.get().getValue() );
 
         entry.clear();
 
@@ -382,7 +382,7 @@ public class SchemaAwareEntryTest
         EntryAttribute attributeCN = entry.get( "dc" );
         assertEquals( 1, attributeCN.size() );
         assertNotNull( attributeCN.get() );
-        assertNull( attributeCN.get().get() );
+        assertNull( attributeCN.get().getValue() );
 
         Value<String> value1 = new StringValue( atCN, "test1" );
         Value<String> value2 = new StringValue( atCN, "test2" );
@@ -2423,7 +2423,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
         assertEquals( 1, entry.get( "userPassword" ).size() );
-        assertNull( entry.get( "userPassword" ).get().get() );
+        assertNull( entry.get( "userPassword" ).get().getValue() );
 
         replaced = entry.put( "UserPassword", BYTES1 );
         assertNotNull( replaced );
@@ -2432,7 +2432,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
         assertEquals( 1, entry.get( "userPassword" ).size() );
-        assertNotNull( entry.get( "userPassword" ).get().get() );
+        assertNotNull( entry.get( "userPassword" ).get().getValue() );
         assertTrue( entry.get( "userPassword" ).contains( BYTES1 ) );
 
         replaced = entry.put( "userPassword", BYTES1, BYTES2, BYTES1 );
@@ -2498,7 +2498,7 @@ public class SchemaAwareEntryTest
         assertEquals( 2, entry.size() );
         assertNotNull( entry.get( "cn" ) );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertNotNull( entry.get( "cn" ).get().get() );
+        assertNotNull( entry.get( "cn" ).get().getValue() );
         assertTrue( entry.get( "cn" ).contains( "test" ) );
 
         replaced = entry.put( "cN", "test1", "test2", "test1" );
@@ -2568,7 +2568,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( "domainComponent" ) );
         assertEquals( 1, entry.get( "domainComponent" ).size() );
         assertNotNull( entry.get( "domainComponent" ).get() );
-        assertNull( entry.get( "domainComponent" ).get().get() );
+        assertNull( entry.get( "domainComponent" ).get().getValue() );
         entry.removeAttributes( "dc" );
 
         replaced = entry.put( "DC", strValue3 );
@@ -2576,7 +2576,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "dc" ) );
         assertEquals( 1, entry.get( "dc" ).size() );
-        assertNotNull( entry.get( "dc" ).get().get() );
+        assertNotNull( entry.get( "dc" ).get().getValue() );
         assertTrue( entry.get( "dc" ).contains( strValue3 ) );
 
         replaced = entry.put( "dC", strValue1, strValue2, strValue1 );
@@ -2693,7 +2693,7 @@ public class SchemaAwareEntryTest
         entry.put( atDC, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -2750,7 +2750,7 @@ public class SchemaAwareEntryTest
         entry.put( atPwd, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
-        assertNull( entry.get( atPwd ).get().get() );
+        assertNull( entry.get( atPwd ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -2875,7 +2875,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -2938,7 +2938,7 @@ public class SchemaAwareEntryTest
         entry.put( "userPassword", ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertNull( entry.get( atPassword ).get().get() );
+        assertNull( entry.get( atPassword ).get().getValue() );
 
         // Check that we can't use invalid arguments
         try
@@ -3012,21 +3012,21 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Check that we can use a null AttributeType
         entry.put( "domaincomponent", ( AttributeType ) null, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can use a null upId
         entry.put( null, atDC, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         try
         {
@@ -3078,21 +3078,21 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().get() );
+        assertNull( entry.get( atPassword ).get().getValue() );
 
         // Check that we can use a null AttributeType
         entry.put( "userPassword", ( AttributeType ) null, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().get() );
+        assertNull( entry.get( atPassword ).get().getValue() );
 
         // Test that we can use a null upId
         entry.put( null, atPassword, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().get() );
+        assertNull( entry.get( atPassword ).get().getValue() );
 
         // Test that if we use an upId which is not compatible
         // with the AT, it is changed to the AT default name
@@ -3151,7 +3151,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Check that we can use a null AttributeType
         entry.put( "domainComponent", ( AttributeType ) null, ( Value<?> ) null );
@@ -3159,14 +3159,14 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can use a null upId
         entry.put( null, atDC, ( Value<?> ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can't use an upId which is not compatible
         // with the AT
@@ -3222,7 +3222,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().get() );
+        assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can add some new attributes with values
         Value<String> test1 = new StringValue( atDC, "test1" );

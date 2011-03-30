@@ -288,7 +288,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            return ( K ) normalizer.normalize( new BinaryValue( ( byte[] ) attrVal ) ).get();
+            return ( K ) normalizer.normalize( new BinaryValue( ( byte[] ) attrVal ) ).getValue();
         }
     }
 

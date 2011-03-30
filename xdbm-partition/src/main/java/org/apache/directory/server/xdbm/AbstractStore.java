@@ -1003,7 +1003,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
                 for ( Value<?> value : attribute )
                 {
-                    idx.add( value.get(), id );
+                    idx.add( value.getValue(), id );
                 }
 
                 // Adds only those attributes that are indexed
@@ -1148,7 +1148,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 // the entry via the enumeration - it's in there as is for sure
                 for ( Value<?> value : attribute )
                 {
-                    ( ( Index ) index ).drop( value.get(), id );
+                    ( ( Index ) index ).drop( value.getValue(), id );
                 }
 
                 presenceIdx.drop( attributeOid, id );
@@ -1193,7 +1193,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getNormValue().get();
+            Object newNormValue = newAtav.getNormValue().getValue();
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
@@ -1539,7 +1539,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             for ( Value<?> value : mods )
             {
-                ( ( Index ) index ).add( value.get(), id );
+                ( ( Index ) index ).add( value.getValue(), id );
             }
 
             // If the attr didn't exist for this id add it to existence index
@@ -1614,7 +1614,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             for ( Value<?> value : mods )
             {
-                ( ( Index<Object, E, ID> ) index ).add( value.get(), id );
+                ( ( Index<Object, E, ID> ) index ).add( value.getValue(), id );
             }
 
             /*
@@ -1714,7 +1714,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             {
                 for ( Value<?> value : mods )
                 {
-                    ( ( Index ) index ).drop( value.get(), id );
+                    ( ( Index ) index ).drop( value.getValue(), id );
                 }
             }
 

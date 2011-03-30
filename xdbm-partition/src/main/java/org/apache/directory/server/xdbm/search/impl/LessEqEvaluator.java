@@ -91,7 +91,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     {
         if ( ( idx != null ) && idx.isDupsEnabled() )
         {
-            return idx.reverseLessOrEq( id, node.getValue().get() );
+            return idx.reverseLessOrEq( id, node.getValue().getValue() );
         }
 
         return evaluateEntry( db.lookup( id ) );
@@ -102,7 +102,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     {
         if ( ( idx != null ) && idx.isDupsEnabled() )
         {
-            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().get() );
+            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().getValue() );
         }
 
         Entry entry = indexEntry.getObject();

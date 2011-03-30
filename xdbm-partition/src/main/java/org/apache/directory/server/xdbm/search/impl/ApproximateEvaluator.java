@@ -131,7 +131,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     {
         if ( idx != null )
         {
-            return idx.forward( node.getValue().get(), indexEntry.getId() );
+            return idx.forward( node.getValue().getValue(), indexEntry.getId() );
         }
 
         Entry entry = indexEntry.getObject();

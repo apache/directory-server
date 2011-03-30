@@ -300,7 +300,7 @@ public class LeafEvaluator implements Evaluator
         {
             Value<?> normValue = normalizer.normalize( val );
 
-            if ( 0 == comparator.compare( normValue.get(), filterValue.get() ) )
+            if ( 0 == comparator.compare( normValue.getValue(), filterValue.getValue() ) )
             {
                 return true;
             }

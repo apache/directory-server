@@ -1751,7 +1751,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 try
                 {
-                    syntaxChecker.assertSyntax( value.get() );
+                    syntaxChecker.assertSyntax( value.getValue() );
                 }
                 catch ( Exception ne )
                 {

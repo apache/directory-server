@@ -76,7 +76,7 @@ public class ServerEntryUtils
         
         for ( Value<?> value: entryAttribute )
         {
-            attribute.add( value.get() );
+            attribute.add( value.getValue() );
         }
         
         return attribute;

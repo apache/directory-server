@@ -112,7 +112,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              */
             //noinspection unchecked
             int compareValue = lessEqEvaluator.getComparator().compare( value,
-                lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().getValue() );
 
             if ( compareValue > 0 )
             {
@@ -156,7 +156,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * before() method of the userIdxCursor.
              */
             int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
-                lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().getValue() );
 
             if ( compareValue > 0 )
             {
@@ -187,7 +187,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
-                lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().getValue() );
 
             /*
              * First we need to check and make sure this element is within
@@ -223,7 +223,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
-                lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().getValue() );
 
             /*
              * First we need to check and make sure this element is within
@@ -277,7 +277,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         {
             IndexEntry<V, Entry, ID> advanceTo = new ForwardIndexEntry<V, Entry, ID>();
             //noinspection unchecked
-            advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().get() );
+            advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
         }
         else
@@ -352,7 +352,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
                 checkNotClosed( "next()" );
                 IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
-                    lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
+                    lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
                     return available = true;
                 }

@@ -263,9 +263,9 @@ public class SchemaAwareEntryAttributeTest
 
         for ( Value<?> val : attr )
         {
-            if ( expected.contains( val.get() ) )
+            if ( expected.contains( val.getValue() ) )
             {
-                expected.remove( val.get() );
+                expected.remove( val.getValue() );
             }
             else
             {
@@ -298,9 +298,9 @@ public class SchemaAwareEntryAttributeTest
 
         for ( Value<?> val : attr )
         {
-            if ( expected.contains( val.get() ) )
+            if ( expected.contains( val.getValue() ) )
             {
-                expected.remove( val.get() );
+                expected.remove( val.getValue() );
             }
             else
             {
@@ -329,7 +329,7 @@ public class SchemaAwareEntryAttributeTest
         Value<?> value = attr.get();
 
         assertTrue( value instanceof StringValue );
-        assertNull( ( ( StringValue ) value ).get() );
+        assertNull( ( ( StringValue ) value ).getValue() );
     }
 
 

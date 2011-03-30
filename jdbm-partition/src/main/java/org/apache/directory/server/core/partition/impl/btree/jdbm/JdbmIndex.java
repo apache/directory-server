@@ -630,7 +630,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
             else
             {
                 normalized = ( K ) attributeType.getEquality().getNormalizer().normalize(
-                    new BinaryValue( ( byte[] ) attrVal ) ).get();
+                    new BinaryValue( ( byte[] ) attrVal ) ).getValue();
             }
 
             // Double map it so if we use an already normalized

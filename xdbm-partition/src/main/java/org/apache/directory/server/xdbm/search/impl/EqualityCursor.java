@@ -70,7 +70,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
-            userIdxCursor = userIndex.forwardCursor( value.get() );
+            userIdxCursor = userIndex.forwardCursor( value.getValue() );
             ndnIdxCursor = null;
         }
         else

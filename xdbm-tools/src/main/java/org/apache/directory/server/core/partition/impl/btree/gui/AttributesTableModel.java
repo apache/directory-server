@@ -91,7 +91,7 @@ public class AttributesTableModel extends AbstractTableModel
             for ( Value<?> value:attribute )
             {
                 keyList.add( attribute.getId() );
-                valList.add( value.get() );
+                valList.add( value.getValue() );
             }
         }
     }

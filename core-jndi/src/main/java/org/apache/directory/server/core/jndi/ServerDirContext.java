@@ -603,7 +603,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
                 if ( doRdnPut )
                 {
-                    attributes.put( atav.getNormType(), atav.getUpValue().get() );
+                    attributes.put( atav.getNormType(), atav.getUpValue().getValue() );
                 }
             }
         }

@@ -134,12 +134,12 @@ public class PasswordHashingInterceptor extends BaseInterceptor
         BinaryValue userPassword = ( BinaryValue ) pwdAt.get();
 
         // check if the given password is already hashed
-        LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( userPassword.get() );
+        LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( userPassword.getValue() );
 
         // if there exists NO algorithm, then hash the password
         if ( existingAlgo == null )
         {
-            byte[] hashedPassword = PasswordUtil.createStoragePassword( userPassword.get(), algorithm );
+            byte[] hashedPassword = PasswordUtil.createStoragePassword( userPassword.getValue(), algorithm );
 
             pwdAt.clear();
             pwdAt.add( hashedPassword );

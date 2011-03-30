@@ -408,7 +408,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             {
                 for ( Value<?> value : entryAttr )
                 {
-                    userIdx.add( value.get(), id );
+                    userIdx.add( value.getValue(), id );
                 }
                 
                 // Adds only those attributes that are indexed

@@ -71,7 +71,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<V, Entry, ID> index = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
-            userIdxCursor = index.forwardCursor( value.get() );
+            userIdxCursor = index.forwardCursor( value.getValue() );
             ndnIdxCursor = null;
         }
         else

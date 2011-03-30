@@ -91,7 +91,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
     {
         if ( idx != null && idx.isDupsEnabled() )
         {
-            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().get() );
+            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().getValue() );
         }
 
         Entry entry = indexEntry.getObject();
@@ -154,7 +154,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
     {
         if ( idx != null && idx.isDupsEnabled() )
         {
-            return idx.reverseGreaterOrEq( id, node.getValue().get() );
+            return idx.reverseGreaterOrEq( id, node.getValue().getValue() );
         }
 
         return evaluateEntry( db.lookup( id ) );

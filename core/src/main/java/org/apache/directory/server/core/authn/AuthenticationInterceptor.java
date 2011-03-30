@@ -365,7 +365,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             try
             {
-                check( username, userPassword.get(), policyConfig );
+                check( username, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
             {
@@ -399,7 +399,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( policyConfig.getPwdInHistory() > 0 )
             {
                 EntryAttribute pwdHistoryAt = new DefaultEntryAttribute( AT_PWD_HISTORY );
-                byte[] pwdHistoryVal = new PasswordHistory( pwdChangedTime, userPassword.get() ).getHistoryValue();
+                byte[] pwdHistoryVal = new PasswordHistory( pwdChangedTime, userPassword.getValue() ).getHistoryValue();
                 pwdHistoryAt.add( pwdHistoryVal );
                 entry.add( pwdHistoryAt );
             }
