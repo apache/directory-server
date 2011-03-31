@@ -998,8 +998,6 @@ public class SchemaAwareEntryAttributeTest
         attr2.add( "c", "b", "a" );
         assertTrue( attr1.equals( attr2 ) );
 
-        attr1.setHR( true );
-        attr2.setHR( false );
         assertTrue( attr1.equals( attr2 ) );
 
         EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
@@ -1193,7 +1191,6 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
 
-        attr6.setHR( true );
         assertFalse( attr6.isHumanReadable() );
         nbAdded = attr6.add( BYTES1, ( byte[] ) null );
         assertEquals( 2, nbAdded );
@@ -1342,9 +1339,6 @@ public class SchemaAwareEntryAttributeTest
 
         assertFalse( attr1.remove( STR_VALUE1 ) );
 
-        attr1.setHR( true );
-        assertFalse( attr1.remove( STR_VALUE1 ) );
-
         attr1.add( "a", "b", "c" );
         assertTrue( attr1.remove( STR_VALUE1 ) );
         assertEquals( 2, attr1.size() );
@@ -1372,9 +1366,6 @@ public class SchemaAwareEntryAttributeTest
 
         EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
-        assertFalse( attr2.remove( BIN_VALUE1 ) );
-
-        attr2.setHR( true );
         assertFalse( attr2.remove( BIN_VALUE1 ) );
 
         attr2.add( BYTES1, BYTES2, BYTES3 );
@@ -1444,9 +1435,6 @@ public class SchemaAwareEntryAttributeTest
     {
         EntryAttribute attr1 = new DefaultEntryAttribute( atEMail );
 
-        assertFalse( attr1.remove( "a" ) );
-
-        attr1.setHR( true );
         assertFalse( attr1.remove( "a" ) );
 
         attr1.add( "a", "b", "c" );
@@ -2069,7 +2057,6 @@ public class SchemaAwareEntryAttributeTest
     public void testSerializeCompleteAttribute() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atCN );
-        dsa.setHR( true );
         dsa.setUpId( "CommonName" );
         dsa.add( "test1", "test2" );
 
@@ -2090,7 +2077,6 @@ public class SchemaAwareEntryAttributeTest
     public void testSerializeAttributeWithNoValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atCN );
-        dsa.setHR( true );
         dsa.setUpId( "cn" );
 
         DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
@@ -2109,7 +2095,6 @@ public class SchemaAwareEntryAttributeTest
     public void testSerializeAttributeNullValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atDC );
-        dsa.setHR( true );
         dsa.setUpId( "DomainComponent" );
         dsa.add( ( String ) null );
 
@@ -2131,7 +2116,6 @@ public class SchemaAwareEntryAttributeTest
     public void testSerializeAttributeBinaryValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultEntryAttribute dsa = new DefaultEntryAttribute( atPwd );
-        dsa.setHR( false );
         byte[] password = Strings.getBytesUtf8("secret");
         dsa.add( password );
 
