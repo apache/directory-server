@@ -192,7 +192,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     {
                         attr = schemaManager.getAttributeTypeRegistry().lookup( entryAttribute.getId() );
                         attrOid = attr.getOid();
-                        entryAttribute.setAttributeType( attr );
+                        entryAttribute.apply( attr );
                     }
                     
                     if ( oid.equals( attrOid ) && entryAttribute.contains( attrValue ) )

@@ -494,7 +494,7 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr2 = new DefaultEntryAttribute( atSN );
         assertNotSame( attr1.hashCode(), attr2.hashCode() );
 
-        attr2.setAttributeType( atDC );
+        attr2.apply( atDC );
         assertEquals( attr1.hashCode(), attr2.hashCode() );
 
         attr1.add( ( String ) null );
@@ -613,7 +613,7 @@ public class SchemaAwareEntryAttributeTest
 
         // test a SINGLE-VALUE attribute. CountryName is SINGLE-VALUE
         attr.clear();
-        attr.setAttributeType( atC );
+        attr.apply( atC );
         attr.add( "FR" );
         assertTrue( attr.isValid( atC.getEquality().getSyntax().getSyntaxChecker() ) );
         assertEquals( 0, attr.add( "US" ) );
@@ -1685,7 +1685,7 @@ public class SchemaAwareEntryAttributeTest
 
         try
         {
-            attr.setAttributeType( null );
+            attr.apply( null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -1693,7 +1693,7 @@ public class SchemaAwareEntryAttributeTest
             assertTrue( true );
         }
 
-        attr.setAttributeType( atSN );
+        attr.apply( atSN );
 
         assertTrue( attr.isInstanceOf( "Surname" ) );
         assertEquals( "2.5.4.4", attr.getId() );
