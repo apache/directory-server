@@ -34,7 +34,6 @@ import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -47,11 +46,11 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
@@ -151,7 +150,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     {
         try
         {
-            Attribute description = new BasicAttribute( "description", "This is a description" );
+            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
             Attributes attrs = new BasicAttributes( true );
             attrs.put( description );
             
@@ -177,7 +176,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             // Set to 'throw'
             MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
 
-            Attribute description = new BasicAttribute( "description", "This is a description" );
+            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
             Attributes attrs = new BasicAttributes( true );
             attrs.put( description );
 
@@ -216,7 +215,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             // Set to 'throw'
             MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
 
-            Attribute description = new BasicAttribute( "description", "This is a description" );
+            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
             Attributes attrs = new BasicAttributes( true );
             attrs.put( description );
 
@@ -241,7 +240,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
+            Attribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
             Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
@@ -269,7 +268,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
+            Attribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
             Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
@@ -293,7 +292,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyExistingEntryNoReferral() throws Exception
     {
-        Attribute description = new BasicAttribute( "description", "This is a description" );
+        javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( description );
         
@@ -314,7 +313,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyExistingEntryReferralJNDIThrow() throws Exception
     {
-        Attribute description = new BasicAttribute( "description", "This is a description" );
+        javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( description );
         
@@ -349,7 +348,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     @Test
     public void testModifyExistingEntryReferralJNDIIgnore() throws Exception
     {
-        Attribute description = new BasicAttribute( "description", "This is a description" );
+        javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( description );
         
@@ -377,7 +376,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
+            Attribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
             Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
@@ -416,7 +415,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     {
         CoreSession session = getService().getAdminSession();
         
-        EntryAttribute attr = new DefaultEntryAttribute( "Description", "This is a description" );
+        Attribute attr = new DefaultEntryAttribute( "Description", "This is a description" );
         Modification mod = new DefaultModification(
             ModificationOperation.ADD_ATTRIBUTE, attr );
         List<Modification> mods = new ArrayList<Modification>();

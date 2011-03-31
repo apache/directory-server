@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 
 
@@ -138,7 +138,7 @@ public class ChangeLogEvent
     }
 
 
-    public EntryAttribute get( String attributeName )
+    public Attribute get( String attributeName )
     {
         return forwardLdif.get( attributeName );
     }

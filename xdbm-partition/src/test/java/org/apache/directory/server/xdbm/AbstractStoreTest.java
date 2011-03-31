@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -170,7 +170,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
+        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
         String attribVal = "uidObject";
@@ -203,7 +203,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "sales";
         attrib.add( attribVal );
@@ -237,7 +237,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -270,7 +270,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
+        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
         String attribVal = "person";
@@ -303,7 +303,7 @@ public class AbstractStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
+        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
@@ -333,7 +333,7 @@ public class AbstractStoreTest
 
         List<Modification> mods = new ArrayList<Modification>();
         AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
-        EntryAttribute attrib = new DefaultEntryAttribute( csnAt );
+        Attribute attrib = new DefaultEntryAttribute( csnAt );
         
         CsnFactory csnF = new CsnFactory( 0 );
         String csn = csnF.newInstance().toString();

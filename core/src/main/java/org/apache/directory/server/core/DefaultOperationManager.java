@@ -44,7 +44,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -88,7 +88,7 @@ public class DefaultOperationManager implements OperationManager
         throws LdapException //, LdapURLEncodingException
     {
         // Get the Ref attributeType
-        EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
+        Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
         List<String> urls = new ArrayList<String>();
 
@@ -130,7 +130,7 @@ public class DefaultOperationManager implements OperationManager
         throws LdapException
     {
         // Get the Ref attributeType
-        EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
+        Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
         List<String> urls = new ArrayList<String>();
 

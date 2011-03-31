@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -981,7 +981,7 @@ public class DefaultDirectoryService implements DirectoryService
         loc.setAttrsId( new String[]{ "+" } );
         ClonedServerEntry entry = systemPartition.lookup( loc );
 
-        EntryAttribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
+        Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
         if( cntextCsnAt != null )
         {
             // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
@@ -1572,8 +1572,8 @@ public class DefaultDirectoryService implements DirectoryService
                     continue;
                 }
 
-                EntryAttribute attribute = LdifReader.parseAttributeValue( addedLine );
-                EntryAttribute oldAttribute = entry.get( attribute.getId() );
+                Attribute attribute = LdifReader.parseAttributeValue( addedLine );
+                Attribute oldAttribute = entry.get( attribute.getId() );
 
                 if ( oldAttribute != null )
                 {
@@ -1894,7 +1894,7 @@ public class DefaultDirectoryService implements DirectoryService
         
         if ( pwdPolicyContainer.hasCustomConfigs() )
         {
-            EntryAttribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
+            Attribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
             
             if ( pwdPolicySubentry != null )
             {

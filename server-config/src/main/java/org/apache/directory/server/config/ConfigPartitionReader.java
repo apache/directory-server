@@ -45,7 +45,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -121,7 +121,7 @@ public class ConfigPartitionReader
      * Fnd the upper objectclass in a hierarchy. All the inherited ObjectClasses
      * will be removed.
      */
-    private ObjectClass findObjectClass( EntryAttribute objectClass ) throws Exception
+    private ObjectClass findObjectClass( Attribute objectClass ) throws Exception
     {
         Set<ObjectClass> candidates = new HashSet<ObjectClass>();
 
@@ -277,7 +277,7 @@ public class ConfigPartitionReader
     /**
      * Read the single entry value for an AttributeType, and feed the Bean field with this value
      */
-    private void readSingleValueField( AdsBaseBean bean, Field beanField, EntryAttribute fieldAttr, boolean mandatory )
+    private void readSingleValueField( AdsBaseBean bean, Field beanField, Attribute fieldAttr, boolean mandatory )
         throws ConfigurationException
     {
         if ( fieldAttr == null )
@@ -342,7 +342,7 @@ public class ConfigPartitionReader
     /**
      * Read the multiple entry value for an AttributeType, and feed the Bean field with this value
      */
-    private void readMultiValuedField( AdsBaseBean bean, Field beanField, EntryAttribute fieldAttr, boolean mandatory )
+    private void readMultiValuedField( AdsBaseBean bean, Field beanField, Attribute fieldAttr, boolean mandatory )
         throws ConfigurationException
     {
         if ( fieldAttr == null )
@@ -502,7 +502,7 @@ public class ConfigPartitionReader
             beanField.setAccessible( true );
 
             // Get the entry attribute for this field
-            EntryAttribute fieldAttr = entry.get( fieldName );
+            Attribute fieldAttr = entry.get( fieldName );
 
             if ( ( fieldAttr == null ) && ( mandatory ) )
             {
@@ -760,7 +760,7 @@ public class ConfigPartitionReader
 
                 // Let's instanciate the bean we need. The upper ObjectClass's name
                 // will be used to do that
-                EntryAttribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+                Attribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
                 ObjectClass objectClass = findObjectClass( objectClassAttr );
                 AdsBaseBean bean = createBean( objectClass );

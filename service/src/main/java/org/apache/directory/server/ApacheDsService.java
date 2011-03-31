@@ -55,7 +55,7 @@ import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -644,7 +644,7 @@ public class ApacheDsService
 
             AttributeType atType = MANDATORY_ENTRY_ATOP_MAP.get( SchemaConstants.ENTRY_UUID_AT ).getAttributeType();
 
-            EntryAttribute uuidAt = entry.get( atType );
+            Attribute uuidAt = entry.get( atType );
             String uuid = ( uuidAt == null ? null : uuidAt.getString() );
 
             if ( !uuidChecker.isValidSyntax( uuid ) )
@@ -656,7 +656,7 @@ public class ApacheDsService
             mods.add( uuidMod );
 
             atType = MANDATORY_ENTRY_ATOP_MAP.get( SchemaConstants.ENTRY_CSN_AT ).getAttributeType();
-            EntryAttribute csnAt = entry.get( atType );
+            Attribute csnAt = entry.get( atType );
             String csn = ( csnAt == null ? null : csnAt.getString() );
 
             if ( !csnChecker.isValidSyntax( csn ) )
@@ -668,7 +668,7 @@ public class ApacheDsService
             mods.add( csnMod );
 
             atType = MANDATORY_ENTRY_ATOP_MAP.get( SchemaConstants.CREATORS_NAME_AT ).getAttributeType();
-            EntryAttribute creatorAt = entry.get( atType );
+            Attribute creatorAt = entry.get( atType );
             String creator = ( creatorAt == null ? "" : creatorAt.getString().trim() );
 
             if ( ( creator.length() == 0 ) || ( !Dn.isValid(creator) ) )
@@ -680,7 +680,7 @@ public class ApacheDsService
             mods.add( creatorMod );
 
             atType = MANDATORY_ENTRY_ATOP_MAP.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getAttributeType();
-            EntryAttribute createdTimeAt = entry.get( atType );
+            Attribute createdTimeAt = entry.get( atType );
             String createdTime = ( createdTimeAt == null ? null : createdTimeAt.getString() );
 
             if ( !timeChecker.isValidSyntax( createdTime ) )

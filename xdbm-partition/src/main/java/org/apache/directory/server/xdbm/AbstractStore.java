@@ -37,7 +37,7 @@ import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -924,7 +924,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         rdnIdx.add( key, id );
 
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
@@ -945,7 +945,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
-            EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
+            Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
             addAliasIndices( id, entryDn, aliasAttr.getString() );
         }
 
@@ -957,7 +957,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
-        EntryAttribute entryCsn = entry.get( ENTRY_CSN_AT );
+        Attribute entryCsn = entry.get( ENTRY_CSN_AT );
 
         if ( entryCsn == null )
         {
@@ -968,7 +968,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         entryCsnIdx.add( entryCsn.getString(), id );
 
         // Update the EntryUuid index
-        EntryAttribute entryUuid = entry.get( ENTRY_UUID_AT );
+        Attribute entryUuid = entry.get( ENTRY_UUID_AT );
 
         if ( entryUuid == null )
         {
@@ -990,7 +990,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         subLevelIdx.add( id, id );
 
         // Now work on the user defined userIndices
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             String attributeOid = attribute.getAttributeType().getOid();
 
@@ -1035,7 +1035,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
-            EntryAttribute attr = mods.get( attributeType );
+            Attribute attr = mods.get( attributeType );
 
             switch ( modOp )
             {
@@ -1077,7 +1077,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         for ( Modification mod : mods )
         {
-            EntryAttribute attrMods = mod.getAttribute();
+            Attribute attrMods = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {
@@ -1118,7 +1118,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Entry entry = master.get( id );
 
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
@@ -1136,7 +1136,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
 
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             String attributeOid = attribute.getAttributeType().getOid();
 
@@ -1516,7 +1516,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
-    protected void add( ID id, Entry entry, EntryAttribute mods ) throws Exception
+    protected void add( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1577,7 +1577,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * fails.
      */
     @SuppressWarnings("unchecked")
-    protected void replace( ID id, Entry entry, EntryAttribute mods ) throws Exception
+    protected void replace( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1668,7 +1668,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute modification fails.
      */
     @SuppressWarnings("unchecked")
-    protected void remove( ID id, Entry entry, EntryAttribute mods ) throws Exception
+    protected void remove( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1742,7 +1742,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
         else
         {
-            EntryAttribute entryAttr = entry.get( mods.getAttributeType() );
+            Attribute entryAttr = entry.get( mods.getAttributeType() );
 
             for ( Value<?> value : mods )
             {

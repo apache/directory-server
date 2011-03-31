@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
@@ -340,7 +340,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected String getOid( Entry entry ) throws LdapException
     {
-        EntryAttribute oid = entry.get( m_oidAT );
+        Attribute oid = entry.get( m_oidAT );
 
         if ( oid == null )
         {

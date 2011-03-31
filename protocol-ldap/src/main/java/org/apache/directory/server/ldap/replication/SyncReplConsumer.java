@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -184,7 +184,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
 
         COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( "ads-replCookie" );
-        EntryAttribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+        Attribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
 
         Modification cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
         cookieModLst = new ArrayList<Modification>( 1 );
@@ -632,7 +632,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
             else
             {
-                EntryAttribute attr = cookieModLst.get( 0 ).getAttribute();
+                Attribute attr = cookieModLst.get( 0 ).getAttribute();
                 attr.clear();
                 attr.add( syncCookie );
 
@@ -681,7 +681,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                         { COOKIE_AT_TYPE.getName() } );
                     if ( entry != null )
                     {
-                        EntryAttribute attr = entry.get( COOKIE_AT_TYPE );
+                        Attribute attr = entry.get( COOKIE_AT_TYPE );
                         if ( attr != null )
                         {
                             syncCookie = attr.getBytes();
@@ -722,7 +722,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             try
             {
-                EntryAttribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+                Attribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
                 Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                     cookieAttr );
                 List<Modification> deleteModLst = new ArrayList<Modification>();
@@ -790,14 +790,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         remoteEntry.removeAttributes( MOD_IGNORE_AT );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Iterator<EntryAttribute> itr = localEntry.iterator();
+        Iterator<Attribute> itr = localEntry.iterator();
 
         while ( itr.hasNext() )
         {
-            EntryAttribute localAttr = itr.next();
+            Attribute localAttr = itr.next();
             String attrId = localAttr.getId();
             Modification mod;
-            EntryAttribute remoteAttr = remoteEntry.get( attrId );
+            Attribute remoteAttr = remoteEntry.get( attrId );
 
             if ( remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
             {

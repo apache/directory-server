@@ -28,7 +28,7 @@ import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
@@ -108,7 +108,7 @@ public class RefinementLeafEvaluatorTest
     @Test 
     public void testForBadArguments() throws Exception
     {
-        EntryAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         try
         {
@@ -163,7 +163,7 @@ public class RefinementLeafEvaluatorTest
     public void testMatchByName() throws Exception
     {
         // positive test
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT );
@@ -183,7 +183,7 @@ public class RefinementLeafEvaluatorTest
     @Test 
     public void testMatchByOID() throws Exception
     {
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
 
         // positive test
         assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );

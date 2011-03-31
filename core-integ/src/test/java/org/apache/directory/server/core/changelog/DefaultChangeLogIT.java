@@ -36,7 +36,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -296,7 +296,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         Entry resusitated = sysRoot.lookup( "ou=test5,ou=system" );
         assertNotNull( resusitated );
-        EntryAttribute description = resusitated.get( "description" );
+        Attribute description = resusitated.get( "description" );
         assertNotNull( description );
         assertEquals( "a desc value", description.getString() );
 
@@ -393,7 +393,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         description = resusitated.get( "description" );
         assertNull( description );
         assertPassword( resusitated, "a replaced value" );
-        EntryAttribute seeAlso = resusitated.get( "seeAlso" );
+        Attribute seeAlso = resusitated.get( "seeAlso" );
         assertNotNull( seeAlso );
         assertEquals( seeAlso.getString(), "ou=added" );
 
@@ -412,7 +412,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
     private void assertPassword( Entry entry, String password ) throws Exception
     {
-        EntryAttribute userPassword = entry.get( "userPassword" );
+        Attribute userPassword = entry.get( "userPassword" );
         assertNotNull( userPassword );
         assertTrue( Arrays.equals( password.getBytes(), userPassword.getBytes() ) );
     }

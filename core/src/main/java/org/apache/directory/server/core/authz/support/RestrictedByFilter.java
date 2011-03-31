@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -88,7 +88,7 @@ public class RestrictedByFilter implements ACITupleFilter
                     // TODO Fix DIRSEVER-832 
                     if ( attributeType.equals( rbItem.getAttributeType() ) )
                     {
-                        EntryAttribute attr = entry.get( rbItem.getValuesIn() );
+                        Attribute attr = entry.get( rbItem.getValuesIn() );
                         
                         // TODO Fix DIRSEVER-832
                         if ( ( attr == null ) || !attr.contains( attrValue ) )

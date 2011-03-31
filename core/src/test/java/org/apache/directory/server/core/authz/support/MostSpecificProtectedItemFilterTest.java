@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.junit.BeforeClass;
@@ -61,8 +61,8 @@ public class MostSpecificProtectedItemFilterTest
 {
     private static final Set<AttributeType> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<AttributeType>() );
 
-    private static final Set<EntryAttribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
-        .unmodifiableSet( new HashSet<EntryAttribute>() );
+    private static final Set<Attribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
+        .unmodifiableSet( new HashSet<Attribute>() );
 
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
         .unmodifiableCollection( new ArrayList<UserClass>() );

@@ -21,7 +21,7 @@
 package org.apache.directory.server.core.sp.java;
 
 
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
@@ -32,10 +32,10 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public class LdapJavaStoredProcClassLoader extends ClassLoader
 {
-    private EntryAttribute javaByteCodeAttr;
+    private Attribute javaByteCodeAttr;
 
 
-    public LdapJavaStoredProcClassLoader( EntryAttribute javaByteCodeAttr )
+    public LdapJavaStoredProcClassLoader( Attribute javaByteCodeAttr )
     {
         // Critical call to super class constructor. Required for true plumbing of class loaders.
         super( LdapJavaStoredProcClassLoader.class.getClassLoader() );

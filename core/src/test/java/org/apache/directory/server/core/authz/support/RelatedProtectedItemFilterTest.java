@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -258,7 +258,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeValue() throws Exception
     {
-        Set<EntryAttribute> attributes = new HashSet<EntryAttribute>();
+        Set<Attribute> attributes = new HashSet<Attribute>();
         attributes.add( new DefaultEntryAttribute( "cn", CN_AT, "valueA" ) );
         Collection<ACITuple> tuples = getTuples( new AttributeValueItem( attributes ) );
 

@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -105,9 +105,9 @@ public class DefaultSchemaService implements SchemaService
     /**
      * Generate the comparators attribute from the registry
      */
-    private EntryAttribute generateComparators() throws LdapException
+    private Attribute generateComparators() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
         for ( LdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
@@ -119,9 +119,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateNormalizers() throws LdapException
+    private Attribute generateNormalizers() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.NORMALIZERS_AT ) );
 
         NormalizerRegistry nr = getSchemaManager().getNormalizerRegistry();
@@ -135,9 +135,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateSyntaxCheckers() throws LdapException
+    private Attribute generateSyntaxCheckers() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
         for ( SyntaxChecker syntaxChecker : getSchemaManager().getSyntaxCheckerRegistry() )
@@ -149,9 +149,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateObjectClasses() throws LdapException
+    private Attribute generateObjectClasses() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute(
+        Attribute attr = new DefaultEntryAttribute(
             getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASSES_AT ) );
 
         for ( ObjectClass objectClass : getSchemaManager().getObjectClassRegistry() )
@@ -163,9 +163,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateAttributeTypes() throws LdapException
+    private Attribute generateAttributeTypes() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
         for ( AttributeType attributeType : getSchemaManager().getAttributeTypeRegistry() )
@@ -177,9 +177,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateMatchingRules() throws LdapException
+    private Attribute generateMatchingRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULES_AT ) );
 
         for ( MatchingRule matchingRule : getSchemaManager().getMatchingRuleRegistry() )
@@ -191,9 +191,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateMatchingRuleUses() throws LdapException
+    private Attribute generateMatchingRuleUses() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute(
+        Attribute attr = new DefaultEntryAttribute(
             getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
         for ( MatchingRuleUse matchingRuleUse : getSchemaManager().getMatchingRuleUseRegistry() )
@@ -205,9 +205,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateSyntaxes() throws LdapException
+    private Attribute generateSyntaxes() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
         for ( LdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
@@ -219,9 +219,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateDitContextRules() throws LdapException
+    private Attribute generateDitContextRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.DIT_CONTENT_RULES_AT ) );
 
         for ( DITContentRule ditContentRule : getSchemaManager().getDITContentRuleRegistry() )
@@ -233,9 +233,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateDitStructureRules() throws LdapException
+    private Attribute generateDitStructureRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
         for ( DITStructureRule ditStructureRule : getSchemaManager().getDITStructureRuleRegistry() )
@@ -247,9 +247,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private EntryAttribute generateNameForms() throws LdapException
+    private Attribute generateNameForms() throws LdapException
     {
-        EntryAttribute attr = new DefaultEntryAttribute( 
+        Attribute attr = new DefaultEntryAttribute( 
             getSchemaManager().getAttributeType( SchemaConstants.NAME_FORMS_AT ) );
 
         for ( NameForm nameForm : getSchemaManager().getNameFormRegistry() )
@@ -298,18 +298,18 @@ public class DefaultSchemaService implements SchemaService
         // -------------------------------------------------------------------
 
         // Add the createTimestamp
-        EntryAttribute createTimestamp = mods.get( SchemaConstants.CREATE_TIMESTAMP_AT );
+        Attribute createTimestamp = mods.get( SchemaConstants.CREATE_TIMESTAMP_AT );
         attrs.put( SchemaConstants.CREATE_TIMESTAMP_AT, createTimestamp.get() );
 
         // Add the creatorsName
         attrs.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         // Add the modifyTimestamp
-        EntryAttribute schemaModifyTimestamp = mods.get( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
+        Attribute schemaModifyTimestamp = mods.get( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
         attrs.put( SchemaConstants.MODIFY_TIMESTAMP_AT, schemaModifyTimestamp.get() );
 
         // Add the modifiersName
-        EntryAttribute schemaModifiersName = mods.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
+        Attribute schemaModifiersName = mods.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
         attrs.put( SchemaConstants.MODIFIERS_NAME_AT, schemaModifiersName.get() );
 
         // don't swap out if a request for the subentry is in progress or we
@@ -323,7 +323,7 @@ public class DefaultSchemaService implements SchemaService
 
     private void addAttribute( Entry attrs, String id ) throws LdapException
     {
-        EntryAttribute attr = schemaSubentry.get( id );
+        Attribute attr = schemaSubentry.get( id );
 
         if ( attr != null )
         {

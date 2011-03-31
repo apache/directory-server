@@ -32,7 +32,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.StringConstants;
@@ -63,7 +63,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     }
 
 
-    protected EntryAttribute lookupPassword( String username, String password )
+    protected Attribute lookupPassword( String username, String password )
     {
         // do nothing, password not used by GSSAPI
         return null;

@@ -40,7 +40,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
@@ -167,7 +167,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         boolean isCollectiveSubentry = serverEntry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC );
 
-        for ( EntryAttribute attribute : serverEntry )
+        for ( Attribute attribute : serverEntry )
         {
             // filter collective attributes, they can't be added by the revert operation
             AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
@@ -271,7 +271,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         Entry clientEntry = new DefaultEntry( serverEntry.getDn() );
         
-        for ( EntryAttribute attribute:serverEntry )
+        for ( Attribute attribute:serverEntry )
         {
             clientEntry.add( attribute.clone() );
         }

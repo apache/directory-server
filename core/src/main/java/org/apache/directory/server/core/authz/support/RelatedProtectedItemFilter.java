@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -177,9 +177,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 AttributeValueItem av = ( AttributeValueItem ) item;
                 
-                for ( Iterator<EntryAttribute> j = av.iterator(); j.hasNext(); )
+                for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
                 {
-                    EntryAttribute entryAttribute = j.next();
+                    Attribute entryAttribute = j.next();
                     
                     AttributeType attr =  entryAttribute.getAttributeType();
                     String attrOid = null;
@@ -276,7 +276,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     
                     if ( oid.equals( attr.getOid() ) )
                     {
-                        EntryAttribute entryAttribute = entry.get( oid );
+                        Attribute entryAttribute = entry.get( oid );
                         
                         if ( ( entryAttribute != null ) && 
                              ( ( entryAttribute.contains( userName.getNormName() ) || 

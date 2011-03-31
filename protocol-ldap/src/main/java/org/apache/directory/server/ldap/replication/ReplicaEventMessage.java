@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModify
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -230,7 +230,7 @@ public class ReplicaEventMessage implements Externalizable
         // here, to be able to restore it in the readExternal :
         // we need access to the registries, which are not available
         // in the ServerAttribute class.
-        Iterator<EntryAttribute> attrItr = entry.iterator();
+        Iterator<Attribute> attrItr = entry.iterator();
         
         while ( attrItr.hasNext() )
         {

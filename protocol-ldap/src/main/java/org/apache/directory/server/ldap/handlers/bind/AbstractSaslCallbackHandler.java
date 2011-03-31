@@ -39,7 +39,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -129,7 +129,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * @param realm The realm.
      * @return The Password entry attribute resulting from the lookup. It may contain more than one password
      */
-    protected abstract EntryAttribute lookupPassword( String username, String realm );
+    protected abstract Attribute lookupPassword( String username, String realm );
 
 
     /**
@@ -178,7 +178,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             else if ( callback instanceof PasswordCallback )
             {
                 PasswordCallback passwordCB = ( PasswordCallback ) callback;
-                EntryAttribute userPassword = lookupPassword( getUsername(), getRealm() );
+                Attribute userPassword = lookupPassword( getUsername(), getRealm() );
 
                 if ( userPassword != null )
                 {

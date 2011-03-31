@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -74,7 +74,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         Dn dn = new Dn( "cn=test,ou=system" );
 
         Entry entry = connection.lookup( dn );
-        EntryAttribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
         
         assertFalse( Arrays.equals( plainPwd, pwdAt.getBytes() ) );
         assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
@@ -91,7 +91,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
-        EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
+        Attribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( plainPwd );
         
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
@@ -123,7 +123,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         connection.add( entry );
 
         entry = connection.lookup( dn );
-        EntryAttribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
         assertTrue( Arrays.equals( hashedPwd, pwdAt.getBytes() ) );
         assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
     }
@@ -141,7 +141,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
-        EntryAttribute pwdAt = new DefaultEntryAttribute( pwdAtType );
+        Attribute pwdAt = new DefaultEntryAttribute( pwdAtType );
         pwdAt.add( hashedPwd );
         
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );

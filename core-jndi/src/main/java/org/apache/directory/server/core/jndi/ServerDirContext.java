@@ -32,7 +32,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
@@ -57,10 +56,10 @@ import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
@@ -210,7 +209,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( attrs != null )
         {
             modItems = new ArrayList<ModificationItem>( attrs.size() );
-            NamingEnumeration<? extends Attribute> e = attrs.getAll();
+            NamingEnumeration<? extends javax.naming.directory.Attribute> e = attrs.getAll();
 
             while ( e.hasMore() )
             {
@@ -391,7 +390,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                for ( EntryAttribute attribute : outServerEntry )
+                for ( Attribute attribute : outServerEntry )
                 {
                     try
                     {
@@ -436,7 +435,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             if ( outServerEntry != null && outServerEntry.size() > 0 )
             {
-                for ( EntryAttribute attribute : outServerEntry )
+                for ( Attribute attribute : outServerEntry )
                 {
                     try
                     {
@@ -479,7 +478,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                for ( EntryAttribute attribute : outServerEntry )
+                for ( Attribute attribute : outServerEntry )
                 {
                     try
                     {
@@ -745,8 +744,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Handle simple filter expressions without multiple terms
         if ( matchingAttributes.size() == 1 )
         {
-            NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
-            Attribute attr = list.next();
+            NamingEnumeration<? extends javax.naming.directory.Attribute> list = matchingAttributes.getAll();
+            javax.naming.directory.Attribute attr = list.next();
             list.close();
 
             if ( attr.size() == 1 )
@@ -783,10 +782,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
          * Go through the set of attributes using each attribute value pair as
          * an attribute value assertion within one big AND filter expression.
          */
-        Attribute attr;
+        javax.naming.directory.Attribute attr;
         SimpleNode node;
         BranchNode filter = new AndNode();
-        NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
+        NamingEnumeration<? extends javax.naming.directory.Attribute> list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
         while ( list.hasMore() )

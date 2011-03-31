@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
@@ -99,7 +99,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
 
             assertTrue( personEntry.getDn().equals( sr.getDn() ) );
-            EntryAttribute cn = sr.get( "cn" );
+            Attribute cn = sr.get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Kate#Bush" ) );
         }
@@ -135,7 +135,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            EntryAttribute cn = sr.get( "cn" );
+            Attribute cn = sr.get( "cn" );
             assertNotNull( cn );
 
             assertTrue( cn.contains( "Bush, Kate" ) );
@@ -169,7 +169,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            EntryAttribute cn = sr.get( "cn" );
+            Attribute cn = sr.get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Mackie \"The Knife\" Messer" ) );
         }
@@ -203,7 +203,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
             assertTrue( entry.getDn().equals( sr.getDn() ) );
 
-            EntryAttribute ou = sr.get( "ou" );
+            Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
         }
@@ -239,7 +239,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            EntryAttribute ou = sr.get( "ou" );
+            Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "East -> West" ) );
         }
@@ -276,7 +276,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
 
-            EntryAttribute ou = sr.get( "ou" );
+            Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "Scissors 8<" ) );
         }
@@ -313,7 +313,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            EntryAttribute ou = sr.get( "ou" );
+            Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "semicolon group;" ) );
         }
@@ -350,7 +350,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             entryFound = true;
 
             assertTrue( entry.getDn().equals( sr.getDn() ) );
-            EntryAttribute ou = sr.get( "ou" );
+            Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "nomen=omen" ) );
         }

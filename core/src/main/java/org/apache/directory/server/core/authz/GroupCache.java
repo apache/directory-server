@@ -39,7 +39,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -162,7 +162,7 @@ public class GroupCache
                 {
                     Entry result = results.get();
                     Dn groupDn = result.getDn().apply( schemaManager );
-                    EntryAttribute members = getMemberAttribute( result );
+                    Attribute members = getMemberAttribute( result );
     
                     if ( members != null )
                     {
@@ -202,16 +202,16 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private EntryAttribute getMemberAttribute( Entry entry ) throws LdapException
+    private Attribute getMemberAttribute( Entry entry ) throws LdapException
     {
-        EntryAttribute member = entry.get( MEMBER_AT );
+        Attribute member = entry.get( MEMBER_AT );
 
         if ( member != null )
         {
             return member;
         }
 
-        EntryAttribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
+        Attribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
 
         if ( uniqueMember != null )
         {
@@ -229,7 +229,7 @@ public class GroupCache
      * @param members the member attribute values being added
      * @throws LdapException if there are problems accessing the attr values
      */
-    private void addMembers( Set<String> memberSet, EntryAttribute members ) throws LdapException
+    private void addMembers( Set<String> memberSet, Attribute members ) throws LdapException
     {
         for ( Value<?> value : members )
         {
@@ -258,7 +258,7 @@ public class GroupCache
      * @param members the set of member values
      * @throws LdapException if there are problems accessing the attr values
      */
-    private void removeMembers( Set<String> memberSet, EntryAttribute members ) throws LdapException
+    private void removeMembers( Set<String> memberSet, Attribute members ) throws LdapException
     {
         for ( Value<?> value : members )
         {
@@ -289,7 +289,7 @@ public class GroupCache
      */
     public void groupAdded( Dn name, Entry entry ) throws LdapException
     {
-        EntryAttribute members = getMemberAttribute( entry );
+        Attribute members = getMemberAttribute( entry );
 
         if ( members == null )
         {
@@ -318,7 +318,7 @@ public class GroupCache
      */
     public void groupDeleted( Dn name, Entry entry ) throws LdapException
     {
-        EntryAttribute members = getMemberAttribute( entry );
+        Attribute members = getMemberAttribute( entry );
 
         if ( members == null )
         {
@@ -343,7 +343,7 @@ public class GroupCache
      * @param members the members being added, removed or replaced
      * @throws LdapException if there are problems accessing attribute values
      */
-    private void modify( Set<String> memberSet, ModificationOperation modOp, EntryAttribute members )
+    private void modify( Set<String> memberSet, ModificationOperation modOp, Attribute members )
         throws LdapException
     {
 
@@ -384,9 +384,9 @@ public class GroupCache
     public void groupModified( Dn name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
-        EntryAttribute members = null;
+        Attribute members = null;
         AttributeType memberAttr = null;
-        EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
+        Attribute oc = entry.get( OBJECT_CLASS_AT );
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) )
         {
@@ -439,7 +439,7 @@ public class GroupCache
      */
     public void groupModified( Dn name, ModificationOperation modOp, Entry mods ) throws LdapException
     {
-        EntryAttribute members = getMemberAttribute( mods );
+        Attribute members = getMemberAttribute( mods );
 
         if ( members == null )
         {

@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -335,7 +335,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             partitions.put( key, system );
             partitionLookupTree.add( system.getSuffix(), system );
-            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
             if ( namingContexts == null )
             {
@@ -433,11 +433,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             {
                 lastSyncedCtxCsn = directoryService.getContextCsn();
 
-                EntryAttribute contextCsnAt = mods.get( 0 ).getAttribute();
+                Attribute contextCsnAt = mods.get( 0 ).getAttribute();
                 contextCsnAt.clear();
                 contextCsnAt.add( lastSyncedCtxCsn );
 
-                EntryAttribute timeStampAt = mods.get( 1 ).getAttribute();
+                Attribute timeStampAt = mods.get( 1 ).getAttribute();
                 timeStampAt.clear();
                 timeStampAt.add( DateUtils.getGeneralizedTime() );
 
@@ -495,7 +495,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition backend = getPartition( addContext.getDn() );
         backend.add( addContext );
 
-        EntryAttribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
+        Attribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
         directoryService.setContextCsn( at.getString() );
     }
 
@@ -515,7 +515,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        EntryAttribute attr = compareContext.getOriginalEntry().get( compareContext.getAttributeType() );
+        Attribute attr = compareContext.getOriginalEntry().get( compareContext.getAttributeType() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -775,7 +775,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchContext.getSession() ) );
 
-        for ( EntryAttribute attribute : rootDSE )
+        for ( Attribute attribute : rootDSE )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
 
@@ -945,7 +945,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             partitions.put( partitionSuffix.getNormName(), partition );
             partitionLookupTree.add( partition.getSuffix(), partition );
 
-            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
             if ( namingContexts == null )
             {
@@ -984,7 +984,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
-        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         if ( namingContexts != null )
         {
@@ -1072,7 +1072,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException
     {
-        EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
+        Attribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
 
         if ( supportedExtension == null )
         {
@@ -1092,7 +1092,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException
     {
-        EntryAttribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+        Attribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
 
         if ( supportedSaslMechanismsAttribute == null )
         {
@@ -1122,7 +1122,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     private void unregister( Partition partition ) throws Exception
     {
-        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         if ( namingContexts != null )
         {

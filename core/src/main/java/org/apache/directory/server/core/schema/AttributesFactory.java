@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -112,7 +112,7 @@ public class AttributesFactory
         
         if ( dependencies != null && dependencies.length > 0 )
         {
-            EntryAttribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
+            Attribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
             
             for ( String dependency:dependencies )
             {
@@ -335,7 +335,7 @@ public class AttributesFactory
         // handle the superior objectClasses 
         if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() != 0 )
         {
-            EntryAttribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
+            Attribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
             
             for ( String superior:objectClass.getSuperiorOids() )
             {
@@ -348,7 +348,7 @@ public class AttributesFactory
         // add the must list
         if ( objectClass.getMustAttributeTypeOids() != null && objectClass.getMustAttributeTypeOids().size() != 0 )
         {
-            EntryAttribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT ) );
+            Attribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT ) );
 
             for ( String mustOid :objectClass.getMustAttributeTypeOids() )
             {
@@ -361,7 +361,7 @@ public class AttributesFactory
         // add the may list
         if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() != 0 )
         {
-            EntryAttribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT ) );
+            Attribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT ) );
 
             for ( String mayOid :objectClass.getMayAttributeTypeOids() )
             {
@@ -395,7 +395,7 @@ public class AttributesFactory
             return;
         }
         
-        EntryAttribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT ) );
+        Attribute attr = new DefaultEntryAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT ) );
 
         for ( String name:names )
         {

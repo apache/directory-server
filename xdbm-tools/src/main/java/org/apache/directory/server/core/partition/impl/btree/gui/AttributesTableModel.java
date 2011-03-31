@@ -26,7 +26,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 
 
@@ -77,7 +77,7 @@ public class AttributesTableModel extends AbstractTableModel
 
         int rowCount = 0;
 
-        for ( EntryAttribute attribute:entry )
+        for ( Attribute attribute:entry )
         {
             String attrId = attribute.getId();
             rowCount = rowCount + entry.get( attrId ).size();
@@ -86,7 +86,7 @@ public class AttributesTableModel extends AbstractTableModel
         keyList = new ArrayList<Object>( rowCount );
         valList = new ArrayList<Object>( rowCount );
 
-        for ( EntryAttribute attribute:entry )
+        for ( Attribute attribute:entry )
         {
             for ( Value<?> value:attribute )
             {

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -163,7 +163,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         connection.modify( modifyRequest );
 
         lookupEntry = session.lookup( dn );
-        EntryAttribute giveName = lookupEntry.get( "givenName" );
+        Attribute giveName = lookupEntry.get( "givenName" );
         assertNull( giveName );
     }
 

@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -84,7 +84,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        EntryAttribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
 
         includeHashedPassword( pwdAt );
 
@@ -124,7 +124,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
      *
      * @param pwdAt the password attribute
      */
-    private void includeHashedPassword( EntryAttribute pwdAt ) throws LdapException
+    private void includeHashedPassword( Attribute pwdAt ) throws LdapException
     {
         if ( pwdAt == null )
         {

@@ -31,7 +31,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -138,7 +138,7 @@ public class ServerEntrySerializer implements Serializer
             out.writeUTF( oid );
 
             // Get the attribute
-            EntryAttribute attribute = entry.get( attributeType );;
+            Attribute attribute = entry.get( attributeType );;
 
             // Write the attribute
             attribute.writeExternal( out );
@@ -210,7 +210,7 @@ public class ServerEntrySerializer implements Serializer
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
                     // Create the attribute we will read
-                    EntryAttribute attribute = new DefaultEntryAttribute( attributeType );
+                    Attribute attribute = new DefaultEntryAttribute( attributeType );
 
                     // Read the attribute
                     attribute.readExternal( in );

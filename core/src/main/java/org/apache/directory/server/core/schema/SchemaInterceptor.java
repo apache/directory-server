@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -772,7 +772,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws LdapException
+    private boolean getObjectClasses( Attribute objectClasses, List<ObjectClass> result ) throws LdapException
     {
         Set<String> ocSeen = new HashSet<String>();
 
@@ -811,7 +811,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Set<String> getAllMust( EntryAttribute objectClasses ) throws LdapException
+    private Set<String> getAllMust( Attribute objectClasses ) throws LdapException
     {
         Set<String> must = new HashSet<String>();
 
@@ -837,7 +837,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Set<String> getAllAllowed( EntryAttribute objectClasses, Set<String> must ) throws LdapException
+    private Set<String> getAllAllowed( Attribute objectClasses, Set<String> must ) throws LdapException
     {
         Set<String> allowed = new HashSet<String>( must );
 
@@ -877,7 +877,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws Exception if there are problems
      */
-    private void alterObjectClasses( EntryAttribute objectClassAttr ) throws LdapException
+    private void alterObjectClasses( Attribute objectClassAttr ) throws LdapException
     {
         Set<String> objectClasses = new HashSet<String>();
         Set<String> objectClassesUP = new HashSet<String>();
@@ -989,12 +989,12 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Create a new attribute using the given values
      */
-    private EntryAttribute createNewAttribute( EntryAttribute attribute ) throws LdapException
+    private Attribute createNewAttribute( Attribute attribute ) throws LdapException
     {
         AttributeType attributeType = attribute.getAttributeType();
 
         // Create the new Attribute
-        EntryAttribute newAttribute = new DefaultEntryAttribute( attribute.getUpId(), attributeType );
+        Attribute newAttribute = new DefaultEntryAttribute( attribute.getUpId(), attributeType );
 
         for ( Value<?> value : attribute )
         {
@@ -1020,7 +1020,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Now, apply each mod one by one
         for ( Modification mod : mods )
         {
-            EntryAttribute attribute = mod.getAttribute();
+            Attribute attribute = mod.getAttribute();
             AttributeType attributeType = attribute.getAttributeType();
 
             // We don't allow modification of operational attributes
@@ -1039,7 +1039,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 case ADD_ATTRIBUTE:
                     // Check the syntax here
-                    EntryAttribute currentAttribute = tempEntry.get( attributeType );
+                    Attribute currentAttribute = tempEntry.get( attributeType );
 
                     // First check if the added Attribute is already present in the entry
                     // If not, we have to create the entry
@@ -1066,7 +1066,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // We don't check if the attribute is not in the MUST or MAY at this
                         // point, as one of the following modification can change the
                         // ObjectClasses.
-                        EntryAttribute newAttribute = createNewAttribute( attribute );
+                        Attribute newAttribute = createNewAttribute( attribute );
                         
                         // Check that the attribute allows null values if we don'y have any value
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType.getSyntax().getSyntaxChecker() ) )
@@ -1141,7 +1141,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         else
                         {
                             // Create the new Attribute
-                            EntryAttribute newAttribute = createNewAttribute( attribute );
+                            Attribute newAttribute = createNewAttribute( attribute );
 
                             tempEntry.put( newAttribute );
                         }
@@ -1160,7 +1160,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             tempEntry.removeAttributes( attributeType );
 
                             // Create the new Attribute
-                            EntryAttribute newAttribute = createNewAttribute( attribute );
+                            Attribute newAttribute = createNewAttribute( attribute );
 
                             tempEntry.put( newAttribute );
                         }
@@ -1255,7 +1255,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( AttributeTypeOptions attrOptions : operation.getReturningAttributes() )
         {
-            EntryAttribute attribute = result.get( attrOptions.getAttributeType() );
+            Attribute attribute = result.get( attrOptions.getAttributeType() );
 
             if ( attrOptions.hasOption() )
             {
@@ -1292,7 +1292,7 @@ public class SchemaInterceptor extends BaseInterceptor
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
          */
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             if ( !attribute.getAttributeType().getSyntax().isHumanReadable() )
             {
@@ -1371,7 +1371,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        EntryAttribute objectClassAttr = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClassAttr = entry.get( OBJECT_CLASS_AT );
 
         // Protect the server against a null objectClassAttr
         // It can be the case if the user forgot to add it to the entry ...
@@ -1416,7 +1416,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private void checkOcSuperior( Entry entry ) throws LdapException
     {
         // handle the m-supObjectClass meta attribute
-        EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        Attribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
 
         if ( supOC != null )
         {
@@ -1514,7 +1514,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( ( schema != null ) && schema.isEnabled() )
                 {
-                    EntryAttribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
+                    Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
                     String ocOid = oidAT.getString();
                     
                     ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocOid );
@@ -1565,14 +1565,14 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {
             return;
         }
 
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             String attrOid = attribute.getAttributeType().getOid();
 
@@ -1593,7 +1593,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertNumberOfAttributeValuesValid( Entry entry ) throws LdapInvalidAttributeValueException
     {
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             assertNumberOfAttributeValuesValid( attribute );
         }
@@ -1603,7 +1603,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see numbers of values of attributes conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( EntryAttribute attribute )
+    private void assertNumberOfAttributeValuesValid( Attribute attribute )
         throws LdapInvalidAttributeValueException
     {
         if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValued() )
@@ -1619,7 +1619,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertRequiredAttributesPresent( Dn dn, Entry entry, Set<String> must ) throws LdapException
     {
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             must.remove( attribute.getAttributeType().getOid() );
         }
@@ -1729,7 +1729,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private void assertSyntaxes( Entry entry ) throws LdapException
     {
         // First, loop on all attributes
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             AttributeType attributeType = attribute.getAttributeType();
             SyntaxChecker syntaxChecker = attributeType.getSyntax().getSyntaxChecker();
@@ -1770,7 +1770,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         for ( Ava atav : dn.getRdn() )
         {
-            EntryAttribute attribute = entry.get( atav.getNormType() );
+            Attribute attribute = entry.get( atav.getNormType() );
 
             if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
             {
@@ -1787,7 +1787,7 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * If this is the case, try to change it to a String value.
      */
-    private boolean checkHumanReadable( EntryAttribute attribute ) throws LdapException
+    private boolean checkHumanReadable( Attribute attribute ) throws LdapException
     {
         boolean isModified = false;
 
@@ -1829,7 +1829,7 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * If this is the case, try to change it to a binary value.
      */
-    private boolean checkNotHumanReadable( EntryAttribute attribute ) throws LdapException
+    private boolean checkNotHumanReadable( Attribute attribute ) throws LdapException
     {
         boolean isModified = false;
 
@@ -1883,7 +1883,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Entry clonedEntry = null;
 
         // Loops on all attributes
-        for ( EntryAttribute attribute : entry )
+        for ( Attribute attribute : entry )
         {
             AttributeType attributeType = attribute.getAttributeType();
 

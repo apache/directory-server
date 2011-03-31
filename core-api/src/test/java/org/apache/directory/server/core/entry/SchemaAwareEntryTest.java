@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -251,11 +251,11 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute email = new DefaultEntryAttribute( atEMail, "FR", "US" );
+        Attribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
+        Attribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute email = new DefaultEntryAttribute( atEMail, "FR", "US" );
 
         entry.add( oc, cn, sn, email );
 
@@ -265,17 +265,17 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( "  sn  " ) );
         assertTrue( entry.containsAttribute( " email  " ) );
 
-        EntryAttribute attr = entry.get( "objectclass" );
+        Attribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
 
-        EntryAttribute email2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
+        Attribute email2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
         entry.add( email2, up );
         assertEquals( 5, entry.size() );
 
         assertTrue( entry.containsAttribute( "userPassword" ) );
         assertTrue( entry.containsAttribute( " email " ) );
 
-        EntryAttribute attrC = entry.get( "email" );
+        Attribute attrC = entry.get( "email" );
         assertEquals( 4, attrC.size() );
 
         entry.clear();
@@ -292,7 +292,7 @@ public class SchemaAwareEntryTest
 
         entry.add( "userPassword", ( byte[] ) null );
         assertEquals( 1, entry.size() );
-        EntryAttribute attributePWD = entry.get( "userPassword" );
+        Attribute attributePWD = entry.get( "userPassword" );
         assertEquals( 1, attributePWD.size() );
         assertNotNull( attributePWD.get() );
         assertNull( attributePWD.get().getValue() );
@@ -301,7 +301,7 @@ public class SchemaAwareEntryTest
 
         entry.add( "userPassword", BYTES1, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
-        EntryAttribute attributeJPG = entry.get( "userPassword" );
+        Attribute attributeJPG = entry.get( "userPassword" );
         assertEquals( 2, attributeJPG.size() );
         assertNotNull( attributeJPG.get() );
         assertTrue( attributeJPG.contains( BYTES1 ) );
@@ -336,14 +336,14 @@ public class SchemaAwareEntryTest
 
         entry.add( "dc", ( String ) null );
         assertEquals( 1, entry.size() );
-        EntryAttribute attributeDC = entry.get( "dc" );
+        Attribute attributeDC = entry.get( "dc" );
 
         assertEquals( 1, attributeDC.size() );
         assertNotNull( attributeDC.get() );
 
         entry.add( "sn", "test", "test", "TEST" );
         assertEquals( 2, entry.size() );
-        EntryAttribute attributeSN = entry.get( "sn" );
+        Attribute attributeSN = entry.get( "sn" );
 
         // 'TEST' and 'test' are the same value for 'sn' (this is a case insensitive attributeType)
         assertEquals( 1, attributeSN.size() );
@@ -381,7 +381,7 @@ public class SchemaAwareEntryTest
 
         entry.add( "dc", value );
         assertEquals( 1, entry.size() );
-        EntryAttribute attributeCN = entry.get( "dc" );
+        Attribute attributeCN = entry.get( "dc" );
         assertEquals( 1, attributeCN.size() );
         assertNotNull( attributeCN.get() );
         assertNull( attributeCN.get().getValue() );
@@ -392,7 +392,7 @@ public class SchemaAwareEntryTest
 
         entry.add( "sn", value1, value2, value3 );
         assertEquals( 2, entry.size() );
-        EntryAttribute attributeSN = entry.get( "sn" );
+        Attribute attributeSN = entry.get( "sn" );
         assertEquals( 2, attributeSN.size() );
         assertNotNull( attributeSN.get() );
         assertTrue( attributeSN.contains( value1 ) );
@@ -401,7 +401,7 @@ public class SchemaAwareEntryTest
         Value<byte[]> value4 = new BinaryValue( atPwd, BYTES1 );
         entry.add( "l", value1, value4 );
         assertEquals( 3, entry.size() );
-        EntryAttribute attributeL = entry.get( "l" );
+        Attribute attributeL = entry.get( "l" );
 
         // Cannot store a binary value in a String attribute
         assertEquals( 1, attributeL.size() );
@@ -438,7 +438,7 @@ public class SchemaAwareEntryTest
         entry.add( atPwd, ( byte[] ) null, BYTES1 );
         assertEquals( 1, entry.size() );
 
-        EntryAttribute attribute = entry.get( atPwd );
+        Attribute attribute = entry.get( atPwd );
         assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
@@ -461,7 +461,7 @@ public class SchemaAwareEntryTest
         entry.add( atC, "de", "fr" );
         assertEquals( 1, entry.size() );
 
-        EntryAttribute attribute = entry.get( atC );
+        Attribute attribute = entry.get( atC );
         assertEquals( 0, attribute.size() );
         assertFalse( attribute.contains( "de" ) );
         assertFalse( attribute.contains( "fr" ) );
@@ -534,7 +534,7 @@ public class SchemaAwareEntryTest
         entry.add( "  UserPassword  ", atPwd, ( byte[] ) null, BYTES1 );
         assertEquals( 1, entry.size() );
 
-        EntryAttribute attribute = entry.get( atPwd );
+        Attribute attribute = entry.get( atPwd );
         assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
@@ -571,7 +571,7 @@ public class SchemaAwareEntryTest
         entry.add( "  EMAIL  ", atEMail, ( String ) null, "test1" );
         assertEquals( 1, entry.size() );
 
-        EntryAttribute attribute = entry.get( atEMail );
+        Attribute attribute = entry.get( atEMail );
         assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( ( String ) null ) );
@@ -1421,7 +1421,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( AttributeType ) null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrPWD ) );
 
@@ -1444,7 +1444,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( AttributeType ) null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
 
         assertFalse( entry.contains( attrCN ) );
 
@@ -1477,8 +1477,8 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, strValue1 ) );
         assertFalse( entry.contains( atDC, binValue1 ) );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atDC, strValue1, strValue2 );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, binValue1, binValue2, binNullValue );
+        Attribute attrCN = new DefaultEntryAttribute( atDC, strValue1, strValue2 );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, binValue1, binValue2, binNullValue );
 
         entry.add( attrCN, attrPWD );
 
@@ -1499,10 +1499,10 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrOC, attrCN ) );
 
@@ -1515,9 +1515,9 @@ public class SchemaAwareEntryTest
 
         assertTrue( entry.contains( attrSN, attrPWD ) );
 
-        assertFalse( entry.contains( ( EntryAttribute ) null ) );
+        assertFalse( entry.contains( ( Attribute ) null ) );
         entry.clear();
-        assertTrue( entry.contains( ( EntryAttribute ) null ) );
+        assertTrue( entry.contains( ( Attribute ) null ) );
     }
 
 
@@ -1532,7 +1532,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, BYTES3 ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
 
         entry.add( attrPWD );
 
@@ -1556,7 +1556,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
+        Attribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.add( attrEMail );
 
@@ -1580,8 +1580,8 @@ public class SchemaAwareEntryTest
         assertFalse( entry.contains( ( String ) null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", "test2", ( String ) null );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, ( byte[] ) null );
+        Attribute attrEMail = new DefaultEntryAttribute( atEMail, "test1", "test2", ( String ) null );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, ( byte[] ) null );
 
         entry.add( attrEMail, attrPWD );
 
@@ -1614,10 +1614,10 @@ public class SchemaAwareEntryTest
 
         assertFalse( entry.containsAttribute( atOC ) );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
@@ -1645,10 +1645,10 @@ public class SchemaAwareEntryTest
 
         assertFalse( entry.containsAttribute( "objectClass" ) );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
@@ -1681,10 +1681,10 @@ public class SchemaAwareEntryTest
         entry2.setDn( EXAMPLE_DN );
         assertEquals( entry1, entry2 );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
 
         entry1.put( attrOC, attrCN, attrSN, attrPWD );
         entry2.put( attrOC, attrCN, attrSN );
@@ -1693,8 +1693,8 @@ public class SchemaAwareEntryTest
         entry2.put( attrPWD );
         assertEquals( entry1, entry2 );
 
-        EntryAttribute attrL1 = new DefaultEntryAttribute( "l", atL, "Paris", "New-York" );
-        EntryAttribute attrL2 = new DefaultEntryAttribute( "l", atL, "Paris", "Tokyo" );
+        Attribute attrL1 = new DefaultEntryAttribute( "l", atL, "Paris", "New-York" );
+        Attribute attrL2 = new DefaultEntryAttribute( "l", atL, "Paris", "Tokyo" );
 
         entry1.put( attrL1 );
         entry2.put( attrL1 );
@@ -1722,10 +1722,10 @@ public class SchemaAwareEntryTest
 
         assertEquals( 0, entry.getAttributeTypes().size() );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
@@ -1751,10 +1751,10 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( ( AttributeType ) null ) );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
@@ -1778,10 +1778,10 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "badId" ) );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
@@ -1830,10 +1830,10 @@ public class SchemaAwareEntryTest
         entry2.setDn( EXAMPLE_DN );
         assertEquals( entry1.hashCode(), entry2.hashCode() );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
 
         entry1.add( attrOC, attrCN, attrSN, attrPWD );
         entry2.add( attrOC, attrCN, attrSN, attrPWD );
@@ -1855,7 +1855,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
 
         assertFalse( entry.contains( attrOC ) );
         assertFalse( entry.hasObjectClass( attrOC ) );
@@ -1864,14 +1864,14 @@ public class SchemaAwareEntryTest
 
         assertTrue( entry.hasObjectClass( attrOC ) );
 
-        EntryAttribute attrOC2 = new DefaultEntryAttribute( atOC, "person" );
+        Attribute attrOC2 = new DefaultEntryAttribute( atOC, "person" );
         assertTrue( entry.hasObjectClass( attrOC2 ) );
 
-        EntryAttribute attrOC3 = new DefaultEntryAttribute( atOC, "inetOrgPerson" );
+        Attribute attrOC3 = new DefaultEntryAttribute( atOC, "inetOrgPerson" );
         assertFalse( entry.hasObjectClass( attrOC3 ) );
-        assertFalse( entry.hasObjectClass( ( EntryAttribute ) null ) );
+        assertFalse( entry.hasObjectClass( ( Attribute ) null ) );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "top" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "top" );
         assertFalse( entry.hasObjectClass( attrCN ) );
     }
 
@@ -1938,14 +1938,14 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.put( attrOC, attrCN, attrSN, attrPWD );
 
-        Iterator<EntryAttribute> iterator = entry.iterator();
+        Iterator<Attribute> iterator = entry.iterator();
 
         assertTrue( iterator.hasNext() );
 
@@ -1957,7 +1957,7 @@ public class SchemaAwareEntryTest
 
         while ( iterator.hasNext() )
         {
-            EntryAttribute attribute = iterator.next();
+            Attribute attribute = iterator.next();
 
             AttributeType attributeType = attribute.getAttributeType();
             assertTrue( expectedIds.contains( attributeType ) );
@@ -1994,7 +1994,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( atPwd ) );
         assertTrue( entry.contains( atPwd, ( byte[] ) null ) );
 
-        EntryAttribute replaced = entry.put( atPwd, BYTES1, BYTES2, BYTES1 );
+        Attribute replaced = entry.put( atPwd, BYTES1, BYTES2, BYTES1 );
         assertNotNull( replaced );
         assertEquals( atPwd, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( byte[] ) null ) );
@@ -2007,7 +2007,7 @@ public class SchemaAwareEntryTest
         assertNotNull( replaced );
         assertTrue( replaced.contains( BYTES1, BYTES2 ) );
 
-        EntryAttribute attribute = entry.get( atPwd );
+        Attribute attribute = entry.get( atPwd );
         assertEquals( 1, attribute.size() );
         assertTrue( attribute.contains( "test".getBytes() ) );
     }
@@ -2036,7 +2036,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( atEMail ) );
         assertTrue( entry.contains( atEMail, ( String ) null ) );
 
-        EntryAttribute replaced = entry.put( atEMail, "test1", "test2", "test1" );
+        Attribute replaced = entry.put( atEMail, "test1", "test2", "test1" );
         assertNotNull( replaced );
         assertEquals( atEMail, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( String ) null ) );
@@ -2049,7 +2049,7 @@ public class SchemaAwareEntryTest
         assertNotNull( replaced );
         assertTrue( replaced.contains( "test1", "test2" ) );
 
-        EntryAttribute attribute = entry.get( atEMail );
+        Attribute attribute = entry.get( atEMail );
         assertEquals( 0, attribute.size() );
     }
 
@@ -2084,7 +2084,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( atDC ) );
         assertTrue( entry.contains( atDC, ( String ) null ) );
 
-        EntryAttribute replaced = entry.put( atDC, strValue1, strValue2, strValue1 );
+        Attribute replaced = entry.put( atDC, strValue1, strValue2, strValue1 );
         assertNotNull( replaced );
         assertEquals( atDC, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( String ) null ) );
@@ -2097,7 +2097,7 @@ public class SchemaAwareEntryTest
         assertNotNull( replaced );
         assertTrue( replaced.contains( strValue1, strValue2 ) );
 
-        EntryAttribute attribute = entry.get( atDC );
+        Attribute attribute = entry.get( atDC );
         assertEquals( 0, attribute.size() );
     }
 
@@ -2110,13 +2110,13 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultEntryAttribute( atEMail, "FR", "US" );
+        Attribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
+        Attribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute c = new DefaultEntryAttribute( atEMail, "FR", "US" );
 
-        List<EntryAttribute> removed = entry.put( oc, cn, sn, c );
+        List<Attribute> removed = entry.put( oc, cn, sn, c );
 
         assertEquals( 4, entry.size() );
         assertEquals( 0, removed.size() );
@@ -2125,10 +2125,10 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( "  sn  " ) );
         assertTrue( entry.containsAttribute( " email  " ) );
 
-        EntryAttribute attr = entry.get( "objectclass" );
+        Attribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
 
-        EntryAttribute c2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
+        Attribute c2 = new DefaultEntryAttribute( atEMail, "UK", "DE" );
         removed = entry.put( c2, up );
         assertEquals( 1, removed.size() );
         assertEquals( c, removed.get( 0 ) );
@@ -2140,7 +2140,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.containsAttribute( "userPassword" ) );
         assertTrue( entry.containsAttribute( " email " ) );
 
-        EntryAttribute attrC = entry.get( "email" );
+        Attribute attrC = entry.get( "email" );
         assertEquals( 2, attrC.size() );
         assertTrue( attrC.contains( "UK", "DE" ) );
 
@@ -2207,7 +2207,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( "UserPassword", entry.get( atPwd ).getUpId() );
 
-        EntryAttribute replaced = entry.put( "USERpassword ", atPwd, BYTES1, BYTES2, BYTES1 );
+        Attribute replaced = entry.put( "USERpassword ", atPwd, BYTES1, BYTES2, BYTES1 );
         assertNotNull( replaced );
         assertEquals( atPwd, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( byte[] ) null ) );
@@ -2222,7 +2222,7 @@ public class SchemaAwareEntryTest
         assertTrue( replaced.contains( BYTES1, BYTES2 ) );
         assertEquals( "userpassword", entry.get( atPwd ).getUpId() );
 
-        EntryAttribute attribute = entry.get( atPwd );
+        Attribute attribute = entry.get( atPwd );
         assertEquals( 1, attribute.size() );
     }
 
@@ -2281,7 +2281,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( atEMail, ( String ) null ) );
         assertEquals( "EMail", entry.get( atEMail ).getUpId() );
 
-        EntryAttribute replaced = entry.put( "eMail", atEMail, "test1", "test2", "test1" );
+        Attribute replaced = entry.put( "eMail", atEMail, "test1", "test2", "test1" );
         assertNotNull( replaced );
         assertEquals( atEMail, replaced.getAttributeType() );
         assertEquals( "eMail", entry.get( atEMail ).getUpId() );
@@ -2296,7 +2296,7 @@ public class SchemaAwareEntryTest
         assertTrue( replaced.contains( "test1", "test2" ) );
         assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getUpId() );
 
-        EntryAttribute attribute = entry.get( atEMail );
+        Attribute attribute = entry.get( atEMail );
         assertEquals( 0, attribute.size() );
     }
 
@@ -2362,7 +2362,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( atDC, ( String ) null ) );
         assertEquals( "Dc", entry.get( atDC ).getUpId() );
 
-        EntryAttribute replaced = entry.put( "domainComponent", atDC, strValue1, strValue2, strValue1 );
+        Attribute replaced = entry.put( "domainComponent", atDC, strValue1, strValue2, strValue1 );
         assertNotNull( replaced );
         assertEquals( atDC, replaced.getAttributeType() );
         assertTrue( replaced.contains( ( String ) null ) );
@@ -2376,7 +2376,7 @@ public class SchemaAwareEntryTest
         assertNotNull( replaced );
         assertTrue( replaced.contains( strValue1, strValue2 ) );
 
-        EntryAttribute attribute = entry.get( atDC );
+        Attribute attribute = entry.get( atDC );
         assertEquals( 0, attribute.size() );
         assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getUpId() );
     }
@@ -2420,7 +2420,7 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        EntryAttribute replaced = entry.put( "userPassword", ( byte[] ) null );
+        Attribute replaced = entry.put( "userPassword", ( byte[] ) null );
         assertNull( replaced );
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
@@ -2442,7 +2442,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
         assertEquals( 2, entry.get( "USERPassword" ).size() );
-        EntryAttribute attribute = entry.get( "userPassword" );
+        Attribute attribute = entry.get( "userPassword" );
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
         assertEquals( "2.5.4.35", attribute.getId() );
@@ -2488,7 +2488,7 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        EntryAttribute replaced = entry.put( "dc", ( String ) null );
+        Attribute replaced = entry.put( "dc", ( String ) null );
         assertNull( replaced );
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "dc" ) );
@@ -2511,7 +2511,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( "cn" ) );
         assertEquals( 2, entry.get( "CN" ).size() );
 
-        EntryAttribute attribute = entry.get( "cn" );
+        Attribute attribute = entry.get( "cn" );
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( "test2" ) );
         assertEquals( "2.5.4.3", attribute.getId() );
@@ -2564,7 +2564,7 @@ public class SchemaAwareEntryTest
             assertTrue( true );
         }
 
-        EntryAttribute replaced = entry.put( "domainComponent", strNullValue );
+        Attribute replaced = entry.put( "domainComponent", strNullValue );
         assertNull( replaced );
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "domainComponent" ) );
@@ -2589,7 +2589,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( "dc" ) );
         assertEquals( 2, entry.get( "DC" ).size() );
 
-        EntryAttribute attribute = entry.get( "dc" );
+        Attribute attribute = entry.get( "dc" );
         assertTrue( attribute.contains( strValue1 ) );
         assertTrue( attribute.contains( strValue2 ) );
         assertEquals( "0.9.2342.19200300.100.1.25", attribute.getId() );
@@ -2613,7 +2613,7 @@ public class SchemaAwareEntryTest
         // first test a null SA addition. It should be allowed.
         try
         {
-            entry.put( ( EntryAttribute ) null );
+            entry.put( ( Attribute ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2626,16 +2626,16 @@ public class SchemaAwareEntryTest
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
         AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
-        EntryAttribute sa = new DefaultEntryAttribute( atL, "france" );
+        Attribute sa = new DefaultEntryAttribute( atL, "france" );
         entry.put( sa );
 
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
         assertEquals( "france", entry.get( "l" ).get().getString() );
 
-        EntryAttribute sb = new DefaultEntryAttribute( atC, "countryTest" );
-        EntryAttribute sc = new DefaultEntryAttribute( atGN, "test" );
-        EntryAttribute sd = new DefaultEntryAttribute( atStreet, "testStreet" );
+        Attribute sb = new DefaultEntryAttribute( atC, "countryTest" );
+        Attribute sc = new DefaultEntryAttribute( atGN, "test" );
+        Attribute sd = new DefaultEntryAttribute( atStreet, "testStreet" );
         entry.put( sb, sc, sd );
 
         assertEquals( 4, entry.size() );
@@ -2647,9 +2647,9 @@ public class SchemaAwareEntryTest
         assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
 
         // Test a replacement
-        EntryAttribute sbb = new DefaultEntryAttribute( atC, "countryTestTest" );
-        EntryAttribute scc = new DefaultEntryAttribute( atGN, "testtest" );
-        List<EntryAttribute> result = entry.put( sbb, scc );
+        Attribute sbb = new DefaultEntryAttribute( atC, "countryTestTest" );
+        Attribute scc = new DefaultEntryAttribute( atGN, "testtest" );
+        List<Attribute> result = entry.put( sbb, scc );
 
         assertEquals( 2, result.size() );
         assertEquals( "countryTest", result.get( 0 ).get().getString() );
@@ -2664,15 +2664,15 @@ public class SchemaAwareEntryTest
 
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        EntryAttribute oc = new DefaultEntryAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
-        List<EntryAttribute> oldOc = entry.put( oc );
+        Attribute oc = new DefaultEntryAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
+        List<Attribute> oldOc = entry.put( oc );
 
         assertNotNull( oldOc );
         assertEquals( 0, oldOc.size() );
 
         assertNotNull( entry.get( "objectClass" ) );
 
-        EntryAttribute newOc = entry.get( "objectClass" );
+        Attribute newOc = entry.get( "objectClass" );
 
         assertNotNull( newOc );
         assertEquals( OBJECT_CLASS_AT, newOc.getAttributeType() );
@@ -2727,7 +2727,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "email", "test3" ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( atEMail, "test1", "test2", "test1" );
+        Attribute sa = entry.put( atEMail, "test1", "test2", "test1" );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
@@ -2790,7 +2790,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "userpassword", test3 ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( atPwd, test1, test2, test1 );
+        Attribute sa = entry.put( atPwd, test1, test2, test1 );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( test1, test2, test3 ) );
@@ -2850,7 +2850,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "cn", "test3" ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( atCN, new StringValue( atCN, "test1" ), new StringValue( atCN, "test2" ),
+        Attribute sa = entry.put( atCN, new StringValue( atCN, "test1" ), new StringValue( atCN, "test2" ),
             new StringValue( atCN, "test1" ) );
 
         assertEquals( 3, sa.size() );
@@ -2909,7 +2909,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "email", "test3" ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( "email", "test1", "test2", "test1" );
+        Attribute sa = entry.put( "email", "test1", "test2", "test1" );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
@@ -2977,7 +2977,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "userPassword", test3 ) );
 
         // Add twice the same value
-        EntryAttribute sa = entry.put( "userPassword", test1, test2, test1 );
+        Attribute sa = entry.put( "userPassword", test1, test2, test1 );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( test1, test2, test3 ) );
@@ -3041,7 +3041,7 @@ public class SchemaAwareEntryTest
         }
 
         // Test that we can add some new attributes with values
-        EntryAttribute result = entry.put( "EMail", atEMail, "test1", "test2", "test3" );
+        Attribute result = entry.put( "EMail", atEMail, "test1", "test2", "test3" );
         assertNotNull( result );
         assertEquals( "email", result.getUpId() );
         assertEquals( 1, entry.size() );
@@ -3115,7 +3115,7 @@ public class SchemaAwareEntryTest
         byte[] test2 = Strings.getBytesUtf8("test2");
         byte[] test3 = Strings.getBytesUtf8("test3");
 
-        EntryAttribute result = entry.put( "UserPassword", atPassword, test1, test2, test3 );
+        Attribute result = entry.put( "UserPassword", atPassword, test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "userPassword", result.getUpId() );
         assertEquals( 1, entry.size() );
@@ -3187,7 +3187,7 @@ public class SchemaAwareEntryTest
         Value<String> test2 = new StringValue( atDC, "test2" );
         Value<String> test3 = new StringValue( atDC, "test3" );
 
-        EntryAttribute result = entry.put( "DC", atDC, test1, test2, test3 );
+        Attribute result = entry.put( "DC", atDC, test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "dc", result.getUpId() );
         assertEquals( 1, entry.size() );
@@ -3231,7 +3231,7 @@ public class SchemaAwareEntryTest
         Value<String> test2 = new StringValue( atDC, "test2" );
         Value<String> test3 = new StringValue( atDC, "test3" );
 
-        EntryAttribute result = entry.put( "DC", test1, test2, test3 );
+        Attribute result = entry.put( "DC", test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "domainComponent", result.getUpId() );
         assertEquals( 1, entry.size() );
@@ -3254,7 +3254,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( atPwd, ( byte[] ) null ) );
@@ -3284,7 +3284,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
+        Attribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrCN );
         assertTrue( entry.remove( atEMail, ( String ) null ) );
@@ -3320,7 +3320,7 @@ public class SchemaAwareEntryTest
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( atEMail, strNullValue ) );
@@ -3349,14 +3349,14 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.put( attrOC, attrCN, attrSN, attrPWD );
 
-        List<EntryAttribute> removed = entry.remove( attrSN, attrPWD );
+        List<Attribute> removed = entry.remove( attrSN, attrPWD );
 
         assertEquals( 2, removed.size() );
         assertEquals( 2, entry.size() );
@@ -3381,10 +3381,10 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.put( attrOC, attrCN, attrSN, attrPWD );
 
@@ -3393,7 +3393,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.containsAttribute( "objectclass", "userpassword" ) );
 
-        List<EntryAttribute> removed = entry.removeAttributes( ( AttributeType ) null );
+        List<Attribute> removed = entry.removeAttributes( ( AttributeType ) null );
         assertNull( removed );
 
         removed = entry.removeAttributes( atC );
@@ -3409,10 +3409,10 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        Attribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        Attribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        Attribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.put( attrOC, attrCN, attrSN, attrPWD );
 
@@ -3421,7 +3421,7 @@ public class SchemaAwareEntryTest
         assertFalse( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.containsAttribute( "objectclass", "userpassword" ) );
 
-        List<EntryAttribute> removed = entry.removeAttributes( "badId" );
+        List<Attribute> removed = entry.removeAttributes( "badId" );
         assertNull( removed );
 
         removed = entry.removeAttributes( "l" );
@@ -3440,7 +3440,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
+        Attribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, ( byte[] ) null, BYTES2 );
 
         assertFalse( entry.remove( ( String ) null, BYTES1 ) );
         assertFalse( entry.remove( " ", BYTES1 ) );
@@ -3474,7 +3474,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
+        Attribute attrCN = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         assertFalse( entry.remove( ( String ) null, "test1" ) );
         assertFalse( entry.remove( " ", "test1" ) );
@@ -3514,7 +3514,7 @@ public class SchemaAwareEntryTest
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
+        Attribute attrPWD = new DefaultEntryAttribute( atEMail, "test1", ( String ) null, "test2" );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( "EMail", strNullValue ) );
@@ -3556,7 +3556,7 @@ public class SchemaAwareEntryTest
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
 
         // test a removal of an non existing attribute
-        List<EntryAttribute> removed = entry.removeAttributes( atCN );
+        List<Attribute> removed = entry.removeAttributes( atCN );
         assertNull( removed );
 
         // Test a simple removal
@@ -3604,7 +3604,7 @@ public class SchemaAwareEntryTest
         Dn dn = new Dn( schemaManager, "cn=test" );
         Entry entry = new DefaultEntry( schemaManager, dn );
 
-        List<EntryAttribute> result = null;
+        List<Attribute> result = null;
 
         // First check that this method fails if we pass an empty list of ATs
         result = entry.set( ( AttributeType ) null );
@@ -3614,7 +3614,7 @@ public class SchemaAwareEntryTest
         result = entry.set( atSN );
 
         assertNull( result );
-        EntryAttribute sa = entry.get( "sn" );
+        Attribute sa = entry.get( "sn" );
         assertNotNull( sa );
         assertEquals( atSN, sa.getAttributeType() );
         assertEquals( "sn", sa.getAttributeType().getName() );
@@ -3668,7 +3668,7 @@ public class SchemaAwareEntryTest
 
         assertNotNull( entry.get( "objectClass" ) );
 
-        EntryAttribute oc = entry.get( "objectClass" );
+        Attribute oc = entry.get( "objectClass" );
 
         assertEquals( OBJECT_CLASS_AT, oc.getAttributeType() );
         assertNull( oc.get() );
@@ -3683,7 +3683,7 @@ public class SchemaAwareEntryTest
     {
         Dn dn = new Dn( schemaManager, "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        List<EntryAttribute> result = null;
+        List<Attribute> result = null;
 
         // First check that this method fails if we pass a null or empty ID
         try
@@ -3708,7 +3708,7 @@ public class SchemaAwareEntryTest
 
         assertNull( result );
 
-        EntryAttribute sa = entry.get( "sn" );
+        Attribute sa = entry.get( "sn" );
         assertNotNull( sa );
         assertEquals( "2.5.4.4", sa.getId() );
 
@@ -3774,7 +3774,7 @@ public class SchemaAwareEntryTest
         entry.add( "cn", "test1", "test2" );
         entry.add( "sn", "Test" );
 
-        List<EntryAttribute> removed = entry.set( atOC, atCN, atPwd );
+        List<Attribute> removed = entry.set( atOC, atCN, atPwd );
 
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( "objectclass" ) );
@@ -3804,7 +3804,7 @@ public class SchemaAwareEntryTest
         entry.add( "cn", "test1", "test2" );
         entry.add( "sn", "Test" );
 
-        List<EntryAttribute> removed = entry.set( "objectClass", "CN", "givenName" );
+        List<Attribute> removed = entry.set( "objectClass", "CN", "givenName" );
 
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( "objectclass" ) );

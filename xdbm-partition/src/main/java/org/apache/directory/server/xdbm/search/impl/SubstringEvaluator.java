@@ -30,7 +30,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -255,7 +255,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     private boolean evaluateWithoutIndex( Entry entry ) throws Exception
     {
         // get the attribute
-        EntryAttribute attr = entry.get( attributeType );
+        Attribute attr = entry.get( attributeType );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )
@@ -344,7 +344,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          */
 
         // get the attribute
-        EntryAttribute attr = entry.get( attributeType );
+        Attribute attr = entry.get( attributeType );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )

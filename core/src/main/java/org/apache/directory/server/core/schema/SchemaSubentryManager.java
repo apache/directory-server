@@ -29,7 +29,7 @@ import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
@@ -162,7 +162,7 @@ public class SchemaSubentryManager
         {
             String opAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
             
-            EntryAttribute serverAttribute = mod.getAttribute();
+            Attribute serverAttribute = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {
@@ -201,7 +201,7 @@ public class SchemaSubentryManager
      * schema partition
      */
     private void modifyRemoveOperation( ModifyOperationContext modifyContext, String opAttrOid, 
-        EntryAttribute mods ) throws LdapException
+        Attribute mods ) throws LdapException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
         
@@ -332,7 +332,7 @@ public class SchemaSubentryManager
      * schema partition
      */
     private void modifyAddOperation( ModifyOperationContext modifyContext, String opAttrOid, 
-        EntryAttribute mods, boolean doCascadeModify ) throws LdapException
+        Attribute mods, boolean doCascadeModify ) throws LdapException
     {
         if ( doCascadeModify )
         {

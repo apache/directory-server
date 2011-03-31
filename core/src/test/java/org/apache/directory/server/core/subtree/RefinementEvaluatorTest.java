@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -141,7 +141,7 @@ public class RefinementEvaluatorTest
     @Test 
     public void testMatchByName() throws Exception
     {
-        EntryAttribute objectClasses = null;
+        Attribute objectClasses = null;
 
         // positive test
         objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
@@ -162,7 +162,7 @@ public class RefinementEvaluatorTest
     @Test 
     public void testMatchByOID() throws Exception
     {
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         
         // positive test
         assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
@@ -183,7 +183,7 @@ public class RefinementEvaluatorTest
     public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         String refStr = "(|(objectClass=person)(objectClass=organizationalUnit))";
         
         refinement = FilterParser.parse( schemaManager, refStr );
@@ -202,7 +202,7 @@ public class RefinementEvaluatorTest
     public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         objectClasses.add( "organizationalUnit" );
         String refStr = "(&(objectClass=person)(objectClass=organizationalUnit))";
         
@@ -225,7 +225,7 @@ public class RefinementEvaluatorTest
     public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
-        EntryAttribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
+        Attribute objectClasses = new DefaultEntryAttribute( OBJECT_CLASS_AT, "person" );
         String refStr = "(!(objectClass=person))";
 
         refinement = FilterParser.parse( schemaManager, refStr );

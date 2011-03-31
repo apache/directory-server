@@ -28,7 +28,7 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -121,7 +121,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
 
-        for ( EntryAttribute attribute : serverEntry )
+        for ( Attribute attribute : serverEntry )
         {
             items.add( new DefaultModification( modOp, attribute ) );
         }

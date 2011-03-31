@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
@@ -71,7 +71,7 @@ public class SubstringEvaluator implements Evaluator
         
 
         // get the attribute
-        EntryAttribute attr = entry.get( snode.getAttribute() );
+        Attribute attr = entry.get( snode.getAttribute() );
 
         // if the attribute does not exist just return false
         if ( null == attr )

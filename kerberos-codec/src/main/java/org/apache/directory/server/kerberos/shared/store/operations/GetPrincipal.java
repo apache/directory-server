@@ -38,7 +38,7 @@ import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -134,7 +134,7 @@ public class GetPrincipal implements DirectoryServiceOperation
 
         if ( entry.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            EntryAttribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
+            Attribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
             
             try
             {

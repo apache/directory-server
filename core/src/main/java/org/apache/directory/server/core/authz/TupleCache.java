@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -145,7 +145,7 @@ public class TupleCache
                 {
                     Entry result = results.get();
                     Dn subentryDn = result.getDn().apply( session.getDirectoryService().getSchemaManager() );
-                    EntryAttribute aci = result.get( PRESCRIPTIVE_ACI_AT );
+                    Attribute aci = result.get( PRESCRIPTIVE_ACI_AT );
 
                     if ( aci == null )
                     {
@@ -173,7 +173,7 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
-        EntryAttribute aci = entry.get( PRESCRIPTIVE_ACI_AT );
+        Attribute aci = entry.get( PRESCRIPTIVE_ACI_AT );
 
         if ( aci == null )
         {
@@ -203,7 +203,7 @@ public class TupleCache
         }
 
         // Get the prescriptiveACI
-        EntryAttribute prescriptiveAci = entry.get( PRESCRIPTIVE_ACI_AT );
+        Attribute prescriptiveAci = entry.get( PRESCRIPTIVE_ACI_AT );
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
 

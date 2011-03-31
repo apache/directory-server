@@ -60,7 +60,7 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateV
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -566,7 +566,7 @@ public class SyncReplProvider implements ReplicationProvider
         SyncStateTypeEnum syncStateType ) throws Exception
     {
 
-        EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
+        Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( syncStateType );
@@ -591,7 +591,7 @@ public class SyncReplProvider implements ReplicationProvider
         SyncModifyDnDecorator modDnControl ) throws Exception
     {
 
-        EntryAttribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
+        Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
@@ -608,7 +608,7 @@ public class SyncReplProvider implements ReplicationProvider
 
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
-        EntryAttribute ref = entry.get( SchemaConstants.REF_AT );
+        Attribute ref = entry.get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )

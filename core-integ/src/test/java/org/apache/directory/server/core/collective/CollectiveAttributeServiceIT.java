@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -110,7 +110,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( String role ) throws Exception
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( "administrativeRole", role );
+        Attribute attribute = new DefaultEntryAttribute( "administrativeRole", role );
 
         connection.modify( "ou=system", new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute ) );
     }
@@ -210,7 +210,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         Entry entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        EntryAttribute c_ou = entry.get( "c-ou" );
+        Attribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );
 
@@ -279,7 +279,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
         entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
-        EntryAttribute c_st = entry.get( "c-st" );
+        Attribute c_st = entry.get( "c-st" );
 
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
@@ -365,7 +365,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         Map<String, Entry> entries = getAllEntries();
         Entry entry = entries.get( "ou=services,ou=configuration,ou=system" );
-        EntryAttribute c_ou = entry.get( "c-ou" );
+        Attribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.getString() );
 
@@ -450,7 +450,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
-        EntryAttribute c_st = entry.get( "c-st" );
+        Attribute c_st = entry.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
@@ -546,7 +546,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // request the collective attribute's super type specifically
         Entry entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
 
-        EntryAttribute c_ou = entry.get( "c-ou" );
+        Attribute c_ou = entry.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
     }

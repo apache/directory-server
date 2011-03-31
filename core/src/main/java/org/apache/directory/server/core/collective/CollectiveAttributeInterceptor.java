@@ -42,7 +42,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -188,7 +188,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             // This is a collectiveAttribute subentry. It must have at least one collective
             // attribute
-            for ( EntryAttribute attribute : entry )
+            for ( Attribute attribute : entry )
             {
                 if ( attribute.getAttributeType().isCollective() )
                 {
@@ -250,7 +250,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Modification mod : mods )
         {
             // TODO: handle http://issues.apache.org/jira/browse/DIRSERVER-1198
-            EntryAttribute attr = mod.getAttribute();
+            Attribute attr = mod.getAttribute();
             AttributeType attrType = attr.getAttributeType();
 
             // Defensive programming. Very unlikely to happen here...
@@ -313,7 +313,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
-        EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
+        Attribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         /*
@@ -331,7 +331,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * in the exclusions set instead of regular names that may have case 
          * variance.
          */
-        EntryAttribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
+        Attribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
 
@@ -450,8 +450,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                EntryAttribute subentryColAttr = subentry.get( attrId );
-                EntryAttribute entryColAttr = entry.get( attrId );
+                Attribute subentryColAttr = subentry.get( attrId );
+                Attribute entryColAttr = entry.get( attrId );
 
                 /*
                  * If entry does not have attribute for collective attribute then create it.

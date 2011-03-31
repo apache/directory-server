@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -233,7 +233,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 }
             }
 
-            EntryAttribute attr = mod.getAttribute();
+            Attribute attr = mod.getAttribute();
 
             if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( attr.getAttributeType().getOid() ) )
             {
@@ -300,7 +300,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
         }
 
-        EntryAttribute objectClass = ((ClonedServerEntry)userEntry).getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+        Attribute objectClass = ((ClonedServerEntry)userEntry).getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
@@ -314,13 +314,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            EntryAttribute principalAttribute = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            Attribute principalAttribute = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        EntryAttribute keyVersionNumberAttr = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        Attribute keyVersionNumberAttr = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {
@@ -384,7 +384,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
 
-        EntryAttribute attribute = getKeyAttribute( modContext.getSession()
+        Attribute attribute = getKeyAttribute( modContext.getSession()
             .getDirectoryService().getSchemaManager(), keys );
         newModsList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
@@ -392,9 +392,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     }
 
 
-    private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws LdapException
+    private Attribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws LdapException
     {
-        EntryAttribute keyAttribute =
+        Attribute keyAttribute =
             new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT,
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 

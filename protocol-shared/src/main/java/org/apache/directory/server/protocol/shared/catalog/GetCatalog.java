@@ -29,7 +29,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -66,7 +66,7 @@ public class GetCatalog implements DirectoryServiceOperation
             Entry result = list.get();
 
             String name = null;
-            EntryAttribute attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_NAME_AT );
+            Attribute attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_NAME_AT );
             
             if ( attribute != null )
             {

@@ -24,7 +24,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -241,7 +241,7 @@ public class AutzIntegUtils
         Entry systemEntry = connection.lookup( "ou=system", "+", "*" );
 
         // modify ou=system to be an AP for an A/C AA if it is not already
-        EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
+        Attribute administrativeRole = systemEntry.get( "administrativeRole" );
 
         if ( ( administrativeRole == null ) || !administrativeRole.contains( "accessControlSpecificArea" ) )
         {

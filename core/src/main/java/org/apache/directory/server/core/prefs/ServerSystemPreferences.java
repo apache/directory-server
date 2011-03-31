@@ -36,7 +36,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -245,7 +245,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             Entry entry = directoryService.getAdminSession().lookup( dn );
 
-            for ( EntryAttribute attr : entry )
+            for ( Attribute attr : entry )
             {
                 String oid = attr.getAttributeType().getOid();
                 
@@ -272,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            EntryAttribute attr = new DefaultEntryAttribute( at );
+            Attribute attr = new DefaultEntryAttribute( at );
             Modification mi = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
@@ -307,7 +307,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         try
         {
-            EntryAttribute attr = directoryService.getAdminSession().lookup( dn ).get( key );
+            Attribute attr = directoryService.getAdminSession().lookup( dn ).get( key );
             
             if ( keyToChange.containsKey( key ) )
             {
@@ -346,7 +346,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            EntryAttribute attr = new DefaultEntryAttribute( at, value );
+            Attribute attr = new DefaultEntryAttribute( at, value );
             Modification mi = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }

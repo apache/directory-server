@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -113,7 +113,7 @@ public class DescriptionParsers
      * @return The array of SyntaxCheckerDescription instances
      * @throws LdapInvalidAttributeValueException If something went wrong
      */
-    public SyntaxCheckerDescription[] parseSyntaxCheckers( EntryAttribute attr ) throws LdapInvalidAttributeValueException
+    public SyntaxCheckerDescription[] parseSyntaxCheckers( Attribute attr ) throws LdapInvalidAttributeValueException
     {
         if ( ( attr == null ) || ( attr.size() == 0 ) )
         {
@@ -144,7 +144,7 @@ public class DescriptionParsers
     }
 
 
-    public NormalizerDescription[] parseNormalizers( EntryAttribute attr ) throws LdapInvalidAttributeValueException
+    public NormalizerDescription[] parseNormalizers( Attribute attr ) throws LdapInvalidAttributeValueException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -174,7 +174,7 @@ public class DescriptionParsers
     }
 
 
-    public LdapComparatorDescription[] parseComparators( EntryAttribute attr ) throws LdapInvalidAttributeValueException
+    public LdapComparatorDescription[] parseComparators( Attribute attr ) throws LdapInvalidAttributeValueException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -212,7 +212,7 @@ public class DescriptionParsers
      * @return the set of attributeType objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws LdapException
+    public AttributeType[] parseAttributeTypes( Attribute attr ) throws LdapException
     {
         if ( ( attr == null ) || ( attr.size() == 0 ) )
         {
@@ -290,7 +290,7 @@ public class DescriptionParsers
      * @return the set of objectClass objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public ObjectClass[] parseObjectClasses( EntryAttribute attr ) throws LdapException
+    public ObjectClass[] parseObjectClasses( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -379,7 +379,7 @@ public class DescriptionParsers
      * @return the set of matchingRuleUse objects for the descriptions 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
-    public MatchingRuleUse[] parseMatchingRuleUses( EntryAttribute attr ) throws LdapException
+    public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -422,7 +422,7 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
-    public LdapSyntax[] parseLdapSyntaxes( EntryAttribute attr ) throws LdapException
+    public LdapSyntax[] parseLdapSyntaxes( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -471,7 +471,7 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public MatchingRule[] parseMatchingRules( EntryAttribute attr ) throws LdapException
+    public MatchingRule[] parseMatchingRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -520,7 +520,7 @@ public class DescriptionParsers
      * @return the set of DITStructureRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITStructureRule[] parseDitStructureRules( EntryAttribute attr ) throws LdapException
+    public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -563,7 +563,7 @@ public class DescriptionParsers
      * @return the set of DITContentRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITContentRule[] parseDitContentRules( EntryAttribute attr ) throws LdapException
+    public DITContentRule[] parseDitContentRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -606,7 +606,7 @@ public class DescriptionParsers
      * @return the set of NameFormRule objects for the descriptions 
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public NameForm[] parseNameForms( EntryAttribute attr ) throws LdapException
+    public NameForm[] parseNameForms( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {

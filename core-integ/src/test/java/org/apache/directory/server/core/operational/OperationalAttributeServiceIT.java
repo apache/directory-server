@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -110,7 +110,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         // test without turning on the property
         Entry result = connection.lookup( "ou=test,ou=system" );
-        EntryAttribute ou = result.get( "ou" );
+        Attribute ou = result.get( "ou" );
         Object value = ou.getString();
         assertTrue( value instanceof String );
 
@@ -126,7 +126,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         ou = loadedEntry.get( "ou" );
         value = ou.getString();
         assertEquals( "anothertest", value );
-        EntryAttribute jpegPhoto = loadedEntry.get( "jpegPhoto" );
+        Attribute jpegPhoto = loadedEntry.get( "jpegPhoto" );
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
         assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", Strings
@@ -150,7 +150,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( entry );
         assertEquals( "testing00", entry.get( "ou" ).getString() );
-        EntryAttribute attribute = entry.get( "objectClass" );
+        Attribute attribute = entry.get( "objectClass" );
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
@@ -279,7 +279,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // Determine modifyTimestamp
         Entry entry = connection.lookup( DN_KATE_BUSH, "modifyTimestamp" );
 
-        EntryAttribute modifyTimestamp = entry.get( "modifyTimestamp" );
+        Attribute modifyTimestamp = entry.get( "modifyTimestamp" );
         assertNotNull( modifyTimestamp );
         String oldTimestamp = modifyTimestamp.getString();
 

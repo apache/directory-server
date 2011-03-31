@@ -40,7 +40,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -84,11 +83,11 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -208,7 +207,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Read again from directory
         person = ( DirContext ) ctx.lookup( RDN );
         attributes = person.getAttributes( "" );
-        Attribute newOcls = attributes.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = attributes.get( "objectClass" );
 
         String[] expectedOcls =
             { "top", "person", "organizationalPerson", "inetOrgPerson" };
@@ -234,7 +233,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
-        Attribute desc = new BasicAttribute( "description", newDescription );
+        javax.naming.directory.Attribute desc = new BasicAttribute( "description", newDescription );
         attributes.put( desc );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -243,7 +242,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Read again from directory
         person = ( DirContext ) ctx.lookup( RDN );
         attributes = person.getAttributes( "" );
-        Attribute newDesc = attributes.get( "description" );
+        javax.naming.directory.Attribute newDesc = attributes.get( "description" );
 
         assertTrue( "new Description", newDesc.contains( newDescription ) );
     }
@@ -261,7 +260,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // person without sn
         Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -309,7 +308,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Analyze entry and description attribute
         Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
-        EntryAttribute attr = kateReloaded.get( "description" );
+        Attribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
         assertEquals( 2, attr.size() );
 
@@ -349,7 +348,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Analyze entry and description attribute
         Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
-        EntryAttribute attr = kateReloaded.get( "description" );
+        Attribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
         assertEquals( 2, attr.size() );
 
@@ -390,7 +389,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Analyze entry and description attribute
         Entry kateReloaded = con.lookup( dn );
         assertNotNull( kateReloaded );
-        EntryAttribute attr = kateReloaded.get( "description" );
+        Attribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
         assertEquals( 2, attr.size() );
 
@@ -413,13 +412,13 @@ public class AddIT extends AbstractLdapTestUnit
 
         // add inetOrgPerson with two displayNames
         Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
-        Attribute displayName = new BasicAttribute( "displayName" );
+        javax.naming.directory.Attribute displayName = new BasicAttribute( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
@@ -447,7 +446,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create entry
         Attributes entry = new BasicAttributes( true );
-        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -458,7 +457,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Create Alias
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -487,7 +486,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create container
         Attributes container = new BasicAttributes( true );
-        Attribute containerOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute containerOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         containerOcls.add( SchemaConstants.TOP_OC );
         containerOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         container.put( containerOcls );
@@ -497,7 +496,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create entry
         Attributes entry = new BasicAttributes( true );
-        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -508,7 +507,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -582,7 +581,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create entry ou=favorite,ou=system
         Attributes entry = new BasicAttributes( true );
-        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -593,7 +592,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Create Alias ou=bestFruit,ou=system to ou=favorite
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -625,7 +624,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new BasicAttributes( true );
-        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -636,7 +635,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Create Alias ou=bestFruit,dc=example,dc=com to ou=favorite
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -668,7 +667,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create entry ou=favorite,dc=directory,dc=apache,dc=org
         Attributes entry = new BasicAttributes( true );
-        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -679,7 +678,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Create Alias ou=bestFruit,dc=directory,dc=apache,dc=org to ou=favorite
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -932,7 +931,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         DirContext jackson = ( DirContext ) ctx.lookup( "givenname=Michael" );
         person = jackson.getAttributes( "" );
-        Attribute newOcls = person.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = person.get( "objectClass" );
 
         String[] expectedOcls =
             { "top", "person", "organizationalPerson", "inetOrgPerson" };
@@ -942,7 +941,7 @@ public class AddIT extends AbstractLdapTestUnit
             assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
         }
 
-        Attribute givenName = person.get( "givenname" );
+        javax.naming.directory.Attribute givenName = person.get( "givenname" );
 
         assertEquals( "Michael", givenName.get() );
     }
@@ -972,7 +971,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         DirContext jackson = ( DirContext ) ctx.lookup( "cn=Michael" );
         person = jackson.getAttributes( "" );
-        Attribute newOcls = person.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = person.get( "objectClass" );
 
         String[] expectedOcls =
             { "top", "person", "organizationalPerson", "inetOrgPerson" };
@@ -982,7 +981,7 @@ public class AddIT extends AbstractLdapTestUnit
             assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
         }
 
-        Attribute cn = person.get( "cn" );
+        javax.naming.directory.Attribute cn = person.get( "cn" );
 
         assertEquals( 2, cn.size() );
         String[] expectedCns =
@@ -1019,7 +1018,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         DirContext jackson = ( DirContext ) ctx.lookup( "displayName=test" );
         person = jackson.getAttributes( "" );
-        Attribute newOcls = person.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = person.get( "objectClass" );
 
         String[] expectedOcls =
             { "top", "person", "organizationalPerson", "inetOrgPerson" };
@@ -1030,7 +1029,7 @@ public class AddIT extends AbstractLdapTestUnit
         }
 
         // Check that the displayName attribute has been replaced
-        Attribute displayName = person.get( "displayName" );
+        javax.naming.directory.Attribute displayName = person.get( "displayName" );
 
         assertEquals( 1, displayName.size() );
         assertTrue( displayName.contains( "test" ) );
@@ -1060,7 +1059,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         DirContext jackson = ( DirContext ) ctx.lookup( "displayName=test+cn=Michael" );
         person = jackson.getAttributes( "" );
-        Attribute newOcls = person.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = person.get( "objectClass" );
 
         String[] expectedOcls =
             { "top", "person", "organizationalPerson", "inetOrgPerson" };
@@ -1071,13 +1070,13 @@ public class AddIT extends AbstractLdapTestUnit
         }
 
         // Check that the DIsplayName attribute has been added
-        Attribute displayName = person.get( "displayName" );
+        javax.naming.directory.Attribute displayName = person.get( "displayName" );
 
         assertEquals( 1, displayName.size() );
         assertTrue( displayName.contains( "test" ) );
 
         // Check that the cn attribute value has been added
-        Attribute cn = person.get( "cn" );
+        javax.naming.directory.Attribute cn = person.get( "cn" );
 
         assertEquals( 2, cn.size() );
         assertTrue( cn.contains( "Jackson" ) );
@@ -1100,7 +1099,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "description" );
+        javax.naming.directory.Attribute ocls = new BasicAttribute( "description" );
 
         // Inject a 1024 bytes long description
         StringBuilder sb = new StringBuilder();
@@ -1148,7 +1147,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertNotNull( person );
         attributes = person.getAttributes( "" );
-        Attribute newOcls = attributes.get( "objectClass" );
+        javax.naming.directory.Attribute newOcls = attributes.get( "objectClass" );
 
         assertNotNull( newOcls );
     }
@@ -1176,7 +1175,7 @@ public class AddIT extends AbstractLdapTestUnit
             sb.append( "0123456789ABCDEF" );
         }
 
-        EntryAttribute description = new DefaultEntryAttribute( "description", sb.toString() );
+        Attribute description = new DefaultEntryAttribute( "description", sb.toString() );
 
         try
         {
@@ -1212,7 +1211,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         Attributes tori = new BasicAttributes( true );
-        Attribute toriOC = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute toriOC = new BasicAttribute( "objectClass" );
         toriOC.add( "top" );
         toriOC.add( "person" );
         tori.put( toriOC );
@@ -1227,7 +1226,7 @@ public class AddIT extends AbstractLdapTestUnit
         ctx.createSubcontext( " cn = Amos\\,Tori ", tori );
 
         Attributes binary = new BasicAttributes( true );
-        Attribute binaryOC = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute binaryOC = new BasicAttribute( "objectClass" );
         binaryOC.add( "top" );
         binaryOC.add( "person" );
         binary.put( binaryOC );
@@ -1249,7 +1248,7 @@ public class AddIT extends AbstractLdapTestUnit
         // search for the implicit added cn
         res = ctx.search( "", "(cn=Amos,Tori)", controls );
         assertTrue( res.hasMore() );
-        Attribute cnAttribute = res.next().getAttributes().get( "cn" );
+        javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori Amos" ) );
         assertTrue( cnAttribute.contains( "Amos,Tori" ) );
@@ -1258,7 +1257,7 @@ public class AddIT extends AbstractLdapTestUnit
         // search for the implicit added userPassword
         res = ctx.search( "", "(userPassword=\\41\\42\\43)", controls );
         assertTrue( res.hasMore() );
-        Attribute userPasswordAttribute = res.next().getAttributes().get( "userPassword" );
+        javax.naming.directory.Attribute userPasswordAttribute = res.next().getAttributes().get( "userPassword" );
         assertEquals( 2, userPasswordAttribute.size() );
         assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8( "test" ) ) );
         assertTrue( userPasswordAttribute.contains( Strings.getBytesUtf8( "ABC" ) ) );
@@ -1293,7 +1292,7 @@ public class AddIT extends AbstractLdapTestUnit
         Entry addedEntry = con.lookup( dn, "*", "+" );
         assertNotNull( addedEntry );
 
-        EntryAttribute attr = addedEntry.get( SchemaConstants.ENTRY_UUID_AT );
+        Attribute attr = addedEntry.get( SchemaConstants.ENTRY_UUID_AT );
         assertNotNull( attr );
 
         assertEquals( uuid.toString(), attr.getString() );
@@ -1311,7 +1310,7 @@ public class AddIT extends AbstractLdapTestUnit
     protected Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -1325,7 +1324,7 @@ public class AddIT extends AbstractLdapTestUnit
     protected Attributes getOrgUnitAttributes( String ou )
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );
         attrs.put( ocls );
@@ -1363,7 +1362,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // The alias under ou=engineering, pointing to the real entry
         Attributes aliasAttrs = new BasicAttributes( true );
-        Attribute aliasOC = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute aliasOC = new BasicAttribute( "objectClass" );
         aliasOC.add( "top" );
         aliasOC.add( "alias" );
         aliasOC.add( "extensibleObject" );

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -165,7 +165,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @throws javax.naming.Exception if there are problems conducting the test
      */
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationOperation modOp,
-        EntryAttribute attr ) throws Exception
+        Attribute attr ) throws Exception
     {
         Dn entryDn = new Dn( entryRdn + ",ou=system" );
         boolean result;
@@ -246,13 +246,13 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @return the array of modification items represting the changes
      * @throws Exception if there are problems accessing attributes
      */
-    private Modification[] toItems( ModificationOperation modOp, EntryAttribute... attrs ) throws Exception
+    private Modification[] toItems( ModificationOperation modOp, Attribute... attrs ) throws Exception
     {
         Modification[] mods = new Modification[attrs.length];
 
         for ( int i = 0; i < attrs.length; i++ )
         {
-            EntryAttribute ea = attrs[i];
+            Attribute ea = attrs[i];
             mods[i] = new DefaultModification( modOp, ea );
         }
 
@@ -305,7 +305,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        EntryAttribute attr = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
+        Attribute attr = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
         Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, attr );
 
         // create the non-admin user
@@ -398,7 +398,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
         // create the add modifications
-        EntryAttribute changes = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
+        Attribute changes = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.ADD_ATTRIBUTE, changes ) );
@@ -618,7 +618,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        EntryAttribute attr = new DefaultEntryAttribute( "description" );
+        Attribute attr = new DefaultEntryAttribute( "description" );
         attr.add( "description 1" );
         attr.add( "description 2" );
 

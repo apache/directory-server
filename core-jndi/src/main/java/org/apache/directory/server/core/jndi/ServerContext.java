@@ -100,7 +100,7 @@ import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
@@ -1118,7 +1118,7 @@ public abstract class ServerContext implements EventContext
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                for ( EntryAttribute serverAttribute : outServerEntry )
+                for ( Attribute serverAttribute : outServerEntry )
                 {
                     try
                     {
@@ -1170,7 +1170,7 @@ public abstract class ServerContext implements EventContext
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                for ( EntryAttribute serverAttribute : outServerEntry )
+                for ( Attribute serverAttribute : outServerEntry )
                 {
                     try
                     {

@@ -33,7 +33,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
@@ -517,7 +517,7 @@ public class PasswordUtil
      * purges failure timestamps which are older than the configured interval
      * (section 7.6 in the draft)
      */
-    public static void purgeFailureTimes( PasswordPolicyConfiguration config, EntryAttribute pwdFailTimeAt )
+    public static void purgeFailureTimes( PasswordPolicyConfiguration config, Attribute pwdFailTimeAt )
     {
         long interval = config.getPwdFailureCountInterval();
 

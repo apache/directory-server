@@ -34,7 +34,7 @@ import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -563,7 +563,7 @@ public class ConfigWriter
         if ( o != null )
         {
             // Getting the attribute from the entry
-            EntryAttribute attribute = entry.get( attributeType );
+            Attribute attribute = entry.get( attributeType );
 
             // If no attribute has been found, we need to create it and add it to the entry
             if ( attribute == null )
@@ -603,7 +603,7 @@ public class ConfigWriter
      * @param value
      *      the value
      */
-    private void addAttributeTypeValue( EntryAttribute attribute, Object value ) throws LdapException
+    private void addAttributeTypeValue( Attribute attribute, Object value ) throws LdapException
     {
         // We don't store a 'null' value
         if ( value != null )

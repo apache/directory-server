@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -77,11 +77,11 @@ public class ChangePassword implements DirectoryServiceOperation
         
         List<Modification> mods = new ArrayList<Modification>(2);
         
-        EntryAttribute newPasswordAttribute = new DefaultEntryAttribute(
+        Attribute newPasswordAttribute = new DefaultEntryAttribute(
             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), Strings.getBytesUtf8(newPassword) );
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
-        EntryAttribute principalAttribute = new DefaultEntryAttribute( 
+        Attribute principalAttribute = new DefaultEntryAttribute( 
             schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
         

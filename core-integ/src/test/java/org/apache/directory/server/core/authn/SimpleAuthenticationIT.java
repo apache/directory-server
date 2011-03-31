@@ -34,7 +34,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -116,11 +116,11 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         Entry entry = connection.lookup( userDn );
-        EntryAttribute ou = entry.get( "ou" );
+        Attribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
 
-        EntryAttribute objectClass = entry.get( "objectClass" );
+        Attribute objectClass = entry.get( "objectClass" );
         assertTrue( objectClass.contains( "top" ) );
         assertTrue( objectClass.contains( "person" ) );
         assertTrue( objectClass.contains( "organizationalPerson" ) );
@@ -181,11 +181,11 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
 
         Entry entry = connection.lookup( userDn );
-        EntryAttribute ou = entry.get( "ou" );
+        Attribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
 
-        EntryAttribute objectClass = entry.get( "objectClass" );
+        Attribute objectClass = entry.get( "objectClass" );
         assertTrue( objectClass.contains( "top" ) );
         assertTrue( objectClass.contains( "person" ) );
         assertTrue( objectClass.contains( "organizationalPerson" ) );

@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -112,7 +112,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
          */
 
         // get the attribute
-        EntryAttribute attr = entry.get( attributeType );
+        Attribute attr = entry.get( attributeType );
 
         // if the attribute exists and has a greater than or equal value return true
         //noinspection unchecked
@@ -164,7 +164,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
-        EntryAttribute attr = entry.get( attributeType );
+        Attribute attr = entry.get( attributeType );
 
         // if the attribute exists and has a greater than or equal value return true
         if ( ( attr != null ) && evaluate( null, attr ) )
@@ -202,7 +202,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value 
-    private boolean evaluate( IndexEntry<Object, Entry, ID> indexEntry, EntryAttribute attribute )
+    private boolean evaluate( IndexEntry<Object, Entry, ID> indexEntry, Attribute attribute )
         throws Exception
     {
         /*

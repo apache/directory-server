@@ -45,7 +45,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -145,7 +145,7 @@ public class TriggerSpecCache
                 {
                     ClonedServerEntry resultEntry = results.get();
                     Dn subentryDn = resultEntry.getDn();
-                    EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+                    Attribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
                     if ( triggerSpec == null )
                     {
@@ -170,7 +170,7 @@ public class TriggerSpecCache
     private boolean hasPrescriptiveTrigger( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
-        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
         return triggerSpec != null;
     }
@@ -179,7 +179,7 @@ public class TriggerSpecCache
     public void subentryAdded( Dn normName, Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
-        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
         if ( triggerSpec == null )
         {

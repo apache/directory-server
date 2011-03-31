@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -568,7 +568,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         Dn dn = new Dn( schemaManager, "cn=" + schemaName + ",ou=schema" );
         Entry entry = partition.lookup( new LookupOperationContext( null, dn ) );
-        EntryAttribute disabledAttr = entry.get( disabledAttributeType );
+        Attribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );
 
         if ( disabledAttr == null )
@@ -872,7 +872,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             while ( cursor.next() )
             {
                 Entry sr = cursor.get();
-                EntryAttribute disabled = sr.get( disabledAttributeType );
+                Attribute disabled = sr.get( disabledAttributeType );
 
                 if ( disabled == null )
                 {

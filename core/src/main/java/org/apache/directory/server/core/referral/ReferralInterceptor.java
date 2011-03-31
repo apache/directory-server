@@ -38,7 +38,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -146,7 +146,7 @@ public class ReferralInterceptor extends BaseInterceptor
             return false;
         }
 
-        EntryAttribute oc = entry.get( OBJECT_CLASS_AT );
+        Attribute oc = entry.get( OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
@@ -164,7 +164,7 @@ public class ReferralInterceptor extends BaseInterceptor
             // valid, accordingly to the RFC
 
             // Get the 'ref' attributeType
-            EntryAttribute refAttr = entry.get( SchemaConstants.REF_AT );
+            Attribute refAttr = entry.get( SchemaConstants.REF_AT );
 
             if ( refAttr == null )
             {

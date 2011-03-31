@@ -36,7 +36,7 @@ import java.util.List;
 
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -187,7 +187,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testCreateClientModification() throws LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
+        Attribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
 
         Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
@@ -195,7 +195,7 @@ public class SchemaAwareModificationTest
 
         attribute.remove( "test2" );
 
-        EntryAttribute clonedAttribute = clone.getAttribute();
+        Attribute clonedAttribute = clone.getAttribute();
 
         assertEquals( 1, mod.getAttribute().size() );
         assertTrue( mod.getAttribute().contains( "test1" ) );
@@ -213,7 +213,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testCopyClientModification() throws LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atC );
+        Attribute attribute = new DefaultEntryAttribute( atC );
         attribute.add( "test1", "test2" );
         Modification serverModification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
 
@@ -225,7 +225,7 @@ public class SchemaAwareModificationTest
         serverModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
 
-        EntryAttribute attribute2 = new DefaultEntryAttribute( atCN, "t" );
+        Attribute attribute2 = new DefaultEntryAttribute( atCN, "t" );
         serverModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
@@ -238,7 +238,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testCopyModification() throws LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atC.getName() );
+        Attribute attribute = new DefaultEntryAttribute( atC.getName() );
         attribute.add( "test1", "test2" );
         Modification clientModification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
 
@@ -247,7 +247,7 @@ public class SchemaAwareModificationTest
         assertTrue( copy instanceof DefaultModification );
         assertTrue( copy instanceof DefaultModification );
         assertFalse( copy.equals( clientModification ) );
-        assertTrue( copy.getAttribute() instanceof EntryAttribute);
+        assertTrue( copy.getAttribute() instanceof Attribute);
         assertEquals( atC, copy.getAttribute().getAttributeType() );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         assertTrue( copy.getAttribute().contains( "test1", "test2" ) );
@@ -255,7 +255,7 @@ public class SchemaAwareModificationTest
         clientModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
 
-        EntryAttribute attribute2 = new DefaultEntryAttribute( "cn", "t" );
+        Attribute attribute2 = new DefaultEntryAttribute( "cn", "t" );
         clientModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
@@ -264,7 +264,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testSerializationModificationADD() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
+        Attribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
 
         DefaultModification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
@@ -279,7 +279,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testSerializationModificationREPLACE() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
+        Attribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
 
         DefaultModification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -294,7 +294,7 @@ public class SchemaAwareModificationTest
     @Test
     public void testSerializationModificationREMOVE() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
+        Attribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
 
         DefaultModification mod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );

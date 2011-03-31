@@ -36,7 +36,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -154,7 +154,7 @@ public class RegistrySynchronizerAdaptor
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        EntryAttribute oc = addContext.getEntry().get( objectClassAT );
+        Attribute oc = addContext.getEntry().get( objectClassAT );
         
         // First check if we are adding a schemaObject
         for ( Value<?> value:oc )
@@ -222,7 +222,7 @@ public class RegistrySynchronizerAdaptor
     {
         Entry entry = deleteContext.getEntry();
         
-        EntryAttribute oc = entry.get( objectClassAT );
+        Attribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -276,7 +276,7 @@ public class RegistrySynchronizerAdaptor
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
     {
         Entry entry = modifyContext.getEntry();
-        EntryAttribute oc = entry.get( objectClassAT );
+        Attribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -318,7 +318,7 @@ public class RegistrySynchronizerAdaptor
         throws LdapException
     {
         Entry originalEntry = renameContext.getEntry().getOriginalEntry();
-        EntryAttribute oc = originalEntry.get( objectClassAT );
+        Attribute oc = originalEntry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -347,7 +347,7 @@ public class RegistrySynchronizerAdaptor
      */
     public void move( MoveOperationContext moveContext, Entry entry, boolean cascade ) throws LdapException
     {
-        EntryAttribute oc = entry.get( objectClassAT );
+        Attribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -376,7 +376,7 @@ public class RegistrySynchronizerAdaptor
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext, Entry entry, boolean cascade ) throws LdapException
     {
-        EntryAttribute oc = entry.get( objectClassAT );
+        Attribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {

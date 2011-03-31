@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
@@ -70,7 +70,7 @@ public class RefinementLeafEvaluator
      * if it rejects the entry
      * @throws LdapException
      */
-    public boolean evaluate( SimpleNode node, EntryAttribute objectClasses ) throws LdapException
+    public boolean evaluate( SimpleNode node, Attribute objectClasses ) throws LdapException
     {
         if ( node == null )
         {

@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -355,7 +355,7 @@ public class SingleFileLdifPartitionTest
 
         List<Modification> modItems = new ArrayList<Modification>();
 
-        EntryAttribute attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
+        Attribute attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
         attribute.add( "this is description" );
 
         Modification mod = new DefaultModification();
@@ -791,7 +791,7 @@ public class SingleFileLdifPartitionTest
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        EntryAttribute dc = entry.get( "dc" );
+        Attribute dc = entry.get( "dc" );
         assertFalse( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
     }
@@ -818,7 +818,7 @@ public class SingleFileLdifPartitionTest
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        EntryAttribute dc = entry.get( "dc" );
+        Attribute dc = entry.get( "dc" );
         assertTrue( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
     }
@@ -934,7 +934,7 @@ public class SingleFileLdifPartitionTest
 
                     List<Modification> modItems = new ArrayList<Modification>();
 
-                    EntryAttribute attribute = new DefaultEntryAttribute(
+                    Attribute attribute = new DefaultEntryAttribute(
                         schemaManager.lookupAttributeTypeRegistry( "description" ) );
 
                     Modification mod = new DefaultModification();

@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -51,8 +50,8 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
@@ -199,7 +198,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public Attributes getTestEntry( String cn )
     {
         Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -212,7 +211,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public Attributes getTestSubentry()
     {
         Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -237,7 +236,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     public Attributes getTestSubentryWithExclusion()
     {
         Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
+        javax.naming.directory.Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -267,7 +266,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     private void addAdministrativeRole( String role ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
-        Attribute attribute = new BasicAttribute( "administrativeRole" );
+        javax.naming.directory.Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
         sysRoot.modifyAttributes( "", new ModificationItem[]
@@ -341,7 +340,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
+        javax.naming.directory.Attribute collectiveAttributeSubentries = marked.get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=marked,ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
         assertEquals( 1, collectiveAttributeSubentries.size() );
@@ -358,7 +357,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void checkHasOpAttr( Entry entry, String opAttr, int nbOpAttr, String... subentryDns ) throws Exception
     {
-        EntryAttribute attribute = entry.get( opAttr );
+        Attribute attribute = entry.get( opAttr );
         assertNotNull( attribute );
         assertEquals( nbOpAttr, attribute.size() );
 
@@ -371,7 +370,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     private void checkDoesNotHaveOpAttr( Entry entry, String opAttr ) throws Exception
     {
-        EntryAttribute attribute = entry.get( opAttr );
+        Attribute attribute = entry.get( opAttr );
         assertNull( attribute );
     }
 
@@ -583,7 +582,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -634,7 +633,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
+        javax.naming.directory.Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
         sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
@@ -709,7 +708,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -836,7 +835,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
 
         if ( collectiveAttributeSubentries != null )
@@ -903,7 +902,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -968,7 +967,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -1069,7 +1068,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -1170,7 +1169,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute collectiveAttributeSubentries = configuration
+        javax.naming.directory.Attribute collectiveAttributeSubentries = configuration
             .get( "collectiveAttributeSubentries" );
         assertNotNull( "ou=configuration,ou=system should be marked", collectiveAttributeSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", collectiveAttributeSubentries.get() );
@@ -1368,7 +1367,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         Attributes attributes = sysRoot.getAttributes( "cn=testsubentry", new String[]{"subtreeSpecification"} );
 
         assertNotNull( attributes );
-        Attribute ss = attributes.get( "SubtreeSpecification" );
+        javax.naming.directory.Attribute ss = attributes.get( "SubtreeSpecification" );
         assertNotNull( ss );
     }
 

@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
@@ -144,7 +144,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertNotNull( respCtrl );
         assertEquals( PASSWORD_TOO_SHORT, respCtrl.getResponse().getPasswordPolicyError() );
 
-        EntryAttribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
         pwdAt.add( "12345" );
 
@@ -185,7 +185,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
 
         policyConfig.setPwdCheckQuality( 1 ); // allow the password if its quality can't be checked
-        EntryAttribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
         pwdAt.add( password );
 

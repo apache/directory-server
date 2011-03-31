@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -151,7 +151,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public EntryAttribute get( AttributeType attributeType )
+    public Attribute get( AttributeType attributeType )
     {
         return clonedEntry.get( attributeType );
     }
@@ -163,7 +163,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean hasObjectClass( EntryAttribute objectClass )
+    public boolean hasObjectClass( Attribute objectClass )
     {
         return clonedEntry.hasObjectClass( objectClass );
     }
@@ -181,43 +181,43 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean isValid( EntryAttribute objectClass )
+    public boolean isValid( Attribute objectClass )
     {
         return clonedEntry.isValid( objectClass );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException
+    public Attribute put( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException
+    public Attribute put( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Attribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
+    public Attribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
+    public Attribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Attribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
@@ -241,25 +241,25 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<EntryAttribute> remove( EntryAttribute... attributes ) throws LdapException
+    public List<Attribute> remove( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.remove( attributes );
     }
 
 
-    public List<EntryAttribute> removeAttributes( AttributeType... attributes )
+    public List<Attribute> removeAttributes( AttributeType... attributes )
     {
         return clonedEntry.removeAttributes( attributes );
     }
 
 
-    public List<EntryAttribute> set( AttributeType... attributeTypes )
+    public List<Attribute> set( AttributeType... attributeTypes )
     {
         return clonedEntry.set( attributeTypes );
     }
 
 
-    public void add( EntryAttribute... attributes ) throws LdapException
+    public void add( Attribute... attributes ) throws LdapException
     {
         clonedEntry.add( attributes );
     }
@@ -289,7 +289,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean contains( EntryAttribute... attributes ) throws LdapException
+    public boolean contains( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.contains( attributes );
     }
@@ -319,7 +319,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public EntryAttribute get( String alias )
+    public Attribute get( String alias )
     {
         return clonedEntry.get( alias );
     }
@@ -337,31 +337,31 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Iterator<EntryAttribute> iterator()
+    public Iterator<Attribute> iterator()
     {
         return clonedEntry.iterator();
     }
 
 
-    public List<EntryAttribute> put( EntryAttribute... attributes ) throws LdapException
+    public List<Attribute> put( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.put( attributes );
     }
 
 
-    public EntryAttribute put( String upId, byte[]... values )
+    public Attribute put( String upId, byte[]... values )
     {
         return clonedEntry.put( upId, values );
     }
 
 
-    public EntryAttribute put( String upId, String... values )
+    public Attribute put( String upId, String... values )
     {
         return clonedEntry.put( upId, values );
     }
 
 
-    public EntryAttribute put( String upId, Value<?>... values )
+    public Attribute put( String upId, Value<?>... values )
     {
         return clonedEntry.put( upId, values );
     }
@@ -385,13 +385,13 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<EntryAttribute> removeAttributes( String... attributes )
+    public List<Attribute> removeAttributes( String... attributes )
     {
         return clonedEntry.removeAttributes( attributes );
     }
 
 
-    public List<EntryAttribute> set( String... upIds )
+    public List<Attribute> set( String... upIds )
     {
         return clonedEntry.set( upIds );
     }
@@ -415,9 +415,9 @@ public class ClonedServerEntry implements Entry
         Entry clientEntry = new DefaultEntry( clonedEntry.getDn() );
         
         // Convert each attribute 
-        for ( EntryAttribute clonedEntry:this )
+        for ( Attribute clonedEntry:this )
         {
-            EntryAttribute clientAttribute = clonedEntry.clone();
+            Attribute clientAttribute = clonedEntry.clone();
             clientEntry.add( clientAttribute );
         }
         

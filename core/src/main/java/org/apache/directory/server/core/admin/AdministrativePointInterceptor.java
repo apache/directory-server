@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -227,7 +227,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Create the list of AP for a given entry
      */
-    private void createAdministrativePoints( EntryAttribute adminPoint, Dn dn, String uuid ) throws LdapException
+    private void createAdministrativePoints( Attribute adminPoint, Dn dn, String uuid ) throws LdapException
     {
         if ( isAAP( adminPoint ) )
         {
@@ -600,7 +600,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check if we can safely add a role. If it's an AAP, we have to be sure that
      * it's the only role present in the AT.
      */
-    private void checkAddRole( Value<?> role, EntryAttribute adminPoint, Dn dn ) throws LdapException
+    private void checkAddRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
     {
         String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
@@ -655,7 +655,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Check if we can safely delete a role
      */
-    private void checkDelRole( Value<?> role, EntryAttribute adminPoint, Dn dn ) throws LdapException
+    private void checkDelRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
     {
         String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
 
@@ -816,7 +816,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             Dn dn = adminPointEntry.getDn();
 
             String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
-            EntryAttribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
+            Attribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
 
             createAdministrativePoints( adminPoint, dn, uuid );
         }
@@ -826,7 +826,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update The Administrative Points cache, removing the given AdminPoint
      */
-    private void deleteAdminPointCache( EntryAttribute adminPoint, DeleteOperationContext deleteContext )
+    private void deleteAdminPointCache( Attribute adminPoint, DeleteOperationContext deleteContext )
         throws LdapException
     {
         Dn dn = deleteContext.getDn();
@@ -974,14 +974,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Tells if the Administrative Point role is an AAP
      */
-    private boolean isAAP( EntryAttribute adminPoint )
+    private boolean isAAP( Attribute adminPoint )
     {
         return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
             .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
     }
 
 
-    private boolean hasAccessControlSpecificRole( EntryAttribute adminPoint )
+    private boolean hasAccessControlSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
                adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
@@ -994,14 +994,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
-    private boolean hasCollectiveAttributeSpecificRole( EntryAttribute adminPoint )
+    private boolean hasCollectiveAttributeSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
                adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
     }
 
 
-    private boolean hasTriggerExecutionSpecificRole( EntryAttribute adminPoint )
+    private boolean hasTriggerExecutionSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
                adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
@@ -1011,7 +1011,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Check that we don't have an IAP and a SAP with the same family
      */
-    private void checkInnerSpecificMix( String role, EntryAttribute adminPoint ) throws LdapUnwillingToPerformException
+    private void checkInnerSpecificMix( String role, Attribute adminPoint ) throws LdapUnwillingToPerformException
     {
         if ( isAccessControlInnerRole( role ) )
         {
@@ -1067,7 +1067,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check that the IAPs (if any) have a parent. We will check for each kind or role :
      * AC, CA and TE.
      */
-    private void checkIAPHasParent( String role, EntryAttribute adminPoint, Dn dn )
+    private void checkIAPHasParent( String role, Attribute adminPoint, Dn dn )
         throws LdapUnwillingToPerformException
     {
         // Check for the AC role
@@ -1163,7 +1163,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
 
-    private void updateAPEntries( EntryAttribute adminPoint, String apUuid )
+    private void updateAPEntries( Attribute adminPoint, String apUuid )
     {
         if ( isAAP( adminPoint ) )
         {
@@ -1193,7 +1193,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = entry.getDn();
 
         // Check if we are adding an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
         if ( adminPoint == null )
         {
@@ -1248,7 +1248,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = entry.getDn();
 
         // Check if we are deleting an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
         if ( adminPoint == null )
         {
@@ -1312,7 +1312,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         String uuid = modifyContext.getEntry().get( ENTRY_UUID_AT ).getString();
 
         // Create a clone of the current AdminRole AT
-        EntryAttribute modifiedAdminRole = ( modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
+        Attribute modifiedAdminRole = ( modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
 
         if ( modifiedAdminRole == null )
         {
@@ -1335,7 +1335,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // on it
         for ( Modification modification : modifications )
         {
-            EntryAttribute attribute = modification.getAttribute();
+            Attribute attribute = modification.getAttribute();
 
             // Skip all the attributes but AdministrativeRole
             if ( attribute.getAttributeType() == ADMINISTRATIVE_ROLE_AT )
@@ -1438,7 +1438,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = moveContext.getOriginalEntry();
 
         // Check if we are moving an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
         if ( adminPoint == null )
         {
@@ -1467,7 +1467,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
         // Check if we are moving and renaming an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
         if ( adminPoint == null )
         {
@@ -1495,7 +1495,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = renameContext.getEntry();
 
         // Check if we are renaming an Administrative Point
-        EntryAttribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
 
         if ( adminPoint == null )
         {

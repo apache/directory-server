@@ -26,7 +26,6 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -37,11 +36,11 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -68,11 +67,11 @@ public class ServerEntryUtils
      *
      * @return An instance of a AttributesImpl() object
      */
-    public static Attribute toBasicAttribute( EntryAttribute entryAttribute )
+    public static javax.naming.directory.Attribute toBasicAttribute( Attribute entryAttribute )
     {
         AttributeType attributeType = entryAttribute.getAttributeType();
         
-        Attribute attribute = new BasicAttribute( attributeType.getName() );
+        javax.naming.directory.Attribute attribute = new BasicAttribute( attributeType.getName() );
         
         for ( Value<?> value: entryAttribute )
         {
@@ -101,7 +100,7 @@ public class ServerEntryUtils
 
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            EntryAttribute attr = entry.get( attributeType );
+            Attribute attr = entry.get( attributeType );
             
             // Deal with a special case : an entry without any ObjectClass
             if ( attributeType.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) && attr.size() == 0 )
@@ -126,7 +125,7 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType ) throws LdapException
+    public static Attribute toServerAttribute( javax.naming.directory.Attribute attribute, AttributeType attributeType ) throws LdapException
     {
         if ( attribute == null )
         {
@@ -135,7 +134,7 @@ public class ServerEntryUtils
         
         try 
         {
-            EntryAttribute serverAttribute = new DefaultEntryAttribute( attributeType );
+            Attribute serverAttribute = new DefaultEntryAttribute( attributeType );
             
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
@@ -212,16 +211,16 @@ public class ServerEntryUtils
             {
                 Entry entry = new DefaultEntry( schemaManager, dn );
     
-                for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+                for ( NamingEnumeration<? extends javax.naming.directory.Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
-                    Attribute attr = attrs.nextElement();
+                    javax.naming.directory.Attribute attr = attrs.nextElement();
 
                     String attributeId = attr.getID();
                     String id = SchemaUtils.stripOptions( attributeId );
                     Set<String> options = SchemaUtils.getOptions( attributeId );
                     // TODO : handle options.
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-                    EntryAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
+                    Attribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
                     if ( serverAttribute != null )
                     {
@@ -266,7 +265,7 @@ public class ServerEntryUtils
                 break;
                 
             case REMOVE_ATTRIBUTE :
-                EntryAttribute toBeRemoved = mod.getAttribute();
+                Attribute toBeRemoved = mod.getAttribute();
 
                 if ( toBeRemoved.size() == 0 )
                 {
@@ -274,7 +273,7 @@ public class ServerEntryUtils
                 }
                 else
                 {
-                    EntryAttribute existing = targetEntry.get( id );
+                    Attribute existing = targetEntry.get( id );
 
                     if ( existing != null )
                     {
@@ -287,9 +286,9 @@ public class ServerEntryUtils
                 break;
                 
             case ADD_ATTRIBUTE :
-                EntryAttribute combined = new DefaultEntryAttribute( id, attributeType );
-                EntryAttribute toBeAdded = mod.getAttribute();
-                EntryAttribute existing = entry.get( id );
+                Attribute combined = new DefaultEntryAttribute( id, attributeType );
+                Attribute toBeAdded = mod.getAttribute();
+                Attribute existing = entry.get( id );
 
                 if ( existing != null )
                 {
@@ -328,7 +327,7 @@ public class ServerEntryUtils
      *         arguments
      * @throws LdapException if there are problems accessing attribute values
      */
-    public static EntryAttribute getUnion( EntryAttribute attr0, EntryAttribute attr1 ) throws LdapException
+    public static Attribute getUnion( Attribute attr0, Attribute attr1 ) throws LdapException
     {
         if ( attr0 == null && attr1 == null )
         {
@@ -347,7 +346,7 @@ public class ServerEntryUtils
             throw new IllegalArgumentException( I18n.err( I18n.ERR_466 ) );
         }
 
-        EntryAttribute attr = attr0.clone();
+        Attribute attr = attr0.clone();
 
         for ( Value<?> value:attr1 )
         {
@@ -547,7 +546,7 @@ public class ServerEntryUtils
     {
         for ( Modification modification:mods )
         {
-            EntryAttribute attribute = modification.getAttribute();
+            Attribute attribute = modification.getAttribute();
             
             if ( attribute.getAttributeType() == type )
             {
@@ -566,7 +565,7 @@ public class ServerEntryUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public static EntryAttribute getAttribute( List<Modification> mods, AttributeType type )
+    public static Attribute getAttribute( List<Modification> mods, AttributeType type )
     {
         Modification mod = getModificationItem( mods, type );
         

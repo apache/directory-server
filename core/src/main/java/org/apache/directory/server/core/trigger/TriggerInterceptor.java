@@ -48,7 +48,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
@@ -131,7 +131,7 @@ public class TriggerInterceptor extends BaseInterceptor
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 
-        EntryAttribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         if ( subentries == null )
         {
@@ -157,7 +157,7 @@ public class TriggerInterceptor extends BaseInterceptor
      */
     private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Entry entry ) throws LdapException
     {
-        EntryAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
+        Attribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
 
         if ( entryTrigger == null )
         {
@@ -446,7 +446,7 @@ public class TriggerInterceptor extends BaseInterceptor
             .getName() );
         Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes(newDn, importedEntry );
 
-        for ( EntryAttribute attribute : importedEntry )
+        for ( Attribute attribute : importedEntry )
         {
             fakeImportedEntry.put( attribute );
         }
@@ -520,7 +520,7 @@ public class TriggerInterceptor extends BaseInterceptor
             .getName() );
         Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
 
-        for ( EntryAttribute attribute : importedEntry )
+        for ( Attribute attribute : importedEntry )
         {
             fakeImportedEntry.put( attribute );
         }

@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
@@ -162,7 +162,7 @@ public class LeafEvaluator implements Evaluator
         AttributeType attributeType = node.getAttributeType();
 
         // get the attribute associated with the node
-        EntryAttribute attr = entry.get( node.getAttribute() );
+        Attribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -249,7 +249,7 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( node.getAttributeType() );
 
         // get the attribute associated with the node
-        EntryAttribute attr = entry.get( node.getAttribute() );
+        Attribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false
         if ( null == attr )

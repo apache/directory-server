@@ -33,7 +33,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -280,7 +280,7 @@ public class PrincipalStoreEntryModifier
      * @throws LdapException
      * @throws IOException
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws KerberosException, LdapException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws KerberosException, LdapException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 

@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -120,7 +120,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         boolean hasModification = SCHEMA_UNCHANGED;
 
         // Check if the entry has a m-disabled attribute
-        EntryAttribute disabledInEntry = entry.get( disabledAT );
+        Attribute disabledInEntry = entry.get( disabledAT );
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
 
         // The attribute might be present, but that does not mean we will change it.
@@ -130,7 +130,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             // We are trying to modify the m-disabled attribute.
             ModificationOperation modification = disabledModification.getOperation();
-            EntryAttribute attribute = disabledModification.getAttribute();
+            Attribute attribute = disabledModification.getAttribute();
 
             hasModification = modifyDisable( modifyContext, modification, attribute, disabledInEntry );
         }
@@ -169,7 +169,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
-        EntryAttribute disabled = entry.get( disabledAT );
+        Attribute disabled = entry.get( disabledAT );
 
         if ( disabled == null )
         {
@@ -226,7 +226,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
-        EntryAttribute cn = entry.get( cnAT );
+        Attribute cn = entry.get( cnAT );
         String schemaName = cn.getString();
 
         // Before allowing a schema object to be deleted we must check
@@ -388,7 +388,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * </pre>
      */
     private boolean modifyDisable( ModifyOperationContext modifyContext, ModificationOperation modOp,
-        EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws LdapException
+        Attribute disabledInMods, Attribute disabledInEntry ) throws LdapException
     {
         Dn name = modifyContext.getDn();
 
@@ -558,7 +558,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     private void checkForDependencies( boolean isEnabled, Entry entry ) throws LdapException
     {
-        EntryAttribute dependencies = entry.get( this.dependenciesAT );
+        Attribute dependencies = entry.get( this.dependenciesAT );
 
         if ( dependencies == null )
         {

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -125,7 +125,7 @@ public class ReplicaDitStoreUtil
     {
 
         List<Modification> mods = modMap.get( replica.getId() );
-        EntryAttribute lastSentCsnAt = null;
+        Attribute lastSentCsnAt = null;
         if ( mods == null )
         {
             lastSentCsnAt = new DefaultEntryAttribute( schemaManager

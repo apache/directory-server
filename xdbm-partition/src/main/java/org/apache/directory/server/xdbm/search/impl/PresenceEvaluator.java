@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -135,7 +135,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
         }
 
         // get the attribute
-        EntryAttribute attr = entry.get( attributeType );
+        Attribute attr = entry.get( attributeType );
 
         // if the attribute exists just return true
         if ( attr != null )

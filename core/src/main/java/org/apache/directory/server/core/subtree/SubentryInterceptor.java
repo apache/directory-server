@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -266,7 +266,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
 
-        EntryAttribute oc = subentry.get( OBJECT_CLASS_AT );
+        Attribute oc = subentry.get( OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
@@ -325,7 +325,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Update all the entries under an AP adding the
      */
-    private void updateEntries( OperationEnum operation, CoreSession session, Dn subentryDn, Dn apDn, SubtreeSpecification ss, Dn baseDn, List<EntryAttribute> operationalAttributes  ) throws LdapException
+    private void updateEntries( OperationEnum operation, CoreSession session, Dn subentryDn, Dn apDn, SubtreeSpecification ss, Dn baseDn, List<Attribute> operationalAttributes  ) throws LdapException
     {
         ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
         SearchControls controls = new SearchControls();
@@ -398,7 +398,7 @@ public class SubentryInterceptor extends BaseInterceptor
         Entry administrationPoint = opContext.lookup( apDn, ByPassConstants.LOOKUP_BYPASS );
 
         // The administrativeRole AT must exist and not be null
-        EntryAttribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
 
         // check that administrativeRole has something valid in it for us
         if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
@@ -506,7 +506,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    EntryAttribute opAttr = entry.get( operationalAttribute );
+                    Attribute opAttr = entry.get( operationalAttribute );
 
                     if ( opAttr != null )
                     {
@@ -528,7 +528,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
+                    Attribute opAttr = new DefaultEntryAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modifications.add( new DefaultModification( op, opAttr ) );
                 }
@@ -545,7 +545,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
     private Set<AdministrativeRole> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
-        EntryAttribute ocFinalState = entry.get( OBJECT_CLASS_AT ).clone();
+        Attribute ocFinalState = entry.get( OBJECT_CLASS_AT ).clone();
 
         for ( Modification mod : mods )
         {
@@ -595,7 +595,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( hasRole )
         {
-            EntryAttribute operational = entry.get( attributeType ).clone();
+            Attribute operational = entry.get( attributeType ).clone();
 
             if ( operational == null )
             {
@@ -634,31 +634,31 @@ public class SubentryInterceptor extends BaseInterceptor
      * Gets the subschema operational attributes to be added to or removed from
      * an entry selected by a subentry's subtreeSpecification.
      */
-    private List<EntryAttribute> getSubentryOperationalAttributes( Dn dn, Subentry subentry ) throws LdapException
+    private List<Attribute> getSubentryOperationalAttributes( Dn dn, Subentry subentry ) throws LdapException
     {
-        List<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
+        List<Attribute> attributes = new ArrayList<Attribute>();
 
         if ( subentry.isAccessControlAdminRole() )
         {
-            EntryAttribute accessControlSubentries = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
+            Attribute accessControlSubentries = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( accessControlSubentries );
         }
 
         if ( subentry.isSchemaAdminRole() )
         {
-            EntryAttribute subschemaSubentry = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
+            Attribute subschemaSubentry = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
             attributes.add( subschemaSubentry );
         }
 
         if ( subentry.isCollectiveAdminRole() )
         {
-            EntryAttribute collectiveAttributeSubentries = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, dn.getNormName() );
+            Attribute collectiveAttributeSubentries = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( collectiveAttributeSubentries );
         }
 
         if ( subentry.isTriggersAdminRole() )
         {
-            EntryAttribute tiggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
+            Attribute tiggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( tiggerExecutionSubentries );
         }
 
@@ -686,11 +686,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
         for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
         {
-            EntryAttribute opAttr = candidate.get( operationalAttribute );
+            Attribute opAttr = candidate.get( operationalAttribute );
 
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
-                EntryAttribute attr = new DefaultEntryAttribute( operationalAttribute, dn );
+                Attribute attr = new DefaultEntryAttribute( operationalAttribute, dn );
                 modifications.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
@@ -708,17 +708,17 @@ public class SubentryInterceptor extends BaseInterceptor
      * selected by the subtree specification.  This method calculates the
      * modify operation to be performed on the entry.
      */
-    private List<Modification> getOperationalModsForAdd( Entry entry, List<EntryAttribute> operationalAttributes ) throws LdapException
+    private List<Modification> getOperationalModsForAdd( Entry entry, List<Attribute> operationalAttributes ) throws LdapException
     {
         List<Modification> modifications = new ArrayList<Modification>();
 
-        for ( EntryAttribute operationalAttribute : operationalAttributes )
+        for ( Attribute operationalAttribute : operationalAttributes )
         {
-            EntryAttribute opAttrInEntry = entry.get( operationalAttribute.getAttributeType() );
+            Attribute opAttrInEntry = entry.get( operationalAttribute.getAttributeType() );
 
             if ( ( opAttrInEntry != null ) && ( opAttrInEntry.size() > 0 ) )
             {
-                EntryAttribute newOperationalAttribute = operationalAttribute.clone();
+                Attribute newOperationalAttribute = operationalAttribute.clone();
 
                 for ( Value<?> value : opAttrInEntry )
                 {
@@ -762,7 +762,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    EntryAttribute opAttr = oldEntry.get( operationalAttribute );
+                    Attribute opAttr = oldEntry.get( operationalAttribute );
 
                     if ( opAttr != null )
                     {
@@ -784,7 +784,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    EntryAttribute opAttr = new DefaultEntryAttribute( operationalAttribute );
+                    Attribute opAttr = new DefaultEntryAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
@@ -800,7 +800,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private void setOperationalAttribute( Entry entry, Dn subentryDn, AttributeType opAttr) throws LdapException
     {
-        EntryAttribute operational = entry.get( opAttr );
+        Attribute operational = entry.get( opAttr );
 
         if ( operational == null )
         {
@@ -850,7 +850,7 @@ public class SubentryInterceptor extends BaseInterceptor
              */
             Subentry subentry = new Subentry();
             subentry.setAdministrativeRoles( getSubentryAdminRoles( entry ) );
-            List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+            List<Attribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
 
             /* ----------------------------------------------------------------
              * Parse the subtreeSpecification of the subentry and add it to the
@@ -1093,7 +1093,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // search for all selected entries by the new SS and add references to subentry
             subentry = subentryCache.getSubentry( dn );
-            List<EntryAttribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
+            List<Attribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
             Dn newBaseDn = apName;
             newBaseDn = newBaseDn.add( ssNew.getBase() );
 
@@ -1486,7 +1486,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
             {
-                EntryAttribute operational;
+                Attribute operational;
 
                 if ( subentry.isAccessControlAdminRole() )
                 {

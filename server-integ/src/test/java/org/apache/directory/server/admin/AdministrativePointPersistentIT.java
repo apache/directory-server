@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -148,7 +148,7 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     }
 
 
-    private EntryAttribute getAdminRole( String dn ) throws Exception
+    private Attribute getAdminRole( String dn ) throws Exception
     {
         Entry lookup = connection.lookup( dn, "administrativeRole" );
 

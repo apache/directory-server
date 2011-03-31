@@ -35,7 +35,7 @@ import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandle
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -78,7 +78,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     }
 
 
-    protected EntryAttribute lookupPassword( String username, String realm )
+    protected Attribute lookupPassword( String username, String realm )
     {
         try
         {

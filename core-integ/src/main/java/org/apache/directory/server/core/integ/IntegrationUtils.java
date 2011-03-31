@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -46,9 +45,9 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -271,7 +270,7 @@ public class IntegrationUtils
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 
-        EntryAttribute attr = new DefaultEntryAttribute( "objectClass",
+        Attribute attr = new DefaultEntryAttribute( "objectClass",
             "top", "person", "organizationalPerson", "inetOrgPerson" );
         ldif.addAttribute( attr );
 
@@ -306,7 +305,7 @@ public class IntegrationUtils
 
         // now enable the test schema
         ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
+        javax.naming.directory.Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
@@ -318,7 +317,7 @@ public class IntegrationUtils
 
         // now enable the test schema
         ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
+        javax.naming.directory.Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }

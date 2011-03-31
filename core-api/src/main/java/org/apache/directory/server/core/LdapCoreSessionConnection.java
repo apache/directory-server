@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -648,7 +648,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         {
             iModReq.setName( entry.getDn() );
 
-            Iterator<EntryAttribute> itr = entry.iterator();
+            Iterator<Attribute> itr = entry.iterator();
             while ( itr.hasNext() )
             {
                 iModReq.addModification( new DefaultModification( modOp, itr.next() ) );

@@ -38,7 +38,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -403,7 +403,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             Long id = tuple.getKey();
             Entry entry = tuple.getValue();
             
-            EntryAttribute entryAttr = entry.get( atType );
+            Attribute entryAttr = entry.get( atType );
             if( entryAttr != null )
             {
                 for ( Value<?> value : entryAttr )

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
@@ -290,7 +290,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         connection.modify( modReq );
         Entry entry = connection.lookup( "ou=users,ou=system" );
-        EntryAttribute ou = entry.get( "ou" );
+        Attribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
     }

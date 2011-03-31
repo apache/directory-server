@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedR
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
@@ -827,7 +827,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
-        EntryAttribute ref = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute ref = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )
@@ -1232,7 +1232,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         result.setErrorMessage( "Encountered referral attempting to handle request." );
         result.setMatchedDn( req.getBase() );
 
-        EntryAttribute refAttr = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
 
         for ( Value<?> refval : refAttr )
         {
@@ -1358,7 +1358,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        EntryAttribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1430,7 +1430,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        EntryAttribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
