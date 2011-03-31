@@ -235,7 +235,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             EntryAttribute attr = mod.getAttribute();
 
-            if ( attr.isInstanceOf( SchemaConstants.USER_PASSWORD_AT ) )
+            if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( attr.getAttributeType().getOid() ) )
             {
                 Object firstValue = attr.get();
                 String password = null;
@@ -263,7 +263,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 log.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
-            if ( attr.isInstanceOf( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) )
+            if ( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT_OID.equals( attr.getAttributeType().getOid() ) )
             {
                 subContext.setPrincipalName( attr.getString() );
                 log.debug( "Got principal '{}'.", subContext.getPrincipalName() );

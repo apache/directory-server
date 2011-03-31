@@ -65,7 +65,7 @@ public class RefinementEvaluator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_296 ) );
         }
         
-        if ( !objectClasses.isInstanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !( SchemaConstants.OBJECT_CLASS_AT_OID.equals( objectClasses.getAttributeType().getOid() ) ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_297 ) );
         }

@@ -80,6 +80,7 @@ public class SchemaAwareEntryAttributeTest
     private static AttributeType atCN;
     private static AttributeType atDC;
     private static AttributeType atSN;
+    private static AttributeType atName;
 
     // A SINGLE-VALUE attribute
     private static AttributeType atC;
@@ -152,6 +153,7 @@ public class SchemaAwareEntryAttributeTest
         atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
         atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
         atEMail = schemaManager.lookupAttributeTypeRegistry( "email" );
+        atName = schemaManager.lookupAttributeTypeRegistry( "name" );
     }
 
 
@@ -1521,12 +1523,9 @@ public class SchemaAwareEntryAttributeTest
     {
         EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
-        assertTrue( attr.isInstanceOf( "CommonName" ) );
-        assertTrue( attr.isInstanceOf( "2.5.4.3" ) );
-        assertTrue( attr.isInstanceOf( "  Cn  " ) );
-        assertFalse( attr.isInstanceOf( "  " ) );
-        assertFalse( attr.isInstanceOf( "sn" ) );
-        assertFalse( attr.isInstanceOf( "name" ) );
+        assertTrue( attr.isInstanceOf( atCN ) );
+        assertTrue( attr.isInstanceOf( atName) );
+        assertFalse( attr.isInstanceOf( atSN ) );
     }
 
 
@@ -1695,7 +1694,7 @@ public class SchemaAwareEntryAttributeTest
 
         attr.apply( atSN );
 
-        assertTrue( attr.isInstanceOf( "Surname" ) );
+        assertTrue( attr.isInstanceOf( atSN ) );
         assertEquals( "2.5.4.4", attr.getId() );
         assertEquals( "sn", attr.getUpId() );
     }
