@@ -31,7 +31,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -302,7 +302,7 @@ public class AdministrativePointModifyDelIT extends AbstractLdapTestUnit
 
         // Remove the AAP
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole" ) );
+            new DefaultAttribute( "administrativeRole" ) );
         ModifyResponse response = connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modification );
 
         // Should fail, as we have a TE IAP below

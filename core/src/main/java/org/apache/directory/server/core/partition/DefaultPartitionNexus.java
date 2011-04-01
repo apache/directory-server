@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -339,7 +339,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultEntryAttribute( schemaManager
+                namingContexts = new DefaultAttribute( schemaManager
                     .getAttributeType( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffix().getName() );
                 rootDSE.put( namingContexts );
             }
@@ -949,7 +949,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultEntryAttribute( schemaManager
+                namingContexts = new DefaultAttribute( schemaManager
                     .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
                 rootDSE.put( namingContexts );
             }
@@ -1155,7 +1155,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Modification contextCsnMod = new DefaultModification();
         contextCsnMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
-        DefaultEntryAttribute contextCsnAt = new DefaultEntryAttribute( schemaManager
+        DefaultAttribute contextCsnAt = new DefaultAttribute( schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.CONTEXT_CSN_AT ) );
         contextCsnMod.setAttribute( contextCsnAt );
 
@@ -1163,7 +1163,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Modification timeStampMod = new DefaultModification();
         timeStampMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
-        DefaultEntryAttribute timeStampAt = new DefaultEntryAttribute( schemaManager
+        DefaultAttribute timeStampAt = new DefaultAttribute( schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
         timeStampMod.setAttribute( timeStampAt );
 

@@ -38,7 +38,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -134,7 +134,7 @@ public class ServerEntryUtils
         
         try 
         {
-            Attribute serverAttribute = new DefaultEntryAttribute( attributeType );
+            Attribute serverAttribute = new DefaultAttribute( attributeType );
             
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
@@ -286,7 +286,7 @@ public class ServerEntryUtils
                 break;
                 
             case ADD_ATTRIBUTE :
-                Attribute combined = new DefaultEntryAttribute( id, attributeType );
+                Attribute combined = new DefaultAttribute( id, attributeType );
                 Attribute toBeAdded = mod.getAttribute();
                 Attribute existing = entry.get( id );
 
@@ -437,7 +437,7 @@ public class ServerEntryUtils
     {
         Modification serverModification = new DefaultModification( 
             modification.getOperation(),
-            new DefaultEntryAttribute( attributeType, modification.getAttribute() ) ); 
+            new DefaultAttribute( attributeType, modification.getAttribute() ) ); 
         
         return serverModification;
         

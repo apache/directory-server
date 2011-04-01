@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncReques
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -184,7 +184,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
 
         COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( "ads-replCookie" );
-        Attribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+        Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
 
         Modification cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
         cookieModLst = new ArrayList<Modification>( 1 );
@@ -722,7 +722,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             try
             {
-                Attribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+                Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
                 Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                     cookieAttr );
                 List<Modification> deleteModLst = new ArrayList<Modification>();

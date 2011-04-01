@@ -30,7 +30,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -198,7 +198,7 @@ class JavaLdapSupport
         // Add all the class names this object can be cast to:
         Class<?>[] classes = obj.getClass().getClasses();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( JCLASSNAMES_ATTR );
-        Attribute javaClassNames = new DefaultEntryAttribute( attributeType, JCLASSNAMES_ATTR );
+        Attribute javaClassNames = new DefaultAttribute( attributeType, JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )
         {

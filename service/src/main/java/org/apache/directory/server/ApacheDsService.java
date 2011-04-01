@@ -53,7 +53,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -649,7 +649,7 @@ public class ApacheDsService
 
             if ( !uuidChecker.isValidSyntax( uuid ) )
             {
-                uuidAt = new DefaultEntryAttribute( atType, UUID.randomUUID().toString() );
+                uuidAt = new DefaultAttribute( atType, UUID.randomUUID().toString() );
             }
 
             Modification uuidMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, uuidAt );
@@ -661,7 +661,7 @@ public class ApacheDsService
 
             if ( !csnChecker.isValidSyntax( csn ) )
             {
-                csnAt = new DefaultEntryAttribute( atType, dirService.getCSN().toString() );
+                csnAt = new DefaultAttribute( atType, dirService.getCSN().toString() );
             }
 
             Modification csnMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt );
@@ -673,7 +673,7 @@ public class ApacheDsService
 
             if ( ( creator.length() == 0 ) || ( !Dn.isValid(creator) ) )
             {
-                creatorAt = new DefaultEntryAttribute( atType, adminDn );
+                creatorAt = new DefaultAttribute( atType, adminDn );
             }
 
             Modification creatorMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, creatorAt );
@@ -685,7 +685,7 @@ public class ApacheDsService
 
             if ( !timeChecker.isValidSyntax( createdTime ) )
             {
-                createdTimeAt = new DefaultEntryAttribute( atType, DateUtils.getGeneralizedTime() );
+                createdTimeAt = new DefaultAttribute( atType, DateUtils.getGeneralizedTime() );
             }
 
             Modification createdMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, createdTimeAt );

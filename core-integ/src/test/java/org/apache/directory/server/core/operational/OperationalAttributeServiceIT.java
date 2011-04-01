@@ -34,7 +34,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -250,7 +250,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNull( entry.get( "modifyTimestamp" ) );
 
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "description", "Singer Songwriter" ) );
+            new DefaultAttribute( "description", "Singer Songwriter" ) );
 
         connection.modify( DN_KATE_BUSH, modifyOp );
 
@@ -272,7 +272,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     {
         // Add attribute description to entry
         Modification modifyAddOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "description", "an English singer, songwriter, musician" ) );
+            new DefaultAttribute( "description", "an English singer, songwriter, musician" ) );
 
         connection.modify( DN_KATE_BUSH, modifyAddOp );
 
@@ -288,7 +288,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         // Change value of attribute description
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultEntryAttribute( "description", "one of England's most successful solo female performers" ) );
+            new DefaultAttribute( "description", "one of England's most successful solo female performers" ) );
 
         connection.modify( DN_KATE_BUSH, modifyOp );
 
@@ -313,7 +313,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     {
         // Add attribute description to entry
         Modification modifyOp = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
+            new DefaultAttribute( "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
         connection.modify( DN_KATE_BUSH, modifyOp );
     }
@@ -328,7 +328,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     public void testModifyOperationalAttributeRemove() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "creatorsName" ) );
+            new DefaultAttribute( "creatorsName" ) );
 
         ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 
@@ -345,7 +345,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     public void testModifyOperationalAttributeReplace() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultEntryAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
+            new DefaultAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
         ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
 

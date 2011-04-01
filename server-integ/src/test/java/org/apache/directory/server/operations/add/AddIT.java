@@ -85,7 +85,7 @@ import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -1175,7 +1175,7 @@ public class AddIT extends AbstractLdapTestUnit
             sb.append( "0123456789ABCDEF" );
         }
 
-        Attribute description = new DefaultEntryAttribute( "description", sb.toString() );
+        Attribute description = new DefaultAttribute( "description", sb.toString() );
 
         try
         {

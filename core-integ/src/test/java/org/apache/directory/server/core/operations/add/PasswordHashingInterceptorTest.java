@@ -37,7 +37,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -91,7 +91,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
-        Attribute pwdAt = new DefaultEntryAttribute( pwdAtType );
+        Attribute pwdAt = new DefaultAttribute( pwdAtType );
         pwdAt.add( plainPwd );
         
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
@@ -141,7 +141,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
         
-        Attribute pwdAt = new DefaultEntryAttribute( pwdAtType );
+        Attribute pwdAt = new DefaultAttribute( pwdAtType );
         pwdAt.add( hashedPwd );
         
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );

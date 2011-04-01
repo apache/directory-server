@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -696,7 +696,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -791,7 +791,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( SchemaConstants.SURNAME_AT, SN_AT );
 
         String attribVal = "Walker";
         attrib.add( attribVal );
@@ -821,7 +821,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
 
         String attribVal = "Johnny";
         attrib.add( attribVal );
@@ -852,7 +852,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -890,7 +890,7 @@ public class JdbmStoreTest
         store.add( entry );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );

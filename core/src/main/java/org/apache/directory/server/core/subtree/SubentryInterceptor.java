@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.codec.controls.search.subentries.Subentr
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -528,7 +528,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    Attribute opAttr = new DefaultEntryAttribute( operationalAttribute );
+                    Attribute opAttr = new DefaultAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modifications.add( new DefaultModification( op, opAttr ) );
                 }
@@ -599,7 +599,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultEntryAttribute( attributeType, newDnStr );
+                operational = new DefaultAttribute( attributeType, newDnStr );
             }
             else
             {
@@ -640,25 +640,25 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isAccessControlAdminRole() )
         {
-            Attribute accessControlSubentries = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
+            Attribute accessControlSubentries = new DefaultAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( accessControlSubentries );
         }
 
         if ( subentry.isSchemaAdminRole() )
         {
-            Attribute subschemaSubentry = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
+            Attribute subschemaSubentry = new DefaultAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
             attributes.add( subschemaSubentry );
         }
 
         if ( subentry.isCollectiveAdminRole() )
         {
-            Attribute collectiveAttributeSubentries = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, dn.getNormName() );
+            Attribute collectiveAttributeSubentries = new DefaultAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( collectiveAttributeSubentries );
         }
 
         if ( subentry.isTriggersAdminRole() )
         {
-            Attribute tiggerExecutionSubentries = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
+            Attribute tiggerExecutionSubentries = new DefaultAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT, dn.getNormName() );
             attributes.add( tiggerExecutionSubentries );
         }
 
@@ -690,7 +690,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
-                Attribute attr = new DefaultEntryAttribute( operationalAttribute, dn );
+                Attribute attr = new DefaultAttribute( operationalAttribute, dn );
                 modifications.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
@@ -784,7 +784,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    Attribute opAttr = new DefaultEntryAttribute( operationalAttribute );
+                    Attribute opAttr = new DefaultAttribute( operationalAttribute );
                     opAttr.add( subentryDn.getNormName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
@@ -804,7 +804,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( operational == null )
         {
-            operational = new DefaultEntryAttribute( opAttr );
+            operational = new DefaultAttribute( opAttr );
             entry.put( operational );
         }
 
@@ -1494,7 +1494,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultEntryAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
 
@@ -1507,7 +1507,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultEntryAttribute( SUBSCHEMA_SUBENTRY_AT );
+                        operational = new DefaultAttribute( SUBSCHEMA_SUBENTRY_AT );
                         subentryAttrs.put( operational );
                     }
 
@@ -1520,7 +1520,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultEntryAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
 
@@ -1533,7 +1533,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultEntryAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
 

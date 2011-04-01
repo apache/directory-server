@@ -30,7 +30,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -278,7 +278,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -308,7 +308,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "accessControlInnerArea" ) );
+            new DefaultAttribute( "administrativeRole", "accessControlInnerArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -338,7 +338,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeInnerArea" ) );
+            new DefaultAttribute( "administrativeRole", "collectiveAttributeInnerArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
@@ -364,7 +364,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.ATTRIBUTE_OR_VALUE_EXISTS, response.getLdapResult().getResultCode() );
@@ -391,7 +391,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole" ) );
+            new DefaultAttribute( "administrativeRole" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -421,7 +421,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea",
+            new DefaultAttribute( "administrativeRole", "collectiveAttributeSpecificArea",
                 "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
@@ -452,7 +452,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "accessControlSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "accessControlSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -484,7 +484,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, response.getLdapResult().getResultCode() );
@@ -511,9 +511,9 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Add another specific area
         Modification modification1 = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
         Modification modification2 = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
 
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification1, modification2,
             modification1 );
@@ -547,7 +547,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
 
         // Try to modify it to an InnerArea
         Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=caArea, ou=system", modification );
 
         // Should fail

@@ -46,7 +46,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -300,7 +300,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifierAtPresent )
         {
             // Inject the ModifiersName AT if it's not present
-            Attribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_AT, getPrincipal()
+            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal()
                 .getName() );
 
             Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -311,7 +311,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !modifiedTimeAtPresent )
         {
             // Inject the ModifyTimestamp AT if it's not present
-            Attribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_AT, DateUtils
+            Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
                 .getGeneralizedTime() );
 
             Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -322,7 +322,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         if ( !entryCsnAtPresent )
         {
             String csn = directoryService.getCSN().toString();
-            Attribute attribute = new DefaultEntryAttribute( ENTRY_CSN_AT, csn );
+            Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
             Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
             mods.add( updatedCsn );
         }

@@ -29,7 +29,7 @@ import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -210,7 +210,7 @@ public class ServerEntrySerializer implements Serializer
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
                     // Create the attribute we will read
-                    Attribute attribute = new DefaultEntryAttribute( attributeType );
+                    Attribute attribute = new DefaultAttribute( attributeType );
 
                     // Read the attribute
                     attribute.readExternal( in );

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -259,7 +259,7 @@ public class RelatedProtectedItemFilterTest
     public void testAttributeValue() throws Exception
     {
         Set<Attribute> attributes = new HashSet<Attribute>();
-        attributes.add( new DefaultEntryAttribute( "cn", CN_AT, "valueA" ) );
+        attributes.add( new DefaultAttribute( "cn", CN_AT, "valueA" ) );
         Collection<ACITuple> tuples = getTuples( new AttributeValueItem( attributes ) );
 
         // Test wrong scope

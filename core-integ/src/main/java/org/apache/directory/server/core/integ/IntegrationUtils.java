@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -270,11 +270,11 @@ public class IntegrationUtils
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 
-        Attribute attr = new DefaultEntryAttribute( "objectClass",
+        Attribute attr = new DefaultAttribute( "objectClass",
             "top", "person", "organizationalPerson", "inetOrgPerson" );
         ldif.addAttribute( attr );
 
-        attr = new DefaultEntryAttribute( "ou", "Engineering", "People" );
+        attr = new DefaultAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
         String uid = dn.getRdn().getNormValue().getString();

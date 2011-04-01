@@ -34,7 +34,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -272,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            Attribute attr = new DefaultEntryAttribute( at );
+            Attribute attr = new DefaultAttribute( at );
             Modification mi = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
@@ -346,7 +346,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            Attribute attr = new DefaultEntryAttribute( at, value );
+            Attribute attr = new DefaultAttribute( at, value );
             Modification mi = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }

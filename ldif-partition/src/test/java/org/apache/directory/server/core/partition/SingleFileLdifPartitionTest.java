@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -355,7 +355,7 @@ public class SingleFileLdifPartitionTest
 
         List<Modification> modItems = new ArrayList<Modification>();
 
-        Attribute attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
+        Attribute attribute = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
         attribute.add( "this is description" );
 
         Modification mod = new DefaultModification();
@@ -377,7 +377,7 @@ public class SingleFileLdifPartitionTest
 
         modItems = new ArrayList<Modification>();
 
-        attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
+        attribute = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
         attribute.add( "siht si noitpircsed" ); // reversed "this is description"
 
         mod = new DefaultModification();
@@ -413,7 +413,7 @@ public class SingleFileLdifPartitionTest
 
         modItems = new ArrayList<Modification>();
 
-        attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
+        attribute = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
         attribute.add( "desc of entry1" ); // reversed "this is description"
 
         mod = new DefaultModification();
@@ -448,7 +448,7 @@ public class SingleFileLdifPartitionTest
 
         modItems = new ArrayList<Modification>();
 
-        attribute = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
+        attribute = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( "description" ) );
         attribute.add( "desc of entry1" ); // reversed "this is description"
 
         mod = new DefaultModification();
@@ -934,7 +934,7 @@ public class SingleFileLdifPartitionTest
 
                     List<Modification> modItems = new ArrayList<Modification>();
 
-                    Attribute attribute = new DefaultEntryAttribute(
+                    Attribute attribute = new DefaultAttribute(
                         schemaManager.lookupAttributeTypeRegistry( "description" ) );
 
                     Modification mod = new DefaultModification();

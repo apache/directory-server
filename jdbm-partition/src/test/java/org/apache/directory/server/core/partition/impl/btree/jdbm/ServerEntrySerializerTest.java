@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -261,7 +261,7 @@ public class ServerEntrySerializerTest
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        Attribute oc = new DefaultEntryAttribute( "ObjectClass", schemaManager
+        Attribute oc = new DefaultAttribute( "ObjectClass", schemaManager
             .lookupAttributeTypeRegistry( "objectclass" ) );
         entry.add( oc );
 

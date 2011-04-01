@@ -29,7 +29,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -108,7 +108,7 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
             ModifyRequest modRequest = new ModifyRequestImpl();
             modRequest.setName( dn );
             Modification modification = new DefaultModification();
-            Attribute attribute = new DefaultEntryAttribute( "sn" );
+            Attribute attribute = new DefaultAttribute( "sn" );
 
             attribute.add( "test" + i );
 

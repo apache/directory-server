@@ -59,7 +59,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -372,14 +372,14 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         newModsList.add(
             new DefaultModification(
                 ModificationOperation.REPLACE_ATTRIBUTE,
-                new DefaultEntryAttribute(
+                new DefaultAttribute(
                     KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
                     principalName ) ) );
         newModsList.add(
             new DefaultModification(
                 ModificationOperation.REPLACE_ATTRIBUTE,
-                new DefaultEntryAttribute(
+                new DefaultAttribute(
                     KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT,
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
@@ -395,7 +395,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     private Attribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws LdapException
     {
         Attribute keyAttribute =
-            new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT,
+            new DefaultAttribute( KerberosAttribute.KRB5_KEY_AT,
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 
         for ( EncryptionKey encryptionKey : keys.values() )

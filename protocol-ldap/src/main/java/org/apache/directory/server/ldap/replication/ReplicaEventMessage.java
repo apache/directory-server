@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -170,7 +170,7 @@ public class ReplicaEventMessage implements Externalizable
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
                 // Create the attribute we will read
-                DefaultEntryAttribute attribute = new DefaultEntryAttribute( attributeType );
+                DefaultAttribute attribute = new DefaultAttribute( attributeType );
 
                 // Read the attribute
                 attribute.readExternal( in );
@@ -234,7 +234,7 @@ public class ReplicaEventMessage implements Externalizable
         
         while ( attrItr.hasNext() )
         {
-            DefaultEntryAttribute attribute = ( DefaultEntryAttribute ) attrItr.next();
+            DefaultAttribute attribute = ( DefaultAttribute ) attrItr.next();
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
             out.writeUTF( attribute.getAttributeType().getOid() );

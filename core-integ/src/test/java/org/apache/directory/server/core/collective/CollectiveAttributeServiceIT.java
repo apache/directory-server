@@ -34,7 +34,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -110,7 +110,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private void addAdministrativeRole( String role ) throws Exception
     {
-        Attribute attribute = new DefaultEntryAttribute( "administrativeRole", role );
+        Attribute attribute = new DefaultAttribute( "administrativeRole", role );
 
         connection.modify( "ou=system", new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute ) );
     }
@@ -226,7 +226,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
+            new DefaultAttribute( "collectiveExclusions", "c-ou" ) );
         connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
         // entry should not show the c-ou collective attribute anymore
@@ -299,7 +299,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
-        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultAttribute(
             "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
         connection.modify( "ou=interceptors,ou=configuration, ou=system", modification );
 
@@ -408,7 +408,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
         Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "collectiveExclusions", "c-ou" ) );
+            new DefaultAttribute( "collectiveExclusions", "c-ou" ) );
         connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
         entries = getAllEntries();
@@ -467,7 +467,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
-        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultAttribute(
             "collectiveExclusions", "excludeAllCollectiveAttributes" ) );
         connection.modify( "ou=interceptors,ou=configuration, ou=system", modification );
 
@@ -527,7 +527,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         ModifyResponse response = connection.modify( "cn=Ersin Er,ou=system", new DefaultModification(
-            ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute( "c-l", "Turkiye" ) ) );
+            ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "c-l", "Turkiye" ) ) );
 
         assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }

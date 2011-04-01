@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -973,7 +973,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !entry.contains( type, atav.getNormValue() ) )
             {
-                entry.add( new DefaultEntryAttribute( type, atav.getUpValue() ) );
+                entry.add( new DefaultAttribute( type, atav.getUpValue() ) );
             }
         }
 
@@ -994,7 +994,7 @@ public class SchemaInterceptor extends BaseInterceptor
         AttributeType attributeType = attribute.getAttributeType();
 
         // Create the new Attribute
-        Attribute newAttribute = new DefaultEntryAttribute( attribute.getUpId(), attributeType );
+        Attribute newAttribute = new DefaultAttribute( attribute.getUpId(), attributeType );
 
         for ( Value<?> value : attribute )
         {
@@ -1378,7 +1378,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new DefaultEntryAttribute( OBJECT_CLASS_AT );
+            objectClassAttr = new DefaultAttribute( OBJECT_CLASS_AT );
         }
 
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();

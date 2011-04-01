@@ -33,7 +33,7 @@ import java.util.Set;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -568,7 +568,7 @@ public class ConfigWriter
             // If no attribute has been found, we need to create it and add it to the entry
             if ( attribute == null )
             {
-                attribute = new DefaultEntryAttribute( attributeType );
+                attribute = new DefaultAttribute( attributeType );
                 entry.addAttribute( attribute );
             }
 

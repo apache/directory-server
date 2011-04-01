@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -208,7 +208,7 @@ public class StoreUtils
 
                 if ( attr == null )
                 {
-                    attr = new DefaultEntryAttribute( attrId );
+                    attr = new DefaultAttribute( attrId );
                 }
 
                 attr.add( val );
@@ -236,7 +236,7 @@ public class StoreUtils
 
             if ( attr == null )
             {
-                attr = new DefaultEntryAttribute( valStr );
+                attr = new DefaultAttribute( valStr );
             }
 
             attr.add( rec.getId().toString() );
@@ -251,7 +251,7 @@ public class StoreUtils
         recordForward.setId( id );
         children.before( longRecordForward );
 
-        Attribute childAttr = new DefaultEntryAttribute( "_child" );
+        Attribute childAttr = new DefaultAttribute( "_child" );
         entry.put( childAttr );
 
         while ( children.next() )

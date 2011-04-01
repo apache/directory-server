@@ -34,7 +34,7 @@ import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -128,7 +128,7 @@ public class ReplicaDitStoreUtil
         Attribute lastSentCsnAt = null;
         if ( mods == null )
         {
-            lastSentCsnAt = new DefaultEntryAttribute( schemaManager
+            lastSentCsnAt = new DefaultAttribute( schemaManager
                 .lookupAttributeTypeRegistry( "ads-replLastSentCsn" ) );
             lastSentCsnAt.add( replica.getLastSentCsn() );
 

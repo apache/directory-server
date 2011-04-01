@@ -36,7 +36,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -136,7 +136,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         
         assertTrue( Arrays.equals( akarasulu.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" ).getBytes() ) );
 
-        Attribute attribute = new DefaultEntryAttribute( "userPassword", "replaced" );
+        Attribute attribute = new DefaultAttribute( "userPassword", "replaced" );
 
         List<Modification> mods = new ArrayList<Modification>();
         

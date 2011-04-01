@@ -39,7 +39,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -585,14 +585,14 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             return;
         }
 
-        mods.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultAttribute(
             MetaSchemaConstants.M_DISABLED_AT, schemaManager.getAttributeType( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
 
-        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute(
             SchemaConstants.MODIFIERS_NAME_AT, schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT ),
             ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
 
-        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute(
             SchemaConstants.MODIFY_TIMESTAMP_AT, schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
                 .getGeneralizedTime() ) ) );
 

@@ -31,7 +31,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -300,10 +300,10 @@ public class AdministrativePointModifyIT extends AbstractLdapTestUnit
 
         // Remove the AAP
         Modification modificationDelAap = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole" ) );
+            new DefaultAttribute( "administrativeRole" ) );
         // Add the SAP
         Modification modificationAddSap = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-            new DefaultEntryAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+            new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
         ModifyResponse response = connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modificationDelAap, modificationAddSap );
 
         assertNotNull( response );

@@ -66,7 +66,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -1317,7 +1317,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( modifiedAdminRole == null )
         {
             // Create the attribute
-            modifiedAdminRole = new DefaultEntryAttribute( ADMINISTRATIVE_ROLE_AT );
+            modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT );
         }
         else
         {
@@ -1348,7 +1348,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                         if ( modifiedAdminRole == null )
                         {
                             // Create the attribute
-                            modifiedAdminRole = new DefaultEntryAttribute( ADMINISTRATIVE_ROLE_AT, attribute.get() );
+                            modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT, attribute.get() );
                         }
 
                         for ( Value<?> role : attribute )
