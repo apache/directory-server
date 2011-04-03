@@ -169,24 +169,6 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean isValid()
-    {
-        return clonedEntry.isValid();
-    }
-
-
-    public boolean isValid( String objectClass )
-    {
-        return clonedEntry.isValid( objectClass );
-    }
-
-
-    public boolean isValid( Attribute objectClass )
-    {
-        return clonedEntry.isValid( objectClass );
-    }
-
-
     public Attribute put( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
