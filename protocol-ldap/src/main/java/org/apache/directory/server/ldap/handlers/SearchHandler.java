@@ -37,7 +37,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.server.ldap.replication.ReplicationProvider;
+import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -91,7 +91,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     /** cached to save redundant lookups into registries */
     private AttributeType OBJECT_CLASS_AT;
 
-    protected ReplicationProvider replicationProvider;
+    protected ReplicationRequestHandler replicationReqHandler;
 
 
     /**
@@ -1612,9 +1612,9 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     }
 
 
-    public void setReplicationProvider( ReplicationProvider prov )
+    public void setReplicationReqHandler( ReplicationRequestHandler prov )
     {
-        this.replicationProvider = prov;
+        this.replicationReqHandler = prov;
     }
 
 
@@ -1628,7 +1628,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     public void handleSyncreplSearch( LdapSession session, SearchRequest req ) throws LdapException
     {
-        replicationProvider.handleSyncRequest( session, req );
+        replicationReqHandler.handleSyncRequest( session, req );
     }
 
 }

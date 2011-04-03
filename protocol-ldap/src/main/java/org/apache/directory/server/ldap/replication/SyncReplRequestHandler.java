@@ -99,12 +99,12 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @SuppressWarnings("unchecked")
-public class SyncReplProvider implements ReplicationProvider
+public class SyncReplRequestHandler implements ReplicationRequestHandler
 {
 
     public static final String REPLICA_ID_DELIM = ";";
 
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplProvider.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
 
     private boolean initialized = false;
 
@@ -128,7 +128,7 @@ public class SyncReplProvider implements ReplicationProvider
     private ReplicaDitStoreUtil replicaUtil;
 
 
-    public SyncReplProvider()
+    public SyncReplRequestHandler()
     {
     }
 

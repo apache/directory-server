@@ -26,11 +26,11 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 
 /**
- * Interface for a replication provider.
+ * Interface of a replication request handler in a provider/master.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface ReplicationProvider
+public interface ReplicationRequestHandler
 {
     /**
      * initializes the replication provider

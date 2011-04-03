@@ -85,8 +85,8 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.server.ldap.replication.SyncReplProvider;
+import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
+import org.apache.directory.server.ldap.replication.SyncReplRequestHandler;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -923,18 +923,18 @@ public class ServiceBuilder
             if ( fqcn == null )
             {
                 // default replication provider
-                fqcn = SyncReplProvider.class.getName();
+                fqcn = SyncReplRequestHandler.class.getName();
             }
             
             try
             {
                 Class<?> replProvImplClz = Class.forName( fqcn );
-                ReplicationProvider rp = ( ReplicationProvider ) replProvImplClz.newInstance();
-                ldapServer.setReplicationProvider( rp );
+                ReplicationRequestHandler rp = ( ReplicationRequestHandler ) replProvImplClz.newInstance();
+                ldapServer.setReplicationReqHandler( rp );
             }
             catch( Exception e )
             {
-                String message = "Failed to load and instantiate ReplicationProvider implementation : " + e.getMessage();
+                String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + e.getMessage();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }

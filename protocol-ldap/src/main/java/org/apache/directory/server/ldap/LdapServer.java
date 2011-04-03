@@ -53,7 +53,7 @@ import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
-import org.apache.directory.server.ldap.replication.ReplicationProvider;
+import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
 import org.apache.directory.server.ldap.replication.SyncReplConsumer;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -211,7 +211,7 @@ public class LdapServer extends DirectoryBackedService
 
     private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
 
-    private ReplicationProvider replicationProvider;
+    private ReplicationRequestHandler replicationReqHandler;
 
     private List<SyncreplConfiguration> providerConfigs;
 
@@ -487,10 +487,10 @@ public class LdapServer extends DirectoryBackedService
 
         nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
-        if ( replicationProvider != null )
+        if ( replicationReqHandler != null )
         {
-            replicationProvider.init( this );
-            ( ( SearchHandler ) getSearchHandler() ).setReplicationProvider( replicationProvider );
+            replicationReqHandler.init( this );
+            ( ( SearchHandler ) getSearchHandler() ).setReplicationReqHandler( replicationReqHandler );
         }
 
         startConsumers();
@@ -561,9 +561,9 @@ public class LdapServer extends DirectoryBackedService
                     sessionIt.next().close( true );
                 }
 
-                if ( replicationProvider != null )
+                if ( replicationReqHandler != null )
                 {
-                    replicationProvider.stop();
+                    replicationReqHandler.stop();
                 }
             }
 
@@ -1325,9 +1325,9 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public void setReplicationProvider( ReplicationProvider replicationProvider )
+    public void setReplicationReqHandler( ReplicationRequestHandler replicationProvider )
     {
-        this.replicationProvider = replicationProvider;
+        this.replicationReqHandler = replicationProvider;
     }
 
 

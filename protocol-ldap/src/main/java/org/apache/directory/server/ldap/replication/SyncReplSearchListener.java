@@ -418,7 +418,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     private byte[] getCookie( Entry entry ) throws LdapInvalidAttributeValueException
     {
         String csn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
-        return Strings.getBytesUtf8(clientMsgLog.getId() + SyncReplProvider.REPLICA_ID_DELIM + csn);
+        return Strings.getBytesUtf8(clientMsgLog.getId() + SyncReplRequestHandler.REPLICA_ID_DELIM + csn);
     }
 
 
