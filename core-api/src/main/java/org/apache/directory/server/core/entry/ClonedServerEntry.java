@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -502,11 +502,5 @@ public class ClonedServerEntry implements Entry
     public String toString()
     {
         return clonedEntry.toString();
-    }
-
-    
-    public boolean contains( String upId ) throws LdapException
-    {
-        return clonedEntry.contains( upId );
     }
 }

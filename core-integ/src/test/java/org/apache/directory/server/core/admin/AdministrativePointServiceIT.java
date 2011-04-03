@@ -397,7 +397,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
 
-        assertFalse( entry.contains( "administrativeRole" ) );
+        assertFalse( entry.containsAttribute( "administrativeRole" ) );
     }
 
 
@@ -428,7 +428,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
 
-        assertFalse( entry.contains( "administrativeRole" ) );
+        assertFalse( entry.containsAttribute( "administrativeRole" ) );
     }
 
 
@@ -458,7 +458,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
 
-        assertTrue( entry.contains( "administrativeRole" ) );
+        assertTrue( entry.containsAttribute( "administrativeRole" ) );
         assertTrue( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         assertFalse( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
     }
@@ -521,7 +521,7 @@ public class AdministrativePointServiceIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         Entry entry = getAdminRole( "ou=caArea, ou=system" );
 
-        assertTrue( entry.contains( "administrativeRole" ) );
+        assertTrue( entry.containsAttribute( "administrativeRole" ) );
         assertTrue( entry.contains( "administrativeRole", "collectiveAttributeSpecificArea" ) );
         assertTrue( entry.contains( "administrativeRole", "accessControlSpecificArea" ) );
         assertTrue( entry.contains( "administrativeRole", "triggerExecutionSpecificArea" ) );
