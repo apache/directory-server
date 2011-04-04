@@ -165,7 +165,12 @@ objectclass: top
 ads-saslMechName: SIMPLE
 ads-enabled: true
 
-dn: ads-replConsumerId=test,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: replConsumers
+
+dn: ads-replConsumerId=test,ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-replConsumer
@@ -174,7 +179,7 @@ ads-dsReplicaId: test
 ads-replAliasDerefMode: NEVER
 ads-searchBaseDN: ads-directoryServiceId=default,ou=config
 ads-replLastSentCsn: 20100509111949.005000Z#000000#000#000000
-ads-replSearchScope: SUBTREE
+ads-replSearchScope: SUB
 ads-replSearchFilter: (&(objectClass=top)(ou=test))
 ads-replRefreshNPersist: TRUE
 ads-replUseTls: TRUE
@@ -194,7 +199,7 @@ ads-replAliasDerefMode: NEVER
 ads-replAttribute: acme
 ads-replRefreshInterval: 100
 ads-replRefreshNPersist: TRUE
-ads-replSearchScope: SUBTREE
+ads-replSearchScope: SUB
 ads-replSearchFilter: (&(objectClass=top)(ou=test))
 ads-replSearchSizeLimit: 100
 ads-replSearchTimeOut: 100
