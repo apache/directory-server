@@ -51,6 +51,7 @@ import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
+import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
 import org.apache.directory.server.config.beans.SimpleAuthenticatorBean;
 import org.apache.directory.server.config.beans.StrongAuthenticatorBean;
@@ -85,8 +86,10 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
-import org.apache.directory.server.ldap.replication.SyncReplRequestHandler;
+import org.apache.directory.server.ldap.replication.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -99,6 +102,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -910,22 +915,11 @@ public class ServiceBuilder
             }
         }
 
-        // PasswordPolicy
-        // TODO
+        // ReplReqHandler
+        String fqcn = ldapServerBean.getReplReqHandler();
         
-        // ReplProvider
-        if ( ldapServerBean.isEnableReplProvider() )
+        if ( fqcn != null )
         {
-            //EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
-            
-            String fqcn = ldapServerBean.getReplProvider().getReplAttribute();
-            
-            if ( fqcn == null )
-            {
-                // default replication provider
-                fqcn = SyncReplRequestHandler.class.getName();
-            }
-            
             try
             {
                 Class<?> replProvImplClz = Class.forName( fqcn );
@@ -934,20 +928,83 @@ public class ServiceBuilder
             }
             catch( Exception e )
             {
-                String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + e.getMessage();
+                String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + fqcn;
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
             
-            // TODO
-            // ldapServer.setReplProviderConfigs( createReplProviderConfigs() );
         }
         
-        // ReplConsumer
-        // TODO 
+        ldapServer.setReplConsumers( createReplConsumers( ldapServerBean.getReplConsumers() ) );
         
-
         return ldapServer;
+    }
+    
+    
+    /**
+     * instantiate the ReplicationConsumers based on the configuration present in ReplConsumerBeans
+     * 
+     * @param replConsumerBeans the list of consumers configured
+     * @return a list of ReplicationConsumer instances
+     * @throws ConfigurationException
+     */
+    public static List<ReplicationConsumer> createReplConsumers( List<ReplConsumerBean> replConsumerBeans ) throws ConfigurationException
+    {
+        List<ReplicationConsumer> lst = new ArrayList<ReplicationConsumer>();
+
+        if( replConsumerBeans == null )
+        {
+            return lst;
+        }
+        
+        for ( ReplConsumerBean replBean : replConsumerBeans )
+        {
+            String className = replBean.getReplConsumerImpl();
+            
+            
+            ReplicationConsumer consumer = null;
+            Class<?> consumerClass = null;
+            SyncreplConfiguration config = null;
+            
+            try
+            {
+                if( className == null )
+                {
+                    consumerClass = SyncReplConsumer.class; 
+                }
+                else
+                {
+                    consumerClass = Class.forName( className );
+                }
+                
+                consumer = ( ReplicationConsumer ) consumerClass.newInstance();
+                
+                // we don't support any other configuration impls atm, but this configuration should suffice for many needs
+                config = new SyncreplConfiguration();
+                
+                config.setReplicaId( Integer.parseInt( replBean.getDsreplicaid() ) );
+                config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
+                config.setBaseDn( replBean.getSearchBaseDn().getName() );
+                
+                int scope = SearchScope.getSearchScope( replBean.getReplSearchScope() );
+                config.setSearchScope( SearchScope.getSearchScope( scope ) );
+                
+                config.setFilter( replBean.getReplSearchFilter() );
+                config.setRefreshNPersist( replBean.isReplRefreshNPersist() );
+                config.setUseTls( replBean.isReplUseTls() );
+                config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
+                
+                consumer.setConfig( config );
+                
+                lst.add( consumer );
+            }
+            catch( Exception e )
+            {
+                throw new ConfigurationException( "cannot configure the replication consumer with FQCN " + className, e );
+            }
+        }
+        
+        return lst;
     }
     
     

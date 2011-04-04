@@ -65,13 +65,13 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(attributeType = "ads-certificatePassword")
     private String certificatePassword;
 
-    /** tells if the replication is enabled */
-    @ConfigurationElement(attributeType = "ads-enableReplProvider")
-    private boolean enableReplProvider;
+    /** the replication request handler, server will be in replication provider/master mode if a valid FQCN is given */
+    @ConfigurationElement(attributeType = "ads-replReqHandler")
+    private String replReqHandler;
 
     /** The replication consumer Bean */
-    @ConfigurationElement
-    private ReplConsumerBean replConsumer;
+    @ConfigurationElement(attributeType = "ads-replConsumers", container = "replConsumers")
+    private List<ReplConsumerBean> replConsumers;
 
     /** The replication producer Bean */
     @ConfigurationElement
@@ -255,38 +255,20 @@ public class LdapServerBean extends DSBasedServerBean
 
 
     /**
-     * @return the replProviderImpl
-     *
-    public ReplicationProviderBean getReplProviderImpl()
-    {
-        return replProviderImpl;
-    }
-
-    
-    /**
-     * @param replProviderImpl the replProviderImpl to set
-     *
-    public void setReplProviderImpl( ReplicationProviderBean replProviderImpl )
-    {
-        this.replProviderImpl = replProviderImpl;
-    }
-
-    
-    /**
-     * @return the enableReplProvider
+     * @return the replReqHandler
      */
-    public boolean isEnableReplProvider()
+    public String getReplReqHandler()
     {
-        return enableReplProvider;
+        return replReqHandler;
     }
 
 
     /**
-     * @param enableReplProvider the enableReplProvider to set
+     * @param replReqHandler the replReqHandler to set
      */
-    public void setEnableReplProvider( boolean enableReplProvider )
+    public void setReplReqHandler( String replReqHandler )
     {
-        this.enableReplProvider = enableReplProvider;
+        this.replReqHandler = replReqHandler;
     }
 
 
@@ -354,21 +336,33 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return the Replication Consumer Bean
      */
-    public ReplConsumerBean getReplConsumer()
+    public List<ReplConsumerBean> getReplConsumers()
     {
-        return replConsumer;
+        return replConsumers;
     }
 
 
     /**
-     * @param replConsumer the Replication Consumer Bean to set
+     * @param replConsumers the Replication Consumer Bean to set
      */
-    public void setReplConsumer( ReplConsumerBean replConsumer )
+    public void setReplConsumer( List<ReplConsumerBean> replConsumers )
     {
-        this.replConsumer = replConsumer;
+        this.replConsumers = replConsumers;
     }
 
 
+    /**
+     * @param replConsumers the Replication Consumer Bean to set
+     */
+    public void addReplConsumers( ReplConsumerBean... replConsumers )
+    {
+        for( ReplConsumerBean bean : replConsumers )
+        {
+            this.replConsumers.add( bean );
+        }
+    }
+
+    
     /**
      * @return the replProvider
      */
@@ -403,7 +397,7 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  sasl principal", saslPrincipal ) );
         sb.append( tabs ).append( "  sasl host : " ).append( saslHost ).append( '\n' );
         sb.append( toString( tabs, "  confidentiality required", confidentialityRequired ) );
-        sb.append( toString( tabs, "  enable replication provider", enableReplProvider ) );
+        sb.append( toString( tabs, "  enable replication provider", replReqHandler ) );
 
         if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
         {
@@ -435,11 +429,16 @@ public class LdapServerBean extends DSBasedServerBean
             }
         }
 
-        if ( replConsumer != null )
+        if ( ( replConsumers != null ) && ( replConsumers.size() > 0 ) )
         {
-            sb.append( tabs ).append( replConsumer.toString( tabs + "  " ) );
-        }
+            sb.append( tabs ).append( "  replication consumers :\n" );
 
+            for ( ReplConsumerBean replConsumer : replConsumers )
+            {
+                sb.append( replConsumer.toString( tabs + "    " ) );
+            }
+        }
+        
         if ( replProvider != null )
         {
             sb.append( tabs ).append( replProvider.toString( tabs + "  " ) );

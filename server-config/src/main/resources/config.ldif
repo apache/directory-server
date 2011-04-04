@@ -700,7 +700,6 @@ ads-saslRealms: example.com
 ads-saslRealms: apache.org
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: TRUE
-ads-enableReplProvider: FALSE
 ads-transports: ldap
 ads-transports: ldaps
 ads-saslmechhandlers: CRAM-MD5
@@ -712,6 +711,11 @@ ads-saslmechhandlers: SIMPLE
 ads-extendedophandlers: gracefulShutdownHandler
 ads-extendedophandlers: starttlshandler
 ads-extendedophandlers: storedprochandler
+
+dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: replConsumers
 
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports

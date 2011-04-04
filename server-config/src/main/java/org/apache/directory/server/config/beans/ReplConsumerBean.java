@@ -75,6 +75,9 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-replPeerCertificate")
     private String replPeerCertificate;
 
+    /** The FQCN of replication client implementation */
+    @ConfigurationElement(attributeType = "ads-replConsumerImpl")
+    private String replConsumerImpl;
 
     /**
      * Create a new Replication Consumer instance
@@ -287,6 +290,24 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
+     * @return the replConsumerImpl
+     */
+    public String getReplConsumerImpl()
+    {
+        return replConsumerImpl;
+    }
+
+
+    /**
+     * @param replConsumerImpl the replConsumerImpl to set
+     */
+    public void setReplConsumerImpl( String replConsumerImpl )
+    {
+        this.replConsumerImpl = replConsumerImpl;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
@@ -296,6 +317,7 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( tabs ).append( "Replication consumer :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
+        sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
         sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
         sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
         sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );

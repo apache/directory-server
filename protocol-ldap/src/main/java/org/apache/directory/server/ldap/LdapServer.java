@@ -53,9 +53,8 @@ import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
+import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
-import org.apache.directory.server.ldap.replication.SyncReplConsumer;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -65,7 +64,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -85,6 +83,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
+import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
@@ -213,9 +212,7 @@ public class LdapServer extends DirectoryBackedService
 
     private ReplicationRequestHandler replicationReqHandler;
 
-    private List<SyncreplConfiguration> providerConfigs;
-
-    private List<SyncReplConsumer> replConsumers;
+    private List<ReplicationConsumer> replConsumers;
 
 
     /**
@@ -636,11 +633,9 @@ public class LdapServer extends DirectoryBackedService
      */
     private void startConsumers() throws Exception
     {
-        if ( providerConfigs != null )
+        if ( replConsumers != null )
         {
-            replConsumers = new ArrayList<SyncReplConsumer>( providerConfigs.size() );
-
-            for ( final SyncreplConfiguration config : providerConfigs )
+            for ( final ReplicationConsumer consumer : replConsumers )
             {
                 Runnable consumerTask = new Runnable()
                 {
@@ -648,16 +643,14 @@ public class LdapServer extends DirectoryBackedService
                     {
                         try
                         {
-                            SyncReplConsumer consumer = new SyncReplConsumer();
-                            LOG.info( "starting the replication consumer with config {}", config );
-                            consumer.init( getDirectoryService(), config );
-                            consumer.connect();
+                            LOG.info( "starting the replication consumer with config {}", consumer );
+                            consumer.init( getDirectoryService() );
                             replConsumers.add( consumer );
-                            consumer.startSync();
+                            consumer.start();
                         }
                         catch ( Exception e )
                         {
-                            LOG.error( "Failed to start the consumer with config {}", config );
+                            LOG.error( "Failed to start the consumer with config {}", consumer );
                             throw new RuntimeException( e );
                         }
                     }
@@ -678,10 +671,10 @@ public class LdapServer extends DirectoryBackedService
     {
         if ( replConsumers != null )
         {
-            for ( SyncReplConsumer consumer : replConsumers )
+            for ( ReplicationConsumer consumer : replConsumers )
             {
-                LOG.info( "stopping the consumer with id {}", consumer.getConfig().getReplicaId() );
-                consumer.disconnet();
+                LOG.info( "stopping the consumer with id {}", consumer.getId() );
+                consumer.stop();
             }
         }
     }
@@ -1331,9 +1324,9 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public void setReplProviderConfigs( List<SyncreplConfiguration> providerConfigs )
+    public void setReplConsumers( List<ReplicationConsumer> replConsumers )
     {
-        this.providerConfigs = providerConfigs;
+        this.replConsumers = replConsumers;
     }
 
 
