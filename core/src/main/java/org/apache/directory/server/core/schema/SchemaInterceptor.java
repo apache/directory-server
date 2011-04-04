@@ -54,11 +54,11 @@ import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -1066,7 +1066,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // We don't check if the attribute is not in the MUST or MAY at this
                         // point, as one of the following modification can change the
                         // ObjectClasses.
-                        Attribute newAttribute = createNewAttribute( attribute );
+                        Attribute newAttribute = attribute.clone();
                         
                         // Check that the attribute allows null values if we don'y have any value
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType.getSyntax().getSyntaxChecker() ) )
