@@ -251,7 +251,7 @@ public enum ConfigSchemaConstants
     
     ADS_REPL_COOKIE( "ads-replCookie", "" ),
     
-    ADS_REPL_PROVIDER_IMPL( "ads-replProviderImpl", "" ),
+    ADS_REPL_REQ_HANDLER( "ads-replReqHandler", "" ),
     
     ADS_REPL_ENABLE_PROVIDER( "ads-enableReplProvider", "" ),
     
