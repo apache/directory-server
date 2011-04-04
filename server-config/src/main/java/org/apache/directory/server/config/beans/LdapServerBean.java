@@ -71,7 +71,7 @@ public class LdapServerBean extends DSBasedServerBean
 
     /** The replication consumer Bean */
     @ConfigurationElement(attributeType = "ads-replConsumers", container = "replConsumers")
-    private List<ReplConsumerBean> replConsumers;
+    private List<ReplConsumerBean> replConsumers = new ArrayList<ReplConsumerBean>();
 
     /** The replication producer Bean */
     @ConfigurationElement
