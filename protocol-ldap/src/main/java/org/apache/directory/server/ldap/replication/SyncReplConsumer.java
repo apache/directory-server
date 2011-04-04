@@ -97,7 +97,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SyncReplConsumer implements ConnectionClosedEventListener
+public class SyncReplConsumer implements ConnectionClosedEventListener, ReplicationConsumer
 {
 
     /** the syncrepl configuration */
@@ -162,9 +162,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
-    public void init( DirectoryService directoryservice, SyncreplConfiguration config ) throws Exception
+    public void init( DirectoryService directoryservice ) throws Exception
     {
-        this.config = config;
         this.directoryService = directoryservice;
 
         if ( config.isStoreCookieInFile() )
@@ -495,6 +494,43 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     }
 
 
+    /** 
+     * {@inheritDoc}
+     */
+    public void setConfig( ReplicationConsumerConfig config )
+    {
+        this.config = ( SyncreplConfiguration ) config;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void start()
+    {
+        connect();
+        startSync();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stop()
+    {
+        disconnet();
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String getId()
+    {
+        return String.valueOf( getConfig().getReplicaId() );
+    }
+    
+    
     /**
      * performs a search on connection with updated syncRequest control.
      *

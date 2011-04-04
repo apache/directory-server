@@ -38,7 +38,7 @@ import javax.net.ssl.X509TrustManager;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SyncreplConfiguration
+public class SyncreplConfiguration implements ReplicationConsumerConfig
 {
     /** host name of the syncrepl provider server, default value is localhost */
     private String providerHost = "localhost";
@@ -406,7 +406,7 @@ public class SyncreplConfiguration
     public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
         if ( aliasDerefMode != AliasDerefMode.NEVER_DEREF_ALIASES
-            || aliasDerefMode != AliasDerefMode.DEREF_FINDING_BASE_OBJ )
+            && aliasDerefMode != AliasDerefMode.DEREF_FINDING_BASE_OBJ )
         {
             throw new IllegalArgumentException(
                 "alias deref mode should only be set to either 'NEVER_DEREF_ALIASES' or 'DEREF_FINDING_BASE_OBJ'" );
