@@ -235,12 +235,6 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<Attribute> set( AttributeType... attributeTypes )
-    {
-        return clonedEntry.set( attributeTypes );
-    }
-
-
     public void add( Attribute... attributes ) throws LdapException
     {
         clonedEntry.add( attributes );

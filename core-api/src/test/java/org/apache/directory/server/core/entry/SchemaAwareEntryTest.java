@@ -41,11 +41,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.BinaryValue;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -191,7 +191,7 @@ public class SchemaAwareEntryTest
 
     /**
      * Test for method DefaultEntry( registries, Dn, AttributeType... )
-     */
+     *
     @Test
     public void testDefaultClientEntryRegistriesDNAttributeTypeArray() throws Exception
     {
@@ -207,7 +207,7 @@ public class SchemaAwareEntryTest
 
     /**
      * Test for method DefaultEntry( registries, Dn, AttributeType, upId )
-     */
+     *
     @Test
     public void testDefaultClientEntryRegistriesDNAttributeTypeUpId() throws Exception
     {
@@ -3596,86 +3596,6 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test the set(AT...) method
-     */
-    @Test
-    public void testSetATElipsis() throws Exception
-    {
-        Dn dn = new Dn( schemaManager, "cn=test" );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-
-        List<Attribute> result = null;
-
-        // First check that this method fails if we pass an empty list of ATs
-        result = entry.set( ( AttributeType ) null );
-        assertNull( result );
-
-        // Now, check what we get when adding one existing AT
-        result = entry.set( atSN );
-
-        assertNull( result );
-        Attribute sa = entry.get( "sn" );
-        assertNotNull( sa );
-        assertEquals( atSN, sa.getAttributeType() );
-        assertEquals( "sn", sa.getAttributeType().getName() );
-
-        // Add two AT now
-        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
-        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
-        result = entry.set( atL, atC, atGN, atStreet );
-
-        assertNull( result );
-
-        sa = entry.get( "l" );
-        assertNotNull( sa );
-        assertEquals( atL, sa.getAttributeType() );
-        assertEquals( "l", sa.getAttributeType().getName() );
-
-        sa = entry.get( "c" );
-        assertNotNull( sa );
-        assertEquals( atC, sa.getAttributeType() );
-        assertEquals( "c", sa.getAttributeType().getName() );
-
-        sa = entry.get( "2.5.4.9" );
-        assertNotNull( sa );
-        assertEquals( atStreet, sa.getAttributeType() );
-        assertEquals( "street", sa.getAttributeType().getName() );
-
-        sa = entry.get( "givenName" );
-        assertNotNull( sa );
-        assertEquals( atGN, sa.getAttributeType() );
-        assertEquals( "givenName", sa.getAttributeType().getName() );
-
-        // Now try to add existing ATs
-        // First, set some value to the modified AT
-        sa = entry.get( "sn" );
-        sa.add( "test" );
-
-        // Check that the value has been added to the entry
-        assertEquals( "test", entry.get( "sn" ).get().getString() );
-
-        // Now add a new SN empty AT : it should replace the existing one.
-        AttributeType atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
-        sa = entry.set( atSNEmpty ).get( 0 );
-        assertEquals( "test", sa.get().getString() );
-        assertNotNull( entry.get( "sn" ) );
-        assertNull( entry.get( "sn" ).get() );
-
-        // Last, not least, put an ObjectClass AT
-        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-
-        entry.set( OBJECT_CLASS_AT );
-
-        assertNotNull( entry.get( "objectClass" ) );
-
-        Attribute oc = entry.get( "objectClass" );
-
-        assertEquals( OBJECT_CLASS_AT, oc.getAttributeType() );
-        assertNull( oc.get() );
-    }
-
-
-    /**
      * Test the set( upId ) method
      */
     @Test
@@ -3759,36 +3679,6 @@ public class SchemaAwareEntryTest
         assertEquals( "test", sa.get().getString() );
         assertNotNull( entry.get( "sn" ) );
         assertNull( entry.get( "sn" ).get() );
-    }
-
-
-    /**
-     * Test method for set( AttributeType... )
-     */
-    @Test
-    public void testSetAttributeTypeArray() throws Exception
-    {
-        Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
-
-        entry.add( "ObjectClass", "top", "person" );
-        entry.add( "cn", "test1", "test2" );
-        entry.add( "sn", "Test" );
-
-        List<Attribute> removed = entry.set( atOC, atCN, atPwd );
-
-        assertEquals( 4, entry.size() );
-        assertNotNull( entry.get( "objectclass" ) );
-        assertNotNull( entry.get( "cn" ) );
-        assertNotNull( entry.get( "userPassword" ) );
-        assertNotNull( entry.get( "sn" ) );
-
-        assertNull( entry.get( "objectclass" ).get() );
-        assertNull( entry.get( "cn" ).get() );
-        assertNull( entry.get( "userPassword" ).get() );
-        assertNotNull( entry.get( "sn" ).get() );
-
-        assertNotNull( removed );
-        assertEquals( 2, removed.size() );
     }
 
 
@@ -3906,7 +3796,6 @@ public class SchemaAwareEntryTest
 
         Value<String> strValueTop = new StringValue( "top" );
         Value<String> strValuePerson = new StringValue( "person" );
-        Value<String> strNullValue = new StringValue( ( String ) null );
 
         Value<byte[]> binValue1 = new BinaryValue( BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( BYTES2 );
