@@ -34,8 +34,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.CompareResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -96,9 +96,9 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         boolean result = true;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = LdifUtils.createEntry( 
+        Entry testEntry = new DefaultEntry( 
             service.getSchemaManager(),
-            entryDn,
+            entryDn.toString(),
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
             "ou: testou",
@@ -263,9 +263,9 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection adminCtx = getAdminConnection();
 
         Dn userDn = new Dn( "uid=bob,ou=users,ou=system" );
-        Entry user = LdifUtils.createEntry(
+        Entry user = new DefaultEntry(
             service.getSchemaManager(),
-            userDn,
+            "uid=bob,ou=users,ou=system",
             "uid: bob",
             "userPassword: bobspassword",
             "ObjectClass: top", 
@@ -277,7 +277,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         adminCtx.add( user );
 
-        CompareResponse resp = adminCtx.compare(userDn, "userPassword", "bobspassword" );
+        CompareResponse resp = adminCtx.compare( userDn, "userPassword", "bobspassword" );
         assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
     }
 

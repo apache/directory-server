@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -82,9 +82,9 @@ public class AutzIntegUtils
     public static Dn createGroup( String cn, String firstMemberDn ) throws Exception
     {
         Dn groupDn = new Dn( "cn=" + cn + ",ou=groups,ou=system" );
-        Entry entry = LdifUtils.createEntry( 
+        Entry entry = new DefaultEntry( 
             service.getSchemaManager(),
-            groupDn, 
+            "cn=" + cn + ",ou=groups,ou=system", 
             "ObjectClass: top", 
             "ObjectClass: groupOfUniqueNames",
             "uniqueMember:", firstMemberDn,
@@ -123,7 +123,7 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry entry = LdifUtils.createEntry( 
+        Entry entry = new DefaultEntry( 
             service.getSchemaManager(),
             "uid=" + uid + ",ou=users,ou=system",
             "uid", uid,
@@ -154,9 +154,9 @@ public class AutzIntegUtils
     {
         Dn groupDn = new Dn( "cn=" + groupName + ",ou=groups,ou=system" );
 
-        Entry entry = LdifUtils.createEntry( 
+        Entry entry = new DefaultEntry( 
             service.getSchemaManager(),
-            groupDn,
+            "cn=" + groupName + ",ou=groups,ou=system",
             "objectClass: top", 
             "objectClass: groupOfUniqueNames",
             "uniqueMember: uid=admin, ou=system",
@@ -252,7 +252,7 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = LdifUtils.createEntry( 
+        Entry subEntry = new DefaultEntry( 
             "cn=" + cn + ",ou=system",
             "objectClass: top", 
             "objectClass: subentry", 

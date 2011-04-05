@@ -49,11 +49,10 @@ import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
@@ -130,8 +129,13 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
         
         Dn userDn = new Dn( "cn=user,ou=system" );
-        Entry userEntry = LdifUtils.createEntry( userDn, "ObjectClass: top", "ObjectClass: person", "cn: user",
-            "sn: user_sn", "userPassword: 1234" );
+        Entry userEntry = new DefaultEntry( 
+            userDn.toString(), 
+            "ObjectClass: top", 
+            "ObjectClass: person", 
+            "cn: user",
+            "sn: user_sn", 
+            "userPassword: 1234" );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
@@ -208,8 +212,13 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
-        Entry userEntry = LdifUtils.createEntry(userDn, "ObjectClass: top", "ObjectClass: person", "cn: userMinAge",
-                "sn: userMinAge_sn", "userPassword: 12345");
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(), 
+            "ObjectClass: top", 
+            "ObjectClass: person", 
+            "cn: userMinAge",
+            "sn: userMinAge_sn", 
+            "userPassword: 12345");
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );

@@ -31,9 +31,9 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -178,7 +178,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         // First check that we can't add an IAP in the DIT if there is no
         // parent AAP or SAP with the same role
-        Entry entry = LdifUtils.createEntry(
+        Entry entry = new DefaultEntry(
             "ou=IAP-CANew,ou=entry,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -194,7 +194,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
 
         // Add the entry under a SAP with the same role which has no parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
                 "ou=IAP-CANew,ou=SAP-CA2,ou=system",
                 "ObjectClass: top",
                 "ObjectClass: organizationalUnit",
@@ -209,7 +209,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under a SAP with a different role which has no parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=SAP-AC2,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -224,7 +224,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
 
         // Add the entry under an AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -239,7 +239,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an IAP with the same role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -254,7 +254,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an IAP with a different role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -269,7 +269,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an SAP with the same role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -284,7 +284,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an SAP with a different role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -310,7 +310,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
 
         // First check that we can add a SAP in the DIT if there is no
         // parent AAP or SAP
-        Entry entry = LdifUtils.createEntry(
+        Entry entry = new DefaultEntry(
             "ou=SAP-CANew,ou=entry,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -325,7 +325,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under a SAP with the same role which has no parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=SAP-CA2,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -340,7 +340,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under a SAP with a different role which has no parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=SAP-AC2,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -355,7 +355,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -370,7 +370,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an IAP with the same role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -385,7 +385,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an IAP with a different role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -400,7 +400,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an SAP with the same role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -415,7 +415,7 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         // Add the entry under an SAP with a different role which has a parent AAP
-        entry = LdifUtils.createEntry(
+        entry = new DefaultEntry(
             "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",

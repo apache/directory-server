@@ -34,13 +34,13 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -76,8 +76,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         // add this entry before each test because we want 
         // to check that operational attributes are added
-        Entry entry = LdifUtils
-            .createEntry(DN_KATE_BUSH, "objectClass: top", "objectClass: person", "cn: Kate Bush", "sn: Bush");
+        Entry entry = new DefaultEntry(
+            DN_KATE_BUSH, 
+            "objectClass: top", 
+            "objectClass: person", 
+            "cn: Kate Bush", 
+            "sn: Bush");
         connection.add( entry );
     }
 
@@ -96,8 +100,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testBinaryAttributeFilterExtension() throws Exception
     {
-        Entry entry = LdifUtils.createEntry( 
-            new Dn( "ou=test,ou=system" ), 
+        Entry entry = new DefaultEntry( 
+            "ou=test,ou=system", 
             "objectClass: top", 
             "objectClass: person",
             "objectClass: organizationalPerson", 
@@ -140,8 +144,11 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         /*
          * create ou=testing00,ou=system
          */
-        Entry entry = LdifUtils.createEntry( new Dn( "ou=testing00,ou=system" ), "objectClass: top",
-            "objectClass: organizationalUnit", "ou", "testing00" );
+        Entry entry = new DefaultEntry( 
+            "ou=testing00,ou=system", 
+            "objectClass: top",
+            "objectClass: organizationalUnit", 
+            "ou", "testing00" );
 
         connection.add( entry );
 
@@ -222,11 +229,24 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
-        Entry entry = LdifUtils.createEntry( new Dn( "uid=akarasulu,ou=users,ou=system" ), "objectClass: top",
-            "objectClass: person", "objectClass: organizationalPerson", "objectClass: inetOrgPerson",
-            "ou: Engineering", "ou: People", "uid: akarasulu", "l", "Bogusville", "cn: Alex Karasulu", "sn: Karasulu",
-            "givenName", "mail: akarasulu@apache.org", "telephoneNumber: +1 408 555 4798",
-            "facsimileTelephoneNumber: +1 408 555 9751", "roomnumber: 4612", "userPassword: test" );
+        Entry entry = new DefaultEntry( 
+            "uid=akarasulu,ou=users,ou=system", 
+            "objectClass: top",
+            "objectClass: person", 
+            "objectClass: organizationalPerson", 
+            "objectClass: inetOrgPerson",
+            "ou: Engineering", 
+            "ou: People", 
+            "uid: akarasulu", 
+            "l", "Bogusville", 
+            "cn: Alex Karasulu", 
+            "sn: Karasulu",
+            "givenName: Alex", 
+            "mail: akarasulu@apache.org", 
+            "telephoneNumber: +1 408 555 4798",
+            "facsimileTelephoneNumber: +1 408 555 9751", 
+            "roomnumber: 4612", 
+            "userPassword: test" );
 
         connection.add( entry );
 

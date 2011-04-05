@@ -34,15 +34,15 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
@@ -71,7 +71,11 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: person", "cn", cn,
+        Entry subentry = new DefaultEntry( 
+            dn, 
+            "objectClass: top", 
+            "objectClass: person", 
+            "cn", cn,
             "sn: testentry" );
 
         return subentry;
@@ -80,9 +84,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-ou: configuration",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry" );
+        Entry subentry = new DefaultEntry( 
+            dn, 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-ou: configuration",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry" );
 
         return subentry;
     }
@@ -90,9 +99,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry(new Dn(dn), "objectClass: top", "objectClass: subentry",
-                "objectClass: collectiveAttributeSubentry", "c-ou: configuration2",
-                "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry2");
+        Entry subentry = new DefaultEntry(
+            dn, 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-ou: configuration2",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry2");
 
         return subentry;
     }
@@ -100,9 +114,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "c-st: FL",
-            "subtreeSpecification: { base \"ou=configuration\" }", "cn: testsubentry3" );
+        Entry subentry = new DefaultEntry( 
+            dn, 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "c-st: FL",
+            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "cn: testsubentry3" );
 
         return subentry;
     }

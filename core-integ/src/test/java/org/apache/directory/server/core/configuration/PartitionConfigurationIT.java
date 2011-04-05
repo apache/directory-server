@@ -35,8 +35,8 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +64,9 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
 
         Dn suffixDn = new Dn( getService().getSchemaManager(), "ou=removable" );
 
-        Entry ctxEntry = LdifUtils.createEntry( getService().getSchemaManager(), suffixDn,
+        Entry ctxEntry = new DefaultEntry( 
+            getService().getSchemaManager(), 
+            suffixDn.toString(),
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou: removable",

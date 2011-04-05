@@ -51,9 +51,9 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -225,9 +225,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getSubentry( String dn ) throws Exception
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ), "objectClass: top", "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", "subtreeSpecification: { base \"ou=configuration\" }",
-            "c-o: Test Org", "cn: testsubentry" );
+        Entry subentry = new DefaultEntry( 
+            dn, 
+            "objectClass: top", 
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry", 
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "c-o: Test Org", 
+            "cn: testsubentry" );
 
         return subentry;
     }
@@ -251,7 +256,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getTestSubentryWithExclusion( String dn ) throws LdapException
     {
-        Entry subentry = LdifUtils.createEntry( new Dn( dn ),
+        Entry subentry = new DefaultEntry( 
+            dn,
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -405,10 +411,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Add the subentry
-        Entry subEntryA = LdifUtils.createEntry( new Dn( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ),
-            "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
+        Entry subEntryA = new DefaultEntry( 
+            "cn=testsubentryA,dc=AP-A,dc=test,ou=system",
+            "objectClass: top", 
+            "objectClass: subentry", 
+            "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
-            "c-o: Test Org", "cn: testsubentryA" );
+            "c-o: Test Org", 
+            "cn: testsubentryA" );
 
         AddResponse response = connection.add( subEntryA );
 
@@ -447,10 +457,14 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // Now add another subentry on AP-B
         // Add the subentry
-        Entry subEntryB = LdifUtils.createEntry(new Dn("cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system"),
-                "objectClass: top", "objectClass: subentry", "objectClass: collectiveAttributeSubentry",
-                "subtreeSpecification: {}", // All the entry from the AP, including the AP
-                "c-o: Test Org", "cn: testsubentryB");
+        Entry subEntryB = new DefaultEntry(
+            "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
+            "objectClass: top", 
+            "objectClass: subentry", 
+            "objectClass: collectiveAttributeSubentry",
+            "subtreeSpecification: {}", // All the entry from the AP, including the AP
+            "c-o: Test Org", 
+            "cn: testsubentryB");
 
         response = connection.add( subEntryB );
 
@@ -1410,7 +1424,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     {
         userConnection = IntegrationUtils.getConnectionAs( getService(), "cn=testUser,ou=system", "test" );
 
-        Entry sap = LdifUtils.createEntry(
+        Entry sap = new DefaultEntry(
             "ou=dummy,ou=system",
             "objectClass: organizationalUnit",
             "objectClass: top",
