@@ -1069,7 +1069,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         Attribute newAttribute = attribute.clone();
                         
                         // Check that the attribute allows null values if we don'y have any value
-                        if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType.getSyntax().getSyntaxChecker() ) )
+                        if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
                             // This is an error.
                             String msg = I18n.err( I18n.ERR_54, null );

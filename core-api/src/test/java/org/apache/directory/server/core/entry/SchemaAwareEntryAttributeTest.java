@@ -42,9 +42,9 @@ import java.util.Set;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -602,25 +602,25 @@ public class SchemaAwareEntryAttributeTest
         Attribute attr = new DefaultAttribute( atCN );
 
         // No value, this should not be valid
-        assertFalse( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertFalse( attr.isValid( atCN ) );
 
         attr.add( "test", "test2", "A123\\;" );
-        assertTrue( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertTrue( attr.isValid( atCN ) );
 
         // If we try to add a wrong value, it will not be added. The
         // attribute remains valid.
         assertEquals( 0, attr.add( new byte[]
             { 0x01 } ) );
-        assertTrue( attr.isValid( atCN.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertTrue( attr.isValid( atCN ) );
 
         // test a SINGLE-VALUE attribute. CountryName is SINGLE-VALUE
         attr.clear();
         attr.apply( atC );
         attr.add( "FR" );
-        assertTrue( attr.isValid( atC.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertTrue( attr.isValid( atC ) );
         assertEquals( 0, attr.add( "US" ) );
         assertFalse( attr.contains( "US" ) );
-        assertTrue( attr.isValid( atC.getEquality().getSyntax().getSyntaxChecker() ) );
+        assertTrue( attr.isValid( atC ) );
     }
 
 
