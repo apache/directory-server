@@ -1079,26 +1079,26 @@ public class SchemaAwareEntryAttributeTest
      * Test method getAll()
      */
     @Test
-    public void testGetAll() throws LdapException
+    public void testIterator2() throws LdapException
     {
         Attribute attr = new DefaultAttribute( atEMail );
 
-        Iterator<Value<?>> iterator = attr.getAll();
+        Iterator<Value<?>> iterator = attr.iterator();
         assertFalse( iterator.hasNext() );
 
         attr.add( NULL_STRING_VALUE );
-        iterator = attr.getAll();
+        iterator = attr.iterator();
         assertTrue( iterator.hasNext() );
 
         Value<?> value = iterator.next();
         assertEquals( NULL_STRING_VALUE, value );
 
         attr.clear();
-        iterator = attr.getAll();
+        iterator = attr.iterator();
         assertFalse( iterator.hasNext() );
 
         attr.add( "a", "b", "c" );
-        iterator = attr.getAll();
+        iterator = attr.iterator();
         assertTrue( iterator.hasNext() );
         assertEquals( "a", iterator.next().getString() );
         assertEquals( "b", iterator.next().getString() );

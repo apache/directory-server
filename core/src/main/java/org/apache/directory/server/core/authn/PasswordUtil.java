@@ -28,7 +28,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.PasswordPolicyConfiguration;
@@ -37,8 +36,8 @@ import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.util.UnixCrypt;
 import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.util.UnixCrypt;
 
 
 /**
@@ -526,22 +525,20 @@ public class PasswordUtil
             return;
         }
 
-        Iterator<Value<?>> itr = pwdFailTimeAt.getAll();
         interval *= 1000;
 
         long currentTime = System.currentTimeMillis();
         List<Value<?>> valList = new ArrayList<Value<?>>();
 
-        while ( itr.hasNext() )
+        for ( Value<?> value : pwdFailTimeAt )
         {
-            Value<?> val = itr.next();
-            String failureTime = val.getString();
+            String failureTime = value.getString();
             long time = DateUtils.getDate( failureTime ).getTime();
             time += interval;
 
             if ( currentTime > time )
             {
-                valList.add( val );
+                valList.add( value );
             }
         }
 

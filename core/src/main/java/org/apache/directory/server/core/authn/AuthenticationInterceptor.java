@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,11 +87,11 @@ import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPol
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -625,11 +624,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 Attribute pwdHistoryAt = entry.get( PWD_HISTORY_AT );
                 Set<PasswordHistory> pwdHistSet = new TreeSet<PasswordHistory>();
 
-                Iterator<Value<?>> itr = pwdHistoryAt.getAll();
-                while ( itr.hasNext() )
+                for ( Value<?> value : pwdHistoryAt  )
                 {
-                    Value<?> val = itr.next();
-                    PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString(val.getBytes()) );
+                    PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
 
                     boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
 
