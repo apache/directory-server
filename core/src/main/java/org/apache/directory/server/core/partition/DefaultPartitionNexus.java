@@ -64,11 +64,11 @@ import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -1076,7 +1076,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( supportedExtension == null )
         {
-            rootDSE.set( SchemaConstants.SUPPORTED_EXTENSION_AT );
+            rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, (String)null );
             supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
         }
 
@@ -1096,7 +1096,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( supportedSaslMechanismsAttribute == null )
         {
-            rootDSE.set( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+            rootDSE.put( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT, (String)null );
             supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
         }
 

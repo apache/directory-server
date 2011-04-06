@@ -376,12 +376,6 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<Attribute> set( String... upIds )
-    {
-        return clonedEntry.set( upIds );
-    }
-
-
     public void setDn( Dn dn )
     {
         clonedEntry.setDn( dn );
