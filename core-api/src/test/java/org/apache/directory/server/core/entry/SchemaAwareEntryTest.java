@@ -189,57 +189,6 @@ public class SchemaAwareEntryTest
     }
 
 
-    /**
-     * Test for method DefaultEntry( registries, Dn, AttributeType... )
-     *
-    @Test
-    public void testDefaultClientEntryRegistriesDNAttributeTypeArray() throws Exception
-    {
-        Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN, atOC, atPwd, atCN );
-        assertNotNull( entry );
-        assertEquals( EXAMPLE_DN, entry.getDn() );
-        assertEquals( 3, entry.size() );
-        assertTrue( entry.containsAttribute( atOC ) );
-        assertTrue( entry.containsAttribute( atPwd ) );
-        assertTrue( entry.containsAttribute( atCN ) );
-    }
-
-
-    /**
-     * Test for method DefaultEntry( registries, Dn, AttributeType, upId )
-     *
-    @Test
-    public void testDefaultClientEntryRegistriesDNAttributeTypeUpId() throws Exception
-    {
-        Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
-        assertNotNull( entry );
-        assertEquals( EXAMPLE_DN, entry.getDn() );
-        assertEquals( 1, entry.size() );
-        assertTrue( entry.containsAttribute( atOC ) );
-        assertEquals( "2.5.4.0", entry.get( atOC ).getId() );
-        assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
-    }
-
-
-    /**
-     * Test for method DefaultEntry( registries, Dn, AttributeType, upId )
-     *
-    @Test
-    public void testDefaultClientEntryRegistriesDNUpIdArray() throws Exception
-    {
-        Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
-        assertNotNull( entry );
-        assertEquals( EXAMPLE_DN, entry.getDn() );
-        assertEquals( 2, entry.size() );
-        assertTrue( entry.containsAttribute( "objectClass" ) );
-        assertEquals( "2.5.4.0", entry.get( atOC ).getId() );
-        assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
-        assertTrue( entry.containsAttribute( "2.5.4.3" ) );
-        assertEquals( "2.5.4.3", entry.get( atCN ).getId() );
-        assertEquals( " Cn ", entry.get( atCN ).getUpId() );
-    }
-
-
     //-------------------------------------------------------------------------
     // Test the Add methods
     //-------------------------------------------------------------------------
