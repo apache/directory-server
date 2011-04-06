@@ -31,8 +31,6 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.DefaultDnFactory;
 import org.apache.directory.server.core.DnFactory;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
@@ -54,6 +52,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -130,7 +131,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
-        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -150,7 +151,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
-        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -172,7 +173,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
-        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -207,7 +208,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
-        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -242,7 +243,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         Dn apDn = dnFactory.create( "ou=system" );
         Dn entryDn = dnFactory.create( "ou=users,ou=system" );
-        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 

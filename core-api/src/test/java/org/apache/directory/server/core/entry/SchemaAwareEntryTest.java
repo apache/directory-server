@@ -223,7 +223,7 @@ public class SchemaAwareEntryTest
 
     /**
      * Test for method DefaultEntry( registries, Dn, AttributeType, upId )
-     */
+     *
     @Test
     public void testDefaultClientEntryRegistriesDNUpIdArray() throws Exception
     {

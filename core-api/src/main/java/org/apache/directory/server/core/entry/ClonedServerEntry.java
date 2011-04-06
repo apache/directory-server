@@ -163,9 +163,9 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean hasObjectClass( Attribute objectClass )
+    public boolean hasObjectClass( Attribute... objectClasses )
     {
-        return clonedEntry.hasObjectClass( objectClass );
+        return clonedEntry.hasObjectClass( objectClasses );
     }
 
 
@@ -307,11 +307,20 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean hasObjectClass( String objectClass )
+    public boolean hasObjectClass( String... objectClasses )
     {
-        return clonedEntry.hasObjectClass( objectClass );
+        return clonedEntry.hasObjectClass( objectClasses );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isSchemaAware()
+    {
+        return clonedEntry.isSchemaAware();
+    }
+    
 
     public Iterator<Attribute> iterator()
     {
