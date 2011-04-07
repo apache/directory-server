@@ -35,9 +35,9 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
@@ -141,7 +141,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( new Dn( "ou=users,ou=groups,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         entry.add( SchemaConstants.OU_AT, "users" );
 
@@ -149,7 +149,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         ModifyDnResponse resp = connection.rename( entry.getDn(), new Rdn( "ou=users" ) );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
 
-        Entry userzEntry = new DefaultEntry( new Dn( "ou=userz,ou=groups,ou=system" ) );
+        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system" );
         userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         userzEntry.add( SchemaConstants.OU_AT, "userz" );
 
@@ -396,13 +396,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( new Dn( "cn=toanother,ou=system" ) );
+        Entry entry = new DefaultEntry( "cn=toanother,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
         entry.add( "aliasedObjectName", "ou=users,ou=system" );
 
         connection.add( entry );
 
-        Entry aliasChild = new DefaultEntry( new Dn( "ou=blah,cn=toanother,ou=system" ) );
+        Entry aliasChild = new DefaultEntry( "ou=blah,cn=toanother,ou=system" );
         aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         aliasChild.add( SchemaConstants.OU_AT, "blah" );
 

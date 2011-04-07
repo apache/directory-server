@@ -266,7 +266,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean contains( Attribute... attributes ) throws LdapException
+    public boolean contains( Attribute... attributes )
     {
         return clonedEntry.contains( attributes );
     }

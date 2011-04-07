@@ -23,14 +23,14 @@ package org.apache.directory.server.core.entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -56,9 +56,9 @@ public class ClonedServerEntryTest
     @BeforeClass
     public static void initNames() throws Exception
     {
-        Entry eA = new DefaultEntry(new Dn( "dc=example,dc=com" ));
-        Entry eB = new DefaultEntry(new Dn( "dc=example,dc=com" ));
-        Entry eC = new DefaultEntry(new Dn( "dc=test,dc=org" ));
+        Entry eA = new DefaultEntry( "dc=example,dc=com" );
+        Entry eB = new DefaultEntry( "dc=example,dc=com" );
+        Entry eC = new DefaultEntry( "dc=test,dc=org" );
 
         clonedServerEntryA = new ClonedServerEntry();
         clonedServerEntryACopy = new ClonedServerEntry();

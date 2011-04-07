@@ -970,7 +970,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // create an entry subordinate to the user
-        Entry phoneBook = new DefaultEntry( new Dn( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) );
+        Entry phoneBook = new DefaultEntry( "ou=phoneBook,uid=billyd,ou=users,ou=system" );
         phoneBook.add( SchemaConstants.OU_AT, "phoneBook" );
         phoneBook.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
 

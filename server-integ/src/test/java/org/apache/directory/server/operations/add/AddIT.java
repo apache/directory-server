@@ -84,8 +84,8 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -291,7 +291,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new Dn( dn ) );
+        Entry kate = new DefaultEntry( dn );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -331,7 +331,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new Dn( dn ) );
+        Entry kate = new DefaultEntry( dn );
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
         kate.add( "cn", "Kate Bush" );
@@ -371,7 +371,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultEntry( new Dn( dn ) );
+        Entry kate = new DefaultEntry( dn );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -1271,7 +1271,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry entry = new DefaultEntry( new Dn( dn ) );
+        Entry entry = new DefaultEntry( dn );
         entry.add( "objectclass", "top", "person" );
         entry.add( "sn", "Bush" );
         entry.add( "cn", "Kate Bush" );

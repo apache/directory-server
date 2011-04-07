@@ -706,7 +706,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     protected Entry getPrincipalAttributes( String dn, String sn, String cn, String uid, String userPassword,
         String principal ) throws LdapException
     {
-        Entry entry = new DefaultEntry( new Dn( dn ) );
+        Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "inetOrgPerson", "krb5principal", "krb5kdcentry" );
         entry.add( SchemaConstants.CN_AT, cn );
         entry.add( SchemaConstants.SN_AT, sn );

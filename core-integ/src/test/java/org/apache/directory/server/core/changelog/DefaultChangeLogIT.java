@@ -34,13 +34,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +75,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         long revision = getService().getChangeLog().getCurrentRevision();
 
         // add new test entry
-        Entry entry = new DefaultEntry( new Dn( "ou=test0,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test0,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.add( SchemaConstants.OU_AT, "test0" );
         sysRoot.add( entry );
@@ -89,7 +88,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision + 1, t0.getRevision() );
 
         // add another test entry
-        entry = new DefaultEntry( new Dn( "ou=test1,ou=system" ) );
+        entry = new DefaultEntry( "ou=test1,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test1" );
         sysRoot.add( entry );
@@ -109,7 +108,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision + 2, t1.getRevision() );
 
         // add third test entry
-        entry = new DefaultEntry( new Dn( "ou=test2,ou=system" ) );
+        entry = new DefaultEntry( "ou=test2,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test2" );
         sysRoot.add( entry );
@@ -160,7 +159,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision, getService().getChangeLog().getCurrentRevision() );
 
         // add new test entry
-        Entry entry = new DefaultEntry( new Dn( "ou=test,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test" );
         sysRoot.add( entry );
@@ -185,7 +184,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     {
         LdapConnection sysRoot = getAdminConnection( getService() );
         Tag t0 = getService().getChangeLog().tag();
-        Entry entry = new DefaultEntry( new Dn( "ou=test,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test" );
         sysRoot.add( entry );
@@ -204,7 +203,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         Tag t0 = getService().getChangeLog().tag();
 
         // add new test entry
-        Entry entry = new DefaultEntry( new Dn( "ou=test,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test" );
         sysRoot.add( entry );
@@ -226,7 +225,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     public void testRevertDeleteOperations() throws Exception
     {
         LdapConnection sysRoot = getAdminConnection( getService() );
-        Entry entry = new DefaultEntry( new Dn( "ou=test,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test" );
         sysRoot.add( entry );
@@ -249,7 +248,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     public void testRevertRenameOperations() throws Exception
     {
         LdapConnection sysRoot = getAdminConnection( getService() );
-        Entry entry = new DefaultEntry( new Dn( "ou=oldname,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=oldname,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "oldname" );
         sysRoot.add( entry );
@@ -275,7 +274,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     public void testRevertModifyOperations() throws Exception
     {
         LdapConnection sysRoot = getAdminConnection( getService() );
-        Entry entry = new DefaultEntry( new Dn( "ou=test5,ou=system" ) );
+        Entry entry = new DefaultEntry( "ou=test5,ou=system" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test5" );
         sysRoot.add( entry );

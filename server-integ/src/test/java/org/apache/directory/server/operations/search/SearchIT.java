@@ -1607,7 +1607,7 @@ public class SearchIT extends AbstractLdapTestUnit
             for ( int i = 0; i < 1000; i++ )
             {
                 String dn = "cn=user" + i + "," + BASE;
-                Entry kate = new DefaultEntry( new Dn( dn ) );
+                Entry kate = new DefaultEntry( dn );
 
                 kate.add( "objectclass", "top", "person" );
                 kate.add( "sn", "Bush" );

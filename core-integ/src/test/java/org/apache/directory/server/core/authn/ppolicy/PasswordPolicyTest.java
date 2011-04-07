@@ -170,8 +170,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
-        Dn userDn = new Dn( "cn=hashedpwd,ou=system" );
-        Entry userEntry = new DefaultEntry( userDn );
+        Entry userEntry = new DefaultEntry( "cn=hashedpwd,ou=system" );
         userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
         userEntry.add( SchemaConstants.CN_AT, "hashedpwd" );
         userEntry.add( SchemaConstants.SN_AT, "hashedpwd_sn" );
@@ -198,7 +197,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
-        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=hashedpwd,ou=system", "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
     }
