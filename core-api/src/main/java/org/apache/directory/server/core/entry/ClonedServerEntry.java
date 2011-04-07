@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
@@ -377,6 +378,12 @@ public class ClonedServerEntry implements Entry
 
 
     public void setDn( Dn dn )
+    {
+        clonedEntry.setDn( dn );
+    }
+
+
+    public void setDn( String dn ) throws LdapInvalidDnException
     {
         clonedEntry.setDn( dn );
     }
