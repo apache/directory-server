@@ -41,8 +41,8 @@ import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
@@ -846,11 +846,12 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                     respRef.getReferral().addLdapUrl( url );
                 }
 
-                LdapUrl ldapUrl = new LdapUrl();
-                ldapUrl.setForceScopeRendering( true );
+                LdapUrl ldapUrl = null;
+                
                 try
                 {
-                    ldapUrl.parse( url.toCharArray() );
+                    ldapUrl = new LdapUrl( url );
+                    ldapUrl.setForceScopeRendering( true );
                 }
                 catch ( LdapURLEncodingException e )
                 {
@@ -1246,10 +1247,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // parse the ref value and normalize the Dn
-            LdapUrl ldapUrl = new LdapUrl();
+            LdapUrl ldapUrl = null;
+            
             try
             {
-                ldapUrl.parse( refstr.toCharArray() );
+                ldapUrl = new LdapUrl( refstr );
             }
             catch ( LdapURLEncodingException e )
             {
@@ -1375,10 +1377,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // Parse the ref value
-            LdapUrl ldapUrl = new LdapUrl();
+            LdapUrl ldapUrl = null;
+            
             try
             {
-                ldapUrl.parse( ref.toCharArray() );
+                ldapUrl = new LdapUrl( ref );
             }
             catch ( LdapURLEncodingException e )
             {
@@ -1447,10 +1450,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // parse the ref value and normalize the Dn
-            LdapUrl ldapUrl = new LdapUrl();
+            LdapUrl ldapUrl = null;
+            
             try
             {
-                ldapUrl.parse( ref.toCharArray() );
+                ldapUrl = new LdapUrl( ref );
             }
             catch ( LdapURLEncodingException e )
             {
