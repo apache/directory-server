@@ -147,7 +147,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             for ( Modification modification : modifyContext.getModItems() )
             {
                 AttributeType attributeType = schemaManager.getAttributeType( modification.getAttribute().getId() );
-                modification.applyAttributeType( attributeType );
+                modification.apply( attributeType );
             }
         }
         
