@@ -1092,18 +1092,16 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException
     {
-        Attribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+        Attribute supportedSaslMechanismsAt = null;
 
-        if ( supportedSaslMechanismsAttribute == null )
-        {
-            rootDSE.put( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT, (String)null );
-            supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
-        }
+        supportedSaslMechanismsAt = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT ) );
 
         for ( String saslMechanism : supportedSaslMechanisms )
         {
-            supportedSaslMechanismsAttribute.add( saslMechanism );
+            supportedSaslMechanismsAt.add( saslMechanism );
         }
+        
+        rootDSE.add( supportedSaslMechanismsAt );
     }
 
 
