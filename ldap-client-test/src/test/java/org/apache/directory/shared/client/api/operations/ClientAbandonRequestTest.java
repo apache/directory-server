@@ -35,9 +35,12 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.AbandonRequest;
+import org.apache.directory.shared.ldap.model.message.AbandonRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -76,7 +79,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
 
     @Test
-    public void testAbandonSearch() throws Exception
+    public void testCancelSearch() throws Exception
     {
         // injecting some values to keep the
         // followed search operation to run for a while
@@ -94,7 +97,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
             connection.add( entry );
         }
 
-        SearchRequest sr = new org.apache.directory.shared.ldap.model.message.SearchRequestImpl();
+        SearchRequest sr = new SearchRequestImpl();
         sr.setFilter( "(cn=*)" );
         sr.setBase( new Dn( "ou=system" ) );
         sr.setScope( SearchScope.ONELEVEL );
@@ -135,5 +138,50 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         results.close();
 
         assertEquals( numEntries, n );
+    }
+
+
+    @Test
+    public void testAbandonSearch() throws Exception
+    {
+        // injecting some values to keep the
+        // followed search operation to run for a while
+        final int numEntries = 100;
+
+        for ( int i = 0; i < numEntries; i++ )
+        {
+            String s = String.valueOf( i );
+            Dn dn = new Dn( "cn=" + s + ",ou=system" );
+            Entry entry = new DefaultEntry( dn );
+            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+            entry.add( SchemaConstants.CN_AT, s );
+            entry.add( SchemaConstants.SN_AT, s );
+
+            connection.add( entry );
+        }
+
+        // Launch the search now
+        Cursor<Response> cursor = connection.search( new Dn( "ou=system" ), "(cn=*)", SearchScope.ONELEVEL, "*" );
+
+        Response searchResponse = null;
+        int count = 0;
+
+        while ( cursor.next() )
+        {
+            searchResponse = cursor.get();
+            count++;
+
+            if ( count > 10 )
+            {
+                // Abandon the search request
+                AbandonRequest abandon = new AbandonRequestImpl( searchResponse.getMessageId() );
+                connection.abandon( abandon );
+            }
+        }
+        
+        cursor.close();
+
+        System.out.println( "Responses received / expected : " + count + "/" + numEntries );
+        assertTrue( numEntries > count );
     }
 }

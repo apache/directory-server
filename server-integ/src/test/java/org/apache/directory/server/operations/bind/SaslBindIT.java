@@ -610,7 +610,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Setup the bind request
-            BindRequestImpl request = new BindRequestImpl( 1 );
+            BindRequestImpl request = new BindRequestImpl();
+            request.setMessageId( 1 );
             request.setName( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type1response );
@@ -649,7 +650,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Setup the bind request
-            BindRequestImpl request = new BindRequestImpl( 2 );
+            BindRequestImpl request = new BindRequestImpl();
+            request.setMessageId( 2 );
             request.setName( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type3response );

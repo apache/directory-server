@@ -36,9 +36,9 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -592,7 +592,8 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new ModifyRequestImpl();
+        iModReq.setMessageId( newId );
 
         try
         {
@@ -642,7 +643,8 @@ public class LdapCoreSessionConnection implements LdapConnection
         ModifyResponse resp = new ModifyResponseImpl( newId );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
 
-        ModifyRequest iModReq = new ModifyRequestImpl( newId );
+        ModifyRequest iModReq = new ModifyRequestImpl();
+        iModReq.setMessageId( newId );
 
         try
         {
