@@ -154,6 +154,12 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-client-api</artifactId>
     </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-dsml-engine</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

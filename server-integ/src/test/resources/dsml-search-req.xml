@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap-env:Body>
+		<dsml:batchRequest xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<searchRequest dn="ou=system" scope="singleLevel"
+				derefAliases="neverDerefAliases" typesOnly="false" >
+				<filter>
+					<present name="objectClass">
+					</present>
+				</filter>
+				<attributes>
+				  <attribute name="*"/>
+				</attributes>
+			</searchRequest>
+		</dsml:batchRequest>
+	</soap-env:Body>
+</soap-env:Envelope>
