@@ -41,13 +41,12 @@ import org.apache.directory.shared.dsmlv2.reponse.SearchResponse;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test for demonstrating the NPE generated while processing a search DSML request by Dsmlv2Engine.
+ * Test for Dsmlv2Engine.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -78,11 +77,8 @@ public class Dsmlv2EngineTest extends AbstractLdapTestUnit
     }
 
 
-    //Enable WARN level logging to see the stacktrace
-    // e.x log4j.rootCategory=WARN, stdout
-    @Ignore("Failes with an NPE at org.apache.directory.shared.ldap.codec.decorators.SearchRequestDecorator.computeLength(SearchRequestDecorator.java:939)")
     @Test
-    public void testEngineWithDefaultBlockingResponse() throws Exception
+    public void testEngineWithSearchRequest() throws Exception
     {
         InputStream dsmlIn = getClass().getClassLoader().getResourceAsStream( "dsml-search-req.xml" );
 
@@ -91,7 +87,6 @@ public class Dsmlv2EngineTest extends AbstractLdapTestUnit
         engine.processDSML( dsmlIn, byteOut );
 
         Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapCodecServiceFactory.getSingleton() );
-        System.out.println( byteOut.toString() );
         respParser.setInput( byteOut.toString() );
 
         respParser.parseAllResponses();
