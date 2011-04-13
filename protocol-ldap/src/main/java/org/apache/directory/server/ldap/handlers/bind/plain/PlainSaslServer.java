@@ -22,6 +22,9 @@ package org.apache.directory.server.ldap.handlers.bind.plain;
 
 import java.io.IOException;
 
+import javax.naming.InvalidNameException;
+import javax.security.sasl.SaslException;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -33,9 +36,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.PrepareString;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
-
-import javax.naming.InvalidNameException;
-import javax.security.sasl.SaslException;
 
 
 /**
@@ -126,6 +126,11 @@ public class PlainSaslServer extends AbstractSaslServer
             // - the optional authzId
             // - the authId
             // - the password
+            // The message should have this structure :
+            // message   = [authzid] '0x00' authcid '0x00' passwd
+            // authzid   = 1*SAFE ; MUST accept up to 255 octets
+            // authcid   = 1*SAFE ; MUST accept up to 255 octets
+            // passwd    = 1*SAFE ; MUST accept up to 255 octets
             InitialResponse element = InitialResponse.AUTHZID_EXPECTED;
             String authzId = null;
             String authcId = null;

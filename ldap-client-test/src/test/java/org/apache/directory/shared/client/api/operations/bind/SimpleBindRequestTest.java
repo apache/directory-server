@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -133,6 +134,41 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
             assertTrue( connection.isAuthenticated() );
         }
+    }
+
+
+    /**
+     * Test a successful simple bind request.
+     */
+    @Test
+    public void testSimpleBindRequest() throws Exception
+    {
+        BindRequest bindRequest = new BindRequestImpl();
+        bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
+        bindRequest.setCredentials( "secret" );
+
+        BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * Test a successful anonymous bind request.
+     */
+    @Test
+    @Ignore // TODO : FIXME ! We get a NPE low in the code because the name is null
+    public void testAnonymousBindRequest() throws Exception
+    {
+        BindRequest bindRequest = new BindRequestImpl();
+
+        BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
     }
 
 
