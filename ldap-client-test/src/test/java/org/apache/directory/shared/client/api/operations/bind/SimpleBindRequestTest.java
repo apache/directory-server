@@ -179,6 +179,24 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
 
     /**
+     * Test a failing anonymous bind request.
+     */
+    @Test
+    public void testAnonymousBindRequestNotAllowed() throws Exception
+    {
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
+        
+        BindResponse bindResponse = connection.bind();
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResponse.getLdapResult().getResultCode() );
+        
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
+
+        bindResponse = connection.bind();
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+    }
+
+
+    /**
      * Test an Anonymous BindRequest
      */
     @Test
