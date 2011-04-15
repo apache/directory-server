@@ -171,6 +171,8 @@
               <exclude>**/.classpath</exclude>
               <exclude>**/.project</exclude>
               <exclude>**/.settings/**/*</exclude>
+              <!-- ECLIPSE_LAUNCH_EXCLUDES -->
+              <exclude>**/ApacheDS.launch</exclude>
               <!-- IDEA_DEFAULT_EXCLUDES -->
               <exclude>**/*.iml</exclude>
               <exclude>**/*.ipr</exclude>
