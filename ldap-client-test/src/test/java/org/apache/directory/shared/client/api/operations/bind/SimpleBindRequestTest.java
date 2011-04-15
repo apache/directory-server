@@ -39,6 +39,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,9 +64,16 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=superuser,ou=system", "objectClass: person", "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", "objectClass: top", "cn: superuser", "sn: administrator",
-        "displayName: Directory Superuser", "uid: superuser", "userPassword: test" })
+        "dn: uid=superuser,ou=system", 
+        "objectClass: person", 
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson", 
+        "objectClass: top", 
+        "cn: superuser", 
+        "sn: administrator",
+        "displayName: Directory Superuser", 
+        "uid: superuser", 
+        "userPassword: test" })
 public class SimpleBindRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
@@ -159,7 +166,6 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
      * Test a successful anonymous bind request.
      */
     @Test
-    @Ignore // TODO : FIXME ! We get a NPE low in the code because the name is null
     public void testAnonymousBindRequest() throws Exception
     {
         BindRequest bindRequest = new BindRequestImpl();
@@ -255,12 +261,22 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindUnauthenticated() throws Exception
     {
-        BindResponse response = connection.bind( "uid=admin,ou=system", ( String ) null );
+        BindResponse response = connection.bind( "uid=admin,ou=system" );
         LdapResult ldapResult = response.getLdapResult();
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, ldapResult.getResultCode() );
         assertEquals( 1, response.getMessageId() );
         assertFalse( connection.isAuthenticated() );
         assertTrue( connection.isConnected() );
+    }
+
+
+    /**
+     * Test an bind with no password
+     */
+    @Test( expected=LdapAuthenticationException.class )
+    public void testSimpleBindNoPassword() throws Exception
+    {
+        connection.bind( "uid=admin,ou=system", ( String ) null );
     }
 
 

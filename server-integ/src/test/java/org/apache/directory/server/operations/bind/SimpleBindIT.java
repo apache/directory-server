@@ -71,8 +71,14 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=hnelson,ou=users,ou=system", "objectClass: inetOrgPerson", "objectClass: organizationalPerson",
-        "objectClass: person", "objectClass: top", "userPassword: secret", "uid: hnelson", "cn: Horatio Nelson",
+        "dn: uid=hnelson,ou=users,ou=system", 
+        "objectClass: inetOrgPerson", 
+        "objectClass: organizationalPerson",
+        "objectClass: person", 
+        "objectClass: top", 
+        "userPassword: secret", 
+        "uid: hnelson",
+        "cn: Horatio Nelson",
         "sn: Nelson" })
 @CreateDS(allowAnonAccess = true, name = "SimpleBindIT-class")
 @CreateLdapServer(transports =

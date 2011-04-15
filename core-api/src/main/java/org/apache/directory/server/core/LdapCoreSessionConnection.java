@@ -1209,6 +1209,21 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    public BindResponse bind( Dn name ) throws LdapException, IOException
+    {
+        byte[] credBytes = StringConstants.EMPTY_BYTES;
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setName( name );
+        bindReq.setCredentials( credBytes );
+
+        return bind( bindReq );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public BindResponse bind( Dn name, String credentials ) throws LdapException, IOException
     {
         byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
@@ -1218,6 +1233,15 @@ public class LdapCoreSessionConnection implements LdapConnection
         bindReq.setCredentials( credBytes );
 
         return bind( bindReq );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public BindResponse bind( String name ) throws LdapException, IOException
+    {
+        return bind( new Dn( schemaManager, name ), null );
     }
 
 
