@@ -981,7 +981,17 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( policyConfig.isPwdLockout() && ( numFailures >= policyConfig.getPwdMaxFailure() ) )
                 {
                     Attribute pwdAccountLockedTimeAt = new DefaultAttribute( AT_PWD_ACCOUNT_LOCKED_TIME );
-                    pwdAccountLockedTimeAt.add( failureTime );
+
+                    // if zero, lockout permanently, only admin can unlock it
+                    if ( policyConfig.getPwdLockoutDuration() == 0 )
+                    {
+                        pwdAccountLockedTimeAt.add( "000001010000Z" );
+                    }
+                    else
+                    {
+                        pwdAccountLockedTimeAt.add( failureTime );
+                    }
+                    
                     Modification pwdAccountLockedMod = new DefaultModification( ADD_ATTRIBUTE, pwdAccountLockedTimeAt );
                     mods.add( pwdAccountLockedMod );
 
