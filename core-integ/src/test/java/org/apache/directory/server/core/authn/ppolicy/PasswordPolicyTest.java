@@ -25,7 +25,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getNetwork
 import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
 import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -204,6 +205,48 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
+    public void testPwdLockout() throws Exception
+    {
+        policyConfig.setPwdMaxFailure( 2 );
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdLockoutDuration( 0 );
+        policyConfig.setPwdGraceAuthNLimit( 2 );
+        policyConfig.setPwdFailureCountInterval( 1 );
+        
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        
+        Dn userDn = new Dn( "cn=user,ou=system" );
+        Entry userEntry = new DefaultEntry( 
+            userDn.toString(), 
+            "ObjectClass: top", 
+            "ObjectClass: person", 
+            "cn: user",
+            "sn: user_sn", 
+            "userPassword: 12345" );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        AddResponse addResp = connection.add( addRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        assertNull( respCtrl );
+
+        for( int i=0; i< 4; i++ )
+        {
+            LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "1234" );// wrong password
+            assertNotNull( userConnection );
+            assertFalse( userConnection.isAuthenticated() );
+        }
+        
+        userEntry = connection.lookup( userDn, "+" );
+        Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
+        assertNotNull( pwdAccountLockedTime );
+    }
+
+    
+    @Test
     public void testPwdMinAge() throws Exception
     {
         policyConfig.setPwdMinAge( 5 );
@@ -253,12 +296,14 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
-        CodecControl<? extends Control> ctrl = codec.newControl( resp.getControls().get( PP_REQ_CTRL.getOid() ) );
-
-        if ( ctrl == null )
+        Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );
+        
+        if ( control == null )
         {
             return null;
         }
+
+        CodecControl<? extends Control> ctrl = codec.newControl( control );
 
         PasswordPolicyDecorator respCtrl = new PasswordPolicyDecorator( codec );
         respCtrl.setValue( ctrl.getValue() );
