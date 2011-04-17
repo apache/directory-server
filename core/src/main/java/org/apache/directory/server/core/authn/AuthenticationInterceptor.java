@@ -1012,7 +1012,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
                 bindModCtx.setByPassed( BYPASS_INTERCEPTORS );
                 bindModCtx.setDn( dn );
-                bindModCtx.setModItems( Collections.singletonList( pwdFailTimeMod ) );
+                bindModCtx.setModItems( mods );
                 directoryService.getOperationManager().modify( bindModCtx );
             }
 
