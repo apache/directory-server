@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_EXPIRE_WARNING_AT;
@@ -81,9 +81,9 @@ import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

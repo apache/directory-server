@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.ACCOUNT_LOCKED;
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.ACCOUNT_LOCKED;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
