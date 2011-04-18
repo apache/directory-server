@@ -23,6 +23,7 @@ ads-servers: ldapServer
 ads-servers: ntpServer
 ads-partitions: example
 ads-partitions: system
+ads-passwordPolicies: default
 ads-interceptors: aciAuthorizationInterceptor
 ads-interceptors: authenticationInterceptor
 ads-interceptors: collectiveAttributeInterceptor
@@ -216,11 +217,16 @@ ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterc
 ads-interceptorid: triggerInterceptor
 ads-enabled: TRUE
 
-dn: ads-pwdId=pwdPolicy,ads-directoryServiceId=default,ou=config
+dn: ou=passwordPolicies,ads-directoryServiceId=default,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: passwordPolicies
+
+dn: ads-pwdId=default,ou=passwordPolicies,ads-directoryServiceId=default,ou=config
 objectClass: top
 objectClass: ads-base
 objectClass: ads-passwordPolicy
-ads-pwdId: pwdPolicy
+ads-pwdId: default
 ads-pwdSafeModify: FALSE
 ads-pwdMaxAge: 0
 ads-pwdFailureCountInterval: 30

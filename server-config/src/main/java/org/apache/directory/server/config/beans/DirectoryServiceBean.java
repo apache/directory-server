@@ -90,8 +90,8 @@ public class DirectoryServiceBean extends AdsBaseBean
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
     /** The reference to the Password Policy component */
-    @ConfigurationElement
-    private PasswordPolicyBean passwordPolicy;
+    @ConfigurationElement(attributeType = "ads-passwordPolicies", container = "passwordPolicies")
+    private List<PasswordPolicyBean> passwordPolicies = new ArrayList<PasswordPolicyBean>();
 
 
     /**
@@ -524,23 +524,35 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return the passwordPolicy
+     * @return the passwordPolicies
      */
-    public PasswordPolicyBean getPasswordPolicy()
+    public List<PasswordPolicyBean> getPasswordPolicies()
     {
-        return passwordPolicy;
+        return passwordPolicies;
     }
 
 
     /**
-     * @param passwordPolicy the passwordPolicy to set
+     * @param passwordPolicies the pwdPolicies to set
      */
-    public void setPasswordPolicy( PasswordPolicyBean passwordPolicy )
+    public void setPasswordPolicies( List<PasswordPolicyBean> passwordPolicies )
     {
-        this.passwordPolicy = passwordPolicy;
+        this.passwordPolicies = passwordPolicies;
     }
 
 
+    /**
+     * @param ppolicies the password policies to add
+     */
+    public void addPasswordPolicies( PasswordPolicyBean... ppolicies )
+    {
+        for ( PasswordPolicyBean ppolicy : ppolicies )
+        {
+            this.passwordPolicies.add( ppolicy );
+        }
+    }
+
+    
     /**
      * {@inheritDoc}
      */
@@ -592,9 +604,12 @@ public class DirectoryServiceBean extends AdsBaseBean
             sb.append( changeLog.toString( "  " ) );
         }
 
-        if ( passwordPolicy != null )
+        if ( ( passwordPolicies != null ) && ( passwordPolicies.size() > 0 ) )
         {
-            sb.append( passwordPolicy.toString( "  " ) );
+            for ( PasswordPolicyBean ppolicy : passwordPolicies )
+            {
+                sb.append( ppolicy.toString( "    " ) );
+            }
         }
 
         sb.append( "  servers : \n" );

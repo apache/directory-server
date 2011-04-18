@@ -1270,15 +1270,29 @@ public class ServiceBuilder
             directoryService.setJournal( jl );
         }
         
-        // password policy
-        // TODO add support for reading multiple policies from the config
-        PasswordPolicyConfiguration pPolicyConfig = createPwdPolicyConfig( directoryServiceBean.getPasswordPolicy() );
-        if ( pPolicyConfig != null )
+        // password policies
+        List<PasswordPolicyBean> ppolicyBeans = directoryServiceBean.getPasswordPolicies();
+        PpolicyConfigContainer ppolicyContainer = new  PpolicyConfigContainer();
+
+        for ( PasswordPolicyBean ppolicyBean : ppolicyBeans )
         {
-            PpolicyConfigContainer pPolicies = new  PpolicyConfigContainer();
-            pPolicies.setDefaultPolicy( pPolicyConfig );
-            directoryService.setPwdPolicies( pPolicies );
+            PasswordPolicyConfiguration ppolicyConfig = createPwdPolicyConfig( ppolicyBean );
+            
+            if ( ppolicyConfig != null )
+            {
+                // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
+                if ( ppolicyBean.getPwdId().equalsIgnoreCase( "default" ) )
+                {
+                    ppolicyContainer.setDefaultPolicy( ppolicyConfig );
+                }
+                else
+                {
+                    ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+                }
+            }
         }
+        
+        directoryService.setPwdPolicies( ppolicyContainer );
         
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
