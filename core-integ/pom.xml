@@ -125,6 +125,10 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <codec.plugin.directory>${project.build.directory}/pluginDirectory</codec.plugin.directory>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -175,6 +179,30 @@
               </excludes>
             </configuration>
           </plugin>
+        
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.directory.shared</groupId>
+                      <artifactId>shared-ldap-extras-codec</artifactId>
+                      <version>${org.apache.directory.shared.version}</version>
+                      <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -216,11 +244,11 @@
             </configuration>
             <executions>
               <!-- AVL execution -->
-       		  <execution>
-       		    <id>avl</id>
-       		    <goals>
-       		      <goal>test</goal>
-       		    </goals>
+              <execution>
+                <id>avl</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
@@ -240,11 +268,11 @@
                 </configuration>
               </execution>
               <!-- LDIF execution -->
-       		  <execution>
-       		    <id>ldif</id>
-       		    <goals>
-       		      <goal>test</goal>
-       		    </goals>
+              <execution>
+                <id>ldif</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
@@ -261,6 +289,29 @@
 	                  ${project.build.directory}/osgi-cache
 	                </org.osgi.framework.storage>
                   </systemPropertyVariables>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.directory.shared</groupId>
+                      <artifactId>shared-ldap-extras-codec</artifactId>
+                      <version>${org.apache.directory.shared.version}</version>
+                      <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
                 </configuration>
               </execution>
             </executions>
@@ -321,6 +372,30 @@ WARNING: Long running integration tests have been disabled!
                 <goals>
                   <goal>run</goal>
                 </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.directory.shared</groupId>
+                      <artifactId>shared-ldap-extras-codec</artifactId>
+                      <version>${org.apache.directory.shared.version}</version>
+                      <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
               </execution>
             </executions>
           </plugin>
