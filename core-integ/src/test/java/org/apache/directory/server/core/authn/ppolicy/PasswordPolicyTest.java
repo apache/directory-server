@@ -22,10 +22,11 @@ package org.apache.directory.server.core.authn.ppolicy;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
-import static org.apache.directory.shared.ldap.extras.controls.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
-import static org.junit.Assert.*;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -41,12 +42,11 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.codec.api.CodecControl;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
-import org.apache.directory.shared.ldap.extras.controls.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.PasswordPolicyImpl;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator;
+import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -303,10 +303,27 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
             return null;
         }
 
+        /*
         CodecControl<? extends Control> ctrl = codec.newControl( control );
 
-        PasswordPolicyDecorator respCtrl = new PasswordPolicyDecorator( codec );
-        respCtrl.setValue( ctrl.getValue() );
-        return respCtrl;
+        PasswordPolicyDecorator respCtrl = control;
+        respCtrl.setValue( ((PasswordPolicyDecorator)control).getValue() );*/
+        
+        System.out.println( control.getClass().getCanonicalName() );
+        PasswordPolicyDecorator decorator = ((PasswordPolicyDecorator)control);
+        
+        if ( control instanceof org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator )
+        {
+            decorator = ((PasswordPolicyDecorator)control);
+            PasswordPolicy passwordPolicy = decorator.getDecorated();
+            
+            return passwordPolicy;
+        }
+        else if ( control instanceof org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator )
+        {
+            return (PasswordPolicy)control;
+        }
+        
+        return ((PasswordPolicyDecorator)control).getDecorated();
     }
 }
