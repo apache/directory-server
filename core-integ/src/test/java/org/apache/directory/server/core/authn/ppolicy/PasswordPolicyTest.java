@@ -303,27 +303,6 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
             return null;
         }
 
-        /*
-        CodecControl<? extends Control> ctrl = codec.newControl( control );
-
-        PasswordPolicyDecorator respCtrl = control;
-        respCtrl.setValue( ((PasswordPolicyDecorator)control).getValue() );*/
-        
-        System.out.println( control.getClass().getCanonicalName() );
-        PasswordPolicyDecorator decorator = ((PasswordPolicyDecorator)control);
-        
-        if ( control instanceof org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator )
-        {
-            decorator = ((PasswordPolicyDecorator)control);
-            PasswordPolicy passwordPolicy = decorator.getDecorated();
-            
-            return passwordPolicy;
-        }
-        else if ( control instanceof org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator )
-        {
-            return (PasswordPolicy)control;
-        }
-        
         return ((PasswordPolicyDecorator)control).getDecorated();
     }
 }
