@@ -118,17 +118,6 @@
        <artifactId>ehcache-core</artifactId>
    </dependency>
 
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-extras-codec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-extras-codec</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>

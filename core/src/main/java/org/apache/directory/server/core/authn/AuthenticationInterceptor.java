@@ -367,7 +367,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     PasswordPolicyDecorator responseControl = 
                         new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError( e.getErrorCode() );
+                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
                     addContext.addResponseControl( responseControl );
                 }
 
@@ -595,7 +595,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         PasswordPolicyDecorator responseControl = 
                             new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( e.getErrorCode() );
+                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
                         modifyContext.addResponseControl( responseControl );
                     }
 
@@ -921,7 +921,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             if ( isPPolicyReqCtrlPresent )
             {
-                pwdRespCtrl.getResponse().setPasswordPolicyError( ppe.getErrorCode() );
+                pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( ppe.getErrorCode() ) );
                 bindContext.addResponseControl( pwdRespCtrl );
             }
 
@@ -1175,7 +1175,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             else
             {
                 throw new PasswordPolicyException( "cannot verify the quality of the non-cleartext passwords",
-                    INSUFFICIENT_PASSWORD_QUALITY );
+                    INSUFFICIENT_PASSWORD_QUALITY.getValue() );
             }
         }
 
@@ -1203,7 +1203,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( pwdLen > maxLen )
             {
                 throw new PasswordPolicyException( "Password should not have more than " + maxLen + " characters",
-                    INSUFFICIENT_PASSWORD_QUALITY );
+                    INSUFFICIENT_PASSWORD_QUALITY.getValue() );
             }
         }
 
@@ -1212,7 +1212,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( pwdLen < minLen )
             {
                 throw new PasswordPolicyException( "Password should have a minmum of " + minLen + " characters",
-                    PASSWORD_TOO_SHORT );
+                    PASSWORD_TOO_SHORT.getValue() );
             }
         }
     }

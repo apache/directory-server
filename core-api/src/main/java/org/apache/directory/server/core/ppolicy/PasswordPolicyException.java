@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.ppolicy;
 
 
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
@@ -34,8 +33,10 @@ public class PasswordPolicyException extends LdapException
     private static final long serialVersionUID = -9158126177779964262L;
 
     /** password policy error code */
-    private PasswordPolicyErrorEnum errorCode;
+    private int errorCode;
 
+    /** the array of valid error codes representing password policy errors */
+    private static final int[] VALID_CODES = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
     public PasswordPolicyException( Throwable cause )
     {
@@ -49,21 +50,44 @@ public class PasswordPolicyException extends LdapException
     }
 
 
-    public PasswordPolicyException( String message, PasswordPolicyErrorEnum errorCode )
+    public PasswordPolicyException( String message, int errorCode )
     {
         super( message );
+        validateErrorCode( errorCode );
         this.errorCode = errorCode;
     }
 
 
-    public PasswordPolicyException( PasswordPolicyErrorEnum errorCode )
+    public PasswordPolicyException( int errorCode )
     {
+        validateErrorCode( errorCode );
         this.errorCode = errorCode;
     }
 
 
-    public PasswordPolicyErrorEnum getErrorCode()
+    public int getErrorCode()
     {
         return errorCode;
+    }
+    
+    
+    /**
+     * this method checks if the given error code is valid or not.
+     * This method was created cause using PasswordPolicyErrorEnum class creates some 
+     * unwanted dependency issues on core-api
+     * 
+     * @param errorCode the error code of password policy
+     */
+    private void validateErrorCode( int errorCode )
+    {
+        for ( int i : VALID_CODES )
+        {
+            if ( i == errorCode )
+            {
+                return;
+            }
+        }
+        
+        throw new IllegalArgumentException( "Unknown password policy response error code " + errorCode );
     }
 }

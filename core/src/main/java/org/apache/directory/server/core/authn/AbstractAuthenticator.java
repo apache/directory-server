@@ -171,7 +171,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 String lockedTime = accountLockAttr.getString();
                 if( lockedTime.equals( "000001010000Z" ) )
                 {
-                    throw new PasswordPolicyException( "account was permanently locked", ACCOUNT_LOCKED );
+                    throw new PasswordPolicyException( "account was permanently locked", ACCOUNT_LOCKED.getValue() );
                 }
                 else
                 {
@@ -182,7 +182,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                     Date unlockedDate = new Date( time );
                     if( lockedDate.before( unlockedDate ) )
                     {
-                        throw new PasswordPolicyException( "account will remain locked till " + unlockedDate, ACCOUNT_LOCKED );
+                        throw new PasswordPolicyException( "account will remain locked till " + unlockedDate, ACCOUNT_LOCKED.getValue() );
                     }
                     else
                     {
@@ -203,7 +203,7 @@ public abstract class AbstractAuthenticator implements Authenticator
             
             if( System.currentTimeMillis() < pwdStartTime.getTime() )
             {
-                throw new PasswordPolicyException( "account is locked, will be activated after " + pwdStartTime, ACCOUNT_LOCKED ); 
+                throw new PasswordPolicyException( "account is locked, will be activated after " + pwdStartTime, ACCOUNT_LOCKED.getValue() ); 
             }
         }
         
@@ -214,7 +214,7 @@ public abstract class AbstractAuthenticator implements Authenticator
             
             if( System.currentTimeMillis() >= pwdEndTime.getTime() )
             {
-                throw new PasswordPolicyException( "password end time reached, will be locked till administrator activates it", ACCOUNT_LOCKED );
+                throw new PasswordPolicyException( "password end time reached, will be locked till administrator activates it", ACCOUNT_LOCKED.getValue() );
             }
         }
         
@@ -226,7 +226,7 @@ public abstract class AbstractAuthenticator implements Authenticator
             
             if( System.currentTimeMillis() >= time )
             {
-                throw new PasswordPolicyException( "account locked due to the max idle time of the password was exceeded", ACCOUNT_LOCKED );
+                throw new PasswordPolicyException( "account locked due to the max idle time of the password was exceeded", ACCOUNT_LOCKED.getValue() );
             }
         }
         
@@ -241,7 +241,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 {
                     if( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() )
                     {
-                        throw new PasswordPolicyException( "paasword expired and max grace logins were used", PASSWORD_EXPIRED );
+                        throw new PasswordPolicyException( "paasword expired and max grace logins were used", PASSWORD_EXPIRED.getValue() );
                     }
                 }
             }
@@ -252,7 +252,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 
                 if( expired )
                 {
-                    throw new PasswordPolicyException( "paasword expired", PASSWORD_EXPIRED );
+                    throw new PasswordPolicyException( "paasword expired", PASSWORD_EXPIRED.getValue() );
                 }
             }
         }
