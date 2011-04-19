@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.ppolicy;
 
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

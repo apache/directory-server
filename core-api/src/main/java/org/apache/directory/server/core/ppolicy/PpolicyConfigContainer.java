@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.ppolicy;
 
 
 import java.util.HashMap;

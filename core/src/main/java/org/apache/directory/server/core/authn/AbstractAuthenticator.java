@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;

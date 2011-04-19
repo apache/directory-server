@@ -71,6 +71,8 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.DefaultSchemaService;
