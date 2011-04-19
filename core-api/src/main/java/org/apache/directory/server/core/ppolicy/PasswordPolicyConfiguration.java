@@ -151,6 +151,9 @@ public class PasswordPolicyConfiguration
      */
     private int pwdMaxIdle = 0;
 
+    /** validator used for checking the quality of password */
+    //TODO to be injected from config  
+    private PasswordValidator pwdValidator = DefaultPasswordValidator.INSTANCE;
 
     public String getPwdAttribute()
     {
@@ -389,6 +392,24 @@ public class PasswordPolicyConfiguration
     public void setPwdMaxIdle( int pwdMaxIdle )
     {
         this.pwdMaxIdle = pwdMaxIdle;
+    }
+
+
+    /**
+     * @return the pwdValidator
+     */
+    public PasswordValidator getPwdValidator()
+    {
+        return pwdValidator;
+    }
+
+
+    /**
+     * @param pwdValidator the pwdValidator to set
+     */
+    public void setPwdValidator( PasswordValidator pwdValidator )
+    {
+        this.pwdValidator = pwdValidator;
     }
 
 

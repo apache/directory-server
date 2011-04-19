@@ -95,7 +95,6 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -357,14 +356,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             BinaryValue userPassword = ( BinaryValue ) entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
 
-            if ( entry.get( SchemaConstants.CN_AT ) != null )
-            {
-                StringValue attr = ( StringValue ) entry.get( SchemaConstants.CN_AT ).get();
-                username = attr.getString();
-            }
-
             try
             {
+                username = entry.getDn().getRdn().getUpValue().getString();
                 check( username, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
@@ -588,16 +582,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
             byte[] newPassword = null;
             if ( ( pwdModDetails != null ) )
             {
-                String userName = null;
-                if ( entry.get( SchemaConstants.CN_AT ) != null )
-                {
-                    StringValue attr = ( StringValue ) entry.get( SchemaConstants.CN_AT ).get();
-                    userName = attr.getString();
-                }
-
                 newPassword = pwdModDetails.getNewPwd();
+                
                 try
                 {
+                    String userName = entry.getDn().getRdn().getUpValue().getString();
                     check( userName, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )
@@ -1191,9 +1180,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         String strPassword = Strings.utf8ToString(password);
+        
+        // perform the length validation
         validatePasswordLength( strPassword, policyConfig );
-        checkUsernameSubstring( username, strPassword, policyConfig );
-        //        checkPasswordChars( strPassword );
+        
+        policyConfig.getPwdValidator().validate( strPassword, username );
     }
 
 
@@ -1222,38 +1213,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 throw new PasswordPolicyException( "Password should have a minmum of " + minLen + " characters",
                     PASSWORD_TOO_SHORT );
-            }
-        }
-    }
-
-
-    /**
-     * The password does not contain three letter (or more) tokens from the user's account name.
-     *
-     * If the account name is less than three characters long, this check is not performed
-     * because the rate at which passwords would be rejected is too high. For each token that is
-     * three or more characters long, that token is searched for in the password; if it is present,
-     * the password change is rejected. For example, the name "First M. Last" would be split into
-     * three tokens: "First", "M", and "Last". Because the second token is only one character long,
-     * it would be ignored. Therefore, this user could not have a password that included either
-     * "first" or "last" as a substring anywhere in the password. All of these checks are
-     * case-insensitive.
-     */
-    private void checkUsernameSubstring( String username, String password, PasswordPolicyConfiguration policyConfig ) throws PasswordPolicyException
-    {
-        if ( username == null || username.trim().length() == 0 )
-        {
-            return;
-        }
-
-        String[] tokens = username.split( "[^a-zA-Z]" );
-
-        for ( int ii = 0; ii < tokens.length; ii++ )
-        {
-            if ( password.matches( "(?i).*" + tokens[ii] + ".*" ) )
-            {
-                throw new PasswordPolicyException( "Password shouldn't contain parts of the username",
-                    INSUFFICIENT_PASSWORD_QUALITY );
             }
         }
     }
