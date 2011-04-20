@@ -35,8 +35,6 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
@@ -566,28 +564,6 @@ public interface DirectoryService extends ServerEntryFactory
      * @return true if the password policy is enabled, false otherwise
      */
     boolean isPwdPolicyEnabled();
-    
-
-    /**
-     * Gets the effective password policy of the given entry. 
-     * If the entry has defined a custom password policy by setting "pwdPolicySubentry" attribute
-     * then the password policy associated with the Dn specified at the above attribute's value will be returned.
-     * Otherwise the default password policy will be returned (if present)
-     * 
-     * @param userEntry the user's entry
-     * @return the associated password policy
-     * @throws LdapException
-     */
-    PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException;
-    
-    
-    /**
-     * set all the password policies to be used by the server.
-     * This includes a default(i.e applicable to all entries) and custom(a.k.a per user) password policies
-     *  
-     * @param policyContainer the container holding all the password policies
-     */
-    void setPwdPolicies( PpolicyConfigContainer policyContainer );
 
 
     /**

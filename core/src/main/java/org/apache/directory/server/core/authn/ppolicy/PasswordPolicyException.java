@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.ppolicy;
+package org.apache.directory.server.core.authn.ppolicy;
 
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;

@@ -40,8 +40,6 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -108,7 +106,8 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
         policyContainer.setDefaultPolicy( policyConfig );
-        getService().setPwdPolicies( policyContainer );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getService().getInterceptor( AuthenticationInterceptor.class.getName() );
+        authenticationInterceptor.setPwdPolicies( policyContainer );
         
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
         .getInterceptor( AuthenticationInterceptor.class.getName() );

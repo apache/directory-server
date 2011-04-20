@@ -44,6 +44,7 @@ import org.apache.directory.server.core.administrative.CollectiveAttributeAdmini
 import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
 import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -71,8 +72,6 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.DefaultSchemaService;
@@ -89,9 +88,9 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -102,7 +101,6 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.apache.directory.shared.util.DateUtils;
@@ -267,12 +265,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The TriggerExecution AdministrativePoint cache */
     private DnNode<TriggerExecutionAdministrativePoint> triggerExecutionAPCache;
-
-    /** a container to hold all the ppolicies */
-    private PpolicyConfigContainer pwdPolicyContainer;
-
-    /** the pwdPolicySubentry AT */
-    private AttributeType pwdPolicySubentryAT;
 
     /** The Dn factory */
     private DnFactory dnFactory;
@@ -1493,8 +1485,6 @@ public class DefaultDirectoryService implements DirectoryService
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffix().apply( schemaManager );
 
-        pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
-        
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), this );
 
@@ -1887,46 +1877,20 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
-    {
-        if ( pwdPolicyContainer == null )
-        {
-            return null;
-        }
-        
-        if ( pwdPolicyContainer.hasCustomConfigs() )
-        {
-            Attribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
-            
-            if ( pwdPolicySubentry != null )
-            {
-                Dn configDn = getDnFactory().create( pwdPolicySubentry.getString() );
-                
-                return pwdPolicyContainer.getPolicyConfig( configDn );
-            }
-        }
-        
-        return pwdPolicyContainer.getDefaultPolicy();
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
     public boolean isPwdPolicyEnabled()
     {
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getName() );
+        
+        if ( authenticationInterceptor == null )
+        {
+            return false;
+        }
+
+        PpolicyConfigContainer pwdPolicyContainer = authenticationInterceptor.getPwdPolicyContainer();
+        
         return ( ( pwdPolicyContainer != null ) 
                 && ( ( pwdPolicyContainer.getDefaultPolicy() != null ) 
                 || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPwdPolicies( PpolicyConfigContainer policyContainer )
-    {
-        this.pwdPolicyContainer = policyContainer;
     }
 
 

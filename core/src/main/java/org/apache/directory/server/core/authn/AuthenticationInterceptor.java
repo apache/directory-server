@@ -50,6 +50,9 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
@@ -76,8 +79,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
@@ -150,6 +151,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private AttributeType AT_PWD_GRACE_USE_TIME;
 
+    /** a container to hold all the ppolicies */
+    private PpolicyConfigContainer pwdPolicyContainer;
+
+    /** the pwdPolicySubentry AT */
+    private AttributeType pwdPolicySubentryAT;
+
 
     /**
      * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
@@ -192,8 +199,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         adminSession = directoryService.getAdminSession();
-
-        loadPwdPolicyStateAtributeTypes();
+        pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
 
         if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
         {
@@ -205,6 +211,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             register( authenticator, directoryService );
         }
+
+        loadPwdPolicyStateAtributeTypes();
     }
 
 
@@ -344,7 +352,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return;
         }
         
-        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( entry );
+        PasswordPolicyConfiguration policyConfig = getPwdPolicy( entry );
 
         boolean isPPolicyReqCtrlPresent = addContext.hasRequestControl( PasswordPolicy.OID );
 
@@ -503,7 +511,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
-        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( modifyContext.getOriginalEntry() );
+        PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getOriginalEntry() );
         
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
         Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
@@ -931,7 +939,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         Dn dn = bindContext.getDn();
         Entry userEntry = bindContext.getEntry();
         
-        PasswordPolicyConfiguration policyConfig = directoryService.getPwdPolicy( userEntry );
+        PasswordPolicyConfiguration policyConfig = getPwdPolicy( userEntry );
         
         // check if the user entry is null, it will be null
         // in cases of anonymous bind
@@ -1438,5 +1446,79 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             this.newPwd = newPwd;
         }
+    }
+    
+
+    /**
+     * Gets the effective password policy of the given entry. 
+     * If the entry has defined a custom password policy by setting "pwdPolicySubentry" attribute
+     * then the password policy associated with the Dn specified at the above attribute's value will be returned.
+     * Otherwise the default password policy will be returned (if present)
+     * 
+     * @param userEntry the user's entry
+     * @return the associated password policy
+     * @throws LdapException
+     */
+    public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
+    {
+        if ( pwdPolicyContainer == null )
+        {
+            return null;
+        }
+        
+        if ( pwdPolicyContainer.hasCustomConfigs() )
+        {
+            Attribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
+            
+            if ( pwdPolicySubentry != null )
+            {
+                Dn configDn = adminSession.getDirectoryService().getDnFactory().create( pwdPolicySubentry.getString() );
+                
+                return pwdPolicyContainer.getPolicyConfig( configDn );
+            }
+        }
+        
+        return pwdPolicyContainer.getDefaultPolicy();
+    }
+    
+    
+    /**
+     * set all the password policies to be used by the server.
+     * This includes a default(i.e applicable to all entries) and custom(a.k.a per user) password policies
+     *  
+     * @param policyContainer the container holding all the password policies
+     */
+    public void setPwdPolicies( PpolicyConfigContainer policyContainer )
+    {
+        this.pwdPolicyContainer = policyContainer;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdPolicyEnabled()
+    {
+        return ( ( pwdPolicyContainer != null ) 
+                && ( ( pwdPolicyContainer.getDefaultPolicy() != null ) 
+                || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
+    }
+
+
+    /**
+     * @return the pwdPolicyContainer
+     */
+    public PpolicyConfigContainer getPwdPolicyContainer()
+    {
+        return pwdPolicyContainer;
+    }
+
+
+    /**
+     * @param pwdPolicyContainer the pwdPolicyContainer to set
+     */
+    public void setPwdPolicyContainer( PpolicyConfigContainer pwdPolicyContainer )
+    {
+        this.pwdPolicyContainer = pwdPolicyContainer;
     }
 }

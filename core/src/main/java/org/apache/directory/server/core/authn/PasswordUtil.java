@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;

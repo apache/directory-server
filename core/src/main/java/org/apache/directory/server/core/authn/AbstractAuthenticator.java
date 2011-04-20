@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -158,7 +158,8 @@ public abstract class AbstractAuthenticator implements Authenticator
             return;
         }
 
-        PasswordPolicyConfiguration pPolicyConfig = directoryService.getPwdPolicy( userEntry );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getName() );
+        PasswordPolicyConfiguration pPolicyConfig = authenticationInterceptor.getPwdPolicy( userEntry );
         
         // check for locked out account
         if( pPolicyConfig.isPwdLockout() )

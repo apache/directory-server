@@ -38,8 +38,6 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
@@ -540,23 +538,6 @@ public class MockDirectoryService implements DirectoryService
     public boolean isPwdPolicyEnabled()
     {
         return false;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
-    {
-        return null;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPwdPolicies( PpolicyConfigContainer policyContainer )
-    {
     }
 
 

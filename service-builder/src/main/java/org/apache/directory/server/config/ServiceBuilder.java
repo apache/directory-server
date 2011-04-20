@@ -67,6 +67,8 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -77,8 +79,6 @@ import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -1292,7 +1292,8 @@ public class ServiceBuilder
             }
         }
         
-        directoryService.setPwdPolicies( ppolicyContainer );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getName() );
+        authenticationInterceptor.setPwdPolicies( ppolicyContainer );
         
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
