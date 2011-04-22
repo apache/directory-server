@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
@@ -103,6 +104,53 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
 
     @Test
+    public void testAddLdif() throws Exception
+    {
+        assertFalse( session.exists( "cn=testadd,ou=system" ) );
+
+        AddResponse response = connection.add( 
+            new DefaultEntry( 
+                "cn=testadd,ou=system",
+                "ObjectClass : top",
+                "ObjectClass : person",
+                "cn: testadd_sn",
+                "sn: testadd_sn"
+                ) );
+
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        assertTrue( session.exists( "cn=testadd,ou=system" ) );
+    }
+
+
+    @Test
+    public void testAddWithControl() throws Exception
+    {
+        assertFalse( session.exists( "cn=testadd,ou=system" ) );
+        
+        Entry entry = new DefaultEntry( 
+            "cn=testadd,ou=system",
+            "ObjectClass : top",
+            "ObjectClass : person",
+            "cn: testadd_sn",
+            "sn: testadd_sn"
+            );
+        
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( entry );
+        addRequest.addControl( new ManageDsaITImpl() );
+
+        AddResponse response = connection.add( addRequest );
+
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+
+        assertTrue( session.exists( "cn=testadd,ou=system" ) );
+    }
+
+
+    @Test
     public void testAddAsync() throws Exception
     {
         Dn dn = new Dn( "cn=testAsyncAdd,ou=system" );
@@ -126,9 +174,40 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     }
 
 
+    @Test
+    public void testAddAsyncLdif() throws Exception
+    {
+        Entry entry = new DefaultEntry( 
+            "cn=testAsyncAdd,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: testAsyncAdd_cn",
+            "sn: testAsyncAdd_sn" );
+
+        assertFalse( session.exists( "cn=testAsyncAdd,ou=system" ) );
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( entry );
+
+        AddFuture addFuture = connection.addAsync( addRequest );
+
+        AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
+
+        assertNotNull( addResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+        assertTrue( session.exists( "cn=testAsyncAdd,ou=system" ) );
+    }
+
+
     @ApplyLdifs(
-        { "dn: cn=kayyagari,ou=system", "objectClass: person", "objectClass: top", "cn: kayyagari",
-            "description: dbugger", "sn: dbugger", "userPassword: secret" })
+        { 
+            "dn: cn=kayyagari,ou=system", 
+            "objectClass: person", 
+            "objectClass: top", 
+            "cn: kayyagari",
+            "description: dbugger", 
+            "sn: dbugger", 
+            "userPassword: secret" })
     @Test
     /**
      * tests adding entryUUID, entryCSN, creatorsName and createTimestamp attributes
