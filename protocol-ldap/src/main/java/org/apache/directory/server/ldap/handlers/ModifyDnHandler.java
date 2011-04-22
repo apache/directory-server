@@ -67,7 +67,7 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
             // it is not allowed to modify the name of the Root DSE
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
             return;
         }
@@ -102,7 +102,7 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
             }
             else
             {
-                result.setErrorMessage( "Attempt to move entry onto itself." );
+                result.setDiagnosticMessage( "Attempt to move entry onto itself." );
                 result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
                 result.setMatchedDn( req.getName() );
                 session.getIoSession().write( req.getResultResponse() );

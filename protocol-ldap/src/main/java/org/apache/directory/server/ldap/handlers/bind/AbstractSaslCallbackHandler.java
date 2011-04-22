@@ -275,7 +275,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 result.setMatchedDn( dn );
             }
 
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             session.write( bindRequest.getResultResponse() );
             ctx = null;
         }

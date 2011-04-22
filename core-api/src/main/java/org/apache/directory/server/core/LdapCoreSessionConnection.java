@@ -198,7 +198,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( addRequest, resp );
@@ -358,7 +358,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( deleteRequest, resp );
@@ -611,7 +611,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( iModReq, resp );
@@ -663,7 +663,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( iModReq, resp );
@@ -698,7 +698,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( modRequest, resp );
@@ -729,7 +729,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             // it is not allowed to modify the name of the Root DSE
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             return resp;
         }
 
@@ -765,7 +765,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             }
             else
             {
-                result.setErrorMessage( "Attempt to move entry onto itself." );
+                result.setDiagnosticMessage( "Attempt to move entry onto itself." );
                 result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
                 result.setMatchedDn( modDnRequest.getName() );
             }
@@ -776,7 +776,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
 
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
-            resp.getLdapResult().setErrorMessage( e.getMessage() );
+            resp.getLdapResult().setDiagnosticMessage( e.getMessage() );
         }
 
         addResponseControls( modDnRequest, resp );
@@ -1198,7 +1198,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         {
             LOG.warn( e.getMessage(), e );
             LdapResult res = bindResp.getLdapResult();
-            res.setErrorMessage( e.getMessage() );
+            res.setDiagnosticMessage( e.getMessage() );
             res.setResultCode( e.getResultCode() );
         }
 

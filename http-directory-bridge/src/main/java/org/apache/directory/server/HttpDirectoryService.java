@@ -87,7 +87,7 @@ public class HttpDirectoryService
             resp = new BindResponseImpl();
 
             LdapResult result = resp.getLdapResult();
-            result.setErrorMessage( e.getMessage() );
+            result.setDiagnosticMessage( e.getMessage() );
             result.setResultCode( ResultCodeEnum.getResultCode(e) );
 
             holder = new BindResponseHolder( resp, null );

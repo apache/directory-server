@@ -47,7 +47,7 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest<Extended
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getRequestName();
             LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
             return;
         }
@@ -60,7 +60,7 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest<Extended
         {
             LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
-            result.setErrorMessage( ResultCodeEnum.OTHER
+            result.setDiagnosticMessage( ResultCodeEnum.OTHER
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getRequestName()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
             ExtendedResponse resp = req.getResultResponse();

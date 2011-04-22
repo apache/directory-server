@@ -122,7 +122,7 @@ public class SimpleMechanismHandler implements MechanismHandler
                 result.setMatchedDn( name );
             }
 
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
         

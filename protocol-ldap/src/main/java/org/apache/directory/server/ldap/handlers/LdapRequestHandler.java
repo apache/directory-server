@@ -112,7 +112,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     {
         LdapResult result = resp.getLdapResult();
         result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
-        result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+        result.setDiagnosticMessage( "Confidentiality (TLS secured connection) is required." );
         session.write( resp );
     }
 
@@ -147,7 +147,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
                 BindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
                 LdapResult bindResult = bindResponse.getLdapResult();
                 bindResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
-                bindResult.setErrorMessage( I18n.err( I18n.ERR_732 ) );
+                bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_732 ) );
                 ldapSession.getIoSession().write( bindResponse );
                 return;
             }
@@ -270,7 +270,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
 
-        result.setErrorMessage( msg );
+        result.setDiagnosticMessage( msg );
 
         if ( e instanceof LdapOperationException)
         {

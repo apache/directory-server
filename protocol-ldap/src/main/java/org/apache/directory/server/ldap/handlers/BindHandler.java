@@ -153,7 +153,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             {
                 LOG.info( "Bind principalDn points to referral." );
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
-                result.setErrorMessage( "Bind principalDn points to referral." );
+                result.setDiagnosticMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
                 return;
@@ -232,7 +232,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 result.setMatchedDn( dn );
             }
 
-            result.setErrorMessage( msg );
+            result.setDiagnosticMessage( msg );
             bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
@@ -369,7 +369,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // And send the response to the client
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
         bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-        bindResult.setErrorMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": "
+        bindResult.setDiagnosticMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": "
             + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
 
         // Write back the error
@@ -398,7 +398,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
         LOG.error( message );
         result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
-        result.setErrorMessage( message );
+        result.setDiagnosticMessage( message );
 
         // Reinitialize the state to Anonymous and clear the sasl properties
         ldapSession.clearSaslProperties();
@@ -593,7 +593,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             LOG.error( I18n.err( I18n.ERR_162 ) );
             LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            bindResult.setErrorMessage( I18n.err( I18n.ERR_163 ) );
+            bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_163 ) );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
             return;
         }

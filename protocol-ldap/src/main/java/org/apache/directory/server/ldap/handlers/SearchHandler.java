@@ -668,7 +668,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             {
                 // We didn't found the cookie into the session : it must be invalid
                 // send an error.
-                ldapResult.setErrorMessage( "Invalid cookie for this PagedSearch request." );
+                ldapResult.setDiagnosticMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
 
                 return ( SearchResultDone ) req.getResultResponse();
@@ -1189,7 +1189,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 if ( referralAncestor == null )
                 {
-                    result.setErrorMessage( "Entry not found." );
+                    result.setDiagnosticMessage( "Entry not found." );
                     result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
                     session.getIoSession().write( req.getResultResponse() );
                     return;
@@ -1230,7 +1230,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         ReferralImpl referral = new ReferralImpl();
         result.setReferral( referral );
         result.setResultCode( ResultCodeEnum.REFERRAL );
-        result.setErrorMessage( "Encountered referral attempting to handle request." );
+        result.setDiagnosticMessage( "Encountered referral attempting to handle request." );
         result.setMatchedDn( req.getBase() );
 
         Attribute refAttr = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
@@ -1544,7 +1544,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
 
-        result.setErrorMessage( msg );
+        result.setDiagnosticMessage( msg );
 
         if ( e instanceof LdapOperationException )
         {
