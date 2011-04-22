@@ -359,6 +359,12 @@ public interface CoreSession
     /**
      * Checks to see if an entry exists. 
      */
+    boolean exists( String dn ) throws LdapException;
+    
+    
+    /**
+     * Checks to see if an entry exists. 
+     */
     boolean exists( Dn dn ) throws LdapException;
     
     

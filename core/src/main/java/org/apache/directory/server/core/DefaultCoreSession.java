@@ -874,8 +874,20 @@ public class DefaultCoreSession implements CoreSession
 
         deleteRequest.getResultResponse().addAllControls( deleteContext.getResponseControls() );
     }
+    
+    
+    /**
+     * {@inheritDoc} 
+     */
+    public boolean exists( String dn ) throws LdapException
+    {
+        return exists( new Dn( dn ) );
+    }
 
 
+    /**
+     * {@inheritDoc} 
+     */
     public boolean exists( Dn dn ) throws LdapException
     {
         EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );

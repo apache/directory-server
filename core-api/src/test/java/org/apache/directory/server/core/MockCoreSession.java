@@ -839,6 +839,15 @@ public class MockCoreSession implements CoreSession
     }
 
 
+    /**
+     * {@inheritDoc} 
+     */
+    public boolean exists( String dn ) throws LdapException
+    {
+        return exists( new Dn( dn ) );
+    }
+
+    
     public boolean exists( Dn dn ) throws LdapException
     {
         EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );
