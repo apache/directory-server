@@ -23,7 +23,6 @@ ads-servers: ldapServer
 ads-servers: ntpServer
 ads-partitions: example
 ads-partitions: system
-ads-passwordPolicies: default
 ads-interceptors: aciAuthorizationInterceptor
 ads-interceptors: authenticationInterceptor
 ads-interceptors: collectiveAttributeInterceptor
@@ -79,6 +78,7 @@ ads-interceptororder: 2
 ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationInterceptor
 ads-interceptorid: authenticationInterceptor
 ads-enabled: TRUE
+ads-passwordPolicies: default
 ads-authenticators: anonymousauthenticator
 ads-authenticators: simpleauthenticator
 ads-authenticators: strongauthenticator
@@ -108,6 +108,33 @@ objectclass: top
 objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-strongAuthenticator
+
+dn: ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: passwordPolicies
+
+dn: ads-pwdId=default,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectClass: top
+objectClass: ads-base
+objectClass: ads-passwordPolicy
+ads-pwdId: default
+ads-pwdSafeModify: FALSE
+ads-pwdMaxAge: 0
+ads-pwdFailureCountInterval: 30
+ads-pwdAttribute: userPassword
+ads-pwdMaxFailure: 5
+ads-pwdLockout: TRUE
+ads-pwdMustChange: FALSE
+ads-pwdLockoutDuration: 0
+ads-pwdMinLength: 5
+ads-pwdInHistory: 5
+ads-pwdExpireWarning: 600
+ads-pwdMinAge: 0
+ads-pwdAllowUserChange: TRUE
+ads-pwdGraceAuthNLimit: 5
+ads-pwdCheckQuality: 2
+ads-enabled: TRUE
 
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -215,33 +242,6 @@ objectclass: ads-interceptor
 ads-interceptororder: 14
 ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterceptor
 ads-interceptorid: triggerInterceptor
-ads-enabled: TRUE
-
-dn: ou=passwordPolicies,ads-directoryServiceId=default,ou=config
-objectClass: organizationalUnit
-objectClass: top
-ou: passwordPolicies
-
-dn: ads-pwdId=default,ou=passwordPolicies,ads-directoryServiceId=default,ou=config
-objectClass: top
-objectClass: ads-base
-objectClass: ads-passwordPolicy
-ads-pwdId: default
-ads-pwdSafeModify: FALSE
-ads-pwdMaxAge: 0
-ads-pwdFailureCountInterval: 30
-ads-pwdAttribute: userPassword
-ads-pwdMaxFailure: 5
-ads-pwdLockout: TRUE
-ads-pwdMustChange: FALSE
-ads-pwdLockoutDuration: 0
-ads-pwdMinLength: 5
-ads-pwdInHistory: 5
-ads-pwdExpireWarning: 600
-ads-pwdMinAge: 0
-ads-pwdAllowUserChange: TRUE
-ads-pwdGraceAuthNLimit: 5
-ads-pwdCheckQuality: 2
 ads-enabled: TRUE
 
 dn: ou=partitions,ads-directoryServiceId=default,ou=config

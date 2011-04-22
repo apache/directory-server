@@ -89,11 +89,6 @@ public class DirectoryServiceBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-partitions", container = "partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
-    /** The reference to the Password Policy component */
-    @ConfigurationElement(attributeType = "ads-passwordPolicies", container = "passwordPolicies")
-    private List<PasswordPolicyBean> passwordPolicies = new ArrayList<PasswordPolicyBean>();
-
-
     /**
      * Create a new DnsServerBean instance
      */
@@ -524,36 +519,6 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return the passwordPolicies
-     */
-    public List<PasswordPolicyBean> getPasswordPolicies()
-    {
-        return passwordPolicies;
-    }
-
-
-    /**
-     * @param passwordPolicies the pwdPolicies to set
-     */
-    public void setPasswordPolicies( List<PasswordPolicyBean> passwordPolicies )
-    {
-        this.passwordPolicies = passwordPolicies;
-    }
-
-
-    /**
-     * @param ppolicies the password policies to add
-     */
-    public void addPasswordPolicies( PasswordPolicyBean... ppolicies )
-    {
-        for ( PasswordPolicyBean ppolicy : ppolicies )
-        {
-            this.passwordPolicies.add( ppolicy );
-        }
-    }
-
-    
-    /**
      * {@inheritDoc}
      */
     public String toString()
@@ -602,14 +567,6 @@ public class DirectoryServiceBean extends AdsBaseBean
         if ( changeLog != null )
         {
             sb.append( changeLog.toString( "  " ) );
-        }
-
-        if ( ( passwordPolicies != null ) && ( passwordPolicies.size() > 0 ) )
-        {
-            for ( PasswordPolicyBean ppolicy : passwordPolicies )
-            {
-                sb.append( ppolicy.toString( "    " ) );
-            }
         }
 
         sb.append( "  servers : \n" );

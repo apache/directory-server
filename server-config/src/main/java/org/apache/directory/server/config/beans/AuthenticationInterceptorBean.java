@@ -35,6 +35,11 @@ public class AuthenticationInterceptorBean extends InterceptorBean
     @ConfigurationElement(attributeType = "ads-authenticators", container = "authenticators")
     private List<AuthenticatorBean> authenticators = new ArrayList<AuthenticatorBean>();
 
+    /** The reference to the Password Policy component */
+    @ConfigurationElement(attributeType = "ads-passwordPolicies", container = "passwordPolicies")
+    private List<PasswordPolicyBean> passwordPolicies = new ArrayList<PasswordPolicyBean>();
+
+
     /**
      * Creates a new AuthenticationInterceptorBean instance
      */
@@ -75,6 +80,36 @@ public class AuthenticationInterceptorBean extends InterceptorBean
     
 
     /**
+     * @return the passwordPolicies
+     */
+    public List<PasswordPolicyBean> getPasswordPolicies()
+    {
+        return passwordPolicies;
+    }
+
+
+    /**
+     * @param passwordPolicies the pwdPolicies to set
+     */
+    public void setPasswordPolicies( List<PasswordPolicyBean> passwordPolicies )
+    {
+        this.passwordPolicies = passwordPolicies;
+    }
+
+
+    /**
+     * @param ppolicies the password policies to add
+     */
+    public void addPasswordPolicies( PasswordPolicyBean... ppolicies )
+    {
+        for ( PasswordPolicyBean ppolicy : ppolicies )
+        {
+            this.passwordPolicies.add( ppolicy );
+        }
+    }
+
+    
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
@@ -94,6 +129,14 @@ public class AuthenticationInterceptorBean extends InterceptorBean
             }
         }
         
+        if ( ( passwordPolicies != null ) && ( passwordPolicies.size() > 0 ) )
+        {
+            for ( PasswordPolicyBean ppolicy : passwordPolicies )
+            {
+                sb.append( ppolicy.toString( "    " ) );
+            }
+        }
+
         return sb.toString();
     }
 }

@@ -171,6 +171,29 @@ public class ServiceBuilder
                     Authenticator[] authenticators = createAuthenticators( ((AuthenticationInterceptorBean)interceptorBean).getAuthenticators() );
                     ((AuthenticationInterceptor) interceptor).setAuthenticators( authenticators );
                     
+                    // password policies
+                    List<PasswordPolicyBean> ppolicyBeans = ((AuthenticationInterceptorBean)interceptorBean).getPasswordPolicies();
+                    PpolicyConfigContainer ppolicyContainer = new  PpolicyConfigContainer();
+
+                    for ( PasswordPolicyBean ppolicyBean : ppolicyBeans )
+                    {
+                        PasswordPolicyConfiguration ppolicyConfig = createPwdPolicyConfig( ppolicyBean );
+                        
+                        if ( ppolicyConfig != null )
+                        {
+                            // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
+                            if ( ppolicyBean.getPwdId().equalsIgnoreCase( "default" ) )
+                            {
+                                ppolicyContainer.setDefaultPolicy( ppolicyConfig );
+                            }
+                            else
+                            {
+                                ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+                            }
+                        }
+
+                        ((AuthenticationInterceptorBean)interceptorBean).setPasswordPolicies( ppolicyBeans );
+                    }
                 }
                 
                 interceptors.add( interceptor );
@@ -1264,37 +1287,15 @@ public class ServiceBuilder
         directoryService.setDenormalizeOpAttrsEnabled( directoryServiceBean.isDsDenormalizeOpAttrsEnabled() );
         
         // Journal
-        Journal jl = createJournal( directoryServiceBean.getJournal() );
-        if ( jl != null )
-        {
-            directoryService.setJournal( jl );
-        }
+        Journal journal = createJournal( directoryServiceBean.getJournal() );
         
-        // password policies
-        List<PasswordPolicyBean> ppolicyBeans = directoryServiceBean.getPasswordPolicies();
-        PpolicyConfigContainer ppolicyContainer = new  PpolicyConfigContainer();
-
-        for ( PasswordPolicyBean ppolicyBean : ppolicyBeans )
+        if ( journal != null )
         {
-            PasswordPolicyConfiguration ppolicyConfig = createPwdPolicyConfig( ppolicyBean );
-            
-            if ( ppolicyConfig != null )
-            {
-                // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
-                if ( ppolicyBean.getPwdId().equalsIgnoreCase( "default" ) )
-                {
-                    ppolicyContainer.setDefaultPolicy( ppolicyConfig );
-                }
-                else
-                {
-                    ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
-                }
-            }
+            directoryService.setJournal( journal );
         }
         
         AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getName() );
-        authenticationInterceptor.setPwdPolicies( ppolicyContainer );
-        
+
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
         
