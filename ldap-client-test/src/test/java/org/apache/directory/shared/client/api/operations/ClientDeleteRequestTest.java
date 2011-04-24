@@ -42,10 +42,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.OpaqueControl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -106,47 +108,41 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDeleteLeafNode() throws Exception
     {
-        Dn dn = new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
+        assertTrue( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
-        assertTrue( session.exists( dn ) );
-
-        DeleteResponse response = connection.delete( dn.getName() );
+        DeleteResponse response = connection.delete( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-        assertFalse( session.exists( dn ) );
+        assertFalse( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
     }
 
 
     @Test
     public void testDeleteNonLeafFailure() throws Exception
     {
-        Dn dn = new Dn( "cn=child1,cn=parent,ou=system" ); // has children
-        assertTrue( session.exists( dn ) );
+        assertTrue( session.exists( "cn=parent,ou=system" ) );
 
-        DeleteResponse response = connection.delete( dn.getName() );
+        DeleteResponse response = connection.delete( "cn=parent,ou=system" );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
 
-        assertTrue( session.exists( dn ) );
+        assertTrue( session.exists( "cn=parent,ou=system" ) );
     }
 
 
     @Test
-    @Ignore
     public void testDeleteWithCascadeControl() throws Exception
     {
-        Dn dn = new Dn( "cn=parent,ou=system" );
-
-        assertTrue( session.exists( dn ) );
+        assertTrue( session.exists( "cn=parent,ou=system" ) );
 
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
-            DeleteResponse response = connection.deleteTree( dn );
+            DeleteResponse response = connection.deleteTree( "cn=parent,ou=system" );
             assertNotNull( response );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
-            assertFalse( session.exists( dn ) );
+            assertFalse( session.exists( "cn=parent,ou=system" ) );
         }
     }
 
@@ -188,9 +184,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Ignore
     public void testDeleteAsyncWithoutCascadeControl() throws Exception
     {
-        Dn dn = new Dn( "cn=parent,ou=system" );
-
-        assertTrue( session.exists( dn ) );
+        assertTrue( session.exists( "cn=parent,ou=system" ) );
 
         Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", Dn.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
@@ -199,7 +193,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            connection.deleteTree( dn );
+            connection.deleteTree( "cn=parent,ou=system" );
             fail();
         }
         catch ( LdapException le )
@@ -212,12 +206,10 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDeleteAsync() throws Exception
     {
-        Dn dn = new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
-
-        assertTrue( session.exists( dn ) );
+        assertTrue( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
         DeleteRequest deleteRequest = new DeleteRequestImpl();
-        deleteRequest.setName( dn );
+        deleteRequest.setName( new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
         DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );
 
@@ -226,6 +218,27 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         assertNotNull( deleteResponse );
         assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
         assertTrue( connection.isAuthenticated() );
-        assertFalse( session.exists( dn ) );
+        assertFalse( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
+    }
+
+
+    @Test
+    public void testDeleteWithControl() throws Exception
+    {
+        assertTrue( session.exists( "cn=parent,ou=system" ) );
+
+        if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
+        {
+            DeleteRequest deleteRequest = new DeleteRequestImpl();
+            deleteRequest.setName( new Dn( "cn=parent,ou=system" ) );
+            Control deleteTreeControl = new OpaqueControl( "1.2.840.113556.1.4.805" );
+            deleteRequest.addControl( deleteTreeControl );
+    
+            DeleteResponse deleteResponse = connection.delete( deleteRequest );
+    
+            assertNotNull( deleteResponse );
+            assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
+            assertFalse( session.exists( "cn=parent,ou=system" ) );
+        }
     }
 }
