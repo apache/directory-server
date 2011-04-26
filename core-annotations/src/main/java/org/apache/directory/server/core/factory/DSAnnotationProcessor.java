@@ -299,7 +299,7 @@ public class DSAnnotationProcessor
         else if ( entry.isChangeModify() )
         {
             service.getAdminSession().modify( entry.getDn(),
-                    entry.getModificationItems() );
+                    entry.getModifications() );
         }
         else
         {

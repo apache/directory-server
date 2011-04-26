@@ -208,7 +208,7 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the modifications 
             for ( Modification modification:modifyContext.getModItems() )
             {
-                ldif.addModificationItem( modification );
+                ldif.addModification( modification );
             }
             
             journal.log( getPrincipal(), opRevision, ldif );

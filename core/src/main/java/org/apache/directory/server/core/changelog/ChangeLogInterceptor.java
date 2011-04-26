@@ -266,7 +266,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             // TODO: handle correctly http://issues.apache.org/jira/browse/DIRSERVER-1198
             mods.add( modItem );
             
-            forward.addModificationItem( modItem );
+            forward.addModification( modItem );
         }
         
         Entry clientEntry = new DefaultEntry( serverEntry.getDn() );

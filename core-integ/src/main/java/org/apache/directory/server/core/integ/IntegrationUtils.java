@@ -120,7 +120,7 @@ public class IntegrationUtils
             else if ( entry.isChangeModify() )
             {
                 service.getAdminSession().modify(
-                    entry.getDn(), entry.getModificationItems() );
+                    entry.getDn(), entry.getModifications() );
             }
             else
             {
@@ -253,7 +253,7 @@ public class IntegrationUtils
                 break;
 
             case( ChangeType.MODIFY_ORDINAL ):
-                session.modify( dn, entry.getModificationItems() );
+                session.modify( dn, entry.getModifications() );
                 break;
 
             default:

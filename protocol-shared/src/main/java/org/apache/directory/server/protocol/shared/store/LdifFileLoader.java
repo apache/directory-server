@@ -211,7 +211,7 @@ public class LdifFileLoader
                 } else
                 {
                     //modify
-                    List<Modification> items = ldifEntry.getModificationItems();
+                    List<Modification> items = ldifEntry.getModifications();
                     
                     try
                     {

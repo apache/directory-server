@@ -877,7 +877,7 @@ public class DefaultDirectoryService implements DirectoryService
                             break;
 
                         case ChangeType.MODIFY_ORDINAL :
-                            List<Modification> mods = reverse.getModificationItems();
+                            List<Modification> mods = reverse.getModifications();
 
                             adminSession.modify( reverse.getDn(), mods, true );
                             break;
