@@ -70,7 +70,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      */
     private Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attributes = LdifUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", cn,
@@ -86,7 +86,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      */
     private Attributes getOrganizationalUnitAttributes( String ou ) throws Exception
     {
-        Attributes attributes = LdifUtils.createAttributes(
+        Attributes attributes = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: organizationalUnit",
                 "ou", ou,
@@ -1022,7 +1022,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         
-        Attributes attributes = LdifUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn: Tori Amos",

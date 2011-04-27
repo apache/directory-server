@@ -198,7 +198,7 @@ public class AddIT extends AbstractLdapTestUnit
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
 
         // modify object classes, add two more
-        Attributes attributes = LdifUtils.createAttributes( "objectClass: organizationalPerson",
+        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: organizationalPerson",
                 "objectClass: inetOrgPerson" );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );

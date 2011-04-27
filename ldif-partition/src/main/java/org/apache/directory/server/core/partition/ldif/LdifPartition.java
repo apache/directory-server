@@ -215,7 +215,7 @@ public class LdifPartition extends AbstractLdifPartition
             }
 
             FileWriter fw = new FileWriter( contextEntryFile );
-            fw.write( LdifUtils.convertEntryToLdif( contextEntry ) );
+            fw.write( LdifUtils.convertToLdif( contextEntry ) );
             fw.close();
 
             // And add this entry to the underlying partition
@@ -301,7 +301,7 @@ public class LdifPartition extends AbstractLdifPartition
         try
         {
             FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-            fw.write( LdifUtils.convertEntryToLdif(modifiedEntry, true) );
+            fw.write( LdifUtils.convertToLdif(modifiedEntry, true) );
             fw.close();
         }
         catch ( IOException ioe )
@@ -709,7 +709,7 @@ public class LdifPartition extends AbstractLdifPartition
         try
         {
             FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
-            fw.write( LdifUtils.convertEntryToLdif( entry ) );
+            fw.write( LdifUtils.convertToLdif( entry ) );
             fw.close();
         }
         catch ( IOException ioe )

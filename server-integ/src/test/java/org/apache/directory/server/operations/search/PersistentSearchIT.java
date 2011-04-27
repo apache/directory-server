@@ -104,7 +104,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
      */
     private Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
-        Attributes attributes = LdifUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", cn,

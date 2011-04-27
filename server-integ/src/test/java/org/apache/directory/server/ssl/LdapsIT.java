@@ -113,7 +113,7 @@ public class LdapsIT extends AbstractLdapTestUnit
     public void testLdaps() throws Exception
     {
         // Create a person
-        Attributes attributes = LdifUtils.createAttributes(
+        Attributes attributes = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: person",
                 "cn: The Person",

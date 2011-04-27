@@ -386,7 +386,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-            String ldif = LdifUtils.convertEntryToLdif( entry );
+            String ldif = LdifUtils.convertToLdif( entry );
             ldifFile.write( Strings.getBytesUtf8(ldif + "\n") );
         }
     }

@@ -180,7 +180,7 @@ public class SingleFileLdifPartitionTest
     private long getEntryLdifLen( Entry entry ) throws LdapException
     {
         // while writing to the file 1 extra newline char will be added
-        String ldif = LdifUtils.convertEntryToLdif(entry) + 1;
+        String ldif = LdifUtils.convertToLdif(entry) + 1;
         byte[] data = Strings.getBytesUtf8(ldif);
 
         return data.length;
