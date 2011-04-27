@@ -98,7 +98,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToEnabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -124,7 +124,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -149,7 +149,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -190,7 +190,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
             "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
@@ -225,7 +225,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
             "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
@@ -328,7 +328,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Create a MR using this comparator
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",

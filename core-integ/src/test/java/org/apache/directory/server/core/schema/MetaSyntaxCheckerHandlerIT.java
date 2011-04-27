@@ -84,7 +84,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToEnabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
@@ -103,7 +103,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
@@ -121,7 +121,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
@@ -156,7 +156,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntaxChecker", "m-fqcn",
             "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker" );
@@ -184,7 +184,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: metaTop",
                 "objectClass: metaSyntaxChecker", "m-fqcn",
                 "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker");
@@ -404,7 +404,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( getService().getSchemaManager().getSyntaxCheckerRegistry().contains( OID ) );
 
         // Create a Syntax using this comparator
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaSyntax", "m-oid", OID, "m-description: test" );
 
         Dn sDn = getSyntaxContainer( "apachemeta" );

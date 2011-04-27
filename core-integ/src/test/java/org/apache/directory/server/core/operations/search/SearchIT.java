@@ -222,7 +222,7 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes("objectClass: top", "objectClass: posixGroup", "cn", name,
+        Attributes attrs = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: posixGroup", "cn", name,
                 "gidNumber", String.valueOf(gid));
 
         return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
@@ -619,7 +619,7 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
-        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: top",
+        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: top",
             "objectClass: person", "cn", cn, "sn", sn );
 
         return attributes;
@@ -1212,7 +1212,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
+        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
             "sn: Vicious", "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
@@ -1258,7 +1258,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
+        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
             "sn: Vicious", "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
@@ -1306,7 +1306,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        Attributes vicious = LdifUtils.createAttributes( "objectClass: top", "objectClass: person", "cn: x*y*z*",
+        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: x*y*z*",
             "sn: x*y*z*", "description: (sex*pis\\tols)" );
 
         sysRoot.createSubcontext( "cn=x*y*z*", vicious );
@@ -1528,7 +1528,7 @@ public class SearchIT extends AbstractLdapTestUnit
             .getJndiValue() );
 
         // Create an entry which does not match
-        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: groupOfUniqueNames",
+        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: groupOfUniqueNames",
             "cn: testGroup3", "uniqueMember: uid=admin,ou=system" );
 
         getSystemContext( getService() ).createSubcontext( "cn=testGroup3,ou=groups", attrs );

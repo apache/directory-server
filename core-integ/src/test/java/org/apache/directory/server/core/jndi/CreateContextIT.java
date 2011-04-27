@@ -59,7 +59,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
 {
     protected Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: person",
                 "cn", cn,

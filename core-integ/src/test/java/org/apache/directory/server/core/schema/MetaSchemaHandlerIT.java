@@ -128,7 +128,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         LdapContext schemaRoot = getSchemaContext( getService() );
 
         // Create the schema
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: broken",
@@ -143,7 +143,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         LdapContext schemaRoot = getSchemaContext( getService() );
 
         // Create the schema
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn", schemaName );
@@ -420,7 +420,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
 
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes(
+        Attributes dummySchema = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
                 "cn: dummy",
@@ -448,7 +448,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
 
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -482,7 +482,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
 
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -544,7 +544,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -568,7 +568,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -594,7 +594,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -635,7 +635,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: metaSchema",
             "cn: dummy"
@@ -659,7 +659,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -763,7 +763,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
 
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
@@ -813,7 +813,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         testEnableExistingSchema(); 
         
         // adds enabled dummy schema that depends on the test schema  
-        Attributes dummySchema = LdifUtils.createAttributes( 
+        Attributes dummySchema = LdifUtils.createJndiAttributes( 
             "objectClass: top", 
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",

@@ -80,7 +80,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private Dn addObjectClass() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -127,7 +127,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddObjectClassToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -539,7 +539,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private Dn addObjectClassToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",

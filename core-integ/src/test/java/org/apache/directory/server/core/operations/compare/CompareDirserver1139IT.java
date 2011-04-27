@@ -119,7 +119,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     private void injectEntries( LdapContext sysRoot ) throws Exception
     {
         // Add the group
-        Attributes attrs = LdifUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createJndiAttributes( 
             "ObjectClass: top",
             "ObjectClass: groupOfNames",
             "cn: group",
@@ -128,7 +128,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         sysRoot.createSubcontext( "cn=group,ou=groups", attrs );
         
         // Add the user
-        attrs = LdifUtils.createAttributes( 
+        attrs = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: organizationalPerson",
             "objectClass: person",

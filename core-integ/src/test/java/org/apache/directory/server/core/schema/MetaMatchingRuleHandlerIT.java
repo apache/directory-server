@@ -81,7 +81,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private void createComparator() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaComparator",
@@ -110,7 +110,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
 
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",
@@ -140,7 +140,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
 
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",
@@ -163,7 +163,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
 
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: metaTop",
                 "objectClass: metaMatchingRule",

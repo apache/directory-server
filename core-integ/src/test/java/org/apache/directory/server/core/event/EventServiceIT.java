@@ -66,7 +66,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createAttributes(
+        Attributes testEntry = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: organizationalUnit",
                 "ou", "testentry");
@@ -118,7 +118,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createAttributes( 
+        Attributes testEntry = LdifUtils.createJndiAttributes( 
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou", "testentry" );

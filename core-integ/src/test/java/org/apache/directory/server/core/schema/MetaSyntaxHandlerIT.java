@@ -97,7 +97,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToEnabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -119,7 +119,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -141,7 +141,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -443,7 +443,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
                 "objectClass: top",
                 "objectClass: metaTop",
                 "objectClass: metaMatchingRule",

@@ -106,7 +106,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( getService() );
 
-        Attributes attrs = LdifUtils.createAttributes(
+        Attributes attrs = LdifUtils.createJndiAttributes(
                 "ObjectClass: top",
                 "cn: kevin Spacey",
                 "dc: ke");
@@ -136,7 +136,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( getService() );
 
-        Attributes attrs = LdifUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createJndiAttributes( 
             "ObjectClass: top",
             "ObjectClass: person",
             "cn: kevin Spacey",
@@ -164,7 +164,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeWithEscapedPlusCharacter() throws Exception
     {
-        Attributes entry = LdifUtils.createAttributes( 
+        Attributes entry = LdifUtils.createJndiAttributes( 
             "ObjectClass: top",
             "ObjectClass: inetorgperson",
             "cn: John\\+Doe",

@@ -104,7 +104,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
 
         String dn = "ou=Test";
 
-        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: organizationalUnit",
             "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
@@ -130,7 +130,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = LdifUtils.createAttributes("objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: organizationalUnit",
                 "ou: Test", "description: Old Value");
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
@@ -165,7 +165,7 @@ public class MixedCaseIT extends AbstractLdapTestUnit
 
         String dn = "ou=Test";
 
-        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: organizationalUnit",
             "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
