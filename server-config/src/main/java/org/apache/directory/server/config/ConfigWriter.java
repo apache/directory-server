@@ -351,7 +351,7 @@ public class ConfigWriter
                     ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
                     if ( configurationElement != null )
                     {
-                        // Checking if we're have a value  for the attribute type
+                        // Checking if we have a value for the attribute type
                         String attributeType = configurationElement.attributeType();
                         if ( ( attributeType != null ) && ( !"".equals( attributeType ) ) )
                         {
@@ -409,7 +409,7 @@ public class ConfigWriter
                                 {
                                     if ( configurationElement.defaultValue().equalsIgnoreCase( fieldValue.toString() ) )
                                     {
-                                        // Skipping the additin of the value
+                                        // Skipping the addition of the value
                                         continue;
                                     }
                                 }
@@ -562,16 +562,6 @@ public class ConfigWriter
         // We don't store a 'null' value
         if ( o != null )
         {
-            // Getting the attribute from the entry
-            Attribute attribute = entry.get( attributeType );
-
-            // If no attribute has been found, we need to create it and add it to the entry
-            if ( attribute == null )
-            {
-                attribute = new DefaultAttribute( attributeType );
-                entry.addAttribute( attribute );
-            }
-
             // Is the value multiple?
             if ( isMultiple( o.getClass() ) )
             {
@@ -581,14 +571,14 @@ public class ConfigWriter
                 {
                     for ( Object value : values )
                     {
-                        addAttributeTypeValue( attribute, value );
+                        addAttributeTypeValue( attributeType, value, entry );
                     }
                 }
             }
             else
             {
                 // Adding the single value
-                addAttributeTypeValue( attribute, o );
+                addAttributeTypeValue( attributeType, o, entry);
             }
         }
     }
@@ -598,16 +588,28 @@ public class ConfigWriter
      * Adds a value, either byte[] or another type (converted into a String 
      * via the Object.toString() method), to the attribute.
      *
-     * @param attribute
-     *      the attribute
+     * @param attributeType
+     *      the attribute type
      * @param value
      *      the value
+     * @param entry
+     *      the entry
      */
-    private void addAttributeTypeValue( Attribute attribute, Object value ) throws LdapException
+    private void addAttributeTypeValue( String attributeType, Object value, LdifEntry entry ) throws LdapException
     {
         // We don't store a 'null' value
         if ( value != null )
         {
+            // Getting the attribute from the entry
+            Attribute attribute = entry.get( attributeType );
+
+            // If no attribute has been found, we need to create it and add it to the entry
+            if ( attribute == null )
+            {
+                attribute = new DefaultAttribute( attributeType );
+                entry.addAttribute( attribute );
+            }
+            
             // Storing the value to the attribute
             if ( value instanceof byte[] )
             {
