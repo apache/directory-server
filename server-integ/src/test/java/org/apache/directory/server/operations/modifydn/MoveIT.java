@@ -25,6 +25,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.SearchControls;
@@ -37,8 +38,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -122,8 +122,16 @@ public class MoveIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         //now do something bad: make the parent a child of its own child 
-        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        try
+        {
+            con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
+        
         con.close();
     }
 
@@ -134,8 +142,15 @@ public class MoveIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( getLdapServer() );
 
         //now do something bad: try to move the entry to the same Dn
-        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        try
+        {
+            con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
         con.close();
     }
 }

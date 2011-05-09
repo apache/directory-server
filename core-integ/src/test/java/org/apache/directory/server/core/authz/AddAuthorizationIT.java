@@ -34,8 +34,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -86,27 +84,20 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = null;
 
+        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
+        connection = getConnectionAs( userName, password );
+
+        String entryDn = entryRdn + ",ou=system";
+        Entry entry = new DefaultEntry( entryDn );
+        entry.add( "ou", "testou" );
+        entry.add( "ObjectClass", "top", "organizationalUnit" );
+
         try
         {
-            Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
-            connection = getConnectionAs( userName, password );
-
-            Entry entry = new DefaultEntry( new Dn( "ou=system" ).add( entryRdn ) );
-            entry.add( "ou", "testou" );
-            entry.add( "ObjectClass", "top", "organizationalUnit" );
-
-            AddResponse resp = connection.add( entry );
-
-            if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
-            {
-                return false;
-            }
-
-            connection.delete( entry.getDn() );
-
+            connection.add( entry );
             return true;
         }
-        catch ( LdapException e )
+        catch ( LdapException le )
         {
             return false;
         }
@@ -163,7 +154,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         addUserToGroup( "billyd", "Administrators" );
 
         // try an add operation which should succeed with ACI and group membership change
-        assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
+        assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou1" ) );
 
         // Now, make sure the ACI is persisted if we stop and restart the server
         // Stop the server now, we will restart it immediately 
@@ -177,7 +168,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         assertTrue( getService().isStarted() );
 
         // try an add operation which should succeed with ACI and group membership change
-        assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
+        assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou2" ) );
     }
 
 
@@ -198,21 +189,21 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         // now add a subentry that enables user billyd to add an entry below ou=system
         createAccessControlSubentry( "billydAdd",
             "{ " +
-                "  identificationTag \"addAci\", " +
-                "  precedence 14, " +
-                "  authenticationLevel none, " +
-                "  itemOrUserFirst userFirst: " +
-                "  { " +
-                "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-                "    userPermissions " +
-                "    { " +
-                "      { " +
-                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "        grantsAndDenials { grantAdd, grantBrowse } " +
-                "      } " +
-                "    } " +
-                "  } " +
-                "}" );
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantAdd, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );

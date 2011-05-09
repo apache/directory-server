@@ -48,9 +48,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -368,7 +367,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test
+    @Test( expected = LdapUnwillingToPerformException.class )
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
@@ -376,8 +375,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
         connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
 
-        BindResponse bindResp = connection.bind( "uid=admin,ou=system", null );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, bindResp.getLdapResult().getResultCode() );
+        connection.bind( "uid=admin,ou=system", null );
     }
 
 

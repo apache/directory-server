@@ -22,6 +22,7 @@ package org.apache.directory.shared.client.api;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +43,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,9 +110,9 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         try
         {
             connection = new LdapNetworkConnection( sslConfig );
-            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+            connection.bind( "uid=admin,ou=system", "secret" );
 
-            assertNotNull( bindResponse );
+            assertTrue( connection.isAuthenticated() );
         }
         finally
         {
@@ -154,9 +154,9 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             connection = new LdapNetworkConnection( tlsConfig );
             connection.connect();
             connection.startTls();
-            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+            connection.bind( "uid=admin,ou=system", "secret" );
 
-            assertNotNull( bindResponse );
+            assertTrue( connection.isAuthenticated() );
 
             connection.unBind();
         }

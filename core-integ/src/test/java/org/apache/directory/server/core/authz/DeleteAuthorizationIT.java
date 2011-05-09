@@ -36,8 +36,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.DeleteResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -107,17 +106,18 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
 
         // delete the newly created context as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
-        DeleteResponse resp = userConnection.delete(entryDn);
-
-        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        
+        try
         {
-            return true;
+            userConnection.delete( entryDn );
         }
-        else
+        catch ( LdapNoPermissionException lnpe )
         {
             adminConnection.delete(entryDn);
             return false;
         }
+
+        return true;
     }
 
 

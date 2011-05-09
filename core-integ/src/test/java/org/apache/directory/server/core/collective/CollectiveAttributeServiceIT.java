@@ -42,14 +42,11 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -527,28 +524,24 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test
+    @Test( expected = LdapSchemaViolationException.class )
     public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
 
-        AddResponse response = connection.add( entry );
-
-        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
+        connection.add( entry );
     }
 
 
-    @Test
+    @Test( expected = LdapSchemaViolationException.class )
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
         connection.add( entry );
 
-        ModifyResponse response = connection.modify( "cn=Ersin Er,ou=system", new DefaultModification(
+        connection.modify( "cn=Ersin Er,ou=system", new DefaultModification(
             ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "c-l", "Turkiye" ) ) );
-
-        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, response.getLdapResult().getResultCode() );
     }
 
 

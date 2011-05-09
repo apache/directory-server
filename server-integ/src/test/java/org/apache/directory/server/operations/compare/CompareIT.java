@@ -48,7 +48,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.CompareResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,12 +96,12 @@ public class CompareIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( getLdapServer() );
 
         // comparison success
-        CompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
-        assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
+        boolean response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
+        assertTrue( response );
 
         // comparison failure
-        resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
-        assertEquals( ResultCodeEnum.COMPARE_FALSE, resp.getLdapResult().getResultCode() );
+        response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
+        assertFalse( response );
 
         conn.unBind();
         conn.close();

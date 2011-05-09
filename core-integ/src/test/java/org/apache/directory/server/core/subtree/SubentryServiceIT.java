@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,12 +55,12 @@ import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
@@ -420,9 +421,9 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             "c-o: Test Org", 
             "cn: testsubentryA" );
 
-        AddResponse response = connection.add( subEntryA );
+        connection.add( subEntryA );
 
-        assertTrue( response.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS );
+        assertTrue( connection.exists( "cn=testsubentryA,dc=AP-A,dc=test,ou=system" ) );
 
         // Check the resulting modifications
         Map<String, Entry> results = getAllEntries( connection, "dc=test,ou=system" );
@@ -466,7 +467,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             "c-o: Test Org", 
             "cn: testsubentryB");
 
-        response = connection.add( subEntryB );
+        connection.add( subEntryB );
+        assertTrue( connection.exists( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ) );
 
         // Check the resulting modifications
         results = getAllEntries( connection, "dc=test,ou=system" );
@@ -539,10 +541,16 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Entry subEntry = getSubentry( "cn=testsubentry,ou=system" );
-        AddResponse response = connection.add( subEntry );
-
-        assertTrue( "should never get here: cannot create subentry under regular entries", response.getLdapResult()
-            .getResultCode() == ResultCodeEnum.NO_SUCH_ATTRIBUTE );
+        
+        try
+        {
+            connection.add( subEntry );
+            fail();
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            assertTrue( true );
+        }
 
         addAdministrativeRole( connection, "ou=system", "collectiveAttributeSpecificArea" );
         connection.add( subEntry );
@@ -1419,7 +1427,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test
+    @Test( expected = LdapNoPermissionException.class )
     public void testUserInjectAccessControlSubentries() throws Exception
     {
         userConnection = IntegrationUtils.getConnectionAs( getService(), "cn=testUser,ou=system", "test" );
@@ -1432,10 +1440,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             "accessControlSubentries: ou=system" );
 
         // It should fail
-        AddResponse response = userConnection.add( sap );
-
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
-
-        userConnection.close();
+        try
+        {
+            userConnection.add( sap );
+        }
+        finally
+        {
+            userConnection.close();
+        }
     }
 }

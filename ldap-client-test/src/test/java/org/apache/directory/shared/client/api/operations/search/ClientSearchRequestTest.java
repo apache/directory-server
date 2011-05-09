@@ -23,6 +23,7 @@ package org.apache.directory.shared.client.api.operations.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -101,12 +102,37 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
 
 
     @Test
+    public void testSimpleSearch() throws Exception
+    {
+        SearchCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+        int count = 0;
+        
+        while ( cursor.next() )
+        {
+            Response response = cursor.get();
+            assertNotNull( response );
+            assertTrue( response instanceof SearchResultEntry );
+            System.out.println( ((SearchResultEntry)response).getEntry() );
+            count++;
+        }
+
+        SearchResultDone done = cursor.getSearchResultDone();
+
+        assertNotNull( done );
+        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+        assertEquals( 5, count );
+        cursor.close();
+    }
+
+
+    @Test
     public void testSearch() throws Exception
     {
         SearchCursor cursor = connection.search( "ou=system", "(objectclass=*)",
             SearchScope.ONELEVEL,
             "*", "+" );
         int count = 0;
+        
         while ( cursor.next() )
         {
             assertNotNull( cursor.get() );

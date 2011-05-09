@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authn;
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -33,12 +33,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
@@ -210,8 +209,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // close and try again now with new password (should succeed)
         connection.bind( userDn, "newpwd" );
@@ -261,8 +267,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -303,8 +316,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -343,8 +363,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "test123" );
@@ -383,8 +410,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -424,8 +458,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -464,8 +505,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -503,7 +551,14 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection.modify( modReq );
         connection.close();
 
-        BindResponse bindResp = connection.bind( userDn, "test" );
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
     }
 }

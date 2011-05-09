@@ -37,8 +37,7 @@ import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -95,42 +94,35 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
-        BindResponse bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
+        ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         
-        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
-        {
-            fail( "this authentication should have been successful, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
-        }
+        assertTrue( ldapConnection.isAuthenticated() );
         
         ldapConnection.unBind();
-        bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
         
-        if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        try
         {
-            fail( "this authentication should have failed due to wrong password, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
+            ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
         }
         
         ldapConnection.unBind();
         
         try
         {
-            bindResponse = ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
-        
-            if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
-            {
-                fail( "this authentication should fail, user does not exist, got result code : "
-                    + bindResponse.getLdapResult().getResultCode() );
-            }
-            
-            ldapConnection.unBind();
+            ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
+            fail();
         }
         catch ( Exception exc )
         {
             assertTrue( true );
         }
         
+        ldapConnection.unBind();
         ldapConnection.close();
     }
     
@@ -175,62 +167,56 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
-        BindResponse bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
+        ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
-        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+        assertTrue( ldapConnection.isAuthenticated() );
+        
+        ldapConnection.unBind();
+
+        try
         {
-            fail( "this authentication should have been successful through local simple authenticator, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
+            ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "crypto" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
         }
         
         ldapConnection.unBind();
-        bindResponse = ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "crypto" );
+        ldapConnection.bind();
         
-        if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
-        {
-            fail( "this authentication should fail due to wrong password, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
-        }
+        assertTrue( ldapConnection.isAuthenticated() );
         
         ldapConnection.unBind();
-        bindResponse = ldapConnection.bind();
+        ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         
-        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
-        {
-            fail( "this authentication should have been successful through local anonymous authenticator, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
-        }
+        assertTrue( ldapConnection.isAuthenticated() );
         
         ldapConnection.unBind();
-        bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
         
-        if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+        try
         {
-            fail( "this authentication should have been successful, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
+            ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
         }
-        
-        ldapConnection.unBind();
-        bindResponse = ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
-        
-        if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        catch ( LdapAuthenticationException lae )
         {
-            fail( "this authentication should have failed due to wrong password, got result code : "
-                + bindResponse.getLdapResult().getResultCode() );
+            assertTrue( true );
         }
         
         ldapConnection.unBind();
         
         try
         {
-            bindResponse = ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
-        
-            if ( bindResponse.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+            try
             {
-                fail( "this authentication should fail, user does not exist, got result code : "
-                    + bindResponse.getLdapResult().getResultCode() );
+                ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
             }
-            
+            catch ( LdapAuthenticationException lae )
+            {
+                assertTrue( true );
+            }
+        
             ldapConnection.unBind();
         }
         catch ( Exception exc )

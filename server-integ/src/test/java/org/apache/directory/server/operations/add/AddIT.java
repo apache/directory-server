@@ -90,8 +90,8 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -1399,10 +1399,7 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.add( "nonExistingAttribute", "value" );
         personEntry.setDn( dn );
 
-        AddResponse response = connection.add( personEntry );
-
-        assertNotNull( response );
-        assertTrue( !ResultCodeEnum.SUCCESS.equals( response.getLdapResult().getResultCode() ) );
+        connection.add( personEntry );
 
         Entry entry = connection.lookup( dn );
         assertNull( entry );
@@ -1416,7 +1413,7 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test
+    @Test( expected = LdapOperationException.class )
     public void testAddEntryNonExistingOC() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
@@ -1429,14 +1426,6 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.add( SchemaConstants.SN_AT, "Bush" );
         personEntry.setDn( dn );
 
-        AddResponse response = connection.add( personEntry );
-
-        assertNotNull( response );
-        assertTrue( !ResultCodeEnum.SUCCESS.equals( response.getLdapResult().getResultCode() ) );
-
-        Entry entry = connection.lookup( dn );
-        assertNull( entry );
-
-        connection.close();
+        connection.add( personEntry );
     }
 }

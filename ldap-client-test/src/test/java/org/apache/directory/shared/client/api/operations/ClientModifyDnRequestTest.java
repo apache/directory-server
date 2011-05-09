@@ -83,9 +83,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testRename() throws Exception
     {
-        ModifyDnResponse resp = connection.rename( DN, "cn=modifyDnWithString" );
-        assertNotNull( resp );
-        assertFalse( session.exists( new Dn( DN ) ) );
+        connection.rename( DN, "cn=modifyDnWithString" );
         assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
     }
 
@@ -93,8 +91,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testRenameWithoutDeleteOldRdn() throws Exception
     {
-        ModifyDnResponse resp = connection.rename( DN, "cn=modifyDnWithString", false );
-        assertNotNull( resp );
+        connection.rename( DN, "cn=modifyDnWithString", false );
 
         Dn oldDn = new Dn( DN );
         assertFalse( session.exists( oldDn ) );
@@ -110,8 +107,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     @Test
     public void testMove() throws Exception
     {
-        ModifyDnResponse resp = connection.move( DN, "ou=users,ou=system" );
-        assertNotNull( resp );
+        connection.move( DN, "ou=users,ou=system" );
 
         Dn oldDn = new Dn( DN );
         assertFalse( session.exists( oldDn ) );

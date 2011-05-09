@@ -41,9 +41,8 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -65,6 +64,7 @@ import org.junit.runner.RunWith;
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String DN_KATE_BUSH = "cn=Kate Bush,ou=system";
+    private static final String DN_KB = "cn=KB,ou=system";
 
     private LdapConnection connection;
 
@@ -82,6 +82,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
             "objectClass: person", 
             "cn: Kate Bush", 
             "sn: Bush");
+        
         connection.add( entry );
     }
 
@@ -91,7 +92,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     {
         // delete this entry after each test because we want 
         // to check that operational attributes are added
-        connection.delete( DN_KATE_BUSH );
+        if ( connection.exists( DN_KATE_BUSH ) )
+        {
+            connection.delete( DN_KATE_BUSH );
+        }
 
         connection.close();
     }
@@ -344,15 +348,13 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test
+    @Test( expected = LdapNoPermissionException.class )
     public void testModifyOperationalAttributeRemove() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
             new DefaultAttribute( "creatorsName" ) );
 
-        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
-
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
+        connection.modify( DN_KATE_BUSH, modifyOp );
     }
 
 
@@ -361,15 +363,13 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test
+    @Test( expected = LdapNoPermissionException.class )
     public void testModifyOperationalAttributeReplace() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        ModifyResponse response = connection.modify( DN_KATE_BUSH, modifyOp );
-
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, response.getLdapResult().getResultCode() );
+        connection.modify( DN_KATE_BUSH, modifyOp );
     }
 
 
@@ -394,7 +394,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "createTimestamp" ) );
         assertNotNull( entry.get( "modifiersName" ) );
         assertNotNull( entry.get( "modifyTimestamp" ) );
-    }
+
+        connection.rename( DN_KB, "cn=Kate Bush" );
+}
 
 
     /**
@@ -418,7 +420,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "createTimestamp" ) );
         assertNotNull( entry.get( "modifiersName" ) );
         assertNotNull( entry.get( "modifyTimestamp" ) );
-    }
+        
+        connection.delete( "cn=Kate Bush,ou=users,ou=system" );
+        }
 
 
     /**
@@ -442,6 +446,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "createTimestamp" ) );
         assertNotNull( entry.get( "modifiersName" ) );
         assertNotNull( entry.get( "modifyTimestamp" ) );
+        
+        connection.delete( "cn=KB,ou=users,ou=system" );
     }
 
 }

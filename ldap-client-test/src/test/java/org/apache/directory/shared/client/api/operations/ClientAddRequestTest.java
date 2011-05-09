@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -41,10 +42,10 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -95,9 +96,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         assertFalse( session.exists( dn ) );
 
-        AddResponse response = connection.add( entry );
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        connection.add( entry );
 
         assertTrue( session.exists( dn ) );
     }
@@ -108,7 +107,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     {
         assertFalse( session.exists( "cn=testadd,ou=system" ) );
 
-        AddResponse response = connection.add( 
+        connection.add( 
             new DefaultEntry( 
                 "cn=testadd,ou=system",
                 "ObjectClass : top",
@@ -116,9 +115,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
                 "cn: testadd_sn",
                 "sn: testadd_sn"
                 ) );
-
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
 
         assertTrue( session.exists( "cn=testadd,ou=system" ) );
     }
@@ -244,11 +240,18 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         connection.unBind();
 
         // connect as non admin user and try to add entry with uuid and csn
-        BindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        connection.bind( "cn=kayyagari,ou=system", "secret" );
+        assertTrue( connection.isAuthenticated() );
 
-        AddResponse resp = connection.add( entry );
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapNoPermissionException lnpe )
+        {
+            assertTrue( true );
+        }
     }
 
 }

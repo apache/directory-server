@@ -51,11 +51,11 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModify
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -66,10 +66,8 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.IntermediateResponse;
-import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
@@ -217,18 +215,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             }
 
             // Do a bind
-            BindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
-
-            // Now get the result
-            LdapResult ldapResult = bindResponse.getLdapResult();
-
-            if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
+            try
             {
-                LOG.warn( "Failed to bind to the server with the given bind Dn {} and credentials: {}", config.getReplUserDn(), ldapResult );
-            }
-            else
-            {
+                connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
                 return true;
+            }
+            catch ( LdapException le )
+            {
+                LOG.warn( "Failed to bind to the server with the given bind Dn {} and credentials: {}", config.getReplUserDn(), le.getCause() );
             }
         }
         catch ( Exception e )

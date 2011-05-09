@@ -29,8 +29,6 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 
@@ -127,19 +125,19 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         try
         {
             // Try to bind
-            BindResponse bindResponse = ldapConnection.bind( bindContext.getDn(),
-                Strings.utf8ToString(bindContext.getCredentials()) );
-            
-            if ( bindResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+            try
+            {
+                ldapConnection.bind( bindContext.getDn(),
+                    Strings.utf8ToString(bindContext.getCredentials()) );
+                
+                // no need to remain bound to delegate host
+                ldapConnection.unBind();
+            }
+            catch ( LdapException le )
             {
                 String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
-            }
-            else
-            {
-                // no need to remain bound to delegate host
-                ldapConnection.unBind();
             }
             
             // Create the new principal

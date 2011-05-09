@@ -80,13 +80,12 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
     {
         Dn dn = new Dn( "uid=admin,ou=system" );
 
-        CompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
-        assertNotNull( response );
-        assertTrue( response.isTrue() );
+        boolean response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
+        assertTrue( response );
 
         response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
         assertNotNull( response );
-        assertTrue( response.isTrue() );
+        assertTrue( response );
     }
 
 

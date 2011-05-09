@@ -25,7 +25,6 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -36,8 +35,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.CompareResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -93,7 +91,6 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     {
 
         Dn entryDn = new Dn( service.getSchemaManager(), entryRdn + ",ou=system" );
-        boolean result = true;
 
         // create the entry with the telephoneNumber attribute to compare
         Entry testEntry = new DefaultEntry( 
@@ -112,16 +109,20 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
-        CompareResponse resp = userConnection.compare( entryDn, "telephoneNumber", number );
-
-        // don't set based on compare result success/failure but based on whether the op was permitted or not
-        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
+        boolean result = true;
+        
+        try
+        {  
+            // don't set based on compare result success/failure but based on whether the op was permitted or not
+            result = userConnection.compare( entryDn, "telephoneNumber", number );
+        }
+        catch ( LdapNoPermissionException lnpe )
         {
             result = false;
         }
 
         // let's clean up
-        adminConnection.delete( entryRdn );
+        adminConnection.delete( entryDn );
 
         return result;
     }
@@ -277,8 +278,6 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         adminCtx.add( user );
 
-        CompareResponse resp = adminCtx.compare( userDn, "userPassword", "bobspassword" );
-        assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
+        assertTrue( adminCtx.compare( userDn, "userPassword", "bobspassword" ) );
     }
-
 }

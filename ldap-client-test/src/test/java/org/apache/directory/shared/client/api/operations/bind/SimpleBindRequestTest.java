@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,12 +42,14 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,12 +111,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSyncBindRequest() throws Exception
     {
-        BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+        connection.bind( "uid=admin,ou=system", "secret" );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
     }
 
@@ -186,13 +185,20 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
         
-        BindResponse bindResponse = connection.bind();
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResponse.getLdapResult().getResultCode() );
+        try
+        {
+            connection.bind();
+            fail();
+        }
+        catch ( LdapOperationException le )
+        {
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, le.getResultCode() );
+        }
         
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
-        bindResponse = connection.bind();
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        connection.bind();
+        assertTrue( connection.isAuthenticated() );
     }
 
 
@@ -207,12 +213,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
-        BindResponse bindResponse = connection.bind();
+        connection.bind();
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
 
         //System.out.println( "----------------Unbind" + i + "-------------" );
@@ -222,12 +224,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         // Try with empty strings
         connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        bindResponse = connection.bind( "", "" );
+        connection.bind( "", "" );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
 
         connection.unBind();
@@ -236,12 +234,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         // Try with null parameters
         connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        bindResponse = connection.bind( ( String ) null, ( String ) null );
+        connection.bind( ( String ) null, ( String ) null );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
         assertTrue( connection.isConnected() );
 
@@ -264,12 +258,18 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindNoNamePassword() throws Exception
     {
-        BindResponse response = connection.bind( ( String ) null, "abc" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
-        assertFalse( connection.isAuthenticated() );
-        assertTrue( connection.isConnected() );
+        try
+        {
+            connection.bind( ( String ) null, "abc" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            ResultCodeEnum resultCode = lae.getResultCode();
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resultCode );
+            assertFalse( connection.isAuthenticated() );
+            assertTrue( connection.isConnected() );
+        }
     }
 
 
@@ -279,12 +279,18 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindUnauthenticated() throws Exception
     {
-        BindResponse response = connection.bind( "uid=admin,ou=system" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
-        assertFalse( connection.isAuthenticated() );
-        assertTrue( connection.isConnected() );
+        try
+        {
+            connection.bind( "uid=admin,ou=system" );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            ResultCodeEnum resultCode = lutpe.getResultCode();
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resultCode );
+            assertFalse( connection.isAuthenticated() );
+            assertTrue( connection.isConnected() );
+        }
     }
 
 
@@ -304,10 +310,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindValid() throws Exception
     {
-        BindResponse response = connection.bind( "uid=admin,ou=system", "secret" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
+        connection.bind( "uid=admin,ou=system", "secret" );
         assertTrue( connection.isAuthenticated() );
     }
 
@@ -318,12 +321,18 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindValidUserWrongPassword() throws Exception
     {
-        BindResponse response = connection.bind( "uid=admin,ou=system", "badpassword" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
-        assertFalse( connection.isAuthenticated() );
-        assertTrue( connection.isConnected() );
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "badpassword" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            ResultCodeEnum resultCode = lae.getResultCode();
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resultCode );
+            assertFalse( connection.isAuthenticated() );
+            assertTrue( connection.isConnected() );
+        }
     }
 
 
@@ -333,12 +342,18 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindInvalidUser() throws Exception
     {
-        BindResponse response = connection.bind( "uid=wrong,ou=system", "secret" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
-        assertFalse( connection.isAuthenticated() );
-        assertTrue( connection.isConnected() );
+        try
+        {
+            connection.bind( "uid=wrong,ou=system", "secret" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            ResultCodeEnum resultCode = lae.getResultCode();
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resultCode );
+            assertFalse( connection.isAuthenticated() );
+            assertTrue( connection.isConnected() );
+        }
     }
 
 
@@ -348,17 +363,23 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testDoubleSimpleBindValid() throws Exception
     {
-        BindResponse response1 = connection.bind( "uid=admin,ou=system", "secret" );
-        LdapResult ldapResult1 = response1.getLdapResult();
-        assertEquals( ResultCodeEnum.SUCCESS, ldapResult1.getResultCode() );
-        assertEquals( 1, response1.getMessageId() );
+        BindRequest br1 = new BindRequestImpl();
+        br1.setName( new Dn( "uid=admin,ou=system" ) );
+        br1.setCredentials( Strings.getBytesUtf8( "secret" ) );
+        
+        BindResponse response1 = connection.bind( br1 );
         assertTrue( connection.isAuthenticated() );
+        int messageId1 = response1.getMessageId();
 
         // The messageId must have been incremented
-        BindResponse response2 = connection.bind( "uid=admin,ou=system", "secret" );
-        LdapResult ldapResult2 = response2.getLdapResult();
-        assertEquals( ResultCodeEnum.SUCCESS, ldapResult2.getResultCode() );
-        assertEquals( 2, response2.getMessageId() );
+        BindRequest br2 = new BindRequestImpl();
+        br2.setName( new Dn( "uid=admin,ou=system" ) );
+        br2.setCredentials( Strings.getBytesUtf8( "secret" ) );
+        
+        BindResponse response2 = connection.bind( br2 );
+        int messageId2 = response2.getMessageId();
+
+        assertTrue( messageId2 > messageId1 );
         assertTrue( connection.isAuthenticated() );
 
         // Now, unbind
@@ -367,10 +388,13 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
 
         // And Bind again. The messageId should be 1 
-        BindResponse response3 = connection.bind( "uid=admin,ou=system", "secret" );
-        LdapResult ldapResult3 = response3.getLdapResult();
-        assertEquals( ResultCodeEnum.SUCCESS, ldapResult3.getResultCode() );
-        assertEquals( 1, response3.getMessageId() );
+        BindRequest br3 = new BindRequestImpl();
+        br3.setName( new Dn( "uid=admin,ou=system" ) );
+        br3.setCredentials( Strings.getBytesUtf8( "secret" ) );
+
+        BindResponse response3 = connection.bind( br3 );
+        int messageId = response3.getMessageId();
+        assertEquals( 1, messageId );
         assertTrue( connection.isAuthenticated() );
     }
 
@@ -417,10 +441,16 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
             Thread.sleep( 200 );
 
             // It will take 1 seconds to bind, let's send another bind request : it should fail
-            BindResponse response = connection.bind( "uid=admin,ou=system", "secret" );
-
-            assertFalse( connection.isAuthenticated() );
-            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+            try
+            {  
+                connection.bind( "uid=admin,ou=system", "secret" );
+                fail();
+            }
+            catch ( LdapUnwillingToPerformException lutpe )
+            {
+                assertFalse( connection.isAuthenticated() );
+                assertTrue( true );
+            }
 
             // Now get back the BindResponse
             BindResponse bindResponse = bindFuture.get( 2000, TimeUnit.MILLISECONDS );
@@ -443,30 +473,17 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testBindUserWhenAnonymous() throws Exception
     {
         // Bind anonymous
-        BindResponse bindResponse = connection.bind();
-
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
+        connection.bind();
         assertTrue( connection.isAuthenticated() );
 
         // Now bind with some credentials
-        bindResponse = connection.bind( "uid=admin, ou=system", "secret" );
+        connection.bind( "uid=admin, ou=system", "secret" );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 2, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
 
-        //And back to anonymous
-        bindResponse = connection.bind();
+        // And back to anonymous
+        connection.bind();
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 3, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
     }
 
@@ -478,21 +495,13 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testBindUserWhenAlreadyBound() throws Exception
     {
         // Bind with some credentials
-        BindResponse bindResponse = connection.bind( "uid=admin, ou=system", "secret" );
+        connection.bind( "uid=admin, ou=system", "secret" );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 1, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
 
         // Bind with another user
-        bindResponse = connection.bind( "uid=superuser,ou=system", "test" );
+        connection.bind( "uid=superuser,ou=system", "test" );
 
-        assertNotNull( bindResponse );
-        assertNotNull( bindResponse.getLdapResult() );
-        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-        assertEquals( 2, bindResponse.getMessageId() );
         assertTrue( connection.isAuthenticated() );
     }
     
@@ -503,17 +512,17 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindInvalidFwdByValidOnSameCon() throws Exception
     {
-        BindResponse response = connection.bind( "uid=admin,ou=system", "wrongpwd" );
-        LdapResult ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ldapResult.getResultCode() );
-        assertEquals( 1, response.getMessageId() );
-        assertFalse( connection.isAuthenticated() );
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "wrongpwd" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertFalse( connection.isAuthenticated() );
+        }
         
-        response = connection.bind( "uid=admin,ou=system", "secret" );
-        ldapResult = response.getLdapResult();
-        assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
-        assertEquals( 2, response.getMessageId() );
+        connection.bind( "uid=admin,ou=system", "secret" );
         assertTrue( connection.isAuthenticated() );
     }
-
 }

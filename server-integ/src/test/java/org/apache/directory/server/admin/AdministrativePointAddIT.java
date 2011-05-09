@@ -20,9 +20,9 @@
 package org.apache.directory.server.admin;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -34,8 +34,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
@@ -186,12 +185,15 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
         
-
-        AddResponse response = connection.add( entry );
-
-        // It should fail
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
 
         // Add the entry under a SAP with the same role which has no parent AAP
         entry = new DefaultEntry(
@@ -202,11 +204,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
                 "administrativeRole: collectiveAttributeInnerArea"
         );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA2,ou=system" ) );
 
         // Add the entry under a SAP with a different role which has no parent AAP
         entry = new DefaultEntry(
@@ -217,11 +218,15 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
-
-        // It should fail
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
 
         // Add the entry under an AAP
         entry = new DefaultEntry(
@@ -232,11 +237,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=AAP1,ou=system" ) );
 
         // Add the entry under an IAP with the same role which has a parent AAP
         entry = new DefaultEntry(
@@ -247,11 +251,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an IAP with a different role which has a parent AAP
         entry = new DefaultEntry(
@@ -262,11 +265,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an SAP with the same role which has a parent AAP
         entry = new DefaultEntry(
@@ -277,11 +279,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an SAP with a different role which has a parent AAP
         entry = new DefaultEntry(
@@ -292,11 +293,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeInnerArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
     }
 
 
@@ -318,11 +318,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        AddResponse response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=entry,ou=system" ) );
 
         // Add the entry under a SAP with the same role which has no parent AAP
         entry = new DefaultEntry(
@@ -333,11 +332,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA2,ou=system" ) );
 
         // Add the entry under a SAP with a different role which has no parent AAP
         entry = new DefaultEntry(
@@ -348,11 +346,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC2,ou=system" ) );
 
         // Add the entry under an AAP
         entry = new DefaultEntry(
@@ -363,11 +360,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=AAP1,ou=system" ) );
 
         // Add the entry under an IAP with the same role which has a parent AAP
         entry = new DefaultEntry(
@@ -378,11 +374,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an IAP with a different role which has a parent AAP
         entry = new DefaultEntry(
@@ -393,11 +388,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an SAP with the same role which has a parent AAP
         entry = new DefaultEntry(
@@ -408,11 +402,10 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
 
         // Add the entry under an SAP with a different role which has a parent AAP
         entry = new DefaultEntry(
@@ -423,10 +416,9 @@ public class AdministrativePointAddIT extends AbstractLdapTestUnit
             "administrativeRole: collectiveAttributeSpecificArea"
             );
 
-        response = connection.add( entry );
+        connection.add( entry );
 
         // It should succeed
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
     }
 }

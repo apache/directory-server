@@ -24,6 +24,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getClient
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
@@ -44,7 +45,8 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.message.DeleteResponse;
+import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,8 +97,15 @@ public class DeleteIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( getLdapServer() );
 
         // delete failure on non-leaf entry
-        DeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
-        assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, resp.getLdapResult().getResultCode() );
+        try
+        {
+            conn.delete( "uid=akarasulu,ou=users,ou=system" );
+            fail();
+        }
+        catch ( LdapContextNotEmptyException lcnee )
+        {
+            assertTrue( true );
+        }
 
         conn.unBind();
         conn.close();
@@ -116,8 +125,15 @@ public class DeleteIT extends AbstractLdapTestUnit
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
 
         // delete failure non-existant entry
-        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
-        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
+        try
+        { 
+            conn.delete( "uid=elecharny,ou=users,ou=system" );
+            fail();
+        }
+        catch ( LdapNoSuchObjectException lnsoe )
+        {
+            assertTrue( true );
+        }
 
         conn.unBind();
         conn.close();
@@ -134,8 +150,15 @@ public class DeleteIT extends AbstractLdapTestUnit
         LdapConnection conn = getClientApiConnection( getLdapServer() );
 
         // delete failure non-existent entry
-        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
-        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
+        try
+        { 
+            conn.delete( "uid=elecharny,ou=users,ou=system" );
+            fail();
+        }
+        catch ( LdapNoSuchObjectException lnsoe )
+        {
+            assertTrue( true );
+        }
 
         conn.unBind();
         conn.close();

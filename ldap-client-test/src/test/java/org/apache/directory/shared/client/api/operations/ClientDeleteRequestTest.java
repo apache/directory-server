@@ -41,6 +41,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
+import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
@@ -110,9 +111,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     {
         assertTrue( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
-        DeleteResponse response = connection.delete( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        connection.delete( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
 
         assertFalse( session.exists( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
     }
@@ -123,9 +122,15 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     {
         assertTrue( session.exists( "cn=parent,ou=system" ) );
 
-        DeleteResponse response = connection.delete( "cn=parent,ou=system" );
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
+        try
+        {
+            connection.delete( "cn=parent,ou=system" );
+            fail();
+        }
+        catch ( LdapContextNotEmptyException lcnee )
+        {
+            assertTrue( true );
+        }
 
         assertTrue( session.exists( "cn=parent,ou=system" ) );
     }
@@ -138,9 +143,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
-            DeleteResponse response = connection.deleteTree( "cn=parent,ou=system" );
-            assertNotNull( response );
-            assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+            connection.deleteTree( "cn=parent,ou=system" );
 
             assertFalse( session.exists( "cn=parent,ou=system" ) );
         }

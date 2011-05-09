@@ -20,9 +20,9 @@
 package org.apache.directory.server.admin;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -31,14 +31,13 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
@@ -304,9 +303,15 @@ public class AdministrativePointModifyIT extends AbstractLdapTestUnit
         // Add the SAP
         Modification modificationAddSap = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
-        ModifyResponse response = connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modificationDelAap, modificationAddSap );
-
-        assertNotNull( response );
-        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, response.getLdapResult().getResultCode() );
+        
+        try
+        {
+            connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modificationDelAap, modificationAddSap );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
     }
 }

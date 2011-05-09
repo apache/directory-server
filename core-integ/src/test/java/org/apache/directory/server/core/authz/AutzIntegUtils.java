@@ -20,12 +20,16 @@
 package org.apache.directory.server.core.authz;
 
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.AddRequest;
+import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
@@ -136,6 +140,7 @@ public class AutzIntegUtils
             "userPassword", password );
 
         connection.add( entry );
+        assertTrue( connection.exists(  entry.getDn() ) );
 
         return entry.getDn();
     }
@@ -260,9 +265,11 @@ public class AutzIntegUtils
             "subtreeSpecification", subtree,
             "prescriptiveACI", aciItem );
 
-        AddResponse addResp = connection.add( subEntry );
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( subEntry );
+        AddResponse addResponse = connection.add( addRequest );
 
-        return addResp.getLdapResult().getResultCode();
+        return addResponse.getLdapResult().getResultCode();
     }
 
 

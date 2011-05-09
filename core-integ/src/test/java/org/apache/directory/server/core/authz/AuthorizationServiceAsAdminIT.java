@@ -36,12 +36,10 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.DeleteResponse;
-import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
+import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -83,11 +81,10 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test
+    @Test( expected=LdapNoPermissionException.class )
     public void testNoDeleteOnAdminByAdmin() throws Exception
     {
-        DeleteResponse delResp = getAdminConnection().delete( "uid=admin,ou=system" );
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, delResp.getLdapResult().getResultCode() );
+        getAdminConnection().delete( "uid=admin,ou=system" );
     }
 
 
@@ -96,11 +93,10 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test
+    @Test( expected=LdapNoPermissionException.class )
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        ModifyDnResponse resp = getAdminConnection().rename( new Dn( "uid=admin,ou=system" ), new Rdn( "uid=alex" ) );
-        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
+        getAdminConnection().rename( new Dn( "uid=admin,ou=system" ), new Rdn( "uid=alex" ) );
     }
 
 

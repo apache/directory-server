@@ -42,9 +42,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -95,11 +93,9 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         try
         {
-            BindResponse bindResponse = connection.bind( ADMIN_DN, "secret" );
+            connection.bind( ADMIN_DN, "secret" );
 
-            assertNotNull( bindResponse );
-
-            //connection.unBind();
+            assertTrue( connection.isAuthenticated() );
         }
         finally
         {
@@ -215,10 +211,10 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testAnonBind() throws Exception
     {
-        LdapNetworkConnection conn = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         
-        BindResponse resp = conn.bind();
-        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
-        conn.close();
+        connection.bind();
+        assertTrue( connection.isAuthenticated() );
+        connection.close();
     }
 }
