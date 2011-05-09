@@ -259,7 +259,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            Dn dn = getBaseDN( SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
+            Dn dn = getBaseDN( SchemaConstants.ATTRIBUTE_TYPES_PATH, schema );
 
             // Check that we don't have an entry in the Dit for this schema
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
