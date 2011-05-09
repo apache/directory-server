@@ -66,7 +66,7 @@ import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescri
  */
 public class DescriptionParsers
 {
-    /** Empty arrays of SchemaOjects */
+    /** Empty arrays of SchemaObjects */
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS         = new LdapComparatorDescription[0];
     private static final NormalizerDescription[]     EMPTY_NORMALIZERS         = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
