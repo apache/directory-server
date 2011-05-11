@@ -28,6 +28,10 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.IntermediateResponse;
+import org.apache.directory.shared.ldap.model.message.Referral;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
@@ -218,5 +222,80 @@ public class EntryToResponseCursor implements SearchCursor
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isDone()
+    {
+        return done;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isReferral()
+    {
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Referral getReferral() throws LdapException
+    {
+        throw new LdapException();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isEntry()
+    {
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getEntry() throws LdapException
+    {
+        if ( !done && wrapped.available() )
+        {
+            try
+            {
+                return wrapped.get();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapException( e );
+            }
+        }
+
+        throw new LdapException();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isIntermediate()
+    {
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public IntermediateResponse getIntermediate() throws LdapException
+    {
+        throw new LdapException();
     }
 }
