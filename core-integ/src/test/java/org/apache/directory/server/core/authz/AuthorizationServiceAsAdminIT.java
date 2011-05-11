@@ -34,13 +34,11 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -136,11 +134,11 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 
         HashSet<String> set = new HashSet<String>();
 
-        Cursor<Response> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = cursor.get();
             set.add( result.getDn().getName() );
         }
 

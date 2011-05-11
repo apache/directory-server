@@ -35,7 +35,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -114,7 +113,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailSearchNoSuchObject() throws Exception
     {
-        Cursor<Response> cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
+        EntryCursor cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
         assertFalse( cursor.next() );
     }
@@ -129,7 +128,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchControl() throws Exception
     {
-        Cursor<Response> cursor = getAdminConnection( getService() ).search( "ou=users,ou=system", "(objectClass=*)",
+        EntryCursor cursor = getAdminConnection( getService() ).search( "ou=users,ou=system", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );

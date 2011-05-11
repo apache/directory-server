@@ -27,8 +27,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,14 +51,14 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        Cursor<Response> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
+        EntryCursor cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
             SearchScope.OBJECT, "*" );
 
         int i = 0;
 
         while ( cursor.next() )
         {
-            Response response = cursor.get();
+            Entry entry = cursor.get();
             ++i;
         }
 

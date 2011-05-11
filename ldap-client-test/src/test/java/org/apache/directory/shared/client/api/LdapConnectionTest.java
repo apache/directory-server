@@ -38,12 +38,10 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
@@ -149,10 +147,10 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new StringValue( uuid ) );
 
-        Cursor<Response> cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
+        EntryCursor cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
 
-        Entry readEntry = ( (SearchResultEntry) cursor.get() ).getEntry();
+        Entry readEntry = cursor.get();
         assertEquals( uuid, readEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
 
         cursor.close();
@@ -191,12 +189,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
-        Cursor<Response> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
+        EntryCursor cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
         HashMap<String, Entry> map = new HashMap<String, Entry>();
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = cursor.get();
             map.put( result.getDn().getName(), result );
         }
         cursor.close();

@@ -54,7 +54,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -65,8 +65,6 @@ import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.filter.LessEqNode;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -1827,12 +1825,14 @@ public class SearchIT extends AbstractLdapTestUnit
         Entry loadedEntry = null;
 
         Set<String> csnSet = new HashSet<String>( expectedCsns.length );
-        Cursor<Response> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*", "+" );
+        EntryCursor cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*", "+" );
+        
         while ( cursor.next() )
         {
-            loadedEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            loadedEntry = cursor.get();
             csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
         }
+        
         cursor.close();
 
         assertTrue( csnSet.size() >= expectedCsns.length );

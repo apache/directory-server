@@ -33,7 +33,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -44,8 +44,6 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.After;
 import org.junit.Before;
@@ -136,18 +134,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<Response> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "+",
+        EntryCursor cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "+",
             "*" );
 
         while ( cursor.next() )
         {
-            Response result = cursor.get();
+            Entry entry = cursor.get();
 
-            if ( result instanceof SearchResultEntry )
-            {
-                Entry entry = ( (SearchResultEntry) result ).getEntry();
-                resultMap.put( entry.getDn().getName(), entry );
-            }
+            resultMap.put( entry.getDn().getName(), entry );
         }
 
         return resultMap;
@@ -158,17 +152,12 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<Response> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "cn" );
+        EntryCursor cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "cn" );
 
         while ( cursor.next() )
         {
-            Response result = cursor.get();
-
-            if ( result instanceof SearchResultEntry )
-            {
-                Entry entry = ( ( SearchResultEntry ) result ).getEntry();
-                resultMap.put( entry.getDn().getName(), entry );
-            }
+            Entry entry = cursor.get();
+            resultMap.put( entry.getDn().getName(), entry );
         }
 
         return resultMap;
@@ -179,18 +168,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> resultMap = new HashMap<String, Entry>();
 
-        Cursor<Response> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE,
+        EntryCursor cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE,
             "c-ou", "c-st" );
 
         while ( cursor.next() )
         {
-            Response result = cursor.get();
+            Entry entry = cursor.get();
 
-            if ( result instanceof SearchResultEntry )
-            {
-                Entry entry = ( ( SearchResultEntry ) result ).getEntry();
-                resultMap.put( entry.getDn().getName(), entry );
-            }
+            resultMap.put( entry.getDn().getName(), entry );
         }
 
         return resultMap;
@@ -347,20 +332,17 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
         
-        Cursor<Response> cursor = connection.search( "ou=system", "(c-ou=configuration)", SearchScope.SUBTREE, "+",
+        EntryCursor cursor = connection.search( "ou=system", "(c-ou=configuration)", SearchScope.SUBTREE, "+",
             "*" );
 
         boolean found = false;
         
         while ( cursor.next() )
         {
-            Response result = cursor.get();
+            Entry entry = cursor.get();
 
-            if ( result instanceof SearchResultEntry )
-            {
-                found = true;
-                break;
-            }
+            found = true;
+            break;
         }
         
         assertTrue( found );
@@ -388,13 +370,12 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // Test searching for subtypes
         // -------------------------------------------------------------------
-        Cursor<Response> responses = connection.search( "ou=services,ou=configuration,ou=system",
+        EntryCursor responses = connection.search( "ou=services,ou=configuration,ou=system",
             "(ObjectClass=*)", SearchScope.OBJECT, "ou" );
 
         while ( responses.next() )
         {
-            SearchResultEntry resultEntry = ( SearchResultEntry ) responses.get();
-            entry = resultEntry.getEntry();
+            entry = responses.get();
 
             assertEquals( 2, entry.size() );
             assertTrue( entry.containsAttribute( "ou" ) );

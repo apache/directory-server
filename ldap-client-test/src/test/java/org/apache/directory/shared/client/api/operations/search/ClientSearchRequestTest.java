@@ -23,7 +23,6 @@ package org.apache.directory.shared.client.api.operations.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -45,7 +44,6 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
@@ -104,15 +102,13 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleSearch() throws Exception
     {
-        SearchCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
         int count = 0;
         
         while ( cursor.next() )
         {
-            Response response = cursor.get();
-            assertNotNull( response );
-            assertTrue( response instanceof SearchResultEntry );
-            System.out.println( ((SearchResultEntry)response).getEntry() );
+            Entry entry = cursor.get();
+            assertNotNull( entry );
             count++;
         }
 
@@ -128,7 +124,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearch() throws Exception
     {
-        SearchCursor cursor = connection.search( "ou=system", "(objectclass=*)",
+        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)",
             SearchScope.ONELEVEL,
             "*", "+" );
         int count = 0;
@@ -151,12 +147,13 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchEquality() throws Exception
     {
-        SearchCursor cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
+        EntryCursor cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
             SearchScope.ONELEVEL, "*", "+" );
         int count = 0;
+        
         while ( cursor.next() )
         {
-            Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry entry = cursor.get();
             assertNotNull( entry );
             count++;
         }

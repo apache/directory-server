@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -37,6 +38,7 @@ import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -1010,7 +1012,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public SearchCursor search( Dn baseDn, String filter, SearchScope scope, String... attributes )
+    public EntryCursor search( Dn baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
         if ( baseDn == null )
@@ -1028,14 +1030,14 @@ public class LdapCoreSessionConnection implements LdapConnection
         searchRequest.addAttributes( attributes );
         searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
 
-        return search( searchRequest );
+        return new EntryCursorImpl( search( searchRequest ) );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public SearchCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
+    public EntryCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
         return search( new Dn( schemaManager, baseDn ), filter, scope, attributes );
@@ -1273,18 +1275,5 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
-    }
-
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void shutdown()
-    {
-        if ( codec != null )
-        {
-            codec.shutdown();
-        }
     }
 }

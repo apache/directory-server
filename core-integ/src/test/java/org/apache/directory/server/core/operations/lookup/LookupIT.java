@@ -32,9 +32,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.After;
 import org.junit.Before;
@@ -195,12 +194,11 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupWithAttrs() throws Exception
     {
-        SearchCursor cursor = connection.search( "cn=test,ou=system", "(ObjectClass=*)",SearchScope.SUBTREE, "name" );
+        EntryCursor cursor = connection.search( "cn=test,ou=system", "(ObjectClass=*)",SearchScope.SUBTREE, "name" );
         
         while ( cursor.next() )
         {
-            SearchResultEntry result = (SearchResultEntry)cursor.get();
-            Entry entry = result.getEntry();
+            Entry entry = cursor.get();
             assertNotNull( entry );
             assertEquals( 2, entry.size() );
             assertEquals( "test", entry.get( "cn" ).getString() );

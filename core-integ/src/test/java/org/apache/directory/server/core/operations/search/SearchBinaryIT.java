@@ -31,8 +31,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.message.Response;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -136,7 +135,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Do a search with a filter based on certificate, get back all the entries
-        Cursor<Response> responses = connection.search( "ou=system", "(userCertificate=*)",
+        EntryCursor responses = connection.search( "ou=system", "(userCertificate=*)",
             SearchScope.SUBTREE, "*" );
 
         int i = 0;
@@ -212,7 +211,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Check that searching for an entry using a valid SUBSTR filter works
-        Cursor<Response> responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)",
+        EntryCursor responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)",
             SearchScope.SUBTREE, "*" );
 
         int i = 0;

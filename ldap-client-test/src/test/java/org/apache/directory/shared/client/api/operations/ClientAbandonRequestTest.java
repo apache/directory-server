@@ -33,6 +33,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -161,20 +162,19 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         }
 
         // Launch the search now
-        Cursor<Response> cursor = connection.search( new Dn( "ou=system" ), "(cn=*)", SearchScope.ONELEVEL, "*" );
+        EntryCursor cursor = connection.search( new Dn( "ou=system" ), "(cn=*)", SearchScope.ONELEVEL, "*" );
 
-        Response searchResponse = null;
         int count = 0;
 
         while ( cursor.next() )
         {
-            searchResponse = cursor.get();
+            cursor.get();
             count++;
 
             if ( count > 10 )
             {
                 // Abandon the search request
-                AbandonRequest abandon = new AbandonRequestImpl( searchResponse.getMessageId() );
+                AbandonRequest abandon = new AbandonRequestImpl( cursor.getMessageId() );
                 connection.abandon( abandon );
             }
         }

@@ -50,7 +50,7 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
 import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -60,8 +60,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeExcep
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -314,18 +312,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     {
         Map<String, Entry> results = new HashMap<String, Entry>();
 
-        Cursor<Response> responses = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
+        EntryCursor responses = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "+", "*" );
 
         while ( responses.next() )
         {
-            Response response = responses.get();
+            Entry entry = responses.get();
 
-            if ( response instanceof SearchResultEntry)
-            {
-                Entry entry = ( ( SearchResultEntry ) response ).getEntry();
-
-                results.put( entry.getDn().getName(), entry );
-            }
+            results.put( entry.getDn().getName(), entry );
         }
 
         return results;

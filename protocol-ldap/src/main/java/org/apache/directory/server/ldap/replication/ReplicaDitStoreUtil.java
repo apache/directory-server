@@ -32,17 +32,15 @@ import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -155,15 +153,16 @@ public class ReplicaDitStoreUtil
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
-        Cursor<Response> cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
+        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
             SearchScope.ONELEVEL, "+", "*" );
 
         while ( cursor.next() )
         {
-            Entry entry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry entry = cursor.get();
             ReplicaEventLog replica = convertEntryToReplica( entry );
             replicas.add( replica );
         }
+        
         cursor.close();
 
         return replicas;

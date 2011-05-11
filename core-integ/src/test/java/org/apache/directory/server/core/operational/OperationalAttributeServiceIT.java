@@ -33,7 +33,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -42,8 +42,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -192,13 +190,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSystemContextRoot() throws Exception
     {
-        Cursor<Response> responses = connection
+        EntryCursor responses = connection
             .search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "*" );
         responses.next();
-        SearchResultEntry result = (SearchResultEntry) responses.get();
+        Entry entry = responses.get();
 
         // test to make sure op attribute do not occur - this is the control
-        Entry entry = result.getEntry();
         assertNull( entry.get( "creatorsName" ) );
         assertNull( entry.get( "createTimestamp" ) );
 
@@ -206,9 +203,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName",
             "createTimestamp" );
         responses.next();
-        result = ( SearchResultEntry ) responses.get();
+        entry = responses.get();
 
-        entry = result.getEntry();
         assertNotNull( entry.get( "creatorsName" ) );
         assertNotNull( entry.get( "createTimestamp" ) );
 

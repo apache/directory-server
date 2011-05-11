@@ -29,9 +29,8 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +65,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             connection.bind( "uid=admin,ou=system", "secret" );
 
             // Searches for all the entries in ou=system
-            Cursor<Response> cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
+            EntryCursor cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)",
                 SearchScope.OBJECT, "*" );
 
             int i = 0;
@@ -83,9 +82,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             for ( int j = 0; j < 10000; j++ )
             {
                 cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
+                
                 while ( cursor.next() )
                 {
                 }
+                
                 cursor.close();
             }
 

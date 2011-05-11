@@ -44,12 +44,10 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
@@ -186,13 +184,13 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private void recursivelyDelete( Dn rdn ) throws Exception
     {
-        Cursor<Response> results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
+        EntryCursor results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
 
         while ( results.next() )
         {
-            SearchResultEntry result = ( SearchResultEntry ) results.get();
-            Dn childRdn = result.getEntry().getDn();
+            Entry result = results.get();
+            Dn childRdn = result.getDn();
             recursivelyDelete( childRdn );
         }
 
@@ -272,12 +270,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=" + uid + ",ou=users,ou=system" );
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
-        Cursor<Response> cursor = userCtx.search( base.getName(), filter, scope, "*" );
+        EntryCursor cursor = userCtx.search( base.getName(), filter, scope, "*" );
         int counter = 0;
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = cursor.get();
             results.put( result.getDn().getName(), result );
             counter++;
         }
@@ -312,12 +310,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         results.clear();
         LdapConnection userCtx = getConnectionAs( userDn, password );
-        Cursor<Response> cursor = userCtx.search( base.getName(), "(objectClass=*)", scope, "*" );
+        EntryCursor cursor = userCtx.search( base.getName(), "(objectClass=*)", scope, "*" );
         int counter = 0;
 
         while ( cursor.next() )
         {
-            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            Entry result = cursor.get();
             results.put( result.getDn().getName(), result );
             counter++;
         }
@@ -341,7 +339,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection connection = getAdminConnection();
         Dn base = addSearchData( new Dn( "ou=system" ), 3, 10 );
 
-        Cursor<Response> results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
+        EntryCursor results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
             "+" );
         int counter = 0;
 
@@ -878,16 +876,17 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return the single search result if access is allowed or null
      * @throws Exception if the search fails w/ exception other than no permission
      */
-    private SearchResultEntry checkCanSearhSubentryAs( String uid, String password, Dn dn ) throws Exception
+    private Entry checkCanSearhSubentryAs( String uid, String password, Dn dn ) throws Exception
     {
         LdapConnection userCtx = getConnectionAs( new Dn( "uid=" + uid + ",ou=users,ou=system" ), password );
-        SearchResultEntry result = null;
-        Cursor<Response> list = null;
+        Entry result = null;
+        EntryCursor list = null;
 
         list = userCtx.search( dn.getName(), "(objectClass=*)", SearchScope.OBJECT, "*" );
+        
         if ( list.next() )
         {
-            result = (SearchResultEntry) list.get();
+            result = list.get();
         }
 
         list.close();
@@ -903,22 +902,45 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // now add a subentry that enables anyone to search below ou=system
-        createAccessControlSubentry( "anybodySearch", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry( "anybodySearch", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " +
+            "}" );
 
         // check and see if we can access the subentry now
         assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
-        addSubentryACI( "{ " + "  identificationTag \"searchAci\", " + "  precedence 14, "
-            + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + "      } " + "    } " + "  } " + "}" );
+        addSubentryACI( 
+            "{ " + 
+            "  identificationTag \"searchAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { denyRead, denyReturnDN, denyBrowse } " + 
+            "      } " + 
+            "    } " + 
+            "  } " + 
+            "}" );
 
         // now we should not be able to access the subentry with a search
         assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
@@ -933,13 +955,32 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         // now add a subentry that enables anyone to search/lookup and disclose on error
         // below ou=system, with the exclusion of ou=groups and everything below it
-        createAccessControlSubentry( "selectiveDiscloseOnError", "{ specificExclusions "
-            + "  { chopBefore:\"ou=groups\" } " + "}", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst:" + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, " + "        grantsAndDenials "
-            + "        { " + "          grantRead, " + "          grantReturnDN, " + "          grantBrowse, "
-            + "          grantDiscloseOnError " + "        } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "selectiveDiscloseOnError", 
+            "{ specificExclusions " +
+            "  { chopBefore:\"ou=groups\" } " + 
+            "}", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst:" + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " + 
+            "        grantsAndDenials " +
+            "        { " + 
+            "          grantRead, " + 
+            "          grantReturnDN, " + 
+            "          grantBrowse, " +
+            "          grantDiscloseOnError " + 
+            "        } " + 
+            "      } " + 
+            "    } " + 
+            "  } " + 
+            "}" );
 
         // get a context as the user and try a lookup of a non-existant entry under ou=groups,ou=system
         LdapConnection userCtx = getConnectionAs( "uid=billyd,ou=users,ou=system", "billyd" );
@@ -950,12 +991,29 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         // now delete and replace subentry with one that does not excluse ou=groups,ou=system
         deleteAccessControlSubentry( "selectiveDiscloseOnError" );
-        createAccessControlSubentry( "selectiveDiscloseOnError", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, " + "        grantsAndDenials "
-            + "        { " + "          grantRead, " + "          grantReturnDN, " + "          grantBrowse, "
-            + "          grantDiscloseOnError " + "        } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( "selectiveDiscloseOnError", 
+            "{ " + 
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { allUsers }, " + 
+            "    userPermissions " + 
+            "    { " + 
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " + 
+            "        grantsAndDenials " +
+            "        { " + 
+            "          grantRead, " + 
+            "          grantReturnDN, " + 
+            "          grantBrowse, " +
+            "          grantDiscloseOnError " + 
+            "        } " + 
+            "      } " + 
+            "    } " + 
+            "  } " + 
+            "}" );
 
         // now try a lookup of a non-existant entry under ou=groups,ou=system again
         entry = userCtx.lookup( "cn=blah,ou=groups" );

@@ -55,6 +55,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -1617,7 +1618,7 @@ public class SearchIT extends AbstractLdapTestUnit
             }
 
             // Searches for all the entries in ou=system
-            Cursor<Response> cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+            EntryCursor cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
