@@ -34,11 +34,12 @@ import org.apache.directory.server.core.administrative.CollectiveAttributeAdmini
 import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
 import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -75,8 +76,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") })
+    @CreateDS( 
+        name = "TestDS",
+        enableAccessControl = true
+        )
+    @CreateLdapServer(transports =
+        { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
         // Entry # 1
@@ -136,8 +141,9 @@ public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
+        getService().setAccessControlEnabled( true ); 
         connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
+        schemaManager = getService().getSchemaManager();
     }
 
 
