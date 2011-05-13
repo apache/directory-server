@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -132,6 +132,7 @@ public class TupleCache
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            ctls.setReturningAttributes( new String[]{ "*", "+" } );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
@@ -280,11 +281,13 @@ public class TupleCache
     @SuppressWarnings("unchecked")
     public List<ACITuple> getACITuples( String subentryDn )
     {
-        List aciTuples = tuples.get( subentryDn );
+        List<ACITuple> aciTuples = tuples.get( subentryDn );
+        
         if ( aciTuples == null )
         {
             return Collections.EMPTY_LIST;
         }
+        
         return Collections.unmodifiableList( aciTuples );
     }
 
