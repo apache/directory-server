@@ -102,4 +102,13 @@ public class HttpDirectoryService
         return dirService.getSchemaManager();
     }
 
+
+    /**
+     * @return the dirService
+     */
+    public DirectoryService getDirService()
+    {
+        return dirService;
+    }
+
 }
