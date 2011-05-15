@@ -99,4 +99,15 @@ public class PpolicyConfigContainer
         this.defaultPolicy = defaultPolicy;
     }
 
+    
+    /**
+     * deactivate an existing password policy.
+     *  
+     * @param ppolicyConfigDn the Dn of the password policy configuration
+     * @return the deactivated password policy config object of the given reference Dn, null otherwise
+     */
+    public PasswordPolicyConfiguration removePolicyConfig( Dn ppolicyConfigDn )
+    {
+        return ppolicyConfigMap.remove( ppolicyConfigDn );
+    }
 }
