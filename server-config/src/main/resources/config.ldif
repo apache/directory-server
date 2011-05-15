@@ -134,6 +134,11 @@ ads-pwdMinAge: 0
 ads-pwdAllowUserChange: TRUE
 ads-pwdGraceAuthNLimit: 5
 ads-pwdCheckQuality: 2
+ads-pwdMaxLength: 0 
+ads-pwdGraceExpire: 0
+ads-pwdMinDelay: 0
+ads-pwdMaxDelay: 0
+ads-pwdMaxIdle: 0
 ads-enabled: TRUE
 
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
