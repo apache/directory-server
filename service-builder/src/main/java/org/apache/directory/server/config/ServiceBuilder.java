@@ -191,9 +191,9 @@ public class ServiceBuilder
                                 ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
                             }
                         }
-
-                        ((AuthenticationInterceptorBean)interceptorBean).setPasswordPolicies( ppolicyBeans );
                     }
+                    
+                    ( ( AuthenticationInterceptor ) interceptor ).setPwdPolicies( ppolicyContainer );
                 }
                 
                 interceptors.add( interceptor );
