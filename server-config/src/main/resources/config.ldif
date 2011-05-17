@@ -93,21 +93,24 @@ ads-authenticatorid: anonymousauthenticator
 objectclass: top
 objectclass: ads-base
 objectClass: ads-authenticator
-objectClass: ads-anonymousAuthenticator
+objectClass: ads-authenticatorImpl
+ads-authenticatorClass: org.apache.directory.server.core.authn.AnonymousAuthenticator
 
 dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: simpleauthenticator
 objectclass: top
 objectclass: ads-base
 objectClass: ads-authenticator
-objectClass: ads-simpleAuthenticator
+objectClass: ads-authenticatorImpl
+ads-authenticatorClass: org.apache.directory.server.core.authn.SimpleAuthenticator
 
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: strongauthenticator
 objectclass: top
 objectclass: ads-base
 objectClass: ads-authenticator
-objectClass: ads-strongAuthenticator
+objectClass: ads-authenticatorImpl
+ads-authenticatorClass: org.apache.directory.server.core.authn.StrongAuthenticator
 
 dn: ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit

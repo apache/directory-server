@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.directory.server.config.beans.AnonymousAuthenticatorBean;
 import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
+import org.apache.directory.server.config.beans.AuthenticatorImplBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
 import org.apache.directory.server.config.beans.DelegatingAuthenticatorBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
@@ -53,20 +53,15 @@ import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
 import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
-import org.apache.directory.server.config.beans.SimpleAuthenticatorBean;
-import org.apache.directory.server.config.beans.StrongAuthenticatorBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
-import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.authn.SimpleAuthenticator;
-import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -438,29 +433,38 @@ public class ServiceBuilder
      * Creates a Authenticator from the configuration
      * 
      * @param authenticatorBean The created instance of authenticator
-     * @return An instance of authenticator
+     * @return An instance of authenticator if the given authenticatorBean is not disabled
      */
-    public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean )
+    public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean ) throws ConfigurationException
     {
+        if ( authenticatorBean.isDisabled() )
+        {
+            return null;
+        }
+        
         Authenticator authenticator = null;
         
-        if (authenticatorBean instanceof SimpleAuthenticatorBean)
-        {
-            authenticator = new SimpleAuthenticator();
-        }
-        else if (authenticatorBean instanceof AnonymousAuthenticatorBean)
-        {
-            authenticator = new AnonymousAuthenticator();
-        }
-        else if (authenticatorBean instanceof StrongAuthenticatorBean)
-        {
-            authenticator = new StrongAuthenticator();
-        }
-        else if (authenticatorBean instanceof DelegatingAuthenticatorBean)
+        if (authenticatorBean instanceof DelegatingAuthenticatorBean)
         {
             authenticator = new DelegatingAuthenticator();
             ((DelegatingAuthenticator)authenticator).setDelegateHost( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegateHost() );
             ((DelegatingAuthenticator)authenticator).setDelegatePort( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegatePort() );
+        }
+        else if ( authenticatorBean instanceof AuthenticatorImplBean )
+        {
+            String fqcn = ( ( AuthenticatorImplBean ) authenticatorBean ).getAuthenticatorClass();
+            
+            try
+            {
+                Class authnImplClass = Class.forName( fqcn );
+                authenticator = ( Authenticator ) authnImplClass.newInstance();
+            }
+            catch( Exception e )
+            {
+                String errorMsg = "Failed to instantiate the configured authenticator " + authenticatorBean.getAuthenticatorId();
+                LOG.warn( errorMsg );
+                throw new ConfigurationException( errorMsg, e );
+            }
         }
         
         return authenticator;
@@ -506,7 +510,7 @@ public class ServiceBuilder
      * @param transportBeans The array of Transport configuration
      * @return An arry of Transport instance
      */
-    public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list )
+    public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
         Authenticator[] authenticators = new Authenticator[ list.size() ];
         int i = 0;
