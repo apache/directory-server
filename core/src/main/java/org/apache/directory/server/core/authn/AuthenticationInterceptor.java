@@ -901,6 +901,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 bindContext.setSession( session );
 
                 authenticated = true;
+                
+                // break out of the loop if the authentication succeeded
+                break;
             }
             catch ( PasswordPolicyException e )
             {
