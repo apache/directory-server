@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -130,8 +130,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeEmtpyServerEntry() throws Exception
     {
-        Dn dn = Dn.EMPTY_DN;
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
 
@@ -146,18 +145,13 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeDNServerEntry() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=text, dc=example, dc=com" );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
         Entry result = ( Entry ) ses.deserialize( data );
-
-        Dn newDn = new Dn( dn.getRdn() );
-        entry.setDn( newDn );
 
         assertEquals( entry, result );
     }
@@ -166,10 +160,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryOC() throws Exception
     {
-        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
@@ -178,10 +169,6 @@ public class ServerEntrySerializerTest
 
         Entry result = ( Entry ) ses.deserialize( data );
 
-        Dn newDn = new Dn();
-        newDn = newDn.add( dn.getRdn() );
-        entry.setDn( newDn );
-
         assertEquals( entry, result );
     }
 
@@ -189,10 +176,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntry() throws Exception
     {
-        Dn dn = new Dn( "cn=text, dc=example, dc=com" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", "Test" );
@@ -204,10 +188,6 @@ public class ServerEntrySerializerTest
 
         Entry result = ( Entry ) ses.deserialize( data );
 
-        Dn newDn = new Dn();
-        newDn = newDn.add( dn.getRdn() );
-        entry.setDn( newDn );
-
         assertEquals( entry, result );
     }
 
@@ -215,10 +195,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
-        Dn dn = new Dn( "" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", "Test" );
@@ -237,10 +214,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithNoAttributes() throws Exception
     {
-        Dn dn = new Dn( "" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
 
@@ -255,10 +229,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeNoValue() throws Exception
     {
-        Dn dn = new Dn( "" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         Attribute oc = new DefaultAttribute( "ObjectClass", schemaManager
@@ -276,10 +247,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeStringValue() throws Exception
     {
-        Dn dn = new Dn( "" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "ObjectClass", "top", "person" );
@@ -295,10 +263,7 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
     {
-        Dn dn = new Dn( "" );
-        dn.apply( schemaManager );
-
-        Entry entry = new DefaultEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "userPassword", Strings.getBytesUtf8("secret") );
