@@ -36,6 +36,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapApiService;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
@@ -81,6 +82,38 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The KdcServer for this class, if any */
     private KdcServer classKdcServer;
+
+    /**
+     * Initialize the codec service
+     */
+    static 
+    {
+        // Load the extension points
+        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST, 
+            "org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
+
+        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST, 
+            "org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
+        
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST, 
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST, 
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
+    }
 
 
     /**

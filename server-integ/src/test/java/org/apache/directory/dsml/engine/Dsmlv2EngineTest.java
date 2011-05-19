@@ -38,7 +38,7 @@ import org.apache.directory.shared.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.shared.dsmlv2.engine.Dsmlv2Engine;
 import org.apache.directory.shared.dsmlv2.reponse.BatchResponseDsml;
 import org.apache.directory.shared.dsmlv2.reponse.SearchResponse;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class Dsmlv2EngineTest extends AbstractLdapTestUnit
 
         engine.processDSML( dsmlIn, byteOut );
 
-        Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapCodecServiceFactory.getSingleton() );
+        Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapApiServiceFactory.getSingleton() );
         respParser.setInput( byteOut.toString() );
 
         respParser.parseAllResponses();

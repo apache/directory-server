@@ -51,7 +51,7 @@ import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.api.CodecControl;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
+import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -575,7 +575,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
-            LdapCodecService codec = getLdapServer().getDirectoryService().getLdapCodecService();
+            LdapApiService codec = getLdapServer().getDirectoryService().getLdapCodecService();
             persistentSearch.setCritical( true );
             persistentSearch.setValue( persistentSearch.getValue() );
 

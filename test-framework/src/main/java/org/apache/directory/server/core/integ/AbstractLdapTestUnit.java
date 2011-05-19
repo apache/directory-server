@@ -45,6 +45,7 @@ public abstract class AbstractLdapTestUnit
     public static boolean isRunInSuite;
     
 
+    
     public static DirectoryService getService()
     {
         return service;

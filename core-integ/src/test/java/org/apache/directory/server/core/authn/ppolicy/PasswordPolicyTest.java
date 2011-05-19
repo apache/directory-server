@@ -40,8 +40,8 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiService;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
@@ -82,7 +82,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
-    private static final LdapCodecService codec = LdapCodecServiceFactory.getSingleton();
+    private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
     
     private static final PasswordPolicyDecorator PP_REQ_CTRL = 
         new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );

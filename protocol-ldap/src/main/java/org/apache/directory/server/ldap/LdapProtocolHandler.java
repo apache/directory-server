@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
@@ -192,14 +192,14 @@ class LdapProtocolHandler extends DemuxingIoHandler
         if ( message == SslFilter.SESSION_SECURED )
         {
             ExtendedRequest<?> req = 
-                LdapCodecServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
             ExtendedRequest<?> req = 
-                LdapCodecServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }

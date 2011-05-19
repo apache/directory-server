@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
-import java.io.Serializable; 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,7 +36,7 @@ import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -91,7 +91,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         StoredProcedureResponse resp = 
-            LdapCodecServiceFactory.getSingleton().newExtendedResponse( req, serializedResponse );
+            LdapApiServiceFactory.getSingleton().newExtendedResponse( req, serializedResponse );
         session.getIoSession().write( resp );
     }
 

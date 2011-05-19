@@ -28,6 +28,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.codec.standalone.StandaloneLdapApiService;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
@@ -58,6 +59,38 @@ public class FrameworkSuite extends Suite
 
     /** The LdapServer for this class, if any */
     private LdapServer ldapServer;
+
+    /**
+     * Initialize the codec service
+     */
+    static 
+    {
+        // Load the extension points
+        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST, 
+            "org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
+            "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
+
+        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST, 
+            "org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
+        
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST, 
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST, 
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
+    }
 
     /**
      * Creates a new instance of FrameworkSuite.

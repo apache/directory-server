@@ -63,7 +63,6 @@ public class DSAnnotationProcessor
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
 
-
     /**
      * Create the DirectoryService
      */

@@ -81,8 +81,8 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiService;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -126,7 +126,7 @@ public class DefaultDirectoryService implements DirectoryService
     private SchemaManager schemaManager;
     
     /** The LDAP Codec Service */
-    private LdapCodecService ldapCodecService = LdapCodecServiceFactory.getSingleton();
+    private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
 
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
@@ -1113,7 +1113,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
     
-    public LdapCodecService getLdapCodecService()
+    public LdapApiService getLdapCodecService()
     {
         return ldapCodecService;
     }

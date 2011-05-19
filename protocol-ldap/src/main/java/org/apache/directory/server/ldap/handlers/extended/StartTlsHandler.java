@@ -41,7 +41,7 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.api.ExtendedResponseDecorator;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponseImpl;
@@ -93,7 +93,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         }
 
         ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>( 
-            LdapCodecServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
+            LdapApiServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );

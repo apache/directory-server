@@ -45,8 +45,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiService;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -200,7 +200,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
 
-    private LdapCodecService codec = LdapCodecServiceFactory.getSingleton();
+    private LdapApiService codec = LdapApiServiceFactory.getSingleton();
     
     
     /**

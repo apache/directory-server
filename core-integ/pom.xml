@@ -163,21 +163,6 @@
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <systemPropertyVariables>
-                <felix.cache.rootdir>
-                  ${project.build.directory}
-                </felix.cache.rootdir>
-                <felix.cache.locking>
-                  false
-                </felix.cache.locking>
-                <org.osgi.framework.storage.clean>
-                  onFirstInit
-                </org.osgi.framework.storage.clean>
-                <org.osgi.framework.storage>
-                  ${project.build.directory}/osgi-cache
-                </org.osgi.framework.storage>
-                <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
-              </systemPropertyVariables>
               <includes>
                 <include>**/*ISuite.java</include>
               </includes>

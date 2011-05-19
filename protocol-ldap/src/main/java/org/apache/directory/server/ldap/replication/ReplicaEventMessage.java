@@ -29,14 +29,14 @@ import java.util.Iterator;
 
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecService;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiService;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -60,13 +60,13 @@ public class ReplicaEventMessage implements Externalizable
 
     private static SchemaManager schemaManager;
     
-    private LdapCodecService codec;
+    private LdapApiService codec;
 
 
     public ReplicaEventMessage()
     {
         // used by deserializer
-        codec = LdapCodecServiceFactory.getSingleton();
+        codec = LdapApiServiceFactory.getSingleton();
     }
 
 
@@ -79,7 +79,7 @@ public class ReplicaEventMessage implements Externalizable
 
     public ReplicaEventMessage( SyncModifyDnDecorator modDnControl, Entry entry )
     {
-        codec = LdapCodecServiceFactory.getSingleton();
+        codec = LdapApiServiceFactory.getSingleton();
         this.modDnControl = modDnControl;
         this.entry = entry;
     }

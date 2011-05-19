@@ -46,7 +46,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.codec.api.LdapCodecServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -81,7 +81,7 @@ public class DirectoryServiceAnnotationTest
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, JndiUtils.toJndiControls( LdapCodecServiceFactory.getSingleton(), controls ) );
+        return new InitialLdapContext( env, JndiUtils.toJndiControls( LdapApiServiceFactory.getSingleton(), controls ) );
     }
     
 
