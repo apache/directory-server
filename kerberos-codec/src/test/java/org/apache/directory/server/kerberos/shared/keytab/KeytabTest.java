@@ -26,25 +26,25 @@ import static org.junit.Assert.fail;
 
 import java.security.InvalidKeyException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.crypto.spec.DESKeySpec;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -81,15 +81,6 @@ public class KeytabTest
             ( byte ) 0x45, ( byte ) 0xD7, ( byte ) 0x96, ( byte ) 0x79, ( byte ) 0x04, ( byte ) 0x00, ( byte ) 0x03,
             ( byte ) 0x00, ( byte ) 0x08, ( byte ) 0x13, ( byte ) 0xD9, ( byte ) 0x19, ( byte ) 0x98, ( byte ) 0x23,
             ( byte ) 0x8F, ( byte ) 0x9E, ( byte ) 0x31 };
-
-    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
-
-    static
-    {
-        dateFormat.setTimeZone( UTC_TIME_ZONE );
-    }
 
 
     /**
@@ -173,9 +164,10 @@ public class KeytabTest
 
         String zuluTime = "20070217235745Z";
         Date date = null;
-        synchronized ( dateFormat )
+        
+        synchronized ( DateUtils.DATE_FORMAT )
         {
-            date = dateFormat.parse( zuluTime );
+            date = DateUtils.DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date.getTime() );

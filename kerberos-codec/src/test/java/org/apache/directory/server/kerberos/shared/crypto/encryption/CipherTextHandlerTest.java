@@ -24,15 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -40,8 +36,12 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.util.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -103,15 +103,6 @@ public class CipherTextHandlerTest
             ( byte ) 0xfa, ( byte ) 0x93, ( byte ) 0x02, ( byte ) 0xbe, ( byte ) 0x11, ( byte ) 0x14, ( byte ) 0x22,
             ( byte ) 0x65, ( byte ) 0x92, ( byte ) 0xbd, ( byte ) 0xf5, ( byte ) 0x52, ( byte ) 0x9f, ( byte ) 0x94,
             ( byte ) 0x67, ( byte ) 0x10, ( byte ) 0xd2 };
-
-    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
-
-    static
-    {
-        dateFormat.setTimeZone( UTC_TIME_ZONE );
-    }
 
 
     /**
@@ -447,9 +438,10 @@ public class CipherTextHandlerTest
     protected PaEncTsEnc getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException
     {
         Date date = null;
-        synchronized ( dateFormat )
+        
+        synchronized ( DateUtils.DATE_FORMAT )
         {
-            date = dateFormat.parse( zuluTime );
+            date = DateUtils.DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date );

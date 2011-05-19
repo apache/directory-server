@@ -20,11 +20,11 @@
 package org.apache.directory.shared.kerberos;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 
 /**
@@ -36,10 +36,6 @@ import org.apache.directory.shared.util.Strings;
  */
 public class KerberosTime implements Comparable<KerberosTime>
 {
-
-    /** The format for a KerberosTime */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
-    
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
     
@@ -60,12 +56,6 @@ public class KerberosTime implements Comparable<KerberosTime>
 
     /** The number of milliseconds in a week. */
     public static final int WEEK = MINUTE * 10080;
-
-    // Initialize the dateFormat with the UTC TZ
-    static
-    {
-        sdf.setTimeZone( UTC );
-    }
 
     
     /**
@@ -128,9 +118,9 @@ public class KerberosTime implements Comparable<KerberosTime>
         Calendar calendar = Calendar.getInstance( UTC );
         calendar.setTimeInMillis( date );
         
-        synchronized ( sdf )
+        synchronized ( DateUtils.DATE_FORMAT )
         {
-            this.date = sdf.format( calendar.getTime() );
+            this.date = DateUtils.DATE_FORMAT.format( calendar.getTime() );
         }
         
         kerberosTime = (calendar.getTimeInMillis()/1000L)*1000L; // drop the ms
@@ -170,9 +160,9 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         Date date = null;
         
-        synchronized ( sdf )
+        synchronized ( DateUtils.DATE_FORMAT )
         {
-            date = sdf.parse( zuluTime );
+            date = DateUtils.DATE_FORMAT.parse( zuluTime );
         }
         
         return new KerberosTime( date );
@@ -185,9 +175,9 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public void setDate( String date ) throws ParseException
     {
-        synchronized ( sdf )
+        synchronized ( DateUtils.DATE_FORMAT )
         {
-            kerberosTime = sdf.parse( date ).getTime();
+            kerberosTime = DateUtils.DATE_FORMAT.parse( date ).getTime();
         }
         
         convertInternal( kerberosTime );
