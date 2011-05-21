@@ -1145,6 +1145,16 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public void bind() throws LdapException, IOException
     {
+        throw new UnsupportedOperationException(
+        "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void anonymousBind() throws LdapException, IOException
+    {
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setName( Dn.EMPTY_DN );
         bindRequest.setCredentials( ( byte[] ) null );
