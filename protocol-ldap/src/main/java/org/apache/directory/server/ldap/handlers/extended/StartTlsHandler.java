@@ -20,6 +20,8 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.SecureRandom;
@@ -143,14 +145,26 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         LOG.debug( "Setting LDAP Service" );
         Provider provider = Security.getProvider( "SUN" );
         LOG.debug( "provider = {}", provider );
-        CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapServer.getDirectoryService() );
-        KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
-        {
-        };
+        
+        KeyStore keyStore = null;
+        
 
         try
         {
-            keyStore.load( null, null );
+            if ( ldapServer.getKeystoreFile() == null )
+            {
+                CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapServer.getDirectoryService() );
+                keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
+                {
+                };
+                
+                keyStore.load( null, null );
+            }
+            else
+            {
+                keyStore = KeyStore.getInstance( "JKS" );
+                keyStore.load( new FileInputStream( new File( ldapServer.getKeystoreFile() ) ), null );
+            }
         }
         catch ( Exception e1 )
         {
@@ -169,7 +183,14 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         try
         {
-            keyManagerFactory.init( keyStore, null );
+            char[] password = null;
+            
+            if ( ldapServer.getKeystoreFile() != null )
+            {
+                password = ldapServer.getCertificatePassword().toCharArray();
+            }
+            
+            keyManagerFactory.init( keyStore, password );
         }
         catch ( Exception e )
         {
