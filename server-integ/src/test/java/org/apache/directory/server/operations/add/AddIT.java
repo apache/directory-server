@@ -90,6 +90,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -1385,7 +1386,6 @@ public class AddIT extends AbstractLdapTestUnit
      * @throws Exception 
      */
     @Test
-    @Ignore
     public void testAddEntryNonExistingAT() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
@@ -1399,7 +1399,15 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.add( "nonExistingAttribute", "value" );
         personEntry.setDn( dn );
 
-        connection.add( personEntry );
+        try
+        {
+            connection.add( personEntry );
+            fail("should throw LdapNoSuchAttributeException");
+        }
+        catch( LdapNoSuchAttributeException e )
+        {
+            //expected exception
+        }
 
         Entry entry = connection.lookup( dn );
         assertNull( entry );
