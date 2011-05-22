@@ -36,6 +36,8 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequestImpl;
@@ -115,7 +117,30 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         assertTrue( session.exists( new Dn( "cn=modDn,ou=users,ou=system" ) ) );
     }
 
+    
+    @Test
+    public void testMoveAndRename() throws Exception
+    {
+        Dn origDn = new Dn( "cn=testadd,ou=users,ou=system" );
+        Entry entry = new DefaultEntry( origDn );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+        entry.add( SchemaConstants.CN_AT, "testadd" );
+        entry.add( SchemaConstants.SN_AT, "testadd_sn" );
 
+        connection.add( entry );
+        
+        Dn newDn = new Dn( "cn=testaddMovedAndRenamed,ou=system" );
+        connection.moveAndRename( origDn, newDn );
+
+        assertFalse( session.exists( origDn ) );
+
+        entry = session.lookup( newDn, "+" );
+
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFIERS_NAME_AT ) );
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
+    }
+
+    
     @Test
     public void testModifyDnAsync() throws Exception
     {
