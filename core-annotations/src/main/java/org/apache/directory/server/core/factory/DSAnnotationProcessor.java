@@ -66,7 +66,7 @@ public class DSAnnotationProcessor
     /**
      * Create the DirectoryService
      */
-    private static DirectoryService createDS( CreateDS dsBuilder )
+    public static DirectoryService createDS( CreateDS dsBuilder )
             throws Exception
     {
         LOG.debug( "Starting DS {}...", dsBuilder.name() );
