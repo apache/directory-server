@@ -1681,7 +1681,8 @@ public class SearchIT extends AbstractLdapTestUnit
         Cursor<Response> cursor = connection.search( req );
         long i = 0;
 
-        while ( cursor.next() )
+        // Equivalent to : while ( cursor.next() )
+        for ( Response response : cursor )
         {
             ++i;
         }
