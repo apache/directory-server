@@ -101,7 +101,7 @@ public class ServerAnnotationProcessor
     }
     
     
-    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
+    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
     {
         if ( createLdapServer != null )
         {
