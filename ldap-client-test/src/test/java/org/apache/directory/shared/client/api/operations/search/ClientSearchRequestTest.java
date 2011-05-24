@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
@@ -102,6 +103,30 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleSearch() throws Exception
     {
+        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+        int count = 0;
+        
+        while ( cursor.next() )
+        {
+            Entry entry = cursor.get();
+            assertNotNull( entry );
+            count++;
+        }
+
+        SearchResultDone done = cursor.getSearchResultDone();
+
+        assertNotNull( done );
+        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+        assertEquals( 5, count );
+        cursor.close();
+    }
+
+
+    @Test
+    public void testSimpleSearchWithControl() throws Exception
+    {
+        SearchRequest searchRequest = new SearchRequestImpl().setBase( new Dn( "ou=system" ) ).setFilter( "(objectclass=*)" )
+        .setScope( SearchScope.ONELEVEL ).addControl( new ManageDsaITImpl() );
         EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
         int count = 0;
         
