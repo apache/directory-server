@@ -100,8 +100,12 @@ public class ServerAnnotationProcessor
         }
     }
     
-    
-    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
+    /**
+     * Just gives an instance of {@link LdapServer} without starting it.
+     * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService, int)}
+     * @see #createLdapServer(CreateLdapServer, DirectoryService, int)
+     */
+    public static LdapServer instantiateLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
     {
         if ( createLdapServer != null )
         {
@@ -114,7 +118,7 @@ public class ServerAnnotationProcessor
             
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
-
+            
             ldapServer.setSaslHost( createLdapServer.saslHost() );
             
             ldapServer.setSaslPrincipal( createLdapServer.saslPrincipal() );
@@ -168,16 +172,6 @@ public class ServerAnnotationProcessor
                     }
                 }
             }
-        
-            // Launch the server
-            try
-            {
-                ldapServer.start();
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
             
             return ldapServer;
         }
@@ -185,6 +179,39 @@ public class ServerAnnotationProcessor
         {
             return null;
         }
+    }
+    
+    
+    /**
+     * creates an LdapServer and starts before returning the instance
+     *  
+     * @param createLdapServer the annotation containing the custom configuration
+     * @param directoryService the directory service
+     * @param startPort a port number to start with in order to find any available port for use (if the given port number is already in use)<br/>
+     *                  this option will only be used if the port specified in {@link CreateTransport} annotation is -1.
+     * @return a running LdapServer instance
+     */
+    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
+    {
+        
+        LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService, startPort );
+        
+        if ( ldapServer == null )
+        {
+            return null;
+        }
+        
+        // Launch the server
+        try
+        {
+            ldapServer.start();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        
+        return ldapServer;
     }
 
 
