@@ -20,9 +20,7 @@
 package org.apache.directory.server.operations.lookup;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Hashtable;
 
@@ -37,11 +35,12 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.Control;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.util.JndiUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,20 +55,16 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 public class LookupPerfIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
-
     /**
      * Evaluate the lookup operation performances
      */
     @Test
     public void testLookupPerfAPI() throws Exception
     {
-        LdapConnection connection = getClientApiConnection( ldapServer );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
 
         Entry entry = connection.lookup( "uid=admin,ou=system" );
         assertNotNull( entry );
-        assertTrue( entry instanceof SearchResultEntry);
 
         long t0 = System.currentTimeMillis();
 
@@ -77,7 +72,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         {
             for ( int j = 0; j < 10000; j++ )
             {
-                entry = connection.lookup( "uid=admin,ou=system", "+" );
+                entry = connection.lookup( "uid=admin,ou=system" );
             }
 
             System.out.print( "." );
@@ -109,6 +104,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * Evaluate the lookup operation performances
      */
     @Test
+    @Ignore
     public void testLookupPerfJNDI() throws Exception
     {
         LdapContext ctx = getWiredContext( ldapServer, null );
