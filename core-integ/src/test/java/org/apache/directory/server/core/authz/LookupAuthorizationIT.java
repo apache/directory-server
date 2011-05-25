@@ -76,7 +76,6 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
         }
         catch ( LdapNoPermissionException lnpe )
         {
-            //System.out.println( lnpe.getMessage() );
         }
         
         createAccessControlSubentry( 

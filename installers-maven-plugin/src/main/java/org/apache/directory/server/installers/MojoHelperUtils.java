@@ -176,7 +176,6 @@ public class MojoHelperUtils
             String cmdString = " ";
             for ( int ii = 0; ii < cmd.length; ii++ )
             {
-                //                System.out.println( "cmd[" + ii + "] = " + cmd[ii] ); // TODO
                 cmdString += cmd[ii] + " ";
             }
 
@@ -189,7 +188,6 @@ public class MojoHelperUtils
         String cmdString = " ";
         for ( int ii = 0; ii < cmd.length; ii++ )
         {
-            //            System.out.println( "cmd[" + ii + "] = " + cmd[ii] ); // TODO
             cmdString += cmd[ii] + " ";
         }
 

@@ -143,7 +143,6 @@ public class ReplayCacheImpl implements ReplayCache
          */
         public String getName()
         {
-            System.out.println( "getName" );
             return "CLOCK-SKEW";
         }
 

@@ -128,7 +128,6 @@ public class DefaultDnFactory implements DnFactory
 
         if ( enableStats )
         {
-            //System.out.println( "Dn '" + cachedDn + "' found in the cache and isNormalized " + cachedDn.isNormalized() );
             System.out.println( "Dn cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
                 + cachedDn.isSchemaAware() );
         }

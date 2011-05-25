@@ -444,7 +444,7 @@ public class LdapServer extends DirectoryBackedService
             ( ( DefaultIoFilterChainBuilder ) chain ).addLast( "executor", new ExecutorFilter(
                 new UnorderedThreadPoolExecutor( transport.getNbThreads() ), IoEventType.MESSAGE_RECEIVED ) );
 
-			/*
+            /*
             // Trace all the incoming and outgoing message to the console
             ( ( DefaultIoFilterChainBuilder ) chain ).addLast( "logger", new IoFilterAdapter()
                 {
