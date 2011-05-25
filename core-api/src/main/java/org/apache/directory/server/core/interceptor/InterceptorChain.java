@@ -594,7 +594,7 @@ public class InterceptorChain
         // trouble reading the entry due to insufficient access rights
         CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
-        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
 
         if ( foundEntry != null )
         {

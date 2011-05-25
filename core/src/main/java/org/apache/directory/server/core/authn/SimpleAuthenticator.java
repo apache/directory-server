@@ -51,8 +51,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -265,7 +265,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
                 bindContext.getDn() );
             lookupContext.setByPassed( USERLOOKUP_BYPASS );
-            lookupContext.setAttrsId( new String[]{ "+" } );
+            lookupContext.setAttrsId( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
             userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 

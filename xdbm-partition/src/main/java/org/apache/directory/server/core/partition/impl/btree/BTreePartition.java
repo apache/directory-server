@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 
 
 /**
@@ -302,16 +303,29 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return entry;
         }
 
-        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) 
+            && !lookupContext.hasAllOperational() && !lookupContext.hasAllUser() )
         {
             return entry;
         }
 
         for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
         {
-            if ( !lookupContext.getAttrsId().contains( attributeType.getOid() ) )
+            String oid = attributeType.getOid();
+            
+            if ( !lookupContext.getAttrsId().contains( oid ) )
             {
-                entry.removeAttributes( attributeType );
+                if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
+                {
+                    if ( !lookupContext.hasAllUser() )
+                    {
+                        entry.removeAttributes( attributeType );
+                    }
+                }
+                else if ( ( !lookupContext.hasAllOperational() ) )
+                {
+                    entry.removeAttributes( attributeType );
+                }
             }
         }
 

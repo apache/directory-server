@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -100,13 +99,12 @@ public class LookupIT extends AbstractLdapTestUnit
      * Test a lookup( Dn, "+") operation
      */
     @Test
-    @Ignore( "The '+' special attribute is not correctly handled." )
     public void testLookupPlus() throws Exception
     {
         getService().setDenormalizeOpAttrsEnabled( true );
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
-
+        
         // We should have 4 attributes
         assertEquals( 4, entry.size() );
 
