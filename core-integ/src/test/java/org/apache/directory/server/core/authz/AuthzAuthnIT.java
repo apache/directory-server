@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -110,7 +109,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
      *
      * @throws Exception if the test encounters an error
      */
-    @Ignore("This test is not failing but I want to make sure that this test case is equivalent to its prior JNDI based impl, so ignoring this to get attention")
+    //@Ignore("This test is not failing but I want to make sure that this test case is equivalent to its prior JNDI based impl, so ignoring this to get attention")
     @Test
     public void testAuthnPassesWithSystemPartition() throws Exception
     {

@@ -117,7 +117,6 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    //@Ignore
     public void testGrantAddAdministrators() throws Exception
     {
         // create the non-admin user
