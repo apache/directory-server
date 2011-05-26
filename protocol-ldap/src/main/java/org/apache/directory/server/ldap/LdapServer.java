@@ -645,7 +645,6 @@ public class LdapServer extends DirectoryBackedService
                         {
                             LOG.info( "starting the replication consumer with config {}", consumer );
                             consumer.init( getDirectoryService() );
-                            replConsumers.add( consumer );
                             consumer.start();
                         }
                         catch ( Exception e )
