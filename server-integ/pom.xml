@@ -236,6 +236,9 @@
               <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
               <includes>
                 <include>**/*ISuite.java</include>
+                <!-- the replication test class shouldn't be added to a suite, cause it
+                  launches the servers on its own without depending on FrameworkRunner -->
+                <include>**/ClientServerReplicationIT.java</include>
               </includes>
               <excludes>
                 <exclude>**/*PerfIT.java</exclude>
