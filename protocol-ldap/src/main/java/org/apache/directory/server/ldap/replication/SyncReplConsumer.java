@@ -45,11 +45,11 @@ import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
@@ -295,13 +295,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
 
-        SyncStateValueDecorator syncStateCtrl = new SyncStateValueDecorator( directoryService.getLdapCodecService() );
+        SyncStateValue syncStateCtrl = ( SyncStateValue ) syncResult.getControl( SyncStateValue.OID );
 
         try
         {
             Entry remoteEntry = syncResult.getEntry();
-
-            syncStateCtrl.setDecorated( syncStateCtrl );
 
             if ( syncStateCtrl.getCookie() != null )
             {
