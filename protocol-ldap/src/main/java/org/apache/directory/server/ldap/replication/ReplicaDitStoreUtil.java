@@ -104,15 +104,16 @@ public class ReplicaDitStoreUtil
         }
 
         Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
+        //FIXME change the value of ads-replConsumerId to a unique value
+        entry.setDn( new Dn( schemaManager, "ads-replConsumerId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
 
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replConsumer" );
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
-        entry.add( "ads-replAliasDerefMode", String
-            .valueOf( replica.getSearchCriteria().getAliasDerefMode().getValue() ) );
+        entry.add( "ads-replConsumerId", String.valueOf( replica.getId() ) );
+        entry.add( "ads-replAliasDerefMode", replica.getSearchCriteria().getAliasDerefMode().getJndiValue() );
         entry.add( "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName() );
         entry.add( "ads-replLastSentCsn", replica.getLastSentCsn() );
-        entry.add( "ads-replSearchScope", String.valueOf( replica.getSearchCriteria().getScope().getScope() ) );
+        entry.add( "ads-replSearchScope", replica.getSearchCriteria().getScope().getLdapUrlValue() );
         entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
 
         adminSession.add( entry );
@@ -171,13 +172,13 @@ public class ReplicaDitStoreUtil
 
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
-        String id = entry.get( "ads-dsReplicaId" ).getString();
+        String id = entry.get( "ads-replConsumerId" ).getString();
         ReplicaEventLog replica = new ReplicaEventLog( Integer.parseInt( id ) );
 
         NotificationCriteria searchCriteria = new NotificationCriteria();
 
         String aliasMode = entry.get( "ads-replAliasDerefMode" ).getString();
-        searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( Integer.parseInt( aliasMode ) ) );
+        searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( aliasMode ) );
 
         String baseDn = entry.get( "ads-searchBaseDN" ).getString();
         searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
@@ -186,7 +187,8 @@ public class ReplicaDitStoreUtil
         replica.setLastSentCsn( lastSentCsn );
 
         String scope = entry.get( "ads-replSearchScope" ).getString();
-        searchCriteria.setScope( SearchScope.getSearchScope(Integer.parseInt(scope)) );
+        int scopeIntVal = SearchScope.getSearchScope( scope );
+        searchCriteria.setScope( SearchScope.getSearchScope( scopeIntVal ) );
 
         String filter = entry.get( "ads-replSearchFilter" ).getString();
         searchCriteria.setFilter( filter );
