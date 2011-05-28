@@ -21,11 +21,13 @@
 package org.apache.directory.server.replication;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -44,6 +46,10 @@ import org.apache.directory.server.ldap.replication.SyncReplRequestHandler;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -66,6 +72,8 @@ public class ClientServerReplicationIT
     private CoreSession providerSession;
     
     private CoreSession consumerSession;
+    
+    private static AtomicInteger entryCount = new AtomicInteger();
     
     @BeforeClass
     public static void setUp() throws Exception
@@ -107,17 +115,93 @@ public class ClientServerReplicationIT
        
        providerSession.add( entry );
        
-       // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
-       Thread.sleep( 2000 );
-       
-       assertTrue( consumerSession.exists( dn ) );
-       
-       Entry providerEntry = providerSession.lookup( entry.getDn(), "*", "+" );
-       
-       Entry consumerEntry = consumerSession.lookup( entry.getDn(), "*", "+" );
-       assertEquals( providerEntry, consumerEntry );
+       waitAndCompareEntries( entry.getDn() );
     }
 
+    
+    @Test
+    public void testModify() throws Exception
+    {
+        Entry provUser = createEntry();
+        
+        assertFalse( consumerSession.exists( provUser.getDn() ) );
+        
+        providerSession.add( provUser );
+        
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( provUser.getDn() );
+        modReq.add( "userPassword", "secret" );
+        
+        providerSession.modify( modReq );
+        
+        waitAndCompareEntries( provUser.getDn() );
+    }
+    
+    
+    @Test
+    public void testModDn() throws Exception
+    {
+        Entry provUser = createEntry();
+        
+        assertFalse( consumerSession.exists( provUser.getDn() ) );
+        
+        providerSession.add( provUser );
+     
+        Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
+        
+        DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer );
+        entry.add( "objectClass", "organizationalUnit" );
+        entry.add( "ou", "users" );
+        
+        providerSession.add( entry );
+        
+        waitAndCompareEntries( entry.getDn() );
+        
+        // move
+        Dn userDn = provUser.getDn();
+        providerSession.move( userDn, usersContainer );
+        
+        userDn = usersContainer.add( userDn.getRdn() );
+        
+        waitAndCompareEntries( userDn );
+        
+        // now try renaming
+        Rdn newName = new Rdn( schemaManager, userDn.getRdn().getName() + "renamed");
+        
+        providerSession.rename( userDn, newName, true );
+        
+        userDn = usersContainer.add( newName );
+        
+        waitAndCompareEntries( userDn );
+    }
+    
+    
+    private void waitAndCompareEntries( Dn dn ) throws Exception
+    {
+        // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
+        Thread.sleep( 2000 );
+
+        Entry providerEntry = providerSession.lookup( dn, "*", "+" );
+        
+        Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
+        assertEquals( providerEntry, consumerEntry );
+    }
+    
+    
+    private Entry createEntry() throws Exception
+    {
+        String user = "user"+ entryCount.incrementAndGet();
+        
+        String dn = "cn=" + user + ",dc=example,dc=com";
+        
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
+        entry.add( "objectClass", "person" );
+        entry.add( "cn", user );
+        entry.add( "sn", user );
+        
+        return entry;
+    }
+    
     
     @CreateDS(allowAnonAccess = true, name = "provider-replication", partitions =
         {

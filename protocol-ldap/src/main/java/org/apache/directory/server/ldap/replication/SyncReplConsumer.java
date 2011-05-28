@@ -341,12 +341,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                     break;
 
                 case MODDN:
-                    Control adsModDnControl = syncResult.getControls().get( SyncModifyDn.OID );
+                    SyncModifyDn adsModDnControl = ( SyncModifyDn ) syncResult.getControls().get( SyncModifyDn.OID );
                     //Apache Directory Server's special control
-                    SyncModifyDnDecorator syncModDnControl = 
-                        new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
-                    syncModDnControl.setDecorated( ( SyncModifyDn ) adsModDnControl );
-                    applyModDnOperation( syncModDnControl );
+                    applyModDnOperation( adsModDnControl );
                     break;
 
                 case DELETE:
