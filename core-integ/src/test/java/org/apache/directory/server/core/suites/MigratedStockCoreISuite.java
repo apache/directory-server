@@ -21,6 +21,7 @@ package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
+import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyTest;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
@@ -51,7 +52,7 @@ import org.junit.runners.Suite;
 
         // authn
         SimpleAuthenticationIT.class,
-        //PasswordPolicyTest.class,
+        PasswordPolicyTest.class,
         PasswordHashingInterceptorTest.class,
 
         // authz

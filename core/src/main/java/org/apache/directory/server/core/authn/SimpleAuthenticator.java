@@ -265,8 +265,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
                 bindContext.getDn() );
             lookupContext.setByPassed( USERLOOKUP_BYPASS );
-            lookupContext.setAttrsId( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-
+            lookupContext.addAttrsId( SchemaConstants.ALL_USER_ATTRIBUTES );
+            // OP attributes required for ppolicy
+            lookupContext.addAttrsId( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+            
             userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
