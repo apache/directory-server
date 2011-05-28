@@ -94,7 +94,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
      */
     private boolean storeCookieInFile = false;
 
-    private static final String REPL_CONFIG_AREA = "ou=replProviders,ou=config";
+    private static final String REPL_CONFIG_AREA = "ou=consumers,ou=system";
 
     /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
     private boolean chaseReferrals = false;
@@ -459,7 +459,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
 
     public String getConfigEntryDn()
     {
-        return "ads-dsReplicaId=" + replicaId + "," + REPL_CONFIG_AREA;
+        return "ads-replConsumerId=" + replicaId + "," + REPL_CONFIG_AREA;
     }
 
 
