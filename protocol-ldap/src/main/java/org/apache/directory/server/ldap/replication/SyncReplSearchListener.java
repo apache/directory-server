@@ -254,7 +254,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
     public void entryMoved( MoveOperationContext moveContext )
     {
-        Entry entry = moveContext.getEntry();
+        Entry entry = moveContext.getOriginalEntry();
 
         LOG.debug( "sending moved entry {}", entry.getDn() );
 
@@ -262,7 +262,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( moveContext.getEntry() );
+                sendDeletedEntry( entry );
                 return;
             }
 
