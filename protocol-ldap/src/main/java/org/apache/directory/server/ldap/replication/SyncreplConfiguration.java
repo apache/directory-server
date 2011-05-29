@@ -23,13 +23,14 @@ package org.apache.directory.server.ldap.replication;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
-
-import javax.net.ssl.X509TrustManager;
 
 
 /**
@@ -87,14 +88,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /** the replica's id */
     private int replicaId;
 
-    /** a flag to indicate to store the cookie in a file, default is false
-     *  NOTE: a value of true indicates that the cookie will be stored
-     *  on file system, which is useful while testing the consumer
-     *  without loading config partition
-     */
-    private boolean storeCookieInFile = false;
-
-    private static final String REPL_CONFIG_AREA = "ou=consumers,ou=system";
+    private Dn configEntryDn = null;
 
     /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
     private boolean chaseReferrals = false;
@@ -176,18 +170,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /**
      * @return the replication user's password
      */
-    public String getReplUserPassword()
+    public byte[] getReplUserPassword()
     {
-        return Strings.utf8ToString(replUserPassword);
-    }
-
-
-    /**
-     * @param replUserPassword the replication user's password
-     */
-    public void setReplUserPassword( String replUserPassword )
-    {
-        setReplUserPassword( replUserPassword.getBytes() );
+        return replUserPassword;
     }
 
 
@@ -428,15 +413,14 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /** a flag to indicate to store the cookie in a file, default is false
+     *  NOTE: a value of true indicates that the cookie will be stored
+     *  on file system, which is useful while testing the consumer
+     *  without loading config partition
+     */
     public boolean isStoreCookieInFile()
     {
-        return storeCookieInFile;
-    }
-
-
-    public void setStoreCookieInFile( boolean storeCookieInFile )
-    {
-        this.storeCookieInFile = storeCookieInFile;
+        return ( configEntryDn == null );
     }
 
 
@@ -457,9 +441,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
-    public String getConfigEntryDn()
+    public Dn getConfigEntryDn()
     {
-        return "ads-replConsumerId=" + replicaId + "," + REPL_CONFIG_AREA;
+        return configEntryDn;
     }
 
 
@@ -509,5 +493,14 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     public X509TrustManager getTrustManager()
     {
         return trustManager;
+    }
+
+
+    /**
+     * @param configEntryDn the configEntryDn to set
+     */
+    public void setConfigEntryDn( Dn configEntryDn )
+    {
+        this.configEntryDn = configEntryDn;
     }
 }

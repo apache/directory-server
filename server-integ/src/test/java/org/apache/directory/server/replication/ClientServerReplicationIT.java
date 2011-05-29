@@ -302,7 +302,7 @@ public class ClientServerReplicationIT
         consumerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService, 0 );
         
         SyncReplConsumer syncreplClient = new SyncReplConsumer();
-        SyncreplConfiguration config = new SyncreplConfiguration();
+        final SyncreplConfiguration config = new SyncreplConfiguration();
         config.setProviderHost( "localhost" );
         config.setPort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
@@ -320,12 +320,34 @@ public class ClientServerReplicationIT
         
         Runnable r = new Runnable()
         {
-            
             public void run()
             {
                 try
                 {
                     consumerServer.start();
+                    DirectoryService ds = consumerServer.getDirectoryService();
+                    
+                    Dn configDn = new Dn( ds.getSchemaManager(), "ads-replProviderId=localhost,ou=system" );
+                    config.setConfigEntryDn( configDn );
+                    
+                    Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn );
+                    provConfigEntry.add( "objectClass", "ads-replProvider" );
+                    provConfigEntry.add( "ads-replProviderId", "localhost" );
+                    provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
+                    provConfigEntry.add( "ads-replProvHostName", config.getProviderHost() );
+                    provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getPort() ) );
+                    provConfigEntry.add( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
+                    provConfigEntry.add( "ads-replAttribute", config.getAttributes() );
+                    provConfigEntry.add( "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ) );
+                    provConfigEntry.add( "ads-replRefreshNPersist", String.valueOf( config.isRefreshNPersist() ) );
+                    provConfigEntry.add( "ads-replSearchScope", config.getSearchScope().getLdapUrlValue() );
+                    provConfigEntry.add( "ads-replSearchFilter", config.getFilter() );
+                    provConfigEntry.add( "ads-replSearchSizeLimit", String.valueOf( config.getSearchSizeLimit() ) );
+                    provConfigEntry.add( "ads-replSearchTimeOut", String.valueOf( config.getSearchTimeout() ) );
+                    provConfigEntry.add( "ads-replUserDn", config.getReplUserDn() );
+                    provConfigEntry.add( "ads-replUserPassword", config.getReplUserPassword() );
+                    
+                    ds.getAdminSession().add( provConfigEntry );
                 }
                 catch( Exception e )
                 {

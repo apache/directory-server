@@ -146,8 +146,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
     private List<Modification> cookieModLst;
 
-    private Dn configEntryDn;
-
     private static AttributeType COOKIE_AT_TYPE;
 
 
@@ -187,8 +185,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         cookieModLst = new ArrayList<Modification>( 1 );
         cookieModLst.add( cookieMod );
 
-        configEntryDn = new Dn( schemaManager, config.getConfigEntryDn() );
-
         prepareSyncSearchRequest();
     }
 
@@ -217,7 +213,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             // Do a bind
             try
             {
-                connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
+                connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
                 return true;
             }
             catch ( LdapException le )
@@ -661,7 +657,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                 attr.clear();
                 attr.add( syncCookie );
 
-                session.modify( configEntryDn, cookieModLst );
+                session.modify( config.getConfigEntryDn(), cookieModLst );
             }
 
             lastSavedCookie = new byte[syncCookie.length];
@@ -702,8 +698,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             {
                 try
                 {
-                    Entry entry = session.lookup( configEntryDn, new String[]
-                        { COOKIE_AT_TYPE.getName() } );
+                    Entry entry = session.lookup( config.getConfigEntryDn(), COOKIE_AT_TYPE.getName() );
                     if ( entry != null )
                     {
                         Attribute attr = entry.get( COOKIE_AT_TYPE );
@@ -752,11 +747,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                     cookieAttr );
                 List<Modification> deleteModLst = new ArrayList<Modification>();
                 deleteModLst.add( deleteCookieMod );
-                session.modify( configEntryDn, deleteModLst );
+                session.modify( config.getConfigEntryDn(), deleteModLst );
             }
             catch ( Exception e )
             {
-                LOG.warn( "Failed to delete the cookie from the entry with Dn {}", configEntryDn );
+                LOG.warn( "Failed to delete the cookie from the entry with Dn {}", config.getConfigEntryDn() );
                 LOG.warn( "{}", e );
             }
         }

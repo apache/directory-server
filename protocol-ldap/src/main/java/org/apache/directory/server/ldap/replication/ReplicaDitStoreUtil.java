@@ -117,6 +117,7 @@ public class ReplicaDitStoreUtil
         entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
 
         adminSession.add( entry );
+        LOG.debug( "stored replication consumer entry {}", entry.getDn() );
     }
 
 
@@ -145,8 +146,9 @@ public class ReplicaDitStoreUtil
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = new Dn( schemaManager, "ads-replConsumerId=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
+        LOG.debug( "updated last sent CSN of consumer entry {}", dn );
     }
 
 
