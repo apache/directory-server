@@ -173,6 +173,32 @@ public class ClientServerReplicationIT
         userDn = usersContainer.add( newName );
         
         waitAndCompareEntries( userDn );
+        
+        // now move and rename
+        Dn newParent = usersContainer.getParent();
+        
+        newName = new Rdn( schemaManager, userDn.getRdn().getName() + "MovedAndRenamed");
+        
+        providerSession.moveAndRename( userDn, newParent, newName, false );
+        
+        userDn = newParent.add( newName );
+        waitAndCompareEntries( userDn );
+    }
+    
+    
+    @Test
+    public void testDelete() throws Exception
+    {
+        Entry provUser = createEntry();
+        
+        providerSession.add( provUser );
+        
+        waitAndCompareEntries( provUser.getDn() );
+        
+        providerSession.delete( provUser.getDn() );
+        
+        Thread.sleep( 2000 );
+        assertFalse( consumerSession.exists( provUser.getDn() ) );
     }
     
     
