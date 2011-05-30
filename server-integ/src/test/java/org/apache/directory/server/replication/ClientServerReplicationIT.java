@@ -67,11 +67,11 @@ public class ClientServerReplicationIT
 
     private static LdapServer consumerServer;
 
-    private SchemaManager schemaManager;
+    private static SchemaManager schemaManager;
     
-    private CoreSession providerSession;
+    private static CoreSession providerSession;
     
-    private CoreSession consumerSession;
+    private static CoreSession consumerSession;
     
     private static AtomicInteger entryCount = new AtomicInteger();
     
@@ -92,15 +92,6 @@ public class ClientServerReplicationIT
         providerServer.stop();
     }
 
-    
-    @Before
-    public void accessFields()
-    {
-        schemaManager = providerServer.getDirectoryService().getSchemaManager();
-        providerSession = providerServer.getDirectoryService().getAdminSession();
-        consumerSession = consumerServer.getDirectoryService().getAdminSession();
-    }
-    
     
     @Test
     public void testInjectContextEntry() throws Exception
@@ -202,6 +193,32 @@ public class ClientServerReplicationIT
     }
     
     
+    @Test
+    public void testRebootConsumer() throws Exception
+    {
+        Entry provUser = createEntry();
+        
+        providerSession.add( provUser );
+        
+        waitAndCompareEntries( provUser.getDn() );
+        
+        consumerServer.stop();
+        
+        Dn deletedUserDn = provUser.getDn();
+        providerSession.delete( deletedUserDn );
+        
+        provUser = createEntry();
+        Dn addedUserDn = provUser.getDn();
+        providerSession.add( provUser );
+        
+        startConsumer();
+        
+        Thread.sleep( 2000 );
+        assertFalse( consumerSession.exists( deletedUserDn ) );
+        waitAndCompareEntries( addedUserDn );
+    }
+    
+    
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
         // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
@@ -263,6 +280,8 @@ public class ClientServerReplicationIT
                 try
                 {
                     providerServer.start();
+                    schemaManager = providerServer.getDirectoryService().getSchemaManager();
+                    providerSession = providerServer.getDirectoryService().getAdminSession();
                 }
                 catch( Exception e )
                 {
@@ -274,6 +293,7 @@ public class ClientServerReplicationIT
         Thread t = new Thread( r );
         t.setDaemon( true );
         t.start();
+        t.join();
     }
     
     
@@ -325,6 +345,7 @@ public class ClientServerReplicationIT
                 try
                 {
                     consumerServer.start();
+                    
                     DirectoryService ds = consumerServer.getDirectoryService();
                     
                     Dn configDn = new Dn( ds.getSchemaManager(), "ads-replProviderId=localhost,ou=system" );
@@ -347,7 +368,8 @@ public class ClientServerReplicationIT
                     provConfigEntry.add( "ads-replUserDn", config.getReplUserDn() );
                     provConfigEntry.add( "ads-replUserPassword", config.getReplUserPassword() );
                     
-                    ds.getAdminSession().add( provConfigEntry );
+                    consumerSession = consumerServer.getDirectoryService().getAdminSession();
+                    consumerSession.add( provConfigEntry );
                 }
                 catch( Exception e )
                 {
@@ -359,5 +381,6 @@ public class ClientServerReplicationIT
         Thread t = new Thread( r );
         t.setDaemon( true );
         t.start();
+        t.join();
     }
 }
