@@ -175,11 +175,8 @@ public class ReplicaEventLog
     }
 
 
-    public void destroy() throws Exception
+    public void stop() throws Exception
     {
-        // first truncate
-        truncate();
-
         // then close the producer and session, DO NOT close connection 
         producer.close();
         amqSession.close();

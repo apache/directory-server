@@ -197,14 +197,35 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     public void stop()
     {
+        for ( ReplicaEventLog log : replicaLogMap.values() )
+        {
+            try
+            {
+                log.stop();
+            }
+            catch( Exception e )
+            {
+                LOG.warn( "Failed to close the event log {}", log.getId() );
+                LOG.warn( "", e );
+            }
+        }
+        
         try
         {
-            brokerService.stop();
             amqConnection.close();
         }
         catch ( Exception e )
         {
             LOG.warn( "Failed to close the message queue connection", e );
+        }
+
+        try
+        {
+            brokerService.stop();
+        }
+        catch ( Exception e )
+        {
+            LOG.warn( "Failed to close the message broker service", e );
         }
 
         initialized = false;
