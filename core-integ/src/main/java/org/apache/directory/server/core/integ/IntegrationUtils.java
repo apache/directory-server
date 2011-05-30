@@ -46,8 +46,8 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -112,7 +112,7 @@ public class IntegrationUtils
 
         for ( LdifEntry entry : entries )
         {
-            if ( entry.isChangeAdd() )
+            if ( entry.isEntry() )
             {
                 service.getAdminSession().add(
                     new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
