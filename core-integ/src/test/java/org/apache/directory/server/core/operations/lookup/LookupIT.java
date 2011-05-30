@@ -106,7 +106,7 @@ public class LookupIT extends AbstractLdapTestUnit
         assertNotNull( entry );
         
         // We should have 4 attributes
-        assertEquals( 4, entry.size() );
+        assertEquals( 5, entry.size() );
 
         // Check that all the user attributes are abstent
         assertNull( entry.get( "cn" ) );
@@ -125,6 +125,7 @@ public class LookupIT extends AbstractLdapTestUnit
         assertEquals( "uid=admin,ou=system", entry.get( "creatorsName" ).getString() );
         assertNotNull( entry.get( "entryCSN" ).getString() );
         assertNotNull( entry.get( "entryUUID" ).getString() );
+        assertNotNull( entry.get( "entryParentId" ).getString() );
     }
 
 

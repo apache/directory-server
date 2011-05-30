@@ -1011,6 +1011,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
+        entry.add( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
+        
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1438,15 +1440,17 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
         }
 
-        // Update the master table with the modified entry
-        // Warning : this test is an hack. As we may call the Store API directly
-        // we may not have a modified entry to update. For instance, if the ModifierName
-        // or ModifyTimeStamp AT are not updated, there is no reason we want to update the
-        // master table.
-        if ( modifiedEntry != null )
+        // the below case arises only when the move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) is called
+        // directly using the Store API, in this case the value of modified entry will be null
+        // we need to lookup the entry to update the parent ID
+        if ( modifiedEntry == null )
         {
-            master.put( entryId, modifiedEntry );
+            modifiedEntry = lookup( entryId );
         }
+        
+        // Update the master table with the modified entry
+        modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
+        master.put( entryId, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
         {
@@ -2102,6 +2106,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // master table.
         if ( modifiedEntry != null )
         {
+            modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
             master.put( childId, modifiedEntry );
         }
     }

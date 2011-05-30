@@ -102,7 +102,7 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
         assertNotNull( entry );
         
         // We should have 8 attributes
-        assertEquals( 8, entry.size() ); 
+        assertEquals( 9, entry.size() ); 
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );

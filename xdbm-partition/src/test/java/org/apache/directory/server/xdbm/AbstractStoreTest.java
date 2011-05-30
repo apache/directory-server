@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -36,14 +37,15 @@ import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.impl.avl.AvlStoreTest;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -366,5 +368,49 @@ public class AbstractStoreTest
         
         assertEquals( csn, lookedup.get( csnAt ).getString() );
         assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+    }
+    
+    
+    @Test
+    public void testEntryParentIdPresence() throws Exception
+    {
+        Dn dn = new Dn( schemaManager, "cn=user,ou=Sales,o=Good Times Co." );
+        
+        Entry entry = new DefaultEntry( schemaManager, dn );
+        entry.add( "objectClass", "top", "person" );
+        entry.add( "cn", "user" );
+        entry.add( "sn", "user sn" );
+        
+        // add
+        StoreUtils.injectEntryInStore( store, entry );
+        verifyParentId( dn );
+        
+        // move
+        Dn newSuperior = new Dn( schemaManager, "o=Good Times Co." );
+        Dn newDn = new Dn( schemaManager, "cn=user,o=Good Times Co." );
+        store.move( dn, newSuperior, newDn );
+        entry = verifyParentId( newDn );
+        
+        // move and rename
+        Dn newParentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
+        Dn oldDn = newDn;
+        Rdn newRdn = new Rdn( schemaManager, "cn=userMovedAndRenamed" );
+        
+        store.moveAndRename( oldDn, newParentDn, newRdn, entry, false );
+        verifyParentId( newParentDn.add( newRdn ) );
+    }
+    
+    
+    private Entry verifyParentId( Dn dn ) throws Exception
+    {
+        Long entryId = store.getEntryId( dn );
+        Entry entry = store.lookup( entryId );
+        Long parentId = store.getParentId( entryId );
+        
+        Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
+        assertNotNull( parentIdAt );
+        assertEquals( parentId.toString(), parentIdAt.getString() );
+        
+        return entry;
     }
 }

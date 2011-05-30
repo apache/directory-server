@@ -88,6 +88,8 @@ public class ServerEntrySerializer implements Serializer
      * <p>
      * The structure used to store the entry is the following :
      * <ul>
+     *   <li><b>[a byte]</b> : if the Dn is empty 0 will be written else 1</li>
+     *   <li><b>[Rdn]</b> : The entry's Rdn.</li>
      *   <li><b>[numberAttr]</b> : the bumber of attributes. Can be 0</li>
      *   <li>For each Attribute :
      *     <ul>
@@ -104,6 +106,21 @@ public class ServerEntrySerializer implements Serializer
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        // First, the Dn
+        Dn dn = entry.getDn();
+        
+        // Write the Rdn of the Dn
+        if ( dn.isEmpty() )
+        {
+            out.writeByte( 0 );
+        }
+        else
+        {
+            out.writeByte( 1 );
+            Rdn rdn = dn.getRdn();
+            rdn.writeExternal( out );
+        }
 
         // Then the attributes.
         out.writeInt( entry.getAttributeTypes().size() );
@@ -156,6 +173,28 @@ public class ServerEntrySerializer implements Serializer
         try
         {
             Entry entry = new DefaultEntry( schemaManager );
+
+            // Read the Dn, if any
+            byte hasDn = in.readByte();
+
+            if ( hasDn == 1 )
+            {
+                Rdn rdn = new Rdn( schemaManager );
+                rdn.readExternal( in );
+                
+                try
+                {
+                    entry.setDn( new Dn( schemaManager, rdn ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    throw new IOException( lide.getMessage() );
+                }
+            }
+            else
+            {
+                entry.setDn( Dn.EMPTY_DN );
+            }
 
             // Read the number of attributes
             int nbAttributes = in.readInt();
