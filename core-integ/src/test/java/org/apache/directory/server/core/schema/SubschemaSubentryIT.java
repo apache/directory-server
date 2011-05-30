@@ -92,7 +92,6 @@ import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.DateUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1905,7 +1904,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore
     // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {

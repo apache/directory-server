@@ -47,8 +47,8 @@ import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
@@ -582,6 +582,7 @@ public class TriggerInterceptor extends BaseInterceptor
     {
         List<Object> returnValues = new ArrayList<Object>();
         List<SPSpec> spSpecs = tsec.getSPSpecs();
+        
         for ( SPSpec spSpec : spSpecs )
         {
             List<Object> arguments = new ArrayList<Object>();
