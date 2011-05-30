@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.mina.util.AvailablePortFinder;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -197,7 +196,6 @@ public class DirectoryServiceAnnotationTest
             @CreateTransport( protocol = "LDAP" ), 
             @CreateTransport( protocol = "LDAPS" ) 
         })
-    @Ignore( "Test is not working but should reside in server-integ" )
     public void testCreateLdapServer() throws Exception
     {
         // First, get the service
