@@ -180,6 +180,12 @@ public class MockOperation implements OperationContext
     }
 
 
+    public Entry lookup( Dn dn, Collection<String> byPass, String... attrIds ) throws LdapException
+    {
+        return null;
+    }
+    
+
     public LookupOperationContext newLookupContext( Dn dn )
     {
         return null;

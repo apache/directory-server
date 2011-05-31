@@ -68,8 +68,8 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.Loggers;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -364,7 +364,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( oc.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             Dn parentDn = dn.getParent();
-            originalEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
+            originalEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         }
 
         Attribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRIES_AT );
@@ -442,7 +442,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
         Dn parentDn = dn.getParent();
-        Entry administrativeEntry = ( ( ClonedServerEntry ) opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ) )
+        Entry administrativeEntry = ( ( ClonedServerEntry ) opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY ) )
             .getOriginalEntry();
 
         Attribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
@@ -675,7 +675,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+            Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
             return;
@@ -831,7 +831,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return answer;
         }
 
-        Entry entry = hasEntryContext.lookup( dn, ByPassConstants.HAS_ENTRY_BYPASS );
+        Entry entry = hasEntryContext.lookup( dn, ByPassConstants.HAS_ENTRY_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( hasEntryContext, tuples, dn, entry );
@@ -1064,7 +1064,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // but after this service.
 
         Entry importedEntry = moveAndRenameContext.lookup( oldDn,
-            ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+            ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -1158,7 +1158,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Entry importedEntry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,

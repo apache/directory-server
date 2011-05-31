@@ -401,7 +401,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
              * time looking up this sub-entry. 
              */
 
-            Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
+            Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             for ( AttributeType attributeType : subentry.getAttributeTypes() )
             {

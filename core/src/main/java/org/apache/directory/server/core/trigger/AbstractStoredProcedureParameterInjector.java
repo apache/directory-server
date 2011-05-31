@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -110,7 +111,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             Dn ldapCtxName = ldapCtxParam.getCtxName();
-            return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS );
+            return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         }
     };
 }

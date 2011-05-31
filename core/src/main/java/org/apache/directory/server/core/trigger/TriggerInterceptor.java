@@ -128,7 +128,7 @@ public class TriggerInterceptor extends BaseInterceptor
         {
             Dn parentDn = dn.getParent();
 
-            entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
+            entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         }
 
         Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
@@ -435,7 +435,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = moveAndRenameContext.lookup( oldDn, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Entry importedEntry = moveAndRenameContext.lookup( oldDn, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -509,7 +509,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = moveContext.lookup( dn, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Entry importedEntry = moveContext.lookup( dn, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,

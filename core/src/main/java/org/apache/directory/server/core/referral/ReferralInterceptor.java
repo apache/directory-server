@@ -37,8 +37,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -346,6 +346,7 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(), renameContext
                 .getNewDn() );
+            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry newEntry = nexus.lookup( lookupContext );
 
@@ -383,6 +384,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // into the opContext, but for an unknow reason, this will fail
         // on eferral tests...
         LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry newEntry = nexus.lookup( lookupContext );
 

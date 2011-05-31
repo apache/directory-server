@@ -41,6 +41,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -190,7 +191,7 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modified entry
-        Entry alteredEntry = modifyContext.lookup( modifyContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry alteredEntry = modifyContext.lookup( modifyContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         modifyContext.setAlteredEntry( alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
@@ -216,7 +217,7 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modifed entry
-        Entry alteredEntry = renameContext.lookup( renameContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry alteredEntry = renameContext.lookup( renameContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         renameContext.setModifiedEntry( alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )

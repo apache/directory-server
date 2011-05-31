@@ -300,6 +300,9 @@ public interface OperationContext
     Entry lookup( Dn dn, Collection<String> byPass ) throws LdapException;
     
     
+    Entry lookup( Dn dn, Collection<String> byPass, String... attrIds ) throws LdapException;
+    
+    
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
     
     

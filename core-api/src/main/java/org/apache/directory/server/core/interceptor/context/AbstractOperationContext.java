@@ -366,6 +366,15 @@ public abstract class AbstractOperationContext implements OperationContext
         lookupContext.setByPassed( byPassed );
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
+
+
+    public Entry lookup( Dn dn, Collection<String> byPassed, String... attrIds ) throws LdapException
+    {
+        LookupOperationContext lookupContext = newLookupContext( dn );
+        lookupContext.setByPassed( byPassed );
+        lookupContext.setAttrsId( attrIds );
+        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
+    }
     
 
     public LdapPrincipal getEffectivePrincipal()

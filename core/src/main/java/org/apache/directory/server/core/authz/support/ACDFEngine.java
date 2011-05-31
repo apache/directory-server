@@ -41,6 +41,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
@@ -152,7 +153,7 @@ public class ACDFEngine
             throw new IllegalArgumentException( "entryName" );
         }
 
-        Entry userEntry = aciContext.getOperationContext().lookup( aciContext.getUserDn(), USER_LOOKUP_BYPASS );
+        Entry userEntry = aciContext.getOperationContext().lookup( aciContext.getUserDn(), USER_LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // Determine the scope of the requested operation.
         OperationScope scope;

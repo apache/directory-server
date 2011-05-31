@@ -38,9 +38,9 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
@@ -202,7 +202,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         else
         {
-            serverEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+            serverEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         }
 
         return serverEntry;

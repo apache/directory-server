@@ -43,8 +43,8 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
@@ -161,7 +161,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             try
             {
-                attrs = addContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
+                attrs = addContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             }
             catch ( Exception e )
             {

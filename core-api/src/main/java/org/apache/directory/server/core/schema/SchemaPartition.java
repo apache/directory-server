@@ -377,7 +377,7 @@ public final class SchemaPartition extends AbstractPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         boolean cascade = moveContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveContext.lookup( moveContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveContext.lookup( moveContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         synchronizer.move( moveContext, entry, cascade );
         wrapped.move( moveContext );
         updateSchemaModificationAttributes( moveContext );
@@ -390,7 +390,7 @@ public final class SchemaPartition extends AbstractPartition
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         boolean cascade = moveAndRenameContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         wrapped.moveAndRename( moveAndRenameContext );
         updateSchemaModificationAttributes( moveAndRenameContext );

@@ -303,28 +303,63 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return entry;
         }
 
-        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) 
-            && !lookupContext.hasAllOperational() && !lookupContext.hasAllUser() )
+        if ( lookupContext.hasAllUser() )
         {
-            return entry;
-        }
-
-        for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
-        {
-            String oid = attributeType.getOid();
-            
-            if ( !lookupContext.getAttrsId().contains( oid ) )
+            if ( lookupContext.hasAllOperational() )
             {
-                if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
+                return entry;
+            }
+            else
+            {
+                for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
                 {
-                    if ( !lookupContext.hasAllUser() )
+                    String oid = attributeType.getOid();
+
+                    if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
+                    {
+                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        {
+                            entry.removeAttributes( attributeType );
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ( lookupContext.hasAllOperational() )
+            {
+                for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                {
+                    if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
                     {
                         entry.removeAttributes( attributeType );
                     }
                 }
-                else if ( ( !lookupContext.hasAllOperational() ) )
+            }
+            else
+            {
+                if ( lookupContext.getAttrsId().size() == 0 )
                 {
-                    entry.removeAttributes( attributeType );
+                    for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                    {
+                        if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
+                        {
+                            entry.removeAttributes( attributeType );
+                        }
+                    }
+                }
+                else
+                {
+                    for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                    {
+                        String oid = attributeType.getOid();
+                        
+                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        {
+                            entry.removeAttributes( attributeType );
+                        }
+                    }
                 }
             }
         }

@@ -26,10 +26,10 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -405,7 +405,7 @@ public class DefaultSchemaService implements SchemaService
 
             Entry mods = 
                 schemaPartition.lookup( 
-                    new LookupOperationContext( null, schemaModificationAttributesDn) );
+                    new LookupOperationContext( null, schemaModificationAttributesDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY ) );
             
 // @todo enable this optimization at some point but for now it
 // is causing some problems so I will just turn it off

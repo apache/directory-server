@@ -569,7 +569,7 @@ public class InterceptorChain
             // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
             
-            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn() );
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             ClonedServerEntry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )

@@ -54,11 +54,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -395,7 +395,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private void checkAdministrativeRole( OperationContext opContext, Dn apDn ) throws LdapException
     {
-        Entry administrationPoint = opContext.lookup( apDn, ByPassConstants.LOOKUP_BYPASS );
+        Entry administrationPoint = opContext.lookup( apDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         // The administrativeRole AT must exist and not be null
         Attribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
