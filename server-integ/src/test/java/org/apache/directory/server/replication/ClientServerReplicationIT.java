@@ -213,7 +213,7 @@ public class ClientServerReplicationIT
         
         startConsumer();
         
-        Thread.sleep( 2000 );
+        Thread.sleep( 5000 );
         assertFalse( consumerSession.exists( deletedUserDn ) );
         waitAndCompareEntries( addedUserDn );
     }
