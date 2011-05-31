@@ -96,7 +96,6 @@ import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -1435,5 +1434,52 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.setDn( dn );
 
         connection.add( personEntry );
+    }
+
+
+    /**
+     * Adding an entry with a 100K attribute's value.
+     * 
+     * @throws Exception 
+     */
+    @Test( expected = LdapOperationException.class )
+    public void testAddEntry100KData() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+
+        int size = 100*1024;
+        byte[] dataBytes = new byte[size];
+        
+        for ( int i = 0; i < size; i++)
+        {
+            dataBytes[i] = 'A';
+        }
+        
+        String data = Strings.utf8ToString( dataBytes );
+
+        Dn dn = new Dn( "cn=Kate Bush," + BASE );
+        
+        Entry personEntry = new DefaultEntry( "cn=Kate Bush," + BASE,
+        "objectClass: top",
+        "objectClass: person",
+        "cn: Kate Bush",
+        "sn: Bush",
+        "description", data );
+
+        connection.add( personEntry );
+        
+        // Check that the entry has been stored 
+        Entry entry = connection.lookup( dn, "description", "cn", "sn" );
+        
+        String description = entry.get( "description" ).getString();
+        
+        assertNotNull( description );
+        assertTrue( description.startsWith( "AAA" ) );
+        assertEquals( size, description.length() );
+        
+        for ( int i = 0; i < size; i++ )
+        {
+            assertEquals( 'A', description.charAt( i ) );
+        }
     }
 }
