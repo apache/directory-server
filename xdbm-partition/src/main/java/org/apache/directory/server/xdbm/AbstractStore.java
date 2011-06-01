@@ -1011,7 +1011,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
-        entry.add( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
+        entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
         
         master.put( id, entry );
 
