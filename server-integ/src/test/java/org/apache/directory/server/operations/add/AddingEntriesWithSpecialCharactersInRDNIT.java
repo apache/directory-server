@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -364,4 +365,29 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         connection.delete( dn );
         connection.close();
     }
+    
+    
+    @Test
+    public void testAddRdnWithEscapedSpaces() throws Exception 
+    {
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+
+        Entry entry = new DefaultEntry( 
+            "cn=\\ User, ou=system",
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson", 
+            "cn: \\ User",
+            "sn: \\ Name\\ " );
+
+        connection.add( entry );
+        
+        Entry addedEntry = connection.lookup( "cn=\\ User, ou=system" );
+        
+        assertNotNull( addedEntry );
+        
+        assertEquals( "\\ Name\\ ", addedEntry.get( "sn" ).getString() );
+        assertEquals( "\\ User", addedEntry.get( "cn" ).getString() );
+      } 
 }
