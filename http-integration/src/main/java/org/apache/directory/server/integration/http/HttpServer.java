@@ -177,7 +177,7 @@ public class HttpServer
             {
                 // load the admin entry to get the private key and certificate
                 Dn adminDn = dirService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-                Entry adminEntry = dirService.getAdminSession().lookup( adminDn, new String[]{ "+" } );
+                Entry adminEntry = dirService.getAdminSession().lookup( adminDn, "*", "+" );
                 
                 File confDir = dirService.getInstanceLayout().getConfDirectory();
                 File ksFile = new File( confDir, "httpserver.generated.ks" );
