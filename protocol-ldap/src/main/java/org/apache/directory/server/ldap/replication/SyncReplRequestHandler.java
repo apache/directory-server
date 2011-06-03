@@ -687,13 +687,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
 
-            // Filter the userPassword if the server mandate to do so
-            if ( session.getCoreSession().getDirectoryService().isPasswordHidden() )
-            {
-                // Remove the userPassord attribute from the entry.
-                respEntry.getEntry().removeAttributes( SchemaConstants.USER_PASSWORD_AT );
-            }
-
             return respEntry;
         }
     }
