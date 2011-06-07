@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.Name;
@@ -73,7 +72,6 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
@@ -569,43 +567,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();
-
-        if ( rdn.size() == 1 )
-        {
-            String rdnAttribute = rdn.getUpType();
-            String rdnValue = rdn.getUpValue().getString();
-
-            // Add the Rdn attribute
-            boolean doRdnPut = attributes.get( rdnAttribute ) == null;
-            doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
-
-            // TODO Fix DIRSERVER-832
-            doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
-
-            if ( doRdnPut )
-            {
-                attributes.put( rdnAttribute, rdnValue );
-            }
-        }
-        else
-        {
-            for ( Iterator<Ava> ii = rdn.iterator(); ii.hasNext(); /**/)
-            {
-                Ava atav = ii.next();
-
-                // Add the Rdn attribute
-                boolean doRdnPut = attributes.get( atav.getNormType() ) == null;
-                doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
-
-                // TODO Fix DIRSERVER-832
-                doRdnPut = doRdnPut || !attributes.get( atav.getNormType() ).contains( atav.getNormValue() );
-
-                if ( doRdnPut )
-                {
-                    attributes.put( atav.getNormType(), atav.getUpValue().getValue() );
-                }
-            }
-        }
 
         // Add the new context to the server which as a side effect adds
         try

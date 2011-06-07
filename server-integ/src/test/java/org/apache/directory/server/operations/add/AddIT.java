@@ -903,9 +903,11 @@ public class AddIT extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "person" );
         attrs.put( "givenName", "Jim" );
         attrs.put( "sn", "Bean" );
-        attrs.put( "cn", "\"Jim, Bean\"" );
+        attrs.put( "cn", "Jim, Bean" );
 
-        ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
+        DirContext jimBeanCtx = ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
+        
+        assertNotNull( jimBeanCtx );
     }
 
 
@@ -985,7 +987,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         String[] expectedCns =
-            { "Jackson", "Michael" };
+            { "Jackson", "michael" };
 
         for ( String name : expectedCns )
         {
@@ -1080,7 +1082,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         assertTrue( cn.contains( "Jackson" ) );
-        assertTrue( cn.contains( "Michael" ) );
+        assertTrue( cn.contains( "michael" ) );
     }
 
 
@@ -1215,7 +1217,8 @@ public class AddIT extends AbstractLdapTestUnit
         toriOC.add( "top" );
         toriOC.add( "person" );
         tori.put( toriOC );
-        tori.put( "cn", "Tori Amos" );
+        //tori.put( "cn", "Amos,Tori" );
+        tori.put( "cn", "Tori,Amos" );
         tori.put( "sn", "Amos" );
         /*
          * Note that the Rdn attribute is different to the cn specified in the entry.
@@ -1250,8 +1253,8 @@ public class AddIT extends AbstractLdapTestUnit
         assertTrue( res.hasMore() );
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
-        assertTrue( cnAttribute.contains( "Tori Amos" ) );
-        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
+        assertTrue( cnAttribute.contains( "Tori,Amos" ) );
+        assertTrue( cnAttribute.contains( "amos,tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword

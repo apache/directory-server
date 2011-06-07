@@ -46,11 +46,11 @@ import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
@@ -747,7 +747,7 @@ public class JdbmStoreTest
         Long id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id );
-        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
     }
 
 

@@ -167,8 +167,8 @@ public class AddIT extends AbstractLdapTestUnit
         Attributes entry = LdifUtils.createJndiAttributes( 
             "ObjectClass: top",
             "ObjectClass: inetorgperson",
-            "cn: John\\+Doe",
-            "sn: \\+Name\\+" );
+            "cn: John+Doe",
+            "sn: +Name+" );
         
         LdapContext sysRoot = getSystemContext( getService() );
         DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", entry );

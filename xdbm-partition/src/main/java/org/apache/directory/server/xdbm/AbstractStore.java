@@ -36,8 +36,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -1199,7 +1199,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
-            entry.add( newRdnAttrType, newAtav.getUpValue() );
+            entry.add( newRdnAttrType, newAtav.getNormValue() );
 
             if ( hasUserIndexOn( newNormType ) )
             {

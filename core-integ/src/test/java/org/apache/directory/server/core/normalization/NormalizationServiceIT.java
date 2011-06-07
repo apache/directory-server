@@ -72,7 +72,7 @@ ou: corporate category\, operations
         sysRoot.createSubcontext( "ou=direct report view", attrs );
 
         attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "corporate category\\, operations" );
+        attrs.put( "ou", "corporate category, operations" );
         sysRoot.createSubcontext( "ou=corporate category\\, operations,ou=direct report view", attrs );
 
         attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );

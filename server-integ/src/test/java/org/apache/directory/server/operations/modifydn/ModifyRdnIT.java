@@ -43,6 +43,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -134,7 +135,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
         assertTrue( !cn.contains( oldCn ) ); // old value is gone
         assertEquals( 1, cn.size() );
 
@@ -183,7 +184,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -230,7 +231,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -285,7 +286,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
         assertTrue( !cn.contains( oldCn ) ); // old value is gone
         assertTrue( cn.contains( alternateCn ) ); // alternate value is still available
         assertEquals( 2, cn.size() );
@@ -424,7 +425,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
-        assertTrue( ou.contains( newOu ) );
+        assertTrue( ou.contains( Strings.toLowerCase( newOu ) ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
 
