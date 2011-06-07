@@ -72,7 +72,7 @@ public class ReplicationTrustManager implements X509TrustManager
             ks = KeyStore.getInstance( "JKS" );
             ks.load( null, null ); // initiate with null stream and password, this keystore resides in-memory only
 
-            TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( "SunX509" );
+            TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
             tmFactory.init( ks );
 
             TrustManager trustManagers[] = tmFactory.getTrustManagers();
