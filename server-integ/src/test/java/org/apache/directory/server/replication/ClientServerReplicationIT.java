@@ -353,13 +353,13 @@ public class ClientServerReplicationIT
                     config.setConfigEntryDn( configDn );
                     
                     Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn );
-                    provConfigEntry.add( "objectClass", "ads-replProvider" );
-                    provConfigEntry.add( "ads-replProviderId", "localhost" );
+                    provConfigEntry.add( "objectClass", "ads-replConsumer" );
+                    provConfigEntry.add( "ads-replConsumerId", "localhost" );
                     provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
                     provConfigEntry.add( "ads-replProvHostName", config.getProviderHost() );
                     provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getPort() ) );
                     provConfigEntry.add( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
-                    provConfigEntry.add( "ads-replAttribute", config.getAttributes() );
+                    provConfigEntry.add( "ads-replAttributes", config.getAttributes() );
                     provConfigEntry.add( "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ) );
                     provConfigEntry.add( "ads-replRefreshNPersist", String.valueOf( config.isRefreshNPersist() ) );
                     provConfigEntry.add( "ads-replSearchScope", config.getSearchScope().getLdapUrlValue() );

@@ -104,16 +104,15 @@ public class ReplicaDitStoreUtil
         }
 
         Entry entry = new DefaultEntry( schemaManager );
-        //FIXME change the value of ads-replConsumerId to a unique value
-        entry.setDn( new Dn( schemaManager, "ads-replConsumerId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
+        entry.setDn( new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
 
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replConsumer" );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replEventLog" );
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
-        entry.add( "ads-replConsumerId", String.valueOf( replica.getId() ) );
         entry.add( "ads-replAliasDerefMode", replica.getSearchCriteria().getAliasDerefMode().getJndiValue() );
         entry.add( "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName() );
         entry.add( "ads-replLastSentCsn", replica.getLastSentCsn() );
         entry.add( "ads-replSearchScope", replica.getSearchCriteria().getScope().getLdapUrlValue() );
+        entry.add( "ads-replRefreshNPersist", String.valueOf( replica.isRefreshNPersist() ) );
         entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
 
         adminSession.add( entry );
@@ -146,17 +145,17 @@ public class ReplicaDitStoreUtil
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = new Dn( schemaManager, "ads-replConsumerId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
     }
 
 
-    public List<ReplicaEventLog> getReplicaConsumers() throws Exception
+    public List<ReplicaEventLog> getReplicaEventLogs() throws Exception
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
-        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replConsumer)",
+        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replEventLog)",
             SearchScope.ONELEVEL, "+", "*" );
 
         while ( cursor.next() )
@@ -174,7 +173,7 @@ public class ReplicaDitStoreUtil
 
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
-        String id = entry.get( "ads-replConsumerId" ).getString();
+        String id = entry.get( "ads-dsReplicaId" ).getString();
         ReplicaEventLog replica = new ReplicaEventLog( Integer.parseInt( id ) );
 
         NotificationCriteria searchCriteria = new NotificationCriteria();
@@ -185,8 +184,11 @@ public class ReplicaDitStoreUtil
         String baseDn = entry.get( "ads-searchBaseDN" ).getString();
         searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
 
-        String lastSentCsn = entry.get( "ads-replLastSentCsn" ).getString();
-        replica.setLastSentCsn( lastSentCsn );
+        Attribute lastSentCsnAt = entry.get( "ads-replLastSentCsn" );
+        if ( lastSentCsnAt != null )
+        {
+            replica.setLastSentCsn( lastSentCsnAt.getString() );
+        }
 
         String scope = entry.get( "ads-replSearchScope" ).getString();
         int scopeIntVal = SearchScope.getSearchScope( scope );
@@ -196,6 +198,8 @@ public class ReplicaDitStoreUtil
         searchCriteria.setFilter( filter );
         replica.setSearchFilter( filter );
 
+        replica.setRefreshNPersist( Boolean.parseBoolean( entry.get( "ads-replRefreshNPersist" ).getString() ) );
+        
         searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         replica.setSearchCriteria( searchCriteria );
 

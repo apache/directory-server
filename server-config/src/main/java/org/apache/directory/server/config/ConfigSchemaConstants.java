@@ -243,7 +243,7 @@ public enum ConfigSchemaConstants
     
     ADS_REPL_REFRESH_INTERVAL( "ads-replRefreshInterval", "" ),
     
-    ADS_REPL_ATTRIBUTE( "ads-replAttribute", "" ),
+    ADS_REPL_ATTRIBUTE( "ads-replAttributes", "" ),
     
     ADS_REPL_SEARCH_SIZE_LIMIT( "ads-replSearchSizeLimit", "" ),
     

@@ -83,6 +83,7 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
+import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
 import org.apache.directory.server.ldap.replication.SyncReplConsumer;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
@@ -988,7 +989,6 @@ public class ServiceBuilder
         {
             String className = replBean.getReplConsumerImpl();
             
-            
             ReplicationConsumer consumer = null;
             Class<?> consumerClass = null;
             SyncreplConfiguration config = null;
@@ -1008,18 +1008,32 @@ public class ServiceBuilder
                 
                 // we don't support any other configuration impls atm, but this configuration should suffice for many needs
                 config = new SyncreplConfiguration();
-                
-                config.setReplicaId( Integer.parseInt( replBean.getDsreplicaid() ) );
+
+                config.setBaseDn( replBean.getSearchBaseDn() );
+                config.setProviderHost( replBean.getReplProvHostName() );
+                config.setPort( replBean.getReplProvPort() );
                 config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
-                config.setBaseDn( replBean.getSearchBaseDn().getName() );
+                config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
+                config.setRefreshInterval( replBean.getReplRefreshInterval() );
+                config.setRefreshNPersist( replBean.isReplRefreshNPersist() );
                 
                 int scope = SearchScope.getSearchScope( replBean.getReplSearchScope() );
                 config.setSearchScope( SearchScope.getSearchScope( scope ) );
                 
                 config.setFilter( replBean.getReplSearchFilter() );
-                config.setRefreshNPersist( replBean.isReplRefreshNPersist() );
+                config.setSearchTimeout( replBean.getReplSearchTimeOut() );
+                config.setReplUserDn( replBean.getReplUserDn() );
+                config.setReplUserPassword( replBean.getReplUserPassword() );
+                
                 config.setUseTls( replBean.isReplUseTls() );
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
+                
+                config.setConfigEntryDn( replBean.getDn() );
+                
+                if ( replBean.getReplPeerCertificate() != null )
+                {
+                    ReplicationTrustManager.addCertificate( replBean.getReplConsumerId(), replBean.getReplPeerCertificate() );
+                }
                 
                 consumer.setConfig( config );
                 

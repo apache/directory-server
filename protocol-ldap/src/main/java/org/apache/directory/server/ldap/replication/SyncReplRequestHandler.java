@@ -857,10 +857,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         try
         {
 
-            List<ReplicaEventLog> replicas = replicaUtil.getReplicaConsumers();
-            if ( !replicas.isEmpty() )
+            List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
+            if ( !eventLogs.isEmpty() )
             {
-                for ( ReplicaEventLog r : replicas )
+                for ( ReplicaEventLog r : eventLogs )
                 {
                     LOG.debug( "initializing the replica log from {}", r.getId() );
                     r.configure( amqConnection, brokerService );

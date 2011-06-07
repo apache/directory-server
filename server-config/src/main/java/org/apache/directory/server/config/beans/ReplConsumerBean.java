@@ -20,8 +20,10 @@
 package org.apache.directory.server.config.beans;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.server.config.ConfigurationElement;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -35,21 +37,33 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-replConsumerId", isRdn = true)
     private String replConsumerId;
 
-    /** The replication unique ID */
-    @ConfigurationElement(attributeType = "ads-dsReplicaId")
-    private String dsReplicaId;
+    /** The Search Base Dn */
+    @ConfigurationElement(attributeType = "ads-searchBaseDn")
+    private String searchBaseDn;
+
+    /** The replication provider host name */
+    @ConfigurationElement(attributeType = "ads-replProvHostName")
+    private String replProvHostName;
+
+    /** The replication provider port */
+    @ConfigurationElement(attributeType = "ads-replProvPort")
+    private int replProvPort;
 
     /** The Alias Dereferencing mode */
     @ConfigurationElement(attributeType = "ads-replAliasDerefMode")
     private String replAliasDerefMode;
 
-    /** The Search Base Dn */
-    @ConfigurationElement(attributeType = "ads-searchBaseDn")
-    private Dn searchBaseDn;
+    /** The replication provider attribute */
+    @ConfigurationElement(attributeType = "ads-replAttributes")
+    private List<String> replAttributes = new ArrayList<String>();
 
-    /** The last CSN sent */
-    @ConfigurationElement(attributeType = "ads-replLastSentCsn")
-    private String replLastSentCsn;
+    /** The refresh interval */
+    @ConfigurationElement(attributeType = "ads-replRefreshInterval")
+    private long replRefreshInterval;
+
+    /** Tells if we should persist */
+    @ConfigurationElement(attributeType = "ads-replRefreshNPersist")
+    private boolean replRefreshNPersist;
 
     /** The search scope */
     @ConfigurationElement(attributeType = "ads-replSearchScope")
@@ -59,9 +73,25 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-replSearchFilter")
     private String replSearchFilter;
 
-    /** Tells if we should persist */
-    @ConfigurationElement(attributeType = "ads-replRefreshNPersist")
-    private boolean replRefreshNPersist;
+    /** The search size limit */
+    @ConfigurationElement(attributeType = "ads-replSearchSizeLimit")
+    private int replSearchSizeLimit;
+
+    /** The search time limit */
+    @ConfigurationElement(attributeType = "ads-replSearchTimeout")
+    private int replSearchTimeout;
+
+    /** The replication user Dn */
+    @ConfigurationElement(attributeType = "ads-replUserDn")
+    private String replUserDn;
+
+    /** The replication user password */
+    @ConfigurationElement(attributeType = "ads-replUserPassword")
+    private byte[] replUserPassword;
+
+    /** The replication cookie */
+    @ConfigurationElement(attributeType = "ads-replCookie")
+    private String replCookie;
 
     /** Tells if TLS should be used during replication */
     @ConfigurationElement(attributeType = "ads-replUseTls")
@@ -73,7 +103,7 @@ public class ReplConsumerBean extends AdsBaseBean
 
     /** The peer certificate */
     @ConfigurationElement(attributeType = "ads-replPeerCertificate")
-    private String replPeerCertificate;
+    private byte[] replPeerCertificate;
 
     /** The FQCN of replication client implementation */
     @ConfigurationElement(attributeType = "ads-replConsumerImpl")
@@ -101,7 +131,7 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @param replConsumerId the replConsumerId to set
+     * @param replConsumerId the replication consumer id to set
      */
     public void setReplConsumerId( String replConsumerId )
     {
@@ -110,20 +140,56 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the dsreplicaid
+     * @return the searchBaseDn
      */
-    public String getDsreplicaid()
+    public String getSearchBaseDn()
     {
-        return dsReplicaId;
+        return searchBaseDn;
     }
 
 
     /**
-     * @param dsreplicaid the dsreplicaid to set
+     * @param searchBaseDN the searchBaseDn to set
      */
-    public void setDsreplicaid( String dsreplicaid )
+    public void setSearchBaseDn( String searchBaseDn )
     {
-        this.dsReplicaId = dsreplicaid;
+        this.searchBaseDn = searchBaseDn;
+    }
+
+
+    /**
+     * @return the replProvHostName
+     */
+    public String getReplProvHostName()
+    {
+        return replProvHostName;
+    }
+
+
+    /**
+     * @param replProvHostName the replProvHostName to set
+     */
+    public void setReplProvHostName( String replProvHostName )
+    {
+        this.replProvHostName = replProvHostName;
+    }
+
+
+    /**
+     * @return the replProvPort
+     */
+    public int getReplProvPort()
+    {
+        return replProvPort;
+    }
+
+
+    /**
+     * @param replProvPort the replProvPort to set
+     */
+    public void setReplProvPort( int replProvPort )
+    {
+        this.replProvPort = replProvPort;
     }
 
 
@@ -146,38 +212,68 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the searchBaseDn
+     * @return the replAttributes
      */
-    public Dn getSearchBaseDn()
+    public List<String> getReplAttributes()
     {
-        return searchBaseDn;
+        return replAttributes;
     }
 
 
     /**
-     * @param searchBaseDn the searchBaseDn to set
+     * @param replAttributes the replAttribute to set
      */
-    public void setSearchBaseDn(Dn searchBaseDn)
+    public void setReplAttributes( List<String> replAttributes )
     {
-        this.searchBaseDn = searchBaseDn;
+        this.replAttributes = replAttributes;
     }
 
 
     /**
-     * @return the replLastSentCsn
+     * @param replAttributes the replAttribute to add
      */
-    public String getReplLastSentCsn()
+    public void addReplAttributes( String... replAttributes )
     {
-        return replLastSentCsn;
+        for ( String at : replAttributes )
+        {
+            this.replAttributes.add( at );
+        }
+    }
+
+    
+    /**
+     * @return the replRefreshInterval
+     */
+    public long getReplRefreshInterval()
+    {
+        return replRefreshInterval;
     }
 
 
     /**
-     * @param replLastSentCsn the replLastSentCsn to set
+     * @param replRefreshInterval the replRefreshInterval to set
      */
-    public void setReplLastSentCsn( String replLastSentCsn )
+    public void setReplRefreshInterval( long replRefreshInterval )
     {
-        this.replLastSentCsn = replLastSentCsn;
+        this.replRefreshInterval = replRefreshInterval;
+    }
+
+
+    /**
+     * @return the replRefreshNPersist
+     */
+    public boolean isReplRefreshNPersist()
+    {
+        return replRefreshNPersist;
+    }
+
+
+    /**
+     * @param replRefreshNPersist the replRefreshNPersist to set
+     */
+    public void setReplRefreshNPersist( boolean replRefreshNPersist )
+    {
+        this.replRefreshNPersist = replRefreshNPersist;
     }
 
 
@@ -218,20 +314,92 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the replRefreshNPersist
+     * @return the replSearchSizeLimit
      */
-    public boolean isReplRefreshNPersist()
+    public int isReplSearchSizeLimit()
     {
-        return replRefreshNPersist;
+        return replSearchSizeLimit;
     }
 
 
     /**
-     * @param replRefreshNPersist the replRefreshNPersist to set
+     * @param replSearchSizeLimit the replSearchSizeLimit to set
      */
-    public void setReplRefreshNPersist( boolean replRefreshNPersist )
+    public void setReplSearchSizeLimit( int replSearchSizeLimit )
     {
-        this.replRefreshNPersist = replRefreshNPersist;
+        this.replSearchSizeLimit = replSearchSizeLimit;
+    }
+
+
+    /**
+     * @return the replSearchTimeOut
+     */
+    public int getReplSearchTimeOut()
+    {
+        return replSearchTimeout;
+    }
+
+
+    /**
+     * @param replSearchTimeOut the replSearchTimeOut to set
+     */
+    public void setReplSearchTimeLimit( int replSearchTimeOut )
+    {
+        this.replSearchTimeout = replSearchTimeOut;
+    }
+
+
+    /**
+     * @return the replUserDn
+     */
+    public String getReplUserDn()
+    {
+        return replUserDn;
+    }
+
+
+    /**
+     * @param replUserDn the replUserDn to set
+     */
+    public void setReplUserDn( String replUserDn )
+    {
+        this.replUserDn = replUserDn;
+    }
+
+
+    /**
+     * @return the replUserPassword
+     */
+    public byte[] getReplUserPassword()
+    {
+        return replUserPassword;
+    }
+
+
+    /**
+     * @param replUserPassword the replUserPassword to set
+     */
+    public void setReplUserPassword( byte[] replUserPassword )
+    {
+        this.replUserPassword = replUserPassword;
+    }
+
+
+    /**
+     * @return the replCookie
+     */
+    public String getReplCookie()
+    {
+        return replCookie;
+    }
+
+
+    /**
+     * @param replCookie the replCookie to set
+     */
+    public void setReplCookie( String replCookie )
+    {
+        this.replCookie = replCookie;
     }
 
 
@@ -274,7 +442,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @return the replPeerCertificate
      */
-    public String getReplPeerCertificate()
+    public byte[] getReplPeerCertificate()
     {
         return replPeerCertificate;
     }
@@ -283,7 +451,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @param replPeerCertificate the replPeerCertificate to set
      */
-    public void setReplPeerCertificate( String replPeerCertificate )
+    public void setReplPeerCertificate( byte[] replPeerCertificate )
     {
         this.replPeerCertificate = replPeerCertificate;
     }
@@ -314,20 +482,29 @@ public class ReplConsumerBean extends AdsBaseBean
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "Replication consumer :\n" );
+        sb.append( tabs ).append( "Replication provider :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
-        sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
-        sb.append( tabs ).append( "  consumer ID : " ).append( replConsumerId ).append( '\n' );
-        sb.append( tabs ).append( "  replica ID : " ).append( dsReplicaId ).append( '\n' );
-        sb.append( tabs ).append( "  last sent CSN : " ).append( replLastSentCsn ).append( '\n' );
-        sb.append( tabs ).append( "  search base Dn : " ).append( searchBaseDn.getName() ).append( '\n' );
-        sb.append( tabs ).append( "  search filter : " ).append( replSearchFilter ).append( '\n' );
-        sb.append( tabs ).append( "  search scope : " ).append( replSearchScope ).append( '\n' );
-        sb.append( tabs ).append( "  alias dereferencing mode : " ).append( replAliasDerefMode ).append( '\n' );
-
-        sb.append( toString( tabs, "  peer certificate", replPeerCertificate ) );
+        sb.append( tabs ).append( "  provider ID : " ).append( replConsumerId ).append( '\n' );
+        sb.append( tabs ).append( "  search base Dn : " ).append( searchBaseDn ).append( '\n' );
+        sb.append( tabs ).append( "  provider host name : " ).append( replProvHostName ).append( '\n' );
+        sb.append( tabs ).append( "  provider port : " ).append( replProvPort ).append( '\n' );
+        sb.append( toString( tabs, "  alias dereferencing mode", replAliasDerefMode ) );
+        sb.append( toString( tabs, "  attributes", String.valueOf( replAttributes ) ) );
+        sb.append( tabs ).append( "  refresh interval : " ).append( replRefreshInterval ).append( '\n' );
         sb.append( toString( tabs, "  refresh and persist mode", replRefreshNPersist ) );
+        sb.append( toString( tabs, "  search scope", replSearchScope ) );
+        sb.append( toString( tabs, "  search filter", replSearchFilter ) );
+        sb.append( tabs ).append( "  search size limit : " ).append( replSearchSizeLimit ).append( '\n' );
+        sb.append( tabs ).append( "  search time limit : " ).append( replSearchTimeout ).append( '\n' );
+        sb.append( toString( tabs, "  user Dn", replUserDn) );
+        sb.append( toString( tabs, "  user password", String.valueOf( replUserPassword ) ) ); // do not reveal the password, just null or not
+        sb.append( toString( tabs, "  cookie", replCookie ) );
+        sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
+        
+        // a hex dump would be good but printing the address is better to just know null or not
+        sb.append( toString( tabs, "  peer certificate", String.valueOf( replPeerCertificate ) ) );
+
         sb.append( toString( tabs, "  struct certivicate validation", replStrictCertValidation ) );
         sb.append( toString( tabs, "  use TLS", replUseTls ) );
 

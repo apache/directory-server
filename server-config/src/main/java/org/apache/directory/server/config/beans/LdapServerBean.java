@@ -73,10 +73,6 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(attributeType = "ads-replConsumers", container = "replConsumers")
     private List<ReplConsumerBean> replConsumers = new ArrayList<ReplConsumerBean>();
 
-    /** The replication producer Bean */
-    @ConfigurationElement
-    private ReplProviderBean replProvider;
-
     /** The list of supported mechanisms */
     @ConfigurationElement(attributeType = "ads-saslMechHandlers", container = "saslMechHandlers")
     private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
@@ -361,25 +357,7 @@ public class LdapServerBean extends DSBasedServerBean
             this.replConsumers.add( bean );
         }
     }
-
     
-    /**
-     * @return the replProvider
-     */
-    public ReplProviderBean getReplProvider()
-    {
-        return replProvider;
-    }
-
-
-    /**
-     * @param replProvider the replProvider to set
-     */
-    public void setReplProvider( ReplProviderBean replProvider )
-    {
-        this.replProvider = replProvider;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -439,11 +417,6 @@ public class LdapServerBean extends DSBasedServerBean
             }
         }
         
-        if ( replProvider != null )
-        {
-            sb.append( tabs ).append( replProvider.toString( tabs + "  " ) );
-        }
-
         return sb.toString();
     }
 
