@@ -38,6 +38,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -295,6 +296,10 @@ public class ConfigPartitionReader
             if ( type == String.class )
             {
                 beanField.set( bean, value.getString() );
+            }
+            else if ( type == byte[].class )
+            {
+                beanField.set( bean, value.getBytes() );
             }
             else if ( type == int.class )
             {
