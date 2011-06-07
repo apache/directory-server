@@ -218,7 +218,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             }
             catch ( LdapException le )
             {
-                LOG.warn( "Failed to bind to the server with the given bind Dn {} and credentials: {}", config.getReplUserDn(), le.getCause() );
+                LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
+                LOG.warn( "", le );
             }
         }
         catch ( Exception e )
@@ -266,7 +267,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
         SyncDoneValue ctrl = (SyncDoneValue)searchDone.getControls().get( SyncDoneValue.OID );
 
-        if ( ctrl.getCookie() != null )
+        if ( ( ctrl != null ) && ( ctrl.getCookie() != null ) )
         {
             syncCookie = ctrl.getCookie();
             LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString(syncCookie) );
