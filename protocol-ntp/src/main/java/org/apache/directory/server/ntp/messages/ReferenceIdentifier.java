@@ -241,9 +241,42 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int compareTo( ReferenceIdentifier that )
     {
         return ordinal - that.ordinal;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode()
+    {
+        return ordinal;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals( Object that )
+    {
+        if ( that == this )
+        {
+            return true;
+        }
+        
+        if ( ! ( that instanceof ReferenceIdentifier ) )
+        {
+            return false;
+        }
+        
+        ReferenceIdentifier thatRef = (ReferenceIdentifier)that;
+        
+        return ordinal == thatRef.ordinal;
     }
 
 
