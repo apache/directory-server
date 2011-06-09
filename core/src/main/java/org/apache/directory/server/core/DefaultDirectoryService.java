@@ -641,27 +641,47 @@ public class DefaultDirectoryService implements DirectoryService
     public void addPartition( Partition partition ) throws Exception
     {
         partition.setSchemaManager( schemaManager );
+
+        try
+        {
+            partitionNexus.addContextPartition( partition );
+        }
+        catch ( LdapException le )
+        {
+            // We've got an exception, we cannot add the partition to the partitions
+            throw le;
+        }
+        
+        // Now, add the partition to the set of managed partitions
         partitions.add( partition );
 
         if ( ! started )
         {
             return;
         }
-
-        partitionNexus.addContextPartition( partition );
     }
 
 
     public void removePartition( Partition partition ) throws Exception
     {
+        // Do the backend cleanup first
+        try
+        {
+            partitionNexus.removeContextPartition( partition.getSuffix() );
+        }
+        catch ( LdapException le )
+        {
+            // Bad ! We can't go any further
+            throw le;
+        }
+        
+        // And update the set of managed partitions
         partitions.remove( partition );
 
         if ( ! started )
         {
             return;
         }
-
-        partitionNexus.removeContextPartition( partition.getSuffix() );
     }
 
 
