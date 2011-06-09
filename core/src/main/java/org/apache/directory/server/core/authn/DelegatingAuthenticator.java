@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.net.SocketAddress;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -31,6 +33,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationExcept
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -143,6 +146,16 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             // Create the new principal
             principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
+            
+            IoSession session = bindContext.getIoSession();
+            
+            if ( session != null )
+            {
+                SocketAddress clientAddress = session.getRemoteAddress();
+                principal.setClientAddress( clientAddress );
+                SocketAddress serverAddress = session.getServiceAddress();
+                principal.setServerAddress( serverAddress );
+            }
             
             return principal;
 

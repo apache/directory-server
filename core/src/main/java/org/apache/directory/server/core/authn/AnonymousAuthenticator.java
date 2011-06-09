@@ -20,11 +20,14 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.net.SocketAddress;
+
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -53,7 +56,19 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
         // We only allow Anonymous binds if the service allows them
         if ( getDirectoryService().isAllowAnonymousAccess() )
         {
-            return getDirectoryService().getAdminSession().getAnonymousPrincipal();
+            LdapPrincipal principal = getDirectoryService().getAdminSession().getAnonymousPrincipal();
+            
+            IoSession session = bindContext.getIoSession();
+            
+            if ( session != null )
+            {
+                SocketAddress clientAddress = session.getRemoteAddress();
+                principal.setClientAddress( clientAddress );
+                SocketAddress serverAddress = session.getServiceAddress();
+                principal.setServerAddress( serverAddress );
+            }
+            
+            return principal;
         }
         else
         {

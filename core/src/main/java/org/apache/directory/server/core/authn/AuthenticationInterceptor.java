@@ -889,7 +889,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 // perform the authentication
                 LdapPrincipal principal = authenticator.authenticate( bindContext );
-
+                
                 LdapPrincipal clonedPrincipal = ( LdapPrincipal ) ( principal.clone() );
 
                 // remove creds so there is no security risk

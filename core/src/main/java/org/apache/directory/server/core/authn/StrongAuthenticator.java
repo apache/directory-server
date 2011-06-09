@@ -20,10 +20,13 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.net.SocketAddress;
+
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -52,6 +55,18 @@ public class StrongAuthenticator extends AbstractAuthenticator
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         // Possibly check if user account is disabled, other account checks.
-        return new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.STRONG );
+        LdapPrincipal principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.STRONG );
+        
+        IoSession session = bindContext.getIoSession();
+        
+        if ( session != null )
+        {
+            SocketAddress clientAddress = session.getRemoteAddress();
+            principal.setClientAddress( clientAddress );
+            SocketAddress serverAddress = session.getServiceAddress();
+            principal.setServerAddress( serverAddress );
+        }
+        
+        return principal;
     }
 }

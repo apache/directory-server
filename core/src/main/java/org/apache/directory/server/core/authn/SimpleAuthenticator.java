@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -61,6 +62,7 @@ import org.apache.directory.shared.util.Base64;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.UnixCrypt;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -219,6 +221,16 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapPrincipal principal = getStoredPassword( bindContext );
 
+        IoSession session = bindContext.getIoSession();
+        
+        if ( session != null )
+        {
+            SocketAddress clientAddress = session.getRemoteAddress();
+            principal.setClientAddress( clientAddress );
+            SocketAddress serverAddress = session.getServiceAddress();
+            principal.setServerAddress( serverAddress );
+        }
+        
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
 
