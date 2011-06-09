@@ -22,7 +22,6 @@ package org.apache.directory.server.core.integ;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
@@ -138,17 +137,6 @@ public class FrameworkSuite extends Suite
             }
         }
     }
-    
-    
-    private void addPartitions( Description description )
-    {
-        CreatePartition createPartition = description.getAnnotation( CreatePartition.class );
-        
-        if ( createPartition != null )
-        {
-            // TODO we should have something done here !
-        }
-    }
 
     
     private void startLdapServer( Description description ) throws Exception
@@ -180,9 +168,6 @@ public class FrameworkSuite extends Suite
 
             // Create and initialize the Suite DS
             startDS( getDescription() );
-            
-            // Add the partitions to this DS
-            addPartitions( getDescription() );
             
             // create and initialize the suite LdapServer
             startLdapServer( getDescription() );
