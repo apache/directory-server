@@ -694,7 +694,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             try
             {
                 EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, filter, ctls );
-                return new NamingEnumerationAdapter ( cursor );
+                return new NamingEnumerationAdapter( cursor );
             }
             catch ( Exception e )
             {
