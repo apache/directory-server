@@ -90,6 +90,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -1445,7 +1446,7 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test( expected = LdapOperationException.class )
+    @Test( expected = LdapException.class )
     public void testAddEntry100KData() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );

@@ -113,7 +113,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 

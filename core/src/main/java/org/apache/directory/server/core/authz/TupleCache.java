@@ -162,7 +162,7 @@ public class TupleCache
             }
             catch ( Exception e )
             {
-                throw new LdapOperationErrorException( e.getMessage() );
+                throw new LdapOperationErrorException( e.getMessage(), e );
             }
         }
     }

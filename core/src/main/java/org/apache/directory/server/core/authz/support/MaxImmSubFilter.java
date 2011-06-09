@@ -183,7 +183,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
         finally
@@ -196,7 +196,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 }
                 catch ( Exception e )
                 {
-                    throw new LdapOperationException( e.getMessage() );
+                    throw new LdapOperationException( e.getMessage(), e );
                 }
             }
         }

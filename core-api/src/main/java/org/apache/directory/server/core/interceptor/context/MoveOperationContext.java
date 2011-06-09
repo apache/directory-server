@@ -76,7 +76,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new IllegalArgumentException( lide.getMessage() );
+            throw new IllegalArgumentException( lide.getMessage(), lide );
         }
     }
 
@@ -116,7 +116,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new IllegalArgumentException( lide.getMessage() );
+            throw new IllegalArgumentException( lide.getMessage(), lide );
         }
     }
 

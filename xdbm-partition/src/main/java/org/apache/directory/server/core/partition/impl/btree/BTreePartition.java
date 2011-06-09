@@ -279,7 +279,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 

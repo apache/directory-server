@@ -408,7 +408,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             }
             catch ( IOException e )
             {
-                LdapException le = new LdapException( e.getMessage() );
+                LdapException le = new LdapException( e.getMessage(), e );
                 le.initCause( e );
 
                 throw le;

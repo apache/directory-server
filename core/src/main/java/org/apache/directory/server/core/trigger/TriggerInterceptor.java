@@ -607,7 +607,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            LdapOtherException lne = new LdapOtherException( e.getMessage() );
+            LdapOtherException lne = new LdapOtherException( e.getMessage(), e );
             lne.initCause( e );
             throw lne;
         }

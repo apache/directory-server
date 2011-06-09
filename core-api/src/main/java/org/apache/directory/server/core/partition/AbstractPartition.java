@@ -75,7 +75,7 @@ public abstract class AbstractPartition implements Partition
         }
         catch ( Exception e )
         {
-            throw new LdapOtherException( e.getMessage() );
+            throw new LdapOtherException( e.getMessage(), e );
         }
         finally
         {
@@ -87,7 +87,7 @@ public abstract class AbstractPartition implements Partition
                 }
                 catch ( Exception e )
                 {
-                    throw new LdapOtherException( e.getMessage() );
+                    throw new LdapOtherException( e.getMessage(), e );
                 }
             }
         }

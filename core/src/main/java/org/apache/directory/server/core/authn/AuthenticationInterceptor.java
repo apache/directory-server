@@ -380,7 +380,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
 
                 // throw exception if userPassword quality checks fail
-                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage() );
+                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage(), e );
             }
 
             String pwdChangedTime = DateUtils.getGeneralizedTime();
@@ -608,7 +608,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     }
 
                     // throw exception if userPassword quality checks fail
-                    throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage() );
+                    throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage(), e );
                 }
             }
 

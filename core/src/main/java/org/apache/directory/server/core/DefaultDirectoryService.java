@@ -928,7 +928,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage() );
+            throw new LdapOperationException( e.getMessage(), e );
         }
 
         return changeLog.getCurrentRevision();

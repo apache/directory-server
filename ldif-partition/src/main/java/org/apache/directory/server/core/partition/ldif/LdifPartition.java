@@ -306,7 +306,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
         catch ( IOException ioe )
         {
-            throw new LdapOperationException( ioe.getMessage() );
+            throw new LdapOperationException( ioe.getMessage(), ioe );
         }
     }
 
@@ -405,7 +405,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage() );
+            throw new LdapOperationException( e.getMessage(), e );
         }
 
         // And delete the old entry's LDIF file
@@ -714,7 +714,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
         catch ( IOException ioe )
         {
-            throw new LdapOperationException( ioe.getMessage() );
+            throw new LdapOperationException( ioe.getMessage(), ioe );
         }
     }
 
@@ -778,7 +778,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
         catch ( LdapException le )
         {
-            throw new LdapLdifException( le.getMessage() );
+            throw new LdapLdifException( le.getMessage(), le );
         }
     }
 

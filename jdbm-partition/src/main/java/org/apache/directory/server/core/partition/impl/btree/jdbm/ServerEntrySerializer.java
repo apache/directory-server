@@ -28,10 +28,10 @@ import java.io.ObjectOutputStream;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -188,7 +188,7 @@ public class ServerEntrySerializer implements Serializer
                 }
                 catch ( LdapInvalidDnException lide )
                 {
-                    throw new IOException( lide.getMessage() );
+                    throw new IOException( lide.getMessage(), lide );
                 }
             }
             else
@@ -220,7 +220,7 @@ public class ServerEntrySerializer implements Serializer
                 catch ( LdapException ne )
                 {
                     // We weren't able to find the OID. The attribute will not be added
-                    throw new ClassNotFoundException( ne.getMessage() );
+                    throw new ClassNotFoundException( ne.getMessage(), ne );
                 }
             }
             

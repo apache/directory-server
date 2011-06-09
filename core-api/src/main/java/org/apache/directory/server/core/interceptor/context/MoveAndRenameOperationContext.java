@@ -68,7 +68,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new IllegalArgumentException( lide.getMessage() );
+            throw new IllegalArgumentException( lide.getMessage(), lide );
         }
     }
 

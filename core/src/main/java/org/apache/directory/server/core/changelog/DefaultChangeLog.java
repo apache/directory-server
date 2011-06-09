@@ -138,7 +138,7 @@ public class DefaultChangeLog implements ChangeLog
         }
         catch ( Exception e )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage() );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage(), e );
         }
     }
 
@@ -159,7 +159,7 @@ public class DefaultChangeLog implements ChangeLog
         }
         catch ( Exception e )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage() );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage(), e );
         }
     }
 

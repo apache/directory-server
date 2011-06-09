@@ -35,8 +35,8 @@ import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
@@ -284,7 +284,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -328,7 +328,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -396,7 +396,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -464,7 +464,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -508,7 +508,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -552,7 +552,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 
@@ -596,7 +596,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
             catch ( Exception e )
             {
-                throw new LdapOtherException( e.getMessage() );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
 

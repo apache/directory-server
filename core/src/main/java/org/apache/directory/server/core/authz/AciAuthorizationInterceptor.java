@@ -211,7 +211,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage() );
+            throw new LdapOperationException( e.getMessage(), e );
         }
     }
 
@@ -257,7 +257,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage() );
+            throw new LdapOperationException( e.getMessage(), e );
         }
     }
 

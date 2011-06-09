@@ -250,7 +250,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationException( e.getMessage() );
+                throw new LdapOperationException( e.getMessage(), e );
             }
         }
     }
@@ -374,7 +374,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            throw new LdapOtherException( e.getMessage() );
+            throw new LdapOtherException( e.getMessage(), e );
         }
     }
 
@@ -463,7 +463,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage() );
+            throw new LdapOperationException( e.getMessage(), e );
         }
 
 
@@ -1088,7 +1088,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationErrorException( e.getMessage() );
+                throw new LdapOperationErrorException( e.getMessage(), e );
             }
 
             // search for all selected entries by the new SS and add references to subentry
@@ -1118,7 +1118,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationErrorException( e.getMessage() );
+                throw new LdapOperationErrorException( e.getMessage(), e );
             }
         }
         else
@@ -1233,7 +1233,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationException( e.getMessage() );
+                throw new LdapOperationException( e.getMessage(), e );
             }
         }
         else
@@ -1324,7 +1324,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationException( e.getMessage() );
+                throw new LdapOperationException( e.getMessage(), e );
             }
         }
         else
@@ -1405,7 +1405,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapOperationException( e.getMessage() );
+                throw new LdapOperationException( e.getMessage(), e );
             }
         }
         else

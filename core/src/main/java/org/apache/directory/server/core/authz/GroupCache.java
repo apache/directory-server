@@ -183,7 +183,7 @@ public class GroupCache
             }
             catch ( Exception e )
             {
-                LdapOperationException le = new LdapOperationException( e.getMessage() );
+                LdapOperationException le = new LdapOperationException( e.getMessage(), e );
                 le.initCause( e );
                 throw le;
             }

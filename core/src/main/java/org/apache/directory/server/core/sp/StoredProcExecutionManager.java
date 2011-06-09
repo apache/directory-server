@@ -31,7 +31,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.*;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
@@ -128,13 +128,13 @@ public class StoredProcExecutionManager
                 }
                 catch ( InstantiationException e )
                 {
-                    LdapException ne = new LdapException( e.getMessage() );
+                    LdapException ne = new LdapException( e.getMessage(), e );
                     ne.initCause( e );
                     throw ne;
                 }
                 catch ( IllegalAccessException e )
                 {
-                    LdapException ne = new LdapException( e.getMessage() );
+                    LdapException ne = new LdapException( e.getMessage(), e );
                     ne.initCause( e );
                     throw ne;
                 }

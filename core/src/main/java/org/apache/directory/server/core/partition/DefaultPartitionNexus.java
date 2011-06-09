@@ -1016,7 +1016,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 

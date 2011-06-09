@@ -236,7 +236,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapException( e.getMessage() );
+            throw new LdapException( e.getMessage(), e );
         }
     }
 
@@ -286,7 +286,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -302,7 +302,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -318,7 +318,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -334,7 +334,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -369,7 +369,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -397,7 +397,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -431,7 +431,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
@@ -458,7 +458,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            throw new LdapOperationErrorException( e.getMessage() );
+            throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 

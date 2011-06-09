@@ -275,7 +275,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             LOG.error( "Failed to handle the syncrepl request", e );
 
-            LdapException le = new LdapException( e.getMessage() );
+            LdapException le = new LdapException( e.getMessage(), e );
             le.initCause( e );
 
             throw le;
