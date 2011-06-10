@@ -97,6 +97,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -1348,8 +1349,9 @@ public class AddIT extends AbstractLdapTestUnit
      * </pre>
      * 
      * @throws NamingException 
-     *
+     */
     @Test
+    @Ignore
     public void test_DIRSERVER_1357() throws Exception
     {
         DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
@@ -1381,7 +1383,7 @@ public class AddIT extends AbstractLdapTestUnit
         // Now the alias entry still exists, but points to nowhere.
         // When trying to delete the alias entry an exception occurs.
         ctx.destroySubcontext( "cn=alias,ou=engineering" );
-    }*/
+    }
 
     /**
      * Adding an entry with a non existing attribute type.
