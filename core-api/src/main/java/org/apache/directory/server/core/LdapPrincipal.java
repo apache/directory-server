@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.net.SocketAddress;
 import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
@@ -27,7 +28,6 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -53,6 +53,9 @@ public final class LdapPrincipal implements Principal, Cloneable
     
     /** The SchemaManager */
     private SchemaManager schemaManager;
+    
+    private SocketAddress clientAddress;
+    private SocketAddress serverAddress;
 
 
     /**
@@ -210,11 +213,72 @@ public final class LdapPrincipal implements Principal, Cloneable
 
 
     /**
+     * @return the clientAddress
+     */
+    public SocketAddress getClientAddress()
+    {
+        return clientAddress;
+    }
+
+
+    /**
+     * @param clientAddress the clientAddress to set
+     */
+    public void setClientAddress( SocketAddress clientAddress )
+    {
+        this.clientAddress = clientAddress;
+    }
+
+
+    /**
+     * @return the serverAddress
+     */
+    public SocketAddress getServerAddress()
+    {
+        return serverAddress;
+    }
+
+
+    /**
+     * @param serverAddress the serverAddress to set
+     */
+    public void setServerAddress( SocketAddress serverAddress )
+    {
+        this.serverAddress = serverAddress;
+    }
+
+
+    /**
      * Returns string representation of the normalized distinguished name
      * of this principal.
      */
     public String toString()
     {
-        return (dn.isSchemaAware() ? "(n)" : "" ) + "['" + dn.getName() + "', '" + Strings.utf8ToString(userPassword) +"']'";
+        StringBuilder sb = new StringBuilder();
+        
+        if ( dn.isSchemaAware() )
+        {
+            sb.append( "(n)" );
+        }
+
+        sb.append( "['" );
+        sb.append( dn.getName() );
+        sb.append( "'" );
+        
+        if ( clientAddress != null )
+        {
+            sb.append( ", client@" );
+            sb.append( clientAddress );
+        }
+        
+        if ( serverAddress != null )
+        {
+            sb.append( ", server@" );
+            sb.append( serverAddress );
+        }
+        
+        sb.append( "]" );
+        
+        return sb.toString();
     }
 }

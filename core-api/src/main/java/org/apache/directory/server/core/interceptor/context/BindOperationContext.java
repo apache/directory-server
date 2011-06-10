@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.util.Strings;
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,9 @@ public class BindOperationContext extends AbstractOperationContext
     private boolean collateralOperation;
     
     private ReferralHandlingMode referralHandlingMode;
+    
+    /** The IoSession if any */
+    private IoSession ioSession;
 
     
     /**
@@ -245,5 +249,23 @@ public class BindOperationContext extends AbstractOperationContext
     public boolean isReferralIgnored()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_323 ) );
+    }
+
+
+    /**
+     * @return the ioSession
+     */
+    public IoSession getIoSession()
+    {
+        return ioSession;
+    }
+
+
+    /**
+     * @param ioSession the ioSession to set
+     */
+    public void setIoSession( IoSession ioSession )
+    {
+        this.ioSession = ioSession;
     }
 }
