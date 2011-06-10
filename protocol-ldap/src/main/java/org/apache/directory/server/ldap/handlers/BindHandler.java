@@ -110,6 +110,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // Stores the Dn of the user to check, and its password
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
+        bindContext.setIoSession( ldapSession.getIoSession() );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
