@@ -151,7 +151,9 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
-            throw new IOException( e.getMessage() );
+            IOException ioe = new IOException( e.getMessage() );
+            ioe.initCause( e );
+            throw ioe;
         }
 
         return true;

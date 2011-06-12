@@ -188,7 +188,9 @@ public class ServerEntrySerializer implements Serializer
                 }
                 catch ( LdapInvalidDnException lide )
                 {
-                    throw new IOException( lide.getMessage(), lide );
+                    IOException ioe = new IOException( lide.getMessage() );
+                    ioe.initCause( lide );
+                    throw ioe;
                 }
             }
             else

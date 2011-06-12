@@ -114,7 +114,9 @@ public final class ChangeLogEventSerializer
         }
         catch ( ClassNotFoundException cnfe )
         {
-            throw new IOException( cnfe.getMessage(), cnfe );
+            IOException ioe = new IOException( cnfe.getMessage() );
+            ioe.initCause( cnfe );
+            throw ioe;
         }
         
         // The reverse LDIFs number
@@ -132,7 +134,9 @@ public final class ChangeLogEventSerializer
             }
             catch ( ClassNotFoundException cnfe )
             {
-                throw new IOException( cnfe.getMessage(), cnfe );
+                IOException ioe = new IOException( cnfe.getMessage() );
+                ioe.initCause( cnfe );
+                throw ioe;
             }
             
             reverses.add( reverseEntry );

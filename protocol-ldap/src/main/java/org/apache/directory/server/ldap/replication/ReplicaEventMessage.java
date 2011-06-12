@@ -151,7 +151,9 @@ public class ReplicaEventMessage implements Externalizable
         }
         catch ( ClassNotFoundException cnfe )
         {
-            throw new IOException( cnfe.getMessage(), cnfe );
+            IOException ioe = new IOException( cnfe.getMessage() );
+            ioe.initCause( cnfe );
+            throw ioe;
         }
         
         entry.setDn( dn );

@@ -95,7 +95,9 @@ public final class LdapPrincipalSerializer
         }
         catch ( ClassNotFoundException cnfe )
         {
-            throw new IOException( cnfe.getMessage(), cnfe );
+            IOException ioe = new IOException( cnfe.getMessage() );
+            ioe.initCause( cnfe );
+            throw ioe;
         }
         
         LdapPrincipal principal = new LdapPrincipal( schemaManager, dn, authenticationLevel );
