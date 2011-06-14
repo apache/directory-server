@@ -34,7 +34,6 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -1246,7 +1245,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void filterAttributeTypes( SearchingOperationContext operation, ClonedServerEntry result )
+    private void filterAttributeTypes( SearchingOperationContext operation, Entry result )
     {
         if ( operation.getReturningAttributes() == null )
         {
@@ -1324,9 +1323,10 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            filterBinaryAttributes( result );
+            filterBinaryAttributes( entry );
+            
             return true;
         }
     }
@@ -1337,9 +1337,10 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class TopFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            filterAttributeTypes( operation, result );
+            filterAttributeTypes( operation, entry );
+            
             return true;
         }
     }

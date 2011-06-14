@@ -74,12 +74,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    class CollectiveAttributeFilter implements EntryFilter
+    private class CollectiveAttributeFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
-            addCollectiveAttributes( operation, result, retAttrs );
+            addCollectiveAttributes( operation, entry, retAttrs );
             
             return true;
         }

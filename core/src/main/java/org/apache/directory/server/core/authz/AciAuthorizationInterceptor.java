@@ -1410,12 +1410,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
-    class AuthorizationFilter implements EntryFilter
+    private class AuthorizationFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             Dn normName = entry.getDn().apply( schemaManager );
-            return filter( searchContext, normName, entry );
+            
+            return filter( searchContext, normName, (ClonedServerEntry)entry );
         }
     }
 }

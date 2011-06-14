@@ -83,9 +83,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
+    private class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             if ( operation.getSearchControls().getReturningAttributes() == null )
             {
@@ -101,9 +101,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * the database search result filter to register with filter service
      */
-    class OperationalAttributeSearchFilter implements EntryFilter
+    private class OperationalAttributeSearchFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             return operation.getSearchControls().getReturningAttributes() != null
             || filterOperationalAttributes( entry );

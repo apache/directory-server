@@ -130,9 +130,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * SearchResultFilter used to filter out subentries based on objectClass values.
      */
-    public class HideSubentriesFilter implements EntryFilter
+    private class HideSubentriesFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
             if ( subentryCache.hasSubentry( entry.getDn() ) )
@@ -150,9 +150,9 @@ public class SubentryInterceptor extends BaseInterceptor
      * SearchResultFilter used to filter out normal entries but shows subentries based on
      * objectClass values.
      */
-    public class HideEntriesFilter implements EntryFilter
+    private class HideEntriesFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
             if ( subentryCache.hasSubentry( entry.getDn() ) )

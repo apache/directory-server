@@ -38,7 +38,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -49,6 +48,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.junit.After;
 import org.junit.Before;
@@ -138,7 +138,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
         {
             EntryFilteringCursor cursor = next.search( searchContext );
             cursor.addEntryFilter( new EntryFilter() {
-                public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
+                public boolean accept( SearchingOperationContext operation, Entry result ) throws Exception
                 {
                     if ( delayMillis != null )
                     {

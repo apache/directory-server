@@ -30,7 +30,6 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -89,9 +88,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    class DefaultAuthorizationSearchFilter implements EntryFilter
+    private class DefaultAuthorizationSearchFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
         }
@@ -483,10 +482,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     // False positive, we want to keep the comment
     @SuppressWarnings("PMD.CollapsibleIfStatements")
-    private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
+    private boolean isSearchable( OperationContext opContext, Entry entry ) throws Exception
     {
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
-        Dn dn = result.getDn();
+        Dn dn = entry.getDn();
 
         if ( !dn.isSchemaAware() )
         {

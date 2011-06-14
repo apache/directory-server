@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.filtering;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -47,5 +47,5 @@ public interface EntryFilter
      * @return true if the entry is to be returned, false if it is rejected
      * @throws Exception if there are failures during evaluation
      */
-    boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception;
+    boolean accept( SearchingOperationContext operation, Entry result ) throws Exception;
 }
