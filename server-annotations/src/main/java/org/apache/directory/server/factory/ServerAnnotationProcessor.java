@@ -18,8 +18,10 @@
  */
 package org.apache.directory.server.factory;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.net.ServerSocket;
 
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -63,9 +65,17 @@ public class ServerAnnotationProcessor
                 int backlog = transportBuilder.backlog();
                 String address = transportBuilder.address();
                 
-                if ( port == -1 )
+                if ( port <= 0 )
                 {
-                    port = AvailablePortFinder.getNextAvailable( createdPort );
+                    try
+                    {
+                        port = new ServerSocket(0).getLocalPort();
+                    }
+                    catch ( IOException ioe )
+                    {
+                        // Don't know what to do here...
+                    }
+                    
                     createdPort = port + 1;
                 }
                 
