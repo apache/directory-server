@@ -140,8 +140,8 @@ import org.slf4j.LoggerFactory;
                 @CreateIndex(attribute = "dc"),
                 @CreateIndex(attribute = "ou")
             }) })
-@CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") })
+@CreateLdapServer( name = "ADDIT",  transports =
+    { @CreateTransport(protocol = "LDAP", port = -1 ) })
 @ApplyLdifs(
     {
         // Entry # 0
@@ -1353,8 +1353,8 @@ public class AddIT extends AbstractLdapTestUnit
     @CreateDS( 
         enableChangeLog = false,
         name = "DSAlias" )
-    @CreateLdapServer(transports =
-        { @CreateTransport(protocol = "LDAP") })
+    @CreateLdapServer( name = "DSAlias", transports =
+        { @CreateTransport(protocol = "LDAP", port = -1) })
     public void test_DIRSERVER_1357() throws Exception
     {
         DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
