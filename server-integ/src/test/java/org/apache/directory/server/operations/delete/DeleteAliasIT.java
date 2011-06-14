@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS( 
     enableChangeLog = false,
-    name = "MethodDSWithPartitionAndServer" )
+    name = "DSDeleteAlias" )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 public class DeleteAliasIT extends AbstractLdapTestUnit
