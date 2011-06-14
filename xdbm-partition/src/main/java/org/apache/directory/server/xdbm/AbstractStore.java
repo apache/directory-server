@@ -1792,32 +1792,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         normalizedAliasTargetDn = new Dn( schemaManager, aliasTarget );
 
         /*
-         * Check For Cycles
-         *
-         * Before wasting time to lookup more values we check using the target
-         * dn to see if we have the possible formation of an alias cycle.  This
-         * happens when the alias refers back to a target that is also a
-         * relative of the alias entry.  For detection we test if the aliased
-         * entry Dn starts with the target Dn.  If it does then we know the
-         * aliased target is a relative and we have a perspecitive cycle.
-         */
-        if ( aliasDn.isDescendantOf( normalizedAliasTargetDn ) )
-        {
-            if ( aliasDn.equals( normalizedAliasTargetDn ) )
-            {
-                String msg = I18n.err( I18n.ERR_223 );
-                LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
-                //e.setResolvedName( aliasDn );
-                throw e;
-            }
-
-            String msg = I18n.err( I18n.ERR_224, aliasTarget, aliasDn );
-            LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
-            //e.setResolvedName( aliasDn );
-            throw e;
-        }
-
-        /*
          * Check For Aliases External To Naming Context
          *
          * id may be null but the alias may be to a valid entry in
