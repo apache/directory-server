@@ -46,10 +46,10 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -80,30 +80,37 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
-    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new EntryFilter()
+    /**
+     * the search result filter to use for collective attribute injection
+     */
+    class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
         {
             if ( operation.getSearchControls().getReturningAttributes() == null )
             {
                 return true;
             }
 
-            return filterDenormalized( serverEntry );
+            return filterDenormalized( entry );
         }
-    };
+    }
+
+    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
 
     /**
      * the database search result filter to register with filter service
      */
-    private final EntryFilter SEARCH_FILTER = new EntryFilter()
+    class OperationalAttributeSearchFilter implements EntryFilter
     {
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
         {
             return operation.getSearchControls().getReturningAttributes() != null
-                || filterOperationalAttributes( entry );
+            || filterOperationalAttributes( entry );
         }
-    };
+    }
+    
+    private final EntryFilter SEARCH_FILTER = new OperationalAttributeSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;

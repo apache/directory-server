@@ -50,8 +50,8 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
@@ -86,6 +86,18 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private PartitionNexus nexus;
 
+    /**
+     * the search result filter to use for collective attribute injection
+     */
+    class DefaultAuthorizationSearchFilter implements EntryFilter
+    {
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        {
+            return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
+        }
+    }
+
+    
     /**
      * Creates a new instance.
      */
@@ -448,13 +460,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return cursor;
         }
 
-        cursor.addEntryFilter( new EntryFilter()
-        {
-            public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
-            {
-                return DefaultAuthorizationInterceptor.this.isSearchable( operation, result );
-            }
-        } );
+        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
+
         return cursor;
     }
 
@@ -469,13 +476,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return cursor;
         }
 
-        cursor.addEntryFilter( new EntryFilter()
-        {
-            public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
-            {
-                return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
-            }
-        } );
+        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
         return cursor;
     }
 

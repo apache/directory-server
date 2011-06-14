@@ -74,7 +74,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private final EntryFilter SEARCH_FILTER = new EntryFilter()
+    class CollectiveAttributeFilter implements EntryFilter
     {
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
@@ -83,7 +83,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             return true;
         }
-    };
+    }
+    
+    /** The CollectiveAttribute search filter */
+    private final EntryFilter SEARCH_FILTER = new CollectiveAttributeFilter();
+
+    
     //-------------------------------------------------------------------------------------
     // Initialization
     //-------------------------------------------------------------------------------------

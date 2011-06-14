@@ -1406,6 +1406,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         return true;
     }
 
+    
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
