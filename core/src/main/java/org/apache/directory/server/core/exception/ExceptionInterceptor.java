@@ -175,7 +175,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
-                String msg = I18n.err( I18n.ERR_252, name.getName() );
+                String msg = I18n.err( I18n.ERR_252_ALIAS_WITH_CHILD_NOT_ALLOWED, name.getName(), parentDn.getName() );
                 LdapAliasException e = new LdapAliasException( msg );
                 //e.setResolvedName( DNFactory.create( parentDn.getName() ) );
                 throw e;

@@ -22,6 +22,9 @@ package org.apache.directory.server.operations.add;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -52,27 +55,95 @@ public class AddAliasIT extends AbstractLdapTestUnit
     @Test
     public void testAddAliasOnParent() throws Exception
     {
-        conn = getClientApiConnection( getLdapServer() );
-        conn.setTimeOut( -1L );
-        
-        conn.add( new DefaultEntry( 
-            "cn=foo,ou=system", 
-            "objectClass: person",
-            "objectClass: top",
-            "cn: foo",
-            "sn: Foo" ) );
+        try
+        {
+            conn = getClientApiConnection( getLdapServer() );
+            conn.setTimeOut( -1L );
+            
+            conn.add( new DefaultEntry( 
+                "cn=foo,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: foo",
+                "sn: Foo" ) );
+    
+            assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
+    
+            conn.add( new DefaultEntry( 
+                "ou=alias,cn=foo,ou=system", 
+                "objectClass: top",
+                "objectClass: extensibleObject",
+                "objectClass: alias",
+                "ou: alias" ,
+                "aliasedObjectName: cn=foo,ou=system",
+                "description: alias to father (branch)" ) );
+    
+            assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
+        }
+        finally
+        {
+            // Cleanup entries now
+            conn.delete( "ou=alias,cn=foo,ou=system" );
+            conn.delete( "cn=foo,ou=system" );
+        }
+    }
+    
+    
 
-        assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
-
-        conn.add( new DefaultEntry( 
-            "ou=alias,cn=foo,ou=system", 
-            "objectClass: top",
-            "objectClass: extensibleObject",
-            "objectClass: alias",
-            "ou: alias" ,
-            "aliasedObjectName: cn=foo,ou=system",
-            "description: alias to father (branch)" ) );
-
-        assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
+    @Test
+    public void testAddAliasWithSubordinate() throws Exception
+    {
+        try
+        {
+            conn = getClientApiConnection( getLdapServer() );
+            conn.setTimeOut( -1L );
+            
+            conn.add( new DefaultEntry( 
+                "cn=foo,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: foo",
+                "sn: Foo" ) );
+    
+            assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
+    
+            conn.add( new DefaultEntry( 
+                "ou=alias,cn=foo,ou=system", 
+                "objectClass: top",
+                "objectClass: extensibleObject",
+                "objectClass: alias",
+                "ou: alias" ,
+                "aliasedObjectName: cn=foo,ou=system",
+                "description: alias to father (branch)" ) );
+    
+            assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
+    
+            try
+            {
+                conn.add( new DefaultEntry( 
+                    "ou=aliasChild,ou=alias,cn=foo,ou=system", 
+                    "objectClass: top",
+                    "objectClass: extensibleObject",
+                    "objectClass: alias",
+                    "ou: aliasChild" ,
+                    "aliasedObjectName: cn=foo,ou=system" ) );
+                
+                fail();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                assertTrue( true );
+            }
+    
+            assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
+            assertNull( conn.lookup( "ou=aliasChild,ou=alias,cn=foo,ou=system" ) );
+        }
+        finally
+        {
+            // Cleanup entries now
+            conn.delete( "ou=alias,cn=foo,ou=system" );
+            conn.delete( "cn=foo,ou=system" );
+        }
     }
 }
