@@ -293,7 +293,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( new ReplicaEventMessage( modDnControl, moveContext.getEntry() ) );
+                clientMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             }
         }
         catch ( Exception e )
