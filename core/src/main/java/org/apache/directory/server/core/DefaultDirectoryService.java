@@ -644,7 +644,11 @@ public class DefaultDirectoryService implements DirectoryService
 
         try
         {
-            partitionNexus.addContextPartition( partition );
+            // can be null when called before starting up
+            if ( partitionNexus != null )
+            {
+                partitionNexus.addContextPartition( partition );
+            }
         }
         catch ( LdapException le )
         {
@@ -654,11 +658,6 @@ public class DefaultDirectoryService implements DirectoryService
         
         // Now, add the partition to the set of managed partitions
         partitions.add( partition );
-
-        if ( ! started )
-        {
-            return;
-        }
     }
 
 
@@ -667,7 +666,11 @@ public class DefaultDirectoryService implements DirectoryService
         // Do the backend cleanup first
         try
         {
-            partitionNexus.removeContextPartition( partition.getSuffix() );
+            // can be null when called before starting up
+            if ( partitionNexus != null )
+            {
+                partitionNexus.removeContextPartition( partition.getSuffix() );
+            }
         }
         catch ( LdapException le )
         {
@@ -677,11 +680,6 @@ public class DefaultDirectoryService implements DirectoryService
         
         // And update the set of managed partitions
         partitions.remove( partition );
-
-        if ( ! started )
-        {
-            return;
-        }
     }
 
 
