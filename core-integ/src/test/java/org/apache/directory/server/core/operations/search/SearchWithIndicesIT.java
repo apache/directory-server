@@ -20,31 +20,25 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,9 +50,10 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "SearchWithIndicesIT")
+@CreateDS( name = "SearchWithIndicesIT" )
 public class SearchWithIndicesIT extends AbstractLdapTestUnit
 {
+    private static LdapConnection connection;
 
     @Before
     public void createData() throws Exception
@@ -68,22 +63,16 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
-        boolean isNisDisabled = false;
+        connection = IntegrationUtils.getAdminConnection( getService() );
 
-        if ( nisAttrs.get( "m-disabled" ) != null )
-        {
-            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
+        Entry nisEntry = connection.lookup( "cn=nis,ou=schema" );
+
+        boolean isNisDisabled = nisEntry.contains( "m-disabled", "TRUE" );
 
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[]
-                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=nis", mods );
+            connection.modify( "cn=nis,ou=schema", new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
         }
 
         Partition systemPartition = getService().getSystemPartition();
@@ -101,13 +90,16 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     }
 
 
-    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
+    private void addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "posixGroup" );
-        attrs.put( "cn", name );
-        attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
+        connection.add(
+            new DefaultEntry( 
+                "cn=" + name + ",ou=groups, ou=system",
+                "objectClass: top",
+                "objectClass: posixGroup",
+                "cn", name,
+                "gidNumber", Integer.toString( gid )
+                ) );
     }
 
 
@@ -118,39 +110,20 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
      * @param controls the search controls
      * @param filter the filter expression
      * @return the set of groups
-     * @throws NamingException if there are problems conducting the search
-     */
-    public Set<String> searchGroups( String filter, SearchControls controls ) throws Exception
-    {
-        if ( controls == null )
-        {
-            controls = new SearchControls();
-        }
-
-        Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "ou=groups", filter, controls );
-
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            results.add( result.getName() );
-        }
-
-        return results;
-    }
-
-
-    /**
-     *  Convenience method that performs a one level search using the
-     *  specified filter returning their DNs as Strings in a set.
-     *
-     * @param filter the filter expression
-     * @return the set of group names
-     * @throws NamingException if there are problems conducting the search
+     * @throws Exception if there are problems conducting the search
      */
     public Set<String> searchGroups( String filter ) throws Exception
     {
-        return searchGroups( filter, null );
+        Set<String> results = new HashSet<String>();
+
+        EntryCursor cursor = connection.search( "ou=groups,ou=system", filter, SearchScope.SUBTREE, "1.1" );
+
+        while ( cursor.next() )
+        {
+            results.add( cursor.get().getDn().getName() );
+        }
+
+        return results;
     }
 
 
