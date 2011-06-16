@@ -1158,6 +1158,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         master.delete( id );
+        
+        // if this is a context entry reset the master table counter
+        if ( id.equals( getDefaultId() ) )
+        {
+            master.resetCounter();
+        }
 
         if ( isSyncOnWrite.get() )
         {

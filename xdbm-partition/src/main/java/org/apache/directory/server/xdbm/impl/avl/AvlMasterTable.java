@@ -73,4 +73,13 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
     {
         props.setProperty( property, value );
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetCounter() throws Exception
+    {
+        counter.set( 0L );
+    }
 }

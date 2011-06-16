@@ -251,4 +251,16 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
             adminTbl.put( property, value );
         }
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void resetCounter() throws Exception
+    {
+        synchronized ( adminTbl )
+        {
+            adminTbl.put( SEQPROP_KEY, "0" );
+        }
+    }
 }
