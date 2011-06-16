@@ -131,7 +131,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
         { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT,
-            SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT };
+            SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT, SchemaConstants.ENTRY_PARENT_ID_AT };
 
     private RefresherThread refreshThread;
 
