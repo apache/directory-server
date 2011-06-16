@@ -55,8 +55,6 @@ public class ServerAnnotationProcessor
     {
         if ( transportBuilders.length != 0 )
         {
-            int createdPort = startPort;
-            
             for ( CreateTransport transportBuilder : transportBuilders )
             {
                 String protocol = transportBuilder.protocol();
@@ -69,14 +67,16 @@ public class ServerAnnotationProcessor
                 {
                     try
                     {
-                        port = new ServerSocket(0).getLocalPort();
+                        ServerSocket ss = new ServerSocket(0);
+                        
+                        port = ss.getLocalPort();
+                        
+                        ss.close();
                     }
                     catch ( IOException ioe )
                     {
                         // Don't know what to do here...
                     }
-                    
-                    createdPort = port + 1;
                 }
                 
                 if ( protocol.equalsIgnoreCase( "LDAP" ) )
