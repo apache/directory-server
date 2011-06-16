@@ -81,6 +81,9 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -92,6 +95,9 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -107,9 +113,13 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -121,9 +131,13 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V key ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, key );
@@ -135,9 +149,13 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -149,9 +167,13 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -159,14 +181,19 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         else
         {
             ndnIdxCursor.beforeFirst();
-            available = false;
         }
+
+        available = false;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -174,25 +201,37 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         else
         {
             ndnIdxCursor.afterLast();
-            available = false;
         }
+
+        available = false;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
@@ -215,6 +254,9 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
@@ -227,6 +269,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         {
             checkNotClosed( "next()" );
             IndexEntry<?, Entry, ID> candidate = ndnIdxCursor.get();
+            
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -237,10 +280,14 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();
@@ -255,6 +302,9 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();
