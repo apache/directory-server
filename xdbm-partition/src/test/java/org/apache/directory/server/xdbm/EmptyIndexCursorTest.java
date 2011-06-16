@@ -77,13 +77,6 @@ public class EmptyIndexCursorTest
 
 
     @Test
-    public void testIsElementReused() throws Exception
-    {
-        assertFalse( indexCursor.isElementReused() );
-    }
-
-
-    @Test
     public void testBeforeFirst() throws Exception
     {
         indexCursor.beforeFirst();

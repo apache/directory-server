@@ -456,10 +456,4 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
         return returnedTuple;
     }
-
-
-    public boolean isElementReused()
-    {
-        return true;
-    }
 }

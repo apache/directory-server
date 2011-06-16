@@ -144,7 +144,6 @@ public class KeyTupleBTreeCursorTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
         
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
         
         assertFalse( cursor.first() );

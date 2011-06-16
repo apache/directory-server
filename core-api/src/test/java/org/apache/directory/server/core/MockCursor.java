@@ -116,12 +116,6 @@ public class MockCursor implements Cursor<Entry>
     }
 
 
-    public boolean isElementReused()
-    {
-        return false;
-    }
-
-
     public boolean last() throws Exception
     {
         ii = count;

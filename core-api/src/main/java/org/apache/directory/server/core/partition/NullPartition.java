@@ -140,12 +140,6 @@ public class NullPartition extends AbstractPartition
             }
             
         
-            public boolean isElementReused()
-            {
-                return false;
-            }
-            
-        
             public boolean isClosed() throws Exception
             {
                 return true;

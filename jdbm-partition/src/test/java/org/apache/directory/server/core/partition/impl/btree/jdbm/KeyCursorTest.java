@@ -19,28 +19,28 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.Comparator;
+
+import jdbm.RecordManager;
+import jdbm.btree.BTree;
+import jdbm.helper.StringComparator;
+import jdbm.helper.Tuple;
+import jdbm.helper.TupleBrowser;
+import jdbm.recman.BaseRecordManager;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jdbm.RecordManager;
-import jdbm.helper.StringComparator;
-import jdbm.helper.TupleBrowser;
-import jdbm.helper.Tuple;
-import jdbm.btree.BTree;
-import jdbm.recman.BaseRecordManager;
-
-import java.io.File;
-import java.util.Comparator;
 
 
 
@@ -287,10 +287,6 @@ public class KeyCursorTest
         assertTrue( cursor.available() );
         cursor.last();
         assertTrue( cursor.available() );
-        
-        // Test isElementReused()
-        
-        assertFalse( cursor.isElementReused() );
     }
     
 

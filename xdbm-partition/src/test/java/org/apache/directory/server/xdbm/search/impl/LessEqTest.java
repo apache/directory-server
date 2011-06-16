@@ -170,7 +170,6 @@ public class LessEqTest
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
 
         // ---------- test bad get() ----------
@@ -427,7 +426,6 @@ public class LessEqTest
         LessEqCursor<String, Long> cursor = new LessEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
 
         // ---------- test bad get() ----------

@@ -267,8 +267,6 @@ public class AndCursorTest
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
-        assertTrue( cursor.isElementReused() );
-
         try
         {
             cursor.get();

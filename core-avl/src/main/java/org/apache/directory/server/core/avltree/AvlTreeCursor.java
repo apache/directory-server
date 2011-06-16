@@ -153,12 +153,6 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     }
 
 
-    public boolean isElementReused()
-    {
-        return true;
-    }
-
-
     public boolean last() throws Exception
     {
         checkNotClosed( "last" );

@@ -343,15 +343,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean isElementReused()
-    {
-        return true;
-    }
-    
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );

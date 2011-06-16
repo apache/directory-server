@@ -147,12 +147,6 @@ public class EntryToResponseCursor implements SearchCursor
     }
 
 
-    public boolean isElementReused()
-    {
-        return wrapped.isElementReused();
-    }
-
-
     public boolean last() throws Exception
     {
         return wrapped.last();

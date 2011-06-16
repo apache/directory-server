@@ -29,9 +29,9 @@ import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
 
 
 /**
@@ -169,12 +169,6 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
             reverseEntry.setTuple( tuple, null );
             return reverseEntry;
         }
-    }
-
-
-    public boolean isElementReused()
-    {
-        return true;
     }
 
 

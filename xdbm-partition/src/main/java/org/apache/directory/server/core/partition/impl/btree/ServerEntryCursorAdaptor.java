@@ -153,15 +153,6 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
 
 
     /* 
-     * @see Cursor#isElementReused()
-     */
-    public boolean isElementReused()
-    {
-        return indexCursor.isElementReused();
-    }
-
-
-    /* 
      * @see Cursor#last()
      */
     public boolean last() throws Exception

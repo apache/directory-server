@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -154,12 +154,6 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
-    }
-
-
-    public boolean isElementReused()
-    {
-        return ndnCursor.isElementReused();
     }
 
 

@@ -24,14 +24,15 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Comparator;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 /**
  * 
@@ -74,7 +75,6 @@ public class KeyTupleArrayCursorTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
         
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
         
         assertFalse( cursor.first() );

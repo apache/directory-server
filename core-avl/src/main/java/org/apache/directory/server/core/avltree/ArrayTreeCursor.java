@@ -186,15 +186,6 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean isElementReused()
-    {
-        return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean last() throws Exception
     {
         checkNotClosed( "last" );

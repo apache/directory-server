@@ -373,17 +373,6 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public boolean isElementReused()
-    {
-        if ( userIdxCursor != null )
-        {
-            return userIdxCursor.isElementReused();
-        }
-
-        return ndnIdxCursor.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

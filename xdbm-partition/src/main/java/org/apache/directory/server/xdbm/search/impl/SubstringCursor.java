@@ -226,12 +226,6 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public boolean isElementReused()
-    {
-        return wrapped.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

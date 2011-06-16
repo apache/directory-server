@@ -160,8 +160,6 @@ public class OneLevelScopeTest
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -305,9 +303,6 @@ public class OneLevelScopeTest
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
-
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -452,8 +447,6 @@ public class OneLevelScopeTest
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -577,8 +570,6 @@ public class OneLevelScopeTest
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -687,8 +678,6 @@ public class OneLevelScopeTest
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
-
-        assertTrue( cursor.isElementReused() );
 
         // --------- Test beforeFirst() ---------
 

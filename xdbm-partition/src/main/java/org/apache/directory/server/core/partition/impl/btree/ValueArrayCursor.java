@@ -24,9 +24,9 @@ import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.util.exception.NotImplementedException;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 
 
 /**
@@ -198,11 +198,5 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_701, pos, ( values.size() - 1 ) ) );
-    }
-
-
-    public boolean isElementReused()
-    {
-        return true;
     }
 }

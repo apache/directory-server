@@ -203,10 +203,4 @@ public class SingletonIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_706 ) );
         }
     }
-
-
-    public boolean isElementReused()
-    {
-        return true;
-    }
 }

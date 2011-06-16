@@ -256,17 +256,6 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
-    public boolean isElementReused()
-    {
-        if ( presenceCursor != null )
-        {
-            return presenceCursor.isElementReused();
-        }
-
-        return ndnCursor.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

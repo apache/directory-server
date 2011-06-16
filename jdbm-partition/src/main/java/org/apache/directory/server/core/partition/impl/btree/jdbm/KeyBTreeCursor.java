@@ -19,11 +19,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.util.Comparator;
+
 import jdbm.btree.BTree;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-
-import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -201,11 +201,5 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         }
 
         throw new InvalidCursorPositionException();
-    }
-
-
-    public boolean isElementReused()
-    {
-        return false;
     }
 }

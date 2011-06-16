@@ -154,7 +154,6 @@ public class PresenceTest
         PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -221,8 +220,6 @@ public class PresenceTest
         evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
         cursor = new PresenceCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -276,7 +273,6 @@ public class PresenceTest
         PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -299,7 +295,6 @@ public class PresenceTest
         PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -359,8 +354,6 @@ public class PresenceTest
         node = new PresenceNode( schemaManager.getAttributeType( "o" ) );
         evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
         cursor = new PresenceCursor<Long>( store, evaluator );
-
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
         assertTrue( cursor.next() );

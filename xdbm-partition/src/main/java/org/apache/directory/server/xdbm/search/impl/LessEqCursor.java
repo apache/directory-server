@@ -401,17 +401,6 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public boolean isElementReused()
-    {
-        if ( userIdxCursor != null )
-        {
-            return userIdxCursor.isElementReused();
-        }
-
-        return ndnIdxCursor.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

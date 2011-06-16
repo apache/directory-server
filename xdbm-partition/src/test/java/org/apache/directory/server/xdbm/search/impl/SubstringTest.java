@@ -150,7 +150,6 @@ public class SubstringTest
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -302,7 +301,6 @@ public class SubstringTest
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -394,7 +392,6 @@ public class SubstringTest
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -486,7 +483,6 @@ public class SubstringTest
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 
@@ -548,7 +544,6 @@ public class SubstringTest
         SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
-        assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
 

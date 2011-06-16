@@ -159,8 +159,6 @@ public class SubtreeScopeTest
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -316,8 +314,6 @@ public class SubtreeScopeTest
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-
-        assertTrue( cursor.isElementReused() );
 
         // --------- Test beforeFirst() ---------
 
@@ -505,8 +501,6 @@ public class SubtreeScopeTest
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
-        assertTrue( cursor.isElementReused() );
-
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -649,8 +643,6 @@ public class SubtreeScopeTest
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-
-        assertTrue( cursor.isElementReused() );
 
         // --------- Test beforeFirst() ---------
 

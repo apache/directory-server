@@ -140,15 +140,6 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
 
 
     /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#isElementReused()
-     */
-    public boolean isElementReused()
-    {
-        return true;
-    }
-
-
-    /* 
      * @see org.apache.directory.server.core.cursor.Cursor#last()
      */
     public boolean last() throws Exception

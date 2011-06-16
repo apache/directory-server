@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.avltree;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
 
 /**
@@ -120,12 +120,6 @@ public class AvlTreeMapNoDupsWrapperCursor<K,V> extends AbstractTupleCursor<K, V
         }
         
         throw new InvalidCursorPositionException();
-    }
-
-    
-    public boolean isElementReused()
-    {
-        return true;
     }
 
     

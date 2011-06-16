@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -1433,7 +1432,6 @@ public class DupsCursorTest
     {
         Cursor<Tuple<String,String>> cursor = table.cursor();
         assertNotNull( cursor );
-        assertTrue( cursor.isElementReused() );
 
         try
         {

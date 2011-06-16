@@ -20,19 +20,20 @@
 package org.apache.directory.server.core.avltree;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Comparator;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -52,7 +53,6 @@ public class AvlTreeCursorTest
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         
         try
         {
@@ -102,7 +102,6 @@ public class AvlTreeCursorTest
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         
         try
         {
@@ -201,7 +200,6 @@ public class AvlTreeCursorTest
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         assertEquals( 4, tree.getSize() );
         
         try

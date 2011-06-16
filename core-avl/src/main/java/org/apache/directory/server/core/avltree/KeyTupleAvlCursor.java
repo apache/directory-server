@@ -204,10 +204,4 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
 
         throw new InvalidCursorPositionException();
     }
-
-
-    public boolean isElementReused()
-    {
-        return true;
-    }
 }

@@ -162,12 +162,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public boolean isElementReused()
-    {
-        return wrapped.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

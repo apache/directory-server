@@ -139,7 +139,6 @@ public class NoDupsCursorTest
         
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
-        assertTrue( cursor.isElementReused() );
 
         cursor = table.cursor();
         assertFalse( cursor.previous() );

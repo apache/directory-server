@@ -379,15 +379,6 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isElementReused()
-    {
-        return true;
-    }
-
-
     public boolean addEntryFilter( EntryFilter filter )
     {
         for ( EntryFilteringCursor efc : list )

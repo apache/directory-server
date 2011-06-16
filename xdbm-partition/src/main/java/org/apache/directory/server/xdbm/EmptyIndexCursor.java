@@ -95,12 +95,6 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
-    public boolean isElementReused()
-    {
-        return false;
-    }
-
-
     public void afterValue( ID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );

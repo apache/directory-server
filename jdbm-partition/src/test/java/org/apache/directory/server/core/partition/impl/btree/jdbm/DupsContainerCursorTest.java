@@ -160,7 +160,6 @@ public class DupsContainerCursorTest
 
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
-        assertTrue( cursor.isElementReused() );
 
         cursor = new DupsContainerCursor<String,String>( table );
         assertFalse( cursor.previous() );

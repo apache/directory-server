@@ -254,17 +254,6 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     }
 
 
-    public boolean isElementReused()
-    {
-        if ( userIdxCursor != null )
-        {
-            return userIdxCursor.isElementReused();
-        }
-
-        return ndnIdxCursor.isElementReused();
-    }
-
-
     public void close() throws Exception
     {
         super.close();

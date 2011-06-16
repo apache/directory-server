@@ -98,12 +98,6 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     }
 
 
-    public boolean isElementReused()
-    {
-        return false;
-    }
-
-
     public boolean last() throws Exception
     {
         throw new UnsupportedOperationException();

@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -243,12 +243,6 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
-    }
-
-
-    public boolean isElementReused()
-    {
-        return cursors.get( cursorIndex ).isElementReused();
     }
 
 

@@ -108,13 +108,6 @@ public class SingletonIndexCursorTest
 
 
     @Test
-    public void testIsElementReused() throws Exception
-    {
-        assertTrue( indexCursor.isElementReused() );
-    }
-
-
-    @Test
     public void testBeforeFirst() throws Exception
     {
         // not explicitly positioned, implicit before first 

@@ -338,18 +338,6 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 
 
     /* 
-     * @see Cursor#isElementReused()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isElementReused()
-     */
-    public boolean isElementReused()
-    {
-        return true;
-    }
-
-
-    /* 
      * @see Cursor#last()
      */
     /* (non-Javadoc)

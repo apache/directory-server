@@ -355,8 +355,6 @@ public class OrCursorTest
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
-        assertTrue( cursor.isElementReused() );
-
         try
         {
             cursor.after( new ForwardIndexEntry() );

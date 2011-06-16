@@ -170,7 +170,6 @@ public class GreaterEqTest
         GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
 
         // ---------- test bad get() ----------
@@ -407,7 +406,6 @@ public class GreaterEqTest
         GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
-        assertTrue( cursor.isElementReused() );
         assertFalse( cursor.isClosed() );
 
         // ---------- test bad get() ----------

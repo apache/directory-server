@@ -19,14 +19,14 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.IOException;
+
+import jdbm.helper.TupleBrowser;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-
-import java.io.IOException;
-
-import jdbm.helper.TupleBrowser;
 
 
 /**
@@ -241,11 +241,5 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
         }
 
         throw new InvalidCursorPositionException();
-    }
-
-
-    public boolean isElementReused()
-    {
-        return true;
     }
 }
