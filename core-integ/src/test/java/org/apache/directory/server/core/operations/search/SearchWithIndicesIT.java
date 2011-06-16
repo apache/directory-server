@@ -72,11 +72,18 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            connection.modify( "cn=nis,ou=schema", new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
+            connection.modify( "cn=nis,ou=schema", new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled", "TRUE" ) );
         }
+
+        nisEntry = connection.lookup( "cn=nis,ou=schema" );
+        isNisDisabled = nisEntry.contains( "m-disabled", "TRUE" );
 
         Partition systemPartition = getService().getSystemPartition();
         DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
+        
+        // Restart the service so that the index is created
+        getService().shutdown();
+        getService().startup();
 
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
