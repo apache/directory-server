@@ -24,8 +24,6 @@ import static java.lang.Math.min;
 import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
 import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -360,11 +358,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     }
 
 
-    private List<Dn> readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
+    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
-        List<Dn> aliasList = new ArrayList<Dn>();
 
         while ( ( count < sizeLimit ) && cursor.next() )
         {
@@ -383,14 +380,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 break;
             }
 
-            Entry entry = cursor.get();
-            
-            // Here, we have to check if the candidate is an alias or not
-            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.ALIAS_OC ) )
-            {
-                aliasList.add( entry.getDn() );
-            }
-            
+            ClonedServerEntry entry = cursor.get();
             session.getIoSession().write( generateResponse( session, req, entry ) );
             LOG.debug( "Sending {}", entry.getDn() );
             count++;
@@ -408,8 +398,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // Special case if the user has requested more elements than the request size limit
             ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
         }
-        
-        return aliasList;
     }
 
 
@@ -780,65 +768,44 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
 
         // A normal search
-        // We have to process all the found aliases
-        List<Dn> searchDnList = new ArrayList<Dn>();
-        searchDnList.add( req.getBase() );
-        
-        int currentSearch = 0;
-        
-        while ( currentSearch < searchDnList.size() )
-        {
-            if ( req.getBase() == null )
-            {
-                req.setBase( searchDnList.get( currentSearch ) );
-            }
-    
-            EntryFilteringCursor cursor = session.getCoreSession().search( req );
+        // Check that we have a cursor or not.
+        // No cursor : do a search.
+        EntryFilteringCursor cursor = session.getCoreSession().search( req );
 
-            // Position the cursor at the beginning
-            cursor.beforeFirst();
-    
-            /*
-             * Iterate through all search results building and sending back responses
-             * for each search result returned.
-             */
-            try
+        // Position the cursor at the beginning
+        cursor.beforeFirst();
+
+        /*
+         * Iterate through all search results building and sending back responses
+         * for each search result returned.
+         */
+        try
+        {
+            // Get the size limits
+            // Don't bother setting size limits for administrators that don't ask for it
+            long serverLimit = getServerSizeLimit( session, req );
+
+            long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
+
+            req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
+            setTimeLimitsOnCursor( req, session, cursor );
+            LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+            long sizeLimit = min( requestLimit, serverLimit );
+
+            readResults( session, req, ldapResult, cursor, sizeLimit );
+        }
+        finally
+        {
+            if ( cursor != null )
             {
-                // Get the size limits
-                // Don't bother setting size limits for administrators that don't ask for it
-                long serverLimit = getServerSizeLimit( session, req );
-    
-                long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
-    
-                req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
-                setTimeLimitsOnCursor( req, session, cursor );
-                LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
-                long sizeLimit = min( requestLimit, serverLimit );
-    
-                List<Dn> aliasList = readResults( session, req, ldapResult, cursor, sizeLimit );
-                
-                currentSearch++;
-                
-                if ( aliasList.size() != 0 )
+                try
                 {
-                    searchDnList.addAll( aliasList );
+                    cursor.close();
                 }
-            }
-            finally
-            {
-                if ( cursor != null )
+                catch ( Exception e )
                 {
-                    try
-                    {
-                        cursor.close();
-                    }
-                    catch ( Exception e )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_168 ), e );
-                    }
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
-                
-                req.setBase( null );
             }
         }
 
@@ -1204,6 +1171,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // if the entry is null we still have to check for a referral ancestor
             // also the referrals need to be adjusted based on the ancestor's ref
             // values to yield the correct path to the entry in the target DSAs
+
             else
             {
                 // The entry is null : it has a parent referral.
