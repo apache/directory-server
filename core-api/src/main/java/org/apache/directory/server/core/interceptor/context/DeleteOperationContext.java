@@ -22,9 +22,9 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -36,13 +36,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public class DeleteOperationContext extends AbstractChangeOperationContext
 {
-    /**
-     * An optimization added to prevent redundant lookups of the deleted 
-     * entry.
-     */
-    private ClonedServerEntry entry;
-    
-    
     /**
      * Creates a new instance of DeleteOperationContext.
      */
@@ -103,17 +96,5 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     public void setEntry( ClonedServerEntry entry )
     {
         this.entry = entry;
-    }
-
-
-    /**
-     * Gets the deleted entry if cached.  Must be called before deleting the 
-     * entry when the entry member is null or this call will fail.  
-     * 
-     * @return the entry
-     */
-    public ClonedServerEntry getEntry()
-    {
-        return entry;
     }
 }
