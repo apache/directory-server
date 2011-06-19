@@ -434,10 +434,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // note that this modification shouldn't change the entryCSN value of ou=system entry
         try
         {
+            String currentCtxCsn = directoryService.getContextCsn();
             // update only if the CSN changes
-            if ( ( lastSyncedCtxCsn != null ) && !lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
+            if ( ( currentCtxCsn != null ) && !currentCtxCsn.equals( lastSyncedCtxCsn ) )
             {
-                lastSyncedCtxCsn = directoryService.getContextCsn();
+                lastSyncedCtxCsn = currentCtxCsn;
 
                 Attribute contextCsnAt = mods.get( 0 ).getAttribute();
                 contextCsnAt.clear();
