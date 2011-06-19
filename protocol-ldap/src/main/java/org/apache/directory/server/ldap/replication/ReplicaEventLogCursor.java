@@ -27,6 +27,8 @@ import org.apache.activemq.broker.region.Queue;
 import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,6 +38,8 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
 {
 
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLogCursor.class );
+    
     private ActiveMQQueueBrowser browser;
 
     private Queue regionQueue;
@@ -90,7 +94,7 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     public ReplicaEventMessage get() throws Exception
     {
         ActiveMQObjectMessage amqObj = ( ActiveMQObjectMessage ) browser.nextElement();
-        System.out.println( "========================================= " + amqObj );
+        LOG.debug( "ReplicaEventMessage: {}", amqObj );
         ReplicaEventMessage message = ( ReplicaEventMessage ) amqObj.getObject();
         regionQueue.removeMessage( amqObj.getJMSMessageID() );
         
