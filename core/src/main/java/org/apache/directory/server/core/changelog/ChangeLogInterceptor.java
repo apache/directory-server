@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -296,7 +297,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         if ( renameContext.getEntry() != null )
         {
-            serverEntry = renameContext.getEntry().getOriginalEntry();
+            serverEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
         }
         
         next.rename( renameContext );

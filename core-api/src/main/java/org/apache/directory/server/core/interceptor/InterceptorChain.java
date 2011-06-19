@@ -29,7 +29,6 @@ import javax.naming.ConfigurationException;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -137,7 +136,7 @@ public class InterceptorChain
         }
 
 
-        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext )
+        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
             throws LdapException
         {
             return nexus.lookup( lookupContext );
@@ -570,7 +569,7 @@ public class InterceptorChain
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
             
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            ClonedServerEntry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
+            Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )
             {

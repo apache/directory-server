@@ -36,7 +36,6 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -143,7 +142,7 @@ public class TriggerSpecCache
             {
                 while ( results.next() )
                 {
-                    ClonedServerEntry resultEntry = results.get();
+                    Entry resultEntry = results.get();
                     Dn subentryDn = resultEntry.getDn();
                     Attribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 

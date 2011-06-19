@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.Oid;
@@ -1007,7 +1006,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.warn( e.getMessage(), e );
         }
 
-        return new EntryToResponseCursor( -1, new EmptyCursor<ClonedServerEntry>() );
+        return new EntryToResponseCursor( -1, new EmptyCursor<Entry>() );
     }
 
 

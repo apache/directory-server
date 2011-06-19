@@ -960,7 +960,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( renameContext.getEntry() != null )
         {
-            originalEntry = renameContext.getEntry().getOriginalEntry();
+            originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
         }
 
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();

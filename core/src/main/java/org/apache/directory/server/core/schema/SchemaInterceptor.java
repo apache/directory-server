@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -933,7 +934,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Dn oldDn = renameContext.getDn();
         Rdn newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDeleteOldRdn();
-        Entry entry = renameContext.getEntry().getClonedEntry();
+        Entry entry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all

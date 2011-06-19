@@ -65,7 +65,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     private final List<EntryFilter> filters;
     
     /** the first accepted search result that is pre fetched */
-    private ClonedServerEntry prefetched;
+    private Entry prefetched;
 
     
     // ------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#after(org.apache.directory.server.core.entry.ClonedServerEntry)
      */
-    public void after( ClonedServerEntry element ) throws Exception
+    public void after( Entry element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -237,7 +237,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#before(org.apache.directory.server.core.entry.ClonedServerEntry)
      */
-    public void before( ClonedServerEntry element ) throws Exception
+    public void before( Entry element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -314,7 +314,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#get()
      */
-    public ClonedServerEntry get() throws Exception
+    public Entry get() throws Exception
     {
         if ( available() )
         {
@@ -357,7 +357,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
     
     
-    private void filterContents( ClonedServerEntry entry ) throws Exception
+    private void filterContents( Entry entry ) throws Exception
     {
         boolean typesOnly = getOperationContext().isTypesOnly();
 
@@ -369,9 +369,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             return;
         }
 
+        Entry originalEntry = ((ClonedServerEntry)entry).getOriginalEntry();
+        
         if ( getOperationContext().isNoAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( AttributeType at : originalEntry.getAttributeTypes() )
             {
                 entry.remove( entry.get( at ) );
             }
@@ -382,7 +384,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllUserAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( AttributeType at : originalEntry.getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 
@@ -412,7 +414,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllOperationalAttributes() )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( AttributeType at : originalEntry.getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 
@@ -442,7 +444,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().getReturningAttributes() != null )
         {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            for ( AttributeType at : originalEntry.getAttributeTypes() )
             {
                 boolean isNotRequested = true;
                 
@@ -483,7 +485,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             throw new OperationAbandonedException();
         }
         
-        ClonedServerEntry tempResult = null;
+        Entry tempResult = null;
         
         outer: while ( wrapped.next() )
         {
@@ -561,7 +563,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             throw new OperationAbandonedException();
         }
         
-        ClonedServerEntry tempResult = null;
+        Entry tempResult = null;
         
         outer: while ( wrapped.previous() )
         {
@@ -621,9 +623,9 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#iterator()
      */
-    public Iterator<ClonedServerEntry> iterator()
+    public Iterator<Entry> iterator()
     {
-        return new CursorIterator<ClonedServerEntry>( this );
+        return new CursorIterator<Entry>( this );
     }
 
 

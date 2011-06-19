@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -206,7 +207,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
-        Entry oriEntry = renameContext.getEntry().getOriginalEntry();
+        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
         next.rename( renameContext );

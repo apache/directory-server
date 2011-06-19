@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -35,8 +36,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -317,7 +318,7 @@ public class RegistrySynchronizerAdaptor
     public void rename( RenameOperationContext renameContext, boolean doCascadeModify ) 
         throws LdapException
     {
-        Entry originalEntry = renameContext.getEntry().getOriginalEntry();
+        Entry originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
         Attribute oc = originalEntry.get( objectClassAT );
         
         for ( Value<?> value:oc )

@@ -24,12 +24,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +143,7 @@ public class CursorList implements EntryFilteringCursor
      * @throws IllegalStateException if the underlying list is not sorted
      * and/or a comparator is not provided.
      */
-    public void before( ClonedServerEntry element ) throws Exception
+    public void before( Entry element ) throws Exception
     {
         // checkNotClosed( "before()" );
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
@@ -153,7 +153,7 @@ public class CursorList implements EntryFilteringCursor
     /**
      * {@inheritDoc}
      */
-    public void after( ClonedServerEntry element ) throws Exception
+    public void after( Entry element ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
     }
@@ -364,7 +364,7 @@ public class CursorList implements EntryFilteringCursor
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry get() throws Exception
+    public Entry get() throws Exception
     {
         if ( index < start || index >= end )
         {
@@ -373,8 +373,9 @@ public class CursorList implements EntryFilteringCursor
 
         if ( list.get( index ).available() )
         {
-            return ( ClonedServerEntry ) list.get( index ).get();
+            return list.get( index ).get();
         }
+        
         throw new InvalidCursorPositionException();
     }
 
@@ -462,7 +463,7 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
-    public Iterator<ClonedServerEntry> iterator()
+    public Iterator<Entry> iterator()
     {
         throw new UnsupportedOperationException();
     }

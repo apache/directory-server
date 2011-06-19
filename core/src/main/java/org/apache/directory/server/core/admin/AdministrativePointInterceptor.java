@@ -52,6 +52,7 @@ import org.apache.directory.server.core.administrative.TriggerExecutionAdministr
 import org.apache.directory.server.core.administrative.TriggerExecutionIAP;
 import org.apache.directory.server.core.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -1312,7 +1313,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         String uuid = modifyContext.getEntry().get( ENTRY_UUID_AT ).getString();
 
         // Create a clone of the current AdminRole AT
-        Attribute modifiedAdminRole = ( modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
+        Attribute modifiedAdminRole = ((ClonedServerEntry)modifyContext.getEntry() ).getOriginalEntry().get( ADMINISTRATIVE_ROLE_AT );
 
         if ( modifiedAdminRole == null )
         {

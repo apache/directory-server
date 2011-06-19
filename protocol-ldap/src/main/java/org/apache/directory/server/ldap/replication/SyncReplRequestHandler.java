@@ -38,7 +38,6 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -561,7 +560,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 break;
             }
 
-            ClonedServerEntry entry = cursor.get();
+            Entry entry = cursor.get();
 
             sendSearchResultEntry( session, req, entry, SyncStateTypeEnum.ADD );
 

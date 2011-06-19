@@ -821,7 +821,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         Dn dn = addContext.getDn();
-        ClonedServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         // Check if the added entry is a subentry
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
@@ -1355,7 +1355,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Dn oldDn = renameContext.getDn();
 
-        Entry entry = renameContext.getEntry().getClonedEntry();
+        Entry entry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
 
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {

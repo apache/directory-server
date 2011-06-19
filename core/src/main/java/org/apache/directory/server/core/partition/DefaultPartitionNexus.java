@@ -604,7 +604,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
      */
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
 
@@ -639,7 +639,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( dn );
-        ClonedServerEntry entry =  backend.lookup( lookupContext );
+        Entry entry =  backend.lookup( lookupContext );
         
         if ( entry == null )
         {
@@ -872,7 +872,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
                 for ( Partition partition : partitions.values() )
                 {
-                    ClonedServerEntry entry = partition.lookup( new LookupOperationContext( directoryService.getAdminSession(),
+                    Entry entry = partition.lookup( new LookupOperationContext( directoryService.getAdminSession(),
                         partition.getSuffix() ) );
 
                     if ( entry != null )

@@ -26,9 +26,9 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 
 
@@ -96,11 +96,12 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
      */
     public SearchResult next() throws NamingException
     {
-        ClonedServerEntry entry = null;
+        Entry entry = null;
         
         try
         {
             entry = cursor.get();
+            
             if ( cursor.next() )
             {
                 available = true;
@@ -119,6 +120,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
         SearchResult result = new SearchResult( entry.getDn().getName(), null, 
             ServerEntryUtils.toBasicAttributes( entry ) );
         result.setRelative( false );
+        
         return result;
     }
 

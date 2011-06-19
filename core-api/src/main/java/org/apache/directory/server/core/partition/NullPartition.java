@@ -27,7 +27,6 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 
 import org.apache.commons.collections.iterators.EmptyIterator;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -44,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -111,7 +111,7 @@ public class NullPartition extends AbstractPartition
         return new EntryFilteringCursor()
         {
             
-            public Iterator<ClonedServerEntry> iterator()
+            public Iterator<Entry> iterator()
             {
                 return EmptyIterator.INSTANCE;
             }
@@ -146,7 +146,7 @@ public class NullPartition extends AbstractPartition
             }
             
         
-            public ClonedServerEntry get() throws Exception
+            public Entry get() throws Exception
             {
                 return null;
             }
@@ -173,7 +173,7 @@ public class NullPartition extends AbstractPartition
             }
             
         
-            public void before( ClonedServerEntry element ) throws Exception
+            public void before( Entry element ) throws Exception
             {
             }
             
@@ -189,7 +189,7 @@ public class NullPartition extends AbstractPartition
             }
             
         
-            public void after( ClonedServerEntry element ) throws Exception
+            public void after( Entry element ) throws Exception
             {
             }
             
@@ -274,7 +274,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#lookup(java.lang.Long)
      */
-    public ClonedServerEntry lookup( Long id ) throws Exception
+    public Entry lookup( Long id ) throws Exception
     {
         return null;
     }
@@ -377,7 +377,7 @@ public class NullPartition extends AbstractPartition
 
 
     @Override
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }

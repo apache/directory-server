@@ -25,6 +25,7 @@ import javax.naming.Context;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.ReferralManagerImpl;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -353,7 +354,7 @@ public class ReferralInterceptor extends BaseInterceptor
             referralManager.lockWrite();
 
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( renameContext.getEntry().getOriginalEntry() );
+            referralManager.removeReferral( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() );
 
             referralManager.unlock();
         }

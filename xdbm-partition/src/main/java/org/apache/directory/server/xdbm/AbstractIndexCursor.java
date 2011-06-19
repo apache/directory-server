@@ -38,6 +38,9 @@ public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E,
     private ClosureMonitor monitor = new DefaultClosureMonitor();
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         if ( monitor == null )
@@ -49,30 +52,45 @@ public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E,
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     protected final void checkNotClosed( String operation ) throws Exception
     {
         monitor.checkNotClosed();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final boolean isClosed()
     {
         return monitor.isClosed();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         monitor.close();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close( Exception cause ) throws Exception
     {
         monitor.close( cause );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<IndexEntry<K, E, ID>> iterator()
     {
         return new CursorIterator<IndexEntry<K, E, ID>>( this );

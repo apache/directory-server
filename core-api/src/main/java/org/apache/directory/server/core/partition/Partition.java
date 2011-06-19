@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -35,6 +34,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -216,7 +216,7 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws Exception if there are any problems
      */
-    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException;
+    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**

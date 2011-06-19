@@ -29,10 +29,10 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ArrayTreeCursor<K> extends AbstractCursor<K>
+public class ArrayTreeCursor<E> extends AbstractCursor<E>
 {
     /** The underlying ArrayTree */
-    private ArrayTree<K> array;
+    private ArrayTree<E> array;
 
     /** The current position/index in the array */
     private int current;
@@ -45,7 +45,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
      * Create a cursor on an ArrayTree
      * @param array The array we want a cursor for
      */
-    public ArrayTreeCursor( ArrayTree<K> array )
+    public ArrayTreeCursor( ArrayTree<E> array )
     {
         this.array = array;
         position = Position.BEFORE_FIRST;
@@ -55,7 +55,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void after( K element ) throws Exception
+    public void after( E element ) throws Exception
     {
         checkNotClosed( "after" );
 
@@ -106,7 +106,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void before( K element ) throws Exception
+    public void before( E element ) throws Exception
     {
         checkNotClosed( "before" );
 
@@ -170,7 +170,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     /**
      * {@inheritDoc}
      */
-    public K get() throws Exception
+    public E get() throws Exception
     {
         checkNotClosed( "get" );
 

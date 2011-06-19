@@ -54,7 +54,6 @@ import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
@@ -991,9 +990,10 @@ public class DefaultDirectoryService implements DirectoryService
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
         loc.setDn( systemPartition.getSuffix() );
         loc.setAttrsId( new String[]{ "+" } );
-        ClonedServerEntry entry = systemPartition.lookup( loc );
+        Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
+        
         if( cntextCsnAt != null )
         {
             // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system

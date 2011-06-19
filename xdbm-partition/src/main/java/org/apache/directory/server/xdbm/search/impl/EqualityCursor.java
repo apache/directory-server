@@ -46,7 +46,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
     /** An equality evaluator for candidates */
-    @SuppressWarnings("unchecked")
     private final EqualityEvaluator equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */

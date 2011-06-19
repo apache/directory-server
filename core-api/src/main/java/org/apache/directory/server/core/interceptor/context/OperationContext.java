@@ -138,7 +138,7 @@ public interface OperationContext
      * 
      * @return target entry associated with the Dn of this OperationContext
      */
-    ClonedServerEntry getEntry();
+    Entry getEntry();
     
     
     /**
@@ -147,7 +147,7 @@ public interface OperationContext
      *
      * @param entry the entry whose Dn is associated with this OperationContext.
      */
-    void setEntry( ClonedServerEntry entry );
+    void setEntry( Entry entry );
     
     
     /**

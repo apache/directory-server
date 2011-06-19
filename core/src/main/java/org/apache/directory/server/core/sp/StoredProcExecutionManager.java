@@ -79,7 +79,7 @@ public class StoredProcExecutionManager
      * @return The entry associated with the SP Unit.
      * @throws Exception If the unit cannot be located or any other error occurs.
      */
-    public ClonedServerEntry findStoredProcUnit( CoreSession session, String fullSPName ) throws Exception
+    public Entry findStoredProcUnit( CoreSession session, String fullSPName ) throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
@@ -94,8 +94,9 @@ public class StoredProcExecutionManager
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
         if ( results.first() )
         {
-            ClonedServerEntry entry = results.get();
+            Entry entry = results.get();
             results.close();
+            
             return entry;
         }
         
@@ -111,9 +112,9 @@ public class StoredProcExecutionManager
      * @return A {@link StoredProcEngine} associated with spUnitEntry.
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
      */
-    public StoredProcEngine getStoredProcEngineInstance( ClonedServerEntry spUnitEntry ) throws LdapException
+    public StoredProcEngine getStoredProcEngineInstance( Entry spUnitEntry ) throws LdapException
     {
-        String spLangId = ( String ) spUnitEntry.getOriginalEntry().get( "storedProcLangId" ).getString();
+        String spLangId = ( String ) ((ClonedServerEntry)spUnitEntry).getOriginalEntry().get( "storedProcLangId" ).getString();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )
         {
@@ -139,7 +140,7 @@ public class StoredProcExecutionManager
                     throw ne;
                 }
                 
-                engine.setSPUnitEntry( (Entry)spUnitEntry.getOriginalEntry() );
+                engine.setSPUnitEntry( (Entry)((ClonedServerEntry)spUnitEntry).getOriginalEntry() );
                 return engine;
             }
 

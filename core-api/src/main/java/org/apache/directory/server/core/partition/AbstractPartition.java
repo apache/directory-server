@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition;
 
 import javax.naming.InvalidNameException;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -163,7 +162,7 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public abstract ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException;
+    public abstract Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
     
     /**

@@ -370,7 +370,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         // Gather supplementary data.        
-        Entry renamedEntry = renameContext.getEntry().getClonedEntry();
+        Entry renamedEntry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
         Rdn oldRdn = name.getRdn();
@@ -598,11 +598,11 @@ public class TriggerInterceptor extends BaseInterceptor
 
     private Object executeProcedure( OperationContext opContext, String procedure, Object[] values ) throws LdapException
     {
-
         try
         {
-            ClonedServerEntry spUnit = manager.findStoredProcUnit( opContext.getSession(), procedure );
+            Entry spUnit = manager.findStoredProcUnit( opContext.getSession(), procedure );
             StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
+            
             return engine.invokeProcedure( opContext.getSession(), procedure, values );
         }
         catch ( Exception e )

@@ -22,9 +22,9 @@ package org.apache.directory.server.core.filtering;
 
 import java.util.List;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface EntryFilteringCursor extends Cursor<ClonedServerEntry>
+public interface EntryFilteringCursor extends Cursor<Entry>
 {
 
     /**

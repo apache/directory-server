@@ -275,13 +275,13 @@ public class MockOperation implements OperationContext
     }
 
 
-    public ClonedServerEntry getEntry()
+    public Entry getEntry()
     {
         return null;
     }
 
 
-    public void setEntry( ClonedServerEntry entry )
+    public void setEntry( Entry entry )
     {
     }
 

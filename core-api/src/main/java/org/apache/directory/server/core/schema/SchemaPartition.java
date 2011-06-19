@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -436,7 +435,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return wrapped.lookup( lookupContext );
     }

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -321,7 +320,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             {
                 while ( list.next() )
                 {
-                    ClonedServerEntry entry = list.get();
+                    Entry entry = list.get();
     
                     comparatorList.add( entry );
                 }
@@ -457,7 +456,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             {
                 while ( list.next() )
                 {
-                    ClonedServerEntry entry = list.get();
+                    Entry entry = list.get();
     
                     normalizerList.add( entry );
                 }
@@ -501,7 +500,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             {
                 while ( list.next() )
                 {
-                    ClonedServerEntry entry = list.get();
+                    Entry entry = list.get();
     
                     objectClassList.add( entry );
                 }

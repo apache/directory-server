@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
@@ -39,6 +38,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureResponse;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 
@@ -69,10 +69,11 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     public void handleExtendedOperation( LdapSession session, StoredProcedureRequest req ) throws Exception
     {
         String procedure = req.getProcedureSpecification();
-        ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
+        Entry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
 
         List<Object> valueList = new ArrayList<Object>( req.size() );
+        
         for ( int ii = 0; ii < req.size(); ii++ )
         {
             byte[] serializedValue = ( byte[] ) req.getParameterValue( ii );

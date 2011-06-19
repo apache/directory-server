@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 public class EntryToResponseCursor implements SearchCursor
 {
     /** the underlying cursor */
-    private Cursor<ClonedServerEntry> wrapped;
+    private Cursor<Entry> wrapped;
 
     /** a reference to hold the SearchResultDone response */
     private SearchResultDone searchDoneResp;
@@ -59,7 +59,7 @@ public class EntryToResponseCursor implements SearchCursor
     private int messageId;
 
 
-    public EntryToResponseCursor( int messageId, Cursor<ClonedServerEntry> wrapped )
+    public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
     {
         this.wrapped = wrapped;
         this.messageId = messageId;

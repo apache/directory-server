@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -51,7 +50,7 @@ public abstract class AbstractOperationContext implements OperationContext
     protected Dn dn;
     
     /** The entry associated with the target entry of this OperationContext */
-    protected ClonedServerEntry entry;
+    protected Entry entry;
 
     /** The original Entry */
     protected Entry originalEntry;
@@ -448,7 +447,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @param entry the entry to set
      */
-    public void setEntry( ClonedServerEntry entry )
+    public void setEntry( Entry entry )
     {
         this.entry = entry;
     }
@@ -457,7 +456,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return the entry
      */
-    public ClonedServerEntry getEntry()
+    public Entry getEntry()
     {
         return entry;
     }

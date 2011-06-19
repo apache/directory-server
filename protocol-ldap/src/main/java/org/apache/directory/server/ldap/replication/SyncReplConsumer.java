@@ -37,7 +37,6 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
@@ -48,7 +47,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -66,7 +64,6 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.IntermediateResponse;
 import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -956,7 +953,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
         while ( cursor.next() )
         {
-            ClonedServerEntry entry = cursor.get();
+            Entry entry = cursor.get();
             deleteRecursive( entry.getDn(), null );
         }
 
@@ -1075,7 +1072,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             {
                 do
                 {
-                    ClonedServerEntry entry = cursor.get();
+                    Entry entry = cursor.get();
 
                     deleteRecursive( entry.getDn(), cursorMap );
                 }

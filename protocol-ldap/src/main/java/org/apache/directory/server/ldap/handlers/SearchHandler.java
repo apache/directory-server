@@ -241,7 +241,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 else
                 {
                     hasRootDSE = true;
-                    ClonedServerEntry entry = cursor.get();
+                    Entry entry = cursor.get();
                     session.getIoSession().write( generateResponse( session, req, entry ) );
                 }
             }
@@ -380,7 +380,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 break;
             }
 
-            ClonedServerEntry entry = cursor.get();
+            Entry entry = cursor.get();
             session.getIoSession().write( generateResponse( session, req, entry ) );
             LOG.debug( "Sending {}", entry.getDn() );
             count++;
@@ -420,7 +420,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 break;
             }
 
-            ClonedServerEntry entry = cursor.get();
+            Entry entry = cursor.get();
             session.getIoSession().write( generateResponse( session, req, entry ) );
             count++;
             pageCount++;

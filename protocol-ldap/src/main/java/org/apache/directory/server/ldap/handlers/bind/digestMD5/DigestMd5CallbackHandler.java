@@ -28,7 +28,6 @@ import javax.security.sasl.AuthorizeCallback;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
@@ -36,6 +35,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -102,7 +102,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
             
             cursor.beforeFirst();
             
-            ClonedServerEntry entry = null;
+            Entry entry = null;
             
             while ( cursor.next() )
             {

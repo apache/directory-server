@@ -29,25 +29,25 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTreeCursor<K> extends AbstractCursor<K>
+public class AvlTreeCursor<E> extends AbstractCursor<E>
 {
     /** The underlying AVL tree */
-    private AvlTree<K> tree;
+    private AvlTree<E> tree;
 
     /** The current node */
-    private LinkedAvlNode<K> node;
+    private LinkedAvlNode<E> node;
 
     /** The current position of this cursor, relative to the node */
     private Position position = Position.BEFORE_FIRST;
 
 
-    public AvlTreeCursor( AvlTree<K> tree )
+    public AvlTreeCursor( AvlTree<E> tree )
     {
         this.tree = tree;
     }
 
 
-    public void after( K element ) throws Exception
+    public void after( E element ) throws Exception
     {
         checkNotClosed( "after" );
 
@@ -87,7 +87,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     }
 
 
-    public void before( K element ) throws Exception
+    public void before( E element ) throws Exception
     {
         checkNotClosed( "before" );
 
@@ -140,7 +140,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     }
 
 
-    public K get() throws Exception
+    public E get() throws Exception
     {
         checkNotClosed( "get" );
 
