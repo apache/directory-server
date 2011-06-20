@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.IOException;
 
+import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
@@ -35,15 +36,26 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  * for values rather than just the value.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @param K The Key
+ * @param V The associated value
  */
 public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContainer<V>>
 {
+    /** The JDBM table we are building a cursor over */
     private final JdbmTable<K,V> table;
 
-    private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
+    /** A container to pass to the underlying JDBM to get back a tuple */
+    private jdbm.helper.Tuple<K,V> jdbmTuple = new jdbm.helper.Tuple<K, V>();
+    
     private Tuple<K,DupsContainer<V>> returnedTuple = new Tuple<K,DupsContainer<V>>();
-    private TupleBrowser browser;
+    
+    /** A browser over the JDBM Table */
+    private TupleBrowser<K,V> browser;
+    
+    /** Tells if we have a tuple to return */
     private boolean valueAvailable;
+    
+    /** */
     private Boolean forwardDirection;
 
 
@@ -51,7 +63,8 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
      * Creates a Cursor over the tuples of a JDBM table.
      *
      * @param table the JDBM Table to build a Cursor over
-     * @throws java.io.IOException of there are problems accessing the BTree
+     * @throws java.io.IOException of there are problems accessing the BTree or if this table
+     * does not allow duplicate values
      */
     public DupsContainerCursor( JdbmTable<K,V> table ) throws IOException
     {
@@ -74,25 +87,35 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return valueAvailable;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
     public void beforeKey( K key ) throws Exception
     {
         checkNotClosed( "beforeKey()" );
-        browser = table.getBTree().browse( key );
+        browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
         clearValue();
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
+    //@SuppressWarnings("unchecked")
     public void afterKey( K key ) throws Exception
     {
-        browser = table.getBTree().browse( key );
+        browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
 
         /*
@@ -119,6 +142,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
                 browser.getPrevious( jdbmTuple );
                 forwardDirection = false;
                 clearValue();
+                
                 return;
             }
         }
@@ -159,7 +183,8 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void beforeFirst() throws Exception
     {
-        checkNotClosed( "afterKey()" );
+        checkNotClosed( "beforeFirst()" );
+        
         browser = table.getBTree().browse();
         forwardDirection = null;
         clearValue();
@@ -168,7 +193,8 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void afterLast() throws Exception
     {
-        checkNotClosed( "afterKey()" );
+        checkNotClosed( "afterLast()" );
+        
         browser = table.getBTree().browse( null );
         forwardDirection = null;
         clearValue();
@@ -178,6 +204,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
@@ -227,47 +254,62 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( browser == null )
         {
+            // The tuple browser is not initialized : set it to the beginning of the cursor
             beforeFirst();
         }
 
+        // Check if we can move forward and grab a tuple
         boolean advanceSuccess = browser.getNext( jdbmTuple );
 
         // only want to set this if the advance is a success which means
         // we are not at end
-        if ( forwardDirection == null && advanceSuccess )
+        if ( forwardDirection == null )
         {
-            forwardDirection = true;
+            if ( advanceSuccess )
+            {
+                forwardDirection = true;
+            }
+            else
+            {
+                clearValue();
+                
+                // No value available
+                return false;
+            }
         }
 
-        if ( forwardDirection != null && ! forwardDirection )
+        if ( ! forwardDirection )
         {
             advanceSuccess = browser.getNext( jdbmTuple );
             forwardDirection = true;
         }
 
+        valueAvailable = advanceSuccess;
+
         if ( advanceSuccess )
         {
-            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+            // create the fetched tuple containing the key and the deserialized value
+            returnedTuple.setKey( jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
-            return valueAvailable = true;
         }
-        else
-        {
-            clearValue();
-            return false;
-        }
+
+        return valueAvailable;
     }
 
 
     public Tuple<K,DupsContainer<V>> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( valueAvailable )
         {
             return returnedTuple;
