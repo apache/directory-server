@@ -43,9 +43,9 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     private final BTree btree;
     private final K key;
 
-    private jdbm.helper.Tuple valueTuple = new jdbm.helper.Tuple();
+    private jdbm.helper.Tuple<K,V> valueTuple = new jdbm.helper.Tuple<K,V>();
     private Tuple<K,V> returnedTuple = new Tuple<K,V>();
-    private TupleBrowser browser;
+    private TupleBrowser<K,V> browser;
     private boolean valueAvailable;
 
 
@@ -74,6 +74,9 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return valueAvailable;
@@ -86,12 +89,18 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterKey( K key ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -105,6 +114,9 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public void afterValue( K key, V value ) throws Exception
     {
@@ -130,11 +142,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
             int nextCompared = comparator.compare( next, value );
 
-            if ( nextCompared <= 0 )
-            {
-                // just continue
-            }
-            else if ( nextCompared > 0 )
+            if ( nextCompared > 0 )
             {
                 /*
                  * If we just have values greater than the element argument
@@ -142,15 +150,13 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
                  * the call below to getPrevious() will fail.  In this special
                  * case we just reset the Cursor's browser and return.
                  */
-                if ( browser.getPrevious( valueTuple ) )
-                {
-                }
-                else
+                if ( !browser.getPrevious( valueTuple ) )
                 {
                     browser = btree.browse( this.key );
                 }
 
                 clearValue();
+                
                 return;
             }
         }
@@ -175,12 +181,18 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( Tuple<K,V> element ) throws Exception
     {
         afterValue( key, element.getValue() );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -189,6 +201,9 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
@@ -196,48 +211,66 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
+        
         if ( browser.getPrevious( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
-            if ( returnedTuple.getValue() != null &&
-                comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+            if ( ( returnedTuple.getValue() != null ) &&
+                ( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
             {
                 browser.getPrevious( valueTuple ) ;
             }
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
+            
             return valueAvailable = true;
         }
         else
         {
             clearValue();
+            
             return false;
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( browser.getNext( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
@@ -246,21 +279,28 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
             {
                 browser.getNext( valueTuple ) ;
             }
+            
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
+            
             return valueAvailable = true;
         }
         else
         {
             clearValue();
+            
             return false;
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tuple<K,V> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( valueAvailable )
         {
             return returnedTuple;
