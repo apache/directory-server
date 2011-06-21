@@ -521,7 +521,14 @@ public class GroupCache
         for ( Object obj : ehCache.getKeys() )
         {
             String group = ( String ) obj;
-            Set<String> members = ( Set<String> ) ehCache.get( group ).getValue();
+            Element element = ehCache.get( group );
+            
+            if ( element == null )
+            {
+                continue;
+            }
+            
+            Set<String> members = ( Set<String> ) element.getValue();
 
             if ( members == null )
             {

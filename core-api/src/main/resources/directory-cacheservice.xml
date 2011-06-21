@@ -111,7 +111,7 @@
 		on disk is needed to swap the data if it is too much to hold in memory -->
 	<cache name="groupCache" 
 	       maxElementsInMemory="10000"
-		   eternal="false" 
+		   eternal="true" 
 		   overflowToDisk="true"
 		   diskSpoolBufferSizeMB="20"
 		   timeToIdleSeconds="300"
