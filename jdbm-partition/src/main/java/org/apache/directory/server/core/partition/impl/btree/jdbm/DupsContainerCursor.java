@@ -77,6 +77,9 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
+    /**
+     * Clean the tuples we use to store the returned resut.
+     */
     private void clearValue()
     {
         returnedTuple.setKey( null );
@@ -103,6 +106,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public void beforeKey( K key ) throws Exception
     {
         checkNotClosed( "beforeKey()" );
+        
         browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
         clearValue();
@@ -115,6 +119,8 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     @SuppressWarnings("unchecked")
     public void afterKey( K key ) throws Exception
     {
+        checkNotClosed( "afterKey()" );
+
         browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
 
@@ -256,30 +262,38 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
         // only want to set this if the advance is a success which means we
         // are not at front
-        if ( ( forwardDirection == null ) && advanceSuccess )
+        if ( forwardDirection == null )
         {
-            forwardDirection = false;
+            if ( advanceSuccess)
+            {
+                forwardDirection = false;
+            }
+            else
+            {
+                clearValue();
+                
+                return false;
+            }
         }
-
-        if ( ( forwardDirection != null ) && forwardDirection )
+        else if ( forwardDirection )
         {
             advanceSuccess = browser.getPrevious( jdbmTuple );
             forwardDirection = false;
         }
 
-        if ( advanceSuccess )
+        valueAvailable = advanceSuccess;
+        
+        if ( valueAvailable )
         {
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
-            
-            return valueAvailable = true;
         }
         else
         {
             clearValue();
-            
-            return false;
         }
+        
+        return valueAvailable;
     }
 
 
@@ -324,11 +338,15 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
         valueAvailable = advanceSuccess;
 
-        if ( advanceSuccess )
+        if ( valueAvailable )
         {
             // create the fetched tuple containing the key and the deserialized value
             returnedTuple.setKey( jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
+        }
+        else
+        {
+            clearValue();
         }
 
         return valueAvailable;
