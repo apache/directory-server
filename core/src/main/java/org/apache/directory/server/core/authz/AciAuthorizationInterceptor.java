@@ -797,7 +797,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+        Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         tupleCache.subentryModified( dn, mods, modifiedEntry );
         groupCache.groupModified( dn, mods, entry, schemaManager );
     }
