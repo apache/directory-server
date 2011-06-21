@@ -38,8 +38,6 @@ import org.apache.directory.server.installers.nsis.NsisInstallerCommand;
 import org.apache.directory.server.installers.nsis.NsisTarget;
 import org.apache.directory.server.installers.rpm.RpmInstallerCommand;
 import org.apache.directory.server.installers.rpm.RpmTarget;
-import org.apache.directory.server.installers.solarispkg.SolarisPkgInstallerCommand;
-import org.apache.directory.server.installers.solarispkg.SolarisPkgTarget;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -87,13 +85,6 @@ public class GenerateMojo extends AbstractMojo
      * @parameter
      */
     private MacOsXPkgTarget[] macOsXPkgTargets;
-
-    /**
-     * The Solaris PKG installers targets.
-     * 
-     * @parameter
-     */
-    private SolarisPkgTarget[] solarisPkgTargets;
 
     /**
      * The NSIS installer targets.
@@ -241,13 +232,6 @@ public class GenerateMojo extends AbstractMojo
                 rpmCmd.execute();
             }
 
-            // Solaris PKG target
-            if ( target instanceof SolarisPkgTarget )
-            {
-                SolarisPkgInstallerCommand pkgCmd = new SolarisPkgInstallerCommand( this, ( SolarisPkgTarget ) target );
-                pkgCmd.execute();
-            }
-
             getLog().info( "-------------------------------------------------------" );
         }
     }
@@ -262,7 +246,6 @@ public class GenerateMojo extends AbstractMojo
         addAllTargets( allTargets, rpmTargets );
         addAllTargets( allTargets, debTargets );
         addAllTargets( allTargets, macOsXPkgTargets );
-        addAllTargets( allTargets, solarisPkgTargets );
         addAllTargets( allTargets, binTargets );
         addAllTargets( allTargets, archiveTargets );
     }

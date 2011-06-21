@@ -145,22 +145,6 @@
               <osArch>x86_64</osArch>
             </rpmTarget>
           </rpmTargets>
-
-          <!-- Targets for Solaris .pkg installer package -->
-          <!-- <solarisPkgTargets>
-            <solarisPkgTarget>
-              <id>apacheds-solaris-x86</id>
-              <finalName>apacheds-${project.version}-solaris-x86.pkg</finalName>
-              <osName>solaris</osName>
-              <osArch>x86</osArch>
-            </solarisPkgTarget>
-            <solarisPkgTarget>
-              <id>apacheds-solaris-sparc</id>
-              <finalName>apacheds-${project.version}-solaris-sparc.pkg</finalName>
-              <osName>solaris</osName>
-              <osArch>sparc</osArch>
-            </solarisPkgTarget>
-          </solarisPkgTargets> -->
           
         </configuration>
         <executions>
