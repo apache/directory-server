@@ -173,20 +173,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         rootDSE.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
-        // Add the supported controls
-        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, 
-            PersistentSearch.OID,
-            EntryChange.OID, 
-            Subentries.OID, 
-            ManageDsaIT.OID,
-            Cascade.OID, 
-            PagedResults.OID,
-            // Replication controls
-            SyncDoneValue.OID, 
-            SyncInfoValue.OID, 
-            SyncRequestValue.OID,
-            SyncStateValue.OID );
-
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
@@ -222,7 +208,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return;
         }
 
-        //this.directoryService = directoryService;
+        // Add the supported controls
+        Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredControls();
+        while ( ctrlOidItr.hasNext() )
+        {
+            rootDSE.add( SchemaConstants.SUPPORTED_CONTROL_AT, ctrlOidItr.next() );
+        }
+
         schemaManager = directoryService.getSchemaManager();
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
