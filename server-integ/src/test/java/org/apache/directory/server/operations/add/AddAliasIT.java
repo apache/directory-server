@@ -32,7 +32,9 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -144,6 +146,96 @@ public class AddAliasIT extends AbstractLdapTestUnit
             // Cleanup entries now
             conn.delete( "ou=alias,cn=foo,ou=system" );
             conn.delete( "cn=foo,ou=system" );
+        }
+    }
+
+    
+    /**
+     * Add aliases with a cycle :
+     * ou=system
+     *   cn=foo
+     *     cn=barAlias -> cn=bar
+     *   cn=bar
+     *     cn=fooAlias -> cn=foo
+     * @throws Exception
+     */
+    @Test
+    public void testAddAliasWithCycle() throws Exception
+    {
+        try
+        {
+            conn = getClientApiConnection( getLdapServer() );
+            conn.setTimeOut( -1L );
+            
+            conn.add( new DefaultEntry( 
+                "cn=test,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: test",
+                "sn: Test" ) );
+            
+            conn.add( new DefaultEntry( 
+                "cn=foo,cn=test,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: foo",
+                "sn: Foo" ) );
+    
+            conn.add( new DefaultEntry( 
+                "cn=bar,cn=test,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: bar",
+                "sn: Bar" ) );
+            
+            conn.add( new DefaultEntry( 
+                "cn=doh,cn=test,ou=system", 
+                "objectClass: person",
+                "objectClass: top",
+                "cn: doh",
+                "sn: Doh" ) );
+
+            //assertNotNull( conn.lookup( "cn=foo,cn=test,ou=system" ) );
+            //assertNotNull( conn.lookup( "cn=bar,cn=test,ou=system" ) );
+    
+            conn.add( new DefaultEntry( 
+                "cn=barAlias,cn=foo,cn=test,ou=system", 
+                "objectClass: top",
+                "objectClass: extensibleObject",
+                "objectClass: alias",
+                "cn: barAlias" ,
+                "aliasedObjectName: cn=bar,cn=test,ou=system",
+                "description: alias to father (branch)" ) );
+            
+            conn.add( new DefaultEntry( 
+                "cn=dohAlias,cn=bar,cn=test,ou=system", 
+                "objectClass: top",
+                "objectClass: extensibleObject",
+                "objectClass: alias",
+                "cn: dohAlias" ,
+                "aliasedObjectName: cn=doh,cn=test,ou=system",
+                "description: alias to father (branch)" ) );
+
+            //assertNotNull( conn.lookup( "cn=barAlias,cn=foo,cn=test,ou=system" ) );
+            //assertNotNull( conn.lookup( "cn=fooAlias,cn=bar,cn=test,ou=system" ) );
+            
+            // Now, do a search
+            EntryCursor cursor = conn.search( "cn=foo,cn=test,ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+            
+            while ( cursor.next() )
+            {
+                System.out.println( cursor.get().getDn() );
+            }
+        }
+        finally
+        {
+            // Cleanup entries now
+            conn.delete( "cn=barAlias,cn=foo,cn=test,ou=system" );
+            conn.delete( "cn=dohAlias,cn=bar,cn=test,ou=system" );
+            conn.delete( "cn=foo,cn=test,ou=system" );
+            conn.delete( "cn=bar,cn=test,ou=system" );
+            conn.delete( "cn=doh,cn=test,ou=system" );
+            conn.delete( "cn=test,ou=system" );
         }
     }
 }
