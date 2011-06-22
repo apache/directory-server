@@ -98,6 +98,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
         AvlIndex<?, E> avlIndex;
+        
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             avlIndex = new AvlRdnIndex<E>( index.getAttributeId() );

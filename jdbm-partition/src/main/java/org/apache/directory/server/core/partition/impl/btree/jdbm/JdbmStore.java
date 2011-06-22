@@ -37,8 +37,8 @@ import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -147,6 +147,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
         // then add all index objects to a list
         List<String> allIndices = new ArrayList<String>();
+        
         for( Index i : systemIndices.values() )
         {
             allIndices.add( i.getAttribute().getOid() );

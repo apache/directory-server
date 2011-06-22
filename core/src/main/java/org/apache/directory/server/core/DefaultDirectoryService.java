@@ -989,12 +989,12 @@ public class DefaultDirectoryService implements DirectoryService
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
         loc.setDn( systemPartition.getSuffix() );
-        loc.setAttrsId( new String[]{ "+" } );
+        loc.setAttrsId( new String[]{ SchemaConstants.CONTEXT_CSN_AT } );
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
         
-        if( cntextCsnAt != null )
+        if ( cntextCsnAt != null )
         {
             // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
             contextCsn = cntextCsnAt.getString();
