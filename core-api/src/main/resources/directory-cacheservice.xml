@@ -114,8 +114,6 @@
 		   eternal="true" 
 		   overflowToDisk="true"
 		   diskSpoolBufferSizeMB="20"
-		   timeToIdleSeconds="300"
-		   timeToLiveSeconds="600"
 		   memoryStoreEvictionPolicy="LFU"
 		   diskPersistent="false" />
     
