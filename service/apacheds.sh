@@ -18,7 +18,7 @@
 # under the License.
 
 # The final jar
-JAR=target/apacheds-service-1.5.8-SNAPSHOT.jar
+JAR=target/apacheds-service-2.0.0-M1.jar
 
 # Checking if the final jar exists
 if [ -e $JAR ] ; then
