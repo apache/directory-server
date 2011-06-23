@@ -35,36 +35,6 @@ public interface MasterTable<ID, E> extends Table<ID, E>
 
 
     /**
-     * Gets an entry from this MasterTable.
-     *
-     * @param id the id of the entry to retrieve.
-     * @return the entry with all user and operational attributes.
-     * @throws Exception if there is a read error on the underlying Db.
-     */
-    E get( ID id ) throws Exception;
-
-
-    /**
-     * Puts an entry into this MasterTable with a specified unique id.  Used
-     * both to create new entries and update existing ones.
-     *
-     * @param entry the entry to add
-     * @param id unique identifier of the entry to put
-     * @throws Exception if there is a write error on the underlying Db.
-     */
-    void put( ID id, E entry ) throws Exception;
-
-
-    /**
-     * Deletes a entry from this MasterTable at an index specified by id.
-     *
-     * @param id unique identifier of the entry to delete
-     * @throws Exception if there is a write error on the underlying Db
-     */
-    void delete( ID id ) throws Exception;
-
-
-    /**
      * Gets the next value from the sequence of this MasterTable.  This has
      * the side-effect of incrementing the sequence values permanently.
      *

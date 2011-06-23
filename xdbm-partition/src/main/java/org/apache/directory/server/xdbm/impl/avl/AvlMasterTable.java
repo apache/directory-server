@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.util.Comparator;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.xdbm.MasterTable;
@@ -35,7 +34,6 @@ import org.apache.directory.server.xdbm.MasterTable;
  */
 public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<Long, E>
 {
-    private Properties props = new Properties();
     private AtomicLong counter = new AtomicLong( 0 );
     
     
@@ -45,13 +43,10 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
         super( name, keyComparator, valComparator, dupsEnabled );
     }
 
-    
-    public void delete( Long id ) throws Exception
-    {
-        super.remove( id );
-    }
 
-
+    /**
+     * {@inheritDoc}
+     */
     public Long getNextId( E entry ) throws Exception
     {
         return counter.incrementAndGet();

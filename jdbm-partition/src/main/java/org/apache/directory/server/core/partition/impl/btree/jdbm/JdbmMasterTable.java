@@ -142,45 +142,6 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         }
     }
 
-    /**
-     * Gets the ServerEntry from this MasterTable.
-     *
-     * @param id the Long id of the entry to retrieve.
-     * @return the ServerEntry with operational attributes and all.
-     * @throws Exception if there is a read error on the underlying Db.
-     */
-    public E get( Long id ) throws Exception
-    {
-        return super.get( id );
-    }
-
-
-    /**
-     * Puts the ServerEntry into this master table at an index
-     * specified by id.  Used both to create new entries and update existing
-     * ones.
-     *
-     * @param entry the ServerEntry w/ operational attributes
-     * @param id    the Long id of the entry to put
-     * @throws Exception if there is a write error on the underlying Db.
-     */
-    public void put( Long id, E entry ) throws Exception
-    {
-        super.put( id, entry );
-    }
-
-
-    /**
-     * Deletes a ServerEntry from the master table at an index specified by id.
-     *
-     * @param id the Long id of the entry to delete
-     * @throws Exception if there is a write error on the underlying Db
-     */
-    public void delete( Long id ) throws Exception
-    {
-        super.remove( id );
-    }
-
 
     /**
      * Get's the next value from this SequenceBDb.  This has the side-effect of
