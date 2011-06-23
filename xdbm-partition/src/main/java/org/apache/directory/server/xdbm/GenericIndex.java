@@ -232,12 +232,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean isCountExact()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public int lessThanCount( K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();

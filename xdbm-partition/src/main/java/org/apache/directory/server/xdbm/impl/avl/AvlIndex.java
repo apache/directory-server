@@ -305,15 +305,6 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean isCountExact()
-    {
-        return false;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public int lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( getNormalized( attrVal ) );

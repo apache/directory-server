@@ -41,8 +41,8 @@ import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.apache.directory.shared.util.StringConstants;
+import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -304,12 +304,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         return name;
     }
 
-
-    public boolean isCountExact()
-    {
-        return false;
-    }
-        
 
     // ------------------------------------------------------------------------
     // Count Overloads

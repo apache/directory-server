@@ -71,20 +71,6 @@ public interface Table<K, V>
     boolean isDupsEnabled();
 
 
-    /**
-     * Checks whether or not calls to count the number of keys greater than or
-     * less than the key are exact.
-     * 
-     * Checking to see the number of values greater than or less than some key
-     * may be excessively costly.  Since this is not a critical function but 
-     * one that assists in optimizing searches some implementations can just 
-     * return a worst case (maximum) guess.  
-     *
-     * @return true if the count is an exact value or a worst case guess 
-     */
-    boolean isCountExact();
-
-
     // ------------------------------------------------------------------------
     // Simple Table Key/Value Assertions 
     // ------------------------------------------------------------------------

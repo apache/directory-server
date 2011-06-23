@@ -286,15 +286,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean isCountExact()
-    {
-        return false;
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
     public boolean isDupsEnabled()
     {
         return avl.isDupsAllowed();

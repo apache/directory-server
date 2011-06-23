@@ -447,16 +447,8 @@ public class JdbmTableWithDuplicatesTest
          * case guesses are allowed.
          */
         
-        if ( table.isCountExact() )
-        {
-            assertEquals( 5, table.lessThanCount( "5" ) );
-            assertEquals( 9, table.greaterThanCount( "5" ) );
-        }
-        else
-        {
-            assertEquals( SIZE, table.lessThanCount( "5" ) );
-            assertEquals( SIZE, table.greaterThanCount( "5" ) );
-        }
+        assertEquals( SIZE, table.lessThanCount( "5" ) );
+        assertEquals( SIZE, table.greaterThanCount( "5" ) );
     }
     
 

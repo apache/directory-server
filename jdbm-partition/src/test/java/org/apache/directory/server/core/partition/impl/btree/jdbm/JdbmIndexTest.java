@@ -283,13 +283,6 @@ public class JdbmIndexTest
     }
 
 
-    @Test
-    public void testIsCountExact() throws Exception
-    {
-        assertFalse( new JdbmIndex<Object, Object>().isCountExact() );
-    }
-
-
     // -----------------------------------------------------------------------
     // Count Test Methods
     // -----------------------------------------------------------------------

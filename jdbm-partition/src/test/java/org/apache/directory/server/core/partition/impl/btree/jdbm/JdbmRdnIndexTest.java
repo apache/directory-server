@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -228,13 +227,6 @@ public class JdbmRdnIndexTest
 
         initIndex();
         assertEquals( schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT ), idx.getAttribute() );
-    }
-
-
-    @Test
-    public void testIsCountExact() throws Exception
-    {
-        assertFalse( new JdbmRdnIndex<Object>().isCountExact() );
     }
 
 

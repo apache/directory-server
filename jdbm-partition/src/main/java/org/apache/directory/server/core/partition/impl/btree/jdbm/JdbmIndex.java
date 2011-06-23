@@ -252,13 +252,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-
-    public boolean isCountExact()
-    {
-        return false;
-    }
-
-
     /**
      * Gets the threshold at which point duplicate keys use btree indirection to store
      * their values.

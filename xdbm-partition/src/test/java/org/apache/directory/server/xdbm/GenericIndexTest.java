@@ -295,13 +295,6 @@ public class GenericIndexTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testIsCountExact()
-    {
-        index.isCountExact();
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testLessThanCount() throws Exception
     {
         index.lessThanCount( "test" );

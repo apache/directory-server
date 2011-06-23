@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -178,17 +177,9 @@ public class AvlRdnIndexTest
     }
 
 
-    @Test
-    public void testIsCountExact() throws Exception
-    {
-        assertFalse( new AvlRdnIndex().isCountExact() );
-    }
-
-
     // -----------------------------------------------------------------------
     // Count Test Methods
     // -----------------------------------------------------------------------
-
     @Test
     public void testCount() throws Exception
     {
