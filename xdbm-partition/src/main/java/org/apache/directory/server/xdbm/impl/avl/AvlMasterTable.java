@@ -52,26 +52,9 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
     }
 
 
-    public Long getCurrentId( E entry ) throws Exception
-    {
-        return counter.longValue();
-    }
-
     public Long getNextId( E entry ) throws Exception
     {
         return counter.incrementAndGet();
-    }
-
-    
-    public String getProperty( String property ) throws Exception
-    {
-        return props.getProperty( property );
-    }
-
-    
-    public void setProperty( String property, String value ) throws Exception
-    {
-        props.setProperty( property, value );
     }
     
     

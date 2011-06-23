@@ -478,15 +478,6 @@ public class JdbmStoreTest
 
 
     @Test
-    public void testPersistentProperties() throws Exception
-    {
-        assertNull( store.getProperty( "foo" ) );
-        store.setProperty( "foo", "bar" );
-        assertEquals( "bar", store.getProperty( "foo" ) );
-    }
-
-
-    @Test
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );

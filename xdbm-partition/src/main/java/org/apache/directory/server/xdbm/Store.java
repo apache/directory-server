@@ -529,12 +529,6 @@ public interface Store<E, ID extends Comparable<ID>>
     int getChildCount( ID id ) throws Exception;
 
 
-    void setProperty( String propertyName, String propertyValue ) throws Exception;
-
-
-    String getProperty( String propertyName ) throws Exception;
-
-
     void modify( Dn dn, ModificationOperation modOp, Entry mods ) throws Exception;
 
 

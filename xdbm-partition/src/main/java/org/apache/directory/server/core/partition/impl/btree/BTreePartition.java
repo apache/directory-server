@@ -499,12 +499,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract int getChildCount( ID id ) throws LdapException;
 
 
-    public abstract void setProperty( String key, String value ) throws Exception;
-
-
-    public abstract String getProperty( String key ) throws Exception;
-
-
     public abstract Iterator<String> getUserIndices();
 
 

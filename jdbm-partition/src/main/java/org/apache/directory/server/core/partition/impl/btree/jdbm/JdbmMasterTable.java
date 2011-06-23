@@ -182,19 +182,6 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public Long getCurrentId( E entry ) throws Exception
-    {
-        Long id;
-
-        synchronized ( adminTbl )
-        {
-            id = new Long( adminTbl.get( SEQPROP_KEY ) );
-        }
-
-        return id;
-    }
-
-
     /**
      * Get's the next value from this SequenceBDb.  This has the side-effect of
      * changing the current sequence values permanently in memory and on disk.
@@ -218,38 +205,6 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         }
 
         return nextVal;
-    }
-
-
-    /**
-     * Gets a persistent property stored in the admin table of this MasterTable.
-     *
-     * @param property the key of the property to get the value of
-     * @return the value of the property
-     * @throws Exception when the underlying admin table cannot be read
-     */
-    public String getProperty( String property ) throws Exception
-    {
-        synchronized ( adminTbl )
-        {
-            return adminTbl.get( property );
-        }
-    }
-
-
-    /**
-     * Sets a persistent property stored in the admin table of this MasterTable.
-     *
-     * @param property the key of the property to set the value of
-     * @param value    the value of the property
-     * @throws Exception when the underlying admin table cannot be writen
-     */
-    public void setProperty( String property, String value ) throws Exception
-    {
-        synchronized ( adminTbl )
-        {
-            adminTbl.put( property, value );
-        }
     }
 
 

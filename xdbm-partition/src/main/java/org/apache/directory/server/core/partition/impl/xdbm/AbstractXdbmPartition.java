@@ -342,24 +342,6 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final void setProperty( String propertyName, String propertyValue ) throws Exception
-    {
-        store.setProperty( propertyName, propertyValue );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public final String getProperty( String propertyName ) throws Exception
-    {
-        return store.getProperty( propertyName );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public final void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         try

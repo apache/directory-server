@@ -196,16 +196,6 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public String getProperty( String propertyName ) throws Exception
-    {
-        return wrappedPartition.getProperty( propertyName );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Index<Long, Entry, Long> getSubAliasIndex()
     {
         return wrappedPartition.getSubAliasIndex();
@@ -309,16 +299,6 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     public ClonedServerEntry lookup( Long id ) throws LdapException
     {
         return wrappedPartition.lookup( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setProperty( String propertyName, String propertyValue ) throws Exception
-    {
-        wrappedPartition.setProperty( propertyName, propertyValue );
     }
 
 

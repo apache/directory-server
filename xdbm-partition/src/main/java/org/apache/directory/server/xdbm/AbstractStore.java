@@ -243,24 +243,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setProperty( String propertyName, String propertyValue ) throws Exception
-    {
-        master.setProperty( propertyName, propertyValue );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getProperty( String propertyName ) throws Exception
-    {
-        return master.getProperty( propertyName );
-    }
-
-
     //------------------------------------------------------------------------
     // Index handling
     //------------------------------------------------------------------------

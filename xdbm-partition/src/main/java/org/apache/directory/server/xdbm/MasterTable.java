@@ -65,17 +65,6 @@ public interface MasterTable<ID, E> extends Table<ID, E>
 
 
     /**
-     * Gets the value of the id sequence from this MasterTable's sequence
-     * without affecting the value.
-     *
-     * @param entry the entry in case the id is derived from the entry.
-     * @return the current value of this MasterTable's sequence
-     * @throws Exception if the admin table storing sequences cannot be read
-     */
-    ID getCurrentId(  E entry  ) throws Exception;
-
-
-    /**
      * Gets the next value from the sequence of this MasterTable.  This has
      * the side-effect of incrementing the sequence values permanently.
      *
@@ -84,26 +73,6 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * @throws Exception on failure to update the id sequence
      */
     ID getNextId( E entry ) throws Exception;
-
-
-    /**
-     * Gets a persistent property associated with this MasterTable.
-     *
-     * @param property the key of the property to get the value of
-     * @return the value of the property
-     * @throws Exception on failure to read the property
-     */
-    String getProperty( String property ) throws Exception;
-
-
-    /**
-     * Sets a persistent property associated with this MasterTable.
-     *
-     * @param property the key of the property to set the value of
-     * @param value the value of the property
-     * @throws Exception on failure to write the property
-     */
-    void setProperty( String property, String value ) throws Exception;
     
     
     /**
