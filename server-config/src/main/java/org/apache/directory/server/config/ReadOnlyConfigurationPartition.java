@@ -183,7 +183,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( Long arg0 ) throws LdapException
+    public void delete( Dn dn ) throws LdapException
     {
         // Not implemented (Read-Only)
     }
