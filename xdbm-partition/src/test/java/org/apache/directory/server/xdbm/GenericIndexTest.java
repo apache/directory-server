@@ -148,13 +148,6 @@ public class GenericIndexTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testDropID() throws Exception
-    {
-        index.drop( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testDropKID() throws Exception
     {
         index.drop( "test", 5L );
@@ -204,20 +197,6 @@ public class GenericIndexTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testReverseID() throws Exception
-    {
-        index.reverse( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseIDK() throws Exception
-    {
-        index.reverse( 5L, "test" );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testForwardGreaterOrEqK() throws Exception
     {
         index.forwardGreaterOrEq( "test" );
@@ -232,20 +211,6 @@ public class GenericIndexTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testReverseGreaterOrEqID() throws Exception
-    {
-        index.reverseGreaterOrEq( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseGreaterOrEqIDK() throws Exception
-    {
-        index.reverseGreaterOrEq( 5L, "test" );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testForwardLessOrEqK() throws Exception
     {
         index.forwardLessOrEq( "test" );
@@ -256,20 +221,6 @@ public class GenericIndexTest
     public void testForwardLessOrEqKID() throws Exception
     {
         index.forwardLessOrEq( "test", 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseLessOrEqID() throws Exception
-    {
-        index.reverseLessOrEq( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseLessOrEqIDK() throws Exception
-    {
-        index.reverseLessOrEq( 5L, "test" );
     }
 
 
@@ -298,34 +249,6 @@ public class GenericIndexTest
     public void testLessThanCount() throws Exception
     {
         index.lessThanCount( "test" );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseCursor() throws Exception
-    {
-        index.reverseCursor();
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseCursorID() throws Exception
-    {
-        index.reverseCursor( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseLookup() throws Exception
-    {
-        index.reverseLookup( 5L );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testReverseValueCursor() throws Exception
-    {
-        index.reverseValueCursor( 5L );
     }
 
 

@@ -150,17 +150,6 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null && idx.isDupsEnabled() )
-        {
-            return idx.reverseGreaterOrEq( id, node.getValue().getValue() );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute

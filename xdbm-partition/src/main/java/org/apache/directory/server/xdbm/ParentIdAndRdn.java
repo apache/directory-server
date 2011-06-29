@@ -150,7 +150,31 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             return false;
         }
 
-        return compareTo( ( ParentIdAndRdn<ID> ) obj ) == 0;
+        ParentIdAndRdn<ID> that = (ParentIdAndRdn<ID>) obj;
+        
+        if ( rdns == null )
+        {
+            return that.rdns == null;
+        }
+        else if ( that.rdns != null )
+        {
+            return false;
+        }
+        
+        if ( rdns.length != that.rdns.length )
+        {
+            return false;
+        }
+        
+        for ( int i = 0; i < rdns.length; i++ )
+        {
+            if ( !rdns[i].equals( that.rdns[i] ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     

@@ -400,8 +400,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     protected ID getSuffixId() throws Exception
     {
-        // TODO: optimize
-        return getEntryId( getSuffixDn() );
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+        
+        return rdnIdx.forwardLookup( key );
     }
 
 
@@ -763,23 +764,77 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         int dnSize = dn.size();
         int i = suffixDn.size();
 
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+        ParentIdAndRdn<ID> currentRdn = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
         // Check into the Rdn index
-        ID curEntryId = rdnIdx.forwardLookup( key );
+        ID curEntryId = rdnIdx.forwardLookup( currentRdn );
 
-        for ( ; i < dnSize; i++ )
+        while ( i < dnSize )
         {
-            key = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
-            curEntryId = rdnIdx.forwardLookup( key );
+            currentRdn = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
+            curEntryId = rdnIdx.forwardLookup( currentRdn );
 
             if ( curEntryId == null )
             {
                 break;
             }
+            
+            i++;
         }
 
         return curEntryId;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ID> getParentIds( Dn dn ) throws Exception
+    {
+        // Just to be sure that the Dn is normalized
+        if ( !dn.isSchemaAware() )
+        {
+            dn.apply( schemaManager );
+        }
+
+        int dnSize = dn.size();
+        int i = suffixDn.size();
+        List<ID> result = new ArrayList<ID>();
+        ID rootId = getRootId();
+
+        ParentIdAndRdn<ID> currentRdn = new ParentIdAndRdn<ID>( rootId, suffixDn.getRdns() );
+        result.add( rootId );
+
+        // Check into the Rdn index
+        ID curEntryId = rdnIdx.forwardLookup( currentRdn );
+        result.add( curEntryId );
+
+        while ( i < dnSize )
+        {
+            currentRdn = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
+            curEntryId = rdnIdx.forwardLookup( currentRdn );
+
+            if ( curEntryId == null )
+            {
+                break;
+            }
+            
+            result.add( curEntryId );
+            
+            i++;
+        }
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    private boolean hasEntryId( ParentIdAndRdn<ID> key ) throws Exception
+    {
+        // Check into the Rdn index
+        return rdnIdx.forwardLookup( key ) != null;
     }
 
 
@@ -794,7 +849,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
     /**
      * {@inheritDoc}
-     */
+     *
     public ID getParentId( ID childId ) throws Exception
     {
         ParentIdAndRdn<ID> key = rdnIdx.reverseLookup( childId );
@@ -847,6 +902,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * TODO : We should be able to revert all the changes made to index
      * if something went wrong. Also the index should auto-repair : if
      * an entry does not exist in the Master table, then the index must be updated to reflect this.
+     * 
+     * We have four cases :
+     * 1) the entry already exists
+     * 2) the entry has no parent
+     * 3) the entry is a context entry
+     * 4) the entry has a parent
+     * 
+     * Case (1) and (2) are errors. We have to detect them.
      */
     @SuppressWarnings("unchecked")
     public synchronized void add( Entry entry ) throws Exception
@@ -857,119 +920,95 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         Dn entryDn = entry.getDn();
-
-        if ( checkHasEntryDuringAdd )
+        ID parentId;
+        ParentIdAndRdn<ID> key = null;
+        Dn parentDn = null;
+        
+        if ( !entryDn.isSchemaAware() )
         {
-            // check if the entry already exists
-            if ( getEntryId( entryDn ) != null )
-            {
-                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-                throw ne;
-            }
+            entryDn.apply( schemaManager );
         }
 
-        ID parentId;
-        ID id = master.getNextId( entry );
+        // Compute some IDs now
+        ID rootId = getRootId();
+        List<ID> parentIds = getParentIds( entryDn );
 
-        //
-        // Suffix entry cannot have a parent since it is the root so it is
-        // capped off using the zero value which no entry can have since
-        // entry sequences start at 1.
-        //
-        Dn parentDn = null;
-        ParentIdAndRdn<ID> key = null;
-
+        // First, get the ParentId and create the key to be added in the rdnIdx
         if ( entryDn.equals( suffixDn ) )
         {
-            parentId = getRootId();
+            // We are adding a new context entry
+            parentId = rootId;
             key = new ParentIdAndRdn<ID>( parentId, suffixDn.getRdns() );
         }
         else
         {
+            // This is a normal entry : it *must* have a parent
             parentDn = entryDn.getParent();
-            parentId = getEntryId( parentDn );
+            parentId = parentIds.get( parentIds.size() - 1 );
             
             if ( parentId == null )
             {
-                parentId = getEntryId( parentDn );
+                // don't keep going if we cannot find the parent Id
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
             }
             
             key = new ParentIdAndRdn<ID>( parentId, entryDn.getRdn() );
         }
-
-        // don't keep going if we cannot find the parent Id
-        if ( parentId == null )
+        
+        // Then, check that the entry does not already exists in the master table
+        if ( hasEntryId( key ) )
         {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+            throw ne;
         }
 
-        rdnIdx.add( key, id );
+        // Get a new unique ID for the entry we are adding
+        ID newId = master.getNextId( entry );
 
-        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClass == null )
-        {
-            String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
-            ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
-            LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
-            //e.setResolvedName( entryDn );
-            throw e;
-        }
+        rdnIdx.add( key, newId );
 
         // Start adding the system userIndices
-        // Why bother doing a lookup if this is not an alias.
         // First, the ObjectClass index
+        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+
         for ( Value<?> value : objectClass )
         {
-            objectClassIdx.add( value.getString(), id );
+            objectClassIdx.add( value.getString(), newId );
         }
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
             Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
-            addAliasIndices( id, entryDn, aliasAttr.getString() );
+            addAliasIndices( newId, entryDn, aliasAttr.getString() );
         }
 
-        if ( !Character.isDigit( entryDn.getNormName().charAt( 0 ) ) )
+        // The oneLevel index
+        oneLevelIdx.add( parentId, newId );
+        
+        // The subLevel index : we must link all the hierarchy to the added entry
+        for ( ID id : parentIds )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.getNormName() ) );
-        }
-
-        oneLevelIdx.add( parentId, id );
-
-        // Update the EntryCsn index
-        Attribute entryCsn = entry.get( ENTRY_CSN_AT );
-
-        if ( entryCsn == null )
-        {
-            String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-        }
-
-        entryCsnIdx.add( entryCsn.getString(), id );
-
-        // Update the EntryUuid index
-        Attribute entryUuid = entry.get( ENTRY_UUID_AT );
-
-        if ( entryUuid == null )
-        {
-            String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-        }
-
-        entryUuidIdx.add( entryUuid.getString(), id );
-
-        ID tempId = parentId;
-
-        while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
-        {
-            subLevelIdx.add( tempId, id );
-            tempId = getParentId( tempId );
+            if ( id.equals( rootId ) )
+            {
+                // Skip the rootDSE
+                continue;
+            }
+            
+            // Add the <ancestor, newId> tuple
+            subLevelIdx.add( id, newId );
         }
 
         // making entry an ancestor/descendent of itself in sublevel index
-        subLevelIdx.add( id, id );
+        subLevelIdx.add( newId, newId );
+
+        // The entryCSN index
+        Attribute entryCsn = entry.get( ENTRY_CSN_AT );
+        entryCsnIdx.add( entryCsn.getString(), newId );
+        
+        // The entryUuid index
+        Attribute entryUuid = entry.get( ENTRY_UUID_AT );
+        entryUuidIdx.add( entryUuid.getString(), newId );
 
         // Now work on the user defined userIndices
         for ( Attribute attribute : entry )
@@ -985,17 +1024,17 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
                 for ( Value<?> value : attribute )
                 {
-                    idx.add( value.getValue(), id );
+                    idx.add( value.getValue(), newId );
                 }
 
                 // Adds only those attributes that are indexed
-                presenceIdx.add( attributeOid, id );
+                presenceIdx.add( attributeOid, newId );
             }
         }
 
         entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
         
-        master.put( id, entry );
+        master.put( newId, entry );
 
         if ( isSyncOnWrite.get() )
         {
@@ -1016,6 +1055,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
+        String oldCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
@@ -1041,7 +1081,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
-        updateCsnIndex( entry, id );
+        String newCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+
+        updateCsnIndex( oldCsn, newCsn, id );
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1058,6 +1100,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
+
+        String oldCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
         for ( Modification mod : mods )
         {
@@ -1081,8 +1125,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                     throw new LdapException( I18n.err( I18n.ERR_221 ) );
             }
         }
+        
+        String newCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
-        updateCsnIndex( entry, id );
+        updateCsnIndex( oldCsn, newCsn, id );
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1113,12 +1159,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             objectClassIdx.drop( value.getString(), id );
         }
+        
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getParentId( id ), entry.getDn().getRdn() );
 
-        rdnIdx.drop( id );
+
+        rdnIdx.drop( key, id );
         oneLevelIdx.drop( id );
         subLevelIdx.drop( id );
-        entryCsnIdx.drop( id );
-        entryUuidIdx.drop( id );
+        entryCsnIdx.drop( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
+        entryUuidIdx.drop( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString(), id );
 
         for ( Attribute attribute : entry )
         {
@@ -2142,10 +2191,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param id ID of the entry
      * @throws Exception
      */
-    private void updateCsnIndex( Entry entry, ID id ) throws Exception
+    private void updateCsnIndex( String oldCsn, String newCsn, ID id ) throws Exception
     {
-        entryCsnIdx.drop( id );
-        entryCsnIdx.add( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
+        entryCsnIdx.drop( oldCsn, id );
+        entryCsnIdx.add( newCsn, id );
     }
 
     

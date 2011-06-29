@@ -173,5 +173,4 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     {
         return 0L;
     }
-    
 }

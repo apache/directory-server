@@ -112,19 +112,6 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null )
-        {
-            return idx.forward( attributeType.getOid(), id );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
-    // TODO - determine if comaparator and index entry should have the Value
-    // wrapper or the raw normalized value
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         if ( db.hasSystemIndexOn( attributeType ) )

@@ -46,7 +46,6 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
 {
     protected Normalizer normalizer;
     protected AvlTable<K, Long> forward;
-    protected AvlTable<Long, K> reverse;
 
 
     public AvlIndex()
@@ -92,28 +91,12 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
          * different entries so the forward map can have more than one value.
          */
         forward = new AvlTable<K, Long>( attributeType.getName(), comp, LongComparator.INSTANCE, true );
-
-        /*
-         * Now the reverse map stores the primary key into the master table as
-         * the key and the values of attributes as the value.  If an attribute
-         * is single valued according to its specification based on a schema 
-         * then duplicate keys should not be allowed within the reverse table.
-         */
-        if ( attributeType.isSingleValued() )
-        {
-            reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, false );
-        }
-        else
-        {
-            reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, true );
-        }
     }
 
 
     public void add( K attrVal, Long id ) throws Exception
     {
         forward.put( getNormalized( attrVal ), id );
-        reverse.put( id, getNormalized( attrVal ) );
     }
 
 
@@ -125,11 +108,6 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( forward != null )
         {
             forward.close();
-        }
-        
-        if ( reverse != null )
-        {
-            reverse.close();
         }
     }
 
@@ -155,27 +133,9 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public void drop( Long id ) throws Exception
-    {
-        Cursor<Tuple<Long, K>> cursor = reverse.cursor( id );
-
-        while ( cursor.next() )
-        {
-            Tuple<Long, K> tuple = cursor.get();
-            forward.remove( tuple.getValue(), id );
-        }
-
-        reverse.remove( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void drop( K attrVal, Long id ) throws Exception
     {
         forward.remove( getNormalized( attrVal ), id );
-        reverse.remove( id, getNormalized( attrVal ) );
     }
 
 
@@ -312,98 +272,6 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
 
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean reverse( Long id ) throws Exception
-    {
-        return reverse.has( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverse( Long id, K attrVal ) throws Exception
-    {
-        return reverse.has( id, getNormalized( attrVal ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor() throws Exception
-    {
-        return new IndexCursorAdaptor( reverse.cursor(), false );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
-    {
-        return new IndexCursorAdaptor( reverse.cursor( id ), false );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( Long id ) throws Exception
-    {
-        return reverse.hasGreaterOrEqual( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
-    {
-        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( Long id ) throws Exception
-    {
-        return reverse.hasLessOrEqual( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
-    {
-        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public K reverseLookup( Long id ) throws Exception
-    {
-        return reverse.get( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Cursor<K> reverseValueCursor( Long id ) throws Exception
-    {
-        return reverse.valueCursor( id );
-    }
-
-
-    /**
      * throws UnsupportedOperationException cause it is a in-memory index
      */
     public void setWkDirPath( URI wkDirPath )
@@ -421,15 +289,6 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDupsEnabled()
-    {
-        return reverse.isDupsEnabled();
-    }
-    
-    
     /**
      * {@inheritDoc}
      */

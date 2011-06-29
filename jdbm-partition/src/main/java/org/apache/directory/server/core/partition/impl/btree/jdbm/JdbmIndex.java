@@ -77,13 +77,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     protected JdbmTable<K, Long> forward;
 
     /**
-     * the reverse btree where the btree key is the entry id of the entry containing a
-     * value for the indexed attribute, and the btree value is the value of the indexed
-     * attribute
-     */
-    protected JdbmTable<Long, K> reverse;
-
-    /**
      * the JDBM record manager for the file containing this index
      */
     protected RecordManager recMan;
@@ -229,23 +222,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
         forward = new JdbmTable<K, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
             comp, LongComparator.INSTANCE, null, LongSerializer.INSTANCE );
-
-        /*
-         * Now the reverse map stores the primary key into the master table as
-         * the key and the values of attributes as the value.  If an attribute
-         * is single valued according to its specification based on a schema 
-         * then duplicate keys should not be allowed within the reverse table.
-         */
-        if ( attributeType.isSingleValued() )
-        {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
-                LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
-        }
-        else
-        {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit, recMan,
-                LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
-        }
     }
 
 
@@ -352,15 +328,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public K reverseLookup( Long id ) throws Exception
-    {
-        return reverse.get( id );
-    }
-
-
     // ------------------------------------------------------------------------
     // Add/Drop Methods
     // ------------------------------------------------------------------------
@@ -374,7 +341,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
         // The pair to be removed must exists
         forward.put( normalizedValue, id );
-        reverse.put( id, normalizedValue );
     }
 
 
@@ -389,41 +355,13 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( forward.has( normalizedValue, id ) )
         {
             forward.remove( normalizedValue, id );
-            reverse.remove( id, normalizedValue );
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void drop( Long entryId ) throws Exception
-    {
-        // Build a cursor to iterate on all the keys referencing
-        // this entryId
-        Cursor<Tuple<Long, K>> values = reverse.cursor( entryId );
-
-        while ( values.next() )
-        {
-            // Remove the Key -> entryId from the index
-            forward.remove( values.get().getValue(), entryId );
-        }
-
-        // Remove the id -> key from the reverse index
-        reverse.remove( entryId );
     }
 
 
     // ------------------------------------------------------------------------
     // Index Cursor Operations
     // ------------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor() throws Exception
-    {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
-    }
-
-
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> forwardCursor() throws Exception
     {
@@ -432,22 +370,9 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
-    {
-        return new IndexCursorAdaptor<K, O, Long>( (Cursor) reverse.cursor( id ), false );
-    }
-
-
-    @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> forwardCursor( K key ) throws Exception
     {
         return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) forward.cursor( key ), true );
-    }
-
-
-    public Cursor<K> reverseValueCursor( Long id ) throws Exception
-    {
-        return reverse.valueCursor( id );
     }
 
 
@@ -475,15 +400,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     public boolean forward( K attrVal, Long id ) throws Exception
     {
         return forward.has( getNormalized( attrVal ), id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverse( Long id ) throws Exception
-    {
-        return reverse.has( id );
     }
 
 
@@ -532,42 +448,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( Long id ) throws Exception
-    {
-        return reverse.hasGreaterOrEqual( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
-    {
-        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( Long id ) throws Exception
-    {
-        return reverse.hasLessOrEqual( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
-    {
-        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
-    }
-
-
     // ------------------------------------------------------------------------
     // Maintenance Methods 
     // ------------------------------------------------------------------------
@@ -579,11 +459,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( forward != null )
         {
             forward.close();
-        }
-
-        if ( reverse != null )
-        {
-            reverse.close();
         }
 
         recMan.commit();
@@ -634,15 +509,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         }
 
         return normalized;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDupsEnabled()
-    {
-        return reverse.isDupsEnabled();
     }
     
     

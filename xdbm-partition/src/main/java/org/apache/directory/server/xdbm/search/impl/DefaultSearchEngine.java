@@ -151,6 +151,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
             ID effectiveBaseId = baseId;
+            
             if ( effectiveBase != base )
             {
                 effectiveBaseId = db.getEntryId( effectiveBase );

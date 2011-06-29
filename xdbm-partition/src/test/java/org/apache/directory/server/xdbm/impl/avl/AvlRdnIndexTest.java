@@ -236,7 +236,6 @@ public class AvlRdnIndexTest
 
         idx.add( key, 0l );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( 0l ) );
     }
 
 
@@ -255,7 +254,6 @@ public class AvlRdnIndexTest
 
         idx.drop( key, 0l );
         assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( 0l ) );
     }
 
 

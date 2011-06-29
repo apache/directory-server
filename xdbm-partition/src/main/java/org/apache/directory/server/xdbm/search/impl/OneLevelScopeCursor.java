@@ -181,7 +181,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
                     checkNotClosed( "previous()" );
                     available = cursor.previous();
 
-                    if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    if ( available )
                     {
                         break;
                     }
@@ -214,7 +214,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
                 checkNotClosed( "previous()" );
                 available = cursor.previous();
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available )
                 {
                     break;
                 }
@@ -249,7 +249,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
                 checkNotClosed( "next()" );
                 available = cursor.next();
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available )
                 {
                     break;
                 }

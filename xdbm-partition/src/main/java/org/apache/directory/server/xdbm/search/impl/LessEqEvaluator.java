@@ -87,17 +87,6 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( ( idx != null ) && idx.isDupsEnabled() )
-        {
-            return idx.reverseLessOrEq( id, node.getValue().getValue() );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
     public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         if ( ( idx != null ) && idx.isDupsEnabled() )

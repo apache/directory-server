@@ -257,7 +257,6 @@ public class AbstractStoreTest
 
         // after modification: no "sales" tuple in ou index
         assertFalse( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
-        assertFalse( ouIndex.reverse( entryId ) );
         assertFalse( ouIndex.forward( "sales", entryId ) );
         assertNull( lookedup.get( "ou" ) );
     }
@@ -315,14 +314,12 @@ public class AbstractStoreTest
         Entry lookedup = store.lookup( entryId );
 
         // before modification: expect "person" tuple in objectClass index
-        assertTrue( store.getObjectClassIndex().reverse( entryId ) );
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
         store.modify( dn, mods );
 
         // after modification: no tuple in objectClass index
-        assertFalse( store.getObjectClassIndex().reverse( entryId ) );
         assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
         assertNull( lookedup.get( "objectClass" ) );
     }
@@ -348,13 +345,11 @@ public class AbstractStoreTest
         Entry lookedup = store.lookup( entryId );
         
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
-        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
 
         store.modify( dn, mods );
         
         String updateCsn = lookedup.get( csnAt ).getString();
         assertEquals( csn, updateCsn );
-        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
         
         csn = csnF.newInstance().toString();
         
@@ -362,12 +357,10 @@ public class AbstractStoreTest
         modEntry.add( csnAt, csn );
         
         assertNotSame( csn, updateCsn );
-        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
         
         store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, modEntry );
         
         assertEquals( csn, lookedup.get( csnAt ).getString() );
-        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
     }
     
     

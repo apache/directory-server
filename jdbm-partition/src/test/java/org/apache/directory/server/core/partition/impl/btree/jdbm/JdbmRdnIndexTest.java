@@ -290,13 +290,11 @@ public class JdbmRdnIndexTest
 
         idx.add( key, 0l );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( 0l ) );
         
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
         key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=KEY" ) );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( 0l ) );
     }
 
 
@@ -315,7 +313,6 @@ public class JdbmRdnIndexTest
         
         idx.drop( key, 0l );
         assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( 0l ) );
     }
 
 

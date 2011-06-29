@@ -359,7 +359,6 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", 0L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", -24L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", 24L ) );
@@ -369,7 +368,6 @@ public class JdbmIndexTest
 
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", -1L ) );
@@ -380,8 +378,6 @@ public class JdbmIndexTest
 
         idx.add( "foo", 1L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forward( "foo", 1L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
@@ -395,7 +391,6 @@ public class JdbmIndexTest
 
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) ); // reverse lookup returns first val
         assertTrue( idx.forward( "bar", 0L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forward( "foo", 1L ) );
@@ -420,17 +415,13 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
 
         // test add/drop without adding any duplicates
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
 
-        idx.drop( 0L );
+        idx.drop( "foo", 0L );
         assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.reverseLookup( 0L ) );
 
         // test add/drop with duplicates in bulk
         idx.add( "foo", 0L );
@@ -438,19 +429,15 @@ public class JdbmIndexTest
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
 
-        idx.drop( 0L );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
+        idx.drop( "foo", 0L );
+        idx.drop( "bar", 0L );
         assertFalse( idx.forward( "bar", 0L ) );
         assertFalse( idx.forward( "foo", 0L ) );
 
-        idx.drop( 1L );
+        idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -461,17 +448,13 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
 
         // test add/drop without adding any duplicates
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
 
         idx.drop( "foo", 0L );
         assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.reverseLookup( 0L ) );
 
         // test add/drop with duplicates but one at a time
         idx.add( "foo", 0L );
@@ -479,25 +462,18 @@ public class JdbmIndexTest
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
 
         idx.drop( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertFalse( idx.forward( "bar", 0L ) );
 
         idx.drop( "foo", 0L );
         assertEquals( 1L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertFalse( idx.forward( "foo", 0L ) );
 
         idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -537,25 +513,6 @@ public class JdbmIndexTest
 
         cursor.next();
         IndexEntry<String, Entry, Long> e3 = cursor.get();
-        assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getValue() );
-
-        // use reverse index's cursor
-        cursor = idx.reverseCursor();
-        cursor.beforeFirst();
-
-        cursor.next();
-        e1 = cursor.get();
-        assertEquals( 333L, ( long ) e1.getId() );
-        assertEquals( "foo", e1.getValue() );
-
-        cursor.next();
-        e2 = cursor.get();
-        assertEquals( 555L, ( long ) e2.getId() );
-        assertEquals( "bar", e2.getValue() );
-
-        cursor.next();
-        e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getValue() );
     }

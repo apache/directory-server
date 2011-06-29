@@ -457,7 +457,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * Gets the normalized Dn of the entry identified by the given id.
      * @param id the entry's id
      * @return the normalized entry Dn
-     */
+     *
     Dn getEntryDn( ID id ) throws Exception;
 
 
@@ -469,7 +469,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the id of the parent entry or zero if the suffix entry ID is used
      * @throws Exception on failures to access the underlying store
      */
-    ID getParentId( ID childId ) throws Exception;
+    List<ID> getParentIds( Dn dn ) throws Exception;
 
 
     /**
@@ -497,7 +497,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id The Entry ID we want to get back
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
-     */
+     *
     Entry lookup( ID id ) throws Exception;
 
 
@@ -515,7 +515,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id the id of the parent entry
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
-     */
+     *
     IndexCursor<ID, E, ID> list( ID id ) throws Exception;
 
 
@@ -525,7 +525,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id the entry ID
      * @return the child count 
      * @throws Exception on failures to access the underlying store
-     */
+     *
     int getChildCount( ID id ) throws Exception;
 
 

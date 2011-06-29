@@ -74,62 +74,6 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
      *
-     * @param candidate the candidate to assert
-     * @return true if the candidate is within one level scope
-     * @throws Exception if db lookups fail
-     * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
-     */
-    public boolean evaluateId( ID candidate ) throws Exception
-    {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate );
-
-        /*
-         * The candidate id could be any entry in the db.  If search
-         * dereferencing is not enabled then we return the results of the child
-         * test.
-         */
-        if ( !dereferencing )
-        {
-            return isChild;
-        }
-
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        if ( null != db.getAliasIndex().reverseLookup( candidate ) )
-        {
-            return false;
-        }
-
-        /*
-         * The candidate is NOT an alias at this point.  So if it is a child we
-         * just return true since it is in normal one level scope.
-         */
-        if ( isChild )
-        {
-            return true;
-        }
-
-        /*
-         * At this point the candidate is not a child and it is not an alias.
-         * We need to check if the candidate is in extended one level scope by
-         * performing a lookup on the one level alias index.  This index stores
-         * a tuple mapping the baseId to the id of objects brought into the
-         * one level scope of the base by an alias: ( baseId, aliasedObjId )
-         * If the candidate id is an object brought into one level scope then
-         * the lookup returns true accepting the candidate.  Otherwise the
-         * candidate is rejected with a false return because it is not in scope.
-         */
-        return db.getOneAliasIndex().forward( baseId, candidate );
-    }
-
-
-    /**
-     * Asserts whether or not a candidate has one level scope while taking
-     * alias dereferencing into account.
-     *
      * TODO - terribly inefficient - would benefit from exposing the id of an
      * entry within the Entry
      *
@@ -162,16 +106,6 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
         if ( !dereferencing )
         {
             return isChild;
-        }
-
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        if ( null != db.getAliasIndex().reverseLookup( candidate.getId() ) )
-        {
-            return false;
         }
 
         /*

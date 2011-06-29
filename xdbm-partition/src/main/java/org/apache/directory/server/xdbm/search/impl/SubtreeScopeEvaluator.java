@@ -124,7 +124,50 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      */
     public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
     {
-        return evaluateId( candidate.getId() );
+        ID id = candidate.getId();
+        
+        /*
+         * This condition catches situations where the candidate is equal to 
+         * the base entry and when the base entry is the context entry.  Note
+         * we do not store a mapping in the subtree index of the context entry
+         * to all it's subordinates since that would be the entire set of 
+         * entries in the db.
+         */        
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || db.getSubLevelIndex().forward( baseId, id );
+
+        /*
+         * The candidate id could be any entry in the db.  If search
+         * dereferencing is not enabled then we return the results of the
+         * descendant test.
+         */
+        if ( !isDereferencing() )
+        {
+            return isDescendant;
+        }
+
+        /*
+         * The candidate is NOT an alias at this point.  So if it is a
+         * descendant we just return true since it is in normal subtree scope.
+         */
+        if ( isDescendant )
+        {
+            return true;
+        }
+
+        /*
+         * At this point the candidate is not a descendant and it is not an
+         * alias.  We need to check if the candidate is in extended subtree
+         * scope by performing a lookup on the subtree alias index.  This index
+         * stores a tuple mapping the baseId to the ids of objects brought
+         * into subtree scope of the base by an alias:
+         *
+         * ( baseId, aliasedObjId )
+         *
+         * If the candidate id is an object brought into subtree scope then
+         * the lookup returns true accepting the candidate.  Otherwise the
+         * candidate is rejected with a false return because it is not in scope.
+         */
+        return db.getSubAliasIndex().forward( baseId, id );
     }
 
 
@@ -157,16 +200,6 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         if ( !isDereferencing() )
         {
             return isDescendant;
-        }
-
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        if ( null != db.getAliasIndex().reverseLookup( id ) )
-        {
-            return false;
         }
 
         /*

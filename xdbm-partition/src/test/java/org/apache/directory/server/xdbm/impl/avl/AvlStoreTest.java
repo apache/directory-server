@@ -459,7 +459,7 @@ public class AvlStoreTest
 
         assertFalse( cursor.next() );
 
-        idx.drop( 5L );
+        idx.drop( ( long ) cursor.get().getId(), 5L );
 
         cursor = idx.forwardCursor( 2L );
 

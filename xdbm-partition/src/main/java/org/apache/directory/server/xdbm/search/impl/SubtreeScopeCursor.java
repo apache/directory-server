@@ -212,7 +212,8 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 {
                     checkNotClosed( "previous()" );
                     available = cursor.previous();
-                    if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    
+                    if ( available )
                     {
                         break;
                     }
@@ -245,7 +246,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 checkNotClosed( "previous()" );
                 available = cursor.previous();
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available )
                 {
                     break;
                 }
@@ -280,7 +281,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 checkNotClosed( "next()" );
                 available = cursor.next();
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available )
                 {
                     break;
                 }

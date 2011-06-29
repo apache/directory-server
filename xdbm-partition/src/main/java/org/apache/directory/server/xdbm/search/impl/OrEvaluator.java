@@ -116,20 +116,6 @@ public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
-        {
-            if ( evaluator.evaluateId( id ) )
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )

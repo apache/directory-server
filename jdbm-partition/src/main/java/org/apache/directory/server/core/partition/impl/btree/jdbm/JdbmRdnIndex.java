@@ -141,33 +141,22 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
         forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
             recMan, comp, null, LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
-            recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
     }
 
 
     public void add( ParentIdAndRdn<Long> rdn, Long entryId ) throws Exception
     {
         forward.put( rdn, entryId );
-        reverse.put( entryId, rdn );
-    }
-
-
-    public void drop( Long entryId ) throws Exception
-    {
-        ParentIdAndRdn<Long> rdn = reverse.get( entryId );
-        forward.remove( rdn );
-        reverse.remove( entryId );
     }
 
 
     public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
     {
         long val = forward.get( rdn );
+        
         if ( val == id )
         {
             forward.remove( rdn );
-            reverse.remove( val );
         }
     }
 

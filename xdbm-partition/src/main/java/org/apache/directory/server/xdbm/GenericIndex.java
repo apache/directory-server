@@ -100,12 +100,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public void drop( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public void drop( K attrVal, ID id ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -148,18 +142,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean reverse( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public boolean reverse( ID id, K attrVal ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public boolean forwardGreaterOrEq( K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -172,18 +154,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean reverseGreaterOrEq( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public boolean reverseGreaterOrEq( ID id, K attrVal ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public boolean forwardLessOrEq( K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -191,18 +161,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
 
 
     public boolean forwardLessOrEq( K attrVal, ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public boolean reverseLessOrEq( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public boolean reverseLessOrEq( ID id, K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -238,30 +196,6 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public IndexCursor<K, O, ID> reverseCursor() throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public IndexCursor<K, O, ID> reverseCursor( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public K reverseLookup( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public Cursor<K> reverseValueCursor( ID id ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public void setWkDirPath( URI wkDirPath )
     {
         this.wkDirPath = wkDirPath;
@@ -271,14 +205,5 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     public void sync() throws Exception
     {
         throw new UnsupportedOperationException();
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDupsEnabled()
-    {
-        return false;
     }
 }

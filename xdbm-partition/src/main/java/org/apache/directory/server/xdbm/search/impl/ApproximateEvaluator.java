@@ -116,17 +116,6 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null )
-        {
-            return idx.reverse( id );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
     public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )

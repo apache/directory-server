@@ -66,17 +66,6 @@ public interface Evaluator<N extends ExprNode, E, ID>
 
 
     /**
-     * Evaluates whether or not a candidate, specified by an id, satisfies the
-     * expression associated with this Evaluator .
-     *
-     * @param id the identifier for the candidate entry
-     * @return true if filter selects the candidate false otherwise
-     * @throws Exception if there are faults during evaluation
-     */
-    boolean evaluateId( ID id ) throws Exception;
-
-
-    /**
      * Evaluates whether or not a candidate, satisfies the expression
      * associated with this Evaluator .
      *
