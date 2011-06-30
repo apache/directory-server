@@ -174,7 +174,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void add( AddOperationContext arg0 ) throws LdapException
+    @Override
+    public void add( Entry entry ) throws LdapException
     {
         // Not implemented (Read-Only)
     }

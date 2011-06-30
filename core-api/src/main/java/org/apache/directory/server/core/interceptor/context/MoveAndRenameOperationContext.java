@@ -96,7 +96,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 
         try
         {
-            newDn = new Dn( session.getDirectoryService().getSchemaManager(), newSuperiorDn.add(newRdn) );
+            newDn = newSuperiorDn.add( newRdn ).apply( session.getDirectoryService().getSchemaManager() );
         }
         catch ( LdapInvalidDnException lide )
         {

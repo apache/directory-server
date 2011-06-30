@@ -649,7 +649,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(java.lang.Long)
      */
-    public ClonedServerEntry lookup( Long id ) throws LdapException
+    public Entry lookup( Long id ) throws LdapException
     {
         // TODO not implemented until we can use id to figure out the partition using
         // the partition ID component of the 64 bit Long identifier

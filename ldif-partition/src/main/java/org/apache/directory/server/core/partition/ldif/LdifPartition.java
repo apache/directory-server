@@ -231,10 +231,20 @@ public class LdifPartition extends AbstractLdifPartition
      * {@inheritDoc}
      */
     @Override
-    public void add( AddOperationContext addContext ) throws LdapException
+    public void add( Entry entry ) throws LdapException
     {
-        wrappedPartition.add( addContext );
-        add( addContext.getEntry() );
+        wrappedPartition.add( entry );
+        
+        try
+        {
+            FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
+            fw.write( LdifUtils.convertToLdif( entry ) );
+            fw.close();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOperationException( ioe.getMessage(), ioe );
+        }
     }
 
 
@@ -251,11 +261,11 @@ public class LdifPartition extends AbstractLdifPartition
      * {@inheritDoc}
      */
     @Override
-    public void delete( Long id ) throws LdapException
+    public void delete( Dn entryDn ) throws LdapException
     {
-        Entry entry = lookup( id );
+        Entry entry = lookup( entryDn );
 
-        wrappedPartition.delete( id );
+        wrappedPartition.delete( entryDn );
 
         if ( entry != null )
         {
@@ -274,9 +284,7 @@ public class LdifPartition extends AbstractLdifPartition
 
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
-
         }
-
     }
 
 
@@ -291,7 +299,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems() );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( modifyContext.getDn() );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
@@ -323,7 +331,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.move( moveContext );
 
         // Get the modified entry
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( oldDn );
 
         entryMoved( oldDn, modifiedEntry, id );
     }
@@ -341,7 +349,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( oldDn );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         entryMoved( oldDn, modifiedEntry, id );
@@ -361,7 +369,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( oldDn );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
@@ -397,7 +405,7 @@ public class LdifPartition extends AbstractLdifPartition
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )
                 {
-                    add( wrappedPartition.lookup( entry.getId() ) );
+                    add( wrappedPartition.lookup( entry.getObject().getDn() ) );
                 }
             }
 
@@ -697,25 +705,6 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         return sb.toString().toLowerCase();
-    }
-
-
-    /**
-     * Write the new entry on disk. It does not exist, as this ha sbeen checked
-     * by the ExceptionInterceptor.
-     */
-    private void add( Entry entry ) throws LdapException
-    {
-        try
-        {
-            FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
-            fw.write( LdifUtils.convertToLdif( entry ) );
-            fw.close();
-        }
-        catch ( IOException ioe )
-        {
-            throw new LdapOperationException( ioe.getMessage(), ioe );
-        }
     }
 
 

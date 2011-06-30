@@ -134,11 +134,6 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
     {
         IndexEntry<ID, Entry, ID> indexEntry = indexCursor.get();
 
-        if ( indexEntry.getObject() == null )
-        {
-            indexEntry.setObject( db.lookup( indexEntry.getId() ) );
-        }
-
         return indexEntry.getObject();
     }
 

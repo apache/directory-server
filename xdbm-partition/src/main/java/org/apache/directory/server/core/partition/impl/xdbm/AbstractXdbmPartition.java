@@ -262,11 +262,12 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final void add( AddOperationContext addContext ) throws LdapException
+    @Override
+    public final void add( Entry entry ) throws LdapException
     {
         try
         {
-            store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
+            store.add( entry );
         }
         catch ( Exception e )
         {
@@ -278,7 +279,23 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final ClonedServerEntry lookup( ID id ) throws LdapException
+    public final Entry lookup( Dn entryDn ) throws LdapException
+    {
+        try
+        {
+            return new ClonedServerEntry( store.lookup( entryDn ) );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final Entry lookup( ID id ) throws LdapException
     {
         try
         {
@@ -294,11 +311,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final void delete( ID id ) throws LdapException
+    public final void delete( Dn dn ) throws LdapException
     {
         try
         {
-            store.delete( id );
+            store.delete( dn );
         }
         catch ( Exception e )
         {
@@ -310,11 +327,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException
+    public final IndexCursor<ID, Entry, ID> list( Dn entryDn ) throws LdapException
     {
         try
         {
-            return store.list( id );
+            return store.list( entryDn );
         }
         catch ( Exception e )
         {

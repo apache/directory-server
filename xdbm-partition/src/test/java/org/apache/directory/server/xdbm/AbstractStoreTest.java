@@ -182,7 +182,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
 
         // before modification: no "uidObject" tuple in objectClass index
         assertFalse( store.getObjectClassIndex().forward( "uidObject", entryId ) );
@@ -214,7 +214,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
@@ -245,7 +245,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
@@ -281,7 +281,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
 
         // before modification: expect "person" tuple in objectClass index
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
@@ -311,7 +311,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
 
         // before modification: expect "person" tuple in objectClass index
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
@@ -342,7 +342,7 @@ public class AbstractStoreTest
         mods.add( add );
 
         Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Entry lookedup = store.lookup( dn );
         
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
 
@@ -397,7 +397,7 @@ public class AbstractStoreTest
     private Entry verifyParentId( Dn dn ) throws Exception
     {
         Long entryId = store.getEntryId( dn );
-        Entry entry = store.lookup( entryId );
+        Entry entry = store.lookup( dn );
         Long parentId = store.getParentId( entryId );
         
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );

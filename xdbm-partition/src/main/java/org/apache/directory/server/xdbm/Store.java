@@ -497,7 +497,17 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id The Entry ID we want to get back
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    Entry lookup( Dn entryDn ) throws Exception;
+
+
+    /**
+     * Get back an entry knowing its ID
      *
+     * @param id The Entry ID we want to get back
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
     Entry lookup( ID id ) throws Exception;
 
 
@@ -506,7 +516,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id The id of the entry to delete
      * @throws Exception If the deletion failed
      */
-    void delete( ID id ) throws Exception;
+    void delete( Dn entryDn ) throws Exception;
 
 
     /**

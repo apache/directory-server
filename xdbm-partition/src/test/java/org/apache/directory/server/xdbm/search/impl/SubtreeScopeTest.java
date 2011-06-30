@@ -310,8 +310,10 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        ScopeNode node = new ScopeNode( 
+            AliasDerefMode.DEREF_IN_SEARCHING, 
+            new Dn( "2.5.4.11=board of directors,2.5.4.10=good times co." ), 
+            SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 

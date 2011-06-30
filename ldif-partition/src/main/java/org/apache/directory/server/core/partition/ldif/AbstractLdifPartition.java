@@ -146,16 +146,6 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public Dn getEntryDn( Long id ) throws Exception
-    {
-        return wrappedPartition.getEntryDn( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Long getEntryId( Dn dn ) throws LdapException
     {
         return wrappedPartition.getEntryId( dn );
@@ -286,9 +276,9 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public IndexCursor<Long, Entry, Long> list( Long id ) throws LdapException
+    public IndexCursor<Long, Entry, Long> list( Dn entryDn ) throws LdapException
     {
-        return wrappedPartition.list( id );
+        return wrappedPartition.list( entryDn );
     }
 
 
@@ -296,7 +286,17 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public ClonedServerEntry lookup( Long id ) throws LdapException
+    public Entry lookup( Dn entryDn ) throws LdapException
+    {
+        return wrappedPartition.lookup( entryDn );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Entry lookup( Long id ) throws LdapException
     {
         return wrappedPartition.lookup( id );
     }

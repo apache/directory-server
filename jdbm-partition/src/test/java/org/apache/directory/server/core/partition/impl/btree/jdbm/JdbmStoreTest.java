@@ -492,7 +492,7 @@ public class JdbmStoreTest
         assertNull( store.getParentId( 0L ) );
 
         // should NOW be allowed
-        store.delete( 1L );
+        store.delete( StoreUtils.DN1 );
     }
 
 
@@ -509,7 +509,7 @@ public class JdbmStoreTest
         assertTrue( cursor.next() );
         assertEquals( 3, store.getChildCount( 1L ) );
 
-        store.delete( 2L );
+        store.delete( StoreUtils.DN2 );
         assertEquals( 2, store.getChildCount( 1L ) );
         assertEquals( 10, store.count() );
 
@@ -524,8 +524,7 @@ public class JdbmStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
-        store.delete( 12L ); // drops the alias indices
-
+        store.delete( dn ); // drops the alias indices
     }
 
 

@@ -615,35 +615,35 @@ public class SubstringTest
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 5L );
-        indexEntry.setObject( store.lookup( 5L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN5 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -664,14 +664,14 @@ public class SubstringTest
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "s", null );
         evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String, Entry, Long>();
         indexEntry.setId( 6L );
-        indexEntry.setObject( store.lookup( 6L ) );
+        indexEntry.setObject( store.lookup( StoreUtils.DN6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 

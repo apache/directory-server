@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
+import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
@@ -807,6 +808,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         // Check into the Rdn index
         ID curEntryId = rdnIdx.forwardLookup( currentRdn );
+        
+        if ( curEntryId == null )
+        {
+            return result;
+        }
+        
         result.add( curEntryId );
 
         while ( i < dnSize )
@@ -841,32 +848,35 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Dn getEntryDn( ID id ) throws Exception
+    private boolean hasChildren( ID id ) throws Exception
     {
-        return buildEntryDn( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public ID getParentId( ID childId ) throws Exception
-    {
-        ParentIdAndRdn<ID> key = rdnIdx.reverseLookup( childId );
-
-        if ( key == null )
-        {
-            return null;
-        }
-
-        return key.getParentId();
+        // Check into the sublevel index
+        return subLevelIdx.count( id ) > 1;
     }
 
 
     //------------------------------------------------------------------------
     // Operations
     //------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( Dn entryDn ) throws Exception
+    {
+        ID id = getEntryId( entryDn );
+        Entry entry = master.get( id );
 
+        if ( entry != null )
+        {
+            entry.setDn( entryDn );
+            
+            return entry;
+        }
+
+        return null;
+    }
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -878,6 +888,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             Dn dn = buildEntryDn( id );
             entry.setDn( dn );
+            
             return entry;
         }
 
@@ -888,8 +899,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<ID, E, ID> list( ID id ) throws Exception
+    public IndexCursor<ID, E, ID> list( Dn entryDn ) throws Exception
     {
+        ID id = getEntryId( entryDn );
         IndexCursor<ID, E, ID> cursor = oneLevelIdx.forwardCursor( id );
         cursor.beforeValue( id, null );
 
@@ -1144,31 +1156,65 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public synchronized void delete( ID id ) throws Exception
+    public synchronized void delete( Dn entryDn ) throws Exception
     {
+        ID id = getEntryId( entryDn );
+
+        // don't continue if id is null
+        if ( id == null )
+        {
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, entryDn ) );
+        }
+
+        // Don't continue if we have children
+        if ( hasChildren( id ) )
+        {
+            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, entryDn ) );
+            throw cnee;
+        }
+        
         Entry entry = master.get( id );
 
+        // Drop OC
         Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
-        {
-            dropAliasIndices( id );
-        }
 
         for ( Value<?> value : objectClass )
         {
             objectClassIdx.drop( value.getString(), id );
         }
-        
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getParentId( id ), entry.getDn().getRdn() );
 
+        // Compute some ID references
+        ID rootId = getRootId();
+        List<ID> parentIds = getParentIds( entryDn );
+        ID parentId = parentIds.get( parentIds.size() - 1 );
+
+        // Drop the RDN
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, entry.getDn().getRdn() );
 
         rdnIdx.drop( key, id );
-        oneLevelIdx.drop( id );
-        subLevelIdx.drop( id );
+        
+        // Drop the OneLevel index
+        oneLevelIdx.drop( parentId, id );
+        
+        // Drop the subLevel index
+        
+        for ( ID ancestor : parentIds )
+        {
+            if ( ancestor.equals(  rootId ) )
+            {
+                continue;
+            }
+            
+            subLevelIdx.drop( ancestor, id );
+        }
+        
+        // Drop the encryCSN index
         entryCsnIdx.drop( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
+
+        // Drop the encryUUID index
         entryUuidIdx.drop( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString(), id );
 
+        // Now drop the user indexes
         for ( Attribute attribute : entry )
         {
             String attributeOid = attribute.getAttributeType().getOid();
@@ -1557,7 +1603,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
-    protected void add( ID id, Entry entry, Attribute mods ) throws Exception
+    private void add( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1618,7 +1664,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * fails.
      */
     @SuppressWarnings("unchecked")
-    protected void replace( ID id, Entry entry, Attribute mods ) throws Exception
+    private void replace( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1709,7 +1755,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute modification fails.
      */
     @SuppressWarnings("unchecked")
-    protected void remove( ID id, Entry entry, Attribute mods ) throws Exception
+    private void remove( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1871,7 +1917,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * to another alias as its target in the aliasedObjectName attribute,
          * then we have a situation where an alias chain is being created.
          * Alias chaining is not allowed so we throw and exception.
-         */
+         *
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
             String msg = I18n.err( I18n.ERR_227 );
@@ -1882,6 +1928,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         // Add the alias to the simple alias index
         aliasIdx.add( normalizedAliasTargetDn.getNormName(), aliasId );
+        */
 
         /*
          * Handle One Level Scope Alias Index

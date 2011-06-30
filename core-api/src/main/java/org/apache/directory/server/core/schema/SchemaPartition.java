@@ -56,6 +56,7 @@ import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -438,6 +439,17 @@ public final class SchemaPartition extends AbstractPartition
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return wrapped.lookup( lookupContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( Long id ) throws LdapException
+    {
+        // TODO not implemented until we can use id to figure out the partition using
+        // the partition ID component of the 64 bit Long identifier
+        throw new NotImplementedException();
     }
 
 

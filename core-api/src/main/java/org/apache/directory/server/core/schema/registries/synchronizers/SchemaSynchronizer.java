@@ -159,7 +159,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = new Dn( schemaManager, dn.getParent() );
+        Dn parentDn = dn.getParent();
 
         if ( !parentDn.equals(ouSchemaDn) )
         {

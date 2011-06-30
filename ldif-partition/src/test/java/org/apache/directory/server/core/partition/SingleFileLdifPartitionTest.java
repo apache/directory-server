@@ -276,9 +276,7 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Long id = partition.getEntryId( contextEntry.getDn() );
-        assertNotNull( id );
-        assertEquals( contextEntry, partition.lookup( id ) );
+        assertEquals( contextEntry, partition.lookup( contextEntry.getDn() ) );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
@@ -684,8 +682,8 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        Entry childEntry1 = partition.lookup( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) );
+        Entry childEntry2 = partition.lookup( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -707,8 +705,8 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        Entry childEntry1 = partition.lookup( new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" ) );
+        Entry childEntry2 = partition.lookup( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -838,9 +836,7 @@ public class SingleFileLdifPartitionTest
         partition.add( addCtx );
 
         // search works fine
-        Long id = partition.getEntryId( contextEntry.getDn() );
-        assertNotNull( id );
-        assertEquals( contextEntry, partition.lookup( id ) );
+        assertEquals( contextEntry, partition.lookup( contextEntry.getDn() ) );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 

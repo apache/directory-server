@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,16 +184,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void add( AddOperationContext addContext ) throws LdapException
+    public void add( Entry entry ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.add( addContext );
+            wrappedPartition.add( entry );
 
             if ( contextEntry == null )
             {
-                Entry entry = addContext.getEntry();
-
                 if ( entry.getDn().equals( suffix ) )
                 {
                     contextEntry = entry;
@@ -254,11 +253,11 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( Long id ) throws LdapException
+    public void delete( Dn entryDn ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.delete( id );
+            wrappedPartition.delete( entryDn );
             dirty = true;
             rewritePartitionData();
         }
@@ -294,14 +293,13 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 
                 IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getOneLevelIndex().forwardCursor( suffixId );
 
-
-                appendLdif( wrappedPartition.lookup( suffixId ) );
+                appendLdif( wrappedPartition.lookup( suffix ) );
 
                 while ( cursor.next() )
                 {
                     Long childId = cursor.get().getId();
 
-                    Entry entry = wrappedPartition.lookup( childId );
+                    Entry entry = wrappedPartition.lookup( cursor.get().getObject().getDn() );
 
                     appendLdif( entry );
 
@@ -336,6 +334,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
 
             IndexCursor<Long, Entry, Long> cursor = null;
+            
             if ( cursorMap == null )
             {
                 cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
@@ -360,7 +359,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 do
                 {
                     IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                    Entry entry = wrappedPartition.lookup( idxEntry.getId() );
+                    Entry entry = wrappedPartition.lookup( idxEntry.getObject().getDn() );
 
                     Long childId = wrappedPartition.getEntryId( entry.getDn() );
 

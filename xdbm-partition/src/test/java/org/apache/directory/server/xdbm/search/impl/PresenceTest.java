@@ -433,7 +433,7 @@ public class PresenceTest
         entry = new ForwardIndexEntry<String, Entry, Long>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( ( long ) 5 );
-        entry.setObject( store.lookup( ( long ) 5 ) );
+        entry.setObject( store.lookup( StoreUtils.DN5 ) );
         assertFalse( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "st" ) );
@@ -445,7 +445,7 @@ public class PresenceTest
         entry = new ForwardIndexEntry<String, Entry, Long>();
         entry.setValue( SchemaConstants.ST_AT_OID );
         entry.setId( ( long ) 5 );
-        entry.setObject( store.lookup( ( long ) 5 ) );
+        entry.setObject( store.lookup( StoreUtils.DN5 ) );
         assertFalse( evaluator.evaluate( entry ) );
     }
 
