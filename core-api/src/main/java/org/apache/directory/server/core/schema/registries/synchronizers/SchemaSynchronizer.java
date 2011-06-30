@@ -31,8 +31,8 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -159,7 +159,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
-        Dn parentDn = new Dn( schemaManager, dn.getParent() );
+        Dn parentDn = dn.getParent();
 
         if ( !parentDn.equals(ouSchemaDn) )
         {

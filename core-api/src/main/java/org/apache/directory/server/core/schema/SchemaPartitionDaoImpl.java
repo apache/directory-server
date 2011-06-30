@@ -39,10 +39,10 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -507,9 +507,8 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public Dn findDn( String entityName ) throws Exception
     {
         Entry sr = find( entityName );
-        Dn dn = new Dn( schemaManager, sr.getDn() );
 
-        return dn;
+        return sr.getDn();
     }
 
 

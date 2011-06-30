@@ -31,8 +31,8 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
@@ -330,7 +330,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         for ( Entry result : results )
         {
-            Dn dn = new Dn( schemaManager, result.getDn() );
+            Dn dn = result.getDn();
             oids.add( dn.getRdn().getNormValue().getString() );
         }
 
