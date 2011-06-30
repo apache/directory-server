@@ -792,6 +792,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public List<ID> getParentIds( Dn dn ) throws Exception
     {
+        if ( dn.size() == 0 )
+        {
+            return null;
+        }
+        
         // Just to be sure that the Dn is normalized
         if ( !dn.isSchemaAware() )
         {
@@ -816,14 +821,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         
         result.add( curEntryId );
 
-        while ( i < dnSize )
+        while ( i < dnSize - 1 )
         {
             currentRdn = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
             curEntryId = rdnIdx.forwardLookup( currentRdn );
 
             if ( curEntryId == null )
             {
-                break;
+                String message = "No parent for DN '" + dn + "', RDN '" + currentRdn.getRdns()[0] + "' cannot be found in the DIT.";
+                throw new LdapNoSuchObjectException( message );
             }
             
             result.add( curEntryId );
@@ -884,15 +890,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Entry entry = master.get( id );
 
-        if ( entry != null )
-        {
-            Dn dn = buildEntryDn( id );
-            entry.setDn( dn );
-            
-            return entry;
-        }
-
-        return null;
+        return entry;
     }
 
 
@@ -1553,36 +1551,43 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @return the normalized Dn of the entry
      * @throws Exception
      */
-    protected Dn buildEntryDn( ID id ) throws Exception
+    protected Dn buildEntryDn( Rdn rdn, ID id ) throws Exception
     {
+        if ( ( rdn == null ) || ( rdn.size() == 0 ) )
+        {
+            return Dn.EMPTY_DN;
+        }
+        
         ID parentId = id;
 
         List<Rdn> rdnList = new ArrayList<Rdn>();
         StringBuilder upName = new StringBuilder();
         String normName = "";
+        ParentIdAndRdn<ID> current = new ParentIdAndRdn<ID>( id, rdn );
 
+        
         do
         {
-            ParentIdAndRdn<ID> cur = rdnIdx.reverseLookup( parentId );
-            Rdn[] rdns = cur.getRdns();
-
-            for ( Rdn rdn : rdns )
+            Rdn[] rdns = current.getRdns();
+            
+            for ( Rdn curRdn : rdns )
             {
                 if ( rdnList.isEmpty() )
                 {
-                    normName = rdn.getNormName();
-                    upName.append( rdn.getName() );
+                    normName = curRdn.getNormName();
+                    upName.append( curRdn.getName() );
                 }
                 else
                 {
-                    normName = normName + "," + rdn.getNormName();
-                    upName.append( ',' ).append( rdn.getName() );
+                    normName = normName + "," + curRdn.getNormName();
+                    upName.append( ',' ).append( curRdn.getName() );
                 }
 
-                rdnList.add( rdn );
+                rdnList.add( curRdn );
             }
 
-            parentId = cur.getParentId();
+            parentId = current.getParentId();
+            current = new ParentIdAndRdn<ID>( parentId, rdns );
         }
         while ( !parentId.equals( getRootId() ) );
 

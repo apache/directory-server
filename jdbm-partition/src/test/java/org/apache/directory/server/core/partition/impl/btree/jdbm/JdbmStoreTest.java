@@ -483,13 +483,13 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
-        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
-        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
+        assertEquals( "o=Good Times Co.", store.lookup( 1L ).getDn().toString() );
+        assertEquals( dn.getNormName(), store.lookup( 1L ).getDn().getNormName() );
+        assertEquals( dn.getName(), store.lookup( 1L ).getDn().getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( 0L ) );
+        assertEquals( 0L, ( long ) store.getParentIds( dn ).get( 0 ) );
+        assertNull( store.getParentIds( Dn.EMPTY_DN ) );
 
         // should NOW be allowed
         store.delete( StoreUtils.DN1 );
@@ -665,17 +665,8 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn", "Martin King" );
-        store.add( entry );
-    }
-
-
-    @Test(expected = LdapSchemaViolationException.class)
-    public void testAddWithoutObjectClass() throws Exception
-    {
-        Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
     }
 
