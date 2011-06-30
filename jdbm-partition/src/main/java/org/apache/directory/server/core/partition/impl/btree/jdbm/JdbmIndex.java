@@ -66,9 +66,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
 
-    /**  the key used for the reverse btree name */
-    public static final String REVERSE_BTREE = "_reverse";
-
     /**
      * the forward btree where the btree key is the value of the indexed attribute and
      * the value of the btree is the entry id of the entry containing an attribute with
