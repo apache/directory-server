@@ -736,34 +736,46 @@ public class JdbmStoreTest
     @Test
     public void testMove() throws Exception
     {
-        Dn childDn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        Entry childEntry = new DefaultEntry( schemaManager, childDn );
-        childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
-        childEntry.add( "ou", "Engineering" );
-        childEntry.add( "cn", "Private Ryan" );
-        childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", UUID.randomUUID().toString() );
+        Dn childDn = new Dn( schemaManager, "cn=Private Ryan,ou=Apache,ou=Board of Directors,o=Good Times Co." );
+        
+        Entry childEntry = new DefaultEntry( schemaManager, childDn, 
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( childEntry );
 
-        Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
+        Dn oldParentDn = childDn.getParent();
+        long oldParentId = store.getEntryId( oldParentDn );
+        int oldParentCount = store.getChildCount( oldParentId );
+        assertEquals( 2, oldParentCount );
 
-        Rdn rdn = new Rdn( "cn=Ryan" );
+        Dn newParentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
+        long newParentId = store.getEntryId( newParentDn );
+        int newParentCount = store.getChildCount( newParentId );
+        assertEquals( 2, newParentCount );
 
-        store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
+        //Rdn rdn = new Rdn( "cn=Ryan" );
+
+        //store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
 
         // to drop the alias indices
-        childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
+        //childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
-        parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
+        //parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        //assertEquals( 3, store.getSubAliasIndex().count() );
 
-        Dn newDn = parentDn.add( childDn.getRdn() );
+        Dn newDn = newParentDn.add( childDn.getRdn() );
 
-        store.move( childDn, parentDn, newDn, childEntry );
+        store.move( childDn, newParentDn, newDn, childEntry );
 
-        assertEquals( 4, store.getSubAliasIndex().count() );
+        assertEquals( oldParentCount - 1, store.getChildCount( oldParentId ) );
+        assertEquals( newParentCount + 1, store.getChildCount( newParentId ) );
     }
 
 

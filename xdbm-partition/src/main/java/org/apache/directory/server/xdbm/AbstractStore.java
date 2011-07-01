@@ -1004,7 +1004,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.add( parentId, newId );
         
         // The subLevel index : we must link all the hierarchy to the added entry.
-        // 
         for ( ID id : parentIds )
         {
             if ( id.equals( rootId ) || id.equals( contextEntryId ) )
@@ -1015,12 +1014,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             
             // Add the <ancestor, newId> tuple
             subLevelIdx.add( id, newId );
-            //System.out.println( "Adding <" + id + ", " + newId + ">" );
         }
 
         // making entry an ancestor/descendent of itself in sublevel index
         subLevelIdx.add( newId, newId );
-        //System.out.println( "Adding self <" + newId + ", " + newId + ">" );
 
         // The entryCSN index
         Attribute entryCsn = entry.get( ENTRY_CSN_AT );
@@ -1211,10 +1208,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.drop( parentId, id );
         
         // Drop the subLevel index
-        
         for ( ID ancestor : parentIds )
         {
-            if ( ancestor.equals(  rootId ) )
+            if ( ancestor.equals( rootId ) )
             {
                 continue;
             }
@@ -1493,17 +1489,22 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         // Get the entry and the old parent IDs
         ID entryId = getEntryId( oldDn );
-        ID oldParentId = getParentId( entryId );
+        List<ID> oldParentIds = getParentIds( oldDn );
+        List<ID> newParentIds = getParentIds( newDn );
+        ID rootId = getRootId();
+        ID oldParentId = rootId;
+        
+        if ( oldParentIds.size() > 2 )
+        {
+            oldParentId = oldParentIds.get( oldParentIds.size() - 1 );
+        }
 
-        /*
-         * All aliases including and below oldChildDn, will be affected by
-         * the move operation with respect to one and subtree userIndices since
-         * their relationship to ancestors above oldChildDn will be
-         * destroyed.  For each alias below and including oldChildDn we will
-         * drop the index tuples mapping ancestor ids above oldChildDn to the
-         * respective target ids of the aliases.
-         */
-        dropMovedAliasIndices( oldDn );
+        ID contextEntryId = rootId;
+        
+        if ( newParentIds.size() > 1 )
+        {
+            contextEntryId = newParentIds.get( 1 );
+        }
 
         /*
          * Drop the old parent child relationship and add the new one
@@ -1512,30 +1513,67 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.drop( oldParentId, entryId );
         oneLevelIdx.add( newParentId, entryId );
 
-        updateSubLevelIndex( entryId, oldParentId, newParentId );
+        // Update the sublevel index
+        // first, drop the old position in the subLevel index
+        for ( ID ancestor : oldParentIds )
+        {
+            if ( ancestor.equals( rootId ) )
+            {
+                continue;
+            }
+            
+            subLevelIdx.drop( ancestor, oldParentId );
+        }
+        
+        // find all the children of the childId
+        Cursor<IndexEntry<ID, E, ID>> cursor = subLevelIdx.forwardCursor( entryId );
+
+        List<ID> childIds = new ArrayList<ID>();
+        childIds.add( entryId );
+
+        while ( cursor.next() )
+        {
+            childIds.add( cursor.get().getId() );
+        }
+
+        // detach the childId and all its children from oldParentId and all it parents excluding the root
+        for ( ID pid : oldParentIds )
+        {
+            for ( ID cid : childIds )
+            {
+                subLevelIdx.drop( pid, cid );
+            }
+        }
+
+        // then add the new position in the sublevel index
+        for ( ID id : newParentIds )
+        {
+            if ( id.equals( rootId ) || id.equals( contextEntryId ) )
+            {
+                // Skip the rootDSE and the context entry
+                continue;
+            }
+            
+            // Add the <ancestor, newId> tuple
+            subLevelIdx.add( id, entryId );
+        }
+
+        // attach the childId and all its children to newParentId and all it parents excluding the root
+        for ( ID id : newParentIds )
+        {
+            for ( ID cid : childIds )
+            {
+                subLevelIdx.add( id, cid );
+            }
+        }
 
         // Update the Rdn index
-        rdnIdx.drop( entryId );
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
-        rdnIdx.add( key, entryId );
+        ParentIdAndRdn<ID> oldKey = new ParentIdAndRdn<ID>( oldParentId, oldDn.getRdn() );
 
+        rdnIdx.drop( oldKey, entryId );
 
-        /*
-         * Read Alias Index Tuples
-         *
-         * If this is a name change due to a move operation then the one and
-         * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.
-         *
-         * aliasTarget is used as a marker to tell us if we're moving an
-         * alias.  If it is null then the moved entry is not an alias.
-         */
-        String aliasTarget = aliasIdx.reverseLookup( entryId );
-
-        if ( null != aliasTarget )
-        {
-            addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
-        }
+        ParentIdAndRdn<ID> newKey = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
+        rdnIdx.add( newKey, entryId );
 
         // the below case arises only when the move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) is called
         // directly using the Store API, in this case the value of modified entry will be null
