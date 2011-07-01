@@ -532,11 +532,11 @@ public class JdbmStoreTest
     @Test
     public void testSubLevelIndex() throws Exception
     {
-        Index idx = store.getSubLevelIndex();
+        Index<Long, Entry, Long> subLevelIdx = store.getSubLevelIndex();
 
-        assertEquals( 19, idx.count() );
+        assertEquals( 19, subLevelIdx.count() );
 
-        Cursor<IndexEntry<Long, Attributes, Long>> cursor = idx.forwardCursor( 2L );
+        Cursor<IndexEntry<Long, Entry, Long>> cursor = subLevelIdx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
         assertEquals( 2, ( long ) cursor.get().getId() );
@@ -549,9 +549,9 @@ public class JdbmStoreTest
 
         assertFalse( cursor.next() );
 
-        idx.drop( ( long ) cursor.get().getId(), 5L );
+        subLevelIdx.drop( 2L, 5L );
 
-        cursor = idx.forwardCursor( 2L );
+        cursor = subLevelIdx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
         assertEquals( 2, ( long ) cursor.get().getId() );
@@ -571,7 +571,7 @@ public class JdbmStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
-        cursor = idx.forwardCursor( 2L );
+        cursor = subLevelIdx.forwardCursor( 2L );
         cursor.afterLast();
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
@@ -581,7 +581,7 @@ public class JdbmStoreTest
         Dn newDn = newParentDn.add( martinDn.getRdn() );
 
         store.move( martinDn, newParentDn, newDn, entry );
-        cursor = idx.forwardCursor( 3L );
+        cursor = subLevelIdx.forwardCursor( 3L );
         cursor.afterLast();
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
@@ -609,7 +609,7 @@ public class JdbmStoreTest
 
         store.move( marketingDn, newParentDn, newDn, entry );
 
-        cursor = idx.forwardCursor( 3L );
+        cursor = subLevelIdx.forwardCursor( 3L );
         cursor.afterLast();
 
         assertTrue( cursor.previous() );
