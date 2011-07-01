@@ -278,6 +278,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( store.hasIndexOn( node.getAttributeType() ) )
         {
             Index<V, E, ID> idx = ( Index<V, E, ID> ) store.getIndex( node.getAttributeType() );
+            
             return idx.count( node.getValue().getValue() );
         }
 
@@ -301,6 +302,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( store.hasIndexOn( node.getAttributeType() ) )
         {
             Index<V, E, ID> idx = ( Index<V, E, ID> ) store.getIndex( node.getAttributeType() );
+            
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -330,6 +332,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( store.hasIndexOn( node.getAttributeType() ) )
         {
             Index<?, ?, ?> idx = store.getIndex( node.getAttributeType() );
+            
             return idx.count();
         }
 
@@ -350,6 +353,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         if ( store.hasUserIndexOn( node.getAttributeType() ) )
         {
             Index<String, E, ID> idx = store.getPresenceIndex();
+            
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( store.hasSystemIndexOn( node.getAttributeType() ) )

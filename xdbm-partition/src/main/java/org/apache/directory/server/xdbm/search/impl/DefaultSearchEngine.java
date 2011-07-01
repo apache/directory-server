@@ -118,31 +118,13 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             }
         }
 
-        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
-
-        // --------------------------------------------------------------------
-        // Determine the effective base with aliases
-        // --------------------------------------------------------------------
-
-        /*
-         * If the base is not an alias or if alias dereferencing does not
-         * occur on finding the base then we set the effective base to the
-         * given base.
-         */
-        if ( ( null == aliasedBase ) || !aliasDerefMode.isDerefFindingBase() )
-        {
-            effectiveBase = base;
-        }
+        effectiveBase = base;
 
         /*
          * If the base is an alias and alias dereferencing does occur on
          * finding the base then we set the effective base to the alias target
          * got from the alias index.
          */
-        else
-        {
-            effectiveBase = new Dn( aliasedBase );
-        }
 
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
