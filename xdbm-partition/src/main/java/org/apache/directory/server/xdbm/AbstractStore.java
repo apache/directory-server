@@ -942,6 +942,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Compute some IDs now
         ID rootId = getRootId();
         List<ID> parentIds = getParentIds( entryDn );
+        
+        ID contextEntryId = rootId;
+        
+        if ( parentIds.size() > 1 )
+        {
+            contextEntryId = parentIds.get( 1 );
+        }
 
         // First, get the ParentId and create the key to be added in the rdnIdx
         if ( entryDn.equals( suffixDn ) )
@@ -996,21 +1003,24 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // The oneLevel index
         oneLevelIdx.add( parentId, newId );
         
-        // The subLevel index : we must link all the hierarchy to the added entry
+        // The subLevel index : we must link all the hierarchy to the added entry.
+        // 
         for ( ID id : parentIds )
         {
-            if ( id.equals( rootId ) )
+            if ( id.equals( rootId ) || id.equals( contextEntryId ) )
             {
-                // Skip the rootDSE
+                // Skip the rootDSE and the context entry
                 continue;
             }
             
             // Add the <ancestor, newId> tuple
             subLevelIdx.add( id, newId );
+            //System.out.println( "Adding <" + id + ", " + newId + ">" );
         }
 
         // making entry an ancestor/descendent of itself in sublevel index
         subLevelIdx.add( newId, newId );
+        //System.out.println( "Adding self <" + newId + ", " + newId + ">" );
 
         // The entryCSN index
         Attribute entryCsn = entry.get( ENTRY_CSN_AT );
