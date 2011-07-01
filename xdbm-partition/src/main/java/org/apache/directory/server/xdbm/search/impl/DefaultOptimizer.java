@@ -51,8 +51,10 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
  */
 public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 {
-    /** the database this optimizer operates on */
-    private final Store<E, ID> db;
+    /** the Store this optimizer operates on */
+    private final Store<E, ID> store;
+    
+    /** The ID of the partition's context entry */
     private ID contextEntryId;
 
 
@@ -61,9 +63,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E, ID> db ) throws Exception
+    public DefaultOptimizer( Store<E, ID> store ) throws Exception
     {
-        this.db = db;
+        this.store = store;
     }
 
 
@@ -75,7 +77,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
+                this.contextEntryId = store.getEntryId( store.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -85,7 +87,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return store.getDefaultId();
         }
 
         return contextEntryId;
@@ -118,7 +120,6 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
          * This is conducted differently based on the type of the leaf node.
          * Comments on each node type explain how each scan count is arrived at.
          */
-
         if ( node instanceof ScopeNode )
         {
             count = getScopeScan( ( ScopeNode ) node );
@@ -274,9 +275,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttributeType() ) )
+        if ( store.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) store.getIndex( node.getAttributeType() );
             return idx.count( node.getValue().getValue() );
         }
 
@@ -297,9 +298,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttributeType() ) )
+        if ( store.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) store.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -326,9 +327,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      */
     private long getFullScan( LeafNode node ) throws Exception
     {
-        if ( db.hasIndexOn( node.getAttributeType() ) )
+        if ( store.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<?, ?, ?> idx = db.getIndex( node.getAttributeType() );
+            Index<?, ?, ?> idx = store.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -346,16 +347,16 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      */
     private long getPresenceScan( PresenceNode node ) throws Exception
     {
-        if ( db.hasUserIndexOn( node.getAttributeType() ) )
+        if ( store.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, ID> idx = db.getPresenceIndex();
+            Index<String, E, ID> idx = store.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
-        else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
+        else if ( store.hasSystemIndexOn( node.getAttributeType() ) )
         {
             // the system indices (objectClass, entryUUID, entryCSN) are maintained for
             // each entry, so we could just return the database count
-            return db.count();
+            return store.count();
         }
 
         return Long.MAX_VALUE;
@@ -371,23 +372,24 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {
-        ID id = db.getEntryId( node.getBaseDn() );
+        ID id = store.getEntryId( node.getBaseDn() );
+        
         switch ( node.getScope() )
         {
             case OBJECT:
                 return 1L;
 
             case ONELEVEL:
-                return db.getChildCount( id );
+                return store.getChildCount( id );
 
             case SUBTREE:
                 if ( id == getContextEntryId() )
                 {
-                    return db.count();
+                    return store.count();
                 }
                 else
                 {
-                    return db.getSubLevelIndex().count( id );
+                    return store.getSubLevelIndex().count( id );
                 }
 
             default:

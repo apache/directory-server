@@ -535,7 +535,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id the entry ID
      * @return the child count 
      * @throws Exception on failures to access the underlying store
-     *
+     */
     int getChildCount( ID id ) throws Exception;
 
 
