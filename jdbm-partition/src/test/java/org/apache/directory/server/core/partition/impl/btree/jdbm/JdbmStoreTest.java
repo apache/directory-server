@@ -478,7 +478,7 @@ public class JdbmStoreTest
     }
 
 
-    @Test( expected=LdapContextNotEmptyException.class )
+    @Test
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );

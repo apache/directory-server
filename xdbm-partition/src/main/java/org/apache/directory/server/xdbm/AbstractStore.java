@@ -1194,7 +1194,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Compute some ID references
         ID rootId = getRootId();
         List<ID> parentIds = getParentIds( entryDn );
-        ID parentId = parentIds.get( parentIds.size() - 1 );
+        
+        ID parentId = rootId;
+        
+        if ( parentIds.size() > 2 )
+        {
+            parentId = parentIds.get( parentIds.size() - 1 );
+        }
 
         // Drop the RDN
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, entry.getDn().getRdn() );
