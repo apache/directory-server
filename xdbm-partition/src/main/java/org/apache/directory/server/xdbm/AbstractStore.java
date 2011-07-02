@@ -1272,7 +1272,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             entry = lookup( id );
         }
 
-        Dn updn = entry.getDn();
+        Dn entryDn = entry.getDn();
 
         newRdn.apply( schemaManager );
 
@@ -1284,15 +1284,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * Also we make sure that the presence index shows the existence of the
          * new Rdn attribute within this entry.
          */
-
         for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().getValue();
 
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-
-            entry.add( newRdnAttrType, newAtav.getNormValue() );
+            entry.add( newAtav.getAttributeType(), newAtav.getUpValue() );
 
             if ( hasUserIndexOn( newNormType ) )
             {
@@ -1326,7 +1323,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( deleteOldRdn )
         {
-            Rdn oldRdn = updn.getRdn();
+            Rdn oldRdn = entryDn.getRdn();
 
             for ( Ava oldAtav : oldRdn )
             {
@@ -1347,9 +1344,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 {
                     String oldNormType = oldAtav.getNormType();
                     String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
-                    entry.remove( oldRdnAttrType, oldNormValue );
+                    AttributeType oldRdnAttrType = oldAtav.getAttributeType();
+                    entry.remove( oldRdnAttrType, oldAtav.getNormValue() );
 
+                    // Remove the RDN value from the user index, if any
                     if ( hasUserIndexOn( oldNormType ) )
                     {
                         Index<?, E, ID> index = getUserIndex( oldNormType );
@@ -1359,7 +1357,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                          * If there is no value for id in this index due to our
                          * drop above we remove the oldRdnAttr from the presence idx
                          */
-                        if ( null == index.reverseLookup( id ) )
+                        if ( presenceIdx.forward( oldNormValue, id ) )
                         {
                             presenceIdx.drop( oldNormType, id );
                         }
@@ -1375,11 +1373,22 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * We only need to update the Rdn index.
          * No need to calculate the new Dn.
          */
+        List<ID> parentIds = getParentIds( entryDn );
+        ID rootId = getRootId();
+        ID parentId = rootId;
+        
+        if ( parentIds.size() > 2 )
+        {
+            parentId = parentIds.get( parentIds.size() - 1 );
+        }
 
-        ID parentId = getParentId( id );
-        rdnIdx.drop( id );
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, newRdn );
-        rdnIdx.add( key, id );
+        // Drop the RDN
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, entryDn.getRdn() );
+
+        rdnIdx.drop( key, id );
+
+        ParentIdAndRdn<ID> newKey = new ParentIdAndRdn<ID>( parentId, newRdn );
+        rdnIdx.add( newKey, id );
 
         master.put( id, entry );
 
