@@ -381,7 +381,7 @@ public class AbstractStoreTest
         // move
         Dn newSuperior = new Dn( schemaManager, "o=Good Times Co." );
         Dn newDn = new Dn( schemaManager, "cn=user,o=Good Times Co." );
-        store.move( dn, newSuperior, newDn );
+        store.move( dn, newSuperior, newDn , entry);
         entry = verifyParentId( newDn );
         
         // move and rename
@@ -396,9 +396,9 @@ public class AbstractStoreTest
     
     private Entry verifyParentId( Dn dn ) throws Exception
     {
-        Long entryId = store.getEntryId( dn );
         Entry entry = store.lookup( dn );
-        Long parentId = store.getParentId( entryId );
+        List<Long> parentIds = store.getParentIds( dn );
+        Long parentId = parentIds.get( parentIds.size() - 1 );
         
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );

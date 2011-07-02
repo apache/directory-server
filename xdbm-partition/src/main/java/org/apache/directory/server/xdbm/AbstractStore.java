@@ -1393,15 +1393,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
-    {
-        rename( dn, newRdn, deleteOldRdn, null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
     	// Check that the old entry exists
@@ -1453,15 +1444,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) throws Exception
-    {
-        move( oldDn, newSuperiorDn, newDn, null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry ) throws Exception
     {
         // Check that the parent Dn exists
@@ -1499,13 +1481,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             oldParentId = oldParentIds.get( oldParentIds.size() - 1 );
         }
 
-        ID contextEntryId = rootId;
-        
-        if ( newParentIds.size() > 1 )
-        {
-            contextEntryId = newParentIds.get( 1 );
-        }
-
         /*
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
@@ -1513,59 +1488,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.drop( oldParentId, entryId );
         oneLevelIdx.add( newParentId, entryId );
 
-        // Update the sublevel index
-        // first, drop the old position in the subLevel index
-        for ( ID ancestor : oldParentIds )
-        {
-            if ( ancestor.equals( rootId ) )
-            {
-                continue;
-            }
-            
-            subLevelIdx.drop( ancestor, oldParentId );
-        }
-        
-        // find all the children of the childId
-        Cursor<IndexEntry<ID, E, ID>> cursor = subLevelIdx.forwardCursor( entryId );
-
-        List<ID> childIds = new ArrayList<ID>();
-        childIds.add( entryId );
-
-        while ( cursor.next() )
-        {
-            childIds.add( cursor.get().getId() );
-        }
-
-        // detach the childId and all its children from oldParentId and all it parents excluding the root
-        for ( ID pid : oldParentIds )
-        {
-            for ( ID cid : childIds )
-            {
-                subLevelIdx.drop( pid, cid );
-            }
-        }
-
-        // then add the new position in the sublevel index
-        for ( ID id : newParentIds )
-        {
-            if ( id.equals( rootId ) || id.equals( contextEntryId ) )
-            {
-                // Skip the rootDSE and the context entry
-                continue;
-            }
-            
-            // Add the <ancestor, newId> tuple
-            subLevelIdx.add( id, entryId );
-        }
-
-        // attach the childId and all its children to newParentId and all it parents excluding the root
-        for ( ID id : newParentIds )
-        {
-            for ( ID cid : childIds )
-            {
-                subLevelIdx.add( id, cid );
-            }
-        }
+        // Update the subLevel index
+        updateSubLevelIndex( entryId, oldParentIds, newParentIds );
 
         // Update the Rdn index
         ParentIdAndRdn<ID> oldKey = new ParentIdAndRdn<ID>( oldParentId, oldDn.getRdn() );
@@ -2237,18 +2161,35 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param newParentId new parent's id
      * @throws Exception
      */
-    protected void updateSubLevelIndex( ID entryId, ID oldParentId, ID newParentId ) throws Exception
+    protected void updateSubLevelIndex( ID entryId, List<ID> oldParentIds, List<ID> newParentIds ) throws Exception
     {
-        ID tempId = oldParentId;
-        List<ID> parentIds = new ArrayList<ID>();
-
-        // find all the parents of the oldParentId
-        while ( ( tempId != null ) && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
+        ID rootId = getRootId();
+        ID oldParentId = rootId;
+        
+        if ( oldParentIds.size() > 2 )
         {
-            parentIds.add( tempId );
-            tempId = getParentId( tempId );
+            oldParentId = oldParentIds.get( oldParentIds.size() - 1 );
         }
 
+        ID contextEntryId = rootId;
+        
+        if ( newParentIds.size() > 1 )
+        {
+            contextEntryId = newParentIds.get( 1 );
+        }
+
+        // Update the sublevel index
+        // first, drop the old position in the subLevel index
+        for ( ID ancestor : oldParentIds )
+        {
+            if ( ancestor.equals( rootId ) )
+            {
+                continue;
+            }
+            
+            subLevelIdx.drop( ancestor, oldParentId );
+        }
+        
         // find all the children of the childId
         Cursor<IndexEntry<ID, E, ID>> cursor = subLevelIdx.forwardCursor( entryId );
 
@@ -2261,7 +2202,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         // detach the childId and all its children from oldParentId and all it parents excluding the root
-        for ( ID pid : parentIds )
+        for ( ID pid : oldParentIds )
         {
             for ( ID cid : childIds )
             {
@@ -2269,18 +2210,21 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
-        parentIds.clear();
-        tempId = newParentId;
-
-        // find all the parents of the newParentId
-        while ( ( tempId != null)  && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
+        // then add the new position in the sublevel index
+        for ( ID id : newParentIds )
         {
-            parentIds.add( tempId );
-            tempId = getParentId( tempId );
+            if ( id.equals( rootId ) || id.equals( contextEntryId ) )
+            {
+                // Skip the rootDSE and the context entry
+                continue;
+            }
+            
+            // Add the <ancestor, newId> tuple
+            subLevelIdx.add( id, entryId );
         }
 
         // attach the childId and all its children to newParentId and all it parents excluding the root
-        for ( ID id : parentIds )
+        for ( ID id : newParentIds )
         {
             for ( ID cid : childIds )
             {

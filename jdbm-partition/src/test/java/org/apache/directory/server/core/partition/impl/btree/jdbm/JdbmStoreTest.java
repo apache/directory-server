@@ -129,10 +129,10 @@ public class JdbmStoreTest
 
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
 
-        OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
-        DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
-        SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
-        APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
+        OU_AT = schemaManager.getAttributeType( "ou" );
+        DC_AT = schemaManager.getAttributeType( "dc" );
+        SN_AT = schemaManager.getAttributeType( "sn" );
+        APACHE_ALIAS_AT = schemaManager.getAttributeType( "apacheAlias" );
     }
 
 
@@ -214,11 +214,13 @@ public class JdbmStoreTest
 
         // inject context entry
         Dn suffixDn = new Dn( schemaManager, "dc=example,dc=com" );
-        Entry entry = new DefaultEntry( schemaManager, suffixDn );
-        entry.add( "objectClass", "top", "domain" );
-        entry.add( "dc", "example" );
-        entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, suffixDn,
+            "objectClass: top", 
+            "objectClass: domain",
+            "dc: example",
+            "entryCSN", new CsnFactory( 0 ).newInstance().toString(),
+            SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        
         store2.add( entry );
 
         // lookup the context entry
@@ -516,13 +518,15 @@ public class JdbmStoreTest
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Apache" );
-        entry.add( "commonName", "Jack Daniels" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "ou: Apache",
+            "commonName: Jack Daniels",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
         store.delete( dn ); // drops the alias indices
@@ -563,12 +567,15 @@ public class JdbmStoreTest
 
         // dn id 12
         Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, martinDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, martinDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Sales",
+            "cn: Martin King",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
+        
         store.add( entry );
 
         cursor = subLevelIdx.forwardCursor( 2L );
@@ -588,21 +595,24 @@ public class JdbmStoreTest
 
         // dn id 13
         Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, marketingDn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, marketingDn,
+            "objectClass: top", 
+            "objectClass: organizationalUnit",
+            "ou: Marketing",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
         // dn id 14
         Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, jimmyDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "cn", "Jimmy Wales" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, jimmyDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Marketing",
+            "cn: Jimmy Wales",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
         newDn = newParentDn.add( marketingDn.getRdn() );
@@ -662,12 +672,14 @@ public class JdbmStoreTest
     public void testAddWithoutParentId() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Not Present" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "ou: Not Present",
+            "cn: Martin King",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
     }
 
@@ -678,7 +690,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultAttribute( "ou", OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -693,18 +705,20 @@ public class JdbmStoreTest
     public void testRename() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
 
         Rdn rdn = new Rdn( "sn=James" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, entry );
     }
 
 
@@ -712,18 +726,20 @@ public class JdbmStoreTest
     public void testRenameEscaped() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, entry );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         Long id = store.getEntryId( dn2 );
@@ -785,7 +801,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.SURNAME_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( "sn", SN_AT );
 
         String attribVal = "Walker";
         attrib.add( attribVal );
@@ -815,7 +831,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( "sn", SN_AT );
 
         String attribVal = "Johnny";
         attrib.add( attribVal );
@@ -846,7 +862,7 @@ public class JdbmStoreTest
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( "sn", SN_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -875,16 +891,18 @@ public class JdbmStoreTest
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Tim B,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "cn", "Tim B" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "cn: Tim B",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
 
         List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
+        Attribute attrib = new DefaultAttribute( "ou", OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );
@@ -943,5 +961,4 @@ public class JdbmStoreTest
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
     }
-
 }

@@ -603,18 +603,20 @@ public class AvlStoreTest
     public void testRename() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
 
         Rdn rdn = new Rdn( "sn=James" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, entry );
     }
 
 
@@ -622,18 +624,20 @@ public class AvlStoreTest
     public void testRenameEscaped() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Engineering",
+            "cn: Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, entry );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         Long id = store.getEntryId( dn2 );
