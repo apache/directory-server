@@ -48,12 +48,6 @@ public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        return !childEvaluator.evaluateId( id );
-    }
-
-
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         return !childEvaluator.evaluateEntry( entry );

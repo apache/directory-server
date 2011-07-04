@@ -102,20 +102,6 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
-        {
-            if ( !evaluator.evaluateId( id ) )
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )

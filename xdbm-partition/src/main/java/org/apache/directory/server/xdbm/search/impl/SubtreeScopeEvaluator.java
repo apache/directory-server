@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.model.filter.ScopeNode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.filter.ScopeNode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 
 
 /**
@@ -124,29 +124,15 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      */
     public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
     {
-        return evaluateId( candidate.getId() );
-    }
-
-
-    /**
-     * Asserts whether or not a candidate has sub level scope while taking
-     * alias dereferencing into account.
-     *
-     * @param id the id of the entry tested to see if it is in subtree scope
-     * @return true if the candidate is within one level scope whether or not
-     * alias dereferencing is enabled.
-     * @throws Exception if the index lookups fail.
-     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
-     */
-    public boolean evaluateId( ID id ) throws Exception
-    {
+        ID id = candidate.getId();
+        
         /*
          * This condition catches situations where the candidate is equal to 
          * the base entry and when the base entry is the context entry.  Note
          * we do not store a mapping in the subtree index of the context entry
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
-         */        
+         */
         boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || db.getSubLevelIndex().forward( baseId, id );
 
         /*

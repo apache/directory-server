@@ -103,7 +103,8 @@ public class EntryNode implements TreeNode
                     if ( db.getChildCount( rec.getId() ) == 0 )
                     {
                         Evaluator evaluator = engine.evaluator( exprNode );
-                        if ( evaluator.evaluateId( rec.getId() ) )
+                        
+                        if ( evaluator.evaluate( rec ) )
                         {
                             Entry newEntry = db.lookup( rec.getId() );
                             EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,

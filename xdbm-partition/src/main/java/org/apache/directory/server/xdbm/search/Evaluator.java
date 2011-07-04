@@ -20,8 +20,8 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 
 
 /**
@@ -63,17 +63,6 @@ public interface Evaluator<N extends ExprNode, E, ID>
      * @throws Exception if there are faults during evaluation
      */
     boolean evaluate( IndexEntry<?, E, ID> entry ) throws Exception;
-
-
-    /**
-     * Evaluates whether or not a candidate, specified by an id, satisfies the
-     * expression associated with this Evaluator .
-     *
-     * @param id the identifier for the candidate entry
-     * @return true if filter selects the candidate false otherwise
-     * @throws Exception if there are faults during evaluation
-     */
-    boolean evaluateId( ID id ) throws Exception;
 
 
     /**
