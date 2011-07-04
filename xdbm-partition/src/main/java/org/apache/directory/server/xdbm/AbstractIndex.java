@@ -92,7 +92,7 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
      */
     public boolean isDupsEnabled()
     {
-        return false;
+        return !attributeType.isSingleValued();
     }
     
     

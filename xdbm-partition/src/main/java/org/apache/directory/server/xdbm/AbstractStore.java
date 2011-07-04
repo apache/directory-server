@@ -401,7 +401,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected ID getSuffixId() throws Exception
     {
         // TODO: optimize
-        return getEntryId( getSuffixDn() );
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+        
+        return rdnIdx.forwardLookup( key );
     }
 
 
@@ -763,20 +765,22 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         int dnSize = dn.size();
         int i = suffixDn.size();
 
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+        ParentIdAndRdn<ID> currentRdn = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
         // Check into the Rdn index
-        ID curEntryId = rdnIdx.forwardLookup( key );
+        ID curEntryId = rdnIdx.forwardLookup( currentRdn );
 
-        for ( ; i < dnSize; i++ )
+        while ( i < dnSize )
         {
-            key = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
-            curEntryId = rdnIdx.forwardLookup( key );
+            currentRdn = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
+            curEntryId = rdnIdx.forwardLookup( currentRdn );
 
             if ( curEntryId == null )
             {
                 break;
             }
+            
+            i++;
         }
 
         return curEntryId;
