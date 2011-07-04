@@ -284,7 +284,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         ID id = getEntryId( lookupContext.getDn() );
 
@@ -293,7 +293,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return null;
         }
 
-        ClonedServerEntry entry = lookup( id );
+        Entry entry = lookup( id );
 
         // Remove all the attributes if the NO_ATTRIBUTE flag is set
         if ( lookupContext.hasNoAttribute() )
@@ -311,7 +311,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             }
             else
             {
-                for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
                 {
                     String oid = attributeType.getOid();
 
@@ -329,7 +329,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
         {
             if ( lookupContext.hasAllOperational() )
             {
-                for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
                 {
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
                     {
@@ -341,7 +341,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             {
                 if ( lookupContext.getAttrsId().size() == 0 )
                 {
-                    for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                    for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
                     {
                         if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
                         {
@@ -351,7 +351,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
                 }
                 else
                 {
-                    for ( AttributeType attributeType : ( entry.getOriginalEntry() ).getAttributeTypes() )
+                    for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
                     {
                         String oid = attributeType.getOid();
                         
@@ -487,7 +487,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract Dn getEntryDn( ID id ) throws Exception;
 
 
-    public abstract ClonedServerEntry lookup( ID id ) throws LdapException;
+    public abstract Entry lookup( ID id ) throws LdapException;
 
 
     public abstract void delete( ID id ) throws LdapException;

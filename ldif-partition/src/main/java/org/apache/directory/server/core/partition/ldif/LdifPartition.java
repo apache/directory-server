@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -291,7 +290,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems() );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
@@ -323,7 +322,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.move( moveContext );
 
         // Get the modified entry
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id );
 
         entryMoved( oldDn, modifiedEntry, id );
     }
@@ -341,7 +340,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         entryMoved( oldDn, modifiedEntry, id );
@@ -361,7 +360,7 @@ public class LdifPartition extends AbstractLdifPartition
         wrappedPartition.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
-        ClonedServerEntry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry

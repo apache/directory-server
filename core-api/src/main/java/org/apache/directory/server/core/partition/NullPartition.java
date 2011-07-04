@@ -376,7 +376,6 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;

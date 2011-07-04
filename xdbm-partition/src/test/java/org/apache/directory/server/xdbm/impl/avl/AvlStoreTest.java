@@ -82,7 +82,6 @@ public class AvlStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlStoreTest.class.getSimpleName() );
 
-    private static File wkdir;
     private static AvlStore<Entry> store;
     private static SchemaManager schemaManager = null;
     private static Dn EXAMPLE_COM;

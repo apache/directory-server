@@ -170,6 +170,7 @@ public class RegistrySynchronizerAdaptor
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
                 Entry entry = addContext.getEntry();
                 synchronizer.add( entry );
+                
                 return;
             }
         }
@@ -180,6 +181,7 @@ public class RegistrySynchronizerAdaptor
         {
             Entry entry = addContext.getEntry();
             schemaSynchronizer.add( entry );
+            
             return;
         }
         

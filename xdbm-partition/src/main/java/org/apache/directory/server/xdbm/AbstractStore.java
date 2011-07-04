@@ -1512,7 +1512,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
-    protected void add( ID id, Entry entry, Attribute mods ) throws Exception
+    private void add( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1573,7 +1573,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * fails.
      */
     @SuppressWarnings("unchecked")
-    protected void replace( ID id, Entry entry, Attribute mods ) throws Exception
+    private void replace( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1664,7 +1664,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if index alteration or attribute modification fails.
      */
     @SuppressWarnings("unchecked")
-    protected void remove( ID id, Entry entry, Attribute mods ) throws Exception
+    private void remove( ID id, Entry entry, Attribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {

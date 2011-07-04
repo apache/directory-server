@@ -158,14 +158,6 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(LookupOperationContext)}
-     * with null <tt>attributeIds</tt> by default.  Please override
-     * this method if there is more effective way for your implementation.
-     */
-    public abstract Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
-
-    
-    /**
      * {@inheritDoc}
      */
     public void setSchemaManager( SchemaManager schemaManager )

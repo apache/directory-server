@@ -242,7 +242,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         StringBuilder sb = new StringBuilder();
         
         sb.append( "ParentIdAndRdn<" );
-        sb.append( parentId ).append( "[" );
+        sb.append( parentId ).append( ", '" );
         
         boolean isFirst = true;
         
@@ -260,7 +260,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             sb.append( rdn );
         }
         
-        sb.append( "]" );
+        sb.append( "'>" );
         
         return sb.toString();
     }
