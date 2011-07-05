@@ -760,34 +760,35 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public ID getEntryId( Dn dn ) throws Exception
     {
+        if ( Dn.isNullOrEmpty( dn ) )
+        {
+            return getRootId();
+        }
+
         // Just to be sure that the Dn is normalized
         if ( !dn.isSchemaAware() )
         {
             dn.apply( schemaManager );
         }
 
-        int dnSize = dn.size();
-        int i = suffixDn.size();
+        ParentIdAndRdn<ID> suffixKey = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
-        ParentIdAndRdn<ID> currentRdn = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+        // Check into the Rdn index, starting with the partition Suffix
+        ID currentId = rdnIdx.forwardLookup( suffixKey );
 
-        // Check into the Rdn index
-        ID curEntryId = rdnIdx.forwardLookup( currentRdn );
-
-        while ( i < dnSize )
+        for ( int i = dn.size() - suffixDn.size(); i > 0; i-- )
         {
-            currentRdn = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( dnSize - 1 - i ) );
-            curEntryId = rdnIdx.forwardLookup( currentRdn );
+            Rdn rdn = dn.getRdn( i - 1 );
+            ParentIdAndRdn<ID> currentRdn = new ParentIdAndRdn<ID>( currentId, rdn );
+            currentId = rdnIdx.forwardLookup( currentRdn );
 
-            if ( curEntryId == null )
+            if ( currentId == null )
             {
                 break;
             }
-            
-            i++;
         }
 
-        return curEntryId;
+        return currentId;
     }
 
 
@@ -859,11 +860,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     @SuppressWarnings("unchecked")
     public synchronized void add( Entry entry ) throws Exception
     {
-        if ( entry instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
         Dn entryDn = entry.getDn();
 
         if ( checkHasEntryDuringAdd )
@@ -878,7 +874,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         ID parentId;
-        ID id = master.getNextId( entry );
 
         //
         // Suffix entry cannot have a parent since it is the root so it is
@@ -911,6 +906,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
         }
+
+        ID id = master.getNextId( entry );
 
         rdnIdx.add( key, id );
 
