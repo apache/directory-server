@@ -388,7 +388,7 @@ public class AbstractStoreTest
         // move
         Dn newSuperior = new Dn( schemaManager, "o=Good Times Co." );
         Dn newDn = new Dn( schemaManager, "cn=user,o=Good Times Co." );
-        store.move( dn, newSuperior, newDn );
+        store.move( dn, newSuperior, newDn, null );
         entry = verifyParentId( newDn );
         
         // move and rename

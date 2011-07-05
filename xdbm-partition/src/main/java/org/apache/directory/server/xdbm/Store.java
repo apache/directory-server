@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -91,29 +92,21 @@ public interface Store<E, ID extends Comparable<ID>>
      * Partition (store with search capabilities) when it just needs a simple
      * store and it's indices to conduct search operations.
      */
-
     public static final String[] SYS_INDEX_OID_ARRAY =
-        { ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID,
-
-        ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
-
-        ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
-
-        ApacheSchemaConstants.APACHE_RDN_AT_OID,
-
-        ApacheSchemaConstants.APACHE_N_DN_AT_OID,
-
-        ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
-
-        ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
-
-        ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
-
-        SchemaConstants.ENTRY_CSN_AT_OID,
-
-        SchemaConstants.ENTRY_UUID_AT_OID,
-
-        SchemaConstants.OBJECT_CLASS_AT_OID };
+        { 
+            ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID,
+            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
+            ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
+            ApacheSchemaConstants.APACHE_RDN_AT_OID,
+            ApacheSchemaConstants.APACHE_N_DN_AT_OID,
+            ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+            ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
+            ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
+            SchemaConstants.ENTRY_CSN_AT_OID,
+            SchemaConstants.ENTRY_UUID_AT_OID,
+            SchemaConstants.OBJECT_CLASS_AT_OID 
+        };
+    
     public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
         .asList( SYS_INDEX_OID_ARRAY ) ) );
 
@@ -214,12 +207,12 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Close the store : we have to close all the userIndices and the master table.
+     * Close the store : we have to close all the system and user Indices, plus the master table.
      *
-     * @throws Exception lazily thrown on any closer failures to avoid leaving
+     * @throws LdapException lazily thrown on any closer failures to avoid leaving
      * open files
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException, Exception;
 
 
     /**
@@ -562,59 +555,8 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
-
-    /**
-     * Changes the relative distinguished name of an entry specified by a
-     * distinguished name with the optional removal of the old Rdn attribute
-     * value from the entry.  Name changes propagate down as dn changes to the
-     * descendants of the entry where the Rdn changed.
-     *
-     * An Rdn change operation does not change parent child relationships.  It
-     * merely propagates a name change at a point in the DIT where the Rdn is
-     * changed. The change propagates down the subtree rooted at the
-     * distinguished name specified.
-     *
-     * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new Rdn to set
-     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
-     * @throws Exception if there are any errors propagating the name changes
-     */
-    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
-
     
     void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
-
-
-    /**
-     * <p>Move an entry from one place to the other. The Rdn remains unchanged,
-     * the parent Dn changes</p>
-     * <p>We have to update some of the index when moving an entry. Assuming
-     * that the target destination does not exist, the following index must
-     * be updated :</p>
-     * <ul>
-     * <li><b>oneLevel</b> index</li>
-     * <li><b>subLevel</b> index</li>
-     * </ul>
-     * <p>If the moved entry is an alias, then we also have to update the
-     * following index :</p>
-     * <ul>
-     * <li><b>oneAlias</b> index</li>
-     * <li><b>subAlias</b> index</li>
-     * </ul>
-     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p> 
-     * <p>We have a few check we must do before moving the entry :
-     * <ul>
-     * <li>The destination must not exist
-     * <li>The moved entry must exist (this has already been checked)
-     * <li>The moved entry must not inherit from a referral (already checked)
-     * </ul>
-     *
-     * @param oldDn The previous entry Dn
-     * @param newSuperior The new superior Dn
-     * @param newDn The new Dn
-     * @throws Exception If the move failed
-     */
-    void move( Dn oldDn, Dn newSuperior, Dn newDn ) throws Exception;
 
 
     /**

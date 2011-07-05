@@ -46,32 +46,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
 
-
-    /**
-     * {@inheritDoc}
-     */
-    public void destroy() throws Exception
-    {
-        // don't reset initialized flag
-        initialized = false;
-
-        if ( master != null )
-        {
-            master.close();
-        }
-        
-        for ( Index idx : systemIndices.values() )
-        {
-            idx.close();
-        }
-        
-        for ( Index idx : userIndices.values() )
-        {
-            idx.close();
-        }
-    }
-
-
     /**
      * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
@@ -173,5 +147,4 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     {
         return 0L;
     }
-    
 }

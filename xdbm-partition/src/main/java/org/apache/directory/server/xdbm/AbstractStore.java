@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.util.exception.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,8 +155,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ALIASED_OBJECT_NAME_AT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
-
     }
+    
 
     protected void protect( String property )
     {
@@ -218,6 +219,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getId()
     {
         return id;
@@ -1292,15 +1296,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
-    {
-        rename( dn, newRdn, deleteOldRdn, null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
     	// Check that the old entry exists
@@ -1346,15 +1341,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             sync();
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) throws Exception
-    {
-        move( oldDn, newSuperiorDn, newDn, null );
     }
 
 
@@ -2170,5 +2156,67 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         this.checkHasEntryDuringAdd = checkHasEntryDuringAdd;
     }
+
     
+    /**
+     * {@inheritDoc}
+     */
+    public void destroy() throws LdapException, Exception
+    {
+        LOG.debug( "destroy() called on store for {}", this.suffixDn );
+
+        if ( !initialized )
+        {
+            return;
+        }
+
+        // don't reset initialized flag
+        initialized = false;
+
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
+
+        for ( Index<?, E, ID> index : userIndices.values() )
+        {
+            try
+            {
+                index.close();
+                LOG.debug( "Closed {} user index for {} partition.", index.getAttributeId(), suffixDn );
+            }
+            catch ( Throwable t )
+            {
+                LOG.error( I18n.err( I18n.ERR_124 ), t );
+                errors.addThrowable( t );
+            }
+        }
+
+        for ( Index<?, E, ID> index : systemIndices.values() )
+        {
+            try
+            {
+                index.close();
+                LOG.debug( "Closed {} system index for {} partition.", index.getAttributeId(), suffixDn );
+            }
+            catch ( Throwable t )
+            {
+                LOG.error( I18n.err( I18n.ERR_124 ), t );
+                errors.addThrowable( t );
+            }
+        }
+
+        try
+        {
+            master.close();
+            LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
+        }
+        catch ( Throwable t )
+        {
+            LOG.error( I18n.err( I18n.ERR_126 ), t );
+            errors.addThrowable( t );
+        }
+
+        if ( errors.size() > 0 )
+        {
+            throw errors;
+        }
+    }
 }

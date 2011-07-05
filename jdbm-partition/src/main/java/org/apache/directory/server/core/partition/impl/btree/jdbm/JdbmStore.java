@@ -180,50 +180,27 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
 
     /**
-     * Close the partition : we have to close all the userIndices and the master table.
-     * 
-     * @throws Exception lazily thrown on any closer failures to avoid leaving
-     * open files
+     * {@inheritDoc}
      */
     public synchronized void destroy() throws Exception
     {
-        LOG.debug( "destroy() called on store for {}", this.suffixDn );
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
         if ( !initialized )
         {
             return;
         }
-
-        List<Index<?, E, Long>> array = new ArrayList<Index<?, E, Long>>();
-        array.addAll( userIndices.values() );
-        array.addAll( systemIndices.values() );
-        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
-
-        for ( Index<?, E, Long> index : array )
-        {
-            try
-            {
-                index.close();
-                LOG.debug( "Closed {} index for {} partition.", index.getAttributeId(), suffixDn );
-            }
-            catch ( Throwable t )
-            {
-                LOG.error( I18n.err( I18n.ERR_124 ), t );
-                errors.addThrowable( t );
-            }
-        }
-
+        
         try
         {
-            master.close();
-            LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
+            super.destroy();
         }
-        catch ( Throwable t )
+        catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_126 ), t );
-            errors.addThrowable( t );
+            errors.addThrowable( e );
         }
 
+        // This is specific to the JDBM store : close the record manager
         try
         {
             recMan.close();
@@ -239,8 +216,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         {
             throw errors;
         }
-
-        initialized = false;
     }
 
 
