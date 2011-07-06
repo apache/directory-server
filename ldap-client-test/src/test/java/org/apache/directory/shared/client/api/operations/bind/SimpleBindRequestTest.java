@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.BindFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -67,15 +68,15 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=superuser,ou=system", 
-        "objectClass: person", 
+        "dn: uid=superuser,ou=system",
+        "objectClass: person",
         "objectClass: organizationalPerson",
-        "objectClass: inetOrgPerson", 
-        "objectClass: top", 
-        "cn: superuser", 
+        "objectClass: inetOrgPerson",
+        "objectClass: top",
+        "cn: superuser",
         "sn: administrator",
-        "displayName: Directory Superuser", 
-        "uid: superuser", 
+        "displayName: Directory Superuser",
+        "uid: superuser",
         "userPassword: test" })
 public class SimpleBindRequestTest extends AbstractLdapTestUnit
 {
@@ -162,10 +163,10 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
 
     /**
-     * Test a successful anonymous bind request.
+     * Test a successful blank (anonymous) bind request.
      */
     @Test
-    public void testAnonymousBindRequest() throws Exception
+    public void testBlankBindRequest() throws Exception
     {
         BindRequest bindRequest = new BindRequestImpl();
 
@@ -178,13 +179,13 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
 
     /**
-     * Test a failing anonymous bind request.
+     * Test a failing blank (anonymous) bind request.
      */
     @Test
-    public void testAnonymousBindRequestNotAllowed() throws Exception
+    public void testBlankBindRequestNotAllowed() throws Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        
+
         try
         {
             connection.bind();
@@ -194,7 +195,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, le.getResultCode() );
         }
-        
+
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
         connection.bind();
@@ -213,7 +214,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
-        connection.bind();
+        connection.anonymousBind();
 
         assertTrue( connection.isAuthenticated() );
 
@@ -249,6 +250,50 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
         connection.close();
         //System.out.println( "----------------Unconnected" + i + "-------------" );
+    }
+
+
+    /**
+     * Test for DIRAPI-49 (LdapNetworkConnection.anonymousBind() uses name and credentials 
+     * from configuration instead of empty values).
+     */
+    @Test
+    public void testDIRAPI47() throws Exception
+    {
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localhost" );
+        config.setLdapPort( getLdapServer().getPort() );
+        config.setName( "uid=nonexisting,dc=example,dc=com" );
+
+        connection = new LdapNetworkConnection( config );
+        connection.anonymousBind();
+
+        assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * Test a failing Anonymous BindRequest
+     */
+    @Test
+    public void testSimpleBindAnonymousNotAllowed() throws Exception
+    {
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
+
+        try
+        {
+            connection.anonymousBind();
+            fail();
+        }
+        catch ( LdapOperationException le )
+        {
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, le.getResultCode() );
+        }
+
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
+
+        connection.anonymousBind();
+        assertTrue( connection.isAuthenticated() );
     }
 
 
@@ -297,7 +342,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     /**
      * Test an bind with no password
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test(expected = LdapAuthenticationException.class)
     public void testSimpleBindNoPassword() throws Exception
     {
         connection.bind( "uid=admin,ou=system", ( String ) null );
@@ -366,7 +411,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         BindRequest br1 = new BindRequestImpl();
         br1.setName( new Dn( "uid=admin,ou=system" ) );
         br1.setCredentials( Strings.getBytesUtf8( "secret" ) );
-        
+
         BindResponse response1 = connection.bind( br1 );
         assertTrue( connection.isAuthenticated() );
         int messageId1 = response1.getMessageId();
@@ -375,7 +420,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         BindRequest br2 = new BindRequestImpl();
         br2.setName( new Dn( "uid=admin,ou=system" ) );
         br2.setCredentials( Strings.getBytesUtf8( "secret" ) );
-        
+
         BindResponse response2 = connection.bind( br2 );
         int messageId2 = response2.getMessageId();
 
@@ -442,7 +487,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             // It will take 1 seconds to bind, let's send another bind request : it should fail
             try
-            {  
+            {
                 connection.bind( "uid=admin,ou=system", "secret" );
                 fail();
             }
@@ -504,8 +549,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         assertTrue( connection.isAuthenticated() );
     }
-    
-    
+
+
     /**
      * DIRSERVER-1548
      */
@@ -521,7 +566,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             assertFalse( connection.isAuthenticated() );
         }
-        
+
         connection.bind( "uid=admin,ou=system", "secret" );
         assertTrue( connection.isAuthenticated() );
     }
