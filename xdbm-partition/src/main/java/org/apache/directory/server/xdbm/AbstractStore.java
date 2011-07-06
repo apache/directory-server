@@ -843,14 +843,22 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         return cursor;
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      * 
      * Adding an entryinvolve may steps :
-     * - fist we must check if the entry exists or not (note that it should probably
-     * be checked higher, but not sure)
+     * - first we must check if the entry exists or not
+     * - then we must get a new ID for the added entry
+     * - update the RDN index
+     * - update the oneLevel index
+     * - update the subLevel index
+     * - update the ObjectClass index
+     * - update the entryCsn index
+     * - update the entryUuid index
+     * - update the user's index
+     * 
      * TODO : We should be able to revert all the changes made to index
      * if something went wrong. Also the index should auto-repair : if
      * an entry does not exist in the Master table, then the index must be updated to reflect this.
@@ -868,7 +876,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw ne;
         }
 
-        ID parentId;
+        ID parentId = null;
 
         //
         // Suffix entry cannot have a parent since it is the root so it is
@@ -888,26 +896,24 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             parentDn = entryDn.getParent();
             parentId = getEntryId( parentDn );
             
-            if ( parentId == null )
-            {
-                parentId = getEntryId( parentDn );
-            }
-            
             key = new ParentIdAndRdn<ID>( parentId, entryDn.getRdn() );
         }
 
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
         }
-
+        
+        // Get a new ID for the added entry
         ID id = master.getNextId( entry );
 
+        // Update the RDN index
         rdnIdx.add( key, id );
 
+        // Update the ObjectClass index
         Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-
+        
         if ( objectClass == null )
         {
             String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
@@ -917,9 +923,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw e;
         }
 
-        // Start adding the system userIndices
-        // Why bother doing a lookup if this is not an alias.
-        // First, the ObjectClass index
         for ( Value<?> value : objectClass )
         {
             objectClassIdx.add( value.getString(), id );
@@ -931,12 +934,20 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             addAliasIndices( id, entryDn, aliasAttr.getString() );
         }
 
-        if ( !Character.isDigit( entryDn.getNormName().charAt( 0 ) ) )
+        // Update the OneLevel index
+        oneLevelIdx.add( parentId, id );
+
+        // Update the SubLevel index
+        ID tempId = parentId;
+
+        while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.getNormName() ) );
+            subLevelIdx.add( tempId, id );
+            tempId = getParentId( tempId );
         }
 
-        oneLevelIdx.add( parentId, id );
+        // making entry an ancestor/descendent of itself in sublevel index
+        subLevelIdx.add( id, id );
 
         // Update the EntryCsn index
         Attribute entryCsn = entry.get( ENTRY_CSN_AT );
@@ -960,17 +971,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         entryUuidIdx.add( entryUuid.getString(), id );
 
-        ID tempId = parentId;
-
-        while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
-        {
-            subLevelIdx.add( tempId, id );
-            tempId = getParentId( tempId );
-        }
-
-        // making entry an ancestor/descendent of itself in sublevel index
-        subLevelIdx.add( id, id );
-
         // Now work on the user defined userIndices
         for ( Attribute attribute : entry )
         {
@@ -993,8 +993,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
+        // Add the parentId in the entry
         entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
         
+        // And finally add the entry into the master table
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
