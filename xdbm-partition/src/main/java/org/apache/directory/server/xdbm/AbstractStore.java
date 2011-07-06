@@ -847,6 +847,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
     /**
      * {@inheritDoc}
+     * 
+     * Adding an entryinvolve may steps :
+     * - fist we must check if the entry exists or not (note that it should probably
+     * be checked higher, but not sure)
      * TODO : We should be able to revert all the changes made to index
      * if something went wrong. Also the index should auto-repair : if
      * an entry does not exist in the Master table, then the index must be updated to reflect this.
@@ -856,15 +860,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Dn entryDn = entry.getDn();
 
-        if ( checkHasEntryDuringAdd )
+        // check if the entry already exists
+        if ( getEntryId( entryDn ) != null )
         {
-            // check if the entry already exists
-            if ( getEntryId( entryDn ) != null )
-            {
-                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-                throw ne;
-            }
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+            throw ne;
         }
 
         ID parentId;

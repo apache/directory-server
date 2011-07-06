@@ -121,17 +121,9 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         Dn name = addContext.getDn();
 
-        if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
+        if ( subschemSubentryDn.equals( name ) )
         {
             throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_249 ) );
-        }
-
-        // check if the entry already exists
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( addContext.getSession(), name ) ) )
-        {
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, name.getName() ) );
-            throw ne;
         }
 
         Dn suffix = nexus.findSuffix( name );

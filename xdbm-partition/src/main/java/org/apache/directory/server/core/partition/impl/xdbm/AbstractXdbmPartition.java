@@ -268,6 +268,10 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         {
             store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
         }
+        catch ( LdapException le )
+        {
+            throw le;
+        }
         catch ( Exception e )
         {
             throw new LdapException( e );
