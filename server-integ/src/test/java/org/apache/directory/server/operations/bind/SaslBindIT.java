@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.codec.api.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.api.LdapEncoder;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
+import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -336,6 +337,80 @@ public class SaslBindIT extends AbstractLdapTestUnit
         request.setUsername( userDn.getRdn().getUpValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
+        BindResponse resp = connection.bind( request );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
+
+        connection.close();
+    }
+    
+    /**
+     * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
+     * SASL Quality of Protection set to 'auth'.
+     */
+    @Test
+    public void testSaslDigestMd5BindSaslQoPAuth() throws Exception
+    {
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+
+        DigestMd5Request request = new DigestMd5Request();
+        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setCredentials( "secret" );
+        request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
+        request.setQualityOfProtection( SaslQoP.AUTH );
+        BindResponse resp = connection.bind( request );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
+
+        connection.close();
+    }
+    
+    /**
+     * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
+     * SASL Quality of Protection set to 'auth-int'.
+     */
+    @Test
+    @Ignore
+    public void testSaslDigestMd5BindSaslQoPAuthInt() throws Exception
+    {
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+
+        DigestMd5Request request = new DigestMd5Request();
+        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setCredentials( "secret" );
+        request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
+        request.setQualityOfProtection( SaslQoP.AUTH_INT );
+        BindResponse resp = connection.bind( request );
+        assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
+
+        Entry entry = connection.lookup( userDn );
+        assertEquals( "hnelson", entry.get( "uid" ).getString() );
+
+        connection.close();
+    }
+    
+    /**
+     * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
+     * SASL Quality of Protection set to 'auth-conf'.
+     */
+    @Test
+    @Ignore
+    public void testSaslDigestMd5BindSaslQoPAuthConf() throws Exception
+    {
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+
+        DigestMd5Request request = new DigestMd5Request();
+        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setCredentials( "secret" );
+        request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
+        request.setQualityOfProtection( SaslQoP.AUTH_CONF );
         BindResponse resp = connection.bind( request );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
