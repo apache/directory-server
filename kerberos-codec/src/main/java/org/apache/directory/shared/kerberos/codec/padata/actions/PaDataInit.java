@@ -58,17 +58,6 @@ public class PaDataInit extends GrammarAction<PaDataContainer>
      */
     public void action( PaDataContainer paDataContainer ) throws DecoderException
     {
-        TLV tlv = paDataContainer.getCurrentTLV();
-
-        // The Length should not be null
-        if ( tlv.getLength() == 0 )
-        {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
-
-            // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
-        }
-
         PaData paData = new PaData();
         paDataContainer.setPaData( paData );
 

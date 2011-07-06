@@ -36,7 +36,7 @@ public class StorePaDataValue extends AbstractReadOctetString<PaDataContainer>
      */
     public StorePaDataValue()
     {
-        super( "PaData's padata-value" );
+        super( "PaData's padata-value", true ); // PaData value can be null 
     }
 
 
