@@ -765,12 +765,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             return getRootId();
         }
 
-        // Just to be sure that the Dn is normalized
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( schemaManager );
-        }
-
         ParentIdAndRdn<ID> suffixKey = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
         // Check into the Rdn index, starting with the partition Suffix

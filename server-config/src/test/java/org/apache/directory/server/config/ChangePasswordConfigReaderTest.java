@@ -27,8 +27,6 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
@@ -44,6 +42,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -118,7 +119,7 @@ public class ChangePasswordConfigReaderTest
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
-        ConfigBean configBean = cpReader.readConfig( new Dn( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_CHANGE_PASSWORD_SERVER_OC.getValue() );
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_CHANGE_PASSWORD_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
         ChangePasswordServerBean changePasswordServerBean = (ChangePasswordServerBean)configBean.getDirectoryServiceBeans().get( 0 );

@@ -244,7 +244,7 @@ public class SingleFileLdifPartitionTest
     private void assertExists( SingleFileLdifPartition partition, String dn ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
-        opCtx.setDn( new Dn( dn ) );
+        opCtx.setDn( new Dn( schemaManager, dn ) );
 
         Entry fetched = partition.lookup( opCtx );
 

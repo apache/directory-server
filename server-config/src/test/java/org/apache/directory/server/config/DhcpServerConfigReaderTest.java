@@ -27,8 +27,6 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DhcpServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
@@ -43,6 +41,9 @@ import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -111,7 +112,7 @@ public class DhcpServerConfigReaderTest
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
-        ConfigBean configBean = cpReader.readConfig( new Dn( "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC.getValue() );
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
         DhcpServerBean dhcpServerBean = (DhcpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
