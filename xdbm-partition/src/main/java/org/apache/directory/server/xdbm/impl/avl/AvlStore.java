@@ -105,12 +105,12 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
 
     /**
-     * always returns null, cause this is a in-memory store
+     * always returns null, because this is a in-memory store
      */
     @Override
     public URI getPartitionPath()
     {
-        // returns null always
+        // returns null, always
         return null;
     }
 

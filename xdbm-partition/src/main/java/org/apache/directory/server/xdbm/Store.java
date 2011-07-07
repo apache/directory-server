@@ -94,7 +94,7 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     public static final String[] SYS_INDEX_OID_ARRAY =
         { 
-            ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID,
+            ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
             ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,

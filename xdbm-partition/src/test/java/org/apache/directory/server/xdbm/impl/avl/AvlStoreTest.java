@@ -168,7 +168,7 @@ public class AvlStoreTest
         assertEquals( 0, store.getCacheSize() );
 
         assertNull( store.getPresenceIndex() );
-        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
+        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( store.getPresenceIndex() );
 
         assertNull( store.getOneLevelIndex() );
@@ -238,7 +238,7 @@ public class AvlStoreTest
         
         try
         {
-            store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
+            store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )

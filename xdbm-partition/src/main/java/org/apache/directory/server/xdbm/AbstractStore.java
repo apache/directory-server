@@ -291,7 +291,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<String, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) ;
+            Index<String, E, ID> index = new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) ;
             index.setWkDirPath( partitionPath );
             addIndex( index );
         }
@@ -369,7 +369,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         // set index shortcuts
         rdnIdx = ( Index<ParentIdAndRdn<ID>, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-        presenceIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+        presenceIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
         oneLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         subLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
         aliasIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
@@ -627,7 +627,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     @SuppressWarnings("unchecked")
     public Index<String, E, ID> getPresenceIndex()
     {
-        return ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+        return ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
     }
 
 
@@ -1503,7 +1503,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 ( ( Index ) index ).add( value.getValue(), id );
             }
 
-            // If the attr didn't exist for this id add it to existence index
+            // If the attr didn't exist for this id add it to presence index
             if ( !presenceIdx.forward( modsOid, id ) )
             {
                 presenceIdx.add( modsOid, id );
