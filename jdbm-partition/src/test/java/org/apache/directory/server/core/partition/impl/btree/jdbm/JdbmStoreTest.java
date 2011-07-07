@@ -249,7 +249,7 @@ public class JdbmStoreTest
         assertEquals( 24, store.getCacheSize() );
 
         assertNull( store.getPresenceIndex() );
-        store.addIndex( new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
+        store.addIndex( new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( store.getPresenceIndex() );
 
         assertNull( store.getOneLevelIndex() );
@@ -326,7 +326,7 @@ public class JdbmStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
+            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )

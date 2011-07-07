@@ -264,7 +264,7 @@ objectclass: ads-partition
 objectclass: ads-jdbmPartition
 ads-indexes: apacheRdn
 ads-indexes: apacheSubLevel
-ads-indexes: apacheExistence
+ads-indexes: apachePresence
 ads-indexes: apacheOneLevel
 ads-indexes: apacheOneAlias
 ads-indexes: apacheSubAlias
@@ -309,8 +309,8 @@ objectclass: ads-base
 objectclass: top
 ads-enabled: TRUE
 
-dn: ads-indexAttributeId=apacheExistence,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheExistence
+dn: ads-indexAttributeId=apachePresence,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
+ads-indexattributeid: apachePresence
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -406,7 +406,7 @@ objectclass: ads-partition
 objectclass: ads-jdbmPartition
 ads-indexes: apacheRdn
 ads-indexes: apacheSubLevel
-ads-indexes: apacheExistence
+ads-indexes: apachePresence
 ads-indexes: apacheOneLevel
 ads-indexes: apacheOneAlias
 ads-indexes: apacheSubAlias
@@ -448,8 +448,8 @@ objectclass: ads-base
 objectclass: top
 ads-enabled: TRUE
 
-dn: ads-indexAttributeId=apacheExistence,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheExistence
+dn: ads-indexAttributeId=apachePresence,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
+ads-indexattributeid: apachePresence
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex

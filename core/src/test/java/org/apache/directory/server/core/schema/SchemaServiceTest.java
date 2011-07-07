@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -40,6 +38,9 @@ import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -101,7 +102,7 @@ public class SchemaServiceTest
         // We should only have 19 AT
         String[] expectedNames = new String[]
             { "sn", "generationQualifier", "ou", "c", "o", "l", "c-st", "givenName", "title", "cn", "initials",
-                "dmdName", "c-ou", "c-o", "apacheExistence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
+                "dmdName", "c-ou", "c-o", "apachePresence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
                 "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId", "ads-pwdId", 
                 "ads-compositeElement", "ads-replConsumerId", "ads-journalId", "ads-changeLogId", "ads-replProviderId" };
 

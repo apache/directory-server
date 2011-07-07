@@ -102,9 +102,9 @@ public final class ApacheSchemaConstants
     public final static String APACHE_UP_DN_AT = "apacheUpdn";
     public final static String APACHE_UP_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.2";
 
-    // ApacheExistence
-    public final static String APACHE_EXISTENCE_AT = "apacheExistence";
-    public final static String APACHE_EXISTENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
+    // ApachePresence
+    public final static String APACHE_PRESENCE_AT = "ApachePresence";
+    public final static String APACHE_PRESENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
 
     // ApacheOneLevel
     public final static String APACHE_ONE_LEVEL_AT = "apacheOneLevel";
