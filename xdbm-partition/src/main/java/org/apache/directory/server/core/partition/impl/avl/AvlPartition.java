@@ -94,10 +94,12 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         for ( AvlIndex<?, Entry> index : indexedAttributes )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
+            
             if ( !index.getAttributeId().equals( oid ) )
             {
                 index.setAttributeId( oid );
             }
+            
             store.addIndex( index );
         }
 

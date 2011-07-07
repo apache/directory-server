@@ -308,6 +308,7 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     public void setSchemaManager( SchemaManager schemaManager )
     {
         super.setSchemaManager( schemaManager );
+        wrappedPartition.setSchemaManager( schemaManager );
     }
 
 

@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -607,12 +606,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         protect( "addIndex" );
 
         // Check that the index ID is valid
-        String oid = index.getAttributeId();
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
 
-        if ( !Oid.isOid( oid ) )
+        if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_309, oid ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_309, index.getAttributeId() ) );
         }
+
+        String oid = attributeType.getOid();
 
         if ( SYS_INDEX_OIDS.contains( oid ) )
         {
@@ -2149,6 +2150,24 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public void setCheckHasEntryDuringAdd( boolean checkHasEntryDuringAdd )
     {
         this.checkHasEntryDuringAdd = checkHasEntryDuringAdd;
+    }
+
+
+    /**
+     * @return the schemaManager
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+
+
+    /**
+     * @param schemaManager the schemaManager to set
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
     }
 
     

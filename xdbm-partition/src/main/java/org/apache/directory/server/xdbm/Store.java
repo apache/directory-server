@@ -598,4 +598,16 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the default ID.
      */
     ID getDefaultId() throws Exception;
+
+
+    /**
+     * @return the schemaManager
+     */
+    SchemaManager getSchemaManager();
+
+
+    /**
+     * @param schemaManager the schemaManager to set
+     */
+    void setSchemaManager( SchemaManager schemaManager );
 }

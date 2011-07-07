@@ -128,6 +128,7 @@ public class OrCursorTest
 
         // initialize the store
         store = new AvlStore<Entry>();
+        store.setSchemaManager( schemaManager );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );

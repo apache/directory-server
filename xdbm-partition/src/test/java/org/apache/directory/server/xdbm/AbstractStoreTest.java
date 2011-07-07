@@ -126,6 +126,7 @@ public class AbstractStoreTest
 
         // initialize the store
         store = new AvlStore<Entry>();
+        store.setSchemaManager( schemaManager );
         store.setId( "example" );
         store.setSyncOnWrite( false );
 

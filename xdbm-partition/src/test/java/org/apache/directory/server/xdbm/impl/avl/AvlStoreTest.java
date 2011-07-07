@@ -137,6 +137,7 @@ public class AvlStoreTest
 
         // initialize the store
         store = new AvlStore<Entry>();
+        store.setSchemaManager( schemaManager );
         store.setId( "example" );
         store.setSyncOnWrite( false );
 
@@ -157,6 +158,7 @@ public class AvlStoreTest
     public void testSimplePropertiesUnlocked() throws Exception
     {
         AvlStore<Attributes> store = new AvlStore<Attributes>();
+        store.setSchemaManager( schemaManager );
         store.setSyncOnWrite( true ); // for code coverage
 
         assertNull( store.getAliasIndex() );
@@ -200,7 +202,7 @@ public class AvlStoreTest
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        store.addIndex( new AvlIndex<Object, Attributes>( "1.2.3.4" ) );
+        store.addIndex( new AvlIndex<Object, Attributes>( "2.5.4.3" ) );
         assertEquals( 1, store.getUserIndices().size() );
 
         assertNull( store.getPartitionPath() );

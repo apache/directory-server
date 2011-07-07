@@ -148,6 +148,7 @@ public class JdbmStoreTest
 
         // initialize the store
         store = new JdbmStore<Entry>();
+        store.setSchemaManager( schemaManager );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -202,6 +203,7 @@ public class JdbmStoreTest
 
         // initialize the 2nd store
         JdbmStore<Entry> store2 = new JdbmStore<Entry>();
+        store2.setSchemaManager( schemaManager );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
@@ -234,6 +236,7 @@ public class JdbmStoreTest
     public void testSimplePropertiesUnlocked() throws Exception
     {
         JdbmStore<Attributes> store = new JdbmStore<Attributes>();
+        store.setSchemaManager( schemaManager );
         store.setSyncOnWrite( true ); // for code coverage
 
         assertNull( store.getAliasIndex() );
@@ -280,7 +283,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        store.addIndex( new JdbmIndex<Object, Attributes>( "1.2.3.4" ) );
+        store.addIndex( new JdbmIndex<Object, Attributes>( "2.5.4.3" ) );
         assertEquals( 1, store.getUserIndices().size() );
 
         assertNull( store.getPartitionPath() );
@@ -922,6 +925,7 @@ public class JdbmStoreTest
         assertTrue( uuidIndexTxtFile.exists() );
 
         store = new JdbmStore<Entry>();
+        store.setSchemaManager( schemaManager );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -940,5 +944,4 @@ public class JdbmStoreTest
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
     }
-
 }

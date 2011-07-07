@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -114,6 +115,13 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     public void setSyncOnWrite( boolean syncOnWrite )
     {
         store.setSyncOnWrite( syncOnWrite );
+    }
+    
+    
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        super.setSchemaManager( schemaManager );
+        store.setSchemaManager( schemaManager );
     }
 
 
