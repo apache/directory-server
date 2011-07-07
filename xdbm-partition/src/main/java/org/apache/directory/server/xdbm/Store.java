@@ -447,9 +447,10 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the normalized Dn of the entry identified by the given id.
+     * Gets the Entry's Dn identified by the given id.
+     * 
      * @param id the entry's id
-     * @return the normalized entry Dn
+     * @return the entry's Dn
      */
     Dn getEntryDn( ID id ) throws Exception;
 

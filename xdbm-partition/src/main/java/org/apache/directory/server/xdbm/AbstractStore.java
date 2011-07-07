@@ -205,6 +205,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int getCacheSize()
     {
         return cacheSize;
@@ -1103,7 +1106,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     @SuppressWarnings("unchecked")
     public synchronized void delete( ID id ) throws Exception
     {
+        // First get the entry
         Entry entry = master.get( id );
+        
+        if ( entry == null )
+        {
+            // Not allowed
+            throw new LdapNoSuchObjectException( "Cannot find an entry for ID " + id );
+        }
 
         Attribute objectClass = entry.get( OBJECT_CLASS_AT );
 
@@ -1112,17 +1122,20 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             dropAliasIndices( id );
         }
 
+        // Update the ObjectClass index
         for ( Value<?> value : objectClass )
         {
             objectClassIdx.drop( value.getString(), id );
         }
 
+        // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
         rdnIdx.drop( id );
         oneLevelIdx.drop( id );
         subLevelIdx.drop( id );
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
 
+        // Update the user indexes
         for ( Attribute attribute : entry )
         {
             String attributeOid = attribute.getAttributeType().getOid();
@@ -1446,10 +1459,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected Dn buildEntryDn( ID id ) throws Exception
     {
         ID parentId = id;
+        ID rootId = getRootId();
 
-        List<Rdn> rdnList = new ArrayList<Rdn>();
         StringBuilder upName = new StringBuilder();
-        String normName = "";
+        boolean isFirst = true;
 
         do
         {
@@ -1458,23 +1471,21 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             for ( Rdn rdn : rdns )
             {
-                if ( rdnList.isEmpty() )
+                if ( isFirst )
                 {
-                    normName = rdn.getNormName();
-                    upName.append( rdn.getName() );
+                    isFirst = false;
                 }
                 else
                 {
-                    normName = normName + "," + rdn.getNormName();
-                    upName.append( ',' ).append( rdn.getName() );
+                    upName.append( ',' );
                 }
-
-                rdnList.add( rdn );
+                
+                upName.append( rdn.getName() );
             }
 
             parentId = cur.getParentId();
         }
-        while ( !parentId.equals( getRootId() ) );
+        while ( !parentId.equals( rootId ) );
 
         Dn dn = new Dn( schemaManager, upName.toString() );
 

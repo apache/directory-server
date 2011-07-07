@@ -86,6 +86,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
+    /**
+     * {@inheritDoc}}
+     */
     public Long getDefaultId()
     {
         return 1L;
