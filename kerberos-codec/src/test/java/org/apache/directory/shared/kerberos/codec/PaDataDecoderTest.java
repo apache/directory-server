@@ -145,17 +145,20 @@ public class PaDataDecoderTest
         fail();
     }
     
-    
-    @Test( expected = DecoderException.class )
+    @Test
     public void testDecodePaDataWithEmptySeq() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
         
-        ByteBuffer stream = ByteBuffer.allocate( 2 );
+        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
         stream.put( new byte[]
             { 
-                0x30, 0x0
+                0x30, 0x09,
+                  (byte)0xA1, 0x03,                 // padata-type
+                    0x02, 0x01, 0x02,
+                  (byte)0xA2, 0x02,                 // padata-value
+                    0x04, 0x00
             } );
         
         stream.flip();
@@ -163,7 +166,6 @@ public class PaDataDecoderTest
         PaDataContainer container = new PaDataContainer();
         
         krbDecoder.decode( stream, container );
-        fail();
     }
 
 }
