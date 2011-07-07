@@ -52,7 +52,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     private final IndexCursor<V, Entry, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V, Entry, ID> ndnIdxCursor;
+    private final IndexCursor<V, Entry, ID> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
@@ -75,11 +75,11 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         if ( db.hasIndexOn( attributeType ) )
         {
             userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attributeType ) ).forwardCursor();
-            ndnIdxCursor = null;
+            uuidIdxCursor = null;
         }
         else
         {
-            ndnIdxCursor = ( IndexCursor<V, Entry, ID> ) db.getNdnIndex().forwardCursor();
+            uuidIdxCursor = ( IndexCursor<V, Entry, ID> ) db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -262,7 +262,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            ndnIdxCursor.beforeFirst();
+            uuidIdxCursor.beforeFirst();
             ndnCandidate = null;
         }
 
@@ -282,7 +282,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            ndnIdxCursor.afterLast();
+            uuidIdxCursor.afterLast();
             ndnCandidate = null;
         }
 
@@ -318,10 +318,10 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             return available = userIdxCursor.previous();
         }
 
-        while ( ndnIdxCursor.previous() )
+        while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            ndnCandidate = ndnIdxCursor.get();
+            ndnCandidate = uuidIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
                 return available = true;
@@ -361,10 +361,10 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             return available = false;
         }
 
-        while ( ndnIdxCursor.next() )
+        while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            ndnCandidate = ndnIdxCursor.get();
+            ndnCandidate = uuidIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
                 return available = true;
@@ -411,7 +411,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            ndnIdxCursor.close();
+            uuidIdxCursor.close();
             ndnCandidate = null;
         }
     }

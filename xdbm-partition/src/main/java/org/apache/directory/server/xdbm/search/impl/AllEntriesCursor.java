@@ -42,7 +42,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
-        wrapped = db.getNdnIndex().reverseCursor();
+        wrapped = db.getEntryUuidIndex().reverseCursor();
     }
 
 

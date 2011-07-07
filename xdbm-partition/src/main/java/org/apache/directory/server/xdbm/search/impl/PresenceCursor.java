@@ -38,13 +38,13 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, Entry, ID> ndnCursor;
+    private final IndexCursor<String, Entry, ID> uuidCursor;
     private final IndexCursor<String, Entry, ID> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
     private boolean available = false;
 
 
-    public PresenceCursor( Store<Entry, ID> db, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
+    public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
     {
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
@@ -52,15 +52,15 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
         // as it doesn't make sense because every entry has such an attribute
         // instead for those attributes and all un-indexed attributes we use the ndn index
-        if ( db.hasUserIndexOn( type ) )
+        if ( store.hasUserIndexOn( type ) )
         {
-            presenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );
-            ndnCursor = null;
+            presenceCursor = store.getPresenceIndex().forwardCursor( type.getOid() );
+            uuidCursor = null;
         }
         else
         {
             presenceCursor = null;
-            ndnCursor = db.getNdnIndex().forwardCursor();
+            uuidCursor = store.getEntryUuidIndex().forwardCursor();
         }
     }
 
@@ -138,7 +138,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        ndnCursor.beforeFirst();
+        uuidCursor.beforeFirst();
         available = false;
     }
 
@@ -152,7 +152,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        ndnCursor.afterLast();
+        uuidCursor.afterLast();
         available = false;
     }
 
@@ -191,10 +191,10 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return presenceCursor.previous();
         }
 
-        while ( ndnCursor.previous() )
+        while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -213,10 +213,10 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return presenceCursor.next();
         }
 
-        while ( ndnCursor.next() )
+        while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -247,7 +247,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
              * value to be the value of the attribute in question.  So we will
              * set that accordingly here.
              */
-            IndexEntry<String, Entry, ID> indexEntry = ndnCursor.get();
+            IndexEntry<String, Entry, ID> indexEntry = uuidCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
             return indexEntry;
         }
@@ -266,7 +266,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         }
         else
         {
-            ndnCursor.close();
+            uuidCursor.close();
         }
     }
 }

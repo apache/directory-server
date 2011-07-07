@@ -47,15 +47,15 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<Entry, ID> db, final SubstringEvaluator<ID> substringEvaluator )
+    public SubstringCursor( Store<Entry, ID> store, final SubstringEvaluator<ID> substringEvaluator )
         throws Exception
     {
         evaluator = substringEvaluator;
-        hasIndex = db.hasIndexOn( evaluator.getExpression().getAttributeType() );
+        hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, ID> ) db.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String, Entry, ID> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
@@ -71,7 +71,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
              * knows to use it, when it itself detects the lack of an index on
              * the node's attribute.
              */
-            wrapped = db.getNdnIndex().forwardCursor();
+            wrapped = store.getEntryUuidIndex().forwardCursor();
         }
     }
 

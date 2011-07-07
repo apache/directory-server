@@ -288,12 +288,6 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * @return The Ndn system index
-     */
-    Index<String, E, ID> getNdnIndex();
-
-
-    /**
      * @return The ObjectClass system index
      */
     Index<String, E, ID> getObjectClassIndex();
@@ -384,16 +378,8 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Get the user <strong>or</strong> system index associated with the given name
-     * @param id The index name we are looking for
-     * @return The associated user <strong>or</strong> system index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?, E, ID> getIndex( String id ) throws IndexNotFoundException;
-
-
-    /**
      * Get the user <strong>or</strong> system index associated with the given attributeType
+     * 
      * @param attributeType The index attributeType we are looking for
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist

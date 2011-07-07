@@ -79,7 +79,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         }
         else
         {
-            ndnIdxCursor = db.getNdnIndex().forwardCursor();
+            ndnIdxCursor = db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }

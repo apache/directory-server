@@ -52,7 +52,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     private final IndexCursor<V, Entry, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, Entry, ID> ndnIdxCursor;
+    private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
@@ -70,11 +70,11 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         {
             Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
             userIdxCursor = userIndex.forwardCursor( value.getValue() );
-            ndnIdxCursor = null;
+            uuidIdxCursor = null;
         }
         else
         {
-            ndnIdxCursor = db.getNdnIndex().forwardCursor();
+            uuidIdxCursor = db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -179,7 +179,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            ndnIdxCursor.beforeFirst();
+            uuidIdxCursor.beforeFirst();
         }
 
         available = false;
@@ -199,7 +199,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            ndnIdxCursor.afterLast();
+            uuidIdxCursor.afterLast();
         }
 
         available = false;
@@ -239,10 +239,10 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.previous();
         }
 
-        while ( ndnIdxCursor.previous() )
+        while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = ndnIdxCursor.get();
+            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -264,10 +264,10 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.next();
         }
 
-        while ( ndnIdxCursor.next() )
+        while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = ndnIdxCursor.get();
+            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
             
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -294,7 +294,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
 
         if ( available )
         {
-            return ( IndexEntry<V, Entry, ID> ) ndnIdxCursor.get();
+            return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
@@ -314,7 +314,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            ndnIdxCursor.close();
+            uuidIdxCursor.close();
         }
     }
 }

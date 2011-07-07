@@ -363,7 +363,7 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getNdnIndex() );
+        assertNotNull( store.getEntryUuidIndex() );
 
         assertNotNull( store.getRdnIndex() );
         try

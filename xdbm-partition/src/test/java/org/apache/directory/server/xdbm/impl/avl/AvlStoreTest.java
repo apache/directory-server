@@ -278,7 +278,7 @@ public class AvlStoreTest
         {
         }
 
-        assertNotNull( store.getNdnIndex() );
+        assertNotNull( store.getEntryUuidIndex() );
         assertNotNull( store.getRdnIndex() );
         
         try

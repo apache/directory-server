@@ -497,24 +497,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Index<?, E, ID> getIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            return getIndex( schemaManager.lookupAttributeTypeRegistry( id) );
-        }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         String id = attributeType.getOid();
@@ -636,15 +618,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public Index<ParentIdAndRdn<ID>, E, ID> getRdnIndex()
     {
         return ( Index<ParentIdAndRdn<ID>, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, ID> getNdnIndex()
-    {
-        return getEntryUuidIndex();
     }
 
 
