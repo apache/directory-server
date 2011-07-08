@@ -354,7 +354,7 @@ public class ClientServerReplicationIT
                     
                     Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn );
                     provConfigEntry.add( "objectClass", "ads-replConsumer" );
-                    provConfigEntry.add( "ads-replConsumerId", "localhost" );
+                    provConfigEntry.add( "ads-replProviderId", "localhost" );
                     provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
                     provConfigEntry.add( "ads-replProvHostName", config.getProviderHost() );
                     provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getPort() ) );
