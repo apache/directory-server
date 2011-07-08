@@ -100,7 +100,6 @@ public class JdbmStoreTest
     /** The SN AttributeType instance */
     private static AttributeType SN_AT;
 
-
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -418,7 +417,7 @@ public class JdbmStoreTest
 
         try
         {
-            store.getSystemIndex( "bogus" );
+            store.getSystemIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -448,7 +447,7 @@ public class JdbmStoreTest
         assertNotNull( store.getUserIndex( OU_AT ) );
         try
         {
-            store.getUserIndex( "bogus" );
+            store.getUserIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -456,7 +455,7 @@ public class JdbmStoreTest
         }
         try
         {
-            store.getUserIndex( "dc" );
+            store.getUserIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )

@@ -70,20 +70,17 @@ public class AbstractStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractStoreTest.class );
 
-    private static File wkdir;
     private static Store<Entry, Long> store;
     private static SchemaManager schemaManager = null;
-    private static Dn EXAMPLE_COM;
     
     /** The OU AttributType instance */
     private static AttributeType OU_AT;
-
-    /** The CN AttributType instance */
-    private static AttributeType CN_AT;
-
+    
     /** The UID AttributType instance */
     private static AttributeType UID_AT;
-
+    
+    /** The CN AttributType instance */
+    private static AttributeType CN_AT;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -110,12 +107,10 @@ public class AbstractStoreTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
         }
-
-        EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
         
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
-        CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
         UID_AT = schemaManager.getAttributeType( SchemaConstants.UID_AT );
+        CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
     }
 
 

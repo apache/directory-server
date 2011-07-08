@@ -89,12 +89,14 @@ public class AvlStoreTest
     /** The OU AttributeType instance */
     private static AttributeType OU_AT;
 
+    /** The SN AttributeType instance */
+    private static AttributeType SN_AT;
+
     /** The DC AttributeType instance */
     private static AttributeType DC_AT;
     
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
-
 
     @BeforeClass
     public static void setup() throws Exception
@@ -125,6 +127,7 @@ public class AvlStoreTest
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
 
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
+        SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
     }
@@ -143,6 +146,7 @@ public class AvlStoreTest
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
+        
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
@@ -336,7 +340,7 @@ public class AvlStoreTest
         
         try
         {
-            store.getSystemIndex( "bogus" );
+            store.getSystemIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -354,9 +358,9 @@ public class AvlStoreTest
 
         assertNotNull( store.getSuffixDn() );
         assertEquals( 2, store.getUserIndices().size() );
-        assertFalse( store.hasUserIndexOn( DC_AT ) );
-        assertTrue( store.hasUserIndexOn( OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
+        assertFalse( store.hasUserIndexOn( "dc" ) );
+        assertTrue( store.hasUserIndexOn( "ou" ) );
+        assertTrue( store.hasSystemIndexOn( "apacheAlias" ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
@@ -367,7 +371,7 @@ public class AvlStoreTest
         
         try
         {
-            store.getUserIndex( "bogus" );
+            store.getUserIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -376,7 +380,7 @@ public class AvlStoreTest
         
         try
         {
-            store.getUserIndex( "dc" );
+            store.getUserIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )

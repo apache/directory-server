@@ -152,6 +152,13 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
+     * Gets the root ID of this store implementation.
+     *
+     * @return the root ID
+     */
+    ID getRootId();
+
+    /**
      * Sets the flag telling the server to flush on disk when some
      * modification has been done.
      * @param isSyncOnWrite A boolean set to true if we have to flush on disk 
@@ -324,16 +331,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * User's <strong>or</strong> System's index list 
      * @throws Exception If something went wrong
      */
-    boolean hasIndexOn( String id ) throws Exception;
-
-
-    /**
-     * Tells if an index is already present in the User's <strong>or</strong> System's index list
-     * @param attributeType The index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * User's <strong>or</strong> System's index list 
-     * @throws Exception If something went wrong
-     */
     boolean hasIndexOn( AttributeType attributeType ) throws Exception;
 
 
@@ -389,16 +386,7 @@ public interface Store<E, ID extends Comparable<ID>>
 
     /**
      * Get the user index associated with the given name
-     * @param id The index name we are looking for
-     * @return The associated user index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?, E, ID> getUserIndex( String id ) throws IndexNotFoundException;
-
-
-    /**
-     * Get the user index associated with the given attributeType
-     * @param attributeType The index attributeType we are looking for
+     * @param attributeType The index name we are looking for
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
@@ -407,16 +395,7 @@ public interface Store<E, ID extends Comparable<ID>>
 
     /**
      * Get the system index associated with the given name
-     * @param id The index name we are looking for
-     * @return The associated system index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException;
-
-
-    /**
-     * Get the system index associated with the given attributeType
-     * @param attributeType The index attributeType we are looking for
+     * @param attributeType The index name we are looking for
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */

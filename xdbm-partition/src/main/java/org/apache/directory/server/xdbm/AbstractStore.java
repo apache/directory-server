@@ -95,6 +95,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** The suffix Dn */
     protected Dn suffixDn;
 
+    /** The suffix ID */
+    private volatile ID suffixId;
+
     /** A pointer on the schemaManager */
     protected SchemaManager schemaManager;
 
@@ -243,6 +246,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Dn getSuffixDn()
     {
         return suffixDn;
@@ -392,28 +398,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * Gets the root ID of this store implementation.
-     *
-     * @return the root ID
-     */
-    protected abstract ID getRootId();
-
-
-    /**
-     * Gets the suffix ID of this store implementation.
-     *
-     * @return the suffix ID
-     */
-    protected ID getSuffixId() throws Exception
-    {
-        // TODO: optimize
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
-        
-        return rdnIdx.forwardLookup( key );
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public Iterator<String> userIndices()
@@ -428,15 +412,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public Iterator<String> systemIndices()
     {
         return systemIndices.keySet().iterator();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasIndexOn( String id ) throws LdapException
-    {
-        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
     }
 
 
@@ -518,52 +493,21 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Index<?, E, ID> getUserIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            return getUserIndex( schemaManager.lookupAttributeTypeRegistry( id ) );
-        }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
-        String id = attributeType.getOid();
-
-        if ( userIndices.containsKey( id ) )
+        if ( attributeType == null )
         {
-            return userIndices.get( id );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_3, attributeType, attributeType ) );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException
-    {
-        try
+        String oid = attributeType.getOid();
+        
+        if ( userIndices.containsKey( oid ) )
         {
-            return getSystemIndex( schemaManager.lookupAttributeTypeRegistry( id ) );
+            return userIndices.get( oid );
         }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, attributeType, attributeType ) );
     }
 
 
@@ -572,14 +516,19 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
-        String id = attributeType.getOid();
-
-        if ( systemIndices.containsKey( id ) )
+        if ( attributeType == null )
         {
-            return systemIndices.get( id );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
+        String oid = attributeType.getOid();
+        
+        if ( systemIndices.containsKey( oid ) )
+        {
+            return systemIndices.get( oid );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
     }
 
 
@@ -951,11 +900,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Now work on the user defined userIndices
         for ( Attribute attribute : entry )
         {
-            String attributeOid = attribute.getAttributeType().getOid();
+            AttributeType attributeType = attribute.getAttributeType();
+            String attributeOid = attributeType.getOid();
 
-            if ( hasUserIndexOn( attribute.getAttributeType() ) )
+            if ( hasUserIndexOn( attributeType ) )
             {
-                Index<Object, E, ID> idx = ( Index<Object, E, ID> ) getUserIndex( attributeOid );
+                Index<Object, E, ID> idx = ( Index<Object, E, ID> ) getUserIndex( attributeType );
 
                 // here lookup by attributeId is OK since we got attributeId from
                 // the entry via the enumeration - it's in there as is for sure
@@ -1111,11 +1061,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Update the user indexes
         for ( Attribute attribute : entry )
         {
-            String attributeOid = attribute.getAttributeType().getOid();
+            AttributeType attributeType = attribute.getAttributeType();
+            String attributeOid = attributeType.getOid();
 
-            if ( hasUserIndexOn( attribute.getAttributeType() ) )
+            if ( hasUserIndexOn( attributeType ) )
             {
-                Index<?, E, ID> index = getUserIndex( attributeOid );
+                Index<?, E, ID> index = getUserIndex( attributeType );
 
                 // here lookup by attributeId is ok since we got attributeId from
                 // the entry via the enumeration - it's in there as is for sure
@@ -1180,7 +1131,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             if ( hasUserIndexOn( newNormType ) )
             {
-                Index<?, E, ID> index = getUserIndex( newNormType );
+                Index<?, E, ID> index = getUserIndex( newRdnAttrType );
                 ( ( Index ) index ).add( newNormValue, id );
 
                 // Make sure the altered entry shows the existence of the new attrib
@@ -1236,7 +1187,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
                     if ( hasUserIndexOn( oldNormType ) )
                     {
-                        Index<?, E, ID> index = getUserIndex( oldNormType );
+                        Index<?, E, ID> index = getUserIndex( oldRdnAttrType );
                         ( ( Index ) index ).drop( oldNormValue, id );
 
                         /*
@@ -1485,6 +1436,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+        AttributeType attributeType = mods.getAttributeType();
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1494,9 +1446,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 objectClassIdx.add( value.getString(), id );
             }
         }
-        else if ( hasUserIndexOn( mods.getAttributeType() ) )
+        else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, E, ID> index = getUserIndex( modsOid );
+            Index<?, E, ID> index = getUserIndex( attributeType );
 
             for ( Value<?> value : mods )
             {
@@ -1546,9 +1498,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+        AttributeType attributeType = mods.getAttributeType();
 
         // Special case for the ObjectClass index
-        if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
+        if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
             // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
@@ -1562,9 +1515,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 objectClassIdx.add( value.getString(), id );
             }
         }
-        else if ( hasUserIndexOn( mods.getAttributeType() ) )
+        else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, E, ID> index = getUserIndex( modsOid );
+            Index<?, E, ID> index = getUserIndex( attributeType );
 
             // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
@@ -1637,9 +1590,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+        AttributeType attributeType = mods.getAttributeType();
 
         // Special case for the ObjectClass index
-        if ( mods.getAttributeType().equals( OBJECT_CLASS_AT ) )
+        if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
             /*
              * If there are no attribute values in the modifications then this
@@ -1658,9 +1612,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 }
             }
         }
-        else if ( hasUserIndexOn( mods.getAttributeType() ) )
+        else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, E, ID> index = getUserIndex( modsOid );
+            Index<?, E, ID> index = getUserIndex( attributeType );
 
             /*
              * If there are no attribute values in the modifications then this
@@ -2215,5 +2169,21 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             throw errors;
         }
+    }
+    
+    
+    /**
+     * Retrieve the SuffixID
+     */
+    private ID getSuffixId() throws Exception
+    {
+        if ( suffixId == null )
+        {
+            ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
+            
+            suffixId = rdnIdx.forwardLookup( key );
+        }
+
+        return suffixId;
     }
 }

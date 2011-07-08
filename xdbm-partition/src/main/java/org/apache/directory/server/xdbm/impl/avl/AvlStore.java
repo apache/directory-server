@@ -142,8 +142,10 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     }
 
 
-    @Override
-    protected Long getRootId()
+    /**
+     * {@inheritDoc}
+     */
+    public Long getRootId()
     {
         return 0L;
     }
