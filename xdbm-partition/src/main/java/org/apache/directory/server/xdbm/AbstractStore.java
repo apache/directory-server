@@ -774,7 +774,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      * 
-     * Adding an entryinvolve may steps :
+     * Adding an entry involves may steps :
      * - first we must check if the entry exists or not
      * - then we must get a new ID for the added entry
      * - update the RDN index
@@ -794,12 +794,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Dn entryDn = entry.getDn();
 
-        // check if the entry already exists
-        if ( getEntryId( entryDn ) != null )
+        if ( checkHasEntryDuringAdd )
         {
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-            throw ne;
+            // check if the entry already exists
+            if ( getEntryId( entryDn ) != null )
+            {
+                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+                throw ne;
+            }
         }
 
         ID parentId = null;
