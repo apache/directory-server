@@ -151,14 +151,14 @@ public class LdifPartitionTest
     }
 
 
-    private ClonedServerEntry createEntry( String dn ) throws Exception
+    private Entry createEntry( String dn ) throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager );
         entry.setDn( new Dn( schemaManager, dn ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        ClonedServerEntry clonedEntry = new ClonedServerEntry( entry );
+        Entry clonedEntry = new ClonedServerEntry( entry );
 
         return clonedEntry;
     }
@@ -180,21 +180,21 @@ public class LdifPartitionTest
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
-        ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
+        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
+        Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
+        Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
         entryMvrdn.put( "ObjectClass", "top", "domain" );
         entryMvrdn.put( "dc", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
@@ -225,21 +225,21 @@ public class LdifPartitionTest
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
-        ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
+        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
+        Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry3 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
+        Entry entry3 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
         entry3.put( "dc", "test" );
         addCtx.setEntry( entry3 );
@@ -279,28 +279,28 @@ public class LdifPartitionTest
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
-        ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
+        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
+        Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test1" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
+        Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
         entry3.put( "dc", "test2" );
         addCtx.setEntry( entry3 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
+        Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
         entryMvrdn.put( "ObjectClass", "top", "domain" );
         entryMvrdn.put( "dc", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
@@ -365,21 +365,21 @@ public class LdifPartitionTest
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
-        ClonedServerEntry entry1 = createEntry( "dc=test,ou=test,ou=system" );
+        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
+        Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test1" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
+        Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
         entry3.put( "dc", "test2" );
         addCtx.setEntry( entry3 );
@@ -592,7 +592,7 @@ public class LdifPartitionTest
         String rdnWithForbiddenChars = "dc=- -\\\"-%-&-(-)-*-\\+-/-:-\\;-\\<-\\>-?-[-\\5C-]-|-";
         String rdnWithEscapedChars = "dc=-%20-%22-%25-%26-%28-%29-%2a-%2b-%2f-%3a-%3b-%3c-%3e-%3f-%5b-%5c-%5d-%7c-";
 
-        ClonedServerEntry entry1 = createEntry( rdnWithForbiddenChars + ",ou=test,ou=system" );
+        Entry entry1 = createEntry( rdnWithForbiddenChars + ",ou=test,ou=system" );
         entry1.put( "objectClass", "top", "domain" );
         addCtx.setEntry( entry1 );
 
@@ -626,7 +626,7 @@ public class LdifPartitionTest
         String rdnWithEscapedChars = "userpassword=-%00-%01-%02-%03-%04-%05-%06-%07-%08-%09-%0a-%0b-%0c-%0d-%0e-%0f" +
                 "-%10-%11-%12-%13-%14-%15-%16-%17-%18-%19-%1a-%1b-%1c-%1d-%1e-%1f-%7f";
 
-        ClonedServerEntry entry1 = createEntry( rdnWithControlChars + ",ou=test,ou=system" );
+        Entry entry1 = createEntry( rdnWithControlChars + ",ou=test,ou=system" );
         entry1.put( "objectClass", "top", "person" );
         entry1.put( "cn", "test" );
         entry1.put( "sn", "test" );
@@ -648,35 +648,35 @@ public class LdifPartitionTest
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
-        ClonedServerEntry childEntry1 = createEntry( "dc=child1,ou=test,ou=system" );
+        Entry childEntry1 = createEntry( "dc=child1,ou=test,ou=system" );
         childEntry1.put( "ObjectClass", "top", "domain" );
         childEntry1.put( "dc", "child1" );
         addCtx.setEntry( childEntry1 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry childEntry2 = createEntry( "dc=child2,ou=test,ou=system" );
+        Entry childEntry2 = createEntry( "dc=child2,ou=test,ou=system" );
         childEntry2.put( "ObjectClass", "top", "domain" );
         childEntry2.put( "dc", "child2" );
         addCtx.setEntry( childEntry2 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
+        Entry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
         grandChild11.put( "ObjectClass", "top", "domain" );
         grandChild11.put( "dc", "grandChild11" );
         addCtx.setEntry( grandChild11 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry grandChild12 = createEntry( "dc=grandChild12,dc=child1,ou=test,ou=system" );
+        Entry grandChild12 = createEntry( "dc=grandChild12,dc=child1,ou=test,ou=system" );
         grandChild12.put( "ObjectClass", "top", "domain" );
         grandChild12.put( "dc", "grandChild12" );
         addCtx.setEntry( grandChild12 );
 
         partition.add( addCtx );
 
-        ClonedServerEntry greatGrandChild111 = createEntry( "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
+        Entry greatGrandChild111 = createEntry( "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
         greatGrandChild111.put( "ObjectClass", "top", "domain" );
         greatGrandChild111.put( "dc", "greatGrandChild111" );
         addCtx.setEntry( greatGrandChild111 );

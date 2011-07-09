@@ -358,9 +358,9 @@ public class AvlStoreTest
 
         assertNotNull( store.getSuffixDn() );
         assertEquals( 2, store.getUserIndices().size() );
-        assertFalse( store.hasUserIndexOn( "dc" ) );
-        assertTrue( store.hasUserIndexOn( "ou" ) );
-        assertTrue( store.hasSystemIndexOn( "apacheAlias" ) );
+        assertFalse( store.hasUserIndexOn( DC_AT ) );
+        assertTrue( store.hasUserIndexOn( OU_AT ) );
+        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );

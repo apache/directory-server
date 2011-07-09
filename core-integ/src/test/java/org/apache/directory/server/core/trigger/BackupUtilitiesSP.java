@@ -46,12 +46,12 @@ public class BackupUtilitiesSP
      * @param deletedEntry the entry that was deleted
      * @throws Exception if there are failures
      */
-    public static void backupDeleted( CoreSession session, ClonedServerEntry deletedEntry ) throws Exception
+    public static void backupDeleted( CoreSession session, Entry deletedEntry ) throws Exception
     {
         LOG.info( "User \"" + session.getEffectivePrincipal() + "\" has deleted entry \"" + deletedEntry + "\"" );
         Dn backupDn = new Dn( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntry.getDn().getRdn().getName();
-        Entry entry = ( Entry ) deletedEntry.getOriginalEntry().clone();
+        Entry entry = (( ClonedServerEntry ) deletedEntry).getOriginalEntry().clone();
         backupDn = backupDn.add( deletedEntryRdn );
         entry.setDn( backupDn );
         session.add( deletedEntry );

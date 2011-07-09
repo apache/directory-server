@@ -52,18 +52,11 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      */
     public void init( SchemaManager schemaManager ) throws Exception
     {
-        super.init( schemaManager );
-
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
 
-        // -------------------------------------------------------------------
-        // Initializes the user and system indices
-        // -------------------------------------------------------------------
-        setupSystemIndices();
-        setupUserIndices();
+        super.init( schemaManager );
 
-        // We are done !
         initialized = true;
     }
 

@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -83,7 +82,7 @@ public class MockOperationManager implements OperationManager
         return null;
     }
 
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }

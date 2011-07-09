@@ -148,6 +148,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     private boolean checkHasEntryDuringAdd = false;
 
+    /**
+     * {@inheritDoc}
+     */
     public void init( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
@@ -157,6 +160,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         ALIASED_OBJECT_NAME_AT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        
+        // -------------------------------------------------------------------
+        // Initializes the user and system indices
+        // -------------------------------------------------------------------
+        setupSystemIndices();
+        setupUserIndices();
     }
     
 
@@ -169,6 +178,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isInitialized()
     {
         return initialized;
@@ -195,6 +207,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isSyncOnWrite()
     {
         return isSyncOnWrite.get();
@@ -292,7 +307,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * Sets up the system indices.
      */
     @SuppressWarnings("unchecked")
-    protected void setupSystemIndices() throws Exception
+    private void setupSystemIndices() throws Exception
     {
         // add missing system indices
         if ( getPresenceIndex() == null )
@@ -427,27 +442,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public boolean hasUserIndexOn( String id ) throws LdapException
-    {
-        return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
     {
         return userIndices.containsKey( attributeType.getOid() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasSystemIndexOn( String id ) throws LdapException
-    {
-        return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
     }
 
 
@@ -740,7 +737,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     //------------------------------------------------------------------------
     // Operations
     //------------------------------------------------------------------------
-
     /**
      * {@inheritDoc}
      */
@@ -764,6 +760,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public IndexCursor<ID, E, ID> list( ID id ) throws Exception
     {
+        // We use the OneLevl index to get all the entries from a starting point
+        // and below
         IndexCursor<ID, E, ID> cursor = oneLevelIdx.forwardCursor( id );
         cursor.beforeValue( id, null );
 
@@ -774,7 +772,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      * 
-     * Adding an entry involves may steps :
+     * Adding an entry involves many steps :
      * - first we must check if the entry exists or not
      * - then we must get a new ID for the added entry
      * - update the RDN index
@@ -794,15 +792,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Dn entryDn = entry.getDn();
 
-        if ( checkHasEntryDuringAdd )
+        // check if the entry already exists
+        if ( getEntryId( entryDn ) != null )
         {
-            // check if the entry already exists
-            if ( getEntryId( entryDn ) != null )
-            {
-                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-                throw ne;
-            }
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+            throw ne;
         }
 
         ID parentId = null;
@@ -1132,7 +1127,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
             entry.add( newRdnAttrType, newAtav.getNormValue() );
 
-            if ( hasUserIndexOn( newNormType ) )
+            if ( hasUserIndexOn( newRdnAttrType ) )
             {
                 Index<?, E, ID> index = getUserIndex( newRdnAttrType );
                 ( ( Index ) index ).add( newNormValue, id );
@@ -1188,7 +1183,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                     AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 
-                    if ( hasUserIndexOn( oldNormType ) )
+                    if ( hasUserIndexOn( oldRdnAttrType ) )
                     {
                         Index<?, E, ID> index = getUserIndex( oldRdnAttrType );
                         ( ( Index ) index ).drop( oldNormValue, id );
@@ -2072,15 +2067,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         entryCsnIdx.drop( id );
         entryCsnIdx.add( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
-    }
-
-    
-    /**
-     * @return true if the hasEntry check is performed before adding a entry, false otherwise
-     */
-    public boolean isCheckHasEntryDuringAdd()
-    {
-        return checkHasEntryDuringAdd;
     }
 
     

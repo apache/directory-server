@@ -1304,7 +1304,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( OperationContext opContext, Dn normName, ClonedServerEntry clonedEntry ) throws Exception
+    private boolean filter( OperationContext opContext, Dn normName, Entry clonedEntry ) throws Exception
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -1317,8 +1317,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Set<Dn> userGroups = groupCache.getGroups( userDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, normName, clonedEntry );
-        addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );
-        addSubentryAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
+        addEntryAciTuples( tuples, ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
+        addSubentryAciTuples( opContext, tuples, normName, ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
 
         AciContext aciContext = new AciContext( schemaManager, opContext );
         aciContext.setUserGroupNames( userGroups );
@@ -1327,7 +1327,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         aciContext.setEntryDn( normName );
         aciContext.setMicroOperations( SEARCH_ENTRY_PERMS );
         aciContext.setAciTuples( tuples );
-        aciContext.setEntry( clonedEntry.getOriginalEntry() );
+        aciContext.setEntry( ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
 
         if ( !engine.hasPermission( aciContext ) )
         {
@@ -1416,7 +1416,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             Dn normName = entry.getDn().apply( schemaManager );
             
-            return filter( searchContext, normName, (ClonedServerEntry)entry );
+            return filter( searchContext, normName, entry );
         }
     }
 }

@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -168,13 +167,13 @@ public class MockOperation implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( Dn dn, Collection<String> bypass ) throws LdapException
+    public Entry lookup( Dn dn, Collection<String> bypass ) throws LdapException
     {
         return null;
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }

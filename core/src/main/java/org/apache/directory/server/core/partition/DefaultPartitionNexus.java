@@ -599,7 +599,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
         {
-            ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
+            Entry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
 
             if ( lookupContext.getAttrsId() != null && !lookupContext.getAttrsId().isEmpty() )

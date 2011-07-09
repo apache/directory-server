@@ -1198,8 +1198,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 // if we get here then we have a valid referral ancestor
                 try
                 {
-                    Referral referral = getReferralOnAncestorForSearch( session, req,
-                        ( ( ClonedServerEntry ) referralAncestor ) );
+                    Referral referral = getReferralOnAncestorForSearch( session, req, referralAncestor );
 
                     result.setResultCode( ResultCodeEnum.REFERRAL );
                     result.setReferral( referral );
@@ -1223,7 +1222,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * @param req the request
      * @param entry the entry associated with the request
      */
-    private void handleReferralEntryForSearch( LdapSession session, SearchRequest req, ClonedServerEntry entry )
+    private void handleReferralEntryForSearch( LdapSession session, SearchRequest req, Entry entry )
         throws Exception
     {
         LdapResult result = req.getResultResponse().getLdapResult();
@@ -1233,7 +1232,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         result.setDiagnosticMessage( "Encountered referral attempting to handle request." );
         result.setMatchedDn( req.getBase() );
 
-        Attribute refAttr = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.REF_AT );
 
         for ( Value<?> refval : refAttr )
         {
@@ -1356,11 +1355,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * entry
      */
     public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req,
-        ClonedServerEntry referralAncestor ) throws Exception
+        Entry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1429,11 +1428,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * entry
      */
     public Referral getReferralOnAncestor( LdapSession session, Dn reqTargetDn, SearchRequest req,
-        ClonedServerEntry referralAncestor ) throws Exception
+        Entry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = referralAncestor.getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )

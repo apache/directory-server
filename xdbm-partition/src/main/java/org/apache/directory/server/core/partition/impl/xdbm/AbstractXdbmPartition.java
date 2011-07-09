@@ -274,7 +274,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     {
         try
         {
-            store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
+            store.add( ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
         }
         catch ( LdapException le )
         {
@@ -290,7 +290,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     /**
      * {@inheritDoc}
      */
-    public final ClonedServerEntry lookup( ID id ) throws LdapException
+    public final Entry lookup( ID id ) throws LdapException
     {
         try
         {

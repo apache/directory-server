@@ -122,7 +122,7 @@ public class EntryToResponseCursor implements SearchCursor
 
     public Response get() throws Exception
     {
-        ClonedServerEntry entry = ( ClonedServerEntry ) wrapped.get();
+        Entry entry = ( ClonedServerEntry ) wrapped.get();
         SearchResultEntry se = new SearchResultEntryImpl( messageId );
         se.setEntry( entry );
 

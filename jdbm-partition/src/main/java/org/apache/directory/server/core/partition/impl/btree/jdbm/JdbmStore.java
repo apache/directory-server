@@ -112,8 +112,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     public synchronized void init( SchemaManager schemaManager ) throws Exception
     {
-        super.init( schemaManager );
-
         getPartitionDir().mkdirs();
 
         // First, check if the file storing the data exists
@@ -137,18 +135,14 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // Create the master table (the table containing all the entries)
         master = new JdbmMasterTable<Entry>( recMan, schemaManager );
 
-        // -------------------------------------------------------------------
-        // Initializes the user and system indices
-        // -------------------------------------------------------------------
-
         // get all index db files first
         File[] allIndexDbFiles = getPartitionDir().listFiles( DB_FILTER );
         
         // get the names of the db files also
         List<String> indexDbFileNameList = Arrays.asList( getPartitionDir().list( DB_FILTER ) );
         
-        setupSystemIndices();
-        setupUserIndices();
+        // Initialize the index now
+        super.init( schemaManager );
 
         // then add all index objects to a list
         List<String> allIndices = new ArrayList<String>();
@@ -171,7 +165,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
             // if the name doesn't exist in the list of index DB files
             // this is a new index and we need to build it
-            if( !indexDbFileNameList.contains( name ) )
+            if ( !indexDbFileNameList.contains( name ) )
             {
                 buildUserIndex( i );
             }
@@ -385,7 +379,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             Entry entry = tuple.getValue();
             
             Attribute entryAttr = entry.get( atType );
-            if( entryAttr != null )
+            
+            if ( entryAttr != null )
             {
                 for ( Value<?> value : entryAttr )
                 {

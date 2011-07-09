@@ -42,13 +42,13 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class ClonedServerEntryTest
 {
-    private static ClonedServerEntry clonedServerEntryA;
-    private static ClonedServerEntry clonedServerEntryACopy;
-    private static ClonedServerEntry clonedServerEntryB;
-    private static ClonedServerEntry clonedServerEntryA1;
-    private static ClonedServerEntry clonedServerEntryACopy1;
-    private static ClonedServerEntry clonedServerEntryB1;
-    private static ClonedServerEntry clonedServerEntryC1;
+    private static Entry clonedServerEntryA;
+    private static Entry clonedServerEntryACopy;
+    private static Entry clonedServerEntryB;
+    private static Entry clonedServerEntryA1;
+    private static Entry clonedServerEntryACopy1;
+    private static Entry clonedServerEntryB1;
+    private static Entry clonedServerEntryC1;
 
     /**
      * Initialize name instances

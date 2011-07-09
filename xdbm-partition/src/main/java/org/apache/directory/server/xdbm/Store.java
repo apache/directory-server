@@ -204,7 +204,7 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Initialize the JDBM storage system.
+     * Initialize the storage system.
      *
      * @param schemaManager the schema schemaManager
      * @throws Exception on failure to lookup elements in schemaManager
@@ -336,32 +336,12 @@ public interface Store<E, ID extends Comparable<ID>>
 
     /**
      * Tells if an index is already present in the User's index list
-     * @param id The index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * User's index list 
-     * @throws Exception If something went wrong
-     */
-    boolean hasUserIndexOn( String id ) throws Exception;
-
-
-    /**
-     * Tells if an index is already present in the User's index list
      * @param attributeType The attributeType index we are looking for
      * @return <code>true</code> if the index is already present in the
      * User's index list 
      * @throws Exception If something went wrong
      */
     boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    /**
-     * Tells if an index is already present in the System's index list
-     * @param id The index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * System's index list 
-     * @throws Exception If something went wrong
-     */
-    boolean hasSystemIndexOn( String id ) throws Exception;
 
 
     /**

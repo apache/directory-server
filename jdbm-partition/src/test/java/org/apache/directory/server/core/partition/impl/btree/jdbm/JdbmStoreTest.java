@@ -435,7 +435,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 2, store.getUserIndices().size() );
-        assertFalse( store.hasUserIndexOn( "dc" ) );
+        assertFalse( store.hasUserIndexOn( DC_AT ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
         assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
         Iterator<String> userIndices = store.userIndices();

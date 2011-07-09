@@ -495,7 +495,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             
             if ( tempEntry instanceof ClonedServerEntry )
             {
-                tempResult = ( ClonedServerEntry ) tempEntry;
+                tempResult = tempEntry;
             }
             else
             {

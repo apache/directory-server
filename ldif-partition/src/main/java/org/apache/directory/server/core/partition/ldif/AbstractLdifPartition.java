@@ -360,15 +360,6 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     }
 
     /**
-     * @see AbstractStore#isCheckHasEntryDuringAdd()
-     */
-    public boolean isCheckHasEntryDuringAdd()
-    {
-        return wrappedPartition.getStore().isCheckHasEntryDuringAdd();
-    }
-
-    
-    /**
      * @see AbstractStore#setCheckHasEntryDuringAdd(boolean)
      */
     public void setCheckHasEntryDuringAdd( boolean checkHasEntryDuringAdd )
