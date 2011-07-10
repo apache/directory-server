@@ -359,7 +359,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDn = new Dn( getSchemaManager(), ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+            schemaModificationAttributesDn = new Dn( getSchemaManager(), SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         }
         catch ( LdapException e )
         {

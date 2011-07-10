@@ -235,7 +235,7 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        schemaModificationDn = new Dn( schemaManager, ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationDn = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
     }
 
 

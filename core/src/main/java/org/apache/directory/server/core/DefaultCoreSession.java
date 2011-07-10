@@ -428,6 +428,7 @@ public class DefaultCoreSession implements CoreSession
     public boolean isAdministrator()
     {
         String normName = getEffectivePrincipal().getName();
+        
         return normName.equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
 

@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -190,7 +189,7 @@ public class SchemaInterceptor extends BaseInterceptor
         subschemaSubentryDn.apply( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDn = directoryService.getDnFactory().create( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDn = directoryService.getDnFactory().create( SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDn.apply( schemaManager );
 
         computeSuperiors();
