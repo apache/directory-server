@@ -138,7 +138,6 @@ public class LdifPartitionTest
         // initialize the store
         // initialize the partition
         partition = new LdifPartition();
-        partition.setCheckHasEntryDuringAdd( true );
         partition.setId( "test-ldif" );
         partition.setSuffix( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );

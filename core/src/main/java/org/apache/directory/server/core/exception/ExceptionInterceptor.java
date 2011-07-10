@@ -225,8 +225,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         // check if entry to search exists
-        String msg = "Attempt to search under non-existant entry: ";
-        assertHasEntry( listContext, msg, listContext.getDn() );
+        //String msg = "Attempt to search under non-existant entry: ";
+        //assertHasEntry( listContext, msg, listContext.getDn() );
 
         return nextInterceptor.list( listContext );
     }
@@ -425,7 +425,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * @param dn         the distinguished name of the entry that is asserted
      * @throws Exception if the entry does not exist
      * @param nextInterceptor the next interceptor in the chain
-     */
+     *
     private void assertHasEntry( OperationContext opContext, String msg, Dn dn ) throws LdapException
     {
         if ( subschemSubentryDn.equals( dn ) )
@@ -448,5 +448,5 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             throw e;
         }
-    }
+    }*/
 }

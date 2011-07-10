@@ -41,6 +41,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
@@ -287,7 +288,7 @@ public class LdifPartition extends AbstractLdifPartition
     {
         Long id = getEntryId( modifyContext.getDn() );
 
-        wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems() );
+        wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
 
         // Get the modified entry and store it in the context for post usage
         Entry modifiedEntry = lookup( id );

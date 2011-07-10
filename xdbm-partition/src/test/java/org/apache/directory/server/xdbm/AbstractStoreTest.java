@@ -29,8 +29,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlStore;
@@ -152,7 +151,17 @@ public class AbstractStoreTest
         assertEquals( 27, store.getObjectClassIndex().count() );
         assertEquals( 11, store.getEntryCsnIndex().count() );
         assertEquals( 11, store.getEntryUuidIndex().count() );
-        assertEquals( 3, store.getUserIndices().size() );
+        
+        Iterator<String> userIndices = store.getUserIndices();
+        int count = 0;
+        
+        while ( userIndices.hasNext() )
+        {
+            userIndices.next();
+            count++;
+        }
+
+        assertEquals( 3, count );
         assertEquals( 9, store.getUserIndex( OU_AT ).count() );
         assertEquals( 0, store.getUserIndex( UID_AT ).count() );
         assertEquals( 6, store.getUserIndex( CN_AT ).count() );
@@ -167,7 +176,6 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
@@ -175,7 +183,6 @@ public class AbstractStoreTest
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -184,7 +191,7 @@ public class AbstractStoreTest
         assertFalse( store.getObjectClassIndex().forward( "uidObject", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "uidObject" ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
 
         // after modification: expect "uidObject" tuple in objectClass index
         assertTrue( store.getObjectClassIndex().forward( "uidObject", entryId ) );
@@ -200,14 +207,12 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "sales";
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -217,7 +222,7 @@ public class AbstractStoreTest
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
         assertFalse( ouIndex.forward( "sales", entryId ) );
@@ -234,11 +239,9 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -249,7 +252,7 @@ public class AbstractStoreTest
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
         assertFalse( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
@@ -267,7 +270,6 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
@@ -275,7 +277,6 @@ public class AbstractStoreTest
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -284,7 +285,7 @@ public class AbstractStoreTest
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
 
         // after modification: no "person" tuple in objectClass index
         assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
@@ -300,12 +301,10 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -315,7 +314,7 @@ public class AbstractStoreTest
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
 
         // after modification: no tuple in objectClass index
         assertFalse( store.getObjectClassIndex().reverse( entryId ) );
@@ -329,7 +328,6 @@ public class AbstractStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
         Attribute attrib = new DefaultAttribute( csnAt );
         
@@ -338,7 +336,6 @@ public class AbstractStoreTest
         attrib.add( csn );
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Long entryId = store.getEntryId( dn );
         Entry lookedup = store.lookup( entryId );
@@ -346,7 +343,7 @@ public class AbstractStoreTest
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
         assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         
         String updateCsn = lookedup.get( csnAt ).getString();
         assertEquals( csn, updateCsn );
@@ -360,7 +357,7 @@ public class AbstractStoreTest
         assertNotSame( csn, updateCsn );
         assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
         
-        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, modEntry );
+        store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
         
         assertEquals( csn, lookedup.get( csnAt ).getString() );
         assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );

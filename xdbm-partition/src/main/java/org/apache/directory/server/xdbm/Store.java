@@ -25,14 +25,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -125,14 +123,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The current partition path (working directory) for the store
      */
     URI getPartitionPath();
-
-
-    /**
-     * Gets the user indices.
-     * 
-     * @return The list of user index
-     */
-    Set<Index<?, E, ID>> getUserIndices();
 
 
     /**
@@ -315,13 +305,13 @@ public interface Store<E, ID extends Comparable<ID>>
     /**
      * An iterator build on top of the User's index
      */
-    Iterator<String> userIndices();
+    Iterator<String> getUserIndices();
 
 
     /**
      * An iterator build on top of the System's index
      */
-    Iterator<String> systemIndices();
+    Iterator<String> getSystemIndices();
 
 
     /**
@@ -468,9 +458,6 @@ public interface Store<E, ID extends Comparable<ID>>
     int getChildCount( ID id ) throws Exception;
 
 
-    void modify( Dn dn, ModificationOperation modOp, Entry mods ) throws Exception;
-
-
     /**
      * Modify an entry applying the given list of modifications.
      *
@@ -479,7 +466,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The modified entry
      * @throws Exception If the modification failed
      */
-    Entry modify( Dn dn, List<Modification> mods ) throws Exception;
+    Entry modify( Dn dn, Modification... mods ) throws Exception;
 
 
     /**

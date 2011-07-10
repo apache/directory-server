@@ -23,11 +23,9 @@ package org.apache.directory.server.xdbm;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -38,7 +36,6 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
@@ -169,7 +166,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
     
 
-    protected void protect( String property )
+    
+    /**
+     * Check that the operation is done on an initialized store
+     * @param property
+     */
+    private void checkInitialized( String property )
     {
         if ( initialized )
         {
@@ -187,22 +189,31 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setPartitionPath( URI partitionPath )
     {
-        protect( "partitionPath" );
+        checkInitialized( "partitionPath" );
         this.partitionPath = partitionPath;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public URI getPartitionPath()
     {
         return partitionPath;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setSyncOnWrite( boolean isSyncOnWrite )
     {
-        protect( "syncOnWrite" );
+        checkInitialized( "syncOnWrite" );
         this.isSyncOnWrite.set( isSyncOnWrite );
     }
 
@@ -216,9 +227,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setCacheSize( int cacheSize )
     {
-        protect( "cacheSize" );
+        checkInitialized( "cacheSize" );
         this.cacheSize = cacheSize;
     }
 
@@ -232,9 +246,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setId( String id )
     {
-        protect( "id" );
+        checkInitialized( "id" );
         this.id = id;
     }
 
@@ -248,9 +265,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setSuffixDn( Dn suffixDn )
     {
-        protect( "suffixDn" );
+        checkInitialized( "suffixDn" );
 
         if ( !suffixDn.isSchemaAware() )
         {
@@ -276,7 +296,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Sets up the user indices.
      */
-    protected void setupUserIndices() throws Exception
+    private void setupUserIndices() throws Exception
     {
         // convert and initialize system indices
         Map<String, Index<?, E, ID>> tmp = new HashMap<String, Index<?, E, ID>>();
@@ -415,7 +435,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> userIndices()
+    public Iterator<String> getUserIndices()
     {
         return userIndices.keySet().iterator();
     }
@@ -424,7 +444,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> systemIndices()
+    public Iterator<String> getSystemIndices()
     {
         return systemIndices.keySet().iterator();
     }
@@ -454,15 +474,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
     {
         return systemIndices.containsKey( attributeType.getOid() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<Index<?, E, ID>> getUserIndices()
-    {
-        return new HashSet<Index<?, E, ID>>( userIndices.values() );
     }
 
 
@@ -534,7 +545,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public void addIndex( Index<?, E, ID> index ) throws Exception
     {
-        protect( "addIndex" );
+        checkInitialized( "addIndex" );
 
         // Check that the index ID is valid
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
@@ -746,8 +757,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( entry != null )
         {
+            // We have to store the DN in this entry
             Dn dn = buildEntryDn( id );
             entry.setDn( dn );
+            
             return entry;
         }
 
@@ -934,58 +947,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void modify( Dn dn, ModificationOperation modOp, Entry mods ) throws Exception
-    {
-        if ( mods instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        ID id = getEntryId( dn );
-        Entry entry = master.get( id );
-
-        for ( AttributeType attributeType : mods.getAttributeTypes() )
-        {
-            Attribute attr = mods.get( attributeType );
-
-            switch ( modOp )
-            {
-                case ADD_ATTRIBUTE:
-                    add( id, entry, attr );
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    remove( id, entry, attr );
-                    break;
-
-                case REPLACE_ATTRIBUTE:
-                    replace( id, entry, attr );
-
-                    break;
-
-                default:
-                    throw new LdapException( I18n.err( I18n.ERR_221 ) );
-            }
-        }
-
-        updateCsnIndex( entry, id );
-        master.put( id, entry );
-
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized Entry modify( Dn dn, List<Modification> mods ) throws Exception
+    public synchronized Entry modify( Dn dn, Modification... mods ) throws Exception
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
-
+        
         for ( Modification mod : mods )
         {
             Attribute attrMods = mod.getAttribute();
@@ -1228,13 +1194,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
-    	// Check that the old entry exists
+        // Check that the old entry exists
         ID oldId = getEntryId( oldDn );
 
         if ( oldId == null )
         {
             // This is not allowed : the old entry must exist
-        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
+            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
                 I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, oldDn ) );
             throw nse;
         }
@@ -1245,7 +1211,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         if ( newSuperiorId == null )
         {
             // This is not allowed : the new superior must exist
-        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
+            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
                 I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
             throw nse;
         }
@@ -1378,7 +1344,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @return the normalized Dn of the entry
      * @throws Exception
      */
-    protected Dn buildEntryDn( ID id ) throws Exception
+    private Dn buildEntryDn( ID id ) throws Exception
     {
         ID parentId = id;
         ID rootId = getRootId();
@@ -2003,7 +1969,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param newParentId new parent's id
      * @throws Exception
      */
-    protected void updateSubLevelIndex( ID entryId, ID oldParentId, ID newParentId ) throws Exception
+    private void updateSubLevelIndex( ID entryId, ID oldParentId, ID newParentId ) throws Exception
     {
         ID tempId = oldParentId;
         List<ID> parentIds = new ArrayList<ID>();
@@ -2070,16 +2036,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
     
-    /**
-     * set the flag to nable/disable checking of entry existence before actually adding it
-     * @param checkHasEntryDuringAdd
-     */
-    public void setCheckHasEntryDuringAdd( boolean checkHasEntryDuringAdd )
-    {
-        this.checkHasEntryDuringAdd = checkHasEntryDuringAdd;
-    }
-
-
     /**
      * @return the schemaManager
      */

@@ -27,7 +27,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -357,13 +356,5 @@ public abstract class AbstractLdifPartition extends BTreePartition<Long>
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );
-    }
-
-    /**
-     * @see AbstractStore#setCheckHasEntryDuringAdd(boolean)
-     */
-    public void setCheckHasEntryDuringAdd( boolean checkHasEntryDuringAdd )
-    {
-        wrappedPartition.getStore().setCheckHasEntryDuringAdd( checkHasEntryDuringAdd );
     }
 }

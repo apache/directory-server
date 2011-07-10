@@ -213,7 +213,6 @@ public class SingleFileLdifPartitionTest
         }
 
         SingleFileLdifPartition partition = new SingleFileLdifPartition();
-        partition.setCheckHasEntryDuringAdd( true );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffix( new Dn( "ou=test,ou=system" ) );

@@ -38,6 +38,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
@@ -185,7 +186,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
      */
     public final Iterator<String> getUserIndices()
     {
-        return store.userIndices();
+        return store.getUserIndices();
     }
 
 
@@ -194,7 +195,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
      */
     public final Iterator<String> getSystemIndices()
     {
-        return store.systemIndices();
+        return store.getSystemIndices();
     }
 
 
@@ -358,7 +359,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     {
         try
         {
-            Entry modifiedEntry = store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+            Entry modifiedEntry = store.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{}) );
             modifyContext.setAlteredEntry( modifiedEntry );
         }
         catch ( Exception e )

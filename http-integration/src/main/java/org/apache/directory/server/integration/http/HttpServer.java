@@ -104,7 +104,6 @@ public class HttpServer
      */
     public void start( DirectoryService dirService ) throws Exception
     {
-
         this.dirService = dirService;
         
         XmlConfiguration jettyConf = null;
@@ -136,6 +135,7 @@ public class HttpServer
         if ( configured )
         {
             Handler[] handlers = jetty.getHandlers();
+            
             for( Handler h : handlers )
             {
                 if( h instanceof ContextHandler )

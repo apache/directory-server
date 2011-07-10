@@ -213,7 +213,7 @@ public final class SchemaPartition extends AbstractPartition
         schemaDn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         
         wrapped.setId( ID );
-        wrapped.setSuffix(schemaDn);
+        wrapped.setSuffix( schemaDn );
         wrapped.setSchemaManager( schemaManager );
 
         try

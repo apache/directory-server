@@ -29,9 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 import javax.naming.directory.Attributes;
@@ -126,10 +124,10 @@ public class AvlStoreTest
 
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
 
-        OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
-        SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
-        DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
-        APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
+        OU_AT = schemaManager.getAttributeType( "ou" );
+        SN_AT = schemaManager.getAttributeType( "sn" );
+        DC_AT = schemaManager.getAttributeType( "dc" );
+        APACHE_ALIAS_AT = schemaManager.getAttributeType( "apacheAlias" );
     }
 
 
@@ -205,9 +203,9 @@ public class AvlStoreTest
 
         assertNotNull( store.getSuffixDn() );
 
-        assertEquals( 0, store.getUserIndices().size() );
+        assertFalse( store.getUserIndices().hasNext() );
         store.addIndex( new AvlIndex<Object, Attributes>( "2.5.4.3" ) );
-        assertEquals( 1, store.getUserIndices().size() );
+        assertTrue( store.getUserIndices().hasNext() );
 
         assertNull( store.getPartitionPath() );
         store.setPartitionPath( new File( "." ).toURI() );
@@ -327,7 +325,7 @@ public class AvlStoreTest
         {
         }
 
-        Iterator<String> systemIndices = store.systemIndices();
+        Iterator<String> systemIndices = store.getSystemIndices();
 
         for ( int i = 0; i < 10; i++ )
         {
@@ -357,11 +355,21 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getSuffixDn() );
-        assertEquals( 2, store.getUserIndices().size() );
+        
+        Iterator<String> userIndices = store.getUserIndices();
+        int count = 0;
+        
+        while ( userIndices.hasNext() )
+        {
+            userIndices.next();
+            count++;
+        }
+
+        assertEquals( 2, count );
         assertFalse( store.hasUserIndexOn( DC_AT ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
         assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
-        Iterator<String> userIndices = store.userIndices();
+        userIndices = store.getUserIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
@@ -593,15 +601,12 @@ public class AvlStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        mods.add( add );
-
-        store.modify( dn, mods );
+        store.modify( dn, add );
     }
 
 
@@ -687,7 +692,6 @@ public class AvlStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.SURNAME_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
 
@@ -695,21 +699,16 @@ public class AvlStoreTest
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
-        // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        attribVal = "+1974045779";
-        entry.add( "telephoneNumber", attribVal );
-
-        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
+        store.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+            schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
         lookedup = store.lookup( store.getEntryId( dn ) );
-        assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
+        assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
     }
 
 
@@ -718,7 +717,6 @@ public class AvlStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
 
@@ -726,22 +724,16 @@ public class AvlStoreTest
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
-        // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        attribVal = "JWalker";
-        entry.add( "sn", attribVal );
-
-        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
+        store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
 
@@ -750,29 +742,23 @@ public class AvlStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertNull( lookedup.get( "sn" ) );
 
-        // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-
         // add an entry for the sake of testing the remove operation
-        entry.add( "sn", "JWalker" );
-        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
+        store.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertNotNull( lookedup.get( "sn" ) );
 
-        store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
+        store.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -789,20 +775,18 @@ public class AvlStoreTest
 
         store.add( entry );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

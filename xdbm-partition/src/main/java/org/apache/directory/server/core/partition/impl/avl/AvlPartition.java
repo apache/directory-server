@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.avl;
 
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
@@ -107,7 +106,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
     }
 
 
-    public final void modify( Dn dn, List<Modification> modifications ) throws LdapException
+    public final void modify( Dn dn, Modification... modifications ) throws LdapException
     {
         try
         {

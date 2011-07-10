@@ -147,7 +147,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // then add all index objects to a list
         List<String> allIndices = new ArrayList<String>();
         
-        for( Index i : systemIndices.values() )
+        for( Index<?, E, Long> i : systemIndices.values() )
         {
             allIndices.add( i.getAttribute().getOid() );
         }
@@ -156,7 +156,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // one for collecting all user indices
         // two for finding a new index to be built
         // just to avoid another iteration for determining which is the new index
-        for( Index i : userIndices.values() )
+        for( Index<?, E, Long> i : userIndices.values() )
         {
             allIndices.add( i.getAttribute().getOid() );
 
@@ -231,25 +231,17 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             return;
         }
 
-        List<Index<?, E, Long>> array = new ArrayList<Index<?, E, Long>>();
-        array.addAll( userIndices.values() );
-        array.add( aliasIdx );
-        array.add( oneAliasIdx );
-        array.add( subAliasIdx );
-        array.add( oneLevelIdx );
-        array.add( presenceIdx );
-        array.add( subLevelIdx );
-        array.add( entryCsnIdx );
-        array.add( entryUuidIdx );
-        array.add( objectClassIdx );
-
-        // Sync all user defined userIndices
-        for ( Index<?, E, Long> idx : array )
+        // Sync all system indices
+        for ( Index<?, E, Long> idx : systemIndices.values() )
         {
             idx.sync();
         }
-
-        rdnIdx.sync();
+        
+        // Sync all user defined userIndices
+        for ( Index<?, E, Long> idx : userIndices.values() )
+        {
+            idx.sync();
+        }
 
         ( ( JdbmMasterTable<Entry> ) master ).sync();
         recMan.commit();

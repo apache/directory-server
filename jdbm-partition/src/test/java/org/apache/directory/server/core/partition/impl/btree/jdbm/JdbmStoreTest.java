@@ -29,9 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 import javax.naming.directory.Attributes;
@@ -281,9 +279,9 @@ public class JdbmStoreTest
 
         assertNotNull( store.getSuffixDn() );
 
-        assertEquals( 0, store.getUserIndices().size() );
+        assertFalse( store.getUserIndices().hasNext() );
         store.addIndex( new JdbmIndex<Object, Attributes>( "2.5.4.3" ) );
-        assertEquals( 1, store.getUserIndices().size() );
+        assertEquals( true, store.getUserIndices().hasNext() );
 
         assertNull( store.getPartitionPath() );
         store.setPartitionPath( new File( "." ).toURI() );
@@ -404,7 +402,7 @@ public class JdbmStoreTest
         {
         }
 
-        Iterator<String> systemIndices = store.systemIndices();
+        Iterator<String> systemIndices = store.getSystemIndices();
 
         for ( int ii = 0; ii < 10; ii++ )
         {
@@ -434,11 +432,20 @@ public class JdbmStoreTest
 
         assertNotNull( store.getSuffixDn() );
 
-        assertEquals( 2, store.getUserIndices().size() );
+        Iterator<String> userIndices = store.getUserIndices();
+        int count = 0;
+        
+        while ( userIndices.hasNext() )
+        {
+            userIndices.next();
+            count++;
+        }
+        
+        assertEquals( 2, count );
         assertFalse( store.hasUserIndexOn( DC_AT ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
         assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
-        Iterator<String> userIndices = store.userIndices();
+        userIndices = store.getUserIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
@@ -688,15 +695,12 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
         attrib.add( "Engineering" );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        mods.add( add );
-
-        store.modify( dn, mods );
+        store.modify( dn, add );
     }
 
 
@@ -783,28 +787,17 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
-        Attribute attrib = new DefaultAttribute( SchemaConstants.SURNAME_AT, SN_AT );
+        Attribute attrib = new DefaultAttribute( "sn", SN_AT );
 
         String attribVal = "Walker";
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
-
-        // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        attribVal = "+1974045779";
-        entry.add( "telephoneNumber", attribVal );
-
-        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        lookedup = store.lookup( store.getEntryId( dn ) );
-        assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
     }
 
 
@@ -813,29 +806,26 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
 
         String attribVal = "Johnny";
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        attribVal = "JWalker";
-        entry.add( "sn", attribVal );
+        Modification replace = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" );
 
-        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
+        store.modify( dn, replace );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
+        assertEquals( 1, lookedup.get( "sn" ).size() );
     }
 
 
@@ -844,28 +834,24 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.SN_AT, SN_AT );
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertNull( lookedup.get( "sn" ) );
 
-        // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultEntry( schemaManager, dn );
-
         // add an entry for the sake of testing the remove operation
-        entry.add( "sn", "JWalker" );
-        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
+        add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" );
+        store.modify( dn, add );
         assertNotNull( lookedup.get( "sn" ) );
 
-        store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
+        Modification remove = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT );
+        store.modify( dn, remove );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -882,20 +868,18 @@ public class JdbmStoreTest
 
         store.add( entry );
 
-        List<Modification> mods = new ArrayList<Modification>();
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
         String attribVal = "Marketing";
         attrib.add( attribVal );
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
-        mods.add( add );
 
         Entry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        store.modify( dn, mods );
+        store.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 
