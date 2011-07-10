@@ -70,7 +70,8 @@ public class ExpressionEvaluator implements Evaluator
     {
         SubstringEvaluator substringEvaluator = null;
         substringEvaluator = new SubstringEvaluator();
-        leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
+//      leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
+        leafEvaluator = new LeafEvaluator( substringEvaluator );
     }
 
 

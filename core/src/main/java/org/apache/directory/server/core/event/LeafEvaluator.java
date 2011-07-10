@@ -63,8 +63,8 @@ public class LeafEvaluator implements Evaluator
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-    /** SchemaManager needed for normalizing and comparing values */
-    private SchemaManager schemaManager;
+//    /** SchemaManager needed for normalizing and comparing values */
+//    private SchemaManager schemaManager;
     
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
@@ -82,13 +82,25 @@ public class LeafEvaluator implements Evaluator
      *
      * @param schemaManager The server schemaManager
      */
-    public LeafEvaluator( SchemaManager schemaManager,
-        SubstringEvaluator substringEvaluator )
+    public LeafEvaluator( SubstringEvaluator substringEvaluator )
     {
-        this.schemaManager = schemaManager;
         this.scopeEvaluator = new ScopeEvaluator();
         this.substringEvaluator = substringEvaluator;
     }
+
+
+//    /**
+//     * Creates a leaf expression node evaluator.
+//     *
+//     * @param schemaManager The server schemaManager
+//     */
+//    public LeafEvaluator( SchemaManager schemaManager,
+//        SubstringEvaluator substringEvaluator )
+//    {
+//        this.schemaManager = schemaManager;
+//        this.scopeEvaluator = new ScopeEvaluator();
+//        this.substringEvaluator = substringEvaluator;
+//    }
 
 
     public ScopeEvaluator getScopeEvaluator()
