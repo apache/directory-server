@@ -1286,5 +1286,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
+        this.session = directoryService.getAdminSession();
     }
 }
