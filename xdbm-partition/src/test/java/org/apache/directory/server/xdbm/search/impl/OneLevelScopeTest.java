@@ -111,8 +111,6 @@ public class OneLevelScopeTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
-
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -135,7 +133,7 @@ public class OneLevelScopeTest
 
 
     @After
-    public void destryStore() throws Exception
+    public void destroyStore() throws Exception
     {
         if ( store != null )
         {

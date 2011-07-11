@@ -111,8 +111,6 @@ public class SubtreeScopeTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
-
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();

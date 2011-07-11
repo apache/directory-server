@@ -2123,4 +2123,18 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         return suffixId;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ID :" ).append( id ).append( '\n' );
+        sb.append( "SuffixDN :" ).append( suffixDn ).append( '\n' );
+        
+        return sb.toString();
+    }
 }

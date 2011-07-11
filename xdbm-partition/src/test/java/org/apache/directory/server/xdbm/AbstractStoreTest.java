@@ -116,8 +116,7 @@ public class AbstractStoreTest
     @Before
     public void createStore() throws Exception
     {
-        destroyStore();
-
+        
         // initialize the store
         store = new AvlStore<Entry>();
         store.setSchemaManager( schemaManager );
@@ -135,6 +134,7 @@ public class AbstractStoreTest
     @After
     public void destroyStore() throws Exception
     {
+        store.destroy();
     }
 
 

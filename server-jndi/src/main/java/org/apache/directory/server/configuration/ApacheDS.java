@@ -514,5 +514,4 @@ public class ApacheDS
             throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors(errors) ) );
         }
     }
-
 }

@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -117,8 +118,6 @@ public class NestedFilterTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
-
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();

@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -102,8 +103,6 @@ public class SubstringTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
-
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -126,7 +125,7 @@ public class SubstringTest
 
 
     @After
-    public void destryStore() throws Exception
+    public void destroyStore() throws Exception
     {
         if ( store != null )
         {

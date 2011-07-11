@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.NotNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.UuidSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -116,8 +117,6 @@ public class NotCursorTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
-
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -144,7 +143,7 @@ public class NotCursorTest
 
 
     @After
-    public void destryStore() throws Exception
+    public void destroyStore() throws Exception
     {
         if ( store != null )
         {
@@ -152,6 +151,7 @@ public class NotCursorTest
         }
 
         store = null;
+        
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );

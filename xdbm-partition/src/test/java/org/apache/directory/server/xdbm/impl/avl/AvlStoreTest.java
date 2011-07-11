@@ -134,8 +134,6 @@ public class AvlStoreTest
     @Before
     public void createStore() throws Exception
     {
-        destroyStore();
-
         // initialize the store
         store = new AvlStore<Entry>();
         store.setSchemaManager( schemaManager );
@@ -153,6 +151,7 @@ public class AvlStoreTest
     @After
     public void destroyStore() throws Exception
     {
+        store.destroy();
     }
 
 
@@ -316,15 +315,6 @@ public class AvlStoreTest
 
         assertNotNull( store.getSuffixDn() );
         
-        try
-        {
-            store.setSuffixDn( EXAMPLE_COM );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         Iterator<String> systemIndices = store.getSystemIndices();
 
         for ( int i = 0; i < 10; i++ )
