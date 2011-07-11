@@ -349,12 +349,12 @@ public class ClientServerReplicationIT
                     
                     DirectoryService ds = consumerServer.getDirectoryService();
                     
-                    Dn configDn = new Dn( ds.getSchemaManager(), "ads-replProviderId=localhost,ou=system" );
+                    Dn configDn = new Dn( ds.getSchemaManager(), "ads-replConsumerId=localhost,ou=system" );
                     config.setConfigEntryDn( configDn );
                     
                     Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn );
                     provConfigEntry.add( "objectClass", "ads-replConsumer" );
-                    provConfigEntry.add( "ads-replProviderId", "localhost" );
+                    provConfigEntry.add( "ads-replConsumerId", "localhost" );
                     provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
                     provConfigEntry.add( "ads-replProvHostName", config.getProviderHost() );
                     provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getPort() ) );
