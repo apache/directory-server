@@ -444,7 +444,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Updates the schemaModifiersName and schemaModifyTimestamp attributes of
      * the schemaModificationAttributes entry for the global schema at 
-     * ou=schema,cn=schemaModifications.  This entry is hardcoded at that 
+     * ou=schemaModifications,ou=schema.  This entry is hardcoded at that 
      * position for now.
      * 
      * The current time is used to set the timestamp and the Dn of current user
