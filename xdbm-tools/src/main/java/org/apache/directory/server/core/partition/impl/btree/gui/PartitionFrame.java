@@ -60,7 +60,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -111,7 +111,7 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private BTreePartition<Long> partition;
+    private AbstractBTreePartition<Long> partition;
     private boolean doCleanUp;
     private Map<Long, EntryNode> nodes;
     private EntryNode root;
@@ -126,7 +126,7 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition<Long> db, SchemaManager schemaManager ) throws Exception
+    public PartitionFrame( AbstractBTreePartition<Long> db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
         this.schemaManager = schemaManager;
@@ -814,7 +814,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void buildIndicesMenu( BTreePartition partition )
+    public void buildIndicesMenu( AbstractBTreePartition partition )
     {
         JMenuItem item;
 

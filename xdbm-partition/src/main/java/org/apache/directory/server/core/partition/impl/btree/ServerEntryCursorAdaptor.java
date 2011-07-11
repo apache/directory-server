@@ -38,11 +38,11 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
 {
-    private final BTreePartition<ID> db;
+    private final AbstractBTreePartition<ID> db;
     private final IndexCursor<ID, Entry, ID> indexCursor;
 
 
-    public ServerEntryCursorAdaptor( BTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
+    public ServerEntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
     {
         this.db = db;
         this.indexCursor = indexCursor;

@@ -40,7 +40,7 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -159,9 +159,9 @@ public class DSAnnotationProcessor
                 partition.setId( createPartition.name() );
                 partition.setSuffix( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
 
-                if ( partition instanceof BTreePartition<?> )
+                if ( partition instanceof AbstractBTreePartition<?> )
                 {
-                    BTreePartition<?> btreePartition = ( BTreePartition<?> ) partition;
+                    AbstractBTreePartition<?> btreePartition = ( AbstractBTreePartition<?> ) partition;
                     btreePartition.setCacheSize( createPartition.cacheSize() );
                     btreePartition.setPartitionPath( new File( service
                             .getInstanceLayout().getPartitionsDirectory(),

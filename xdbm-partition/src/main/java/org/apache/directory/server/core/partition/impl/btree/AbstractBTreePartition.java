@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.model.schema.UsageEnum;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class BTreePartition<ID> extends AbstractPartition
+public abstract class AbstractBTreePartition<ID> extends AbstractPartition
 {
 
     /** the search engine used to search the database */
@@ -96,7 +96,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * Creates a B-tree based context partition.
      */
-    protected BTreePartition()
+    protected AbstractBTreePartition()
     {
         indexedAttributes = new HashSet<Index<?, Entry, ID>>();
     }

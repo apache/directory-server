@@ -31,7 +31,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends BTreePartition<ID>
+public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends AbstractBTreePartition<ID>
 {
 
     protected boolean optimizerEnabled = true;

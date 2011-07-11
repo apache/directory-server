@@ -38,7 +38,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
@@ -132,10 +132,10 @@ public class ApacheDS
          
             for( Partition p : partitions )
             {
-                if( p instanceof BTreePartition )
+                if( p instanceof AbstractBTreePartition )
                 {
                     File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), p.getId() );
-                    ( ( BTreePartition ) p ).setPartitionPath( partitionPath.toURI() );
+                    ( ( AbstractBTreePartition ) p ).setPartitionPath( partitionPath.toURI() );
                 }
                 
                 if( p.getSchemaManager() == null )
@@ -147,10 +147,10 @@ public class ApacheDS
             
             Partition sysPartition = directoryService.getSystemPartition();
             
-            if( sysPartition instanceof BTreePartition )
+            if( sysPartition instanceof AbstractBTreePartition )
             {
                 File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), sysPartition.getId() );
-                ( ( BTreePartition ) sysPartition ).setPartitionPath( partitionPath.toURI() );
+                ( ( AbstractBTreePartition ) sysPartition ).setPartitionPath( partitionPath.toURI() );
             }
 
             if( sysPartition.getSchemaManager() == null )

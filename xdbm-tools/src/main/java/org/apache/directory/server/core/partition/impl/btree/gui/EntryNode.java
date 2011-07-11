@@ -29,7 +29,7 @@ import java.util.Map;
 
 import javax.swing.tree.TreeNode;
 
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -47,20 +47,20 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public class EntryNode implements TreeNode
 {
-    private final BTreePartition partition;
+    private final AbstractBTreePartition partition;
     private final EntryNode parent;
     private final Entry entry;
     private final ArrayList<TreeNode> children;
     private final Long id;
 
 
-    public EntryNode( Long id, EntryNode parent, BTreePartition partition, Entry entry, Map<Long, EntryNode> map )
+    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition partition, Entry entry, Map<Long, EntryNode> map )
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( Long id, EntryNode parent, BTreePartition db, Entry entry, Map<Long, EntryNode> map,
+    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition db, Entry entry, Map<Long, EntryNode> map,
         ExprNode exprNode, SearchEngine engine )
     {
         this.partition = db;

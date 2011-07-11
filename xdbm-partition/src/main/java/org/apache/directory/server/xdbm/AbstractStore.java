@@ -138,14 +138,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     protected Index<ParentIdAndRdn<ID>, E, ID> rdnIdx;
 
     /**
-     * a flag to enable/disable hasEntry() check before adding the entry
-     * Note: This kind of check is already present in ExceptionInterceptor's
-     * add() method. This flag needs to be enabled only in cases where interceptor chain
-     * is not used or not yet effective at the time of adding entries into this store.
-     */
-    private boolean checkHasEntryDuringAdd = false;
-
-    /**
      * {@inheritDoc}
      */
     public void init( SchemaManager schemaManager ) throws Exception

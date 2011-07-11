@@ -26,7 +26,7 @@ import java.util.Iterator;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractLdifPartition extends BTreePartition<Long>
+public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 {
     /** We use a partition to manage searches on this partition */
     protected AvlPartition wrappedPartition;

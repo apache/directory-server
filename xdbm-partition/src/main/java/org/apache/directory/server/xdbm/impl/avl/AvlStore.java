@@ -47,6 +47,13 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
 
     /**
+     * Creates a store based on AVL Trees.
+     */
+    public AvlStore()
+    {
+    }
+
+    /**
      * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
      */

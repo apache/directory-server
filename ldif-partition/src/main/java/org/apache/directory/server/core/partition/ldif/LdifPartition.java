@@ -136,7 +136,6 @@ public class LdifPartition extends AbstractLdifPartition
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
         wrappedPartition.setSuffix( suffix );
-        wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
 
         this.searchEngine = wrappedPartition.getSearchEngine();
