@@ -229,7 +229,6 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         wrappedPartition.add( addContext );
@@ -282,7 +281,6 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Long id = getEntryId( modifyContext.getDn() );
@@ -313,7 +311,6 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
@@ -331,7 +328,6 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
@@ -350,7 +346,6 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();

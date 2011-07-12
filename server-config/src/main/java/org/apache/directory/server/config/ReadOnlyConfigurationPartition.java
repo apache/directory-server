@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -77,7 +76,6 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     protected void doInit() throws InvalidNameException, Exception
     {
         // Initializing the wrapped partition
-        setWrappedPartition( new AvlPartition() );
         setId( "config" );
         setSuffix( new Dn( "ou=config" ) );
         wrappedPartition.setSchemaManager( schemaManager );

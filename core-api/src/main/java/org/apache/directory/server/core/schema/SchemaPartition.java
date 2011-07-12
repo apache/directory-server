@@ -41,7 +41,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.AbstractPartition;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -109,7 +108,7 @@ public final class SchemaPartition extends AbstractPartition
     private static final String ID = "schema";
 
     /** the wrapped Partition */
-    private Partition wrapped = new NullPartition();
+    private Partition wrapped;
 
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
@@ -221,13 +220,6 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.initialize();
 
             synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
-
-            if ( wrapped instanceof NullPartition )
-            {
-                LOG.warn( "BYPASSING CRITICAL SCHEMA PROCESSING CODE DURING HEAVY DEV.  "
-                    + "PLEASE REMOVE THIS CONDITION BY USING A VALID SCHEMA PARTITION!!!" );
-                return;
-            }
         }
         catch ( Exception e )
         {

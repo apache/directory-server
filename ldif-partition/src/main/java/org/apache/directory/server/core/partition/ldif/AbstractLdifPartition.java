@@ -93,7 +93,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public void addIndexOn( Index<?, Entry, Long> index ) throws Exception
     {
         wrappedPartition.addIndexOn( index );
@@ -103,7 +102,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public int count() throws Exception
     {
         return wrappedPartition.count();
@@ -123,7 +121,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<String, Entry, Long> getAliasIndex()
     {
         return wrappedPartition.getAliasIndex();
@@ -143,7 +140,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Dn getEntryDn( Long id ) throws Exception
     {
         return wrappedPartition.getEntryDn( id );
@@ -163,7 +159,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<Long, Entry, Long> getOneAliasIndex()
     {
         return wrappedPartition.getOneAliasIndex();
@@ -173,7 +168,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<Long, Entry, Long> getOneLevelIndex()
     {
         return wrappedPartition.getOneLevelIndex();
@@ -183,7 +177,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<String, Entry, Long> getPresenceIndex()
     {
         return wrappedPartition.getPresenceIndex();
@@ -193,7 +186,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<Long, Entry, Long> getSubAliasIndex()
     {
         return wrappedPartition.getSubAliasIndex();
@@ -203,7 +195,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<Long, Entry, Long> getSubLevelIndex()
     {
         return wrappedPartition.getSubLevelIndex();
@@ -213,7 +204,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
     {
         return wrappedPartition.getSystemIndex( attributeType );
@@ -223,7 +213,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Iterator<String> getSystemIndices()
     {
         return wrappedPartition.getSystemIndices();
@@ -233,7 +222,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Index<?, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
     {
         return wrappedPartition.getUserIndex( attributeType );
@@ -243,7 +231,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public Iterator<String> getUserIndices()
     {
         return wrappedPartition.getUserIndices();
@@ -253,7 +240,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
     {
         return wrappedPartition.hasSystemIndexOn( attributeType );
@@ -263,7 +249,6 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    @Override
     public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
     {
         return wrappedPartition.hasUserIndexOn( attributeType );

@@ -30,15 +30,10 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.AbstractPartition;
 import org.apache.directory.server.core.partition.Partition;
@@ -194,6 +189,29 @@ public abstract class AbstractBTreePartition<ID> extends AbstractPartition
         this.id = id;
     }
 
+    public abstract ID getEntryId( Dn dn ) throws LdapException;
+    
+    public abstract int getChildCount( ID id ) throws LdapException;
+
+    public abstract void delete( ID id ) throws LdapException;
+
+    public abstract IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException;
+
+    public abstract Entry lookup( ID id ) throws LdapException;
+
+    public abstract Dn getEntryDn( ID id ) throws Exception;
+
+    public abstract boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+
+    public abstract Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
+
+    public abstract Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
+
+    public abstract boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+
+    public abstract Iterator<String> getUserIndices();
+
+    public abstract Iterator<String> getSystemIndices();
 
     // -----------------------------------------------------------------------
     // E N D   C O N F I G U R A T I O N   M E T H O D S
@@ -243,12 +261,6 @@ public abstract class AbstractBTreePartition<ID> extends AbstractPartition
 
         delete( id );
     }
-
-
-    public abstract void add( AddOperationContext addContext ) throws LdapException;
-
-
-    public abstract void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
@@ -374,84 +386,9 @@ public abstract class AbstractBTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract void rename( RenameOperationContext renameContext ) throws LdapException;
-
-
-    public abstract void move( MoveOperationContext moveContext ) throws LdapException;
-
-
-    public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
-
-
-    public abstract void sync() throws Exception;
-
-
-    ////////////////////
-    // public abstract methods
-
     // ------------------------------------------------------------------------
     // Index Operations
     // ------------------------------------------------------------------------
-
-    public abstract void addIndexOn( Index<?, Entry, ID> index ) throws Exception;
-
-
-    public abstract boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    public abstract boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    public abstract Index<String, Entry, ID> getPresenceIndex();
-
-
-    /**
-     * Gets the Index mapping the primary keys of parents to the
-     * primary keys of their children.
-     *
-     * @return the one level Index
-     */
-    public abstract Index<ID, Entry, ID> getOneLevelIndex();
-
-
-    /**
-     * Gets the Index mapping the primary keys of ancestors to the
-     * primary keys of their descendants.
-     *
-     * @return the sub tree level Index
-     */
-    public abstract Index<ID, Entry, ID> getSubLevelIndex();
-
-
-    /**
-     * Gets the alias index mapping parent entries with scope expanding aliases
-     * children one level below them; this system index is used to dereference
-     * aliases on one/single level scoped searches.
-     *
-     * @return the one alias index
-     */
-    public abstract Index<ID, Entry, ID> getOneAliasIndex();
-
-
-    /**
-     * Gets the alias index mapping relative entries with scope expanding
-     * alias descendents; this system index is used to dereference aliases on
-     * subtree scoped searches.
-     *
-     * @return the sub alias index
-     */
-    public abstract Index<ID, Entry, ID> getSubAliasIndex();
-
-
-    /**
-     * Gets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
-     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
-     *
-     * @return the index on the ALIAS_ATTRIBUTE
-     */
-    public abstract Index<String, Entry, ID> getAliasIndex();
-
-
     /**
      * {@inheritDoc}
      */
@@ -473,45 +410,4 @@ public abstract class AbstractBTreePartition<ID> extends AbstractPartition
     {
         return suffix;
     }
-
-
-    public abstract Index<?, Entry, ID> getUserIndex( AttributeType attributeType ) throws Exception;
-
-
-    public abstract Index<?, Entry, ID> getSystemIndex( AttributeType attributeType ) throws Exception;
-
-
-    public abstract ID getEntryId( Dn dn ) throws LdapException;
-
-
-    public abstract Dn getEntryDn( ID id ) throws Exception;
-
-
-    public abstract Entry lookup( ID id ) throws LdapException;
-
-
-    public abstract void delete( ID id ) throws LdapException;
-
-
-    public abstract IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException;
-
-
-    public abstract int getChildCount( ID id ) throws LdapException;
-
-
-    public abstract Iterator<String> getUserIndices();
-
-
-    public abstract Iterator<String> getSystemIndices();
-
-
-    /**
-     * Gets the count of the total number of entries in the database.
-     *
-     * TODO shouldn't this be a BigInteger instead of an int?
-     *
-     * @return the number of entries in the database
-     * @throws Exception if there is a failure to read the count
-     */
-    public abstract int count() throws Exception;
 }

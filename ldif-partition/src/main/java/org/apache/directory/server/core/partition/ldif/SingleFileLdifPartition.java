@@ -182,7 +182,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         synchronized ( lock )
@@ -205,7 +204,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         synchronized ( lock )
@@ -217,7 +215,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         synchronized ( lock )
@@ -229,7 +226,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         synchronized ( lock )
@@ -241,7 +237,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    @Override
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         synchronized ( lock )
