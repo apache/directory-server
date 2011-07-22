@@ -459,6 +459,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     @Override
     protected void doDestroy() throws Exception
     {
+        super.doDestroy();
         ldifFile.close();
     }
 

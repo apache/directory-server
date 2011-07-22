@@ -95,13 +95,6 @@ public class AvlPartition extends AbstractBTreePartition<Long>
     }
 
 
-    @Override
-    protected void doDestroy() throws Exception
-    {
-        // Nothing to do, we currently have no index (yet)
-    }
-
-
     /**
      * {@inheritDoc}
      */

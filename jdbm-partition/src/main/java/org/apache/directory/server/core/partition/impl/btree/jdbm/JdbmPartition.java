@@ -407,7 +407,6 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
             LOG.error( I18n.err( I18n.ERR_127 ), t );
             errors.addThrowable( t );
         }

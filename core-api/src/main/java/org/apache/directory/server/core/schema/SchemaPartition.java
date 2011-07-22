@@ -237,6 +237,8 @@ public final class SchemaPartition extends AbstractPartition
             LOG.error( I18n.err( I18n.ERR_91 ), e );
             throw new RuntimeException( e );
         }
+        
+        initialized = false;
     }
 
 
