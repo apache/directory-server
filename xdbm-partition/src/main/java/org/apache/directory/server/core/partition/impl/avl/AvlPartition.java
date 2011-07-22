@@ -23,8 +23,8 @@ package org.apache.directory.server.core.partition.impl.avl;
 import java.net.URI;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlPartition extends AbstractXdbmPartition<Long>
+public class AvlPartition extends AbstractBTreePartition<Long>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartition.class );
@@ -90,8 +90,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
             // Create the master table (the table containing all the entries)
             master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
     
-            setupSystemIndices();
-            setupUserIndices();
+            super.doInit();
         }
     }
 

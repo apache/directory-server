@@ -34,7 +34,7 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmPartition extends AbstractXdbmPartition<Long>
+public class JdbmPartition extends AbstractBTreePartition<Long>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmPartition.class );
@@ -123,8 +123,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
             getPartitionDir().mkdirs();
     
             // Initialize the indexes
-            setupSystemIndices();
-            setupUserIndices();
+            super.doInit();
     
             // First, check if the file storing the data exists
             String path = getPartitionDir().getPath() + File.separator + "master";
