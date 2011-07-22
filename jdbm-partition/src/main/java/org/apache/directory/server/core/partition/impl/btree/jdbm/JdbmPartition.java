@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,13 +119,14 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             searchEngine = new DefaultSearchEngine<Long>( this, cursorBuilder, evaluatorBuilder, optimizer );
 
             // Create the underlying directories (only if needed)
-            getPartitionDir().mkdirs();
+            File partitionDir = new File( getPartitionPath() );
+            partitionDir.mkdirs();
     
             // Initialize the indexes
             super.doInit();
     
             // First, check if the file storing the data exists
-            String path = getPartitionDir().getPath() + File.separator + "master";
+            String path = partitionDir.getPath() + File.separator + "master";
             BaseRecordManager baseRecordManager = new BaseRecordManager( path );
             baseRecordManager.disableTransactions();
     
@@ -147,10 +147,10 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             master = new JdbmMasterTable<Entry>( recMan, schemaManager );
     
             // get all index db files first
-            File[] allIndexDbFiles = getPartitionDir().listFiles( DB_FILTER );
+            File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
             
             // get the names of the db files also
-            List<String> indexDbFileNameList = Arrays.asList( getPartitionDir().list( DB_FILTER ) );
+            List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
     
             // then add all index objects to a list
             List<String> allIndices = new ArrayList<String>();
@@ -363,21 +363,6 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     }
 
 
-    private File getPartitionDir()
-    {
-        return new File( getPartitionPath() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public URI getPartitionPath()
-    {
-        return partitionPath;
-    }
-
-    
     /**
      * {@inheritDoc}
      */

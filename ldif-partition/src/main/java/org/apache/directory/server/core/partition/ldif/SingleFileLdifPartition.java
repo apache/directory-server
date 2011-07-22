@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SingleFileLdifPartition extends AbstractLdifPartition
 {
-
     /** the LDIF file holding the partition's data */
     private RandomAccessFile ldifFile;
 
@@ -431,7 +430,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             return ldifFile.readLine();
         }
-
     }
 
 

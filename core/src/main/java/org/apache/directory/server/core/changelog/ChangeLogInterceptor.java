@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -37,7 +38,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -50,7 +51,6 @@ import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,12 +71,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
     
-    /** we need the schema manager to deal with special conditions */
-    private SchemaManager schemaManager;
-    
-    /** we need the schema service to deal with special conditions */
-    private SchemaService schemaService;
-
     /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
     private static final String REV_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
     
@@ -94,7 +88,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         changeLog = directoryService.getChangeLog();
-        schemaService = directoryService.getSchemaService();
         entryDeleted = directoryService.getSchemaManager()
                 .getAttributeType( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
     }
@@ -175,7 +168,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         for ( Attribute attribute : serverEntry )
         {
             // filter collective attributes, they can't be added by the revert operation
-            AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
+            AttributeType at = schemaManager.lookupAttributeTypeRegistry( attribute.getId() );
             
             if ( !at.isCollective() || isCollectiveSubentry )
             {
@@ -201,9 +194,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
-        if ( schemaService.isSchemaSubentry( dn ) )
+        if ( dn.equals( ServerDNConstants.CN_SCHEMA_DN ) )
         {
-            return schemaService.getSubschemaEntryCloned();
+            return DefaultSchemaService.getSubschemaEntryCloned( directoryService );
         }
         else
         {

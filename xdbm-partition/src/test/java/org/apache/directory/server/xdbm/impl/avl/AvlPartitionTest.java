@@ -37,13 +37,11 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -80,11 +78,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @SuppressWarnings("unchecked")
-public class AvlStoreTest
+public class AvlPartitionTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AvlStoreTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class.getSimpleName() );
 
-    private static Store<Entry, Long> store;
+    private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
     private static Dn EXAMPLE_COM;
 
@@ -107,7 +105,7 @@ public class AvlStoreTest
 
         if ( workingDirectory == null )
         {
-            String path = AvlStoreTest.class.getResource( "" ).getPath();
+            String path = AvlPartitionTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -138,189 +136,189 @@ public class AvlStoreTest
     @Before
     public void createStore() throws Exception
     {
-        // initialize the store
-        store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setSyncOnWrite( false );
+        // initialize the partition
+        partition = new AvlPartition( schemaManager );
+        partition.setId( "example" );
+        partition.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        partition.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
+        partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
-        ((Partition)store).initialize();
+        partition.initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
-        LOG.debug( "Created new store" );
+        StoreUtils.loadExampleData( partition, schemaManager );
+        LOG.debug( "Created new partition" );
     }
 
 
     @After
     public void destroyStore() throws Exception
     {
-        ((Partition)store).destroy();
+        partition.destroy();
     }
 
 
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        Store<Entry, Long> store = new AvlPartition( schemaManager );
-        store.setSyncOnWrite( true ); // for code coverage
+        AvlPartition avlPartition = new AvlPartition( schemaManager );
+        avlPartition.setSyncOnWrite( true ); // for code coverage
 
-        assertNull( store.getAliasIndex() );
-        store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
-        assertNotNull( store.getAliasIndex() );
+        assertNull( avlPartition.getAliasIndex() );
+        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        assertNotNull( avlPartition.getAliasIndex() );
 
-        assertEquals( 0, store.getCacheSize() );
+        assertEquals( 0, avlPartition.getCacheSize() );
 
-        assertNull( store.getPresenceIndex() );
-        store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
-        assertNotNull( store.getPresenceIndex() );
+        assertNull( avlPartition.getPresenceIndex() );
+        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+        assertNotNull( avlPartition.getPresenceIndex() );
 
-        assertNull( store.getOneLevelIndex() );
-        store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( store.getOneLevelIndex() );
+        assertNull( avlPartition.getOneLevelIndex() );
+        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+        assertNotNull( avlPartition.getOneLevelIndex() );
 
-        assertNull( store.getSubLevelIndex() );
-        store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
-        assertNotNull( store.getSubLevelIndex() );
+        assertNull( avlPartition.getSubLevelIndex() );
+        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+        assertNotNull( avlPartition.getSubLevelIndex() );
 
-        assertNull( ((Partition)store).getId() );
-        ((Partition)store).setId( "foo" );
-        assertEquals( "foo", ((Partition)store).getId() );
+        assertNull( avlPartition.getId() );
+        avlPartition.setId( "foo" );
+        assertEquals( "foo", avlPartition.getId() );
 
-        assertNull( store.getRdnIndex() );
-        store.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
-        assertNotNull( store.getRdnIndex() );
+        assertNull( avlPartition.getRdnIndex() );
+        avlPartition.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+        assertNotNull( avlPartition.getRdnIndex() );
 
-        assertNull( store.getOneAliasIndex() );
-        store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
-        assertNotNull( store.getOneAliasIndex() );
+        assertNull( avlPartition.getOneAliasIndex() );
+        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+        assertNotNull( avlPartition.getOneAliasIndex() );
 
-        assertNull( store.getSubAliasIndex() );
-        store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
-        assertNotNull( store.getSubAliasIndex() );
+        assertNull( avlPartition.getSubAliasIndex() );
+        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+        assertNotNull( avlPartition.getSubAliasIndex() );
 
-        assertNull( ((Partition)store).getSuffixDn() );
-        ((Partition)store).setSuffixDn( EXAMPLE_COM );
-        assertEquals( "dc=example,dc=com", ((Partition)store).getSuffixDn().getName() );
+        assertNull( avlPartition.getSuffixDn() );
+        avlPartition.setSuffixDn( EXAMPLE_COM );
+        assertEquals( "dc=example,dc=com", avlPartition.getSuffixDn().getName() );
 
-        assertNotNull( ((Partition)store).getSuffixDn() );
+        assertNotNull( avlPartition.getSuffixDn() );
 
-        assertFalse( store.getUserIndices().hasNext() );
-        store.addIndex( new AvlIndex<Object, Entry>( "2.5.4.3" ) );
-        assertTrue( store.getUserIndices().hasNext() );
+        assertFalse( avlPartition.getUserIndices().hasNext() );
+        avlPartition.addIndex( new AvlIndex<Object, Entry>( "2.5.4.3" ) );
+        assertTrue( avlPartition.getUserIndices().hasNext() );
 
-        assertNull( store.getPartitionPath() );
-        store.setPartitionPath( new File( "." ).toURI() );
-        assertNull( store.getPartitionPath() );
+        assertNull( avlPartition.getPartitionPath() );
+        avlPartition.setPartitionPath( new File( "." ).toURI() );
+        assertNull( avlPartition.getPartitionPath() );
 
-        assertFalse( ((Partition)store).isInitialized() );
-        assertFalse( store.isSyncOnWrite() );
-        store.setSyncOnWrite( false );
-        assertFalse( store.isSyncOnWrite() );
+        assertFalse( avlPartition.isInitialized() );
+        assertFalse( avlPartition.isSyncOnWrite() );
+        avlPartition.setSyncOnWrite( false );
+        assertFalse( avlPartition.isSyncOnWrite() );
 
-        ((Partition)store).sync();
-        ((Partition)store).destroy();
+        avlPartition.sync();
+        avlPartition.destroy();
     }
 
 
     @Test
     public void testSimplePropertiesLocked() throws Exception
     {
-        assertNotNull( store.getAliasIndex() );
+        assertNotNull( partition.getAliasIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertEquals( 0, store.getCacheSize() );
-        assertNotNull( store.getPresenceIndex() );
+        assertEquals( 0, partition.getCacheSize() );
+        assertNotNull( partition.getPresenceIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getOneLevelIndex() );
+        assertNotNull( partition.getOneLevelIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getSubLevelIndex() );
+        assertNotNull( partition.getSubLevelIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( ((Partition)store).getId() );
+        assertNotNull( partition.getId() );
         
         try
         {
-            ((Partition)store).setId( "foo" );
+            partition.setId( "foo" );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getEntryUuidIndex() );
-        assertNotNull( store.getRdnIndex() );
+        assertNotNull( partition.getEntryUuidIndex() );
+        assertNotNull( partition.getRdnIndex() );
         
         try
         {
-            store.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+            partition.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getOneAliasIndex() );
+        assertNotNull( partition.getOneAliasIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getSubAliasIndex() );
+        assertNotNull( partition.getSubAliasIndex() );
         
         try
         {
-            store.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( ((Partition)store).getSuffixDn() );
+        assertNotNull( partition.getSuffixDn() );
         
-        Iterator<String> systemIndices = store.getSystemIndices();
+        Iterator<String> systemIndices = partition.getSystemIndices();
 
         for ( int i = 0; i < 10; i++ )
         {
@@ -329,11 +327,11 @@ public class AvlStoreTest
         }
 
         assertFalse( systemIndices.hasNext() );
-        assertNotNull( store.getSystemIndex( APACHE_ALIAS_AT ) );
+        assertNotNull( partition.getSystemIndex( APACHE_ALIAS_AT ) );
         
         try
         {
-            store.getSystemIndex( SN_AT );
+            partition.getSystemIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -342,16 +340,16 @@ public class AvlStoreTest
         
         try
         {
-            store.getSystemIndex( DC_AT );
+            partition.getSystemIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
         {
         }
 
-        assertNotNull( ((Partition)store).getSuffixDn() );
+        assertNotNull( partition.getSuffixDn() );
         
-        Iterator<String> userIndices = store.getUserIndices();
+        Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
         
         while ( userIndices.hasNext() )
@@ -361,20 +359,20 @@ public class AvlStoreTest
         }
 
         assertEquals( 2, count );
-        assertFalse( store.hasUserIndexOn( DC_AT ) );
-        assertTrue( store.hasUserIndexOn( OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
-        userIndices = store.getUserIndices();
+        assertFalse( partition.hasUserIndexOn( DC_AT ) );
+        assertTrue( partition.hasUserIndexOn( OU_AT ) );
+        assertTrue( partition.hasSystemIndexOn( APACHE_ALIAS_AT ) );
+        userIndices = partition.getUserIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
-        assertNotNull( store.getUserIndex( OU_AT ) );
+        assertNotNull( partition.getUserIndex( OU_AT ) );
         
         try
         {
-            store.getUserIndex( SN_AT );
+            partition.getUserIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -383,18 +381,18 @@ public class AvlStoreTest
         
         try
         {
-            store.getUserIndex( DC_AT );
+            partition.getUserIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
         {
         }
 
-        assertNull( store.getPartitionPath() );
-        assertTrue( ((Partition)store).isInitialized() );
-        assertFalse( store.isSyncOnWrite() );
+        assertNull( partition.getPartitionPath() );
+        assertTrue( partition.isInitialized() );
+        assertFalse( partition.isSyncOnWrite() );
 
-        ((Partition)store).sync();
+        partition.sync();
     }
 
 
@@ -402,35 +400,35 @@ public class AvlStoreTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( 1L, ( long ) store.getEntryId( dn ) );
-        assertEquals( 11, store.count() );
+        assertEquals( 1L, ( long ) partition.getEntryId( dn ) );
+        assertEquals( 11, partition.count() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( 0L ) );
+        assertEquals( 0L, ( long ) partition.getParentId( partition.getEntryId( dn ) ) );
+        assertNull( partition.getParentId( 0L ) );
 
         // should be allowed
-        store.delete( 1L );
+        partition.delete( 1L );
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 3, store.getChildCount( 1L ) );
+        assertEquals( 3, partition.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = store.list( 1L );
+        Cursor<IndexEntry<Long, Entry, Long>> cursor = partition.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 3, store.getChildCount( 1L ) );
+        assertEquals( 3, partition.getChildCount( 1L ) );
 
-        store.delete( 2L );
+        partition.delete( 2L );
 
-        assertEquals( 2, store.getChildCount( 1L ) );
-        assertEquals( 10, store.count() );
+        assertEquals( 2, partition.getChildCount( 1L ) );
+        assertEquals( 10, partition.count() );
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -443,16 +441,16 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
-        store.delete( 12L );
+        partition.delete( 12L );
     }
 
 
     @Test
     public void testSubLevelIndex() throws Exception
     {
-        Index idx = store.getSubLevelIndex();
+        Index idx = partition.getSubLevelIndex();
 
         assertEquals( 19, idx.count() );
 
@@ -491,7 +489,7 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         cursor = idx.forwardCursor( 2L );
         cursor.afterLast();
@@ -501,7 +499,7 @@ public class AvlStoreTest
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
         Dn newDn = newParentDn.add( martinDn.getRdn() );
-        store.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
+        partition.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
 
         cursor = idx.forwardCursor( 3L );
         cursor.afterLast();
@@ -517,7 +515,7 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         // dn id 14
         Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
@@ -529,10 +527,10 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         newDn = newParentDn.add( marketingDn.getRdn() );
-        store.move( marketingDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
+        partition.move( marketingDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
 
         cursor = idx.forwardCursor( 3L );
         cursor.afterLast();
@@ -567,9 +565,9 @@ public class AvlStoreTest
     {
         Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ).toURI() );
 
-        Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
+        Method convertIndex = partition.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
-        Object obj = convertIndex.invoke( store, nonAvlIndex );
+        Object obj = convertIndex.invoke( partition, nonAvlIndex );
 
         assertNotNull( obj );
         assertEquals( AvlIndex.class, obj.getClass() );
@@ -586,7 +584,7 @@ public class AvlStoreTest
         entry.add( "cn", "Martin King" );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
     }
 
 
@@ -599,7 +597,7 @@ public class AvlStoreTest
         entry.add( "cn", "Martin King" );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
     }
 
 
@@ -613,7 +611,7 @@ public class AvlStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        store.modify( dn, add );
+        partition.modify( dn, add );
     }
 
 
@@ -629,11 +627,11 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         Rdn rdn = new Rdn( "sn=James" );
 
-        store.rename( dn, rdn, true, null );
+        partition.rename( dn, rdn, true, null );
     }
 
 
@@ -649,16 +647,16 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true, null );
+        partition.rename( dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        Long id = store.getEntryId( dn2 );
+        Long id = partition.getEntryId( dn2 );
         assertNotNull( id );
-        Entry entry2 = store.lookup( id );
+        Entry entry2 = partition.lookup( id );
         assertEquals( "ja+es", entry2.get( "sn" ).getString() );
     }
 
@@ -675,25 +673,25 @@ public class AvlStoreTest
         childEntry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
         Rdn rdn = new Rdn( "cn=Ryan" );
 
-        store.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
+        partition.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
 
         // to drop the alias indices   
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
         parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count() );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
-        store.move( childDn, parentDn, newDn, childEntry );
+        partition.move( childDn, parentDn, newDn, childEntry );
 
-        assertEquals( 4, store.getSubAliasIndex().count() );
+        assertEquals( 4, partition.getSubAliasIndex().count() );
     }
 
 
@@ -710,14 +708,14 @@ public class AvlStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ) );
+        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
 
-        store.modify( dn, add );
+        partition.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
-        store.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
             schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
-        lookedup = store.lookup( store.getEntryId( dn ) );
+        lookedup = partition.lookup( partition.getEntryId( dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
     }
 
@@ -735,14 +733,14 @@ public class AvlStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ) );
+        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
-        lookedup = store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
@@ -757,18 +755,18 @@ public class AvlStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ) );
+        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
-        lookedup = store.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertNotNull( lookedup.get( "sn" ) );
 
-        lookedup = store.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -784,7 +782,7 @@ public class AvlStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        partition.add( addContext );
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
@@ -793,11 +791,11 @@ public class AvlStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ) );
+        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

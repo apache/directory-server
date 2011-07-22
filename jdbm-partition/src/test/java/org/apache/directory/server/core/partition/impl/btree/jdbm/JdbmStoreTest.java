@@ -35,7 +35,6 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -158,9 +157,9 @@ public class JdbmStoreTest
         store.addIndex( uidIndex );
 
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
-        ((Partition)store).setSuffixDn( suffixDn );
+        store.setSuffixDn( suffixDn );
 
-        ((Partition)store).initialize();
+        store.initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );

@@ -474,7 +474,7 @@ public class ApacheDS
      */
     private void initSchema() throws Exception
     {
-        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
+        SchemaPartition schemaPartition = directoryService.getSchemaPartition();
         String workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory().getPath();
 
         // Extract the schema on disk (a brand new one) and load the registries

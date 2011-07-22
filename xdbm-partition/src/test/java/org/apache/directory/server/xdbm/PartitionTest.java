@@ -33,10 +33,9 @@ import java.util.Iterator;
 
 import net.sf.ehcache.store.AbstractStore;
 
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStoreTest;
+import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -68,11 +67,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AbstractStoreTest
+public class PartitionTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AbstractStoreTest.class );
+    private static final Logger LOG = LoggerFactory.getLogger( PartitionTest.class );
 
-    private static Store<Entry, Long> store;
+    private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
     
     /** The OU AttributType instance */
@@ -91,7 +90,7 @@ public class AbstractStoreTest
 
         if ( workingDirectory == null )
         {
-            String path = AvlStoreTest.class.getResource( "" ).getPath();
+            String path = AvlPartitionTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -120,45 +119,45 @@ public class AbstractStoreTest
     public void createStore() throws Exception
     {
         
-        // initialize the store
-        store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setSyncOnWrite( false );
+        // initialize the partition
+        partition = new AvlPartition( schemaManager );
+        partition.setId( "example" );
+        partition.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.UID_AT_OID ) );
-        store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.UID_AT_OID ) );
+        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
+        partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
-        ((Partition)store).initialize();
+        partition.initialize();
         
-        StoreUtils.loadExampleData( store, schemaManager );
-        LOG.debug( "Created new store" );
+        StoreUtils.loadExampleData( partition, schemaManager );
+        LOG.debug( "Created new partition" );
     }
 
 
     @After
     public void destroyStore() throws Exception
     {
-        ((Partition)store).destroy();
+        partition.destroy();
     }
 
 
     @Test
     public void testExampleDataIndices() throws Exception
     {
-        assertEquals( 11, store.getRdnIndex().count() );
-        assertEquals( 11, store.getOneLevelIndex().count() );
-        assertEquals( 19, store.getSubLevelIndex().count() );
-        assertEquals( 3, store.getAliasIndex().count() );
-        assertEquals( 3, store.getOneAliasIndex().count() );
-        assertEquals( 3, store.getSubAliasIndex().count() );
-        assertEquals( 15, store.getPresenceIndex().count() );
-        assertEquals( 27, store.getObjectClassIndex().count() );
-        assertEquals( 11, store.getEntryCsnIndex().count() );
-        assertEquals( 11, store.getEntryUuidIndex().count() );
+        assertEquals( 11, partition.getRdnIndex().count() );
+        assertEquals( 11, partition.getOneLevelIndex().count() );
+        assertEquals( 19, partition.getSubLevelIndex().count() );
+        assertEquals( 3, partition.getAliasIndex().count() );
+        assertEquals( 3, partition.getOneAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count() );
+        assertEquals( 15, partition.getPresenceIndex().count() );
+        assertEquals( 27, partition.getObjectClassIndex().count() );
+        assertEquals( 11, partition.getEntryCsnIndex().count() );
+        assertEquals( 11, partition.getEntryUuidIndex().count() );
         
-        Iterator<String> userIndices = store.getUserIndices();
+        Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
         
         while ( userIndices.hasNext() )
@@ -168,9 +167,9 @@ public class AbstractStoreTest
         }
 
         assertEquals( 3, count );
-        assertEquals( 9, store.getUserIndex( OU_AT ).count() );
-        assertEquals( 0, store.getUserIndex( UID_AT ).count() );
-        assertEquals( 6, store.getUserIndex( CN_AT ).count() );
+        assertEquals( 9, partition.getUserIndex( OU_AT ).count() );
+        assertEquals( 0, partition.getUserIndex( UID_AT ).count() );
+        assertEquals( 6, partition.getUserIndex( CN_AT ).count() );
     }
 
 
@@ -190,17 +189,17 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
 
         // before modification: no "uidObject" tuple in objectClass index
-        assertFalse( store.getObjectClassIndex().forward( "uidObject", entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "uidObject", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "uidObject" ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
 
         // after modification: expect "uidObject" tuple in objectClass index
-        assertTrue( store.getObjectClassIndex().forward( "uidObject", entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "uidObject", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "uidObject" ) );
     }
 
@@ -220,15 +219,15 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) partition.getUserIndex( OU_AT );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
         assertFalse( ouIndex.forward( "sales", entryId ) );
@@ -249,19 +248,19 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( OU_AT );
-        assertTrue( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) partition.getUserIndex( OU_AT );
+        assertTrue( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
-        assertFalse( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
+        assertFalse( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertFalse( ouIndex.reverse( entryId ) );
         assertFalse( ouIndex.forward( "sales", entryId ) );
         assertNull( lookedup.get( "ou" ) );
@@ -284,17 +283,17 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "person" tuple in objectClass index
-        assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
 
         // after modification: no "person" tuple in objectClass index
-        assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "person", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "person" ) );
     }
 
@@ -312,19 +311,19 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "person" tuple in objectClass index
-        assertTrue( store.getObjectClassIndex().reverse( entryId ) );
-        assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( partition.getObjectClassIndex().reverse( entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
 
         // after modification: no tuple in objectClass index
-        assertFalse( store.getObjectClassIndex().reverse( entryId ) );
-        assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertFalse( partition.getObjectClassIndex().reverse( entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "person", entryId ) );
         assertNull( lookedup.get( "objectClass" ) );
     }
 
@@ -343,17 +342,17 @@ public class AbstractStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Long entryId = store.getEntryId( dn );
-        Entry lookedup = store.lookup( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry lookedup = partition.lookup( entryId );
         
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
-        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        assertNotSame( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( dn, add );
         
         String updateCsn = lookedup.get( csnAt ).getString();
         assertEquals( csn, updateCsn );
-        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        assertEquals( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
         
         csn = csnF.newInstance().toString();
         
@@ -361,12 +360,12 @@ public class AbstractStoreTest
         modEntry.add( csnAt, csn );
         
         assertNotSame( csn, updateCsn );
-        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        assertNotSame( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
         
-        lookedup = store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
         
         assertEquals( csn, lookedup.get( csnAt ).getString() );
-        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        assertEquals( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
     }
     
     
@@ -381,13 +380,13 @@ public class AbstractStoreTest
         entry.add( "sn", "user sn" );
         
         // add
-        StoreUtils.injectEntryInStore( store, entry );
+        StoreUtils.injectEntryInStore( partition, entry );
         verifyParentId( dn );
         
         // move
         Dn newSuperior = new Dn( schemaManager, "o=Good Times Co." );
         Dn newDn = new Dn( schemaManager, "cn=user,o=Good Times Co." );
-        store.move( dn, newSuperior, newDn, null );
+        partition.move( dn, newSuperior, newDn, null );
         entry = verifyParentId( newDn );
         
         // move and rename
@@ -395,16 +394,16 @@ public class AbstractStoreTest
         Dn oldDn = newDn;
         Rdn newRdn = new Rdn( schemaManager, "cn=userMovedAndRenamed" );
         
-        store.moveAndRename( oldDn, newParentDn, newRdn, entry, false );
+        partition.moveAndRename( oldDn, newParentDn, newRdn, entry, false );
         verifyParentId( newParentDn.add( newRdn ) );
     }
     
     
     private Entry verifyParentId( Dn dn ) throws Exception
     {
-        Long entryId = store.getEntryId( dn );
-        Entry entry = store.lookup( entryId );
-        Long parentId = store.getParentId( entryId );
+        Long entryId = partition.getEntryId( dn );
+        Entry entry = partition.lookup( entryId );
+        Long parentId = partition.getParentId( entryId );
         
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );

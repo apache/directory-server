@@ -39,7 +39,7 @@ import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -133,15 +133,14 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public SchemaService getSchemaService()
+    public SchemaPartition getSchemaPartition()
     {
         return null;
     }
 
 
-    public void setSchemaService( SchemaService schemaService )
+    public void setSchemaPartition( SchemaPartition schemaPartition )
     {
-
     }
 
 

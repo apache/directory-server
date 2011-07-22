@@ -413,7 +413,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( "old attributeType OID should be removed from the registry after being renamed",
             getService().getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
-        getService().getSchemaManager().getAttributeTypeRegistry().lookup( OID );
+        getService().getSchemaManager().lookupAttributeTypeRegistry( OID );
         fail( "attributeType lookup should fail after renaming the attributeType" );
 
         assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );

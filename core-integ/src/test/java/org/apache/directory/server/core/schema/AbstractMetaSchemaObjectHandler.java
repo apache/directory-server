@@ -52,7 +52,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( workingDir ).append( '/' ).append( getService().getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
+        sb.append( workingDir ).append( '/' ).append( getService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
 
         for ( Rdn rdn : dn )
         {

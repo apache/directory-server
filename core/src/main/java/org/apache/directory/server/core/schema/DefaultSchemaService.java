@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -46,6 +47,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.util.StringConstants;
 
 
 /**
@@ -53,64 +55,24 @@ import org.apache.directory.shared.ldap.model.schema.registries.NormalizerRegist
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultSchemaService implements SchemaService
+public class DefaultSchemaService
 {
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
     /** cached version of the schema subentry with all attributes in it */
-    private Entry schemaSubentry;
-    private final Object lock = new Object();
-
-    /** a handle on the schema partition */
-    private SchemaPartition schemaPartition;
-
-    /** the normalized name for the schema modification attributes */
-    private Dn schemaModificationAttributesDn;
+    private static Entry schemaSubentry;
     
     /** A lock to avid concurrent generation of the SubschemaSubentry */
-    private Object schemaSubentrLock = new Object();
-
-    
-    public DefaultSchemaService( SchemaManager schemaManager ) throws Exception
-    {
-        schemaPartition = new SchemaPartition( schemaManager );
-        schemaModificationAttributesDn = new Dn( getSchemaManager(), SchemaConstants.SCHEMA_MODIFICATIONS_DN );
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isSchemaSubentry( Dn dn ) throws LdapException
-    {
-        return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
-    }
+    private static Object schemaSubentrLock = new Object();
 
 
-    public final SchemaManager getSchemaManager()
-    {
-        return schemaPartition.getSchemaManager();
-    }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#getSchemaPartition()
-     */
-    public SchemaPartition getSchemaPartition()
-    {
-        return schemaPartition;
-    }
-    
-    
     /**
      * Generate the comparators attribute from the registry
      */
-    private Attribute generateComparators() throws LdapException
+    private static Attribute generateComparators( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
-        for ( LdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
+        for ( LdapComparator<?> comparator : schemaManager.getComparatorRegistry() )
         {
             attr.add( SchemaUtils.render( comparator ) );
         }
@@ -119,12 +81,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateNormalizers() throws LdapException
+    private static Attribute generateNormalizers( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.NORMALIZERS_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.NORMALIZERS_AT ) );
 
-        NormalizerRegistry nr = getSchemaManager().getNormalizerRegistry();
+        NormalizerRegistry nr = schemaManager.getNormalizerRegistry();
         
         for ( Normalizer normalizer : nr )
         {
@@ -135,12 +97,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateSyntaxCheckers() throws LdapException
+    private static Attribute generateSyntaxCheckers( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
-        for ( SyntaxChecker syntaxChecker : getSchemaManager().getSyntaxCheckerRegistry() )
+        for ( SyntaxChecker syntaxChecker : schemaManager.getSyntaxCheckerRegistry() )
         {
             attr.add( SchemaUtils.render( syntaxChecker ) );
         }
@@ -149,12 +111,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateObjectClasses() throws LdapException
+    private static Attribute generateObjectClasses( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute(
-            getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASSES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASSES_AT ) );
 
-        for ( ObjectClass objectClass : getSchemaManager().getObjectClassRegistry() )
+        for ( ObjectClass objectClass : schemaManager.getObjectClassRegistry() )
         {
             attr.add( SchemaUtils.render( objectClass ).toString() );
         }
@@ -163,12 +125,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateAttributeTypes() throws LdapException
+    private static Attribute generateAttributeTypes( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
-        for ( AttributeType attributeType : getSchemaManager().getAttributeTypeRegistry() )
+        for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
             attr.add( SchemaUtils.render( attributeType ).toString() );
         }
@@ -177,12 +139,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateMatchingRules() throws LdapException
+    private static Attribute generateMatchingRules( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.MATCHING_RULES_AT ) );
 
-        for ( MatchingRule matchingRule : getSchemaManager().getMatchingRuleRegistry() )
+        for ( MatchingRule matchingRule : schemaManager.getMatchingRuleRegistry() )
         {
             attr.add( SchemaUtils.render( matchingRule ).toString() );
         }
@@ -191,12 +153,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateMatchingRuleUses() throws LdapException
+    private static Attribute generateMatchingRuleUses( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute(
-            getSchemaManager().getAttributeType( SchemaConstants.MATCHING_RULE_USE_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
-        for ( MatchingRuleUse matchingRuleUse : getSchemaManager().getMatchingRuleUseRegistry() )
+        for ( MatchingRuleUse matchingRuleUse : schemaManager.getMatchingRuleUseRegistry() )
         {
             attr.add( SchemaUtils.render( matchingRuleUse ).toString() );
         }
@@ -205,12 +167,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateSyntaxes() throws LdapException
+    private static Attribute generateSyntaxes( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.LDAP_SYNTAXES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        for ( LdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
+        for ( LdapSyntax syntax : schemaManager.getLdapSyntaxRegistry() )
         {
             attr.add( SchemaUtils.render( syntax ).toString() );
         }
@@ -219,12 +181,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateDitContextRules() throws LdapException
+    private static Attribute generateDitContextRules( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.DIT_CONTENT_RULES_AT ) );
 
-        for ( DITContentRule ditContentRule : getSchemaManager().getDITContentRuleRegistry() )
+        for ( DITContentRule ditContentRule : schemaManager.getDITContentRuleRegistry() )
         {
             attr.add( SchemaUtils.render( ditContentRule ).toString() );
         }
@@ -233,12 +195,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateDitStructureRules() throws LdapException
+    private static Attribute generateDitStructureRules( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
-        for ( DITStructureRule ditStructureRule : getSchemaManager().getDITStructureRuleRegistry() )
+        for ( DITStructureRule ditStructureRule : schemaManager.getDITStructureRuleRegistry() )
         {
             attr.add( SchemaUtils.render( ditStructureRule ).toString() );
         }
@@ -247,12 +209,12 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private Attribute generateNameForms() throws LdapException
+    private static Attribute generateNameForms( SchemaManager schemaManager ) throws LdapException
     {
         Attribute attr = new DefaultAttribute( 
-            getSchemaManager().getAttributeType( SchemaConstants.NAME_FORMS_AT ) );
+            schemaManager.getAttributeType( SchemaConstants.NAME_FORMS_AT ) );
 
-        for ( NameForm nameForm : getSchemaManager().getNameFormRegistry() )
+        for ( NameForm nameForm : schemaManager.getNameFormRegistry() )
         {
             attr.add( SchemaUtils.render( nameForm ).toString() );
         }
@@ -264,9 +226,9 @@ public class DefaultSchemaService implements SchemaService
     /**
      * Creates the SSSE by extracting all the SchemaObjects from the registries.
      */
-    private void generateSchemaSubentry( Entry mods ) throws LdapException
+    private static void generateSchemaSubentry( SchemaManager schemaManager, Entry mods ) throws LdapException
     {
-        Entry attrs = new DefaultEntry( getSchemaManager(), mods.getDn() );
+        Entry attrs = new DefaultEntry( schemaManager, mods.getDn() );
 
         // add the objectClass attribute : 'top', 'subschema', 'subentry' and 'apacheSubschema' 
         attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
@@ -280,17 +242,17 @@ public class DefaultSchemaService implements SchemaService
         attrs.put( SchemaConstants.CN_AT, "schema" );
 
         // generate all the other operational attributes
-        attrs.put( generateComparators() );
-        attrs.put( generateNormalizers() );
-        attrs.put( generateSyntaxCheckers() );
-        attrs.put( generateObjectClasses() );
-        attrs.put( generateAttributeTypes() );
-        attrs.put( generateMatchingRules() );
-        attrs.put( generateMatchingRuleUses() );
-        attrs.put( generateSyntaxes() );
-        attrs.put( generateDitContextRules() );
-        attrs.put( generateDitStructureRules() );
-        attrs.put( generateNameForms() );
+        attrs.put( generateComparators( schemaManager ) );
+        attrs.put( generateNormalizers( schemaManager ) );
+        attrs.put( generateSyntaxCheckers( schemaManager ) );
+        attrs.put( generateObjectClasses( schemaManager ) );
+        attrs.put( generateAttributeTypes( schemaManager ) );
+        attrs.put( generateMatchingRules( schemaManager ) );
+        attrs.put( generateMatchingRuleUses( schemaManager ) );
+        attrs.put( generateSyntaxes( schemaManager ) );
+        attrs.put( generateDitContextRules( schemaManager ) );
+        attrs.put( generateDitStructureRules( schemaManager ) );
+        attrs.put( generateNameForms( schemaManager ) );
         attrs.put( SchemaConstants.SUBTREE_SPECIFICATION_AT, "{}" );
 
         // -------------------------------------------------------------------
@@ -314,14 +276,14 @@ public class DefaultSchemaService implements SchemaService
 
         // don't swap out if a request for the subentry is in progress or we
         // can give back an inconsistent schema back to the client so we block
-        synchronized ( lock )
+        synchronized ( schemaSubentrLock )
         {
             schemaSubentry = attrs;
         }
     }
 
 
-    private void addAttribute( Entry attrs, String id ) throws LdapException
+    private static void addAttribute( Entry attrs, String id ) throws LdapException
     {
         Attribute attr = schemaSubentry.get( id );
 
@@ -335,13 +297,18 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public Entry getSubschemaEntryImmutable() throws LdapException
+    public static Entry getSubschemaEntryImmutable( DirectoryService directoryService ) throws LdapException
     {
         synchronized ( schemaSubentrLock )
         {
             if ( schemaSubentry == null )
             {
-                generateSchemaSubentry( schemaPartition.lookup(
+                Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(), 
+                    SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+
+                generateSchemaSubentry( 
+                    directoryService.getSchemaManager(), 
+                    directoryService.getSchemaPartition().lookup(
                         new LookupOperationContext( null, schemaModificationAttributesDn) ) );
             }
     
@@ -353,11 +320,16 @@ public class DefaultSchemaService implements SchemaService
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntryCloned()
      */
-    public Entry getSubschemaEntryCloned() throws LdapException
+    public static Entry getSubschemaEntryCloned( DirectoryService directoryService ) throws LdapException
     {
         if ( schemaSubentry == null )
         {
-            generateSchemaSubentry( schemaPartition.lookup(
+            Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(), 
+                SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+
+            generateSchemaSubentry( 
+                directoryService.getSchemaManager(), 
+                directoryService.getSchemaPartition().lookup(
                     new LookupOperationContext( null, schemaModificationAttributesDn) ) );
         }
 
@@ -368,25 +340,29 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public Entry getSubschemaEntry( String[] ids ) throws LdapException
+    public static Entry getSubschemaEntry( DirectoryService directoryService, String[] ids ) throws LdapException
     {
         if ( ids == null )
         {
-            ids = EMPTY_STRING_ARRAY;
+            ids = StringConstants.EMPTY_STRINGS;
         }
+        
+        SchemaManager schemaManager = directoryService.getSchemaManager();
 
         Set<String> setOids = new HashSet<String>();
-        Entry attrs = new DefaultEntry( getSchemaManager(), Dn.ROOT_DSE );
+        Entry attrs = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
         boolean returnAllOperationalAttributes = false;
 
-        synchronized( lock )
+        synchronized( schemaSubentrLock )
         {
             // ---------------------------------------------------------------
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
+            Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(), 
+                SchemaConstants.SCHEMA_MODIFICATIONS_DN );
 
             Entry mods = 
-                schemaPartition.lookup( 
+                directoryService.getSchemaPartition().lookup( 
                     new LookupOperationContext( null, schemaModificationAttributesDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY ) );
             
 // @todo enable this optimization at some point but for now it
@@ -418,7 +394,7 @@ public class DefaultSchemaService implements SchemaService
 //            }
 //            else
 //            {
-                generateSchemaSubentry( mods );
+                generateSchemaSubentry( schemaManager, mods );
 //            }
 
             // ---------------------------------------------------------------
@@ -439,7 +415,7 @@ public class DefaultSchemaService implements SchemaService
                 }
                 else
                 {
-                    setOids.add( getSchemaManager().getAttributeTypeRegistry().getOidByName( id ) );
+                    setOids.add( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
                 }
             }
 

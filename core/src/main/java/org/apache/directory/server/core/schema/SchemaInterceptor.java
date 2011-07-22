@@ -141,8 +141,6 @@ public class SchemaInterceptor extends BaseInterceptor
     /** The schema manager */
     private SchemaSubentryManager schemaSubEntryManager;
 
-    private SchemaService schemaService;
-
     /** the base Dn (normalized) of the schema partition */
     private Dn schemaBaseDn;
 
@@ -181,7 +179,6 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( topFilter );
 
         schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
-        schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
@@ -195,7 +192,7 @@ public class SchemaInterceptor extends BaseInterceptor
         computeSuperiors();
 
         // Initialize the schema manager
-        SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
+        SchemaLoader loader = directoryService.getSchemaManager().getLoader();
         schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDnFactory() );
 
         if ( IS_DEBUG )
@@ -690,7 +687,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( schemaManager.getObjectClassRegistry().contains( objectClass ) )
                 {
-                    objectClassOid = schemaManager.getObjectClassRegistry().lookup( objectClass ).getOid();
+                    objectClassOid = schemaManager.lookupObjectClassRegistry( objectClass ).getOid();
                 }
                 else
                 {
@@ -705,7 +702,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    Entry serverEntry = DefaultSchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
@@ -722,7 +719,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    Entry serverEntry = DefaultSchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
                         new SingletonCursor<Entry>( serverEntry ), searchContext );
@@ -793,7 +790,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 hasExtensibleObject = true;
             }
 
-            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( objectClassName );
+            ObjectClass oc = schemaManager.lookupObjectClassRegistry( objectClassName );
 
             // Add all unseen objectClasses to the list, except 'top'
             if ( !ocSeen.contains( oc.getOid() ) )
@@ -818,7 +815,7 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( Value<?> value : objectClasses )
         {
             String ocName = value.getString();
-            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMustAttributeTypes();
 
@@ -847,7 +844,7 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( Value<?> objectClass : objectClasses )
         {
             String ocName = objectClass.getString();
-            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMayAttributeTypes();
 
@@ -894,7 +891,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 String ocLowerName = ocName.toLowerCase();
 
-                ObjectClass objectClass = schemaManager.getObjectClassRegistry().lookup( ocLowerName );
+                ObjectClass objectClass = schemaManager.lookupObjectClassRegistry( ocLowerName );
 
                 if ( !objectClasses.contains( ocLowerName ) )
                 {
@@ -1437,7 +1434,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String supName = sup.getString();
 
-                    ObjectClass superior = schemaManager.getObjectClassRegistry().lookup( supName );
+                    ObjectClass superior = schemaManager.lookupObjectClassRegistry( supName );
 
                     switch ( ocType )
                     {
@@ -1518,7 +1515,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
                     String ocOid = oidAT.getString();
                     
-                    ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocOid );
+                    ObjectClass addedOC = schemaManager.lookupObjectClassRegistry( ocOid );
                     computeSuperior( addedOC );
                 }
             }

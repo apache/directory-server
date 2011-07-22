@@ -40,6 +40,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -241,7 +242,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            Entry serverEntry = directoryService.getSchemaService().getSubschemaEntry( lookupContext.getAttrsIdArray() );
+            Entry serverEntry = DefaultSchemaService.getSubschemaEntry( directoryService, lookupContext.getAttrsIdArray() );
             serverEntry.setDn( dn );
 
             return serverEntry;

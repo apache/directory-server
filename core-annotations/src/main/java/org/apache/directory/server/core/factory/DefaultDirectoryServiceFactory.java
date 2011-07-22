@@ -30,7 +30,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -174,15 +173,13 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         schemaManager.loadAllEnabled();
 
         directoryService.setSchemaManager( schemaManager );
-        directoryService.setSchemaService( new DefaultSchemaService( schemaManager ) );
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition( schemaManager );
         ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
-
-        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
-
+        SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
         schemaPartition.setWrappedPartition( ldifPartition );
+        directoryService.setSchemaPartition( schemaPartition );
 
         List<Throwable> errors = schemaManager.getErrors();
 

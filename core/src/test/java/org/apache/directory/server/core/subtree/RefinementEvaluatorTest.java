@@ -23,10 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -41,6 +39,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -87,7 +88,7 @@ public class RefinementEvaluatorTest
         evaluator = new RefinementEvaluator( leafEvaluator );
         
         OBJECT_CLASS_AT = schemaManager.getAttributeType( "objectClass" );
-        CN_AT = schemaManager.getAttributeTypeRegistry().lookup( "cn" );
+        CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
 
 

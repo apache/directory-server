@@ -36,7 +36,7 @@ import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -129,15 +129,21 @@ public interface DirectoryService extends ServerEntryFactory
     void setReferralManager( ReferralManager referralManager );
 
     
-    SchemaService getSchemaService();
+    /**
+     * @return The schema partition
+     */
+    SchemaPartition getSchemaPartition();
 
 
     /**
+     * Set the SchemaPartition
+     * @param schemaPartition the SchemaPartition instance
      */
-    void setSchemaService( SchemaService schemaService );
-    
-    
+    void setSchemaPartition( SchemaPartition schemaPartition );
+
+
     EventService getEventService();
+    
     
     /**
      */

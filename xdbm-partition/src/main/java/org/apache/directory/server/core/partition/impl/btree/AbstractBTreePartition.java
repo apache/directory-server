@@ -447,7 +447,10 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      *
      * @return the path in which this Partition stores data.
      */
-    public abstract URI getPartitionPath();
+    public URI getPartitionPath()
+    {
+        return partitionPath;
+    }
 
 
     // ------------------------------------------------------------------------

@@ -284,10 +284,7 @@ public class ApacheDsService
         DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean,
             instanceLayout, schemaManager );
 
-        directoryService.setSchemaManager( schemaManager );
-        directoryService.setSchemaService( new DefaultSchemaService( schemaManager ) );
-
-        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
+        SchemaPartition schemaPartition = directoryService.getSchemaPartition();
         schemaPartition.setWrappedPartition( schemaLdifPartition );
 
         directoryService.addPartition( configPartition );

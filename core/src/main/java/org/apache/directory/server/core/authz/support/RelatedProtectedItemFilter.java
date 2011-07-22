@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -190,7 +190,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     }
                     else
                     {
-                        attr = schemaManager.getAttributeTypeRegistry().lookup( entryAttribute.getId() );
+                        attr = schemaManager.lookupAttributeTypeRegistry( entryAttribute.getId() );
                         attrOid = attr.getOid();
                         entryAttribute.apply( attr );
                     }

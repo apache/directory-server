@@ -33,8 +33,8 @@ import java.util.Set;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -208,7 +208,7 @@ public class ConfigWriter
     private void addObjectClassAttribute( SchemaManager schemaManager, LdifEntry entry, String objectClass )
         throws LdapException
     {
-        ObjectClass objectClassObject = schemaManager.getObjectClassRegistry().lookup( objectClass );
+        ObjectClass objectClassObject = schemaManager.lookupObjectClassRegistry( objectClass );
         if ( objectClassObject != null )
         {
             // Building the list of 'objectClass' attribute values
@@ -240,7 +240,7 @@ public class ConfigWriter
         Set<String> objectClassAttributeValues,
         ObjectClass objectClass ) throws LdapException
     {
-        ObjectClass topObjectClass = schemaManager.getObjectClassRegistry().lookup( SchemaConstants.TOP_OC );
+        ObjectClass topObjectClass = schemaManager.lookupObjectClassRegistry( SchemaConstants.TOP_OC );
         if ( topObjectClass != null )
         {
             // TODO throw new exception (there should be a top object class 

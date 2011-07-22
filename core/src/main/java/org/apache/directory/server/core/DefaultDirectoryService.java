@@ -73,9 +73,8 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
@@ -120,7 +119,7 @@ public class DefaultDirectoryService implements DirectoryService
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
-    private SchemaService schemaService;
+    private SchemaPartition schemaPartition;
 
     /** A reference on the SchemaManager */
     private SchemaManager schemaManager;
@@ -1137,15 +1136,21 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public SchemaService getSchemaService()
+    /**
+     * {@inheritDoc}
+     */
+    public SchemaPartition getSchemaPartition()
     {
-        return schemaService;
+        return schemaPartition;
     }
 
 
-    public void setSchemaService( SchemaService schemaService )
+    /**
+     * {@inheritDoc}
+     */
+    public void setSchemaPartition( SchemaPartition schemaPartition )
     {
-        this.schemaService = schemaService;
+        this.schemaPartition = schemaPartition;
     }
 
 
@@ -1516,11 +1521,6 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
         
-        if ( schemaService == null )
-        {
-            schemaService = new DefaultSchemaService( schemaManager );
-        }
-
         cacheService = new CacheService();
         cacheService.initialize( this );
 
@@ -1533,8 +1533,8 @@ public class DefaultDirectoryService implements DirectoryService
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
         
         // triggers partition to load schema fully from schema partition
-        schemaService.getSchemaPartition().initialize();
-        partitions.add( schemaService.getSchemaPartition() );
+        schemaPartition.initialize();
+        partitions.add( schemaPartition );
         systemPartition.getSuffixDn().apply( schemaManager );
 
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
