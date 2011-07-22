@@ -555,7 +555,6 @@ public class SingleFileLdifPartitionTest
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( 0L, file.length() );
-        assertNull( partition.getContextEntry() );
 
         addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );

@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
@@ -180,36 +179,27 @@ public class LdifPartition extends AbstractLdifPartition
     
                 LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
     
-                if ( contextEntry == null )
+                if ( contextEntryFile.exists() )
                 {
-                    if ( contextEntryFile.exists() )
+                    LdifReader reader = new LdifReader( contextEntryFile );
+                    Entry contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
+                    reader.close();
+                    
+                    if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
                     {
-                        LdifReader reader = new LdifReader( contextEntryFile );
-                        contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
-                        reader.close();
+                        contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
                     }
-                    else
+        
+                    if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
                     {
-                        // No context entry and no LDIF file exists.
-                        // Skip initialization of context entry here, it will be added later.
-                        return;
+                        String uuid = UUID.randomUUID().toString();
+                        contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
                     }
+        
+                    // And add this entry to the underlying partition
+                    AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                    add( addContext );
                 }
-    
-                if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
-                {
-                    contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
-                }
-    
-                if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
-                {
-                    String uuid = UUID.randomUUID().toString();
-                    contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
-                }
-    
-                // And add this entry to the underlying partition
-                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-                add( addContext );
             }
         }
     }
@@ -726,34 +716,6 @@ public class LdifPartition extends AbstractLdifPartition
         else
         {
             return file.delete();
-        }
-    }
-
-
-    /**
-     * @param contextEntry the contextEntry to set
-     */
-    public void setContextEntry( String contextEntry ) throws LdapLdifException
-    {
-        LdifReader ldifReader = new LdifReader();
-        List<LdifEntry> entries = ldifReader.parseLdif( contextEntry );
-
-        try
-        {
-            ldifReader.close();
-        }
-        catch ( IOException ioe )
-        {
-            // What can we do here ???
-        }
-
-        try
-        { 
-            this.contextEntry = new DefaultEntry( schemaManager, entries.get( 0 ).getEntry() );
-        }
-        catch ( LdapException le )
-        {
-            throw new LdapLdifException( le.getMessage(), le );
         }
     }
 }

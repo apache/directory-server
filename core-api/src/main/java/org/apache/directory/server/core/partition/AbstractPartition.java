@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
@@ -50,25 +49,14 @@ public abstract class AbstractPartition implements Partition
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
     
-    /** The partition ContextEntry */
-    protected Entry contextEntry;
-
     /** The partition ID */
     protected String id;
     
     /** The root Dn for this partition */
     protected Dn suffixDn;
 
-    protected AbstractPartition()
-    {
-    }
-    
-    
     /**
-     * Sets up (<tt>directoryService</tt> and calls {@link #doInit()} where you have to put your
-     * initialization code in.  {@link #isInitialized()} will return <tt>true</tt> if
-     * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
-     * as a clean-up process if {@link #doInit()} throws an exception.
+     * {@inheritDoc}
      */
     public void initialize( ) throws LdapException
     {
@@ -102,7 +90,6 @@ public abstract class AbstractPartition implements Partition
             }
         }
     }
-    
 
 
     /**
@@ -137,7 +124,7 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Returns <tt>true</tt> if this context partition is initialized successfully.
+     * {@inheritDoc}
      */
     public final boolean isInitialized()
     {
@@ -204,24 +191,6 @@ public abstract class AbstractPartition implements Partition
         {
             this.suffixDn.apply( schemaManager );
         }
-    }
-    
-    
-    /**
-     * @return the contextEntry
-     */
-    public Entry getContextEntry()
-    {
-        return contextEntry;
-    }
-
-
-    /**
-     * @param contextEntry the contextEntry to set
-     */
-    public void setContextEntry( Entry contextEntry )
-    {
-        this.contextEntry = contextEntry;
     }
     
     

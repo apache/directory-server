@@ -116,7 +116,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
 
             // Getting the context entry
             LdifEntry ldifEntry = itr.next();
-            contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+            Entry contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
             // Checking the context entry
             if ( suffixDn.equals( contextEntry.getDn() ) )

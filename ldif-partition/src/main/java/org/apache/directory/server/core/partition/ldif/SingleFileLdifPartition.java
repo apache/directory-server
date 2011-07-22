@@ -146,7 +146,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
         LdifEntry ldifEntry = itr.next();
 
-        contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+        Entry contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
         if ( suffixDn.equals( contextEntry.getDn() ) )
         {
@@ -187,16 +187,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         synchronized ( lock )
         {
             super.add( addContext );
-
-            if ( contextEntry == null )
-            {
-                Entry entry = addContext.getEntry();
-
-                if ( entry.getDn().equals( suffixDn ) )
-                {
-                    contextEntry = entry;
-                }
-            }
 
             dirty = true;
             rewritePartitionData();
@@ -304,7 +294,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 if( suffixId == null )
                 {
-                    contextEntry = null;
                     return;
                 }
                 

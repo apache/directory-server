@@ -94,7 +94,9 @@ public interface Partition
     // -----------------------------------------------------------------------
 
     /**
-     * Initializes this partition.
+     * Initializes this partition. {@link #isInitialized()} will return <tt>true</tt> if
+     * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
+     * as a clean-up process if {@link #doInit()} throws an exception.
      *
      * @throws Exception if initialization fails in any way
      */

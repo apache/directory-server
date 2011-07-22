@@ -1176,7 +1176,6 @@ public class ServiceBuilder
                 if ( ( entries != null ) && ( entries.size() > 0 ) )
                 {
                     LdifEntry entry = entries.get( 0 );
-                    jdbmPartition.setContextEntry( entry.getEntry() );
                 }
             }
             catch ( LdapLdifException lle )

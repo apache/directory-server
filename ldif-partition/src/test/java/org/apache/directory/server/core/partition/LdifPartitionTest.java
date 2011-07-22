@@ -125,12 +125,6 @@ public class LdifPartitionTest
     @Before
     public void createStore() throws Exception
     {
-        String contextEntry =
-            "dn: ou=test, ou=system\n" +
-                "objectclass: organizationalUnit\n" +
-                "objectclass: top\n" +
-                "ou: test";
-
         // setup the working directory for the store
         wkdir = folder.newFile( "db" );
         wkdir = folder.getRoot();
@@ -143,8 +137,15 @@ public class LdifPartitionTest
         partition.setSchemaManager( schemaManager );
         partition.setPartitionPath( wkdir.toURI() );
 
-        partition.setContextEntry( contextEntry );
         partition.initialize();
+        
+        Entry entry = createEntry( "ou=test, ou=system" );
+        
+        entry.put( "objectClass", "top", "organizationalUnit" );
+        entry.put(  "cn", "test" );
+        
+        AddOperationContext addContext = new AddOperationContext( null, entry );
+        partition.add( addContext );
 
         LOG.debug( "Created new LDIF partition" );
     }
