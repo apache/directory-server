@@ -45,6 +45,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
@@ -114,7 +115,7 @@ public class ApacheDsService
     private SingleFileLdifPartition configPartition;
 
     private ConfigPartitionReader cpReader;
-    
+
     // variables used during the initial startup to update the mandatory operational
     // attributes
     private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
@@ -140,7 +141,7 @@ public class ApacheDsService
     public void start( InstanceLayout instanceLayout ) throws Exception
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
-        
+
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
@@ -148,18 +149,18 @@ public class ApacheDsService
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
-        
+
         initSchemaManager( instanceLayout );
         initSchemaLdifPartition( instanceLayout );
         initConfigPartition( instanceLayout );
 
         // Read the configuration
         cpReader = new ConfigPartitionReader( configPartition );
-        
+
         ConfigBean configBean = cpReader.readConfig();
-        
+
         DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
-        
+
         // Initialize the DirectoryService now
         DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean );
 
@@ -185,7 +186,7 @@ public class ApacheDsService
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
     }
 
-    
+
     /**
      * Initialize the schema Manager by loading the schema LDIF files
      * 
@@ -211,7 +212,6 @@ public class ApacheDsService
         SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
         schemaManager = new DefaultSchemaManager( loader );
 
-
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
@@ -221,10 +221,10 @@ public class ApacheDsService
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors(errors) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }
     }
-    
+
 
     /**
      * Initialize the schema partition
@@ -259,7 +259,8 @@ public class ApacheDsService
         }
         else
         {
-            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE, true );
+            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(),
+                LdifConfigExtractor.LDIF_CONFIG_FILE, true );
             isConfigPartitionFirstExtraction = true;
         }
 
@@ -271,15 +272,20 @@ public class ApacheDsService
 
         configPartition.initialize();
     }
-    
-    
-    private DirectoryService initDirectoryService( InstanceLayout instanceLayout, DirectoryServiceBean directoryServiceBean ) throws Exception
+
+
+    private DirectoryService initDirectoryService( InstanceLayout instanceLayout,
+        DirectoryServiceBean directoryServiceBean ) throws Exception
     {
         LOG.info( "Initializing the DirectoryService..." );
-        
+
         long startTime = System.currentTimeMillis();
 
-        DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean, instanceLayout, schemaManager );
+        DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean,
+            instanceLayout, schemaManager );
+
+        directoryService.setSchemaManager( schemaManager );
+        directoryService.setSchemaService( new DefaultSchemaService( schemaManager ) );
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
         schemaPartition.setWrappedPartition( schemaLdifPartition );
@@ -332,7 +338,7 @@ public class ApacheDsService
         }
 
         LOG.info( "DirectoryService initialized in {} milliseconds", ( System.currentTimeMillis() - startTime ) );
-        
+
         return directoryService;
     }
 
@@ -346,7 +352,7 @@ public class ApacheDsService
         long startTime = System.currentTimeMillis();
 
         ldapServer = ServiceBuilder.createLdapServer( ldapServerBean, directoryService );
-        
+
         if ( ldapServer == null )
         {
             LOG.info( "Cannot find any reference to the LDAP Server in the configuration : the server won't be started" );
@@ -354,7 +360,7 @@ public class ApacheDsService
         }
 
         printBanner( BANNER_LDAP );
-        
+
         ldapServer.setDirectoryService( directoryService );
 
         // And start the server now
@@ -379,8 +385,8 @@ public class ApacheDsService
         LOG.info( "Starting the NTP server" );
         long startTime = System.currentTimeMillis();
 
-        ntpServer = ServiceBuilder.createNtpServer( ntpServerBean, directoryService);
-        
+        ntpServer = ServiceBuilder.createNtpServer( ntpServerBean, directoryService );
+
         if ( ntpServer == null )
         {
             LOG.info( "Cannot find any reference to the NTP Server in the configuration : the server won't be started" );
@@ -442,7 +448,7 @@ public class ApacheDsService
         long startTime = System.currentTimeMillis();
 
         kdcServer = ServiceBuilder.createKdcServer( kdcServerBean, directoryService );
-        
+
         if ( kdcServer == null )
         {
             LOG.info( "Cannot find any reference to the Kerberos Server in the configuration : the server won't be started" );
@@ -496,14 +502,13 @@ public class ApacheDsService
     }
     */
 
-
     /**
      * start the embedded HTTP server
      */
     private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws Exception
     {
-        httpServer = ServiceBuilder.createHttpServer( httpServerBean, directoryService);
-        
+        httpServer = ServiceBuilder.createHttpServer( httpServerBean, directoryService );
+
         if ( httpServer == null )
         {
             LOG.info( "Cannot find any reference to the HTTP Server in the configuration : the server won't be started" );
@@ -566,7 +571,6 @@ public class ApacheDsService
         // We now have to stop the underlaying DirectoryService
         ldapServer.getDirectoryService().shutdown();
     }
-
 
     private static final String BANNER_LDAP = "           _                     _          ____  ____   \n"
         + "          / \\   _ __    ___  ___| |__   ___|  _ \\/ ___|  \n"
@@ -684,7 +688,7 @@ public class ApacheDsService
             Attribute creatorAt = entry.get( atType );
             String creator = ( creatorAt == null ? "" : creatorAt.getString().trim() );
 
-            if ( ( creator.length() == 0 ) || ( !Dn.isValid(creator) ) )
+            if ( ( creator.length() == 0 ) || ( !Dn.isValid( creator ) ) )
             {
                 creatorAt = new DefaultAttribute( atType, adminDn );
             }
