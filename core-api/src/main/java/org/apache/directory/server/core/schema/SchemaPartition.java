@@ -183,7 +183,6 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    @Override
     public void sync() throws Exception
     {
         wrapped.sync();
