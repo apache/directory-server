@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -51,8 +50,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
@@ -105,7 +106,7 @@ public final class SchemaPartition extends AbstractPartition
     private static final Logger LOG = LoggerFactory.getLogger( SchemaPartition.class );
 
     /** the fixed id: 'schema' */
-    private static final String ID = "schema";
+    private static final String SCHEMA_ID = "schema";
 
     /** the wrapped Partition */
     private Partition wrapped;
@@ -114,12 +115,29 @@ public final class SchemaPartition extends AbstractPartition
     private RegistrySynchronizerAdaptor synchronizer;
 
     /** A static Dn for the ou=schemaModifications entry */
-    private static Dn schemaModificationDn;
+    private static Dn SCHEMA_MODIFICATION_DN;
 
     /** A static Dn for the ou=schema partition */
-    private static Dn schemaDn;
+    private static Dn SCHEMA_DN;
 
 
+    public SchemaPartition( SchemaManager schemaManager )
+    {
+        try
+        {
+            SCHEMA_DN = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            // Nothing to do : this is a valid DN anyways
+        }
+        
+        id = SCHEMA_ID;
+        suffixDn = SCHEMA_DN;
+        this.schemaManager = schemaManager;
+    }
+    
+    
     /**
      * Sets the wrapped {@link Partition} which must be supplied or 
      * {@link Partition#initialize()} will fail with a NullPointerException.
@@ -149,39 +167,12 @@ public final class SchemaPartition extends AbstractPartition
 
 
     /**
-     * Get's the ID which is fixed: 'schema'.
-     */
-    public String getId()
-    {
-        return ID;
-    }
-
-
-    /**
-     * Has no affect: the id is fixed at {@link SchemaPartition#ID}: 'schema'.
+     * Has no affect: the id is fixed at {@link SchemaPartition#SCHEMA_ID}: 'schema'.
      * A warning is logged.
      */
     public void setId( String id )
     {
-        LOG.warn( "This partition's ID is fixed: {}", ID );
-    }
-
-
-    /**
-     * Always returns {@link ServerDNConstants#OU_SCHEMA_DN_NORMALIZED}: '2.5.4.11=schema'.
-     */
-    public Dn getSuffix()
-    {
-        return wrapped.getSuffix();
-    }
-
-
-    /**
-     * Has no affect: just logs a warning.
-     */
-    public void setSuffix( Dn suffix )
-    {
-        LOG.warn( "This partition's suffix is fixed: {}", SchemaConstants.OU_SCHEMA );
+        LOG.warn( "This partition's ID is fixed: {}", SCHEMA_ID );
     }
 
 
@@ -205,29 +196,30 @@ public final class SchemaPartition extends AbstractPartition
     @Override
     protected void doInit() throws Exception
     {
-        // -----------------------------------------------------------------------
-        // Load apachemeta schema from within the ldap-schema Jar with all the
-        // schema it depends on.  This is a minimal mandatory set of schemas.
-        // -----------------------------------------------------------------------
-        schemaDn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
-        
-        wrapped.setId( ID );
-        wrapped.setSuffix( schemaDn );
-        wrapped.setSchemaManager( schemaManager );
-
-        try
+        if ( !initialized )
         {
-            wrapped.initialize();
-
-            synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
+            // -----------------------------------------------------------------------
+            // Load apachemeta schema from within the ldap-schema Jar with all the
+            // schema it depends on.  This is a minimal mandatory set of schemas.
+            // -----------------------------------------------------------------------
+            wrapped.setId( SCHEMA_ID );
+            wrapped.setSuffixDn( SCHEMA_DN );
+            wrapped.setSchemaManager( schemaManager );
+    
+            try
+            {
+                wrapped.initialize();
+    
+                synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
+            }
+            catch ( Exception e )
+            {
+                LOG.error( I18n.err( I18n.ERR_90 ), e );
+                throw new RuntimeException( e );
+            }
+    
+            SCHEMA_MODIFICATION_DN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         }
-        catch ( Exception e )
-        {
-            LOG.error( I18n.err( I18n.ERR_90 ), e );
-            throw new RuntimeException( e );
-        }
-
-        schemaModificationDn = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
     }
 
 
@@ -355,7 +347,7 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.modify( modifyContext );
         }
 
-        if ( !modifyContext.getDn().equals(schemaModificationDn) )
+        if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
         {
             updateSchemaModificationAttributes( modifyContext );
         }
@@ -459,7 +451,7 @@ public final class SchemaPartition extends AbstractPartition
             ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 
-        opContext.modify(schemaModificationDn, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        opContext.modify( SCHEMA_MODIFICATION_DN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 
 
@@ -468,6 +460,6 @@ public final class SchemaPartition extends AbstractPartition
      */
     public String toString()
     {
-        return "Partition : " + ID;
+        return "Partition : " + SCHEMA_ID;
     }
 }

@@ -34,11 +34,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -126,9 +128,8 @@ public class LessEqTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlStore<Entry>();
-        store.setSchemaManager( schemaManager );
-        store.setId( "example" );
+        store = new AvlPartition( schemaManager );
+        ((Partition)store).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
@@ -136,6 +137,10 @@ public class LessEqTest
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.POSTALCODE_AT_OID ) );
+        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ((Partition)store).initialize();
+
+        ((Partition)store).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
@@ -147,7 +152,7 @@ public class LessEqTest
     {
         if ( store != null )
         {
-            store.destroy();
+            ((Partition)store).destroy();
         }
 
         store = null;
@@ -636,7 +641,9 @@ public class LessEqTest
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         attrs.add( "entryUUID", UUID.randomUUID().toString() );
-        store.add( attrs );
+        
+        AddOperationContext addContext = new AddOperationContext( null, attrs );
+        ((Partition)store).add( addContext );
 
         indexEntry.setId( 12L );
         assertTrue( evaluator.evaluate( indexEntry ) );

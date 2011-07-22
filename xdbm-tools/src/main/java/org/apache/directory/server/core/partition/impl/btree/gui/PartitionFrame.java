@@ -167,7 +167,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffix().getName() );
+        setTitle( "Partition: " + this.partition.getSuffixDn().getName() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -375,7 +375,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffix().getName();
+            String parentDn = partition.getSuffixDn().getName();
 
             if ( null != path )
             {
@@ -420,7 +420,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffix().getName();
+            return partition.getSuffixDn().getName();
         }
 
         Object last = path.getLastPathComponent();
@@ -439,7 +439,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffix().getName();
+            base = partition.getSuffixDn().getName();
         }
 
         return base;
@@ -567,7 +567,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffix().getName() );
+            dialog.setBase( partition.getSuffixDn().getName() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -879,8 +879,8 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffix() ) );
-        Long id = partition.getEntryId( partition.getSuffix() );
+        Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
+        Long id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*
@@ -900,7 +900,7 @@ public class PartitionFrame extends JFrame
          }
          });
 
-         dialog.setBase(database.getSuffix().toString());
+         dialog.setBase(database.getSuffixDn().toString());
          dialog.setScope(FilterDialog.SUBTREE_SCOPE);
 
          //Center the frame on screen

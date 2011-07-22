@@ -116,7 +116,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     private final AttributeType M_DEPENDENCIES_AT;
 
     private final Set<AttributeTypeOptions> schemaAttributesToReturn = new HashSet<AttributeTypeOptions>();
-    private final AttributeType disabledAttributeType;
+    private final AttributeType DISABLED_ATTRIBUTE_TYPE_AT;
 
 
     /**
@@ -132,21 +132,21 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         this.factory = new SchemaEntityFactory();
         this.schemaManager = schemaManager;
 
-        this.M_NAME_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT );
-        this.disabledAttributeType = schemaManager.getAttributeType( MetaSchemaConstants.M_DISABLED_AT );
-        this.M_OID_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
+        M_NAME_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT );
+        DISABLED_ATTRIBUTE_TYPE_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_DISABLED_AT );
+        M_OID_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        this.M_SYNTAX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SYNTAX_AT );
-        this.M_ORDERING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_ORDERING_AT );
-        this.M_EQUALITY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_EQUALITY_AT );
-        this.M_SUBSTRING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUBSTR_AT );
-        this.M_SUP_ATTRIBUTE_TYPE_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
-        this.M_MUST_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT );
-        this.M_MAY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT );
-        this.M_AUX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_AUX_AT );
-        this.M_OC_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OC_AT );
-        this.M_SUP_OBJECT_CLASS_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
-        this.M_DEPENDENCIES_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        M_SYNTAX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SYNTAX_AT );
+        M_ORDERING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_ORDERING_AT );
+        M_EQUALITY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_EQUALITY_AT );
+        M_SUBSTRING_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUBSTR_AT );
+        M_SUP_ATTRIBUTE_TYPE_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        M_MUST_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT );
+        M_MAY_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT );
+        M_AUX_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_AUX_AT );
+        M_OC_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_OC_AT );
+        M_SUP_OBJECT_CLASS_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        M_DEPENDENCIES_AT = schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT );
 
         for ( String attrId : SCHEMA_ATTRIBUTES )
         {
@@ -242,7 +242,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -294,7 +294,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -346,7 +346,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -398,7 +398,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -450,7 +450,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -530,7 +530,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -567,7 +567,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         Dn dn = new Dn( schemaManager, "cn=" + schemaName + ",ou=schema" );
         Entry entry = partition.lookup( new LookupOperationContext( null, dn ) );
-        Attribute disabledAttr = entry.get( disabledAttributeType );
+        Attribute disabledAttr = entry.get( DISABLED_ATTRIBUTE_TYPE_AT );
         List<Modification> mods = new ArrayList<Modification>( 3 );
 
         if ( disabledAttr == null )
@@ -623,7 +623,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -682,7 +682,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -718,7 +718,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         filter.addNode( new PresenceNode( M_OID_AT ) );
         filter.addNode( new PresenceNode( M_NAME_AT ) );
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+        SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
             filter, searchControls );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -772,7 +772,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -820,7 +820,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -862,7 +862,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
@@ -871,7 +871,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             while ( cursor.next() )
             {
                 Entry sr = cursor.get();
-                Attribute disabled = sr.get( disabledAttributeType );
+                Attribute disabled = sr.get( DISABLED_ATTRIBUTE_TYPE_AT );
 
                 if ( disabled == null )
                 {
@@ -948,7 +948,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 

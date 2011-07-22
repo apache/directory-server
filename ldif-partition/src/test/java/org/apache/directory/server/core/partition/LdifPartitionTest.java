@@ -137,9 +137,9 @@ public class LdifPartitionTest
 
         // initialize the store
         // initialize the partition
-        partition = new LdifPartition();
+        partition = new LdifPartition( schemaManager );
         partition.setId( "test-ldif" );
-        partition.setSuffix( new Dn( "ou=test,ou=system" ) );
+        partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.setPartitionPath( wkdir.toURI() );
 
@@ -152,10 +152,9 @@ public class LdifPartitionTest
 
     private Entry createEntry( String dn ) throws Exception
     {
-        Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new Dn( schemaManager, dn ) );
-        entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString(),
+            SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
         Entry clonedEntry = new ClonedServerEntry( entry );
 

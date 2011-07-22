@@ -99,6 +99,7 @@ import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -326,7 +327,6 @@ public class DefaultDirectoryService implements DirectoryService
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
-        schemaService = new DefaultSchemaService();
     }
 
 
@@ -668,7 +668,7 @@ public class DefaultDirectoryService implements DirectoryService
             // can be null when called before starting up
             if ( partitionNexus != null )
             {
-                partitionNexus.removeContextPartition( partition.getSuffix() );
+                partitionNexus.removeContextPartition( partition.getSuffixDn() );
             }
         }
         catch ( LdapException le )
@@ -988,7 +988,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
-        loc.setDn( systemPartition.getSuffix() );
+        loc.setDn( systemPartition.getSuffixDn() );
         loc.setAttrsId( new String[]{ SchemaConstants.CONTEXT_CSN_AT } );
         Entry entry = systemPartition.lookup( loc );
 
@@ -1472,6 +1472,36 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
     }
+    
+    
+    private void initializeSystemPartition() throws Exception
+    {
+        Partition system = getSystemPartition();
+        
+        // Add root context entry for system partition
+        Dn systemSuffixDn = getDnFactory().create( ServerDNConstants.SYSTEM_DN );
+        CoreSession adminSession = getAdminSession();
+
+        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
+        {
+            Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
+            
+            // Add the ObjectClasses
+            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            
+            // Add some operational attributes
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
+            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            systemEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+            systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
+                .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+            
+            AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
+            system.add( addOperationContext );
+        }
+    }
 
 
     /**
@@ -1486,6 +1516,11 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
         
+        if ( schemaService == null )
+        {
+            schemaService = new DefaultSchemaService( schemaManager );
+        }
+
         cacheService = new CacheService();
         cacheService.initialize( this );
 
@@ -1498,10 +1533,9 @@ public class DefaultDirectoryService implements DirectoryService
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
         
         // triggers partition to load schema fully from schema partition
-        schemaService.initialize();
         schemaService.getSchemaPartition().initialize();
         partitions.add( schemaService.getSchemaPartition() );
-        systemPartition.getSuffix().apply( schemaManager );
+        systemPartition.getSuffixDn().apply( schemaManager );
 
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), this );
@@ -1511,6 +1545,8 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
 
+        initializeSystemPartition();
+        
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
         // --------------------------------------------------------------------
@@ -1530,7 +1566,7 @@ public class DefaultDirectoryService implements DirectoryService
 
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
-                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix().getName();
+                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
                 partitionNexus.getRootDSE( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }

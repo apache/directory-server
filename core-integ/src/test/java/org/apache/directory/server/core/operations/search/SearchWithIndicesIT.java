@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -79,7 +80,8 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         isNisDisabled = nisEntry.contains( "m-disabled", "TRUE" );
 
         Partition systemPartition = getService().getSystemPartition();
-        DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
+        DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
+        dsFactory.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
         
         // Restart the service so that the index is created
         getService().shutdown();

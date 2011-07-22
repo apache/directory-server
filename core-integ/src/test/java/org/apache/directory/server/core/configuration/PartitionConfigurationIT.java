@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -55,8 +56,9 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
     @Test
     public void testAddAndRemove() throws Exception
     {
-        PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
-        Partition partition = partitionFactory.createPartition( "removable", "ou=removable", 100, getService()
+        DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
+        PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
+        Partition partition = partitionFactory.createPartition( getService().getSchemaManager(), "removable", "ou=removable", 100, getService()
             .getInstanceLayout().getPartitionsDirectory() );
 
         // Test AddContextPartition

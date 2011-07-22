@@ -110,10 +110,10 @@ public class ChangePasswordConfigReaderTest
         File configDir = new File( workDir, "changePasswordServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "changePasswordServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffix( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();

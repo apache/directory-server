@@ -173,7 +173,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     else
                     {
                         // No : define a default DS for the suite then
-                        DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
+                        DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.class.newInstance();
 
                         directoryService = dsf.getDirectoryService();
                         // enable CL explicitly cause we are not using DSAnnotationProcessor
@@ -196,7 +196,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 else
                 {
                     // No : define a default class DS then
-                    DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
+                    DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.class.newInstance();
 
                     directoryService = dsf.getDirectoryService();
                     // enable CL explicitly cause we are not using DSAnnotationProcessor
@@ -247,7 +247,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             if ( suite == null )
             {
                 // print out information which partition factory we use
-                PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
+                DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
+                PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
                 LOG.debug( "Using partition factory {}", partitionFactory.getClass().getSimpleName() );
             }
 

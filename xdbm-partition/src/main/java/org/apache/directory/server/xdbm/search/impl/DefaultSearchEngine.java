@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -106,7 +107,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            if ( db.getSuffixDn().equals( base ) )
+            if ( ((Partition)db).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
                 return new EmptyIndexCursor<ID, Entry, ID>();

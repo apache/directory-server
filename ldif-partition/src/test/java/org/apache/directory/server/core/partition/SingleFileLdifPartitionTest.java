@@ -212,10 +212,10 @@ public class SingleFileLdifPartitionTest
             rf.setLength( 0 );
         }
 
-        SingleFileLdifPartition partition = new SingleFileLdifPartition();
+        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
-        partition.setSuffix( new Dn( "ou=test,ou=system" ) );
+        partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.initialize();
 
@@ -351,7 +351,7 @@ public class SingleFileLdifPartitionTest
         partition.add( addCtx );
 
         ModifyOperationContext modOpCtx = new ModifyOperationContext( mockSession );
-        modOpCtx.setEntry( new ClonedServerEntry( contextEntry ) );
+        modOpCtx.setEntry( contextEntry );
 
         List<Modification> modItems = new ArrayList<Modification>();
 

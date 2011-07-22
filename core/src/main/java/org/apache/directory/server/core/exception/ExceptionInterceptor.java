@@ -126,7 +126,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_249 ) );
         }
 
-        Dn suffix = nexus.findSuffix( name );
+        Dn suffix = nexus.getSuffixDn( name );
 
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )

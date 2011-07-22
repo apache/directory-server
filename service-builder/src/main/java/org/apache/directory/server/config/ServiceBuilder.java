@@ -1138,7 +1138,7 @@ public class ServiceBuilder
             return null;
         }
         
-        JdbmPartition jdbmPartition = new JdbmPartition();
+        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager() );
         
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
@@ -1148,7 +1148,7 @@ public class ServiceBuilder
         
         try
         {
-            jdbmPartition.setSuffix( jdbmPartitionBean.getPartitionSuffix() );
+            jdbmPartition.setSuffixDn( jdbmPartitionBean.getPartitionSuffix() );
         }
         catch ( LdapInvalidDnException lide )
         {

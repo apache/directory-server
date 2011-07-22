@@ -21,20 +21,10 @@
 package org.apache.directory.server.core.partition.ldif;
 
 
-import java.util.Iterator;
+import java.net.URI;
 
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -43,11 +33,8 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
+public abstract class AbstractLdifPartition extends AvlPartition
 {
-    /** We use a partition to manage searches on this partition */
-    protected AvlPartition wrappedPartition;
-
     /** The extension used for LDIF entry files */
     protected static final String CONF_FILE_EXTN = ".ldif";
 
@@ -55,26 +42,26 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
     protected static CsnFactory defaultCSNFactory;
 
 
-    public AbstractLdifPartition()
+    public AbstractLdifPartition( SchemaManager schemaManager )
     {
+        super( schemaManager );
+        
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
     }
 
 
-    /**
-     * @return the contextEntry
-     */
-    public Entry getContextEntry()
+    @Override
+    protected void doDestroy() throws Exception
     {
-        return contextEntry;
+        // Nothing to do : we don't have index
     }
 
-
+    
     /**
      * @return the wrappedPartition
-     */
+     *
     public Partition getWrappedPartition()
     {
         return wrappedPartition;
@@ -83,7 +70,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * @param wrappedPartition the wrappedPartition to set
-     */
+     *
     public void setWrappedPartition( AvlPartition wrappedPartition )
     {
         this.wrappedPartition = wrappedPartition;
@@ -92,7 +79,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public void addIndexOn( Index<?, Entry, Long> index ) throws Exception
     {
         wrappedPartition.addIndexOn( index );
@@ -101,7 +88,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public int count() throws Exception
     {
         return wrappedPartition.count();
@@ -110,7 +97,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     protected void doDestroy() throws Exception
     {
@@ -120,7 +107,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<String, Entry, Long> getAliasIndex()
     {
         return wrappedPartition.getAliasIndex();
@@ -129,7 +116,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     public int getChildCount( Long id ) throws LdapException
     {
@@ -139,7 +126,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Dn getEntryDn( Long id ) throws Exception
     {
         return wrappedPartition.getEntryDn( id );
@@ -148,7 +135,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     public Long getEntryId( Dn dn ) throws LdapException
     {
@@ -158,7 +145,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<Long, Entry, Long> getOneAliasIndex()
     {
         return wrappedPartition.getOneAliasIndex();
@@ -167,7 +154,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<Long, Entry, Long> getOneLevelIndex()
     {
         return wrappedPartition.getOneLevelIndex();
@@ -176,7 +163,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<String, Entry, Long> getPresenceIndex()
     {
         return wrappedPartition.getPresenceIndex();
@@ -185,7 +172,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<Long, Entry, Long> getSubAliasIndex()
     {
         return wrappedPartition.getSubAliasIndex();
@@ -194,7 +181,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Index<Long, Entry, Long> getSubLevelIndex()
     {
         return wrappedPartition.getSubLevelIndex();
@@ -203,8 +190,8 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws Exception
+     *
+    public Index<?, Entry, Long> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         return wrappedPartition.getSystemIndex( attributeType );
     }
@@ -212,7 +199,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Iterator<String> getSystemIndices()
     {
         return wrappedPartition.getSystemIndices();
@@ -221,8 +208,8 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    public Index<?, Entry, Long> getUserIndex( AttributeType attributeType ) throws Exception
+     *
+    public Index<?, Entry, Long> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         return wrappedPartition.getUserIndex( attributeType );
     }
@@ -230,7 +217,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     public Iterator<String> getUserIndices()
     {
         return wrappedPartition.getUserIndices();
@@ -239,8 +226,8 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
+     *
+    public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
     {
         return wrappedPartition.hasSystemIndexOn( attributeType );
     }
@@ -248,8 +235,8 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
+     *
+    public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
     {
         return wrappedPartition.hasUserIndexOn( attributeType );
     }
@@ -257,7 +244,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     public boolean isInitialized()
     {
@@ -267,7 +254,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     public IndexCursor<Long, Entry, Long> list( Long id ) throws LdapException
     {
@@ -277,17 +264,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public Entry lookup( Long id ) throws LdapException
-    {
-        return wrappedPartition.lookup( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
+     *
     @Override
     public void setSchemaManager( SchemaManager schemaManager )
     {
@@ -298,7 +275,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
     public void sync() throws Exception
     {
@@ -314,17 +291,7 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public String getId()
-    {
-        return super.getId();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
+     *
     @Override
     public void setId( String id )
     {
@@ -335,11 +302,29 @@ public abstract class AbstractLdifPartition extends AbstractBTreePartition<Long>
 
     /**
      * {@inheritDoc}
-     */
+     *
     @Override
-    public void setSuffix( Dn suffix ) throws LdapInvalidDnException
+    public void setSuffixDn( Dn suffix ) throws LdapInvalidDnException
     {
-        super.setSuffix( suffix );
-        wrappedPartition.setSuffix( suffix );
+        super.setSuffixDn( suffix );
+        wrappedPartition.setSuffixDn( suffix );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Long getDefaultId()
+    {
+        return 1L;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public URI getPartitionPath()
+    {
+        return partitionPath;
     }
 }

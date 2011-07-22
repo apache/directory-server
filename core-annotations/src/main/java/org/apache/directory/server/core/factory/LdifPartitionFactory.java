@@ -28,6 +28,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -41,14 +42,15 @@ public class LdifPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public LdifPartition createPartition( String id, String suffix, int cacheSize, File workingDirectory )
+    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory )
         throws Exception
     {
-        LdifPartition partition = new LdifPartition();
+        LdifPartition partition = new LdifPartition( schemaManager );
         partition.setId( id );
-        partition.setSuffix( new Dn( suffix ) );
+        partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionPath( workingDirectory.toURI() );
+        
         return partition;
     }
 

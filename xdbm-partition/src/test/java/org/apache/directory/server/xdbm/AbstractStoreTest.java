@@ -31,8 +31,11 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Iterator;
 
+import net.sf.ehcache.store.AbstractStore;
+
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.impl.avl.AvlStoreTest;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -118,14 +121,17 @@ public class AbstractStoreTest
     {
         
         // initialize the store
-        store = new AvlStore<Entry>();
-        store.setSchemaManager( schemaManager );
-        store.setId( "example" );
+        store = new AvlPartition( schemaManager );
+        ((Partition)store).setId( "example" );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.UID_AT_OID ) );
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
+        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+
+        ((Partition)store).initialize();
+        
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
@@ -134,7 +140,7 @@ public class AbstractStoreTest
     @After
     public void destroyStore() throws Exception
     {
-        store.destroy();
+        ((Partition)store).destroy();
     }
 
 
@@ -191,7 +197,7 @@ public class AbstractStoreTest
         assertFalse( store.getObjectClassIndex().forward( "uidObject", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "uidObject" ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
 
         // after modification: expect "uidObject" tuple in objectClass index
         assertTrue( store.getObjectClassIndex().forward( "uidObject", entryId ) );
@@ -222,7 +228,7 @@ public class AbstractStoreTest
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
         assertFalse( ouIndex.forward( "sales", entryId ) );
@@ -252,7 +258,7 @@ public class AbstractStoreTest
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
 
         // after modification: no "sales" tuple in ou index
         assertFalse( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
@@ -285,7 +291,7 @@ public class AbstractStoreTest
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
 
         // after modification: no "person" tuple in objectClass index
         assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
@@ -314,7 +320,7 @@ public class AbstractStoreTest
         assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
 
         // after modification: no tuple in objectClass index
         assertFalse( store.getObjectClassIndex().reverse( entryId ) );
@@ -343,7 +349,7 @@ public class AbstractStoreTest
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
         assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
         
         String updateCsn = lookedup.get( csnAt ).getString();
         assertEquals( csn, updateCsn );
@@ -357,7 +363,7 @@ public class AbstractStoreTest
         assertNotSame( csn, updateCsn );
         assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
         
-        store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
+        lookedup = store.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
         
         assertEquals( csn, lookedup.get( csnAt ).getString() );
         assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );

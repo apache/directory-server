@@ -149,6 +149,7 @@ public class ApacheDsService
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
         
+        initSchemaManager( instanceLayout );
         initSchemaLdifPartition( instanceLayout );
         initConfigPartition( instanceLayout );
 
@@ -184,20 +185,16 @@ public class ApacheDsService
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
     }
 
-
+    
     /**
-     * initialize the schema partition by loading the schema LDIF files
+     * Initialize the schema Manager by loading the schema LDIF files
      * 
      * @param instanceLayout the instance layout
      * @throws Exception in case of any problems while extracting and writing the schema files
      */
-    private void initSchemaLdifPartition( InstanceLayout instanceLayout ) throws Exception
+    private void initSchemaManager( InstanceLayout instanceLayout ) throws Exception
     {
         File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
-
-        // Init the LdifPartition
-        schemaLdifPartition = new LdifPartition();
-        schemaLdifPartition.setPartitionPath( schemaPartitionDirectory.toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         if ( schemaPartitionDirectory.exists() )
@@ -214,6 +211,7 @@ public class ApacheDsService
         SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
         schemaManager = new DefaultSchemaManager( loader );
 
+
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
@@ -225,6 +223,22 @@ public class ApacheDsService
         {
             throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors(errors) ) );
         }
+    }
+    
+
+    /**
+     * Initialize the schema partition
+     * 
+     * @param instanceLayout the instance layout
+     * @throws Exception in case of any problems while initializing the SchemaPartition
+     */
+    private void initSchemaLdifPartition( InstanceLayout instanceLayout ) throws Exception
+    {
+        File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
+
+        // Init the LdifPartition
+        schemaLdifPartition = new LdifPartition( schemaManager );
+        schemaLdifPartition.setPartitionPath( schemaPartitionDirectory.toURI() );
     }
 
 
@@ -249,10 +263,10 @@ public class ApacheDsService
             isConfigPartitionFirstExtraction = true;
         }
 
-        configPartition = new SingleFileLdifPartition();
+        configPartition = new SingleFileLdifPartition( schemaManager );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( confFile.toURI() );
-        configPartition.setSuffix( new Dn( schemaManager, "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.initialize();
@@ -269,7 +283,6 @@ public class ApacheDsService
 
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
         schemaPartition.setWrappedPartition( schemaLdifPartition );
-        schemaPartition.setSchemaManager( schemaManager );
 
         directoryService.addPartition( configPartition );
 
@@ -632,7 +645,7 @@ public class ApacheDsService
 
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
 
-        EntryFilteringCursor cursor = session.search( partition.getSuffix(), SearchScope.SUBTREE, filter,
+        EntryFilteringCursor cursor = session.search( partition.getSuffixDn(), SearchScope.SUBTREE, filter,
             AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet<AttributeTypeOptions>( MANDATORY_ENTRY_ATOP_MAP.values() ) );
         cursor.beforeFirst();
 

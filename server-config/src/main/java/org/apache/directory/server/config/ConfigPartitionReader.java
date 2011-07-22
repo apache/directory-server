@@ -38,7 +38,6 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
-import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -749,7 +748,7 @@ public class ConfigPartitionReader
 
                     // the requested element is mandatory so let's throw an exception
                     String message = "No directoryService instance was configured under the Dn "
-                        + configPartition.getSuffix();
+                        + configPartition.getSuffixDn();
                     LOG.error( message );
                     throw new ConfigurationException( message );
                 }
@@ -899,7 +898,7 @@ public class ConfigPartitionReader
 
         if ( baseDn == null )
         {
-            baseDn = configPartition.getSuffix();
+            baseDn = configPartition.getSuffixDn();
         }
 
         List<AdsBaseBean> beans = read( baseDn, objectClass, SearchScope.ONELEVEL, MANDATORY );

@@ -20,14 +20,19 @@
 package org.apache.directory.server.core.partition;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import javax.naming.InvalidNameException;
 
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -48,6 +53,12 @@ public abstract class AbstractPartition implements Partition
     /** The partition ContextEntry */
     protected Entry contextEntry;
 
+    /** The partition ID */
+    protected String id;
+    
+    /** The root Dn for this partition */
+    protected Dn suffixDn;
+
     protected AbstractPartition()
     {
     }
@@ -59,7 +70,7 @@ public abstract class AbstractPartition implements Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void initialize( ) throws LdapException
+    public void initialize( ) throws LdapException
     {
         if ( initialized )
         {
@@ -93,6 +104,13 @@ public abstract class AbstractPartition implements Partition
     }
     
 
+
+    /**
+     * Override this method to put your initialization code.
+     */
+    protected abstract void doDestroy() throws Exception;
+
+
     /**
      * Override this method to put your initialization code.
      * @throws Exception 
@@ -119,41 +137,11 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Override this method to put your initialization code.
-     */
-    protected abstract void doDestroy() throws Exception;
-
-
-    /**
      * Returns <tt>true</tt> if this context partition is initialized successfully.
      */
-    public boolean isInitialized()
+    public final boolean isInitialized()
     {
         return initialized;
-    }
-
-
-    /**
-     * This method does nothing by default.
-     */
-    public abstract void sync() throws Exception;
-
-
-    /**
-     * This method calls {@link Partition#lookup(LookupOperationContext)} and return <tt>true</tt>
-     * if it returns an entry by default.  Please override this method if
-     * there is more effective way for your implementation.
-     */
-    public boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
-    {
-        try
-        {
-            return entryContext.lookup( entryContext.getDn(), ByPassConstants.LOOKUP_BYPASS ) != null; 
-        }
-        catch ( LdapException e )
-        {
-            return false;
-        }
     }
 
 
@@ -169,9 +157,53 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
-    public SchemaManager getSchemaManager()
+    public final SchemaManager getSchemaManager()
     {
         return schemaManager;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public final String getId()
+    {
+        return id;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setId( String id )
+    {
+        checkInitialized( "id" );
+        this.id = id;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public final Dn getSuffixDn()
+    {
+        return suffixDn;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setSuffixDn( Dn suffixDn ) throws LdapInvalidDnException
+    {
+        checkInitialized( "suffixDn" );
+
+        this.suffixDn = suffixDn;
+
+        if ( schemaManager != null )
+        {
+            this.suffixDn.apply( schemaManager );
+        }
     }
     
     
@@ -190,5 +222,27 @@ public abstract class AbstractPartition implements Partition
     public void setContextEntry( Entry contextEntry )
     {
         this.contextEntry = contextEntry;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void dumpIndex( OutputStream stream, String name ) throws IOException
+    {
+        stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
+    }
+
+    
+    /**
+     * Check that the operation is done on an initialized store
+     * @param property
+     */
+    protected void checkInitialized( String property )
+    {
+        if ( initialized )
+        {
+            throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
+        }
     }
 }

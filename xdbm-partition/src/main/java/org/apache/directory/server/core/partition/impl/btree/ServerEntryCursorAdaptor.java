@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
+public class ServerEntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
 {
     private final AbstractBTreePartition<ID> db;
     private final IndexCursor<ID, Entry, ID> indexCursor;

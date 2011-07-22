@@ -101,13 +101,14 @@ public class HttpServerConfigReaderTest
         File configDir = new File( workDir, "httpServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "httpServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffix( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();
+                
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
         
         ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_HTTP_SERVER_OC.getValue() );

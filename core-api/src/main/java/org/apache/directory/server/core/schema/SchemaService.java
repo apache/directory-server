@@ -48,14 +48,6 @@ public interface SchemaService
     SchemaPartition getSchemaPartition();
 
     /**
-     * Initializes the SchemaService
-     *
-     * @throws Exception If the initializaion fails
-     */
-    void initialize() throws LdapException;
-
-
-    /**
      * A seriously unsafe (unsynchronized) means to access the schemaSubentry.
      *
      * @return the schemaSubentry

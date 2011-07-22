@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -94,7 +95,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
             }
             catch ( Exception e )
             {

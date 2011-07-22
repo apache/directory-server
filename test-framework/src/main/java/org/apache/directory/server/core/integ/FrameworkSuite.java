@@ -24,6 +24,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
@@ -163,7 +164,8 @@ public class FrameworkSuite extends Suite
         try
         {
             // print out information which partition factory we use
-            PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
+            DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
+            PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
             LOG.debug( "Using partition factory {}", partitionFactory.getClass().getSimpleName() );
 
             // Create and initialize the Suite DS

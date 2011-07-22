@@ -140,7 +140,7 @@ public class ApacheDS
                 
                 if( p.getSchemaManager() == null )
                 {
-                    LOG.info( "setting the schema manager for partition {}", p.getSuffix() );
+                    LOG.info( "setting the schema manager for partition {}", p.getSuffixDn() );
                     p.setSchemaManager( schemaManager );
                 }
             }
@@ -155,7 +155,7 @@ public class ApacheDS
 
             if( sysPartition.getSchemaManager() == null )
             {
-                LOG.info( "setting the schema manager for partition {}", sysPartition.getSuffix() );
+                LOG.info( "setting the schema manager for partition {}", sysPartition.getSuffixDn() );
                 sysPartition.setSchemaManager( schemaManager );
             }
             
@@ -475,11 +475,7 @@ public class ApacheDS
     private void initSchema() throws Exception
     {
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
-
-        // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
         String workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory().getPath();
-        ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
@@ -494,11 +490,15 @@ public class ApacheDS
             extractor.extractOrCopy();
         }
 
-        schemaPartition.setWrappedPartition( ldifPartition );
-
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
         directoryService.setSchemaManager( schemaManager );
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
+
+        schemaPartition.setWrappedPartition( ldifPartition );
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 

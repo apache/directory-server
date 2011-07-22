@@ -31,12 +31,14 @@ import java.io.File;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -118,16 +120,21 @@ public class SubtreeScopeTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlStore<Entry>();
-        store.setSchemaManager( schemaManager );
-        store.setId( "example" );
+        store = new AvlPartition( schemaManager );
+        ((Partition)store).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( true );
 
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
+        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ((Partition)store).initialize();
+
+        ((Partition)store).initialize();
+
         StoreUtils.loadExampleData( store, schemaManager );
+        
         LOG.debug( "Created new store" );
     }
 
@@ -137,7 +144,7 @@ public class SubtreeScopeTest
     {
         if ( store != null )
         {
-            store.destroy();
+            ((Partition)store).destroy();
         }
 
         store = null;
@@ -619,24 +626,28 @@ public class SubtreeScopeTest
         Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        Entry attrs = new DefaultEntry( schemaManager, dn );
-        attrs.add( "objectClass", "alias", "extensibleObject" );
-        attrs.add( "cn", "jd" );
-        attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        attrs.add( "entryUUID", UUID.randomUUID().toString() );
-        store.add( attrs );
+        Entry entry = new DefaultEntry( schemaManager, dn );
+        entry.add( "objectClass", "alias", "extensibleObject" );
+        entry.add( "cn", "jd" );
+        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
+
+        AddOperationContext addContext = new AddOperationContext( null, entry );
+        ((Partition)store).add( addContext );
 
         dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        attrs = new DefaultEntry( schemaManager, dn );
-        attrs.add( "objectClass", "person" );
-        attrs.add( "cn", "jdoe" );
-        attrs.add( "sn", "doe" );
-        attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        attrs.add( "entryUUID", UUID.randomUUID().toString() );
-        store.add( attrs );
+        entry = new DefaultEntry( schemaManager, dn );
+        entry.add( "objectClass", "person" );
+        entry.add( "cn", "jdoe" );
+        entry.add( "sn", "doe" );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        
+        addContext = new AddOperationContext( null, entry );
+        ((Partition)store).add( addContext );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );

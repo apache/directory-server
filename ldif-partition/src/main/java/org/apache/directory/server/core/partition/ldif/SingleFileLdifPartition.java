@@ -32,24 +32,24 @@ import java.util.UUID;
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,53 +81,51 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of SingleFileLdifPartition.
      */
-    public SingleFileLdifPartition()
+    public SingleFileLdifPartition( SchemaManager schemaManager )
     {
-        wrappedPartition = new AvlPartition();
+        super( schemaManager );
     }
 
 
     @Override
     protected void doInit() throws InvalidNameException, Exception
     {
-        if ( getPartitionPath() == null )
+        if ( !initialized )
         {
-            throw new IllegalArgumentException( "Partition path cannot be null" );
+            if ( getPartitionPath() == null )
+            {
+                throw new IllegalArgumentException( "Partition path cannot be null" );
+            }
+    
+            File partitionFile = new File( getPartitionPath() );
+            
+            if ( partitionFile.exists() && !partitionFile.isFile() )
+            {
+                throw new IllegalArgumentException( "Partition path must be a LDIF file" );
+            }
+    
+            ldifFile = new RandomAccessFile( partitionFile, "rws" );
+    
+            LOG.debug( "id is : {}", getId() );
+    
+            // Initialize the suffixDirectory : it's a composition
+            // of the workingDirectory followed by the suffix
+            if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
+            {
+                String msg = I18n.err( I18n.ERR_150 );
+                LOG.error( msg );
+                throw new LdapInvalidDnException( msg );
+            }
+    
+            if ( !suffixDn.isSchemaAware() )
+            {
+                suffixDn.apply( schemaManager );
+            }
+    
+            super.doInit();
+            
+            loadEntries();
         }
-
-        File partitionFile = new File( getPartitionPath() );
-        if ( partitionFile.exists() && !partitionFile.isFile() )
-        {
-            throw new IllegalArgumentException( "Partition path must be a LDIF file" );
-        }
-
-        ldifFile = new RandomAccessFile( partitionFile, "rws" );
-
-        // Initialize the AvlPartition
-        wrappedPartition.setId( id );
-        wrappedPartition.setSuffix( suffix );
-        wrappedPartition.setSchemaManager( schemaManager );
-        wrappedPartition.initialize();
-
-        this.searchEngine = wrappedPartition.getSearchEngine();
-
-        LOG.debug( "id is : {}", wrappedPartition.getId() );
-
-        // Initialize the suffixDirectory : it's a composition
-        // of the workingDirectory followed by the suffix
-        if ( ( suffix == null ) || ( suffix.isEmpty() ) )
-        {
-            String msg = I18n.err( I18n.ERR_150 );
-            LOG.error( msg );
-            throw new LdapInvalidDnException( msg );
-        }
-
-        if ( !suffix.isSchemaAware() )
-        {
-            suffix.apply( schemaManager );
-        }
-
-        loadEntries();
     }
 
 
@@ -150,12 +148,12 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
         contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
-        AvlStore store = wrappedPartition.getStore();
-
-        if ( suffix.equals( contextEntry.getDn() ) )
+        if ( suffixDn.equals( contextEntry.getDn() ) )
         {
             addMandatoryOpAt( contextEntry );
-            store.add( contextEntry );
+
+            AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+            super.add( addContext );
         }
         else
         {
@@ -169,30 +167,32 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
             addMandatoryOpAt( entry );
-            store.add( entry );
+
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            super.add( addContext );
         }
 
         parser.close();
     }
 
 
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        wrappedPartition.bind( bindContext );
-    }
-
-
+    //---------------------------------------------------------------------------------------------
+    // Operations
+    //---------------------------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.add( addContext );
+            super.add( addContext );
 
             if ( contextEntry == null )
             {
                 Entry entry = addContext.getEntry();
 
-                if ( entry.getDn().equals( suffix ) )
+                if ( entry.getDn().equals( suffixDn ) )
                 {
                     contextEntry = entry;
                 }
@@ -204,44 +204,65 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.modify( modifyContext );
+            try
+            {
+                Entry modifiedEntry = super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+                modifyContext.setAlteredEntry( modifiedEntry );
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage(), e );
+            }
+
             dirty = true;
             rewritePartitionData();
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.rename( renameContext );
+            super.rename( renameContext );
             dirty = true;
             rewritePartitionData();
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.move( moveContext );
+            super.move( moveContext );
             dirty = true;
             rewritePartitionData();
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         synchronized ( lock )
         {
-            wrappedPartition.moveAndRename( opContext );
+            super.moveAndRename( opContext );
             dirty = true;
             rewritePartitionData();
         }
@@ -253,7 +274,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-            wrappedPartition.delete( id );
+            super.delete( id );
             dirty = true;
             rewritePartitionData();
         }
@@ -279,7 +300,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                Long suffixId = wrappedPartition.getEntryId( suffix );
+                Long suffixId = getEntryId( suffixDn );
 
                 if( suffixId == null )
                 {
@@ -287,16 +308,16 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     return;
                 }
                 
-                IndexCursor<Long, Entry, Long> cursor = wrappedPartition.getOneLevelIndex().forwardCursor( suffixId );
+                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
 
 
-                appendLdif( wrappedPartition.lookup( suffixId ) );
+                appendLdif( lookup( suffixId ) );
 
                 while ( cursor.next() )
                 {
                     Long childId = cursor.get().getId();
 
-                    Entry entry = wrappedPartition.lookup( childId );
+                    Entry entry = lookup( childId );
 
                     appendLdif( entry );
 
@@ -340,7 +361,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             if ( cursor == null )
             {
-                cursor = wrappedPartition.getOneLevelIndex().forwardCursor( entryId );
+                cursor = getOneLevelIndex().forwardCursor( entryId );
                 cursor.beforeFirst();
                 cursorMap.put( entryId, cursor );
             }
@@ -355,9 +376,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 do
                 {
                     IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                    Entry entry = wrappedPartition.lookup( idxEntry.getId() );
+                    Entry entry = lookup( idxEntry.getId() );
 
-                    Long childId = wrappedPartition.getEntryId( entry.getDn() );
+                    Long childId = getEntryId( entry.getDn() );
 
                     appendLdif( entry );
 
@@ -443,6 +464,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doDestroy() throws Exception
     {

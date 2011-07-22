@@ -102,7 +102,7 @@ public class ServerEntrySerializer implements Serializer
      */
     public byte[] serialize( Object object ) throws IOException
     {
-        Entry entry = (DefaultEntry) object;
+        Entry entry = (Entry) object;
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );

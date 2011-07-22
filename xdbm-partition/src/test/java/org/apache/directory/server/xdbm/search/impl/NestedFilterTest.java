@@ -30,11 +30,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -125,15 +126,17 @@ public class NestedFilterTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlStore<Entry>();
-        store.setSchemaManager( schemaManager );
-        store.setId( "example" );
+        store = new AvlPartition( schemaManager );
+        ((Partition)store).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ((Partition)store).initialize();
+
         StoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
@@ -149,7 +152,7 @@ public class NestedFilterTest
     {
         if ( store != null )
         {
-            store.destroy();
+            ((Partition)store).destroy();
         }
 
         store = null;

@@ -71,13 +71,13 @@ public class DefaultSchemaService implements SchemaService
     private Object schemaSubentrLock = new Object();
 
     
-    public DefaultSchemaService() throws Exception
+    public DefaultSchemaService( SchemaManager schemaManager ) throws Exception
     {
-        schemaPartition = new SchemaPartition();
+        schemaPartition = new SchemaPartition( schemaManager );
+        schemaModificationAttributesDn = new Dn( getSchemaManager(), SchemaConstants.SCHEMA_MODIFICATIONS_DN );
     }
     
     
-
     /**
      * {@inheritDoc}
      */
@@ -350,24 +350,6 @@ public class DefaultSchemaService implements SchemaService
     }
     
     
-    /**
-     * Initializes the SchemaService
-     *
-     * @throws Exception If the initializaion fails
-     */
-    public void initialize() throws LdapException
-    {
-        try
-        {
-            schemaModificationAttributesDn = new Dn( getSchemaManager(), SchemaConstants.SCHEMA_MODIFICATIONS_DN );
-        }
-        catch ( LdapException e )
-        {
-            throw new RuntimeException( e );
-        }
-    }
-
-
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntryCloned()
      */

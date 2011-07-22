@@ -20,22 +20,24 @@
 package org.apache.directory.server.core.partition.impl.avl;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import java.net.URI;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
+import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
+import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
-import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,16 +47,16 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public class AvlPartition extends AbstractXdbmPartition<Long>
 {
-    private Set<AvlIndex<?, Entry>> indexedAttributes;
+    /** static logger */
+    private static final Logger LOG = LoggerFactory.getLogger( AvlPartition.class );
 
-
+    
     /**
      * Creates a store based on AVL Trees.
      */
-    public AvlPartition()
+    public AvlPartition( SchemaManager schemaManager )
     {
-        super( new AvlStore<Entry>() );
-        indexedAttributes = new HashSet<AvlIndex<?, Entry>>();
+        super( schemaManager );
     }
 
 
@@ -63,80 +65,123 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      */
     protected void doInit() throws Exception
     {
-        setSchemaManager( schemaManager );
-
-        EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( store, schemaManager );
-        CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( store, evaluatorBuilder );
-
-        // setup optimizer and registries for parent
-        if ( !optimizerEnabled )
+        if ( !initialized )
         {
-            optimizer = new NoOpOptimizer();
-        }
-        else
-        {
-            optimizer = new DefaultOptimizer<Entry, Long>( store );
-        }
-
-        searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
-
-        if ( store.isInitialized() )
-        {
-            return;
-        }
-
-        // initialize the store
-        store.setId( getId() );
-        suffix.apply( schemaManager );
-        store.setSuffixDn( suffix );
-
-        for ( AvlIndex<?, Entry> index : indexedAttributes )
-        {
-            String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-            
-            if ( !index.getAttributeId().equals( oid ) )
+            EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( this, schemaManager );
+            CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( this, evaluatorBuilder );
+    
+            // setup optimizer and registries for parent
+            if ( !optimizerEnabled )
             {
-                index.setAttributeId( oid );
+                optimizer = new NoOpOptimizer();
             }
-            
-            store.addIndex( index );
+            else
+            {
+                optimizer = new DefaultOptimizer<Entry, Long>( this );
+            }
+    
+            searchEngine = new DefaultSearchEngine<Long>( this, cursorBuilder, evaluatorBuilder, optimizer );
+    
+            if ( isInitialized() )
+            {
+                return;
+            }
+    
+            // Create the master table (the table containing all the entries)
+            master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
+    
+            setupSystemIndices();
+            setupUserIndices();
         }
-
-        store.init( schemaManager );
-    }
-
-
-    public final void modify( Dn dn, Modification... modifications ) throws LdapException
-    {
-        try
-        {
-            store.modify( dn, modifications );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
-    }
-
-
-    /*
-     * TODO requires review
-     *
-     * This getter deviates from the norm. all the partitions
-     * so far written never return a reference to store but I think that in this
-     * case the presence of this method gives significant ease and advantage to perform
-     * add/delete etc. operations without creating a operation context.
-     */
-    public AvlStore<Entry> getStore()
-    {
-        return ( org.apache.directory.server.xdbm.impl.avl.AvlStore<Entry> ) store;
     }
 
 
     @Override
     protected void doDestroy() throws Exception
     {
-        store.destroy();        
+        // Nothing to do, we currently have no index (yet)
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public Long getDefaultId()
+    {
+        return 1L;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Long getRootId()
+    {
+        return 0L;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void sync() throws Exception
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * always returns false, cause this is a in-memory store
+     */
+    @Override
+    public boolean isSyncOnWrite()
+    {
+        return false;
+    }
+
+
+    /**
+     * Always returns 0 (zero), cause this is a in-memory store
+     */
+    @Override
+    public int getCacheSize()
+    {
+        return 0;
+    }
+
+
+    @Override
+    protected Index<?, Entry, Long> convertAndInit( Index<?, Entry, Long> index ) throws Exception
+    {
+        AvlIndex<?, Entry> avlIndex;
+
+        if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            avlIndex = new AvlRdnIndex<Entry>( index.getAttributeId() );
+        }
+        else if ( index instanceof AvlIndex<?, ?> )
+        {
+            avlIndex = (AvlIndex<?, Entry> ) index;
+        }
+        else
+        {
+            LOG.debug( "Supplied index {} is not a AvlIndex. "
+                + "Will create new AvlIndex using copied configuration parameters.", index );
+            avlIndex = new AvlIndex( index.getAttributeId() );
+        }
+     
+        avlIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+      
+        return avlIndex;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public URI getPartitionPath()
+    {
+        // It's a in-memory partition, return null
+        return null;
+    }
 }

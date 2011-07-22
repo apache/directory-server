@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
+    
+    /** we need the schema manager to deal with special conditions */
+    private SchemaManager schemaManager;
     
     /** we need the schema service to deal with special conditions */
     private SchemaService schemaService;

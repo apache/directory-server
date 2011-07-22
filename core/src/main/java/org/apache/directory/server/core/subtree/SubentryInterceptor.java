@@ -384,7 +384,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private boolean isNamingContext( Dn dn ) throws LdapException
     {
-        Dn namingContext = nexus.findSuffix( dn );
+        Dn namingContext = nexus.getSuffixDn( dn );
 
         return dn.equals( namingContext );
     }

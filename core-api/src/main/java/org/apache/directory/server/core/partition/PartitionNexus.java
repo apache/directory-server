@@ -78,12 +78,6 @@ public interface PartitionNexus extends Partition
 
 
     /**
-     * @return The ou=system partition 
-     */
-    public Partition getSystemPartition();
-
-
-    /**
      * Get's the partition corresponding to a distinguished name.  This 
      * name need not be the name of the partition suffix.  When used in 
      * conjunction with get suffix this can properly find the partition 
@@ -105,7 +99,7 @@ public interface PartitionNexus extends Partition
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      */
-    public Dn findSuffix( Dn dn ) throws LdapException;
+    public Dn getSuffixDn( Dn dn ) throws LdapException;
 
 
     /**

@@ -27,17 +27,16 @@ import java.util.UUID;
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -65,8 +64,18 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager )
     {
+        super( schemaManager );
         this.inputStream = inputStream;
-        setSchemaManager( schemaManager );
+        id = "config";
+        
+        try
+        {
+            suffixDn = new Dn( schemaManager, "ou=config" );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            // Nothing to do
+        }
     }
 
 
@@ -75,17 +84,14 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     protected void doInit() throws InvalidNameException, Exception
     {
-        // Initializing the wrapped partition
-        setId( "config" );
-        setSuffix( new Dn( "ou=config" ) );
-        wrappedPartition.setSchemaManager( schemaManager );
-        wrappedPartition.initialize();
-
-        // Getting the search engine
-        searchEngine = wrappedPartition.getSearchEngine();
-
-        // Load LDIF entries
-        loadLdifEntries();
+        if ( ! initialized )
+        {
+            // Initializing the wrapped partition
+            super.doInit();
+    
+            // Load LDIF entries
+            loadLdifEntries();
+        }
     }
 
 
@@ -108,18 +114,17 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
                 return;
             }
 
-            // Getting the wrapped partition store
-            AvlStore<Entry> store = wrappedPartition.getStore();
-
             // Getting the context entry
             LdifEntry ldifEntry = itr.next();
             contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
             // Checking the context entry
-            if ( suffix.equals( contextEntry.getDn() ) )
+            if ( suffixDn.equals( contextEntry.getDn() ) )
             {
                 addMandatoryOpAt( contextEntry );
-                store.add( contextEntry );
+                
+                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                super.add( addContext );
             }
             else
             {
@@ -131,7 +136,9 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             {
                 Entry entry = new DefaultEntry( schemaManager, itr.next().getEntry() );
                 addMandatoryOpAt( entry );
-                store.add( entry );
+                
+                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                super.add( addContext );
             }
 
             // Closing the reader
@@ -160,15 +167,9 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        wrappedPartition.bind( bindContext );
-    }
-
-
+    //---------------------------------------------------------------------------------------------
+    // Operations
+    //---------------------------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */

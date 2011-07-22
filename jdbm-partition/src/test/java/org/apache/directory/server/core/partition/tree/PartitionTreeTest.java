@@ -23,13 +23,24 @@ package org.apache.directory.server.core.partition.tree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
 
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
+import org.apache.directory.shared.util.exception.Exceptions;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -40,111 +51,144 @@ import org.junit.Test;
  */
 public class PartitionTreeTest
 {
+    private static SchemaManager schemaManager;
+
+
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+        }
+    }
+
+    
     /**
      * Test the addition of a single partition
      */
-    @Test public void testNewPartitionTree() throws LdapException
+    @Test 
+    public void testNewPartitionTree() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        Dn suffix = new Dn( "dc=example, dc=com" );
-        Partition partition = new JdbmPartition();
-        partition.setSuffix( suffix );
+        Dn suffix = new Dn( schemaManager, "dc=example, dc=com" );
+        Partition partition = new JdbmPartition( schemaManager );
+        partition.setSuffixDn( suffix );
 
         partitionLookupTree.add( suffix, partition );
 
         assertNotNull( partitionLookupTree );
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( schemaManager, "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( schemaManager, "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new Rdn( "dc=example" ) ) );
+        assertTrue( child.contains( new Rdn( schemaManager, "dc=example" ) ) );
 
-        child = child.getChild( new Rdn( "dc=example" ) );
-        assertEquals( "dc=example, dc=com", child.getElement().getSuffix().getName() );
+        child = child.getChild( new Rdn( schemaManager, "dc=example" ) );
+        assertEquals( "dc=example, dc=com", child.getElement().getSuffixDn().getName() );
     }
 
 
     /**
      * Test the addition of a two disjointed partition
      */
-    @Test public void testNewPartitionTree2Nodes() throws LdapException
+    @Test 
+    public void testNewPartitionTree2Nodes() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        Dn suffix1 = new Dn( "dc=example, dc=com" );
-        Partition partition1 = new JdbmPartition();
-        partition1.setSuffix( suffix1 );
+        Dn suffix1 = new Dn( schemaManager, "dc=example, dc=com" );
+        Partition partition1 = new JdbmPartition( schemaManager );
+        partition1.setSuffixDn( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
-        Dn suffix2 = new Dn( "ou=system" );
-        Partition partition2 = new JdbmPartition();
-        partition2.setSuffix( suffix2 );
+        Dn suffix2 = new Dn( schemaManager, "ou=system" );
+        Partition partition2 = new JdbmPartition( schemaManager );
+        partition2.setSuffixDn( suffix2 );
 
         partitionLookupTree.add( suffix2, partition2 );
 
         assertNotNull( partitionLookupTree );
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new Rdn( "ou=system" ) ) );
-        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( schemaManager, "ou=system" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( schemaManager, "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "ou=system" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( schemaManager, "ou=system" ) );
         assertTrue( child.isLeaf() );
-        assertEquals( "ou=system", child.getElement().getSuffix().getName() );
+        assertEquals( "ou=system", child.getElement().getSuffixDn().getName() );
 
-        child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
+        child = partitionLookupTree.getChild( new Rdn( schemaManager, "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new Rdn( "dc=example" ) ) );
+        assertTrue( child.contains( new Rdn( schemaManager, "dc=example" ) ) );
 
-        child = child.getChild( new Rdn( "dc=example" ) );
+        child = child.getChild( new Rdn( schemaManager, "dc=example" ) );
         assertTrue( child.isLeaf() );
-        assertEquals( "dc=example, dc=com", child.getElement().getSuffix().getName() );
+        assertEquals( "dc=example, dc=com", child.getElement().getSuffixDn().getName() );
     }
 
 
     /**
      * Test the addition of a two partitions with the same root
      */
-    @Test public void testNewPartitionTree2NodesWithSameRoot() throws LdapException
+    @Test 
+    public void testNewPartitionTree2NodesWithSameRoot() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-        Dn suffix1 = new Dn( "dc=example1, dc=com" );
-        Partition partition1 = new JdbmPartition();
-        partition1.setSuffix( suffix1 );
+        Dn suffix1 = new Dn( schemaManager, "dc=example1, dc=com" );
+        Partition partition1 = new JdbmPartition( schemaManager );
+        partition1.setSuffixDn( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
-        Dn suffix2 = new Dn( "dc=example2, dc=com" );
-        Partition partition2 = new JdbmPartition();
-        partition2.setSuffix( suffix2 );
+        Dn suffix2 = new Dn( schemaManager, "dc=example2, dc=com" );
+        Partition partition2 = new JdbmPartition( schemaManager );
+        partition2.setSuffixDn( suffix2 );
 
         partitionLookupTree.add( suffix2, partition2 );
 
         assertNotNull( partitionLookupTree );
 
         assertTrue( partitionLookupTree.hasChildren() );
-        assertTrue( partitionLookupTree.contains( new Rdn( "dc=com" ) ) );
+        assertTrue( partitionLookupTree.contains( new Rdn( schemaManager, "dc=com" ) ) );
 
-        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
+        DnNode<Partition> child = partitionLookupTree.getChild( new Rdn( schemaManager, "dc=com" ) );
         assertTrue( child.hasChildren() );
 
-        child = partitionLookupTree.getChild( new Rdn( "dc=com" ) );
+        child = partitionLookupTree.getChild( new Rdn( schemaManager, "dc=com" ) );
         assertTrue( child.hasChildren() );
-        assertTrue( child.contains( new Rdn( "dc=example1" ) ) );
-        assertTrue( child.contains( new Rdn( "dc=example2" ) ) );
+        assertTrue( child.contains( new Rdn( schemaManager, "dc=example1" ) ) );
+        assertTrue( child.contains( new Rdn( schemaManager, "dc=example2" ) ) );
 
-        DnNode<Partition> child1 = child.getChild( new Rdn( "dc=example1" ) );
+        DnNode<Partition> child1 = child.getChild( new Rdn( schemaManager, "dc=example1" ) );
         assertTrue( child1.isLeaf() );
-        assertEquals( "dc=example1, dc=com", child1.getElement().getSuffix().getName() );
+        assertEquals( "dc=example1, dc=com", child1.getElement().getSuffixDn().getName() );
 
-        DnNode<Partition> child2 = child.getChild( new Rdn( "dc=example1" ) );
+        DnNode<Partition> child2 = child.getChild( new Rdn( schemaManager, "dc=example1" ) );
         assertTrue( child2.isLeaf() );
-        assertEquals( "dc=example1, dc=com", child2.getElement().getSuffix().getName() );
+        assertEquals( "dc=example1, dc=com", child2.getElement().getSuffixDn().getName() );
     }
 }

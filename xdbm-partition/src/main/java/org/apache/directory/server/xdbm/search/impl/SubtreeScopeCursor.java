@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -101,7 +102,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
             }
             catch ( Exception e )
             {

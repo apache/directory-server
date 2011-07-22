@@ -22,6 +22,7 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,7 @@ public class DSAnnotationProcessor
         service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
 
         List<Interceptor> interceptorList = service.getInterceptors();
+        
         for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
         {
             interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
@@ -138,10 +141,12 @@ public class DSAnnotationProcessor
                 // We use the partition factory to create partition and index
                 // instances.
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
-                partition = partitionFactory.createPartition( createPartition
-                        .name(), createPartition.suffix(), createPartition
-                        .cacheSize(), new File( service.getInstanceLayout()
-                        .getPartitionsDirectory(), createPartition.name() ) );
+                partition = partitionFactory.createPartition(
+                        service.getSchemaManager(),
+                        createPartition.name(), 
+                        createPartition.suffix(), 
+                        createPartition.cacheSize(), 
+                        new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
 
                 CreateIndex[] indexes = createPartition.indexes();
                 
@@ -155,9 +160,11 @@ public class DSAnnotationProcessor
             {
                 // The annotation contains a specific partition type, we use
                 // that type.
-                partition = createPartition.type().newInstance();
+                Class<?> partypes[] = new Class[]{SchemaManager.class};
+                Constructor<?> constructor = createPartition.type().getConstructor(partypes);
+                partition = (Partition)constructor.newInstance( new Object[]{service.getSchemaManager()} );
                 partition.setId( createPartition.name() );
-                partition.setSuffix( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
+                partition.setSuffixDn( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
 
                 if ( partition instanceof AbstractBTreePartition<?> )
                 {

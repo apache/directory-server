@@ -29,12 +29,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -53,6 +51,7 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,9 +121,9 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of LdifPartition.
      */
-    public LdifPartition()
+    public LdifPartition( SchemaManager schemaManager )
     {
-        wrappedPartition = new AvlPartition();
+        super( schemaManager );
     }
 
 
@@ -133,92 +132,85 @@ public class LdifPartition extends AbstractLdifPartition
      */
     protected void doInit() throws Exception
     {
-        // Initialize the AvlPartition
-        wrappedPartition.setId( id );
-        wrappedPartition.setSuffix( suffix );
-        wrappedPartition.initialize();
-
-        this.searchEngine = wrappedPartition.getSearchEngine();
-
-        LOG.debug( "id is : {}", wrappedPartition.getId() );
-
-        File partitionDir = new File( getPartitionPath() );
-
-        // Initialize the suffixDirectory : it's a composition
-        // of the workingDirectory followed by the suffix
-        if ( ( suffix == null ) || ( suffix.isEmpty() ) )
+        if ( !initialized )
         {
-            String msg = I18n.err( I18n.ERR_150 );
-            LOG.error( msg );
-            throw new LdapInvalidDnException( msg );
-        }
-
-        if ( !suffix.isSchemaAware() )
-        {
-            suffix.apply( schemaManager );
-        }
-
-        String suffixDirName = getFileName( suffix );
-        suffixDirectory = new File( partitionDir, suffixDirName );
-
-        // Create the context entry now, if it does not exists, or load the
-        // existing entries
-        if ( suffixDirectory.exists() )
-        {
-            loadEntries( partitionDir );
-        }
-        else
-        {
-            // The partition directory does not exist, we have to create it, including parent directories
-            try
+            File partitionDir = new File( getPartitionPath() );
+    
+            // Initialize the suffixDirectory : it's a composition
+            // of the workingDirectory followed by the suffix
+            if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
             {
-                suffixDirectory.mkdirs();
-            }
-            catch ( SecurityException se )
-            {
-                String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() );
+                String msg = I18n.err( I18n.ERR_150 );
                 LOG.error( msg );
-                throw se;
+                throw new LdapInvalidDnException( msg );
             }
-
-            // And create the context entry too
-            File contextEntryFile = new File( suffixDirectory + CONF_FILE_EXTN );
-
-            LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
-
-            if ( contextEntry == null )
+    
+            if ( !suffixDn.isSchemaAware() )
             {
-                if ( contextEntryFile.exists() )
+                suffixDn.apply( schemaManager );
+            }
+    
+            String suffixDirName = getFileName( suffixDn );
+            suffixDirectory = new File( partitionDir, suffixDirName );
+    
+            super.doInit();
+    
+            // Create the context entry now, if it does not exists, or load the
+            // existing entries
+            if ( suffixDirectory.exists() )
+            {
+                loadEntries( partitionDir );
+            }
+            else
+            {
+                // The partition directory does not exist, we have to create it, including parent directories
+                try
                 {
-                    LdifReader reader = new LdifReader( contextEntryFile );
-                    contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
-                    reader.close();
+                    suffixDirectory.mkdirs();
                 }
-                else
+                catch ( SecurityException se )
                 {
-                    // No context entry and no LDIF file exists.
-                    // Skip initialization of context entry here, it will be added later.
-                    return;
+                    String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() );
+                    LOG.error( msg );
+                    throw se;
                 }
+    
+                // And create the context entry too
+                File contextEntryFile = new File( suffixDirectory + CONF_FILE_EXTN );
+    
+                LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
+    
+                if ( contextEntry == null )
+                {
+                    if ( contextEntryFile.exists() )
+                    {
+                        LdifReader reader = new LdifReader( contextEntryFile );
+                        contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
+                        reader.close();
+                    }
+                    else
+                    {
+                        // No context entry and no LDIF file exists.
+                        // Skip initialization of context entry here, it will be added later.
+                        return;
+                    }
+                }
+    
+                if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                {
+                    contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
+                }
+    
+                if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                {
+                    String uuid = UUID.randomUUID().toString();
+                    contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+                }
+    
+                // And add this entry to the underlying partition
+                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                add( addContext );
             }
-
-            if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
-            {
-                contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
-            }
-
-            if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
-            {
-                String uuid = UUID.randomUUID().toString();
-                contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
-            }
-
-            FileWriter fw = new FileWriter( contextEntryFile );
-            fw.write( LdifUtils.convertToLdif( contextEntry ) );
-            fw.close();
-
-            // And add this entry to the underlying partition
-            wrappedPartition.getStore().add( contextEntry );
         }
     }
 
@@ -231,29 +223,19 @@ public class LdifPartition extends AbstractLdifPartition
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        wrappedPartition.add( addContext );
-        add( addContext.getEntry() );
+        super.add( addContext );
+        addEntry( addContext.getEntry() );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        wrappedPartition.bind( bindContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void delete( Long id ) throws LdapException
     {
         Entry entry = lookup( id );
 
-        wrappedPartition.delete( id );
+        super.delete( id );
 
         if ( entry != null )
         {
@@ -272,9 +254,7 @@ public class LdifPartition extends AbstractLdifPartition
 
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
-
         }
-
     }
 
 
@@ -285,7 +265,14 @@ public class LdifPartition extends AbstractLdifPartition
     {
         Long id = getEntryId( modifyContext.getDn() );
 
-        wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+        try
+        {
+            super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage(), e );
+        }
 
         // Get the modified entry and store it in the context for post usage
         Entry modifiedEntry = lookup( id );
@@ -316,7 +303,7 @@ public class LdifPartition extends AbstractLdifPartition
         Dn oldDn = moveContext.getDn();
         Long id = getEntryId( oldDn );
 
-        wrappedPartition.move( moveContext );
+        super.move( moveContext );
 
         // Get the modified entry
         Entry modifiedEntry = lookup( id );
@@ -333,7 +320,7 @@ public class LdifPartition extends AbstractLdifPartition
         Dn oldDn = moveAndRenameContext.getDn();
         Long id = getEntryId( oldDn );
 
-        wrappedPartition.moveAndRename( moveAndRenameContext );
+        super.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
         Entry modifiedEntry = lookup( id );
@@ -352,7 +339,7 @@ public class LdifPartition extends AbstractLdifPartition
         Long id = getEntryId( oldDn );
 
         // Create the new entry
-        wrappedPartition.rename( renameContext );
+        super.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
         Entry modifiedEntry = lookup( id );
@@ -377,7 +364,7 @@ public class LdifPartition extends AbstractLdifPartition
     private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
     {
         // First, add the new entry
-        add( modifiedEntry );
+        addEntry( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
         try
@@ -391,7 +378,7 @@ public class LdifPartition extends AbstractLdifPartition
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )
                 {
-                    add( wrappedPartition.lookup( entry.getId() ) );
+                    addEntry( lookup( entry.getId() ) );
                 }
             }
 
@@ -467,7 +454,8 @@ public class LdifPartition extends AbstractLdifPartition
                     }
 
                     // call add on the wrapped partition not on the self
-                    wrappedPartition.getStore().add( serverEntry );
+                    AddOperationContext addContext = new AddOperationContext( null, serverEntry );
+                    super.add( addContext );
                 }
             }
 
@@ -496,29 +484,30 @@ public class LdifPartition extends AbstractLdifPartition
      */
     private File getFile( Dn entryDn, boolean create ) throws LdapException
     {
-        StringBuilder filePath = new StringBuilder();
-        filePath.append( suffixDirectory ).append( File.separator );
-
-        Dn baseDn = entryDn.getDescendantOf( suffix );
-        int size = baseDn.size();
-
-        for ( int i = 0; i < size - 1; i++ )
-        {
-            String rdnFileName = getFileName( baseDn.getRdn( size - 1 - i ) );
-
-            filePath.append( rdnFileName ).append( File.separator );
-        }
-
-        String rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
-
         String parentDir = null;
+        String rdnFileName = null;
 
-        if ( entryDn.equals( suffix ) )
+        if ( entryDn.equals( suffixDn ) )
         {
             parentDir = suffixDirectory.getParent() + File.separator;
+            rdnFileName = suffixDn.getName() + CONF_FILE_EXTN;
         }
         else
         {
+            StringBuilder filePath = new StringBuilder();
+            filePath.append( suffixDirectory ).append( File.separator );
+
+            Dn baseDn = entryDn.getDescendantOf( suffixDn );
+            int size = baseDn.size();
+
+            for ( int i = 0; i < size - 1; i++ )
+            {
+                rdnFileName = getFileName( baseDn.getRdn( size - 1 - i ) );
+
+                filePath.append( rdnFileName ).append( File.separator );
+            }
+
+            rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
             parentDir = filePath.toString();
         }
 
@@ -553,6 +542,7 @@ public class LdifPartition extends AbstractLdifPartition
         StringBuilder fileName = new StringBuilder( "" );
 
         Iterator<Ava> iterator = rdn.iterator();
+        
         while ( iterator.hasNext() )
         {
             Ava ava = iterator.next();
@@ -695,10 +685,10 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-     * Write the new entry on disk. It does not exist, as this ha sbeen checked
+     * Write the new entry on disk. It does not exist, as this has been checked
      * by the ExceptionInterceptor.
      */
-    private void add( Entry entry ) throws LdapException
+    private void addEntry( Entry entry ) throws LdapException
     {
         try
         {
@@ -741,15 +731,6 @@ public class LdifPartition extends AbstractLdifPartition
 
 
     /**
-      * @return the contextEntry
-      */
-    public Entry getContextEntry()
-    {
-        return contextEntry;
-    }
-
-
-    /**
      * @param contextEntry the contextEntry to set
      */
     public void setContextEntry( String contextEntry ) throws LdapLdifException
@@ -775,12 +756,4 @@ public class LdifPartition extends AbstractLdifPartition
             throw new LdapLdifException( le.getMessage(), le );
         }
     }
-
-
-    @Override
-    protected void doDestroy() throws Exception
-    {
-        wrappedPartition.destroy();
-    }
-
 }

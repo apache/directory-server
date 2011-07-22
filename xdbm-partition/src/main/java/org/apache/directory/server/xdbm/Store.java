@@ -31,11 +31,9 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -126,22 +124,6 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Sets the suffix Dn, must be normalized.
-     * 
-     * @param suffixDn the new suffix Dn
-     */
-    void setSuffixDn( Dn suffixDn );
-
-
-    /**
-     * Gets the suffix Dn.
-     * 
-     * @return the suffix Dn
-     */
-    Dn getSuffixDn();
-
-
-    /**
      * Gets the root ID of this store implementation.
      *
      * @return the root ID
@@ -176,57 +158,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The cache size
      */
     int getCacheSize();
-
-
-    /**
-     * Sets the store's unique identifier.
-     * @param id The store's unique identifier
-     */
-    void setId( String id );
-
-
-    /**
-     * Gets the store's unique identifier.
-     * 
-     * @return The store's unique identifier
-     */
-    String getId();
-
-
-    /**
-     * Initialize the storage system.
-     *
-     * @param schemaManager the schema schemaManager
-     * @throws Exception on failure to lookup elements in schemaManager
-     * @throws Exception on failure to create database files
-     */
-    void init( SchemaManager schemaManager ) throws Exception;
-
-
-    /**
-     * Close the store : we have to close all the system and user Indices, plus the master table.
-     *
-     * @throws LdapException lazily thrown on any closer failures to avoid leaving
-     * open files
-     */
-    void destroy() throws LdapException, Exception;
-
-
-    /**
-     * Gets whether the store is initialized.
-     *
-     * @return true if the partition store is initialized
-     */
-    boolean isInitialized();
-
-
-    /**
-     * This method is called when the synch thread is waking up, to write
-     * the modified data.
-     *
-     * @throws Exception on failures to sync database files to disk
-     */
-    void sync() throws Exception;
 
 
     /**
@@ -411,29 +342,10 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Add an entry into the store. 
-     * 
-     * @param entry The entry to add
-     * 
-     * @throws Exception If the addition failed.
-     */
-    void add( Entry entry ) throws Exception;
-
-
-    /**
-     * Get back an entry knowing its ID
+     * Delete an entry from the store
      *
-     * @param id The Entry ID we want to get back
-     * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
-     */
-    Entry lookup( ID id ) throws Exception;
-
-
-    /**
-     * Delete the entry associated with a given Id
-     * @param id The id of the entry to delete
-     * @throws Exception If the deletion failed
+     * @param id The Entry ID we want to delete
+     * @throws Exception If the deletion failed for any reason
      */
     void delete( ID id ) throws Exception;
 
@@ -448,6 +360,16 @@ public interface Store<E, ID extends Comparable<ID>>
     IndexCursor<ID, E, ID> list( ID id ) throws Exception;
 
 
+    /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    Entry lookup( ID id ) throws Exception;
+
+    
     /**
      * Gets the count of immediate children of the given entry ID.
      *
@@ -531,16 +453,4 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the default ID.
      */
     ID getDefaultId() throws Exception;
-
-
-    /**
-     * @return the schemaManager
-     */
-    SchemaManager getSchemaManager();
-
-
-    /**
-     * @param schemaManager the schemaManager to set
-     */
-    void setSchemaManager( SchemaManager schemaManager );
 }

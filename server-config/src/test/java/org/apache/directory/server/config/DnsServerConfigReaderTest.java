@@ -101,10 +101,10 @@ public class DnsServerConfigReaderTest
         File configDir = new File( workDir, "dnsServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dnsServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffix( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         
         configPartition.initialize();

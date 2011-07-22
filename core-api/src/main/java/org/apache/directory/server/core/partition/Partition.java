@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.partition;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -71,15 +74,6 @@ public interface Partition
 
 
     /**
-     * Sets the user provided suffix for this Partition as a String.
-     *
-     * @param suffix the suffix String for this Partition.
-     * @throws LdapInvalidDnException if the suffix does not conform to LDAP Dn syntax
-     */
-    void setSuffix( Dn suffix ) throws LdapInvalidDnException;
-
-
-    /**
      * Gets the schema manager assigned to this Partition.
      *
      * @return the schema manager
@@ -115,7 +109,15 @@ public interface Partition
      * @return the suffix for this Partition.
      * @throws IllegalStateException if the Partition has not been initialized
      */
-    Dn getSuffix();
+    Dn getSuffixDn();
+
+
+    /**
+     * Sets the suffix Dn, must be normalized.
+     * 
+     * @param suffixDn the new suffix Dn
+     */
+    void setSuffixDn( Dn suffixDn ) throws LdapInvalidDnException;
 
 
     /**
@@ -286,4 +288,12 @@ public interface Partition
      * @throws Exception if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
+    
+    
+    /**
+     * Dump the requested index to a given stream
+     * @param name The index to dump to stdout
+     * @throws IOException if we can't write the data
+     */
+    void dumpIndex( OutputStream stream, String name ) throws IOException;
 }

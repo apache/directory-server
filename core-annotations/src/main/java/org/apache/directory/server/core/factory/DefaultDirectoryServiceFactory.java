@@ -30,6 +30,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -54,12 +55,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryServiceFactory.class );
 
-    /**
-     * The default factory returns stock instances of a directory
-     * service with smart defaults
-     */
-    public static final DirectoryServiceFactory DEFAULT = new DefaultDirectoryServiceFactory();
-
     /** The directory service. */
     private DirectoryService directoryService;
 
@@ -67,7 +62,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     private PartitionFactory partitionFactory;
 
 
-    /* default access */DefaultDirectoryServiceFactory()
+    public DefaultDirectoryServiceFactory()
     {
         try
         {
@@ -87,6 +82,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         try
         {
             String typeName = System.getProperty( "apacheds.partition.factory" );
+            
             if ( typeName != null )
             {
                 Class<? extends PartitionFactory> type = ( Class<? extends PartitionFactory> ) Class.forName( typeName );
@@ -154,12 +150,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
      */
     private void initSchema() throws Exception
     {
-        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
-
-        // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
         File workingDirectory = directoryService.getInstanceLayout().getPartitionsDirectory();
-        ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
@@ -174,18 +165,24 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             // The schema has already been extracted, bypass
         }
 
-        schemaPartition.setWrappedPartition( ldifPartition );
-
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
-        directoryService.setSchemaManager( schemaManager );
-
+        
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
-        schemaPartition.setSchemaManager( schemaManager );
+        directoryService.setSchemaManager( schemaManager );
+        directoryService.setSchemaService( new DefaultSchemaService( schemaManager ) );
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
+
+        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
+
+        schemaPartition.setWrappedPartition( ldifPartition );
 
         List<Throwable> errors = schemaManager.getErrors();
 
@@ -208,7 +205,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // or somewhere in a temp area of the machine.
 
         // Inject the System Partition
-        Partition systemPartition = partitionFactory.createPartition( "system", ServerDNConstants.SYSTEM_DN, 500,
+        Partition systemPartition = partitionFactory.createPartition( directoryService.getSchemaManager(),
+            "system", ServerDNConstants.SYSTEM_DN, 500,
             new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ) );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
 

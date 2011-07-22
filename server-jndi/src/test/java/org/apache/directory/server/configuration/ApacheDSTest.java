@@ -52,7 +52,7 @@ public class ApacheDSTest
 
         JdbmPartition example = new JdbmPartition();
         example.setId( "example" );
-        example.setSuffix( "dc=example,dc=com" );
+        example.setSuffixDn( "dc=example,dc=com" );
         Dn contextDn = new Dn( "dc=example,dc=com" );
         contextDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         ServerEntry contextEntry = new DefaultServerEntry( directoryService.getRegistries(), contextDn );

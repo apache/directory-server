@@ -32,8 +32,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -50,6 +48,9 @@ import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -109,10 +110,10 @@ public class ConfigWriterTest
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         // Creating of the config partition
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition();
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffix( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.initialize();
 

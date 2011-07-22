@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.List;
 
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
@@ -75,7 +76,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
             }
             catch ( Exception e )
             {
