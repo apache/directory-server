@@ -38,7 +38,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.schema.DefaultSchemaService;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -196,7 +196,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         if ( dn.equals( ServerDNConstants.CN_SCHEMA_DN ) )
         {
-            return DefaultSchemaService.getSubschemaEntryCloned( directoryService );
+            return SchemaService.getSubschemaEntryCloned( directoryService );
         }
         else
         {

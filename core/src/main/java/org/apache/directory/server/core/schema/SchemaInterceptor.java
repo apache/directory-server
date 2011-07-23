@@ -702,7 +702,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = DefaultSchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
@@ -719,7 +719,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = DefaultSchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
                         new SingletonCursor<Entry>( serverEntry ), searchContext );

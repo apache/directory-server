@@ -55,7 +55,7 @@ import org.apache.directory.shared.util.StringConstants;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultSchemaService
+public class SchemaService
 {
     /** cached version of the schema subentry with all attributes in it */
     private static Entry schemaSubentry;
