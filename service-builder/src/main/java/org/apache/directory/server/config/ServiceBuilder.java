@@ -533,18 +533,17 @@ public class ServiceBuilder
      */
     public static Transport[] createTransports( TransportBean[] transportBeans )
     {
-        Transport[] transports = new Transport[ transportBeans.length ];
-        int i = 0;
+        List<Transport> transports = new ArrayList<Transport>();
         
         for ( TransportBean transportBean : transportBeans )
         {
             if ( transportBean.isEnabled() )
             {
-                transports[i++] = createTransport( transportBean );
+                transports.add( createTransport( transportBean ) );
             }
         }
         
-        return transports;
+        return transports.toArray( new Transport[transports.size()] );
     }
     /**
      * Helper method to create an Array of EncryptionTypes from an array of Strings
