@@ -74,6 +74,7 @@ import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -1258,6 +1259,10 @@ public class ServiceBuilder
         
         // The schemaManager
         directoryService.setSchemaManager( schemaManager );
+
+        // The schema partition
+        SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
+        directoryService.setSchemaPartition( schemaPartition );
 
         // MUST attributes
         // DirectoryService ID
