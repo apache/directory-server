@@ -25,7 +25,29 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;                            
+import java.io.Reader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.PrivilegedAction;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
+import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
+import org.apache.directory.server.i18n.I18n;
+import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.GSSName;
+import org.ietf.jgss.Oid;
 
 
 /**
@@ -221,5 +243,173 @@ public class KerberosTestUtils
         }
 
         return result;
+    }
+
+
+    /**
+     * Gets the host name for 'localhost' used for Kerberos tests.
+     * On Windows 7 and Server 2008 the loopback address 127.0.0.1
+     * isn't resolved to localhost by default. In that case we need
+     * to use the IP address for the service principal.
+     *
+     * @return the hostname
+     */
+    public static String getHostName()
+    {
+        String hostName;
+        try
+        {
+            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
+            hostName = loopback.getHostName();
+        }
+        catch ( UnknownHostException e )
+        {
+            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
+            hostName = "localhost";
+        }
+        return hostName;
+    }
+
+
+    /**
+     * Obtains a new TGT from KDC.
+     * 
+     * Possible errors:
+     * Bad username:  Client not found in Kerberos database
+     * Bad password:  Integrity check on decrypted field failed
+     * 
+     * @param subject the empty subject
+     * @param userName the user name 
+     * @param password the password
+     * @throws LoginException
+     * 
+     */
+    public static void obtainTGT( Subject subject, String userName, String password ) throws LoginException
+    {
+        // Use our custom configuration to avoid reliance on external config
+        Configuration.setConfiguration( new Krb5LoginConfiguration() );
+
+        // Obtain TGT
+        LoginContext lc = new LoginContext( KerberosUdpITest.class.getName(), subject, new
+                CallbackHandlerBean( userName, password ) );
+        lc.login();
+    }
+
+    private static class CallbackHandlerBean implements CallbackHandler
+    {
+        private String name;
+        private String password;
+
+
+        /**
+         * Creates a new instance of CallbackHandlerBean.
+         *
+         * @param name
+         * @param password
+         */
+        public CallbackHandlerBean( String name, String password )
+        {
+            this.name = name;
+            this.password = password;
+        }
+
+
+        public void handle( Callback[] callbacks ) throws UnsupportedCallbackException, IOException
+        {
+            for ( Callback callback : callbacks )
+            {
+                if ( callback instanceof NameCallback )
+                {
+                    NameCallback nameCallback = ( NameCallback ) callback;
+                    nameCallback.setName( name );
+                }
+                else if ( callback instanceof PasswordCallback )
+                {
+                    PasswordCallback passwordCallback = ( PasswordCallback ) callback;
+                    passwordCallback.setPassword( password.toCharArray() );
+                }
+                else
+                {
+                    throw new UnsupportedCallbackException( callback, I18n.err( I18n.ERR_617 ) );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Obtains a Service Ticket from KDC.
+     *
+     * @param subject the subject, must contain a valid TGT
+     * @param userName the user name
+     * @param serviceName the service name
+     * @param hostName the host name of the service
+     * @throws GSSException
+     */
+    public static void obtainServiceTickets( Subject subject, String userName, String serviceName, String hostName )
+        throws GSSException
+    {
+        ObtainServiceTicketAction action = new ObtainServiceTicketAction( userName, serviceName, hostName );
+        GSSException exception = Subject.doAs( subject, action );
+        if ( exception != null )
+        {
+            throw exception;
+        }
+    }
+
+    private static class ObtainServiceTicketAction implements PrivilegedAction<GSSException>
+    {
+        private String userName;
+        private String serviceName;
+        private String hostName;
+
+
+        public ObtainServiceTicketAction( String userName, String serviceName, String hostName )
+        {
+            this.userName = userName;
+            this.serviceName = serviceName;
+            this.hostName = hostName;
+        }
+
+
+        public GSSException run()
+        {
+            try
+            {
+                GSSManager manager = GSSManager.getInstance();
+                GSSName clientName = manager.createName( userName, GSSName.NT_USER_NAME );
+                GSSCredential clientCred = manager.createCredential( clientName,
+                                                               8 * 3600,
+                                                               createKerberosOid(),
+                                                               GSSCredential.INITIATE_ONLY );
+
+                GSSName serverName = manager.createName( serviceName + "@" + hostName, GSSName.NT_HOSTBASED_SERVICE );
+                GSSContext context = manager.createContext( serverName,
+                                                      createKerberosOid(),
+                                                      clientCred,
+                                                      GSSContext.DEFAULT_LIFETIME );
+                context.requestMutualAuth( true );
+                context.requestConf( true );
+                context.requestInteg( true );
+
+                context.initSecContext( new byte[0], 0, 0 );
+
+                // byte[] outToken = context.initSecContext( new byte[0], 0, 0 );
+                // System.out.println(new BASE64Encoder().encode(outToken));
+                context.dispose();
+
+                return null;
+            }
+            catch ( GSSException gsse )
+            {
+                return gsse;
+            }
+        }
+
+
+        private Oid createKerberosOid() throws GSSException
+        {
+            return new Oid( "1.2.840.113554.1.2.2" );
+        }
     }
 }
