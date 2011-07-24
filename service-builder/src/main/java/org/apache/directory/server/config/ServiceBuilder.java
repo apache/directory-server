@@ -1259,10 +1259,6 @@ public class ServiceBuilder
         // The schemaManager
         directoryService.setSchemaManager( schemaManager );
 
-        // The schema partition
-        SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
-        directoryService.setSchemaPartition( schemaPartition );
-
         // MUST attributes
         // DirectoryService ID
         directoryService.setInstanceId( directoryServiceBean.getDirectoryServiceId() );
