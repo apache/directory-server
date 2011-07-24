@@ -21,6 +21,7 @@ package org.apache.directory.shared.kerberos.codec;
 
 
 import java.nio.ByteBuffer;
+import java.nio.InvalidMarkException;
 
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -70,7 +71,15 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
         public void action( KerberosMessageContainer kerberosMessageContainer ) throws DecoderException
         {
             ByteBuffer stream = kerberosMessageContainer.getStream();
-            stream.rewind();
+    
+            try
+            {
+                stream.reset();
+            }
+            catch ( InvalidMarkException ime )
+            {
+                stream.rewind();
+            }
 
             TLV tlv = kerberosMessageContainer.getCurrentTLV();
             kerberosMessageContainer.setGrammarEndAllowed( true );

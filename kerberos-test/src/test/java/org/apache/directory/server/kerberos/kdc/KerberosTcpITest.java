@@ -33,7 +33,6 @@ import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,7 +70,6 @@ Project</a>
        @CreateTransport(protocol = "TCP")
    })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
-@Ignore("TCP tests not working.")
 public class KerberosTcpITest extends AbstractKerberosITest
 {
     private static Integer udpPrefLimit;

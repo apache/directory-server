@@ -39,6 +39,12 @@ public class KerberosMessageContainer extends AbstractContainer
     
     /** A PrincipalName container */
     private PrincipalName principalName;
+    
+    /** A flag used when the protocol used to transfer the PDU is TCP */
+    private boolean isTCP;
+    
+    /** When the connection is using a TCP protocol, the PDU length */
+    private int tcpLength = -1;
 
     /**
      * Creates a new KerberosMessageContainer object. We will store ten grammars,
@@ -101,5 +107,41 @@ public class KerberosMessageContainer extends AbstractContainer
     public void setPrincipalName( PrincipalName principalName )
     {
         this.principalName = principalName;
+    }
+
+
+    /**
+     * @return the isTCP
+     */
+    public boolean isTCP()
+    {
+        return isTCP;
+    }
+
+
+    /**
+     * @param isTCP the isTCP to set
+     */
+    public void setTCP( boolean isTCP )
+    {
+        this.isTCP = isTCP;
+    }
+
+
+    /**
+     * @return the tcpLength
+     */
+    public int getTcpLength()
+    {
+        return tcpLength;
+    }
+
+
+    /**
+     * @param tcpLength the tcpLength to set
+     */
+    public void setTcpLength( int tcpLength )
+    {
+        this.tcpLength = tcpLength;
     }
 }

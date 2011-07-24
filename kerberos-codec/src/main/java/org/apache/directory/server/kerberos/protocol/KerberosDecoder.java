@@ -97,8 +97,26 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             session.setAttribute( KERBEROS_MESSAGE_CONTAINER, kerberosMessageContainer );
             kerberosMessageContainer.setStream( buf );
             kerberosMessageContainer.setGathering( true );
+            kerberosMessageContainer.setTCP( !session.getTransportMetadata().isConnectionless() );
         }
         
+        if ( kerberosMessageContainer.isTCP() )
+        {
+            if ( buf.remaining() > 4 )
+            {
+                kerberosMessageContainer.setTcpLength( buf.getInt() );
+                buf.mark();
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            buf.mark();
+        }
+
         while ( buf.hasRemaining() )
         {
             try
