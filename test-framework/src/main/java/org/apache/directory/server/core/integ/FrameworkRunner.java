@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -66,7 +67,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     private static final String SET_LDAP_SERVER_METHOD_NAME = "setLdapServer";
 
     /** The 'kdcServer' field in the run tests */
-    private static final String KDC_SERVER_FIELD_NAME = "kdcServer";
+    private static final String SET_KDC_SERVER_METHOD_NAME = "setKdcServer";
 
     /** The filed used to tell the test that it is run in a suite */
     private static final String IS_RUN_IN_SUITE_FIELD_NAME = "isRunInSuite";
@@ -237,7 +238,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             if ( classKdcServer == null )
             {
-                classKdcServer = ServerAnnotationProcessor.getKdcServer( getDescription(), directoryService, 0 );
+                int minPort = getMinPort();
+
+                classKdcServer = ServerAnnotationProcessor.getKdcServer( getDescription(), directoryService,
+                    minPort + 1 );
             }
             else if ( suite != null )
             {
@@ -332,7 +336,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     {
         /** The LdapServer for this method, if any */
         LdapServer methodLdapServer = null;
-        
+
+        /** The KdcServer for this method, if any */
+        KdcServer methodKdcServer = null;
+
         // Don't run the test if the @Ignored annotation is used
         if ( method.getAnnotation( Ignore.class ) != null )
         {
@@ -355,6 +362,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         // Before running any test, check to see if we must create a class DS
         // Get the LdapServerBuilder, if any
         CreateLdapServer methodLdapServerBuilder = methodDescription.getAnnotation( CreateLdapServer.class );
+        CreateKdcServer methodKdcServerBuilder = methodDescription.getAnnotation( CreateKdcServer.class );
 
         // Ok, ready to run the test
         try
@@ -422,6 +430,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     minPort + 1 );
             }
 
+            if ( methodKdcServerBuilder != null )
+            {
+                int minPort = getMinPort();
+
+                methodKdcServer = ServerAnnotationProcessor.getKdcServer( methodDescription, directoryService,
+                    minPort + 1 );
+            }
+
             // At this point, we know which service to use.
             // Inject it into the class
             Method setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME, DirectoryService.class );
@@ -431,36 +447,44 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             Field runInSuiteField = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             runInSuiteField.set( getTestClass().getJavaClass(), suite != null );
 
-            Method setServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME, LdapServer.class );
-            //Field ldapServerField = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
+            Method setLdapServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME, LdapServer.class );
+            Method setKdcServer = getTestClass().getJavaClass().getMethod( SET_KDC_SERVER_METHOD_NAME, KdcServer.class );
 
             DirectoryService oldLdapServerDirService = null;
             DirectoryService oldKdcServerDirService = null;
-            
-            if ( methodLdapServer != null ) {
+
+            if ( methodLdapServer != null )
+            {
                 // setting the directoryService is required to inject the correct level DS instance in the class or suite level LdapServer
                 methodLdapServer.setDirectoryService( directoryService );
-                
-                setServer.invoke( getTestClass().getJavaClass(), methodLdapServer );
+
+                setLdapServer.invoke( getTestClass().getJavaClass(), methodLdapServer );
             }    
             else if ( classLdapServer != null )
             {
                 oldLdapServerDirService = classLdapServer.getDirectoryService();
-                
+
                 // setting the directoryService is required to inject the correct level DS instance in the class or suite level LdapServer
                 classLdapServer.setDirectoryService( directoryService );
-                
-                setServer.invoke( getTestClass().getJavaClass(), classLdapServer );
+
+                setLdapServer.invoke( getTestClass().getJavaClass(), classLdapServer );
+            }
+
+            if ( methodKdcServer != null )
+            {
+                // setting the directoryService is required to inject the correct level DS instance in the class or suite level KdcServer
+                methodKdcServer.setDirectoryService( directoryService );
+
+                setKdcServer.invoke( getTestClass().getJavaClass(), methodKdcServer );
             }
             else if ( classKdcServer != null )
             {
                 oldKdcServerDirService = classKdcServer.getDirectoryService();
-                
+
                 // setting the directoryService is required to inject the correct level DS instance in the class or suite level KdcServer
                 classKdcServer.setDirectoryService( directoryService );
-                
-                Field kdcServerField = getTestClass().getJavaClass().getField( KDC_SERVER_FIELD_NAME );
-                kdcServerField.set( getTestClass().getJavaClass(), classKdcServer );
+
+                setKdcServer.invoke( getTestClass().getJavaClass(), classKdcServer );
             }
 
             // Run the test
