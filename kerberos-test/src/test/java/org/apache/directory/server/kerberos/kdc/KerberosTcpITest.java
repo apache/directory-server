@@ -33,6 +33,7 @@ import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -78,7 +79,7 @@ public class KerberosTcpITest extends AbstractKerberosITest
     @BeforeClass
     public static void setUdpPrefLimit() throws Exception
     {
-        System.setProperty( "sun.security.krb5.debug", "true" );
+        // System.setProperty( "sun.security.krb5.debug", "true" );
 
         // Save current value of sun.security.krb5.KrbKdcReq.udpPrefLimit field.
         // Then set it to 1 to force TCP.
@@ -130,6 +131,23 @@ public class KerberosTcpITest extends AbstractKerberosITest
     {
         setupEnv( EncryptionType.DES_CBC_MD5 );
         testObtainTickets( EncryptionType.DES_CBC_MD5 );
+    }
+
+
+    @Test
+    public void testObtainTickets_DES3_CBC_SHA1_KD() throws Exception
+    {
+        setupEnv( EncryptionType.DES3_CBC_SHA1_KD );
+        testObtainTickets( EncryptionType.DES3_CBC_SHA1_KD );
+    }
+
+
+    @Test
+    @Ignore("Fails with KrbException: Integrity check on decrypted field failed (31) - Integrity check on decrypted field failed")
+    public void testObtainTickets_RC4_HMAC() throws Exception
+    {
+        setupEnv( EncryptionType.RC4_HMAC );
+        testObtainTickets( EncryptionType.RC4_HMAC );
     }
 
 
