@@ -271,6 +271,11 @@ public class TicketGrantingService
     }
     
     
+    /**
+     * RFC4120
+     * <li>Section 3.3.2. Receipt of KRB_TGS_REQ Message -> 2nd paragraph
+     * <li>Section 5.5.1. KRB_AP_REQ Definition -> Authenticator -> cksum
+     */
     private static void verifyBodyChecksum( TicketGrantingContext tgsContext ) throws KerberosException
     {
         KdcServer config = tgsContext.getConfig();
@@ -290,9 +295,14 @@ public class TicketGrantingService
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
             }
-            
+
             byte[] bodyBytes = buf.array();
             Checksum authenticatorChecksum = tgsContext.getAuthenticator().getCksum();
+
+            // we need the session key
+            Ticket tgt = tgsContext.getTgt();
+            EncTicketPart encTicketPart = tgt.getEncTicketPart();
+            EncryptionKey sessionKey = encTicketPart.getKey();
 
             if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
                 || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
@@ -302,7 +312,8 @@ public class TicketGrantingService
 
             LOG.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
-            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
+            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
+                KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY );
         }
     }
     

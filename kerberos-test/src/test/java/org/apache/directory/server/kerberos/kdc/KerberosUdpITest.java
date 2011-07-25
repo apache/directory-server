@@ -28,19 +28,23 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test to obtain TGTs and Service Tickets from KDCs via UDP.
+ * Tests to obtain TGTs and Service Tickets from KDCs via UDP.
  * 
  * We use some internal knowledge of the Sun/Oracle implementation here:
- * In sun.security.krb5.KrbKdcReq the field udpPrefLimit is set to -1 which means
+ * <li>In sun.security.krb5.KrbKdcReq the field udpPrefLimit is set to -1 which means
  * that UDP is always used first. Only if the KDC replies with RB_ERR_RESPONSE_TOO_BIG
  * TCP is used.
+ * <li>In sun.security.krb5.Checksum the static field CKSUMTYPE_DEFAULT is set
+ * to the appropriate checksum value.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -75,36 +79,22 @@ public class KerberosUdpITest extends AbstractKerberosITest
     // TODO: add tests for different options
 
     @Test
-    @Ignore("Fails")
-    public void testObtainTickets_DES_CBC_CRC() throws Exception
-    {
-        setupEnv( EncryptionType.DES_CBC_CRC );
-        testObtainTickets( EncryptionType.DES_CBC_CRC );
-    }
-
-
-    @Test
-    @Ignore("Fails")
-    public void testObtainTickets_DES_CBC_MD4() throws Exception
-    {
-        setupEnv( EncryptionType.DES_CBC_MD4 );
-        testObtainTickets( EncryptionType.DES_CBC_MD4 );
-    }
-
-
-    @Test
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
-        setupEnv( EncryptionType.DES_CBC_MD5 );
-        testObtainTickets( EncryptionType.DES_CBC_MD5 );
+        // TODO: RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class, 
+            EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_DES3_CBC_SHA1_KD() throws Exception
     {
-        setupEnv( EncryptionType.DES3_CBC_SHA1_KD );
-        testObtainTickets( EncryptionType.DES3_CBC_SHA1_KD );
+        // RFC3961, Section 6.3: des3-cbc-hmac-sha1-kd + hmac-sha1-des3-kd
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
+            EncryptionType.DES3_CBC_SHA1_KD, ChecksumType.HMAC_SHA1_DES3_KD );
+        testObtainTickets( parameters );
     }
 
 
@@ -112,24 +102,30 @@ public class KerberosUdpITest extends AbstractKerberosITest
     @Ignore("Fails with KrbException: Integrity check on decrypted field failed (31) - Integrity check on decrypted field failed")
     public void testObtainTickets_RC4_HMAC() throws Exception
     {
-        setupEnv( EncryptionType.RC4_HMAC );
-        testObtainTickets( EncryptionType.RC4_HMAC );
+        // TODO: RFC4757: rc4-hmac + hmac-md5
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
+            EncryptionType.RC4_HMAC, ChecksumType.HMAC_MD5 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_AES128() throws Exception
     {
-        setupEnv( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        testObtainTickets( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        // RFC3962, Section 7: aes128-cts-hmac-sha1-96 + hmac-sha1-96-aes128
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
+            EncryptionType.AES128_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES128 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_AES256() throws Exception
     {
-        setupEnv( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        testObtainTickets( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        // RFC3962, Section 7: aes256-cts-hmac-sha1-96 + hmac-sha1-96-aes256
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
+            EncryptionType.AES256_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES256 );
+        testObtainTickets( parameters );
     }
 
 }

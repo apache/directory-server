@@ -20,8 +20,6 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
-import java.lang.reflect.Field;
-
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -30,20 +28,23 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test to obtain TGTs and Service Tickets from KDCs via TCP.
+ * Tests to obtain TGTs and Service Tickets from KDCs via TCP.
  * 
  * We use some internal knowledge of the Sun/Oracle implementation here to force
- * the usage of TCP: In sun.security.krb5.KrbKdcReq the static field udpPrefLimit 
- * is set to 1 which means that TCP is always used.
+ * the usage of TCP and checksum: 
+ * <li>In sun.security.krb5.KrbKdcReq the static field udpPrefLimit is set to 1 
+ * which means that TCP is always used.
+ * <li>In sun.security.krb5.Checksum the static field CKSUMTYPE_DEFAULT is set
+ * to the appropriate checksum value.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory
 Project</a>
@@ -73,54 +74,6 @@ Project</a>
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosTcpITest extends AbstractKerberosITest
 {
-    private static Integer udpPrefLimit;
-
-
-    @BeforeClass
-    public static void setUdpPrefLimit() throws Exception
-    {
-        // System.setProperty( "sun.security.krb5.debug", "true" );
-
-        // Save current value of sun.security.krb5.KrbKdcReq.udpPrefLimit field.
-        // Then set it to 1 to force TCP.
-        udpPrefLimit = getUdpPrefLimit();
-        setUdpPrefLimit( 1 );
-    }
-
-
-    @AfterClass
-    public static void resetUdpPrefLimit() throws Exception
-    {
-        // Reset sun.security.krb5.KrbKdcReq.udpPrefLimit field
-        setUdpPrefLimit( udpPrefLimit );
-    }
-
-
-    private static Integer getUdpPrefLimit() throws Exception
-    {
-        Field udpPrefLimitField = getUdpPrefLimitField();
-        Object value = udpPrefLimitField.get( null );
-        return ( Integer ) value;
-    }
-
-
-    private static void setUdpPrefLimit( int limit ) throws Exception
-    {
-        Field udpPrefLimitField = getUdpPrefLimitField();
-        udpPrefLimitField.setAccessible( true );
-        udpPrefLimitField.set( null, limit );
-    }
-
-
-    private static Field getUdpPrefLimitField() throws ClassNotFoundException, NoSuchFieldException
-    {
-        String clazz = "sun.security.krb5.KrbKdcReq";
-        Class<?> krbKdcReqClass = Class.forName( clazz );
-        Field udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
-        udpPrefLimitField.setAccessible( true );
-        return udpPrefLimitField;
-    }
-
 
     // TODO: fix failing tests
     // TODO: add tests for other encryption types
@@ -129,16 +82,21 @@ public class KerberosTcpITest extends AbstractKerberosITest
     @Test
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
-        setupEnv( EncryptionType.DES_CBC_MD5 );
-        testObtainTickets( EncryptionType.DES_CBC_MD5 );
+        // TODO: rsa-md5-des 
+        // RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
+        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
+            EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_DES3_CBC_SHA1_KD() throws Exception
     {
-        setupEnv( EncryptionType.DES3_CBC_SHA1_KD );
-        testObtainTickets( EncryptionType.DES3_CBC_SHA1_KD );
+        // RFC3961, Section 6.3: des3-cbc-hmac-sha1-kd + hmac-sha1-des3-kd
+        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
+            EncryptionType.DES3_CBC_SHA1_KD, ChecksumType.HMAC_SHA1_DES3_KD );
+        testObtainTickets( parameters );
     }
 
 
@@ -146,24 +104,30 @@ public class KerberosTcpITest extends AbstractKerberosITest
     @Ignore("Fails with KrbException: Integrity check on decrypted field failed (31) - Integrity check on decrypted field failed")
     public void testObtainTickets_RC4_HMAC() throws Exception
     {
-        setupEnv( EncryptionType.RC4_HMAC );
-        testObtainTickets( EncryptionType.RC4_HMAC );
+        // TODO: RFC4757: rc4-hmac + hmac-md5
+        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
+            EncryptionType.RC4_HMAC, ChecksumType.HMAC_MD5 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_AES128() throws Exception
     {
-        setupEnv( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        testObtainTickets( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        // RFC3962, Section 7: aes128-cts-hmac-sha1-96 + hmac-sha1-96-aes128
+        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
+            EncryptionType.AES128_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES128 );
+        testObtainTickets( parameters );
     }
 
 
     @Test
     public void testObtainTickets_AES256() throws Exception
     {
-        setupEnv( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        testObtainTickets( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        // RFC3962, Section 7: aes256-cts-hmac-sha1-96 + hmac-sha1-96-aes256
+        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
+            EncryptionType.AES256_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES256 );
+        testObtainTickets( parameters );
     }
 
 }
