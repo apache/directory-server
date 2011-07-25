@@ -170,7 +170,7 @@ public enum EncryptionType
     private static Map<String, EncryptionType> encryptionTypesByName = new HashMap<String, EncryptionType>();
 
     /** A map containing all the values */
-    private static Map<Integer, EncryptionType> encryptionTypesByOrdinal = new HashMap<Integer, EncryptionType>();
+    private static Map<Integer, EncryptionType> encryptionTypesByValue = new HashMap<Integer, EncryptionType>();
 
     /** Initialization of the previous map */
     static
@@ -178,7 +178,7 @@ public enum EncryptionType
         for ( EncryptionType type : EncryptionType.values() )
         {
             encryptionTypesByName.put( type.getName().toLowerCase(), type );
-            encryptionTypesByOrdinal.put( type.getValue(), type );
+            encryptionTypesByValue.put( type.getValue(), type );
         }
     }
 
@@ -211,9 +211,9 @@ public enum EncryptionType
      */
     public static EncryptionType getTypeByValue( int type )
     {
-        if ( encryptionTypesByOrdinal.containsKey( type ) )
+        if ( encryptionTypesByValue.containsKey( type ) )
         {
-            return encryptionTypesByOrdinal.get( type );
+            return encryptionTypesByValue.get( type );
         }
         else
         {
