@@ -30,106 +30,111 @@ public enum ChecksumType implements Comparable<ChecksumType>
     /**
      * The "unknown" checksum type.
      */
-    UNKNOWN( -1 ),
+    UNKNOWN( -1, "UNKNOWN" ),
 
     /**
      * The "null" checksum type.
      */
-    NULL( 0 ),
+    NULL( 0, "NULL" ),
 
     /**
-     * The CRC32 checksum type.
+     * The CRC32 checksum type (RFC3961).
      */
-    CRC32( 1 ),
+    CRC32( 1, "CRC32" ),
 
     /**
-     * The rsa-md4 checksum type.
+     * The rsa-md4 checksum type (RFC3961).
      */
-    RSA_MD4( 2 ),
+    RSA_MD4( 2, "rsa-md4" ),
 
     /**
-     * The rsa-md4-des checksum type.
+     * The rsa-md4-des checksum type (RFC3961).
      */
-    RSA_MD4_DES( 3 ),
+    RSA_MD4_DES( 3, "rsa-md4-des" ),
 
     /**
-     * The des-mac checksum type.
+     * The des-mac checksum type (RFC3961).
      */
-    DES_MAC( 4 ),
+    DES_MAC( 4, "des-mac" ),
 
     /**
-     * The des-mac-k checksum type.
+     * The des-mac-k checksum type (RFC3961).
      */
-    DES_MAC_K( 5 ),
+    DES_MAC_K( 5, "rsa-md5" ),
 
     /**
-     * The rsa-md4-des-k checksum type.
+     * The rsa-md4-des-k checksum type (RFC3961).
      */
-    RSA_MD4_DES_K( 6 ),
+    RSA_MD4_DES_K( 6, "rsa-md5" ),
 
     /**
-     * The rsa-md5 checksum type.
+     * The rsa-md5 checksum type (RFC3961).
      */
-    RSA_MD5( 7 ),
+    RSA_MD5( 7, "rsa-md5" ),
 
     /**
-     * The rsa-md5-des checksum type.
+     * The rsa-md5-des checksum type (RFC3961).
      */
-    RSA_MD5_DES( 8 ),
+    RSA_MD5_DES( 8, "rsa-md5-des" ),
 
     /**
      * The rsa-md5-des3 checksum type.
      */
-    RSA_MD5_DES3( 9 ),
+    RSA_MD5_DES3( 9, "rsa-md5-des3" ),
 
     /**
      * The sha1 (unkeyed) checksum type.
      */
-    SHA1( 10 ),
+    SHA1( 10, "sha1" ),
 
     /**
-     * The hmac-sha1-des3-kd checksum type.
+     * The hmac-sha1-des3-kd checksum type (RFC3961).
      */
-    HMAC_SHA1_DES3_KD( 12 ),
+    HMAC_SHA1_DES3_KD( 12, "hmac-sha1-des3-kd" ),
 
     /**
      * The hmac-sha1-des3 checksum type.
      */
-    HMAC_SHA1_DES3( 13 ),
+    HMAC_SHA1_DES3( 13, "hmac-sha1-des3" ),
 
     /**
      * The sha1 (unkeyed) checksum type.
      */
-    SHA1_2 ( 14 ),
+    SHA1_2 ( 14, "sha1" ),
 
     /**
-     * The hmac-sha1-96-aes128 checksum type.
+     * The hmac-sha1-96-aes128 checksum type (RFC3962).
      */
-    HMAC_SHA1_96_AES128( 15 ),
+    HMAC_SHA1_96_AES128( 15, "hmac-sha1-96-aes128" ),
 
     /**
-     * The hmac-sha1-96-aes256 checksum type.
+     * The hmac-sha1-96-aes256 checksum type (RFC3962).
      */
-    HMAC_SHA1_96_AES256( 16 ),
+    HMAC_SHA1_96_AES256( 16, "hmac-sha1-96-aes256" ),
 
     /**
-     * The hmac-md5 checksum type.
+     * The hmac-md5 checksum type (RFC4757).
      */
-    HMAC_MD5( -138 );
-
+    HMAC_MD5( -138, "hmac-md5" );
 
     /**
      * The value/code for the checksum type.
      */
     private final int value;
 
+    /**
+     * The name of the checksum type.
+     */
+    private final String name;
+
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ChecksumType( int ordinal )
+    private ChecksumType( int value, String name )
     {
-        this.value = ordinal;
+        this.value = value;
+        this.name = name;
     }
 
 
@@ -174,5 +179,25 @@ public enum ChecksumType implements Comparable<ChecksumType>
     public int getValue()
     {
         return value;
+    }
+
+
+    /**
+     * Returns the name associated with this checksum type.
+     *
+     * @return The name.
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return getName() + " (" + value + ")";
     }
 }
