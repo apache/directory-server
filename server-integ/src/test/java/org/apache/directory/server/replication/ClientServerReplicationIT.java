@@ -23,6 +23,7 @@ package org.apache.directory.server.replication;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -78,10 +78,11 @@ public class ClientServerReplicationIT
     @BeforeClass
     public static void setUp() throws Exception
     {
-        Class justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
+        Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
         
         startProvider();
         startConsumer();
+        injectContextEntry();
     }
 
 
@@ -93,20 +94,81 @@ public class ClientServerReplicationIT
     }
 
     
-    @Test
-    public void testInjectContextEntry() throws Exception
+    private static void injectContextEntry() throws Exception
     {
-       String dn = "dc=example,dc=com";
+        String dn = "dc=example,dc=com";
         
-       DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-       entry.add( "objectClass", "domain" );
-       entry.add( "dc", "example" );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass", "domain",
+            "dc", "example" );
        
-       assertFalse( consumerSession.exists( dn ) );
+        assertFalse( consumerSession.exists( dn ) );
        
-       providerSession.add( entry );
+        providerSession.add( entry );
        
-       waitAndCompareEntries( entry.getDn() );
+        assertTrue( providerSession.exists( dn ) );
+        boolean replicated = false;
+       
+        for ( int i = 0; i < 50; i++ )
+        {
+            Thread.sleep( 100 );
+            
+            if ( consumerSession.exists( dn ) )
+            {
+                replicated = true;
+                break;
+            }
+        }
+        
+        assertTrue( replicated );
+    }
+    
+    
+    /**
+     * Check that the entry exists in the target server. We wait up to 10 seconds, by
+     * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
+     */
+    private boolean checkEntryExistence( CoreSession session, Dn entryDn ) throws Exception
+    {
+        boolean replicated = false;
+        
+        for ( int i = 0; i < 100; i++ )
+        {
+            Thread.sleep( 100 );
+            
+            if ( session.exists( entryDn ) )
+            {
+                replicated = true;
+                break;
+            }
+        }
+        
+        return replicated;
+    }
+    
+    
+    /**
+     * Check that the entry exists and has been deleted in the target server. We wait up to 10 seconds, by
+     * 100ms steps, until either the entry is deleted, or we have exhausted the 10 seconds delay,
+     * or the entry was never found to start with.
+     */
+    private boolean checkEntryDeletion( CoreSession session, Dn entryDn ) throws Exception
+    {
+        boolean exists = session.exists( entryDn );
+        boolean deleted = false;
+        
+        for ( int i = 0; i < 50; i++ )
+        {
+            Thread.sleep( 100 );
+            
+            if ( !session.exists( entryDn ) )
+            {
+                deleted = true;
+                break;
+            }
+        }
+        
+        return exists && deleted;
     }
 
     
@@ -125,6 +187,7 @@ public class ClientServerReplicationIT
         
         providerSession.modify( modReq );
         
+        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
     }
     
@@ -146,6 +209,7 @@ public class ClientServerReplicationIT
         
         providerSession.add( entry );
         
+        assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
         waitAndCompareEntries( entry.getDn() );
         
         // move
@@ -154,6 +218,7 @@ public class ClientServerReplicationIT
         
         userDn = usersContainer.add( userDn.getRdn() );
         
+        assertTrue( checkEntryExistence( consumerSession, userDn ) );
         waitAndCompareEntries( userDn );
         
         // now try renaming
@@ -163,6 +228,7 @@ public class ClientServerReplicationIT
         
         userDn = usersContainer.add( newName );
         
+        assertTrue( checkEntryExistence( consumerSession, userDn ) );
         waitAndCompareEntries( userDn );
         
         // now move and rename
@@ -173,10 +239,15 @@ public class ClientServerReplicationIT
         providerSession.moveAndRename( userDn, newParent, newName, false );
         
         userDn = newParent.add( newName );
+
+        assertTrue( checkEntryExistence( consumerSession, userDn ) );
         waitAndCompareEntries( userDn );
     }
     
     
+    /**
+     * Test the replication of a deleted entry
+     */
     @Test
     public void testDelete() throws Exception
     {
@@ -184,38 +255,53 @@ public class ClientServerReplicationIT
         
         providerSession.add( provUser );
         
+        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
         
+        assertTrue( providerSession.exists( provUser.getDn() ) );
+        assertTrue( consumerSession.exists( provUser.getDn() ) );
+
         providerSession.delete( provUser.getDn() );
         
-        Thread.sleep( 2000 );
-        assertFalse( consumerSession.exists( provUser.getDn() ) );
+        assertTrue( checkEntryDeletion( consumerSession, provUser.getDn() ) );
+        assertFalse( providerSession.exists( provUser.getDn() ) );
     }
     
     
     @Test
-    @Ignore("this test often fails due to a timing issue")
     public void testRebootConsumer() throws Exception
     {
         Entry provUser = createEntry();
         
+        assertFalse( providerSession.exists(provUser.getDn() ) );
+        assertFalse( consumerSession.exists(provUser.getDn() ) );
+        
         providerSession.add( provUser );
         
+        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
+
+        assertTrue( providerSession.exists(provUser.getDn() ) );
+        assertTrue( consumerSession.exists(provUser.getDn() ) );
         
+        // Now stop the consumer
         consumerServer.stop();
         
+        // And delete the entry in the provider
         Dn deletedUserDn = provUser.getDn();
         providerSession.delete( deletedUserDn );
         
+        // Create a new entry
         provUser = createEntry();
         Dn addedUserDn = provUser.getDn();
         providerSession.add( provUser );
         
+        // Restart the consumer
         startConsumer();
         
-        Thread.sleep( 5000 );
         assertFalse( consumerSession.exists( deletedUserDn ) );
+        
+        assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
         waitAndCompareEntries( addedUserDn );
     }
     
@@ -223,8 +309,6 @@ public class ClientServerReplicationIT
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
         // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
-        Thread.sleep( 2000 );
-
         Entry providerEntry = providerSession.lookup( dn, "*", "+" );
         
         Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
@@ -238,10 +322,10 @@ public class ClientServerReplicationIT
         
         String dn = "cn=" + user + ",dc=example,dc=com";
         
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "person" );
-        entry.add( "cn", user );
-        entry.add( "sn", user );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass", "person",
+            "cn", user,
+            "sn", user );
         
         return entry;
     }
