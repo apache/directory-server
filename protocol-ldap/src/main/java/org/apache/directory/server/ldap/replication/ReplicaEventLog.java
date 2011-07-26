@@ -110,7 +110,7 @@ public class ReplicaEventLog
      */
     public void configure( final ActiveMQConnection amqConnection, final BrokerService brokerService ) throws Exception
     {
-        if ( amqSession == null || !amqSession.isRunning() )
+        if ( ( amqSession == null ) || !amqSession.isRunning() )
         {
             this.amqConnection = amqConnection;
             amqSession = ( ActiveMQSession ) amqConnection.createSession( false, ActiveMQSession.AUTO_ACKNOWLEDGE );
@@ -146,7 +146,6 @@ public class ReplicaEventLog
         {
             LOG.warn( "Failed to insert the entry into syncrepl log", e );
         }
-
     }
 
 
@@ -330,6 +329,7 @@ public class ReplicaEventLog
     public ReplicaEventLogCursor getCursor() throws Exception
     {
         Queue regionQueue = ( Queue ) brokerService.getRegionBroker().getDestinationMap().get( queue );
+        
         return new ReplicaEventLogCursor( amqSession, queue, regionQueue );
     }
 
@@ -340,5 +340,4 @@ public class ReplicaEventLog
         return "ClientMessageQueueLog [ipAddress=" + hostName + ", filter=" + searchFilter + ", replicaId=" + replicaId
             + ", lastSentCookie=" + lastSentCsn + "]";
     }
-
 }

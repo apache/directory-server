@@ -94,7 +94,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncReplConsumer implements ConnectionClosedEventListener, ReplicationConsumer
 {
-
     /** the syncrepl configuration */
     private SyncreplConfiguration config;
 
@@ -135,7 +134,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     /** the cookie that was saved last time */
     private byte[] lastSavedCookie;
 
-    private static AttributeType ENTRY_UUID_AT;
 
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
@@ -143,7 +141,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
     private List<Modification> cookieModLst;
 
+    /** AttributeTypes used for replication */
     private static AttributeType COOKIE_AT_TYPE;
+    private static AttributeType ENTRY_UUID_AT;
 
 
     /**
@@ -155,6 +155,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     }
 
 
+    /**
+     * Init the replication service
+     * @param directoryservice The directory service
+     */
     public void init( DirectoryService directoryservice ) throws Exception
     {
         this.directoryService = directoryservice;
@@ -172,10 +176,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         schemaManager = directoryservice.getSchemaManager();
 
         ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+        COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( "ads-replCookie" );
 
         ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
 
-        COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( "ads-replCookie" );
         Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
 
         Modification cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
@@ -186,6 +190,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     }
 
 
+    /**
+     * Connect to the remote servers
+     * @return
+     */
     public boolean connect()
     {
         try
@@ -197,6 +205,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
+                connection.setTimeOut( -1L );
                 
                 if( config.isUseTls() )
                 {

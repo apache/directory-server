@@ -148,6 +148,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             File workDir = dirService.getInstanceLayout().getLogDirectory();
             syncReplData = new File( workDir, "syncrepl-data" );
+            
             if ( !syncReplData.exists() )
             {
                 syncReplData.mkdirs();
