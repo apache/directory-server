@@ -34,6 +34,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
@@ -83,7 +84,6 @@ public class ClientServerReplicationIT
         
         startProvider();
         startConsumer();
-        injectContextEntry();
     }
 
 
@@ -94,36 +94,6 @@ public class ClientServerReplicationIT
         providerServer.stop();
     }
 
-    
-    private static void injectContextEntry() throws Exception
-    {
-        String dn = "dc=example,dc=com";
-        
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass", "domain",
-            "dc", "example" );
-       
-        assertFalse( consumerSession.exists( dn ) );
-       
-        providerSession.add( entry );
-       
-        assertTrue( providerSession.exists( dn ) );
-        boolean replicated = false;
-       
-        for ( int i = 0; i < 50; i++ )
-        {
-            Thread.sleep( 100 );
-            
-            if ( consumerSession.exists( dn ) )
-            {
-                replicated = true;
-                break;
-            }
-        }
-        
-        assertTrue( replicated );
-    }
-    
     
     /**
      * Check that the entry exists in the target server. We wait up to 10 seconds, by
@@ -158,7 +128,7 @@ public class ClientServerReplicationIT
         boolean exists = session.exists( entryDn );
         boolean deleted = false;
         
-        for ( int i = 0; i < 50; i++ )
+        for ( int i = 0; i < 100; i++ )
         {
             Thread.sleep( 100 );
             
@@ -270,41 +240,54 @@ public class ClientServerReplicationIT
     
     
     @Test
-    @Ignore( "Still fails randomly" )
+    @Ignore( "test is failing" )
     public void testRebootConsumer() throws Exception
     {
+        System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
         Entry provUser = createEntry();
         
         assertFalse( providerSession.exists(provUser.getDn() ) );
         assertFalse( consumerSession.exists(provUser.getDn() ) );
         
+        System.out.println( "----> 2 Adding entry " + provUser.getDn() +" in provider --------------------------------" );
         providerSession.add( provUser );
         
         assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
 
+        System.out.println( "----> 3 entry " + provUser.getDn() +" present in consumer --------------------------------" );
+
         assertTrue( providerSession.exists(provUser.getDn() ) );
         assertTrue( consumerSession.exists(provUser.getDn() ) );
         
         // Now stop the consumer
+        System.out.println( "----> 4 Stopping the consumer --------------------------------" );
         consumerServer.stop();
         
         // And delete the entry in the provider
         Dn deletedUserDn = provUser.getDn();
+        System.out.println( "----> 5 deleting entry " + deletedUserDn + " from provider --------------------------------" );
         providerSession.delete( deletedUserDn );
         
         // Create a new entry
         provUser = createEntry();
         Dn addedUserDn = provUser.getDn();
+        System.out.println( "----> 6 adding entry " + provUser.getDn() + " into provider --------------------------------" );
         providerSession.add( provUser );
         
         // Restart the consumer
-        startConsumer();
+        System.out.println( "----> 7 Restarting the consumer --------------------------------" );
+        consumerServer.start();
         
-        assertFalse( consumerSession.exists( deletedUserDn ) );
+        assertTrue( consumerSession.exists( deletedUserDn ) );
+        System.out.println( "----> 7bis entry " + deletedUserDn + " is still present in consumer --------------------------------" );
+        
+        assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
+        System.out.println( "----> 8 Entry " + deletedUserDn + " deleted from consumer --------------------------------" );
         
         assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
         waitAndCompareEntries( addedUserDn );
+        System.out.println( "----> 8 Entry " + addedUserDn + " added into consumer --------------------------------" );
     }
     
     
@@ -343,7 +326,11 @@ public class ClientServerReplicationIT
                     @CreateIndex(attribute = "objectClass"),
                     @CreateIndex(attribute = "dc"),
                     @CreateIndex(attribute = "ou")
-                })
+                },
+                contextEntry=@ContextEntry( entryLdif = 
+                    "dn: dc=example,dc=com\n" +
+                    "objectClass: domain\n" +
+                    "dc: example" ) )
              })
     @CreateLdapServer(transports =
         { @CreateTransport( port=16000, protocol = "LDAP") })
@@ -394,7 +381,11 @@ public class ClientServerReplicationIT
                     @CreateIndex(attribute = "objectClass"),
                     @CreateIndex(attribute = "dc"),
                     @CreateIndex(attribute = "ou")
-                })
+                },
+                contextEntry=@ContextEntry( entryLdif = 
+                    "dn: dc=example,dc=com\n" +
+                    "objectClass: domain\n" +
+                    "dc: example" ) )
              })
     @CreateLdapServer(transports =
         { @CreateTransport( port=17000, protocol = "LDAP") })
