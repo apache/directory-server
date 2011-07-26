@@ -378,7 +378,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private void doInitialRefresh( LdapSession session, SearchRequest req ) throws Exception
     {
-
         String originalFilter = req.getFilter().toString();
         InetSocketAddress address = ( InetSocketAddress ) session.getIoSession().getRemoteAddress();
         String hostName = address.getAddress().getHostName();
@@ -481,7 +480,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         // if all is well then store the consumer infor
-        replicaUtil.addConsumerEntry( replicaLog );
+        replicaUtil.addConsumerEntry(replicaLog );
 
         // add to the map only after storing in the DIT, else the Replica update thread barfs
         replicaLogMap.put( replicaLog.getId(), replicaLog );
@@ -856,20 +855,20 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         try
         {
-
             List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
+            
             if ( !eventLogs.isEmpty() )
             {
-                for ( ReplicaEventLog r : eventLogs )
+                for ( ReplicaEventLog replica : eventLogs )
                 {
-                    LOG.debug( "initializing the replica log from {}", r.getId() );
-                    r.configure( amqConnection, brokerService );
-                    replicaLogMap.put( r.getId(), r );
+                    LOG.debug( "initializing the replica log from {}", replica.getId() );
+                    replica.configure( amqConnection, brokerService );
+                    replicaLogMap.put( replica.getId(), replica );
 
                     // update the replicaCount's value to assign a correct value to the new replica(s) 
-                    if ( replicaCount.get() < r.getId() )
+                    if ( replicaCount.get() < replica.getId() )
                     {
-                        replicaCount.set( r.getId() );
+                        replicaCount.set( replica.getId() );
                     }
                 }
             }

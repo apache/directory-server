@@ -78,6 +78,9 @@ public class ReplicaDitStoreUtil
     }
 
 
+    /**
+     * Initialize the replication Store, creating the pu=consumers,ou=system entry
+     */
     private void init() throws Exception
     {
         Dn replConsumerDn = new Dn( schemaManager, REPL_CONSUMER_DN );
@@ -85,17 +88,22 @@ public class ReplicaDitStoreUtil
         if ( !adminSession.exists( replConsumerDn ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
-            Entry entry = new DefaultEntry( schemaManager );
-            entry.setDn( replConsumerDn );
-            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            entry.add( SchemaConstants.OU_AT, "consumers" );
+            
+            Entry entry = new DefaultEntry( schemaManager , replConsumerDn,
+                SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                SchemaConstants.OU_AT, "consumers" );
 
             adminSession.add( entry );
         }
-
     }
 
 
+    /**
+     * Add a new consumer entry
+     * 
+     * @param replica
+     * @throws Exception
+     */
     public void addConsumerEntry( ReplicaEventLog replica ) throws Exception
     {
         if ( replica == null )
@@ -103,17 +111,16 @@ public class ReplicaDitStoreUtil
             return;
         }
 
-        Entry entry = new DefaultEntry( schemaManager );
-        entry.setDn( new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN ) );
-
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "ads-replEventLog" );
-        entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
-        entry.add( "ads-replAliasDerefMode", replica.getSearchCriteria().getAliasDerefMode().getJndiValue() );
-        entry.add( "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName() );
-        entry.add( "ads-replLastSentCsn", replica.getLastSentCsn() );
-        entry.add( "ads-replSearchScope", replica.getSearchCriteria().getScope().getLdapUrlValue() );
-        entry.add( "ads-replRefreshNPersist", String.valueOf( replica.isRefreshNPersist() ) );
-        entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
+        Dn replicaDn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Entry entry = new DefaultEntry( schemaManager, replicaDn,
+            SchemaConstants.OBJECT_CLASS_AT, "ads-replEventLog",
+            "ads-dsReplicaId", String.valueOf( replica.getId() ),
+            "ads-replAliasDerefMode", replica.getSearchCriteria().getAliasDerefMode().getJndiValue(),
+            "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName(),
+            "ads-replLastSentCsn", replica.getLastSentCsn(),
+            "ads-replSearchScope", replica.getSearchCriteria().getScope().getLdapUrlValue(),
+            "ads-replRefreshNPersist", String.valueOf( replica.isRefreshNPersist() ),
+            "ads-replSearchFilter", replica.getSearchFilter() );
 
         adminSession.add( entry );
         LOG.debug( "stored replication consumer entry {}", entry.getDn() );
@@ -122,9 +129,9 @@ public class ReplicaDitStoreUtil
 
     public void updateReplicaLastSentCsn( ReplicaEventLog replica ) throws Exception
     {
-
         List<Modification> mods = modMap.get( replica.getId() );
         Attribute lastSentCsnAt = null;
+        
         if ( mods == null )
         {
             lastSentCsnAt = new DefaultAttribute( schemaManager
@@ -185,6 +192,7 @@ public class ReplicaDitStoreUtil
         searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
 
         Attribute lastSentCsnAt = entry.get( "ads-replLastSentCsn" );
+        
         if ( lastSentCsnAt != null )
         {
             replica.setLastSentCsn( lastSentCsnAt.getString() );

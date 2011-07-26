@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicaEventLog
 {
-
     /** IP address of the syncrepl consumer */
     private String hostName;
 
@@ -85,12 +84,6 @@ public class ReplicaEventLog
     private volatile boolean dirty;
 
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
-
-
-    public ReplicaEventLog()
-    {
-
-    }
 
 
     public ReplicaEventLog( int replicaId )

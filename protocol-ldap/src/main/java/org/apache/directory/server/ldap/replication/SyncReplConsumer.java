@@ -88,20 +88,18 @@ import org.slf4j.LoggerFactory;
  *
  * Implementation of syncrepl slave a.k.a consumer.
  *
- * TODO write test cases
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SyncReplConsumer implements ConnectionClosedEventListener, ReplicationConsumer
 {
+    /** the logger */
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
+
     /** the syncrepl configuration */
     private SyncreplConfiguration config;
 
     /** the sync cookie sent by the server */
     private byte[] syncCookie;
-
-    /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
 
     /** connection to the syncrepl provider */
     private LdapNetworkConnection connection;
@@ -126,17 +124,26 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
-        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT,
-            SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT, SchemaConstants.ENTRY_PARENT_ID_AT };
+        {
+            SchemaConstants.ENTRY_UUID_AT, 
+            SchemaConstants.ENTRY_CSN_AT, 
+            SchemaConstants.MODIFIERS_NAME_AT,
+            SchemaConstants.MODIFY_TIMESTAMP_AT, 
+            SchemaConstants.CREATE_TIMESTAMP_AT, 
+            SchemaConstants.CREATORS_NAME_AT, 
+            SchemaConstants.ENTRY_PARENT_ID_AT 
+        };
 
+    /** A thread used to refresh in refreshOnly mode */
     private RefresherThread refreshThread;
 
     /** the cookie that was saved last time */
     private byte[] lastSavedCookie;
 
-
+    /** The (entrtyUuid=*) filter */
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
+    /** The set used for search attributes, containing only the entryUuid AT */
     private static final Set<AttributeTypeOptions> ENTRY_UUID_ATOP_SET = new HashSet<AttributeTypeOptions>();
 
     private List<Modification> cookieModLst;
@@ -191,15 +198,17 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
 
     /**
-     * Connect to the remote servers
-     * @return
+     * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
+     * one remote server
+     * 
+     * @return true if the connections have been successful. 
      */
     public boolean connect()
     {
         try
         {
-            String providerHost = config.getProviderHost();
-            int port = config.getPort();
+            String providerHost = config.getRemoteHost();
+            int port = config.getRemotePort();
             
             // Create a connection
             if ( connection == null )
@@ -613,10 +622,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             }
 
             connection.unBind();
-            LOG.info( "Unbound from the server {}", config.getProviderHost() );
+            LOG.info( "Unbound from the server {}", config.getRemoteHost() );
 
             connection.close();
-            LOG.info( "Connection closed for the server {}", config.getProviderHost() );
+            LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
 
             connection = null;
 
@@ -974,8 +983,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
      */
     private class RefresherThread extends Thread
     {
-        private volatile boolean stop;
-
+        /** A field used to tell the thread it should stop */
+        private volatile boolean stop = false;
+        
+        /** A mutex used to make the thread sleeping for a moment */
+        private final Object mutex = new Object();
 
         public RefresherThread()
         {
@@ -994,7 +1006,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                     doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, false );
 
                     LOG.info( "--------------------- Sleep for a little while ------------------" );
-                    Thread.sleep( config.getRefreshInterval() );
+                    mutex.wait( config.getRefreshInterval() );
                     LOG.debug( "--------------------- syncing again ------------------" );
 
                 }
@@ -1013,8 +1025,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         public void stopRefreshing()
         {
             stop = true;
-            // just incase if it is sleeping
-            this.interrupt();
+            
+            // just in case if it is sleeping, wake up the thread
+            mutex.notify();
         }
     }
 

@@ -30,22 +30,44 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.Strings;
 
 
 /**
- * 
- * A class for holding the syncrepl consumer's configuration.
+ * A class for holding the syncrepl consumer's configuration. the following parameters
+ * are part of the Syncrepl Consuer configuration :<br>
+ * <ul>
+ *   <li>remoteHost : the remote server's name, defaults to 'localhost'</li>
+ *   <li>remotePort : the remote server's LDAP port, defaults to 389</li>
+ *   <li>replUserDn : The replication User's DN</li>
+ *   <li>replUserPassword : The replication User's password</li>
+ *   <li>refreshNPersist : the replication mode, defaults to 'true'</li>
+ *   <li>refreshInterval : the interval between replications when in refreshOnly mode, defaults to 60s</li>
+ *   <li>baseDn : the base from which to fetch entries on the remote server</li>
+ *   <li>filter : the filter to select entries,defaults to (ObjectClass=*)</li>
+ *   <li>attributes : the list of attributes to replicate, defaults to all</li>
+ *   <li>searchSizeLimit : the maximum number of entries to fetch, defaults to no limit</li>
+ *   <li>searchTimeout : the maximum delay to wait for entries, defaults to no limit</li>
+ *   <li>searchScope : the scope, defaults to SUBTREE</li>
+ *   <li>aliasDerefMode : set the aliss derefence policy, defaults to NEVER </li>
+ *   <li>replicaId : the replica identifier</li>
+ *   <li>configEntryDn : the configuration entry's DN</li>
+ *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
+ *   <li>cookie : the replication cookie</li>
+ *   <li>useTls : the connection uses TLS, defaults to true</li>
+ *   <li>strictCertVerification : strictly verify the certificate, defaults to true</li>
+ *   <li>trustManager : the trustManager to use, defaults to @link{NoVerificationTrustManager}</li>
+ *   <li></li>
+ * </ul>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SyncreplConfiguration implements ReplicationConsumerConfig
 {
-    /** host name of the syncrepl provider server, default value is localhost */
-    private String providerHost = "localhost";
+    /** host name of the syncrepl remote server, default value is localhost */
+    private String remoteHost = "localhost";
 
     /** port number of the syncrepl provider server, default is 389 */
-    private int port = 389;
+    private int remotePort = 389;
 
     /** replication user's Dn */
     private String replUserDn;
@@ -68,7 +90,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /** names of attributes to be replicated, default value is all user attributes */
     private Set<String> attributes;
 
-    /** the numer for setting the limit on number of search results to be fetched
+    /** the maximum number of search results to be fetched
      * default value is 0 (i.e no limit) */
     private int searchSizeLimit = 0;
 
@@ -88,6 +110,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /** the replica's id */
     private int replicaId;
 
+    /** The configuration entry DN */
     private Dn configEntryDn = null;
 
     /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
@@ -114,38 +137,38 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
 
 
     /**
-     * @return the providerHost
+     * @return the remote Host
      */
-    public String getProviderHost()
+    public String getRemoteHost()
     {
-        return providerHost;
+        return remoteHost;
     }
 
 
     /**
-     * @param providerHost the providerHost to set
+     * @param remoteHost the remote Host to set
      */
-    public void setProviderHost( String providerHost )
+    public void setRemoteHost( String remoteHost )
     {
-        this.providerHost = providerHost;
+        this.remoteHost = remoteHost;
     }
 
 
     /**
      * @return the port
      */
-    public int getPort()
+    public int getRemotePort()
     {
-        return port;
+        return remotePort;
     }
 
 
     /**
-     * @param port the port to set
+     * @param remotePort the remote port to set
      */
-    public void setPort( int port )
+    public void setRemotePort( int remotePort )
     {
-        this.port = port;
+        this.remotePort = remotePort;
     }
 
 
