@@ -55,7 +55,6 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -240,7 +239,6 @@ public class ClientServerReplicationIT
     
     
     @Test
-    @Ignore( "test is failing" )
     public void testRebootConsumer() throws Exception
     {
         System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
@@ -274,6 +272,11 @@ public class ClientServerReplicationIT
         Dn addedUserDn = provUser.getDn();
         System.out.println( "----> 6 adding entry " + provUser.getDn() + " into provider --------------------------------" );
         providerSession.add( provUser );
+        
+        // let the provider log the events before the consumer sends a request
+        // we are dealing with fraction of seconds cause of the programmatic simulation
+        // it is impossible in the real world scenario
+        Thread.sleep( 1000 );
         
         // Restart the consumer
         System.out.println( "----> 7 Restarting the consumer --------------------------------" );
