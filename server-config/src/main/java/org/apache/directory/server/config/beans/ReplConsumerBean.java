@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.config.ConfigurationElement;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**
@@ -34,79 +35,79 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The consumer id */
-    @ConfigurationElement(attributeType = "ads-replConsumerId", isRdn = true)
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_CONSUMER_ID, isRdn = true )
     private String replConsumerId;
 
     /** The Search Base Dn */
-    @ConfigurationElement(attributeType = "ads-searchBaseDn")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_SEARCH_BASE_DN )
     private String searchBaseDn;
 
     /** The replication provider host name */
-    @ConfigurationElement(attributeType = "ads-replProvHostName")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PROV_HOST_NAME )
     private String replProvHostName;
 
     /** The replication provider port */
-    @ConfigurationElement(attributeType = "ads-replProvPort")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PROV_PORT )
     private int replProvPort;
 
     /** The Alias Dereferencing mode */
-    @ConfigurationElement(attributeType = "ads-replAliasDerefMode")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE )
     private String replAliasDerefMode;
 
     /** The replication provider attribute */
-    @ConfigurationElement(attributeType = "ads-replAttributes")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_ATTRIBUTES )
     private List<String> replAttributes = new ArrayList<String>();
 
     /** The refresh interval */
-    @ConfigurationElement(attributeType = "ads-replRefreshInterval")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_REFRESH_INTERVAL )
     private long replRefreshInterval;
 
     /** Tells if we should persist */
-    @ConfigurationElement(attributeType = "ads-replRefreshNPersist")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_REFRESH_N_PERSIST )
     private boolean replRefreshNPersist;
 
     /** The search scope */
-    @ConfigurationElement(attributeType = "ads-replSearchScope")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_SCOPE )
     private String replSearchScope;
 
     /** The replication search filter */
-    @ConfigurationElement(attributeType = "ads-replSearchFilter")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_FILTER )
     private String replSearchFilter;
 
     /** The search size limit */
-    @ConfigurationElement(attributeType = "ads-replSearchSizeLimit")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_SIZE_LIMIT )
     private int replSearchSizeLimit;
 
     /** The search time limit */
-    @ConfigurationElement(attributeType = "ads-replSearchTimeout")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_TIMEOUT )
     private int replSearchTimeout;
 
     /** The replication user Dn */
-    @ConfigurationElement(attributeType = "ads-replUserDn")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USER_DN )
     private String replUserDn;
 
     /** The replication user password */
-    @ConfigurationElement(attributeType = "ads-replUserPassword")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USER_PASSWORD )
     private byte[] replUserPassword;
 
     /** The replication cookie */
-    @ConfigurationElement(attributeType = "ads-replCookie")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_COOKIE )
     private String replCookie;
 
     /** Tells if TLS should be used during replication */
-    @ConfigurationElement(attributeType = "ads-replUseTls")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USE_TLS )
     private boolean replUseTls;
 
     /** Tells if the certificate validation should be strict or not */
-    @ConfigurationElement(attributeType = "ads-replStrictCertValidation")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION )
     private boolean replStrictCertValidation;
 
     /** The peer certificate */
-    @ConfigurationElement(attributeType = "ads-replPeerCertificate")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE )
     private byte[] replPeerCertificate;
 
     /** The FQCN of replication client implementation */
-    @ConfigurationElement(attributeType = "ads-replConsumerImpl")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL )
     private String replConsumerImpl;
 
     /**

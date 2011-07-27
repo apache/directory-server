@@ -79,7 +79,7 @@ public enum ConfigSchemaConstants
 
     ADS_HTTP_SERVER_OC( "ads-httpServer", "1.3.6.1.4.1.18060.0.4.1.3.804" ),
 
-    ADS_REPL_CONSUMER_OC( "ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
+    //ADS_REPL_CONSUMER_OC( "ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
     
     ADS_REPL_PROVIDER_OC( "ads-replProvider", "1.3.6.1.4.1.18060.0.4.1.3.806" ),
     
@@ -125,7 +125,7 @@ public enum ConfigSchemaConstants
 
     ADS_DIRECTORYSERVICE_ID( "ads-directoryServiceId", "" ),
 
-    ADS_DS_REPLICA_ID( "ads-dsReplicaId", "" ),
+    //ADS_DS_REPLICA_ID( "ads-dsReplicaId", "" ),
 
     ADS_DSINTERCEPTORS( "ads-dsInterceptors", "" ),
 
@@ -221,43 +221,43 @@ public enum ConfigSchemaConstants
     
     ADS_CHANGEPWD_SERVICE_PRINCIPAL( "ads-chgPwdServicePrincipal", "" ),
     
-    ADS_REPL_SEARCH_FILTER( "ads-replSearchFilter", "" ),
+    //ADS_REPL_SEARCH_FILTER( "ads-replSearchFilter", "" ),
     
-    ADS_REPL_LAST_SENT_CSN( "ads-replLastSentCsn", "" ),
+    //ADS_REPL_LAST_SENT_CSN( "ads-replLastSentCsn", "" ),
     
-    ADS_REPL_ALIAS_DEREF_MODE( "ads-replAliasDerefMode", "" ),
+    //ADS_REPL_ALIAS_DEREF_MODE( "ads-replAliasDerefMode", "" ),
     
-    ADS_SEARCH_BASE( "ads-searchBaseDN", "" ),
+    //ADS_SEARCH_BASE( "ads-searchBaseDN", "" ),
     
-    ADS_REPL_SEARCH_SCOPE( "ads-replSearchScope", "" ),
+    //ADS_REPL_SEARCH_SCOPE( "ads-replSearchScope", "" ),
     
-    ADS_REPL_REFRESH_N_PERSIST( "ads-replRefreshNPersist", "" ),
+    //ADS_REPL_REFRESH_N_PERSIST( "ads-replRefreshNPersist", "" ),
     
-    ADS_REPL_PROV_HOST_NAME( "ads-replProvHostName", "" ),
+    //ADS_REPL_PROV_HOST_NAME( "ads-replProvHostName", "" ),
     
-    ADS_REPL_PROV_PORT( "ads-replProvPort", "" ),
+    //ADS_REPL_PROV_PORT( "ads-replProvPort", "" ),
     
-    ADS_REPL_USER_DN( "ads-replUserDn", "" ),
+    //ADS_REPL_USER_DN( "ads-replUserDn", "" ),
     
-    ADS_REPL_USER_PASSWORD( "ads-replUserPassword", "" ),
+    //ADS_REPL_USER_PASSWORD( "ads-replUserPassword", "" ),
     
-    ADS_REPL_REFRESH_INTERVAL( "ads-replRefreshInterval", "" ),
+    //ADS_REPL_REFRESH_INTERVAL( "ads-replRefreshInterval", "" ),
     
-    ADS_REPL_ATTRIBUTE( "ads-replAttributes", "" ),
+    //ADS_REPL_ATTRIBUTE( "ads-replAttributes", "" ),
     
-    ADS_REPL_SEARCH_SIZE_LIMIT( "ads-replSearchSizeLimit", "" ),
+    //ADS_REPL_SEARCH_SIZE_LIMIT( "ads-replSearchSizeLimit", "" ),
     
-    ADS_REPL_SEARCH_TIMEOUT( "ads-replSearchTimeOut", "" ),
+    //ADS_REPL_SEARCH_TIMEOUT( "ads-replSearchTimeOut", "" ),
     
-    ADS_REPL_COOKIE( "ads-replCookie", "" ),
+    //ADS_REPL_COOKIE( "ads-replCookie", "" ),
     
     ADS_REPL_REQ_HANDLER( "ads-replReqHandler", "" ),
     
     ADS_REPL_ENABLE_PROVIDER( "ads-enableReplProvider", "" ),
     
-    ADS_REPL_PEER_CERTIFICATE( "ads-replPeerCertificate", "" ),
+    //ADS_REPL_PEER_CERTIFICATE( "ads-replPeerCertificate", "" ),
     
-    ADS_REPL_USE_TLS( "ads-replUseTls", "" ),
+    //ADS_REPL_USE_TLS( "ads-replUseTls", "" ),
     
     ADS_LDAP_SERVER_SASL_MECH_NAME( "ads-ldapServerSaslMechName", "" ),
     

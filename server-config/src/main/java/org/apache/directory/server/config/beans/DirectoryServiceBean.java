@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.config.ConfigurationElement;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**
@@ -38,7 +39,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private String directoryServiceId;
 
     /** The directory instance replication ID */
-    @ConfigurationElement(attributeType = "ads-dsReplicaId")
+    @ConfigurationElement( attributeType = SchemaConstants.ADS_DS_REPLICA_ID )
     private int dsReplicaId;
 
     /** The flag that tells if the AccessControl system is activated */
