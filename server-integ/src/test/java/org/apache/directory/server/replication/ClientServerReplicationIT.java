@@ -401,8 +401,8 @@ public class ClientServerReplicationIT
         
         SyncReplConsumer syncreplClient = new SyncReplConsumer();
         final SyncreplConfiguration config = new SyncreplConfiguration();
-        config.setProviderHost( "localhost" );
-        config.setPort( 16000 );
+        config.setRemoteHost( "localhost" );
+        config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( "secret".getBytes() );
         config.setUseTls( false );
@@ -433,8 +433,8 @@ public class ClientServerReplicationIT
                     provConfigEntry.add( "objectClass", "ads-replConsumer" );
                     provConfigEntry.add( "ads-replConsumerId", "localhost" );
                     provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
-                    provConfigEntry.add( "ads-replProvHostName", config.getProviderHost() );
-                    provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getPort() ) );
+                    provConfigEntry.add( "ads-replProvHostName", config.getRemoteHost() );
+                    provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getRemotePort() ) );
                     provConfigEntry.add( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
                     provConfigEntry.add( "ads-replAttributes", config.getAttributes() );
                     provConfigEntry.add( "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ) );
