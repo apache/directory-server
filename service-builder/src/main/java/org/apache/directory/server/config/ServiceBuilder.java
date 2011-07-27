@@ -1010,8 +1010,8 @@ public class ServiceBuilder
                 config = new SyncreplConfiguration();
 
                 config.setBaseDn( replBean.getSearchBaseDn() );
-                config.setProviderHost( replBean.getReplProvHostName() );
-                config.setPort( replBean.getReplProvPort() );
+                config.setRemoteHost( replBean.getReplProvHostName() );
+                config.setRemotePort( replBean.getReplProvPort() );
                 config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
                 config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
                 config.setRefreshInterval( replBean.getReplRefreshInterval() );
