@@ -111,16 +111,16 @@ public class ReplicaDitStoreUtil
             return;
         }
 
-        Dn replicaDn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn replicaDn = new Dn( schemaManager, SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
         Entry entry = new DefaultEntry( schemaManager, replicaDn,
-            SchemaConstants.OBJECT_CLASS_AT, "ads-replEventLog",
-            "ads-dsReplicaId", String.valueOf( replica.getId() ),
-            "ads-replAliasDerefMode", replica.getSearchCriteria().getAliasDerefMode().getJndiValue(),
-            "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName(),
-            "ads-replLastSentCsn", replica.getLastSentCsn(),
-            "ads-replSearchScope", replica.getSearchCriteria().getScope().getLdapUrlValue(),
-            "ads-replRefreshNPersist", String.valueOf( replica.isRefreshNPersist() ),
-            "ads-replSearchFilter", replica.getSearchFilter() );
+            SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ADS_REPL_EVENT_LOG,
+            SchemaConstants.ADS_DS_REPLICA_ID, String.valueOf( replica.getId() ),
+            SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE, replica.getSearchCriteria().getAliasDerefMode().getJndiValue(),
+            SchemaConstants.ADS_SEARCH_BASE_DN, replica.getSearchCriteria().getBase().getName(),
+            SchemaConstants.ADS_REPL_LAST_SENT_CSN, replica.getLastSentCsn(),
+            SchemaConstants.ADS_REPL_SEARCH_SCOPE, replica.getSearchCriteria().getScope().getLdapUrlValue(),
+            SchemaConstants.ADS_REPL_REFRESH_N_PERSIST, String.valueOf( replica.isRefreshNPersist() ),
+            SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter() );
 
         adminSession.add( entry );
         LOG.debug( "stored replication consumer entry {}", entry.getDn() );
@@ -135,7 +135,7 @@ public class ReplicaDitStoreUtil
         if ( mods == null )
         {
             lastSentCsnAt = new DefaultAttribute( schemaManager
-                .lookupAttributeTypeRegistry( "ads-replLastSentCsn" ) );
+                .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN ) );
             lastSentCsnAt.add( replica.getLastSentCsn() );
 
             Modification mod = new DefaultModification();
@@ -152,7 +152,7 @@ public class ReplicaDitStoreUtil
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = new Dn( schemaManager, "ads-dsReplicaId=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = new Dn( schemaManager, SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mods );
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
     }
@@ -162,7 +162,7 @@ public class ReplicaDitStoreUtil
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
-        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(objectClass=ads-replEventLog)",
+        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(" + SchemaConstants.OBJECT_CLASS + "=" + SchemaConstants.ADS_REPL_EVENT_LOG + ")",
             SearchScope.ONELEVEL, "+", "*" );
 
         while ( cursor.next() )
@@ -180,33 +180,33 @@ public class ReplicaDitStoreUtil
 
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
-        String id = entry.get( "ads-dsReplicaId" ).getString();
+        String id = entry.get( SchemaConstants.ADS_DS_REPLICA_ID ).getString();
         ReplicaEventLog replica = new ReplicaEventLog( Integer.parseInt( id ) );
 
         NotificationCriteria searchCriteria = new NotificationCriteria();
 
-        String aliasMode = entry.get( "ads-replAliasDerefMode" ).getString();
+        String aliasMode = entry.get( SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE ).getString();
         searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( aliasMode ) );
 
-        String baseDn = entry.get( "ads-searchBaseDN" ).getString();
+        String baseDn = entry.get( SchemaConstants.ADS_SEARCH_BASE_DN ).getString();
         searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
 
-        Attribute lastSentCsnAt = entry.get( "ads-replLastSentCsn" );
+        Attribute lastSentCsnAt = entry.get( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
         
         if ( lastSentCsnAt != null )
         {
             replica.setLastSentCsn( lastSentCsnAt.getString() );
         }
 
-        String scope = entry.get( "ads-replSearchScope" ).getString();
+        String scope = entry.get( SchemaConstants.ADS_REPL_SEARCH_SCOPE ).getString();
         int scopeIntVal = SearchScope.getSearchScope( scope );
         searchCriteria.setScope( SearchScope.getSearchScope( scopeIntVal ) );
 
-        String filter = entry.get( "ads-replSearchFilter" ).getString();
+        String filter = entry.get( SchemaConstants.ADS_REPL_SEARCH_FILTER ).getString();
         searchCriteria.setFilter( filter );
         replica.setSearchFilter( filter );
 
-        replica.setRefreshNPersist( Boolean.parseBoolean( entry.get( "ads-replRefreshNPersist" ).getString() ) );
+        replica.setRefreshNPersist( Boolean.parseBoolean( entry.get( SchemaConstants.ADS_REPL_REFRESH_N_PERSIST ).getString() ) );
         
         searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         replica.setSearchCriteria( searchCriteria );

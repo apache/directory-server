@@ -432,22 +432,24 @@ public class ClientServerReplicationIT
                     Dn configDn = new Dn( ds.getSchemaManager(), "ads-replConsumerId=localhost,ou=system" );
                     config.setConfigEntryDn( configDn );
                     
-                    Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn );
-                    provConfigEntry.add( "objectClass", "ads-replConsumer" );
-                    provConfigEntry.add( "ads-replConsumerId", "localhost" );
-                    provConfigEntry.add( "ads-searchBaseDN", config.getBaseDn() );
-                    provConfigEntry.add( "ads-replProvHostName", config.getRemoteHost() );
-                    provConfigEntry.add( "ads-replProvPort", String.valueOf( config.getRemotePort() ) );
-                    provConfigEntry.add( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
-                    provConfigEntry.add( "ads-replAttributes", config.getAttributes() );
-                    provConfigEntry.add( "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ) );
-                    provConfigEntry.add( "ads-replRefreshNPersist", String.valueOf( config.isRefreshNPersist() ) );
-                    provConfigEntry.add( "ads-replSearchScope", config.getSearchScope().getLdapUrlValue() );
-                    provConfigEntry.add( "ads-replSearchFilter", config.getFilter() );
-                    provConfigEntry.add( "ads-replSearchSizeLimit", String.valueOf( config.getSearchSizeLimit() ) );
-                    provConfigEntry.add( "ads-replSearchTimeOut", String.valueOf( config.getSearchTimeout() ) );
-                    provConfigEntry.add( "ads-replUserDn", config.getReplUserDn() );
-                    provConfigEntry.add( "ads-replUserPassword", config.getReplUserPassword() );
+                    Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn,
+                        "objectClass: ads-replConsumer",
+                        "ads-replConsumerId: localhost",
+                        "ads-searchBaseDN", config.getBaseDn(),
+                        "ads-replProvHostName", config.getRemoteHost(),
+                        "ads-replProvPort", String.valueOf( config.getRemotePort() ),
+                        "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ),
+                        "ads-replRefreshNPersist", String.valueOf( config.isRefreshNPersist() ),
+                        "ads-replSearchScope", config.getSearchScope().getLdapUrlValue(),
+                        "ads-replSearchFilter", config.getFilter(),
+                        "ads-replSearchSizeLimit", String.valueOf( config.getSearchSizeLimit() ),
+                        "ads-replSearchTimeOut", String.valueOf( config.getSearchTimeout() ),
+                        "ads-replUserDn", config.getReplUserDn(),
+                        "ads-replUserPassword", config.getReplUserPassword() );
+                    
+                    provConfigEntry.put( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
+                    provConfigEntry.put( "ads-replAttributes", config.getAttributes() );
+
                     
                     consumerSession = consumerServer.getDirectoryService().getAdminSession();
                     consumerSession.add( provConfigEntry );
