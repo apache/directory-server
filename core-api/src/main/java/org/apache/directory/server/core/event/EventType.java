@@ -34,13 +34,17 @@ import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.P
  */
 public enum EventType
 {
-    ADD(1), DELETE(2), MODIFY(4), RENAME(8), MOVE(16);
-    
+    ADD(1), 
+    DELETE(2), 
+    MODIFY(4), 
+    RENAME(8), 
+    MOVE(16);    
     
     public static final int ALL_EVENT_TYPES_MASK = getAllEventTypesMask();
-    public static final int MOVE_OR_RENAME_MASK = MOVE.mask | RENAME.mask;
+    public static final int MOVE_AND_RENAME_MASK = MOVE.mask | RENAME.mask;
     private static final EventType[] EMPTY_EVENT_ARRAY = new EventType[0];
     
+    // The internal value
     private int mask;
     
     
@@ -116,73 +120,67 @@ public enum EventType
     }
     
     
+    /**
+     * Tells if the EventType is an ADD
+     */
     public static boolean isAdd( int mask )
     {
-        if ( ( mask & ADD.mask ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & ADD.mask ) != 0 );
     }
     
     
+    /**
+     * Tells if the EventType is a DELETE
+     */
     public static boolean isDelete( int mask )
     {
-        if ( ( mask & DELETE.mask ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & DELETE.mask ) != 0 );
     }
     
     
+    /**
+     * Tells if the EventType is a MODIFY
+     */
     public static boolean isModify( int mask )
     {
-        if ( ( mask & MODIFY.mask ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & MODIFY.mask ) != 0 );
     }
     
     
+    /**
+     * Tells if the EventType is a MOVE
+     */
     public static boolean isMove( int mask )
     {
-        if ( ( mask & MOVE.mask ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & MOVE.mask ) != 0 );
     }
     
     
+    /**
+     * Tells if the EventType is a RENAME
+     */
     public static boolean isRename( int mask )
     {
-        if ( ( mask & RENAME.mask ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & RENAME.mask ) != 0 );
     }
     
     
+    /**
+     * Tells if the EventType is a MOVE and RENAME
+     */
     public static boolean isMoveAndRename( int mask )
     {
-        if ( ( mask & MOVE_OR_RENAME_MASK ) > 0 )
-        {
-            return true;
-        }
-        
-        return false;
+        return ( ( mask & MOVE_AND_RENAME_MASK) != 0 );
     }
     
     
-    public static int getMask( EventType ...eventTypes )
+    /**
+     * Compute the mask associated with the given eventTypes
+     * 
+     * @param eventTypes The eventTypes 
+     * @return The associated mask
+     */
+    public static int getMask( EventType... eventTypes )
     {
         int mask = 0;
         
@@ -204,7 +202,7 @@ public enum EventType
      */
     public static EventType getType( int mask )
     {
-        switch( mask )
+        switch ( mask )
         {
             case 1: return ADD;
             
@@ -215,8 +213,33 @@ public enum EventType
             case 8: return RENAME;
             
             case 16: return MOVE;
-            
+                        
             default: throw new IllegalArgumentException( "unknown mask value " + mask );
+        }
+    }
+    
+    
+    public String toString( int mask )
+    {
+        switch ( mask )
+        {
+            case 0 : return "no event";
+            
+            case 1: return "ADD";
+            
+            case 2: return "DELETE";
+            
+            case 4: return "MODIFY";
+            
+            case 8: return "RENAME";
+            
+            case 16: return "MOVE";
+            
+            case 24 : return "MOVE_AND_RENAME";
+            
+            case 31 : return "ALL EVENTS"; 
+            
+            default : return "Unknown";
         }
     }
 }
