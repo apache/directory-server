@@ -484,12 +484,14 @@ public class LdapServer extends DirectoryBackedService
 
         nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
+        // Install the replication handler if we have one
         if ( replicationReqHandler != null )
         {
             replicationReqHandler.init( this );
             ( ( SearchHandler ) getSearchHandler() ).setReplicationReqHandler( replicationReqHandler );
         }
 
+        // And start the replication consumers on this server
         startConsumers();
 
         started = true;

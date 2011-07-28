@@ -232,28 +232,38 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
-    public void handleSyncRequest( LdapSession session, SearchRequest req ) throws LdapException
+    /**
+     * Process the incoming search request sent by a remote server when trying to replicate.
+     * 
+     * @param session The used LdapSession. Should be the dedicated user
+     * @param request The search request
+     */
+    public void handleSyncRequest( LdapSession session, SearchRequest request ) throws LdapException
     {
         try
         {
-            SyncRequestValue syncControl = ( SyncRequestValue ) req.getControls().get(
+            // First extract the Sync control from the request
+            SyncRequestValue syncControl = ( SyncRequestValue ) request.getControls().get(
                 SyncRequestValue.OID );
 
             // cookie is in the format <replicaId>;<Csn value>
             byte[] cookieBytes = syncControl.getCookie();
-            String cookieString = Strings.utf8ToString(cookieBytes);
 
             if ( cookieBytes == null )
             {
-                doInitialRefresh( session, req );
+                // No cookie ? We have to get all the entries from the server
+                doInitialRefresh( session, request );
             }
             else
             {
-                LOG.warn( "search request received with the cookie {}", Strings.utf8ToString(cookieBytes) );
+                String cookieString = Strings.utf8ToString(cookieBytes);
+                
+                LOG.warn( "search request received with the cookie {}", cookieString );
+                
                 if ( !isValidCookie( cookieString ) )
                 {
                     LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
-                    sendESyncRefreshRequired( session, req );
+                    sendESyncRefreshRequired( session, request );
                 }
                 else
                 {
@@ -262,11 +272,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     {
                         LOG.warn( "received a valid cookie {} but there is no event log associated with this replica",
                             cookieString );
-                        sendESyncRefreshRequired( session, req );
+                        sendESyncRefreshRequired( session, request );
                     }
                     else
                     {
-                        doContentUpdate( session, req, clientMsgLog );
+                        doContentUpdate( session, request, clientMsgLog );
                     }
                 }
             }
@@ -290,6 +300,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
         ReplicaEventLogCursor cursor = clientMsgLog.getCursor();
+        
         while ( cursor.next() )
         {
             ReplicaEventMessage message = cursor.get();
@@ -308,18 +319,23 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             else
             {
                 SyncStateTypeEnum syncStateType = null;
-                if ( event == EventType.ADD || event == EventType.MODIFY )
+                
+                switch ( event )
                 {
-                    syncStateType = SyncStateTypeEnum.ADD;
-                }
-                else if ( event == EventType.DELETE )
-                {
-                    syncStateType = SyncStateTypeEnum.DELETE;
+                    case ADD :
+                    case MODIFY :
+                        syncStateType = SyncStateTypeEnum.ADD;
+                        break;
+                        
+                    case DELETE :
+                        syncStateType = SyncStateTypeEnum.DELETE;
+                        break;
                 }
 
                 sendSearchResultEntry( session, req, entry, syncStateType );
             }
         }
+        
         cursor.close();
 
         return lastSentCsn;
@@ -376,29 +392,36 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
-    private void doInitialRefresh( LdapSession session, SearchRequest req ) throws Exception
+    /**
+     * Process the initial refresh : we will send all the entries 
+     * 
+     * @param session The LDAP session to use
+     * @param request The serarch request to process
+     * @throws Exception
+     */
+    private void doInitialRefresh( LdapSession session, SearchRequest request ) throws Exception
     {
-        String originalFilter = req.getFilter().toString();
+        String originalFilter = request.getFilter().toString();
         InetSocketAddress address = ( InetSocketAddress ) session.getIoSession().getRemoteAddress();
         String hostName = address.getAddress().getHostName();
 
-        ExprNode modifiedFilter = modifyFilter( session, req );
+        ExprNode modifiedFilter = modifyFilter( session, request );
 
         String contextCsn = dirService.getContextCsn();
 
-        boolean refreshNPersist = isRefreshNPersist( req );
+        boolean refreshNPersist = isRefreshNPersist( request );
 
         // first register a persistent search handler before starting the initial content refresh
         // this is to log all the operations happen on DIT during initial content refresh
-
         ReplicaEventLog replicaLog = createRelicaEventLog( hostName, originalFilter );
 
         replicaLog.setRefreshNPersist( refreshNPersist );
+        StringValue contexCsnValue = new StringValue( contextCsn );
 
         // modify the filter to include the context Csn
-        GreaterEqNode csnGeNode = new GreaterEqNode( SchemaConstants.ENTRY_CSN_AT, new StringValue( contextCsn ) );
+        GreaterEqNode csnGeNode = new GreaterEqNode( SchemaConstants.ENTRY_CSN_AT, contexCsnValue );
         ExprNode postInitContentFilter = new AndNode( modifiedFilter, csnGeNode );
-        req.setFilter( postInitContentFilter );
+        request.setFilter( postInitContentFilter );
 
         // now we process entries forever as they change
         LOG.info( "starting persistent search for the client {}", replicaLog );
@@ -406,17 +429,17 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // irrespective of the sync mode set the 'isRealtimePush' to false initially so that we can
         // store the modifications in the queue and later if it is a persist mode
         // we push this queue's content and switch to realtime mode
-        SyncReplSearchListener handler = new SyncReplSearchListener( session, req, replicaLog, false );
+        SyncReplSearchListener handler = new SyncReplSearchListener( session, request, replicaLog, false );
         replicaLog.setPersistentListener( handler );
 
         // compose notification criteria and add the listener to the event 
         // service using that notification criteria to determine which events 
         // are to be delivered to the persistent search issuing client
         NotificationCriteria criteria = new NotificationCriteria();
-        criteria.setAliasDerefMode( req.getDerefAliases() );
-        criteria.setBase( req.getBase() );
-        criteria.setFilter( req.getFilter() );
-        criteria.setScope( req.getScope() );
+        criteria.setAliasDerefMode( request.getDerefAliases() );
+        criteria.setBase( request.getBase() );
+        criteria.setFilter( request.getFilter() );
+        criteria.setScope( request.getScope() );
         criteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
 
         replicaLog.setSearchCriteria( criteria );
@@ -424,25 +447,25 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         dirService.getEventService().addListener( handler, criteria );
 
         // then start pushing initial content
-        LessEqNode csnNode = new LessEqNode( SchemaConstants.ENTRY_CSN_AT, new StringValue( contextCsn ) );
+        LessEqNode csnNode = new LessEqNode( SchemaConstants.ENTRY_CSN_AT, contexCsnValue );
 
         // modify the filter to include the context Csn
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
-        req.setFilter( initialContentFilter );
+        request.setFilter( initialContentFilter );
 
-        SearchResultDone searchDoneResp = doSimpleSearch( session, req );
+        SearchResultDone searchDoneResp = doSimpleSearch( session, request );
 
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             replicaLog.setLastSentCsn( contextCsn );
-            byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
+            byte[] cookie = Strings.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + contextCsn );
 
             if ( refreshNPersist ) // refreshAndPersist mode
             {
-                contextCsn = sendContentFromLog( session, req, replicaLog );
+                contextCsn = sendContentFromLog( session, request, replicaLog );
                 cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
-                IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
+                IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
                 intermResp.setResponseName( SyncInfoValue.OID );
 
                 SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( 
@@ -538,11 +561,15 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Process the results get from a search request. We will send them to the client.
+     */
     private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
 
+        
         while ( ( count < sizeLimit ) && cursor.next() )
         {
             // Handle closed session
@@ -582,15 +609,20 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Prepare and send a search result entry response, with the associated
+     * SyncState control.
+     */
     private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
         SyncStateTypeEnum syncStateType ) throws Exception
     {
-
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
+        
+        // Create the SyncState control
         SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( syncStateType );
-        syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
+        syncStateControl.setEntryUUID( Strings.uuidToBytes( uuid.getString() ) );
 
         if ( syncStateType == SyncStateTypeEnum.DELETE )
         {
@@ -792,12 +824,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
          *  (| (objectClass=referral)(objectClass=*)) == (objectClass=*)
          */
         boolean isOcPresenceFilter = false;
+        
         if ( req.getFilter() instanceof PresenceNode )
         {
             PresenceNode presenceNode = ( PresenceNode ) req.getFilter();
 
             AttributeType at = session.getCoreSession().getDirectoryService().getSchemaManager()
                 .lookupAttributeTypeRegistry( presenceNode.getAttribute() );
+            
             if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 isOcPresenceFilter = true;
@@ -805,6 +839,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         ExprNode filter = req.getFilter();
+        
         if ( !req.hasControl( ManageDsaIT.OID ) && !isOcPresenceFilter )
         {
             filter = new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) );
@@ -1016,10 +1051,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Tells if the control contains the REFRESHNPERSIST mode
+     */
     private boolean isRefreshNPersist( SearchRequest req )
     {
-        SyncRequestValue control = ( SyncRequestValue ) req.getControls().get(
-            SyncRequestValue.OID );
-        return ( control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST ? true : false );
+        SyncRequestValue control = ( SyncRequestValue ) req.getControls().get( SyncRequestValue.OID );
+        
+        return control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST;
     }
 }

@@ -217,6 +217,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                     resp.getLdapResult().setDiagnosticMessage( "Unsupport critical control: " + control.getOid() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );
+                    
                     return;
                 }
             }

@@ -45,31 +45,36 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * TODO ReplicaEventMessage.
+ * A place holder storing an Entry and the operation applied on it
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ReplicaEventMessage implements Externalizable
 {
-    private EventType eventType;
-    private Entry entry;
-
-    private SyncModifyDnDecorator modDnControl;
-    
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventMessage.class );
 
-    private static SchemaManager schemaManager;
+    /** The message event type */
+    private EventType eventType;
     
-    private LdapApiService codec;
+    /** The entry */
+    private Entry entry;
 
+    /** The SchemaManager instance */
+    private static SchemaManager schemaManager;
 
-    public ReplicaEventMessage()
-    {
-        // used by deserializer
-        codec = LdapApiServiceFactory.getSingleton();
-    }
+    /** The LDAP codec used to serialize the entries */
+    private LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
+    /** The modifyDN control */
+    private SyncModifyDnDecorator modDnControl;
+    
 
+    /**
+     * Create a new ReplicaEvent instance for a Add/Delete+Modify operation
+     * @param eventType The event type
+     * @param entry The entry
+     */
     public ReplicaEventMessage( EventType eventType, Entry entry )
     {
         this.eventType = eventType;
@@ -77,37 +82,54 @@ public class ReplicaEventMessage implements Externalizable
     }
 
 
+    /**
+     * Create a new ReplicaEvent instance for a ModDN operation
+     * @param modDnControl The modDN control
+     * @param entry The entry
+     */
     public ReplicaEventMessage( SyncModifyDnDecorator modDnControl, Entry entry )
     {
-        codec = LdapApiServiceFactory.getSingleton();
         this.modDnControl = modDnControl;
         this.entry = entry;
     }
 
     
+    /**
+     * @return The eventType
+     */
     public EventType getEventType()
     {
         return eventType;
     }
 
 
+    /**
+     * @return The stored Entry
+     */
     public Entry getEntry()
     {
         return entry;
     }
 
 
+    /**
+     * @return The ModDN conrol
+     */
     public SyncModifyDnDecorator getModDnControl()
     {
         return modDnControl;
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
 
         byte b = in.readByte();
-        if( b == 0 ) // handle the SyncModDnControl
+        
+        if ( b == 0 ) // handle the SyncModDnControl
         {
             SyncModifyDnType modDnType = SyncModifyDnType.getModifyDnType( in.readShort() );
             
@@ -116,7 +138,7 @@ public class ReplicaEventMessage implements Externalizable
             
             modDnControl.setEntryDn( in.readUTF() );
             
-            switch( modDnType )
+            switch ( modDnType )
             {
                 case MOVE:
                     modDnControl.setNewSuperiorDn( in.readUTF() );
@@ -189,9 +211,12 @@ public class ReplicaEventMessage implements Externalizable
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        if( eventType == null )
+        if ( eventType == null )
         {
             out.writeByte( 0 );
             
@@ -199,7 +224,7 @@ public class ReplicaEventMessage implements Externalizable
             out.writeShort( modDnType.getValue() );
             out.writeUTF( modDnControl.getEntryDn() );
             
-            switch( modDnType )
+            switch ( modDnType )
             {
                 case MOVE:
                     out.writeUTF( modDnControl.getNewSuperiorDn() );
@@ -247,9 +272,12 @@ public class ReplicaEventMessage implements Externalizable
     }
 
 
+    /**
+     * Set the SchemaManager 
+     * @param schemaManager The SchemaManager instance
+     */
     public static void setSchemaManager( SchemaManager schemaManager )
     {
         ReplicaEventMessage.schemaManager = schemaManager;
     }
-
 }

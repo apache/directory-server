@@ -43,6 +43,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicaEventLog
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
+    
     /** IP address of the syncrepl consumer */
     private String hostName;
 
@@ -65,7 +68,6 @@ public class ReplicaEventLog
     private boolean refreshNPersist;
 
     // fields that won't be serialized
-
     /** the ActiveMQ session */
     private ActiveMQSession amqSession;
 
@@ -83,7 +85,6 @@ public class ReplicaEventLog
 
     private volatile boolean dirty;
 
-    private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
 
 
     public ReplicaEventLog( int replicaId )
@@ -115,7 +116,7 @@ public class ReplicaEventLog
 
 
     /**
-     * stores the given EventType and Entry in the queue 
+     * Stores the given EventType and Entry in the queue 
      *
      * @param event the EventType
      * @param entry the modified Entry

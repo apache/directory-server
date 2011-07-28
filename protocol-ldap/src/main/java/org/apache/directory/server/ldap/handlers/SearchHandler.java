@@ -83,6 +83,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchHandler extends LdapRequestHandler<SearchRequest>
 {
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
 
     /** Speedup for logs */
@@ -91,6 +92,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     /** cached to save redundant lookups into registries */
     private AttributeType OBJECT_CLASS_AT;
 
+    /** The replication handler */
     protected ReplicationRequestHandler replicationReqHandler;
 
 
@@ -178,7 +180,22 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         // check first for the syncrepl search request decorator
         if ( req.getControls().containsKey( SyncRequestValue.OID ) )
         {
-            handleSyncreplSearch( session, req );
+            if ( replicationReqHandler != null )
+            {
+                replicationReqHandler.handleSyncRequest( session, req );
+            }
+            else
+            {
+                LOG.warn( "This server does not allow replication" );
+                // Replication is not allowed on this server. generate a error message
+                LdapResult result = req.getResultResponse().getLdapResult();
+                
+                result.setDiagnosticMessage( "Replicztion is not allowed on this server" );
+                result.setResultCode( ResultCodeEnum.OTHER );
+                session.getIoSession().write( req.getResultResponse() );
+                
+                return;
+            }
         }
         // if we have the ManageDSAIt decorator, go directly
         // to the handling without pre-processing the request
@@ -207,7 +224,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 default:
                     throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
             }
-
         }
     }
 
@@ -1615,23 +1631,12 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     }
 
 
-    public void setReplicationReqHandler( ReplicationRequestHandler prov )
-    {
-        this.replicationReqHandler = prov;
-    }
-
-
     /**
-     *
-     * handles the syncrepl search
-     *
-     * @param session the LDAP session under which processing occurs
-     * @param req the request to be handled
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * Install the replication handler when it's allowed by this server
+     * @param replicationReqHandler The replication handler provider
      */
-    public void handleSyncreplSearch( LdapSession session, SearchRequest req ) throws LdapException
+    public void setReplicationReqHandler( ReplicationRequestHandler replicationReqHandler )
     {
-        replicationReqHandler.handleSyncRequest( session, req );
+        this.replicationReqHandler = replicationReqHandler;
     }
-
 }
