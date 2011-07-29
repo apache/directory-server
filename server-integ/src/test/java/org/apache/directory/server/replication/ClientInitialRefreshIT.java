@@ -200,13 +200,11 @@ public class ClientInitialRefreshIT
      */
     private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
     {
-        System.out.println( "NbAdded every 100ms : " );
+        System.out.println( "\nNbAdded every 100ms : " );
         boolean isFirst = true;
         
         for ( int i = 0; i < 50; i++ )
         {
-            Thread.sleep( 100 );
-            
             int nbAdded = ((MockSyncReplConsumer)consumer).getNbAdded();
             
             if ( isFirst )
@@ -224,6 +222,8 @@ public class ClientInitialRefreshIT
             {
                 return true;
             }
+            
+            Thread.sleep( 100 );
         }
         
         return false;
@@ -291,11 +291,32 @@ public class ClientInitialRefreshIT
      * First test : create a consumer, and see if it gets the 1000 entries
      */
     @Test
-    public void testInitialRefresh() throws Exception
+    public void testInitialRefreshLoad() throws Exception
     {
         ReplicationConsumer syncreplClient = createConsumer();
         
         // We should have 1000 entries plus the base entry = 1001
         assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) ); 
+    }
+    
+    
+    /**
+     * Test that we can load entries, then add one entry in the producer
+     * and see this entry present in the consumer
+     */
+    @Test
+    public void testInitialRefreshLoadAndAdd() throws Exception
+    {
+        ReplicationConsumer syncreplClient = createConsumer();
+        
+        // We should have 1000 entries plus the base entry = 1001
+        assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) );
+        
+        // Injext a new intry in the producer
+        Entry addedEntry = createEntry();
+        providerSession.add( addedEntry );
+        
+        // Now check that the entry has been copied in the consumer
+        assertTrue( waitForSyncReplClient( syncreplClient, 1002 ) );
     }
 }

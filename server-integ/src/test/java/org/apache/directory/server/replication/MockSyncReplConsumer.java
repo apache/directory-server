@@ -529,7 +529,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         SearchFuture sf = connection.searchAsync( searchRequest );
 
         Response resp = sf.get();
-
+        
         while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
         {
             if ( resp instanceof SearchResultEntry )
