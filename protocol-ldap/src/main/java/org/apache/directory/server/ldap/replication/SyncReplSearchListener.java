@@ -433,7 +433,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         future.awaitUninterruptibly();
         if ( !future.isWritten() )
         {
-            LOG.error( "Failed to write to the consumer {}", clientMsgLog.getId() );
+            LOG.error( "Failed to write to the consumer {} during the event {} on entry {}", new Object[] { 
+                           clientMsgLog.getId(), event, entry.getDn() } );
             LOG.error( "", future.getException() );
 
             // set realtime push to false, will be set back to true when the client
