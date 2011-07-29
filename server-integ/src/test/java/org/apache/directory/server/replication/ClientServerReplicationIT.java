@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -173,9 +174,9 @@ public class ClientServerReplicationIT
      
         Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
         
-        DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer );
-        entry.add( "objectClass", "organizationalUnit" );
-        entry.add( "ou", "users" );
+        DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer,
+            "objectClass: organizationalUnit",
+            "ou: users" );
         
         providerSession.add( entry );
         
@@ -239,6 +240,7 @@ public class ClientServerReplicationIT
     
     
     @Test
+    @Ignore
     public void testRebootConsumer() throws Exception
     {
         System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
