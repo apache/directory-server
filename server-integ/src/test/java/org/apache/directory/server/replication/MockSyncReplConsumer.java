@@ -1044,4 +1044,13 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         return nbAdded.get();
     }
+
+
+    /**
+     * @return the nbAdded
+     */
+    public void resetNbAdded()
+    {
+        nbAdded.getAndSet( 0 );
+    }
 }

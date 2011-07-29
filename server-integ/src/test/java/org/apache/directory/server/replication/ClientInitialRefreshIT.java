@@ -230,6 +230,41 @@ public class ClientInitialRefreshIT
     }
     
 
+    /**
+     * Wait for the expected number of entries to be added into the client
+     */
+    private boolean waitUntilLimitSyncReplClient( ReplicationConsumer consumer, int limit ) throws Exception
+    {
+        System.out.println( "\nNbAdded every 100ms : " );
+        boolean isFirst = true;
+        
+        for ( int i = 0; i < 50; i++ )
+        {
+            int nbAdded = ((MockSyncReplConsumer)consumer).getNbAdded();
+            
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                System.out.print( ", " );
+            }
+            
+            System.out.print( nbAdded );
+            
+            if ( nbAdded >= limit )
+            {
+                return true;
+            }
+            
+            Thread.sleep( 100 );
+        }
+        
+        return false;
+    }
+    
+
     private ReplicationConsumer createConsumer() throws Exception
     {
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
@@ -286,6 +321,32 @@ public class ClientInitialRefreshIT
         return syncreplClient;
     }
     
+    
+    /**
+     * Launch the consumer in a separated thread.
+     */
+    private void runConsumer( final ReplicationConsumer consumer ) throws Exception
+    {
+        Runnable consumerTask = new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    consumer.start();
+                }
+                catch ( Exception e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        };
+
+        Thread consumerThread = new Thread( consumerTask );
+        consumerThread.setDaemon( true );
+        consumerThread.start();
+    }
+    
 
     /**
      * First test : create a consumer, and see if it gets the 1000 entries
@@ -293,10 +354,10 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoad() throws Exception
     {
-        ReplicationConsumer syncreplClient = createConsumer();
+        ReplicationConsumer syncReplClient = createConsumer();
         
         // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) ); 
+        assertTrue( waitForSyncReplClient( syncReplClient, 1001 ) ); 
     }
     
     
@@ -307,16 +368,45 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoadAndAdd() throws Exception
     {
-        ReplicationConsumer syncreplClient = createConsumer();
+        ReplicationConsumer syncReplClient = createConsumer();
         
         // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) );
+        assertTrue( waitForSyncReplClient( syncReplClient, 1001 ) );
         
-        // Injext a new intry in the producer
+        // Inject a new intry in the producer
         Entry addedEntry = createEntry();
         providerSession.add( addedEntry );
         
+        // Reset the added counter
+        ((MockSyncReplConsumer)syncReplClient).resetNbAdded();
+
         // Now check that the entry has been copied in the consumer
-        assertTrue( waitForSyncReplClient( syncreplClient, 1002 ) );
+        assertTrue( waitForSyncReplClient( syncReplClient, 1 ) );
+    }
+    
+    
+    /**
+     * Test that we can load entries, kill the consumer in the middle of the load, 
+     * restart the consumer and still get all the entries.
+     */
+    @Test
+    public void testInitialRefreshStopAndGo() throws Exception
+    {
+        final ReplicationConsumer syncReplClient = createConsumer();
+        
+        // Load but stop after 200 entries have been loaded
+        waitUntilLimitSyncReplClient( syncReplClient, 200 );
+        
+        // Reset the added counter
+        ((MockSyncReplConsumer)syncReplClient).resetNbAdded();
+        
+        // Stop the consumer
+        syncReplClient.stop();
+        
+        // Start it again
+        runConsumer( syncReplClient );
+        
+        // We should have 1000 entries plus the base entry = 1001
+        assertTrue( waitForSyncReplClient( syncReplClient, 1001 ) );
     }
 }
