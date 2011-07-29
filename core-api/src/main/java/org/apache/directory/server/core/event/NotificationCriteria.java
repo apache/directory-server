@@ -190,11 +190,11 @@ public class NotificationCriteria
         StringBuilder sb = new StringBuilder();
         
         sb.append( "Notification criteria : " );
-        sb.append( "(" ).append( base ).append( "), " );
-        sb.append( "(" ).append( filter ).append( "), " );
-        sb.append( "(" ).append( scope ).append( "), " );
-        sb.append( "(" ).append( aliasDerefMode ).append( "), " );
-        sb.append( "(" ).append( eventMask ).append( ")" );
+        sb.append( '\'' ).append( base ).append( "', " );
+        sb.append( '\'' ).append( filter ).append( "', " );
+        sb.append( '\'' ).append( scope ).append( "', " );
+        sb.append( '\'' ).append( aliasDerefMode ).append( "', " );
+        sb.append( '\'' ).append( EventType.toString( eventMask ) ).append( '\'' );
         
         return sb.toString();
     }

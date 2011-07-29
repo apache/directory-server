@@ -219,7 +219,13 @@ public enum EventType
     }
     
     
-    public String toString( int mask )
+    /**
+     * Print the flags
+     * 
+     * @param mask the flags value to print
+     * @return A textual version of the mask
+     */
+    public static String toString( int mask )
     {
         switch ( mask )
         {

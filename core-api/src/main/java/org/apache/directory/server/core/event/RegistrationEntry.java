@@ -27,16 +27,29 @@ package org.apache.directory.server.core.event;
  */
 public class RegistrationEntry
 {
+    /** The associated listener */
     private final DirectoryListener listener;
+    
+    /** The notification criteria */
     private final NotificationCriteria criteria;
 
     
+    /**
+     * Creates a new instance of RegistrationEntry associated with a listener
+     * @param listener The associated listener
+     */
     RegistrationEntry( DirectoryListener listener )
     {
         this( listener, new NotificationCriteria() );
     }
 
     
+    /**
+     * Creates a new instance of RegistrationEntry associated with a listener
+     * and a notification criteria
+     * @param listener The associated listener
+     * @param criteria The notification criteria
+     */
     RegistrationEntry( DirectoryListener listener, NotificationCriteria criteria )
     {
         this.listener = listener;
@@ -59,5 +72,23 @@ public class RegistrationEntry
     DirectoryListener getListener()
     {
         return listener;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( listener ).append( '/' );
+        
+        if ( criteria != null )
+        {
+            sb.append( criteria.toString() );
+        }
+        
+        return sb.toString();
     }
 }
