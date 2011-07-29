@@ -395,11 +395,13 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( directoryService.getLdapCodecService() );
-            byte[] syncinfo = syncInfoResp.getResponseValue();
-            decorator.setValue( syncinfo );
-            SyncInfoValue syncInfoValue = decorator.getDecorated();
+            SyncInfoValue syncInfoValue = ( SyncInfoValue ) syncInfoResp.getControl( SyncInfoValue.OID );
 
+            if ( syncInfoValue == null )
+            {
+                return;
+            }
+            
             byte[] cookie = syncInfoValue.getCookie();
 
             if ( cookie != null )
@@ -601,7 +603,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                     .error(
                         "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
                         e );
-                disconnet();
             }
 
             removeCookie();
