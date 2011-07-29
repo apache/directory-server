@@ -123,7 +123,6 @@ public class ReplicaEventLog
      */
     public void log( EventType event, Entry entry )
     {
-        LOG.debug( "logging entry with Dn {} with the event {}", entry.getDn(), event );
         log( new ReplicaEventMessage( event, entry ) );
     }
 
@@ -132,6 +131,8 @@ public class ReplicaEventLog
     {
         try
         {
+            LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getEventType() );
+            
             ActiveMQObjectMessage ObjectMessage = ( ActiveMQObjectMessage ) amqSession.createObjectMessage();
             ObjectMessage.setObject( message );
             producer.send( ObjectMessage );
