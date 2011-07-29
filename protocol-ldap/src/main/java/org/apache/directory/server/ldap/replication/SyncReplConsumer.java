@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -229,6 +228,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             try
             {
                 connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
+                disconnected = false;
                 return true;
             }
             catch ( LdapException le )
@@ -521,7 +521,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
      */
     public void stop()
     {
-        disconnet();
+        disconnect();
     }
 
     
@@ -559,7 +559,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
         Response resp = sf.get();
 
-        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
+        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() && !disconnected )
         {
             if ( resp instanceof SearchResultEntry )
             {
@@ -587,7 +587,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
-                disconnet();
+                disconnect();
             }
         }
         else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
@@ -611,7 +611,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     }
 
 
-    public void disconnet()
+    public void disconnect()
     {
         disconnected = true;
 
