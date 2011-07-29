@@ -71,6 +71,18 @@ public class ReplicaEventMessage implements Externalizable
     
 
     /**
+     *  creates an instance of ReplicaEventMessage.
+     *  
+     *  NOTE: This is required by the event log manager while deserializing.
+     *        <b>DO NOT remove</b>.
+     */
+    public ReplicaEventMessage()
+    {
+        codec = LdapApiServiceFactory.getSingleton();
+    }
+    
+    
+    /**
      * Create a new ReplicaEvent instance for a Add/Delete+Modify operation
      * @param eventType The event type
      * @param entry The entry
