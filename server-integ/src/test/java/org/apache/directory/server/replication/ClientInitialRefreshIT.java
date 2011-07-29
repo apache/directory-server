@@ -30,6 +30,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.MockDirectoryService;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -38,6 +39,7 @@ import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.SyncReplRequestHandler;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -191,10 +193,46 @@ public class ClientInitialRefreshIT
     }
     
     
-    @Test
-    public void testInitialRefresh() throws Exception
+    
+    
+    /**
+     * Wait for the expected number of entries to be added into the client
+     */
+    private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
     {
-        final MockSyncReplConsumer syncreplClient = new MockSyncReplConsumer();
+        System.out.println( "NbAdded every 100ms : " );
+        boolean isFirst = true;
+        
+        for ( int i = 0; i < 50; i++ )
+        {
+            Thread.sleep( 100 );
+            
+            int nbAdded = ((MockSyncReplConsumer)consumer).getNbAdded();
+            
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                System.out.print( ", " );
+            }
+            
+            System.out.print( nbAdded );
+            
+            if ( nbAdded == expected )
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+
+    private ReplicationConsumer createConsumer() throws Exception
+    {
+        final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncreplConfiguration config = new SyncreplConfiguration();
         config.setRemoteHost( "localhost" );
         config.setRemotePort( 16000 );
@@ -229,7 +267,9 @@ public class ClientInitialRefreshIT
 
                     searchRequest.addAttributes( config.getAttributes() );
 
-                    syncreplClient.init( schemaManager );
+                    DirectoryService directoryService = new MockDirectoryService();
+                    directoryService.setSchemaManager( schemaManager );
+                    ((MockSyncReplConsumer)syncreplClient).init( directoryService );
                     syncreplClient.start();
                 }
                 catch ( Exception e )
@@ -243,42 +283,19 @@ public class ClientInitialRefreshIT
         consumerThread.setDaemon( true );
         consumerThread.start();
         
-        // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) ); 
+        return syncreplClient;
     }
     
-    
+
     /**
-     * Wait for the expected number of entries to be added into the client
+     * First test : create a consumer, and see if it gets the 1000 entries
      */
-    private boolean waitForSyncReplClient( MockSyncReplConsumer consumer, int expected ) throws Exception
+    @Test
+    public void testInitialRefresh() throws Exception
     {
-        System.out.println( "NbAdded every 100ms : " );
-        boolean isFirst = true;
+        ReplicationConsumer syncreplClient = createConsumer();
         
-        for ( int i = 0; i < 50; i++ )
-        {
-            Thread.sleep( 100 );
-            
-            int nbAdded = consumer.getNbAdded();
-            
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                System.out.print( ", " );
-            }
-            
-            System.out.print( nbAdded );
-            
-            if ( nbAdded == expected )
-            {
-                return true;
-            }
-        }
-        
-        return false;
+        // We should have 1000 entries plus the base entry = 1001
+        assertTrue( waitForSyncReplClient( syncreplClient, 1001 ) ); 
     }
 }

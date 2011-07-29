@@ -35,7 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
@@ -87,8 +89,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MockSyncReplConsumer implements ConnectionClosedEventListener
-//, ReplicationConsumer
+public class MockSyncReplConsumer implements ConnectionClosedEventListener, ReplicationConsumer
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( MockSyncReplConsumer.class );
@@ -164,9 +165,9 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener
      * Init the replication service
      * @param directoryservice The directory service
      */
-    public void init( SchemaManager schemaManager ) throws Exception
+    public void init( DirectoryService directoryService ) throws Exception
     {
-        this.schemaManager = schemaManager;
+        this.schemaManager = directoryService.getSchemaManager();
         ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
         COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
 

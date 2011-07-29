@@ -50,9 +50,17 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
+/**
+ * A mock DirectoryService used for tests
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class MockDirectoryService implements DirectoryService
 {
     int count;
+    
+    /** The schemaManager */
+    SchemaManager schemaManager;
     
     
     public MockDirectoryService()
@@ -113,7 +121,7 @@ public class MockDirectoryService implements DirectoryService
 
     public SchemaManager getSchemaManager()
     {
-        return null;
+        return schemaManager;
     }
 
 
@@ -130,6 +138,7 @@ public class MockDirectoryService implements DirectoryService
 
     public void setSchemaManager( SchemaManager schemaManager )
     {
+        this.schemaManager = schemaManager;
     }
 
 
