@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
  * modeled after PersistentSearchListener
  *  NOTE: doco is missing at many parts. Will be added once the functionality is satisfactory
  * 
@@ -57,13 +56,19 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncReplSearchListener implements DirectoryListener, AbandonListener
 {
+    /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplSearchListener.class );
 
+    /** The ldap session */
     private LdapSession session;
+    
+    /** The search request we are processing */
     private SearchRequest req;
 
+    /** */
     private volatile boolean pushInRealTime;
 
+    /** The log storing message that haven't yet been sent to the client */
     private final ReplicaEventLog clientMsgLog;
 
 
@@ -87,6 +92,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void setReq( SearchRequest req )
     {
         this.req = req;
+        
         if ( req != null )
         {
             req.addAbandonListener( this );
@@ -443,5 +449,22 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 clientMsgLog.log( event, entry );
             }
         }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "SyncReplSearchListener : \n" );
+        sb.append( '\'' ).append( req ).append( "', " );
+        sb.append( '\'' ).append( pushInRealTime ).append( "', \n" );
+        sb.append( clientMsgLog );
+        sb.append( '\n' );
+        
+        return sb.toString();
     }
 }
