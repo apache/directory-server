@@ -219,6 +219,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             try
             {
                 connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
+                disconnected = false;
                 return true;
             }
             catch ( LdapException le )
@@ -493,6 +494,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     public void stop()
     {
         disconnet();
+        nbAdded.getAndSet( 0 );
     }
 
     
@@ -530,7 +532,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
         Response resp = sf.get();
         
-        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
+        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() && !disconnected )
         {
             if ( resp instanceof SearchResultEntry )
             {
