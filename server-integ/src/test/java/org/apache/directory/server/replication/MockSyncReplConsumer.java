@@ -493,7 +493,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     public void stop()
     {
-        disconnet();
+        disconnect();
         nbAdded.getAndSet( 0 );
     }
 
@@ -560,7 +560,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
-                disconnet();
+                disconnect();
             }
         }
         else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
@@ -576,7 +576,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                     .error(
                         "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
                         e );
-                disconnet();
+                disconnect();
             }
 
             removeCookie();
@@ -585,7 +585,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     }
 
 
-    public void disconnet()
+    public void disconnect()
     {
         disconnected = true;
 
