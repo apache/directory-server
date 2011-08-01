@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 
 
@@ -232,8 +231,7 @@ public class DirectoryServiceAnnotationTest
         assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         // Now, get the server
-        LdapServer ldapServer = ServerAnnotationProcessor.createLdapServer( service, AvailablePortFinder
-            .getNextAvailable( 1024 ) );
+        LdapServer ldapServer = ServerAnnotationProcessor.createLdapServer( service );
 
         // Check that the server is running
         assertTrue( ldapServer.isStarted() );

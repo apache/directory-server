@@ -217,10 +217,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // then use the DS created above
             if ( classLdapServerBuilder != null )
             {
-                int minPort = getMinPort();
-
-                classLdapServer = ServerAnnotationProcessor.createLdapServer( getDescription(), directoryService,
-                    minPort + 1 );
+                classLdapServer = ServerAnnotationProcessor.createLdapServer( getDescription(), directoryService );
             }
             else if ( ( suite != null ) && ( suite.getLdapServer() != null ) )
             {
@@ -426,8 +423,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 int minPort = getMinPort();
 
-                methodLdapServer = ServerAnnotationProcessor.createLdapServer( methodDescription, directoryService,
-                    minPort + 1 );
+                methodLdapServer = ServerAnnotationProcessor.createLdapServer( methodDescription, directoryService );
             }
 
             if ( methodKdcServerBuilder != null )

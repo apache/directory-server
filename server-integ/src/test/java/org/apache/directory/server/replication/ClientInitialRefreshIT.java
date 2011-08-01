@@ -165,7 +165,7 @@ public class ClientInitialRefreshIT
 
         CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
 
-        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService, 0 );
+        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
         
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         

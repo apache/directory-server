@@ -22,6 +22,7 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -230,26 +231,17 @@ public class DSAnnotationProcessor
             return null;
         }
     }
-
-
-    /**
-     * Create a DirectoryService from an annotation. The @CreateDS annotation
-     * must be associated with either the method or the encapsulating class. We
-     * will first try to get the annotation from the method, and if there is
-     * none, then we try at the class level.
-     * 
-     * @return A valid DS
-     */
-    public static DirectoryService getDirectoryService() throws Exception
+    
+    public static Object getInstance( Class<? extends Annotation> clazz ) throws ClassNotFoundException
     {
-        CreateDS dsBuilder = null;
-
+        Object instance = null;
+        
         // Get the caller by inspecting the stackTrace
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
         // In Java5 the 0th stacktrace element is:
         // java.lang.Thread.dumpThreads(Native Method)
-        int index = stackTrace[0].getMethodName().equals( "dumpThreads" ) ? 3 : 2;
+        int index = stackTrace[0].getMethodName().equals( "dumpThreads" ) ? 4 : 3;
 
         // Get the enclosing class
         Class<?> classCaller = Class.forName( stackTrace[index].getClassName() );
@@ -264,19 +256,40 @@ public class DSAnnotationProcessor
         {
             if ( methodCaller.equals( method.getName() ) )
             {
-                dsBuilder = method.getAnnotation( CreateDS.class );
+                instance = method.getAnnotation( clazz );
 
-                if ( dsBuilder != null )
+                if ( instance != null )
                 {
                     break;
                 }
             }
         }
-
-        // No : look at the class level
-        if ( dsBuilder == null )
+        
+        if ( instance == null )
         {
-            dsBuilder = classCaller.getAnnotation( CreateDS.class );
+            instance = classCaller.getAnnotation( clazz );
+        }
+        
+        return instance;
+    }
+
+
+    /**
+     * Create a DirectoryService from an annotation. The @CreateDS annotation
+     * must be associated with either the method or the encapsulating class. We
+     * will first try to get the annotation from the method, and if there is
+     * none, then we try at the class level.
+     * 
+     * @return A valid DS
+     */
+    public static DirectoryService getDirectoryService() throws Exception
+    {
+        Object instance = getInstance( CreateDS.class );
+        CreateDS dsBuilder = null;
+        
+        if ( instance != null )
+        {
+            dsBuilder = (CreateDS)instance;
         }
 
         // Ok, we have found a CreateDS annotation. Process it now.

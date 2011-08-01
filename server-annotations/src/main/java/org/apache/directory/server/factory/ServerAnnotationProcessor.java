@@ -28,6 +28,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
@@ -51,7 +52,7 @@ import org.junit.runner.Description;
  */
 public class ServerAnnotationProcessor
 {
-    private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders, int startPort )
+    private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
     {
         if ( transportBuilders.length != 0 )
         {
@@ -112,10 +113,10 @@ public class ServerAnnotationProcessor
     
     /**
      * Just gives an instance of {@link LdapServer} without starting it.
-     * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService, int)}
-     * @see #createLdapServer(CreateLdapServer, DirectoryService, int)
+     * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService)}
+     * @see #createLdapServer(CreateLdapServer, DirectoryService)
      */
-    public static LdapServer instantiateLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
+    public static LdapServer instantiateLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
         if ( createLdapServer != null )
         {
@@ -124,7 +125,7 @@ public class ServerAnnotationProcessor
             ldapServer.setServiceName( createLdapServer.name() );
             
             // Read the transports
-            createTransports( ldapServer, createLdapServer.transports(), startPort );
+            createTransports( ldapServer, createLdapServer.transports() );
             
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
@@ -166,6 +167,7 @@ public class ServerAnnotationProcessor
             }
             
             NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
+           
             if( ntlmHandler != null )
             {
                 Class<?> ntlmProviderClass = createLdapServer.ntlmProvider();
@@ -193,18 +195,37 @@ public class ServerAnnotationProcessor
     
     
     /**
+     * creates an LdapServer and starts before returning the instance, infering
+     * the configuration from the Stack trace
+     *  
+     * @return a running LdapServer instance
+     */
+    public static LdapServer createLdapServer( DirectoryService directoryService ) throws ClassNotFoundException
+    {
+        Object instance = DSAnnotationProcessor.getInstance( CreateLdapServer.class );
+        LdapServer ldapServer = null;
+        
+        if ( instance != null )
+        {
+            CreateLdapServer createLdapServer = (CreateLdapServer)instance;
+            
+            ldapServer = createLdapServer( createLdapServer, directoryService );
+        }
+
+        return ldapServer;
+    }
+
+    
+    /**
      * creates an LdapServer and starts before returning the instance
      *  
      * @param createLdapServer the annotation containing the custom configuration
      * @param directoryService the directory service
-     * @param startPort a port number to start with in order to find any available port for use (if the given port number is already in use)<br/>
-     *                  this option will only be used if the port specified in {@link CreateTransport} annotation is -1.
      * @return a running LdapServer instance
      */
-    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
+    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
-        
-        LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService, startPort );
+        LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService );
         
         if ( ldapServer == null )
         {
@@ -232,13 +253,13 @@ public class ServerAnnotationProcessor
      * @param startPort The port used by the server
      * @return An LdapServer instance 
      * @throws Exception If the server cannot be started
-     */
-    public static LdapServer createLdapServer( DirectoryService directoryService, int startPort ) throws Exception
+     *
+    public static LdapServer createLdapServer( DirectoryService directoryService ) throws Exception
     {
         CreateLdapServer createLdapServer = ( CreateLdapServer ) getAnnotation( CreateLdapServer.class );
         
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService, startPort );
+        return createLdapServer( createLdapServer, directoryService );
     }
 
 
@@ -251,13 +272,13 @@ public class ServerAnnotationProcessor
      * @return An LdapServer instance 
      * @throws Exception If the server cannot be started
      */
-    public static LdapServer createLdapServer( Description description, DirectoryService directoryService, int startPort )
+    public static LdapServer createLdapServer( Description description, DirectoryService directoryService )
         throws Exception
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService, startPort );
+        return createLdapServer( createLdapServer, directoryService );
     }
 
 

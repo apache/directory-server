@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
@@ -345,7 +346,7 @@ public class ClientServerReplicationIT
 
         CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
 
-        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService, 0 );
+        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
         
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         
@@ -392,15 +393,25 @@ public class ClientServerReplicationIT
              })
     @CreateLdapServer(transports =
         { @CreateTransport( port=17000, protocol = "LDAP") })
-    private static void startConsumer() throws Exception
+    @CreateConsumer
+        (
+            remoteHost = "localhost",
+            remotePort = 16000,
+            replUserDn = "uid=admin,ou=system",
+            replUserPassword = "secret",
+            useTls = false,
+            baseDn = "dc=example,dc=com",
+            refreshInterval = 1000,
+            replicaId = 1
+        )
+    public static void startConsumer() throws Exception
     {
         Method createProviderMethod = ClientServerReplicationIT.class.getDeclaredMethod( "startConsumer" );
-        CreateDS dsAnnotation = createProviderMethod.getAnnotation( CreateDS.class );
-        DirectoryService provDirService = DSAnnotationProcessor.createDS( dsAnnotation );
+        DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
         CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
 
-        consumerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService, 0 );
+        consumerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
         
         SyncReplConsumer syncreplClient = new SyncReplConsumer();
         final SyncreplConfiguration config = new SyncreplConfiguration();
