@@ -127,7 +127,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private AtomicInteger replicaCount = new AtomicInteger( 0 );
 
-    private ReplicaDitStoreUtil replicaUtil;
+    private ReplConsumerManager replicaUtil;
 
 
     /**
@@ -189,7 +189,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             // set the static reference to SchemaManager
             ReplicaEventMessage.setSchemaManager( dirService.getSchemaManager() );
 
-            replicaUtil = new ReplicaDitStoreUtil( dirService );
+            replicaUtil = new ReplConsumerManager( dirService );
 
             loadReplicaInfo();
 

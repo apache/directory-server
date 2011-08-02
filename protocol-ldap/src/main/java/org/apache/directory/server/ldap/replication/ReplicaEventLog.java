@@ -86,7 +86,6 @@ public class ReplicaEventLog
     private volatile boolean dirty;
 
 
-
     public ReplicaEventLog( int replicaId )
     {
         this.replicaId = replicaId;

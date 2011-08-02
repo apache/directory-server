@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
+import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -55,16 +56,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * TODO ReplicaDitStoreUtil.
+ * 
+ * All the consumers configuration will be stored in the 'ou=consumers,ou=system' branch.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReplicaDitStoreUtil
+public class ReplConsumerManager
 {
     /** Logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ReplicaDitStoreUtil.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReplConsumerManager.class );
 
     /** The admin session used to commuicate with the backend */
     private CoreSession adminSession;
+
+    /** The DirectoryService instance */
+    private DirectoryService directoryService;
 
     /** The schema manager instance */
     private SchemaManager schemaManager;
@@ -79,21 +85,28 @@ public class ReplicaDitStoreUtil
     private Map<Integer, List<Modification>> modMap = new HashMap<Integer, List<Modification>>();
 
 
-    public ReplicaDitStoreUtil( DirectoryService dirService ) throws Exception
+    /**
+     * Create a new instance of the producer replication manager.
+     * 
+     * @param directoryService The directoryService instance
+     * @throws Exception if we add an error while creating the configuration
+     */
+    public ReplConsumerManager( DirectoryService directoryService ) throws Exception
     {
-        adminSession = dirService.getAdminSession();
-        schemaManager = dirService.getSchemaManager();
-        REPL_CONSUMER_DN = dirService.getDnFactory().create( REPL_CONSUMER_DN_STR );
-        OBJECT_CLASS_AT = dirService.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-
-        init();
+        this.directoryService = directoryService;
+        adminSession = directoryService.getAdminSession();
+        schemaManager = directoryService.getSchemaManager();
+        REPL_CONSUMER_DN = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
+        OBJECT_CLASS_AT = directoryService.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        
+        createConsumersBranch();
     }
 
 
     /**
      * Initialize the replication Store, creating the ou=consumers,ou=system entry
      */
-    private void init() throws Exception
+    private void createConsumersBranch() throws Exception
     {
         if ( !adminSession.exists( REPL_CONSUMER_DN ) )
         {
@@ -109,20 +122,32 @@ public class ReplicaDitStoreUtil
 
 
     /**
-     * Add a new consumer entry
+     * Add a new consumer entry in ou=consumers,ou=system
      * 
-     * @param replica
-     * @throws Exception
+     * @param replica The added consumer replica
+     * @throws Exception If the addition failed
      */
     public void addConsumerEntry( ReplicaEventLog replica ) throws Exception
     {
         if ( replica == null )
         {
+            // No consumer ? Get out...
             return;
         }
+        
+        // Check that we don't already have an entry for this consumer
+        Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        
+        if ( adminSession.exists( consumerDn ) )
+        {
+            // Error...
+            String message = "The replica " + consumerDn.getName() + " already exists";
+            LOG.error( message );
+            throw new LdapEntryAlreadyExistsException( message );
+        }
 
-        Dn replicaDn = new Dn( schemaManager, SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
-        Entry entry = new DefaultEntry( schemaManager, replicaDn,
+        // Create the new consumer entry
+        Entry entry = new DefaultEntry( schemaManager, consumerDn,
             SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ADS_REPL_EVENT_LOG,
             SchemaConstants.ADS_DS_REPLICA_ID, String.valueOf( replica.getId() ),
             SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE, replica.getSearchCriteria().getAliasDerefMode().getJndiValue(),
@@ -133,7 +158,40 @@ public class ReplicaDitStoreUtil
             SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter() );
 
         adminSession.add( entry );
-        LOG.debug( "stored replication consumer entry {}", entry.getDn() );
+        
+        LOG.debug( "stored replication consumer entry {}", consumerDn );
+    }
+
+
+    /**
+     * Add a new consumer entry in ou=consumers,ou=system
+     * 
+     * @param replica The added consumer replica
+     * @throws Exception If the addition failed
+     */
+    public void deleteConsumerEntry( ReplicaEventLog replica ) throws Exception
+    {
+        if ( replica == null )
+        {
+            // No consumer ? Get out...
+            return;
+        }
+        
+        // Check that we have an entry for this consumer
+        Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        
+        if ( !adminSession.exists( consumerDn ) )
+        {
+            // Error...
+            String message = "The replica " + consumerDn.getName() + " does not exist";
+            LOG.error( message );
+            throw new LdapEntryAlreadyExistsException( message );
+        }
+
+        // Delete the consumer entry
+        adminSession.delete( consumerDn );
+        
+        LOG.debug( "Deleted replication consumer entry {}", consumerDn );
     }
 
 
@@ -168,10 +226,16 @@ public class ReplicaDitStoreUtil
     }
 
 
+    /**
+     * Get the list of replicas' cofiguration
+     * @return
+     * @throws Exception
+     */
     public List<ReplicaEventLog> getReplicaEventLogs() throws Exception
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
+        // Search for all the consumers
         ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( REPL_CONSUMER_DN );
@@ -181,6 +245,7 @@ public class ReplicaDitStoreUtil
         
         EntryFilteringCursor cursor = adminSession.search( searchRequest );
 
+        // Now loop on each consumer configuration
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
@@ -190,6 +255,7 @@ public class ReplicaDitStoreUtil
         
         cursor.close();
 
+        // Now, we can return the list of replicas
         return replicas;
     }
 
