@@ -44,7 +44,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>1.0.0-M6-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>1.0.0-M7-SNAPSHOT</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.2</skin.version>
