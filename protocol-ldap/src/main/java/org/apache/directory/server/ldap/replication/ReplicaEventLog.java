@@ -30,7 +30,6 @@ import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReplicaEventLog
+public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
@@ -92,9 +91,14 @@ public class ReplicaEventLog
     /** ActiveMQ's BrokerService */
     private BrokerService brokerService;
 
+    /** A flag used to indicate that the consumer is not up to date */
     private volatile boolean dirty;
 
 
+    /**
+     * Create a new instance of EventLog for a replica
+     * @param replicaId The replica ID
+     */
     public ReplicaEventLog( int replicaId )
     {
         this.replicaId = replicaId;
@@ -104,7 +108,7 @@ public class ReplicaEventLog
 
 
     /**
-     * instantiates a message queue and corresponding producer for storing DIT changes  
+     * Instantiates a message queue and corresponding producer for storing DIT changes  
      *
      * @param amqConnection ActiveMQ connection
      * @param brokerService ActiveMQ's broker service
@@ -124,17 +128,10 @@ public class ReplicaEventLog
 
 
     /**
-     * Stores the given EventType and Entry in the queue 
+     * Stores the given message in the queue 
      *
-     * @param event the EventType
-     * @param entry the modified Entry
+     * @param message The message to store
      */
-    public void log( EventType event, Entry entry )
-    {
-        log( new ReplicaEventMessage( event, entry ) );
-    }
-
-
     public void log( ReplicaEventMessage message )
     {
         try
@@ -153,7 +150,7 @@ public class ReplicaEventLog
 
 
     /**
-     * deletes the queue (to remove the log) and recreates a new queue instance
+     * Deletes the queue (to remove the log) and recreates a new queue instance
      * with the same queue name. Also creates the corresponding message producer
      *
      * @throws Exception
@@ -169,6 +166,10 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * Re-create the queue
+     * @throws Exception If the creation has failed
+     */
     public void recreate() throws Exception
     {
         LOG.debug( "recreating the queue for the replica id {}", replicaId );
@@ -177,6 +178,11 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * Stop the EventLog
+     * 
+     * @throws Exception If the stop failed
+     */
     public void stop() throws Exception
     {
         // then close the producer and session, DO NOT close connection 
@@ -185,6 +191,9 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals( Object obj )
     {
@@ -204,17 +213,23 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + searchFilter.hashCode();
-        result = prime * result + hostName.hashCode();
+        int result = 17;
+        result = 31 * result + searchFilter.hashCode();
+        result = 31 * result + hostName.hashCode();
+        
         return result;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int compareTo( ReplicaEventLog o )
     {
         if ( this.equals( o ) )
@@ -226,54 +241,86 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * @return The listener
+     */
     public SyncReplSearchListener getPersistentListener()
     {
         return persistentListener;
     }
 
 
+    /**
+     * Set the listener
+     * @param persistentListener The listener
+     */
     public void setPersistentListener( SyncReplSearchListener persistentListener )
     {
         this.persistentListener = persistentListener;
     }
 
 
+    /**
+     * @return The search criteria
+     */
     public NotificationCriteria getSearchCriteria()
     {
         return searchCriteria;
     }
 
 
+    /**
+     * Stores the search criteria
+     * @param searchCriteria The search criteria
+     */
     public void setSearchCriteria( NotificationCriteria searchCriteria )
     {
         this.searchCriteria = searchCriteria;
     }
 
 
+    /**
+     * @return true if the consumer is in Refresh And Persist mode
+     */
     public boolean isRefreshNPersist()
     {
         return refreshNPersist;
     }
 
 
+    /**
+     * @param refreshNPersist if true, set the EventLog in Refresh and Persist mode
+     */
     public void setRefreshNPersist( boolean refreshNPersist )
     {
         this.refreshNPersist = refreshNPersist;
     }
 
 
+    /**
+     * @return The replica ID
+     */
     public int getId()
     {
         return replicaId;
     }
 
 
+    /**
+     * @return The last CSN sent by the consumer
+     */
     public String getLastSentCsn()
     {
         return lastSentCsn;
     }
 
 
+    /**
+     * Update the last Sent CSN. If it's different from the present one, we
+     * will set the dirty flag to true, and a replication will follow.
+     *  
+     * @param lastSentCsn The new Sent CSN
+     */
     public void setLastSentCsn( String lastSentCsn )
     {
         // set only if there is a change in cookie value
@@ -287,48 +334,76 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * @return The consumer Hostname
+     */
     public String getHostName()
     {
         return hostName;
     }
 
 
+    /**
+     * Set the consumer hostname
+     * @param hostName The consumer hostname
+     */
     public void setHostName( String hostName )
     {
         this.hostName = hostName;
     }
 
 
+    /**
+     * @return The searchFilter
+     */
     public String getSearchFilter()
     {
         return searchFilter;
     }
 
 
+    /**
+     * Set the searchFilter
+     * @param searchFilter The searchFilter
+     */
     public void setSearchFilter( String searchFilter )
     {
         this.searchFilter = searchFilter;
     }
 
 
+    /**
+     * @return True if the consumer is not up to date
+     */
     public boolean isDirty()
     {
         return dirty;
     }
 
 
+    /**
+     * Set the dirty flag
+     * @param dirty The current consumer status
+     */
     public void setDirty( boolean dirty )
     {
         this.dirty = dirty;
     }
 
 
+    /**
+     * @return The queue name
+     */
     public String getQueueName()
     {
         return "replicaId=" + replicaId;
     }
 
 
+    /**
+     * @return A cursor on top of the queue
+     * @throws Exception If the cursor can't be created
+     */
     public ReplicaEventLogCursor getCursor() throws Exception
     {
         Queue regionQueue = ( Queue ) brokerService.getRegionBroker().getDestinationMap().get( queue );
@@ -337,6 +412,9 @@ public class ReplicaEventLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString()
     {

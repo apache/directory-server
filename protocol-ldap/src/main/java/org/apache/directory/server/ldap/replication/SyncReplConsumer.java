@@ -84,7 +84,6 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
  * Implementation of syncrepl slave a.k.a consumer.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

@@ -220,7 +220,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             else
             {
                 // We are not connected, store the entry into the consumer's queue
-                consumerMsgLog.log( EventType.ADD, addContext.getEntry() );
+                consumerMsgLog.log( new ReplicaEventMessage( EventType.ADD, addContext.getEntry() ) );
             }
         }
         catch ( LdapInvalidAttributeValueException e )
@@ -265,7 +265,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                consumerMsgLog.log( EventType.DELETE, entry );
+                consumerMsgLog.log( new ReplicaEventMessage( EventType.DELETE, entry ) );
             }
         }
         catch ( LdapInvalidAttributeValueException e )
@@ -303,7 +303,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                consumerMsgLog.log( EventType.MODIFY, modifyContext.getAlteredEntry() );
+                consumerMsgLog.log( new ReplicaEventMessage( EventType.MODIFY, modifyContext.getAlteredEntry() ) );
             }
         }
         catch ( Exception e )
@@ -515,7 +515,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                consumerMsgLog.log( event, entry );
+                consumerMsgLog.log( new ReplicaEventMessage( event, entry ) );
             }
         }
     }
