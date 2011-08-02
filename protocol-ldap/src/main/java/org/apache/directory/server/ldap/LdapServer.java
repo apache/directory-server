@@ -485,18 +485,27 @@ public class LdapServer extends DirectoryBackedService
         nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
         // Install the replication handler if we have one
+        startReplicationProducer();
+
+        // And start the replication consumers on this server
+        startReplicationConsumers();
+
+        started = true;
+
+        LOG.info( "Ldap service started." );
+    }
+    
+
+    /**
+     * Install the replication handler if we have one
+     */
+    public void startReplicationProducer()
+    {
         if ( replicationReqHandler != null )
         {
             replicationReqHandler.init( this );
             ( ( SearchHandler ) getSearchHandler() ).setReplicationReqHandler( replicationReqHandler );
         }
-
-        // And start the replication consumers on this server
-        startConsumers();
-
-        started = true;
-
-        LOG.info( "Ldap service started." );
     }
 
 
@@ -633,7 +642,7 @@ public class LdapServer extends DirectoryBackedService
     /**
      * starts the replication consumers
      */
-    private void startConsumers() throws Exception
+    public void startReplicationConsumers() throws Exception
     {
         if ( replConsumers != null )
         {

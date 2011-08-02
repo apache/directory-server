@@ -23,7 +23,6 @@ package org.apache.directory.server.replication;
 
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -157,17 +156,14 @@ public class ClientInitialRefreshIT
              })
     @CreateLdapServer(transports =
         { @CreateTransport( port=16000, protocol = "LDAP") })
-    private static void startProvider() throws Exception
+    public static void startProvider() throws Exception
     {
-        Method createProviderMethod = ClientInitialRefreshIT.class.getDeclaredMethod( "startProvider" );
-        CreateDS dsAnnotation = createProviderMethod.getAnnotation( CreateDS.class );
-        DirectoryService provDirService = DSAnnotationProcessor.createDS( dsAnnotation );
+        DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
-        CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
-
-        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
+        providerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
         
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
+        providerServer.startReplicationProducer();
         
         Runnable r = new Runnable()
         {
@@ -175,7 +171,6 @@ public class ClientInitialRefreshIT
             {
                 try
                 {
-                    providerServer.start();
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
                 }

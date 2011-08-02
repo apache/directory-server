@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +45,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.SyncReplConsumer;
 import org.apache.directory.server.ldap.replication.SyncReplRequestHandler;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -151,6 +149,8 @@ public class ClientServerReplicationIT
         assertFalse( consumerSession.exists( provUser.getDn() ) );
         
         providerSession.add( provUser );
+        
+        assertTrue( providerSession.exists( provUser.getDn() ) );
         
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( provUser.getDn() );
@@ -338,17 +338,13 @@ public class ClientServerReplicationIT
              })
     @CreateLdapServer(transports =
         { @CreateTransport( port=16000, protocol = "LDAP") })
-    private static void startProvider() throws Exception
+    public static void startProvider() throws Exception
     {
-        Method createProviderMethod = ClientServerReplicationIT.class.getDeclaredMethod( "startProvider" );
-        CreateDS dsAnnotation = createProviderMethod.getAnnotation( CreateDS.class );
-        DirectoryService provDirService = DSAnnotationProcessor.createDS( dsAnnotation );
+        DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
-        CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
-
-        providerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
-        
+        providerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
+        providerServer.startReplicationProducer();
         
         Runnable r = new Runnable()
         {
@@ -357,7 +353,6 @@ public class ClientServerReplicationIT
             {
                 try
                 {
-                    providerServer.start();
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
                 }
@@ -406,29 +401,16 @@ public class ClientServerReplicationIT
         )
     public static void startConsumer() throws Exception
     {
-        Method createProviderMethod = ClientServerReplicationIT.class.getDeclaredMethod( "startConsumer" );
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
-
-        CreateLdapServer serverAnnotation = createProviderMethod.getAnnotation( CreateLdapServer.class );
-
-        consumerServer = ServerAnnotationProcessor.instantiateLdapServer( serverAnnotation, provDirService );
+        consumerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
         
-        SyncReplConsumer syncreplClient = new SyncReplConsumer();
-        final SyncreplConfiguration config = new SyncreplConfiguration();
-        config.setRemoteHost( "localhost" );
-        config.setRemotePort( 16000 );
-        config.setReplUserDn( "uid=admin,ou=system" );
-        config.setReplUserPassword( "secret".getBytes() );
-        config.setUseTls( false );
-        config.setBaseDn( "dc=example,dc=com" );
-        config.setRefreshInterval( 1000 );
-        
-        syncreplClient.setConfig( config );
+        final SyncReplConsumer consumer = (SyncReplConsumer)ServerAnnotationProcessor.createConsumer();
         
         List<ReplicationConsumer> replConsumers = new ArrayList<ReplicationConsumer>();
-        replConsumers.add( syncreplClient );
+        replConsumers.add( consumer );
         
         consumerServer.setReplConsumers( replConsumers );
+        consumerServer.startReplicationConsumers();
         
         Runnable r = new Runnable()
         {
@@ -436,30 +418,28 @@ public class ClientServerReplicationIT
             {
                 try
                 {
-                    consumerServer.start();
-                    
                     DirectoryService ds = consumerServer.getDirectoryService();
                     
                     Dn configDn = new Dn( ds.getSchemaManager(), "ads-replConsumerId=localhost,ou=system" );
-                    config.setConfigEntryDn( configDn );
+                    consumer.getConfig().setConfigEntryDn( configDn );
                     
                     Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn,
                         "objectClass: ads-replConsumer",
                         "ads-replConsumerId: localhost",
-                        "ads-searchBaseDN", config.getBaseDn(),
-                        "ads-replProvHostName", config.getRemoteHost(),
-                        "ads-replProvPort", String.valueOf( config.getRemotePort() ),
-                        "ads-replRefreshInterval", String.valueOf( config.getRefreshInterval() ),
-                        "ads-replRefreshNPersist", String.valueOf( config.isRefreshNPersist() ),
-                        "ads-replSearchScope", config.getSearchScope().getLdapUrlValue(),
-                        "ads-replSearchFilter", config.getFilter(),
-                        "ads-replSearchSizeLimit", String.valueOf( config.getSearchSizeLimit() ),
-                        "ads-replSearchTimeOut", String.valueOf( config.getSearchTimeout() ),
-                        "ads-replUserDn", config.getReplUserDn(),
-                        "ads-replUserPassword", config.getReplUserPassword() );
+                        "ads-searchBaseDN", consumer.getConfig().getBaseDn(),
+                        "ads-replProvHostName", consumer.getConfig().getRemoteHost(),
+                        "ads-replProvPort", String.valueOf( consumer.getConfig().getRemotePort() ),
+                        "ads-replRefreshInterval", String.valueOf( consumer.getConfig().getRefreshInterval() ),
+                        "ads-replRefreshNPersist", String.valueOf( consumer.getConfig().isRefreshNPersist() ),
+                        "ads-replSearchScope", consumer.getConfig().getSearchScope().getLdapUrlValue(),
+                        "ads-replSearchFilter", consumer.getConfig().getFilter(),
+                        "ads-replSearchSizeLimit", String.valueOf( consumer.getConfig().getSearchSizeLimit() ),
+                        "ads-replSearchTimeOut", String.valueOf( consumer.getConfig().getSearchTimeout() ),
+                        "ads-replUserDn", consumer.getConfig().getReplUserDn(),
+                        "ads-replUserPassword", consumer.getConfig().getReplUserPassword() );
                     
-                    provConfigEntry.put( "ads-replAliasDerefMode", config.getAliasDerefMode().getJndiValue() );
-                    provConfigEntry.put( "ads-replAttributes", config.getAttributes() );
+                    provConfigEntry.put( "ads-replAliasDerefMode", consumer.getConfig().getAliasDerefMode().getJndiValue() );
+                    provConfigEntry.put( "ads-replAttributes", consumer.getConfig().getAttributes() );
 
                     
                     consumerSession = consumerServer.getDirectoryService().getAdminSession();

@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 
+import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -36,6 +37,9 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
+import org.apache.directory.server.ldap.replication.ReplicationConsumer;
+import org.apache.directory.server.ldap.replication.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
@@ -214,6 +218,47 @@ public class ServerAnnotationProcessor
 
         return ldapServer;
     }
+    
+    
+    private static ReplicationConsumer createConsumer( CreateConsumer createConsumer )
+    {
+        ReplicationConsumer consumer = new SyncReplConsumer();
+        
+        SyncreplConfiguration config = new SyncreplConfiguration();
+        config.setRemoteHost( createConsumer.remoteHost() );
+        config.setRemotePort( createConsumer.remotePort() );
+        config.setReplUserDn( createConsumer.replUserDn() );
+        config.setReplUserPassword( Strings.getBytesUtf8( createConsumer.replUserPassword() ) );
+        config.setUseTls( createConsumer.useTls() );
+        config.setBaseDn( createConsumer.baseDn() );
+        config.setRefreshInterval( createConsumer.refreshInterval() );
+        
+        consumer.setConfig( config );
+
+        return consumer;
+    }
+    
+    
+    /**
+     * creates an LdapServer and starts before returning the instance, infering
+     * the configuration from the Stack trace
+     *  
+     * @return a running LdapServer instance
+     */
+    public static ReplicationConsumer createConsumer() throws ClassNotFoundException
+    {
+        Object instance = DSAnnotationProcessor.getInstance( CreateConsumer.class );
+        ReplicationConsumer consumer = null;
+        
+        if ( instance != null )
+        {
+            CreateConsumer createConsumer = (CreateConsumer)instance;
+            
+            consumer = createConsumer( createConsumer );
+        }
+
+        return consumer;
+    }
 
     
     /**
@@ -223,7 +268,7 @@ public class ServerAnnotationProcessor
      * @param directoryService the directory service
      * @return a running LdapServer instance
      */
-    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
+    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
         LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService );
         
@@ -243,23 +288,6 @@ public class ServerAnnotationProcessor
         }
         
         return ldapServer;
-    }
-
-
-    /**
-     * Create a new instance of LdapServer
-     *
-     * @param directoryService The associated DirectoryService
-     * @param startPort The port used by the server
-     * @return An LdapServer instance 
-     * @throws Exception If the server cannot be started
-     *
-    public static LdapServer createLdapServer( DirectoryService directoryService ) throws Exception
-    {
-        CreateLdapServer createLdapServer = ( CreateLdapServer ) getAnnotation( CreateLdapServer.class );
-        
-        // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService );
     }
 
 

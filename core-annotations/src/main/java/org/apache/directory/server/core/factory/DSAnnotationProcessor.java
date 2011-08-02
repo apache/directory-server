@@ -232,6 +232,15 @@ public class DSAnnotationProcessor
         }
     }
     
+    
+    /**
+     * Get an instance of a class extracted from the @nnotation found in the method
+     * or the class.
+     * 
+     * @param clazz The Annotation we want to get an instance for
+     * @return The instance or null if no annotation is found
+     * @throws ClassNotFoundException If we can't find a class
+     */
     public static Object getInstance( Class<? extends Annotation> clazz ) throws ClassNotFoundException
     {
         Object instance = null;
