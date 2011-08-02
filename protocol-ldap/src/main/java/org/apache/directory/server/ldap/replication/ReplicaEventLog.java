@@ -36,7 +36,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A message log used for storing the changes done on DIT on a syncrepl consumer's search base
+ * A structure storing the configuration on each consumer registred on a producer. It stores 
+ * the following informations :
+ * <ul>
+ * <li>replicaId : the internal ID associated with the consumer</li>
+ * <li>hostname : the consumer's host</li>
+ * <li>searchFilter : the filter</li>
+ * <li>lastSentCsn : the last CSN sent by the consumer</li>
+ * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and presist mode</li>
+ * <li></li>
+ * </ul>
  * A separate log is maintained for each syncrepl consumer  
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

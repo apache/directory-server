@@ -227,9 +227,10 @@ public class ReplConsumerManager
 
 
     /**
-     * Get the list of replicas' cofiguration
-     * @return
-     * @throws Exception
+     * Get the list of consumers' configuration
+     * 
+     * @return A list of all the consumer configuration stored on the provider
+     * @throws Exception If we had an error while building this list
      */
     public List<ReplicaEventLog> getReplicaEventLogs() throws Exception
     {

@@ -31,6 +31,7 @@ import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -67,7 +68,7 @@ public class ReplicaEventMessage implements Externalizable
     private LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
     /** The modifyDN control */
-    private SyncModifyDnDecorator modDnControl;
+    private SyncModifyDn modDnControl;
     
 
     /**
@@ -99,7 +100,7 @@ public class ReplicaEventMessage implements Externalizable
      * @param modDnControl The modDN control
      * @param entry The entry
      */
-    public ReplicaEventMessage( SyncModifyDnDecorator modDnControl, Entry entry )
+    public ReplicaEventMessage( SyncModifyDn modDnControl, Entry entry )
     {
         this.modDnControl = modDnControl;
         this.entry = entry;
@@ -127,7 +128,7 @@ public class ReplicaEventMessage implements Externalizable
     /**
      * @return The ModDN conrol
      */
-    public SyncModifyDnDecorator getModDnControl()
+    public SyncModifyDn getModDnControl()
     {
         return modDnControl;
     }

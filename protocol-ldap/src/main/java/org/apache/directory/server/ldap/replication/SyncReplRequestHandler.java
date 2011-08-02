@@ -48,13 +48,13 @@ import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -368,7 +368,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         if ( refreshNPersist )
         {
             SyncReplSearchListener handler = replicaLog.getPersistentListener();
-            handler.setReq( req );
+            handler.setSearchRequest( req );
             handler.setSession( session );
         }
 
@@ -655,7 +655,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
-        SyncModifyDnDecorator modDnControl ) throws Exception
+        SyncModifyDn modDnControl ) throws Exception
     {
 
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
