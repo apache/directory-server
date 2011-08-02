@@ -782,6 +782,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
     private void applyModDnOperation( SyncModifyDn modDnControl ) throws Exception
     {
+        LOG.debug( "{}", modDnControl );
+        
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 
         Dn entryDn = new Dn( modDnControl.getEntryDn() );
