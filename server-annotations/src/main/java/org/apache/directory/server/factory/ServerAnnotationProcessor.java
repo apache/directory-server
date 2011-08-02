@@ -29,7 +29,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.factory.DSAnnotationProcessor;
+import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
@@ -199,14 +199,14 @@ public class ServerAnnotationProcessor
     
     
     /**
-     * creates an LdapServer and starts before returning the instance, infering
+     * Returns an LdapServer instance and starts it before returning the instance, infering
      * the configuration from the Stack trace
      *  
      * @return a running LdapServer instance
      */
-    public static LdapServer createLdapServer( DirectoryService directoryService ) throws ClassNotFoundException
+    public static LdapServer getLdapServer( DirectoryService directoryService ) throws ClassNotFoundException
     {
-        Object instance = DSAnnotationProcessor.getInstance( CreateLdapServer.class );
+        Object instance = AnnotationUtils.getInstance( CreateLdapServer.class );
         LdapServer ldapServer = null;
         
         if ( instance != null )
@@ -220,6 +220,9 @@ public class ServerAnnotationProcessor
     }
     
     
+    /**
+     * Create a replication consumer
+     */
     private static ReplicationConsumer createConsumer( CreateConsumer createConsumer )
     {
         ReplicationConsumer consumer = new SyncReplConsumer();
@@ -247,7 +250,7 @@ public class ServerAnnotationProcessor
      */
     public static ReplicationConsumer createConsumer() throws ClassNotFoundException
     {
-        Object instance = DSAnnotationProcessor.getInstance( CreateConsumer.class );
+        Object instance = AnnotationUtils.getInstance( CreateConsumer.class );
         ReplicationConsumer consumer = null;
         
         if ( instance != null )

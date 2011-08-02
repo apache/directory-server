@@ -22,14 +22,13 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -234,56 +233,6 @@ public class DSAnnotationProcessor
     
     
     /**
-     * Get an instance of a class extracted from the @nnotation found in the method
-     * or the class.
-     * 
-     * @param clazz The Annotation we want to get an instance for
-     * @return The instance or null if no annotation is found
-     * @throws ClassNotFoundException If we can't find a class
-     */
-    public static Object getInstance( Class<? extends Annotation> clazz ) throws ClassNotFoundException
-    {
-        Object instance = null;
-        
-        // Get the caller by inspecting the stackTrace
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-
-        // In Java5 the 0th stacktrace element is:
-        // java.lang.Thread.dumpThreads(Native Method)
-        int index = stackTrace[0].getMethodName().equals( "dumpThreads" ) ? 4 : 3;
-
-        // Get the enclosing class
-        Class<?> classCaller = Class.forName( stackTrace[index].getClassName() );
-
-        // Get the current method
-        String methodCaller = stackTrace[index].getMethodName();
-
-        // Check if we have any annotation associated with the method
-        Method[] methods = classCaller.getMethods();
-
-        for ( Method method : methods )
-        {
-            if ( methodCaller.equals( method.getName() ) )
-            {
-                instance = method.getAnnotation( clazz );
-
-                if ( instance != null )
-                {
-                    break;
-                }
-            }
-        }
-        
-        if ( instance == null )
-        {
-            instance = classCaller.getAnnotation( clazz );
-        }
-        
-        return instance;
-    }
-
-
-    /**
      * Create a DirectoryService from an annotation. The @CreateDS annotation
      * must be associated with either the method or the encapsulating class. We
      * will first try to get the annotation from the method, and if there is
@@ -293,7 +242,7 @@ public class DSAnnotationProcessor
      */
     public static DirectoryService getDirectoryService() throws Exception
     {
-        Object instance = getInstance( CreateDS.class );
+        Object instance = AnnotationUtils.getInstance( CreateDS.class );
         CreateDS dsBuilder = null;
         
         if ( instance != null )

@@ -231,7 +231,7 @@ public class DirectoryServiceAnnotationTest
         assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         // Now, get the server
-        LdapServer ldapServer = ServerAnnotationProcessor.createLdapServer( service );
+        LdapServer ldapServer = ServerAnnotationProcessor.getLdapServer( service );
 
         // Check that the server is running
         assertTrue( ldapServer.isStarted() );

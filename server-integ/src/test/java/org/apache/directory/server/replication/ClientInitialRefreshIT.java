@@ -160,7 +160,7 @@ public class ClientInitialRefreshIT
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
-        providerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
+        providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
         
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         providerServer.startReplicationProducer();

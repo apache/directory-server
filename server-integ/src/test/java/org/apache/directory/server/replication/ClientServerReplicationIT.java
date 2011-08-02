@@ -342,7 +342,7 @@ public class ClientServerReplicationIT
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
-        providerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
+        providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         providerServer.startReplicationProducer();
         
@@ -402,7 +402,7 @@ public class ClientServerReplicationIT
     public static void startConsumer() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
-        consumerServer = ServerAnnotationProcessor.createLdapServer( provDirService );
+        consumerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
         
         final SyncReplConsumer consumer = (SyncReplConsumer)ServerAnnotationProcessor.createConsumer();
         
