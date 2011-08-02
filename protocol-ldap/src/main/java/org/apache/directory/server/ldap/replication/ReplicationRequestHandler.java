@@ -37,7 +37,7 @@ public interface ReplicationRequestHandler
      *
      * @param server the LdapServer instance
      */
-    void init( LdapServer server );
+    void start( LdapServer server );
 
     
     /**

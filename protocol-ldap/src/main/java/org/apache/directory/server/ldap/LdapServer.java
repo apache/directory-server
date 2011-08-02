@@ -503,7 +503,7 @@ public class LdapServer extends DirectoryBackedService
     {
         if ( replicationReqHandler != null )
         {
-            replicationReqHandler.init( this );
+            replicationReqHandler.start( this );
             ( ( SearchHandler ) getSearchHandler() ).setReplicationReqHandler( replicationReqHandler );
         }
     }

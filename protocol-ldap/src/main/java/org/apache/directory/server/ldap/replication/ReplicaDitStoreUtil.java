@@ -28,11 +28,10 @@ import java.util.Map;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -40,9 +39,15 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.entry.StringValue;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,41 +60,46 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicaDitStoreUtil
 {
-    private CoreSession adminSession;
-
-    private SchemaManager schemaManager;
-
-    private static final String REPL_CONSUMER_DN = "ou=consumers,ou=system";
-
+    /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaDitStoreUtil.class );
 
-    private Map<Integer, List<Modification>> modMap = new HashMap<Integer, List<Modification>>();
+    /** The admin session used to commuicate with the backend */
+    private CoreSession adminSession;
 
-    private LdapCoreSessionConnection coreConnection;
+    /** The schema manager instance */
+    private SchemaManager schemaManager;
+
+    /** The replication factory DN */
+    private static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
+    private static Dn REPL_CONSUMER_DN;
+
+    /** An ObjectClass AT instance */
+    private static AttributeType OBJECT_CLASS_AT;
+
+    private Map<Integer, List<Modification>> modMap = new HashMap<Integer, List<Modification>>();
 
 
     public ReplicaDitStoreUtil( DirectoryService dirService ) throws Exception
     {
-        this.adminSession = dirService.getAdminSession();
-        this.schemaManager = dirService.getSchemaManager();
-        coreConnection = new LdapCoreSessionConnection( adminSession );
+        adminSession = dirService.getAdminSession();
+        schemaManager = dirService.getSchemaManager();
+        REPL_CONSUMER_DN = dirService.getDnFactory().create( REPL_CONSUMER_DN_STR );
+        OBJECT_CLASS_AT = dirService.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         init();
     }
 
 
     /**
-     * Initialize the replication Store, creating the pu=consumers,ou=system entry
+     * Initialize the replication Store, creating the ou=consumers,ou=system entry
      */
     private void init() throws Exception
     {
-        Dn replConsumerDn = new Dn( schemaManager, REPL_CONSUMER_DN );
-
-        if ( !adminSession.exists( replConsumerDn ) )
+        if ( !adminSession.exists( REPL_CONSUMER_DN ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
             
-            Entry entry = new DefaultEntry( schemaManager , replConsumerDn,
+            Entry entry = new DefaultEntry( schemaManager , REPL_CONSUMER_DN,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.OU_AT, "consumers" );
 
@@ -162,8 +172,14 @@ public class ReplicaDitStoreUtil
     {
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
-        EntryCursor cursor = coreConnection.search( REPL_CONSUMER_DN, "(" + SchemaConstants.OBJECT_CLASS + "=" + SchemaConstants.ADS_REPL_EVENT_LOG + ")",
-            SearchScope.ONELEVEL, "+", "*" );
+        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ADS_REPL_EVENT_LOG ) );
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( REPL_CONSUMER_DN );
+        searchRequest.setScope( SearchScope.ONELEVEL );
+        searchRequest.setFilter( filter );
+        searchRequest.addAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
+        
+        EntryFilteringCursor cursor = adminSession.search( searchRequest );
 
         while ( cursor.next() )
         {

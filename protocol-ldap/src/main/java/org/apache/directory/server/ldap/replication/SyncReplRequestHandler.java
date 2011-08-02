@@ -100,19 +100,22 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class SyncReplRequestHandler implements ReplicationRequestHandler
 {
+    /** The logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
 
     public static final String REPLICA_ID_DELIM = ";";
 
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
-
+    /** Tells if the replication handler is already started */
     private boolean initialized = false;
 
+    /** The directory service instance */
     private DirectoryService dirService;
 
     /** The reference on the Ldap server instance */
     protected LdapServer ldapServer;
 
-    private AttributeType objectClassAttributeType;
+    /** An ObjectClass AT instance */
+    private static AttributeType OBJECT_CLASS_AT;
 
     private Map<Integer, ReplicaEventLog> replicaLogMap = new HashMap<Integer, ReplicaEventLog>();
 
@@ -127,24 +130,34 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private ReplicaDitStoreUtil replicaUtil;
 
 
+    /**
+     * Create a SyncReplRequestHandler empty instance 
+     */
     public SyncReplRequestHandler()
     {
     }
 
 
-    public void init( LdapServer server )
+    /**
+     * {@inheritDoc}
+     */
+    public void start( LdapServer server )
     {
         if ( initialized )
         {
             LOG.warn( "syncrepl provider was already initialized" );
             return;
         }
+        
         try
         {
             LOG.info( "initializing the syncrepl provider" );
 
             this.ldapServer = server;
             this.dirService = server.getDirectoryService();
+
+            OBJECT_CLASS_AT = dirService.getSchemaManager()
+                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
             File workDir = dirService.getInstanceLayout().getLogDirectory();
             syncReplData = new File( workDir, "syncrepl-data" );
@@ -156,6 +169,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             String path = syncReplData.getPath();
 
+            // Create the system responsible for transmitting the requests when
+            // the direct connection to the consumer is closed.
             brokerService = new BrokerService();
             brokerService.setUseJmx( false );
             brokerService.setPersistent( true );
@@ -851,14 +866,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        if ( objectClassAttributeType == null )
-        {
-            objectClassAttributeType = session.getCoreSession().getDirectoryService().getSchemaManager()
-                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        }
-
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
+            OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC ) );
 
         return ocIsReferral;
     }
@@ -871,6 +880,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             for ( Map.Entry<Integer, ReplicaEventLog> e : replicaLogMap.entrySet() )
             {
                 ReplicaEventLog replica = e.getValue();
+                
                 if ( replica.isDirty() )
                 {
                     LOG.debug( "updating the details of replica {}", replica );
@@ -951,6 +961,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 while ( true )
                 {
                     storeReplicaInfo();
+                    
                     try
                     {
                         Thread.sleep( 10000 );
