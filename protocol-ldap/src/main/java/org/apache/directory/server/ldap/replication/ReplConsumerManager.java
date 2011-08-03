@@ -22,9 +22,9 @@ package org.apache.directory.server.ldap.replication;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -78,11 +78,18 @@ public class ReplConsumerManager
     /** The replication factory DN */
     private static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
     private static Dn REPL_CONSUMER_DN;
+    
+    /** The consumers' ou value */
+    private static final String CONSUMERS = "consumers"; 
 
     /** An ObjectClass AT instance */
     private static AttributeType OBJECT_CLASS_AT;
+    
+    /** An AdsReplLastSentCsn AT instance */
+    private static AttributeType ADS_REPL_LAST_SENT_CSN_AT;
 
-    private Map<Integer, Modification> modMap = new HashMap<Integer, Modification>();
+    /** A map containing the last sent CSN for every connected consumer */
+    private Map<Integer, Modification> modMap = new ConcurrentHashMap<Integer, Modification>();
 
 
     /**
@@ -97,7 +104,8 @@ public class ReplConsumerManager
         adminSession = directoryService.getAdminSession();
         schemaManager = directoryService.getSchemaManager();
         REPL_CONSUMER_DN = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
-        OBJECT_CLASS_AT = directoryService.getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
         
         createConsumersBranch();
     }
@@ -114,7 +122,7 @@ public class ReplConsumerManager
             
             Entry entry = new DefaultEntry( schemaManager , REPL_CONSUMER_DN,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-                SchemaConstants.OU_AT, "consumers" );
+                SchemaConstants.OU_AT, CONSUMERS );
 
             adminSession.add( entry );
         }
@@ -197,6 +205,12 @@ public class ReplConsumerManager
     }
 
 
+    /**
+     * Store the new CSN sent by the consumer in place of the previous one.
+     * 
+     * @param replica The consumer informations
+     * @throws Exception If the update failed
+     */
     public void updateReplicaLastSentCsn( ReplicaEventLog replica ) throws Exception
     {
         Modification mod = modMap.get( replica.getId() );
@@ -204,13 +218,11 @@ public class ReplConsumerManager
         
         if ( mod == null )
         {
-            lastSentCsnAt = new DefaultAttribute( schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN ) );
-            lastSentCsnAt.add( replica.getLastSentCsn() );
+            lastSentCsnAt = new DefaultAttribute( ADS_REPL_LAST_SENT_CSN_AT, replica.getLastSentCsn() );
 
-            mod = new DefaultModification();
-            mod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
-            mod.setAttribute( lastSentCsnAt );
+            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, lastSentCsnAt );
+            
+            modMap.put( replica.getId(), mod );
         }
         else
         {
@@ -261,6 +273,9 @@ public class ReplConsumerManager
     }
 
 
+    /**
+     * Convert the stored entry to a valid ReplicaEventLog structure
+     */
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
         String id = entry.get( SchemaConstants.ADS_DS_REPLICA_ID ).getString();
