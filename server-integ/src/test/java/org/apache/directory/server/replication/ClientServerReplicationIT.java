@@ -309,7 +309,7 @@ public class ClientServerReplicationIT
     {
         String user = "user"+ entryCount.incrementAndGet();
         
-        Dn dn = new Dn( schemaManager, "cn=" + user + ",dc=example,dc=com" );
+        String dn = "cn=" + user + ",dc=example,dc=com";
         
         DefaultEntry entry = new DefaultEntry( schemaManager, dn,
             "objectClass", "person",
