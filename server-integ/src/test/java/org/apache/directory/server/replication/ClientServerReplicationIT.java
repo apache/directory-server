@@ -170,7 +170,7 @@ public class ClientServerReplicationIT
         
         assertFalse( consumerSession.exists( provUser.getDn() ) );
         
-        providerSession.add( provUser );
+        providerSession.add( provUser ); // 1
      
         Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
         
@@ -178,7 +178,7 @@ public class ClientServerReplicationIT
             "objectClass: organizationalUnit",
             "ou: users" );
         
-        providerSession.add( entry );
+        providerSession.add( entry ); // 2
         
         assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
         waitAndCompareEntries( entry.getDn() );
@@ -207,7 +207,7 @@ public class ClientServerReplicationIT
         
         newName = new Rdn( schemaManager, userDn.getRdn().getName() + "MovedAndRenamed");
         
-        providerSession.moveAndRename( userDn, newParent, newName, false );
+        providerSession.moveAndRename( userDn, newParent, newName, false ); //4
         
         userDn = newParent.add( newName );
 
@@ -309,7 +309,7 @@ public class ClientServerReplicationIT
     {
         String user = "user"+ entryCount.incrementAndGet();
         
-        String dn = "cn=" + user + ",dc=example,dc=com";
+        Dn dn = new Dn( schemaManager, "cn=" + user + ",dc=example,dc=com" );
         
         DefaultEntry entry = new DefaultEntry( schemaManager, dn,
             "objectClass", "person",
