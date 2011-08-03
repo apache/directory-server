@@ -410,6 +410,17 @@ public interface CoreSession
      * @throws Exception if there are failures while modifying the entry
      */
     void modify( Dn dn, List<Modification> mods ) throws LdapException;
+
+    
+    /**
+     * Modifies an entry within the server by applying a list of modifications 
+     * to the entry.
+     *
+     * @param dn the distinguished name of the entry to modify
+     * @param mods the list of modifications to apply
+     * @throws Exception if there are failures while modifying the entry
+     */
+    void modify( Dn dn, Modification... mods ) throws LdapException;
     
     
     /**

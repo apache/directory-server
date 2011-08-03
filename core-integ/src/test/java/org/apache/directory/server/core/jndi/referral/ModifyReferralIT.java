@@ -243,11 +243,8 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             Attribute attr = new DefaultAttribute( "Description", "this is a test" );
             Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
-            List<Modification> mods = new ArrayList<Modification>();
             
-            mods.add( mod );
-            
-            session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods );
+            session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mod );
             fail();
         }
         catch ( LdapNoSuchObjectException lnsoe )

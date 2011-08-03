@@ -25,9 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -35,11 +33,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
@@ -138,10 +136,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 
         Attribute attribute = new DefaultAttribute( "userPassword", "replaced" );
 
-        List<Modification> mods = new ArrayList<Modification>();
-        
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        mods.add( mod );
       
         Dn userDn = new Dn( getService().getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
         LdapPrincipal principal = new LdapPrincipal( getService().getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
@@ -149,8 +144,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 
         try
         {
-            akarasuluSession.modify( 
-                new Dn( "uid=admin,ou=system" ), mods );
+            akarasuluSession.modify( new Dn( "uid=admin,ou=system" ), mod );
             fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         }
         catch ( Exception e )

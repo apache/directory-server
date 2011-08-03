@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * TODO ReplicaDitStoreUtil.
+ * Manage the consumers on the provider : add them, and remove them.
  * 
  * All the consumers configuration will be stored in the 'ou=consumers,ou=system' branch.
  *
@@ -82,7 +82,7 @@ public class ReplConsumerManager
     /** An ObjectClass AT instance */
     private static AttributeType OBJECT_CLASS_AT;
 
-    private Map<Integer, List<Modification>> modMap = new HashMap<Integer, List<Modification>>();
+    private Map<Integer, Modification> modMap = new HashMap<Integer, Modification>();
 
 
     /**
@@ -159,6 +159,8 @@ public class ReplConsumerManager
 
         adminSession.add( entry );
         
+        // Last, create a 
+        
         LOG.debug( "stored replication consumer entry {}", consumerDn );
     }
 
@@ -197,31 +199,29 @@ public class ReplConsumerManager
 
     public void updateReplicaLastSentCsn( ReplicaEventLog replica ) throws Exception
     {
-        List<Modification> mods = modMap.get( replica.getId() );
+        Modification mod = modMap.get( replica.getId() );
         Attribute lastSentCsnAt = null;
         
-        if ( mods == null )
+        if ( mod == null )
         {
             lastSentCsnAt = new DefaultAttribute( schemaManager
                 .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN ) );
             lastSentCsnAt.add( replica.getLastSentCsn() );
 
-            Modification mod = new DefaultModification();
+            mod = new DefaultModification();
             mod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
             mod.setAttribute( lastSentCsnAt );
-
-            mods = new ArrayList<Modification>( 1 );
-            mods.add( mod );
         }
         else
         {
-            lastSentCsnAt = mods.get( 0 ).getAttribute();
+            lastSentCsnAt = mod.getAttribute();
             lastSentCsnAt.clear(); // clearing is mandatory
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = new Dn( schemaManager, SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
-        adminSession.modify( dn, mods );
+        Dn dn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        adminSession.modify( dn, mod );
+        
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
     }
 

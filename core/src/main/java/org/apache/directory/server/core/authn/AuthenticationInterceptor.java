@@ -517,6 +517,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
 
         PwdModDetailsHolder pwdModDetails = null;
+        
         if ( policyConfig.isPwdSafeModify() || pwdResetSet.contains( userDn ) || ( policyConfig.getPwdMinAge() > 0 ) )
         {
             pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
@@ -545,6 +546,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( pwdModDetails.isAddOrReplace() && !pwdModDetails.isDelete() )
                 {
                     LOG.debug( "trying to update password attribute without the supplying the old password" );
+                    
                     if ( isPPolicyReqCtrlPresent )
                     {
                         PasswordPolicyDecorator responseControl = 
@@ -559,7 +561,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( !policyConfig.isPwdAllowUserChange() && !modifyContext.getSession().isAnAdministrator() )
             {
-
                 if ( isPPolicyReqCtrlPresent )
                 {
                     PasswordPolicyDecorator responseControl = 
@@ -588,6 +589,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             byte[] newPassword = null;
+            
             if ( ( pwdModDetails != null ) )
             {
                 newPassword = pwdModDetails.getNewPwd();
@@ -662,9 +664,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             next.modify( modifyContext );
+            
             invalidateAuthenticatorCaches( modifyContext.getDn() );
 
             List<Modification> mods = new ArrayList<Modification>();
+            
             if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
             {
                 Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
@@ -684,6 +688,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             boolean removeFromPwdResetSet = false;
+            
             if ( policyConfig.isPwdMustChange() )
             {
                 Attribute pwdMustChangeAt = new DefaultAttribute( AT_PWD_RESET );
@@ -704,12 +709,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             Attribute pwdFailureTimeAt = entry.get( PWD_FAILURE_TIME_AT );
+            
             if ( pwdFailureTimeAt != null )
             {
                 mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
             }
 
             Attribute pwdGraceUseTimeAt = entry.get( PWD_GRACE_USE_TIME_AT );
+            
             if ( pwdGraceUseTimeAt != null )
             {
                 mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdGraceUseTimeAt ) );

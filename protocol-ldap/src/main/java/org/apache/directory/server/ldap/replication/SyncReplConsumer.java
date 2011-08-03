@@ -144,7 +144,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     /** The set used for search attributes, containing only the entryUuid AT */
     private static final Set<AttributeTypeOptions> ENTRY_UUID_ATOP_SET = new HashSet<AttributeTypeOptions>();
 
-    private List<Modification> cookieModLst;
+    private Modification cookieMod;
 
     /** AttributeTypes used for replication */
     private static AttributeType COOKIE_AT_TYPE;
@@ -188,8 +188,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
 
         Modification cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
-        cookieModLst = new ArrayList<Modification>( 1 );
-        cookieModLst.add( cookieMod );
+        this.cookieMod = cookieMod;
 
         prepareSyncSearchRequest();
     }
@@ -669,11 +668,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             }
             else
             {
-                Attribute attr = cookieModLst.get( 0 ).getAttribute();
+                Attribute attr = cookieMod.getAttribute();
                 attr.clear();
                 attr.add( syncCookie );
 
-                session.modify( config.getConfigEntryDn(), cookieModLst );
+                session.modify( config.getConfigEntryDn(), cookieMod );
             }
 
             lastSavedCookie = new byte[syncCookie.length];
@@ -761,9 +760,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                 Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
                 Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                     cookieAttr );
-                List<Modification> deleteModLst = new ArrayList<Modification>();
-                deleteModLst.add( deleteCookieMod );
-                session.modify( config.getConfigEntryDn(), deleteModLst );
+                session.modify( config.getConfigEntryDn(), deleteCookieMod );
             }
             catch ( Exception e )
             {
@@ -853,6 +850,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         if ( remoteEntry.size() > 0 )
         {
             itr = remoteEntry.iterator();
+            
             while ( itr.hasNext() )
             {
                 mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );

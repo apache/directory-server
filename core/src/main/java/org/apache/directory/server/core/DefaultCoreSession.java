@@ -23,6 +23,7 @@ package org.apache.directory.server.core;
 import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -527,6 +528,15 @@ public class DefaultCoreSession implements CoreSession
         Entry entry = operationManager.lookup( lookupContext );
 
         return entry;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( Dn dn, Modification... mods ) throws LdapException
+    {
+        modify( dn, Arrays.asList( mods ), LogChange.TRUE );
     }
 
 

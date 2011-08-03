@@ -29,7 +29,6 @@ import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySch
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
-import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -191,7 +190,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                         Modification pwdAccountLockMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,  accountLockAttr );
                         
                         // DO NOT bypass the interceptor chain, otherwise the changes can't be replicated
-                        directoryService.getAdminSession().modify( userEntry.getDn(), Collections.singletonList( pwdAccountLockMod ) );
+                        directoryService.getAdminSession().modify( userEntry.getDn(), pwdAccountLockMod );
                     }
                 }
             }
