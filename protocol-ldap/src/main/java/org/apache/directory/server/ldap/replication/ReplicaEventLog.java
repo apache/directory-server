@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A structure storing the configuration on each consumer registred on a producer. It stores 
+ * A structure storing the configuration on each consumer registered on a producer. It stores 
  * the following informations :
  * <ul>
  * <li>replicaId : the internal ID associated with the consumer</li>
@@ -45,7 +45,8 @@ import org.slf4j.LoggerFactory;
  * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and presist mode</li>
  * <li></li>
  * </ul>
- * A separate log is maintained for each syncrepl consumer  
+ * A separate log is maintained for each syncrepl consumer.<br/>
+ * We also associate a Queue with each structure, which will store the messages to send to the consumer.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -96,7 +97,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
 
     /**
-     * Create a new instance of EventLog for a replica
+     * Creates a new instance of EventLog for a replica
      * @param replicaId The replica ID
      */
     public ReplicaEventLog( int replicaId )
@@ -108,11 +109,11 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
 
     /**
-     * Instantiates a message queue and corresponding producer for storing DIT changes  
+     * Instantiates a message queue and corresponding producer for storing DIT changes.
      *
      * @param amqConnection ActiveMQ connection
      * @param brokerService ActiveMQ's broker service
-     * @throws Exception
+     * @throws Exception If the queue can't be created
      */
     public void configure( final ActiveMQConnection amqConnection, final BrokerService brokerService ) throws Exception
     {
@@ -140,6 +141,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
             
             ActiveMQObjectMessage ObjectMessage = ( ActiveMQObjectMessage ) amqSession.createObjectMessage();
             ObjectMessage.setObject( message );
+            
             producer.send( ObjectMessage );
         }
         catch ( Exception e )
@@ -153,7 +155,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      * Deletes the queue (to remove the log) and recreates a new queue instance
      * with the same queue name. Also creates the corresponding message producer
      *
-     * @throws Exception
+     * @throws Exception If the queue can't be deleted
      */
     public void truncate() throws Exception
     {
@@ -185,7 +187,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      */
     public void stop() throws Exception
     {
-        // then close the producer and session, DO NOT close connection 
+        // Close the producer and session, DO NOT close connection 
         producer.close();
         amqSession.close();
     }

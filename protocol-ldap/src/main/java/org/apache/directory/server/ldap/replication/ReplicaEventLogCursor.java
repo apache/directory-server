@@ -32,65 +32,93 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * Define a cursor on top of a message queue.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
 {
-
+    /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLogCursor.class );
     
+    /** A browser on top of the queue */
     private ActiveMQQueueBrowser browser;
 
+    /** The queue on top of which we will build the cursor */
     private Queue regionQueue;
 
 
+    /**
+     * Creates a cursor on top of the given queue
+     * @param session The session
+     * @param queue The queue
+     * @param regionQueue ???
+     * @throws Exception If we can't create a browser on top of the queue
+     */
     public ReplicaEventLogCursor( ActiveMQSession session, ActiveMQQueue queue, Queue regionQueue ) throws Exception
     {
-        // commit before starting browser, to see the latest view of the Queue data
-//        session.commit();
-        
         browser = ( ActiveMQQueueBrowser ) session.createBrowser( queue );
         
         this.regionQueue = regionQueue;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( ReplicaEventMessage arg0 ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return browser.hasMoreElements();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void before( ReplicaEventMessage arg0 ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ReplicaEventMessage get() throws Exception
     {
         ActiveMQObjectMessage amqObj = ( ActiveMQObjectMessage ) browser.nextElement();
@@ -102,24 +130,36 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         return browser.hasMoreElements();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws Exception
     {
@@ -128,6 +168,9 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close( Exception cause ) throws Exception
     {
@@ -136,6 +179,9 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterator<ReplicaEventMessage> iterator()
     {
