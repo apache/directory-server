@@ -174,7 +174,7 @@ public class ReplConsumerManager
 
 
     /**
-     * Add a new consumer entry in ou=consumers,ou=system
+     * Delete an existing consumer entry from ou=consumers,ou=system
      * 
      * @param replica The added consumer replica
      * @throws Exception If the addition failed
