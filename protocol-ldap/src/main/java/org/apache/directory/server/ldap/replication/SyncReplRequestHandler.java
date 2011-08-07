@@ -291,7 +291,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     }
                     else
                     {
-                        doContentUpdate( session, request, clientMsgLog );
+                        String consumerCsn = getCsn( cookieString );
+                        doContentUpdate( session, request, clientMsgLog, consumerCsn );
                     }
                 }
             }
@@ -308,13 +309,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
-    private String sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog )
+    private String sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog, String consumerCsn )
         throws Exception
     {
         // do the search from the log
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
-        ReplicaEventLogCursor cursor = clientMsgLog.getCursor();
+        ReplicaEventLogCursor cursor = clientMsgLog.getCursor( consumerCsn );
         
         while ( cursor.next() )
         {
@@ -357,7 +358,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
-    private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog )
+    private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog, String consumerCsn )
         throws Exception
     {
         boolean refreshNPersist = isRefreshNPersist( req );
@@ -372,7 +373,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             handler.setSession( session );
         }
 
-        String lastSentCsn = sendContentFromLog( session, req, replicaLog );
+        String lastSentCsn = sendContentFromLog( session, req, replicaLog, consumerCsn );
 
         byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + lastSentCsn);
 
@@ -477,7 +478,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( refreshNPersist ) // refreshAndPersist mode
             {
-                contextCsn = sendContentFromLog( session, request, replicaLog );
+                contextCsn = sendContentFromLog( session, request, replicaLog, contextCsn );
                 cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
@@ -1012,7 +1013,25 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         return Csn.isValid(csnString);
     }
 
+    /**
+     * returns the CSN present in cookie
+     * 
+     * @param cookieString the cookie
+     * @return
+     */
+    private String getCsn( String cookieString )
+    {
+        int pos = cookieString.indexOf( REPLICA_ID_DELIM );
+        return cookieString.substring( pos + 1 );
+    }
 
+    
+    /**
+     * returns the replica id present in cookie
+     * 
+     * @param cookieString  the cookie
+     * @return
+     */
     private int getReplicaId( String cookieString )
     {
         String replicaId = cookieString.substring( 0, cookieString.indexOf( REPLICA_ID_DELIM ) );

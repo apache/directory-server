@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -284,6 +285,22 @@ public class ReplicaEventMessage implements Externalizable
         }
     }
 
+    
+    /**
+     * checks if the event's CSN is older than the given CSN
+     *
+     * @param csn the CSN
+     * @return true if the event's CSN is older than the given CSN
+     * @throws Exception if there are any extreme conditions like a null entry or missing entryCSN attribute.
+     */
+    public boolean isEventOlderThan( String csn ) throws Exception
+    {
+        String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+        
+        int i = entryCsn.compareTo( csn );
+        
+        return ( i < 0 );
+    }
 
     /**
      * Set the SchemaManager 

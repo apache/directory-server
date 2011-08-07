@@ -403,14 +403,15 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
 
     /**
+     * @param consumerCsn the consumer's CSN extracted from cookie
      * @return A cursor on top of the queue
      * @throws Exception If the cursor can't be created
      */
-    public ReplicaEventLogCursor getCursor() throws Exception
+    public ReplicaEventLogCursor getCursor( String consumerCsn ) throws Exception
     {
         Queue regionQueue = ( Queue ) brokerService.getRegionBroker().getDestinationMap().get( queue );
         
-        return new ReplicaEventLogCursor( amqSession, queue, regionQueue );
+        return new ReplicaEventLogCursor( amqSession, queue, regionQueue, consumerCsn );
     }
 
 

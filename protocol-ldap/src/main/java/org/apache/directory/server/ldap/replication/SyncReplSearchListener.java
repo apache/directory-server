@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
  * A listener associated with the replication system. It does send the modifications to the 
  * consumer, if it's connected, or store the data into a queue for a later transmission.
  * 
+ * Note: we always log the entry irrespective of the client's connection status for guaranteed delivery
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SyncReplSearchListener implements DirectoryListener, AbandonListener
@@ -183,6 +185,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         searchResultEntry.addControl( syncStateValue );
 
+        LOG.debug( "sending event {} of entry {}", eventType, entry.getDn() );
         WriteFuture future = session.getIoSession().write( searchResultEntry );
 
         // Now, send the entry to the consumer
@@ -200,10 +203,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = addContext.getEntry();
 
-        LOG.debug( "sending added entry {}", entry.getDn() );
-
         try
         {
+            // we log it first
+            consumerMsgLog.log( new ReplicaEventMessage( EventType.ADD, entry ) );
+
             // We send the added entry directly to the consumer if it's connected
             if ( pushInRealTime )
             {
@@ -217,11 +221,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 
                 sendResult( resultEntry, entry, EventType.ADD, syncAdd, null );
             }
-            else
-            {
-                // We are not connected, store the entry into the consumer's queue
-                consumerMsgLog.log( new ReplicaEventMessage( EventType.ADD, addContext.getEntry() ) );
-            }
+            
         }
         catch ( LdapInvalidAttributeValueException e )
         {
@@ -249,10 +249,10 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     private void sendDeletedEntry( Entry entry )
     {
-        LOG.debug( "sending deleted entry {}", entry.getDn() );
-
         try
         {
+            consumerMsgLog.log( new ReplicaEventMessage( EventType.DELETE, entry ) );
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
@@ -262,10 +262,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 SyncStateValue syncDelete = createControl( directoryService, SyncStateTypeEnum.DELETE, entry );
 
                 sendResult( resultEntry, entry, EventType.DELETE, syncDelete, null );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( EventType.DELETE, entry ) );
             }
         }
         catch ( LdapInvalidAttributeValueException e )
@@ -286,10 +282,10 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
-        LOG.debug( "sending modified entry {}", alteredEntry.getDn() );
-
         try
         {
+            consumerMsgLog.log( new ReplicaEventMessage( EventType.MODIFY, alteredEntry ) );
+            
             if ( pushInRealTime )
             {
 
@@ -300,10 +296,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODIFY, alteredEntry );
 
                 sendResult( resultEntry, alteredEntry, EventType.MODIFY, syncModify, null );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( EventType.MODIFY, modifyContext.getAlteredEntry() ) );
             }
         }
         catch ( Exception e )
@@ -323,8 +315,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = moveContext.getOriginalEntry();
 
-        LOG.debug( "sending moved entry {}", entry.getDn() );
-
         try
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -338,6 +328,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setEntryDn( moveContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
+            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
@@ -348,10 +340,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
 
                 sendResult( resultEntry, entry, null, syncModify, modDnControl );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             }
         }
         catch ( Exception e )
@@ -369,9 +357,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
-
-        LOG.debug( "sending moveAndRenamed entry {}", moveAndRenameContext.getDn() );
-
         try
         {
             if ( !moveAndRenameContext.getNewSuperiorDn().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -387,22 +372,21 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
             modDnControl.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
 
+            // should always send the original entry cause the consumer perform the modDn operation there
+            Entry entry = moveAndRenameContext.getOriginalEntry();
+
+            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            
             if ( pushInRealTime )
             {
-                Entry alteredEntry = moveAndRenameContext.getModifiedEntry();
-
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
-                resultEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
-                resultEntry.setEntry( alteredEntry );
+                resultEntry.setObjectName( entry.getDn() );
+                resultEntry.setEntry( entry );
                 resultEntry.addControl( modDnControl );
 
-                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, alteredEntry );
+                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
 
-                sendResult( resultEntry, alteredEntry, null, syncModify, modDnControl );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( modDnControl, moveAndRenameContext.getEntry() ) );
+                sendResult( resultEntry, entry, null, syncModify, modDnControl );
             }
         }
         catch ( Exception e )
@@ -420,9 +404,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryRenamed( RenameOperationContext renameContext )
     {
-        Entry entry = renameContext.getEntry();
-
-        LOG.debug( "sending renamed entry {}", entry.getDn() );
+        Entry entry = renameContext.getOriginalEntry();
 
         try
         {
@@ -432,6 +414,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setNewRdn( renameContext.getNewRdn().getName() );
             modDnControl.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
+            // should always send the original entry cause the consumer perform the modDn operation there
+            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
@@ -441,16 +426,10 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
                 
-                Entry modifiedEntry = renameContext.getModifiedEntry();
-                
                 // In this case, the cookie is different
-                syncModify.setCookie( getCookie( modifiedEntry ) );
+                syncModify.setCookie( getCookie( entry ) );
 
-                sendResult( resultEntry, modifiedEntry, null, syncModify, modDnControl );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( modDnControl, renameContext.getEntry() ) );
+                sendResult( resultEntry, entry, null, syncModify, modDnControl );
             }
         }
         catch ( Exception e )
@@ -508,15 +487,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             // set realtime push to false, will be set back to true when the client
             // comes back and sends another request this flag will be set to true
             pushInRealTime = false;
-
-            if ( modDnControl != null )
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
-            }
-            else
-            {
-                consumerMsgLog.log( new ReplicaEventMessage( event, entry ) );
-            }
         }
     }
     

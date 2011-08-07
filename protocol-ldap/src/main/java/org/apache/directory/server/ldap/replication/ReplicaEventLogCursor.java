@@ -26,6 +26,7 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.broker.region.Queue;
 import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,18 +48,24 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     /** The queue on top of which we will build the cursor */
     private Queue regionQueue;
 
+    /** the consumer's CSN based on which messages will be qualified for sending */
+    private String consumerCsn;
 
+    private ReplicaEventMessage qualifiedEvtMsg;
+    
     /**
      * Creates a cursor on top of the given queue
      * @param session The session
      * @param queue The queue
      * @param regionQueue ???
+     * @param consumerCsn the consumer's CSN taken from cookie
      * @throws Exception If we can't create a browser on top of the queue
      */
-    public ReplicaEventLogCursor( ActiveMQSession session, ActiveMQQueue queue, Queue regionQueue ) throws Exception
+    public ReplicaEventLogCursor( ActiveMQSession session, ActiveMQQueue queue, Queue regionQueue, String consumerCsn ) throws Exception
     {
         browser = ( ActiveMQQueueBrowser ) session.createBrowser( queue );
         
+        this.consumerCsn = consumerCsn;        
         this.regionQueue = regionQueue;
     }
 
@@ -121,14 +128,43 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
      */
     public ReplicaEventMessage get() throws Exception
     {
-        ActiveMQObjectMessage amqObj = ( ActiveMQObjectMessage ) browser.nextElement();
-        LOG.debug( "ReplicaEventMessage: {}", amqObj );
-        ReplicaEventMessage message = ( ReplicaEventMessage ) amqObj.getObject();
-        regionQueue.removeMessage( amqObj.getJMSMessageID() );
-        
-        return message;
+        return qualifiedEvtMsg;
     }
 
+    
+    /**
+     * selects the current queue entry if qualified for sending to the consumer
+     * 
+     * @throws Exception
+     */
+    private void selectQualified() throws Exception
+    {
+        qualifiedEvtMsg = null;
+        
+        ActiveMQObjectMessage amqObj = ( ActiveMQObjectMessage ) browser.nextElement();
+        LOG.debug( "ReplicaEventMessage: {}", amqObj );
+        qualifiedEvtMsg = ( ReplicaEventMessage ) amqObj.getObject();
+        
+        if( qualifiedEvtMsg.isEventOlderThan( consumerCsn ) )
+        {
+            if( LOG.isDebugEnabled() )
+            {
+                String evt = "MODDN"; // take this as default cause the event type for MODDN is null
+                
+                EventType evtType = qualifiedEvtMsg.getEventType();
+                if ( evtType != null )
+                {
+                    evt = evtType.name();
+                }
+                
+                LOG.debug( "event {} for dn {} is not qualified for sending", evt, qualifiedEvtMsg.getEntry().getDn() );
+            }
+            
+            regionQueue.removeMessage( amqObj.getJMSMessageID() );
+            qualifiedEvtMsg = null;
+        }
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -144,7 +180,17 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
      */
     public boolean next() throws Exception
     {
-        return browser.hasMoreElements();
+        while( browser.hasMoreElements() )
+        {
+            selectQualified();
+            
+            if ( qualifiedEvtMsg != null )
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 
