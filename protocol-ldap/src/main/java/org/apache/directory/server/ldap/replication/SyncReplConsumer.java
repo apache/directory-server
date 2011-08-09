@@ -331,15 +331,20 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             switch ( state )
             {
                 case ADD:
-                    if ( !session.exists( remoteEntry.getDn() ) )
+                    Dn remoteDn = directoryService.getDnFactory().create( remoteEntry.getDn().getName() );
+                    //System.out.println( " ============> ADDING " + remoteDn );
+                    
+                    if ( !session.exists( remoteDn ) )
                     {
-                        LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getName() );
+                        //System.out.println( "C: " + remoteDn + " does not exist, adding it" );
+                        LOG.debug( "adding entry with dn {}", remoteDn );
                         LOG.debug( remoteEntry.toString() );
                         session.add( new DefaultEntry( schemaManager, remoteEntry ) );
                     }
                     else
                     {
-                        LOG.debug( "updating entry in refreshOnly mode {}", remoteEntry.getDn().getName() );
+                        //System.out.println( "C: " + remoteDn + " exists, modifying it" );
+                        LOG.debug( "updating entry in refreshOnly mode {}", remoteDn );
                         modify( remoteEntry );
                     }
 
@@ -347,16 +352,20 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
                 case MODIFY:
                     LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
+                    //System.out.println( "C: modifying " + remoteEntry.getDn() );
                     modify( remoteEntry );
                     break;
 
                 case MODDN:
                     SyncModifyDn adsModDnControl = ( SyncModifyDn ) syncResult.getControls().get( SyncModifyDn.OID );
+                    //System.out.println( "C: MODDN " + adsModDnControl.getModDnType() + ", " + adsModDnControl.getEntryDn() 
+                    //    + ", " + adsModDnControl.getNewSuperiorDn() + ", " + adsModDnControl.getNewRdn() );
                     //Apache Directory Server's special control
                     applyModDnOperation( adsModDnControl );
                     break;
 
                 case DELETE:
+                    //System.out.println( " ============> DELETING " + remoteEntry.getDn().getNormName() );
                     LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
                     // incase of a MODDN operation resulting in a branch to be moved out of scope
                     // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
@@ -556,12 +565,15 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         SearchFuture sf = connection.searchAsync( searchRequest );
 
         Response resp = sf.get();
-
+        
         while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() && !disconnected )
         {
             if ( resp instanceof SearchResultEntry )
             {
-                handleSearchResult( ( SearchResultEntry ) resp );
+                SearchResultEntry result = ( SearchResultEntry ) resp;
+                //System.out.println( "++++++++++++>  Consumer has received : " + result.getEntry().getDn() );
+
+                handleSearchResult( result );
             }
             else if ( resp instanceof SearchResultReference )
             {
@@ -782,19 +794,22 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         
         SyncModifyDnType modDnType = modDnControl.getModDnType();
 
-        Dn entryDn = new Dn( modDnControl.getEntryDn() );
+        Dn entryDn = directoryService.getDnFactory().create( modDnControl.getEntryDn() );
+        
         switch ( modDnType )
         {
             case MOVE:
 
+                //System.out.println( " ============> MOVING " + entryDn.getNormName() + " to " + modDnControl.getNewSuperiorDn() );
                 LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
 
-                session.move( entryDn, new Dn( modDnControl.getNewSuperiorDn() ) );
+                session.move( entryDn, directoryService.getDnFactory().create( modDnControl.getNewSuperiorDn() ) );
                 break;
 
             case RENAME:
 
-                Rdn newRdn = new Rdn( modDnControl.getNewRdn() );
+                //System.out.println( " ============> RENAMING " + entryDn.getNormName() + " to " + modDnControl.getNewRdn() );
+                Rdn newRdn = new Rdn( schemaManager, modDnControl.getNewRdn() );
                 boolean deleteOldRdn = modDnControl.isDeleteOldRdn();
                 LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
                     { entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
@@ -804,9 +819,10 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
             case MOVEANDRENAME:
 
-                Dn newParentDn = new Dn( modDnControl.getNewSuperiorDn() );
-                newRdn = new Rdn( modDnControl.getNewRdn() );
+                Dn newParentDn = directoryService.getDnFactory().create( modDnControl.getNewSuperiorDn() );
+                newRdn = new Rdn( schemaManager, modDnControl.getNewRdn() );
                 deleteOldRdn = modDnControl.isDeleteOldRdn();
+                //System.out.println( " ============> MOVING and RENAMING " + entryDn.getNormName() + " to " + newRdn + "/" +modDnControl.getNewRdn() );
 
                 LOG.debug(
                     "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",

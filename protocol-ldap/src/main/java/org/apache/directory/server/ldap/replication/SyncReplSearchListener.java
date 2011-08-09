@@ -203,8 +203,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = addContext.getEntry();
 
+        LOG.debug( "sending added entry {}", entry.getDn() );
+        
         try
         {
+            //System.out.println( "ADD Listener : log " + entry.getDn() );
             // we log it first
             consumerMsgLog.log( new ReplicaEventMessage( EventType.ADD, entry ) );
 
@@ -249,8 +252,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     private void sendDeletedEntry( Entry entry )
     {
+        LOG.debug( "sending deleted entry {}", entry.getDn() );
+        
         try
         {
+            //System.out.println( "DELETE Listener : log " + entry.getDn() );
             consumerMsgLog.log( new ReplicaEventMessage( EventType.DELETE, entry ) );
             
             if ( pushInRealTime )
@@ -282,8 +288,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
+        LOG.debug( "sending modified entry {}", alteredEntry.getDn() );
+
         try
         {
+            //System.out.println( "MODIFY Listener : log " + alteredEntry.getDn() );
             consumerMsgLog.log( new ReplicaEventMessage( EventType.MODIFY, alteredEntry ) );
             
             if ( pushInRealTime )
@@ -315,6 +324,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = moveContext.getOriginalEntry();
 
+        LOG.debug( "sending moved entry {}", entry.getDn() );
+
         try
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -328,6 +339,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setEntryDn( moveContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
+            //System.out.println( "MOVE Listener : log " + moveContext.getDn() + " moved to " + moveContext.getNewSuperior() );
             consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             
             if ( pushInRealTime )
@@ -357,6 +369,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
+        LOG.debug( "sending moveAndRenamed entry {}", moveAndRenameContext.getDn() );
+
         try
         {
             if ( !moveAndRenameContext.getNewSuperiorDn().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -375,6 +389,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             // should always send the original entry cause the consumer perform the modDn operation there
             Entry entry = moveAndRenameContext.getOriginalEntry();
 
+            //System.out.println( "MOVE AND RENAME Listener : log " + moveAndRenameContext.getDn() + 
+            //    " moved to " + moveAndRenameContext.getNewSuperiorDn() + " renamed to " + moveAndRenameContext.getNewRdn() );
             consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             
             if ( pushInRealTime )
@@ -406,6 +422,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = renameContext.getOriginalEntry();
 
+        LOG.debug( "sending renamed entry {}", entry.getDn() );
+
         try
         {
             SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
@@ -415,6 +433,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
             // should always send the original entry cause the consumer perform the modDn operation there
+            //System.out.println( "RENAME Listener : log " + renameContext.getDn() + " renamed to " + renameContext.getNewRdn() );
             consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
             
             if ( pushInRealTime )

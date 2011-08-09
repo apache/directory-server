@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicationTrustManager implements X509TrustManager
 {
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicationTrustManager.class );
 
     /** the internal trust manager used for verifying the certificates */
@@ -65,6 +66,9 @@ public class ReplicationTrustManager implements X509TrustManager
     private static ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
 
 
+    /**
+     * Creates a instance of ReplicationTrustManager
+     */
     private ReplicationTrustManager()
     {
         try
@@ -148,18 +152,27 @@ public class ReplicationTrustManager implements X509TrustManager
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void checkClientTrusted( X509Certificate[] chain, String authType ) throws CertificateException
     {
         trustManager.checkClientTrusted( chain, authType );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void checkServerTrusted( X509Certificate[] chain, String authType ) throws CertificateException
     {
         trustManager.checkServerTrusted( chain, authType );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public X509Certificate[] getAcceptedIssuers()
     {
         return trustManager.getAcceptedIssuers();

@@ -126,6 +126,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     private X509TrustManager trustManager = new NoVerificationTrustManager();
 
 
+    /**
+     * Creates a new instance of SyncreplConfiguration
+     */
     public SyncreplConfiguration()
     {
         attributes = new HashSet<String>();
@@ -405,12 +408,18 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * @return The ALiasDerefMode parameter
+     */
     public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
     }
 
 
+    /**
+     * @param aliasDerefMode Should be either NEVER_DEREF_ALIASES or DEREF_FINDING_BASE_OBJ
+     */
     public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
         if ( aliasDerefMode != AliasDerefMode.NEVER_DEREF_ALIASES
@@ -424,12 +433,18 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * @return The replication cookie
+     */
     public byte[] getCookie()
     {
         return cookie;
     }
 
 
+    /**
+     * @param cookie The cookie to set
+     */
     public void setCookie( byte[] cookie )
     {
         this.cookie = cookie;
@@ -447,12 +462,19 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * Tells if we chase referrals
+     * @return true if we chase referals
+     */
     public boolean isChaseReferrals()
     {
         return chaseReferrals;
     }
 
 
+    /**
+     * @param chaseReferrals Lust be false, always.
+     */
     public void setChaseReferrals( boolean chaseReferrals )
     {
         if ( chaseReferrals )
@@ -464,12 +486,18 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * @return The DN of the configuration entry
+     */
     public Dn getConfigEntryDn()
     {
         return configEntryDn;
     }
 
 
+    /**
+     * @return true if we use TLS
+     */
     public boolean isUseTls()
     {
         return useTls;
@@ -487,6 +515,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * @return true if the certificate verification is enforced 
+     */
     public boolean isStrictCertVerification()
     {
         return strictCertVerification;
@@ -513,6 +544,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
+    /**
+     * @return The Trustmanager instance
+     */
     public X509TrustManager getTrustManager()
     {
         return trustManager;

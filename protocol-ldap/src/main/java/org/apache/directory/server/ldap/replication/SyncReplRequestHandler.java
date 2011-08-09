@@ -257,6 +257,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         try
         {
+            //System.out.println( "Init replication on Provider" );
             // First extract the Sync control from the request
             SyncRequestValue syncControl = ( SyncRequestValue ) request.getControls().get(
                 SyncRequestValue.OID );
@@ -283,6 +284,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 else
                 {
                     ReplicaEventLog clientMsgLog = getReplicaEventLog( cookieString );
+                    
                     if ( clientMsgLog == null )
                     {
                         LOG.warn( "received a valid cookie {} but there is no event log associated with this replica",
@@ -291,6 +293,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     }
                     else
                     {
+                        //System.out.println( "  -> We have events" );
                         String consumerCsn = getCsn( cookieString );
                         doContentUpdate( session, request, clientMsgLog, consumerCsn );
                     }
@@ -316,12 +319,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
         ReplicaEventLogCursor cursor = clientMsgLog.getCursor( consumerCsn );
+        //int i = 0;
         
         while ( cursor.next() )
         {
             ReplicaEventMessage message = cursor.get();
             Entry entry = message.getEntry();
             LOG.debug( "received message from the queue {}", entry );
+            //i++;
+            
+            //System.out.println( "/////////////-> Message(" + i + ") read from queue : " + message.getEventType() + "/" + entry.getDn() );
 
             lastSentCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
@@ -379,6 +386,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         if ( refreshNPersist )
         {
+            //System.out.println( "   --> In doContenUpdate, RNP " );
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( SyncInfoValue.OID );
 
@@ -394,6 +402,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
         else
         {
+            //System.out.println( "   --> In doContenUpdate, RO " );
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             SyncDoneValue syncDone = new SyncDoneValueDecorator( 
