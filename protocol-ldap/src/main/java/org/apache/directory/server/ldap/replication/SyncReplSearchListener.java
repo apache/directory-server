@@ -203,8 +203,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry entry = addContext.getEntry();
 
-        LOG.debug( "sending added entry {}", entry.getDn() );
-        
         try
         {
             //System.out.println( "ADD Listener : log " + entry.getDn() );
@@ -252,8 +250,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     private void sendDeletedEntry( Entry entry )
     {
-        LOG.debug( "sending deleted entry {}", entry.getDn() );
-        
         try
         {
             //System.out.println( "DELETE Listener : log " + entry.getDn() );
@@ -288,8 +284,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
-        LOG.debug( "sending modified entry {}", alteredEntry.getDn() );
-
         try
         {
             //System.out.println( "MODIFY Listener : log " + alteredEntry.getDn() );
@@ -323,8 +317,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void entryMoved( MoveOperationContext moveContext )
     {
         Entry entry = moveContext.getOriginalEntry();
-
-        LOG.debug( "sending moved entry {}", entry.getDn() );
 
         try
         {
@@ -369,8 +361,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
-        LOG.debug( "sending moveAndRenamed entry {}", moveAndRenameContext.getDn() );
-
         try
         {
             if ( !moveAndRenameContext.getNewSuperiorDn().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -421,8 +411,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void entryRenamed( RenameOperationContext renameContext )
     {
         Entry entry = renameContext.getOriginalEntry();
-
-        LOG.debug( "sending renamed entry {}", entry.getDn() );
 
         try
         {
