@@ -39,6 +39,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
@@ -49,6 +50,9 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -91,6 +95,47 @@ public class ClientServerReplicationIT
         consumerServer.stop();
         providerServer.stop();
     }
+    
+    
+    private void dump( CoreSession session, Dn entryDn )
+    {
+        try
+        {
+            SearchRequest searchRequest = new SearchRequestImpl();
+            
+            searchRequest.setBase( new Dn( schemaManager, "dc=example,dc=com" ) );
+            searchRequest.setFilter( "(objectClass=*)" );
+            searchRequest.setScope( SearchScope.SUBTREE );
+            
+            System.out.println( "-----------> Dumping the consumer <-----------" );
+            System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
+            
+            EntryFilteringCursor cursor = session.search( searchRequest );
+            
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get();
+                
+                if ( entry.getDn().equals( entryDn ) )
+                {
+                    System.out.println( "The searched entry exists !!!" );
+                    break;
+                }
+                
+                System.out.println( "Entry " + entry.getDn().getNormName() + " exists" );
+            }
+            
+            cursor.close();
+
+            System.out.println( "-----------> Dump done <-----------" );
+            new Exception().printStackTrace();
+        }
+        catch ( Exception le )
+        {
+            // Do nothing
+            le.printStackTrace();
+        }
+    }
 
     
     /**
@@ -110,6 +155,11 @@ public class ClientServerReplicationIT
                 replicated = true;
                 break;
             }
+        }
+        
+        if ( replicated == false )
+        {
+            dump( session, entryDn );
         }
         
         return replicated;
@@ -135,6 +185,11 @@ public class ClientServerReplicationIT
                 deleted = true;
                 break;
             }
+        }
+        
+        if ( !exists || !deleted )
+        {
+            dump( session, entryDn );
         }
         
         return exists && deleted;
@@ -171,7 +226,7 @@ public class ClientServerReplicationIT
         assertFalse( consumerSession.exists( provUser.getDn() ) );
         
         providerSession.add( provUser ); // 1
-     
+        
         Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
         
         DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer,
