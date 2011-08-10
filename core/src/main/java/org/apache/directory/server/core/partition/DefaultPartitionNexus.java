@@ -946,7 +946,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         // Update the partition tree
-        partitionLookupTree.remove( partition.getSuffixDn() );
+        synchronized ( partitionLookupTree )
+        {
+            partitionLookupTree.remove( partition.getSuffixDn() );
+        }
+        
         partitions.remove( key );
 
         try
@@ -965,7 +969,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public Partition getPartition( Dn dn ) throws LdapException
     {
-        Partition parent = partitionLookupTree.getElement( dn );
+        Partition parent = null;
+        
+        synchronized ( partitionLookupTree )
+        {
+            parent = partitionLookupTree.getElement( dn );
+        }
 
         if ( parent == null )
         {
