@@ -76,10 +76,13 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
     /** a cache of duplicate BTrees */
     private final Map<Long, BTree<K, V>> duplicateBtrees;
 
+    /** A Key serializer */
     private final Serializer keySerializer;
 
+    /** A value serializer */
     private final Serializer valueSerializer;
 
+    /** A marshaller used to serialize/deserialize values stored in the Table */
     Marshaller<ArrayTree<V>> marshaller;
 
     // ------------------------------------------------------------------------
