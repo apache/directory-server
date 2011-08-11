@@ -35,6 +35,7 @@ import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractTable;
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmTable<K,V> implements Table<K,V>
+public class JdbmTable<K,V> extends AbstractTable<K,V>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmTable.class.getSimpleName() );
@@ -60,24 +61,12 @@ public class JdbmTable<K,V> implements Table<K,V>
     /** the key to store and retreive the count information */
     private static final String SZSUFFIX = "_btree_sz";
 
-    /** the name of this table */
-    private final String name;
-
     /** the JDBM record manager for the file this table is managed in */
     private final RecordManager recMan;
     
     /** whether or not this table allows for duplicates */
     private final boolean allowsDuplicates;
-    
-    /** a key comparator for the keys in this Table */
-    private final Comparator<K> keyComparator;
-    
-    /** a value comparator for the values in this Table */
-    private final Comparator<V> valueComparator;
 
-    /** the current count of entries in this Table */
-    private int count;
-    
     /** the wrappedCursor JDBM btree used in this Table */
     private BTree<K, V> bt;
 
@@ -92,9 +81,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     private final Serializer valueSerializer;
 
     Marshaller<ArrayTree<V>> marshaller;
-
-    /** The global SchemaManager */
-    private SchemaManager schemaManager;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
@@ -123,7 +109,12 @@ public class JdbmTable<K,V> implements Table<K,V>
         Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
-        this.schemaManager = schemaManager;
+        super( schemaManager, name, keyComparator, valueComparator );
+
+        if ( valueComparator == null )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_592 ) );
+        }
 
         // TODO make the size of the duplicate btree cache configurable via constructor
         duplicateBtrees = new SynchronizedLRUMap( 100 );
@@ -138,26 +129,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             marshaller = new ArrayMarshaller<V>( valueComparator );
         }
 
-        if ( keyComparator == null )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_591 ) );
-        }
-        else
-        {
-            this.keyComparator = keyComparator;
-        }
-
-        if ( valueComparator == null )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_592 ) );
-        }
-        else
-        {
-            this.valueComparator = valueComparator;
-        }
-
         this.numDupLimit = numDupLimit;
-        this.name = name;
         this.recMan = manager;
 
         this.keySerializer = keySerializer;
@@ -187,7 +159,6 @@ public class JdbmTable<K,V> implements Table<K,V>
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
         }
-
     }
 
 
@@ -209,22 +180,11 @@ public class JdbmTable<K,V> implements Table<K,V>
                       Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
-        this.schemaManager = schemaManager;
+        super( schemaManager, name, keyComparator, null );
+        
         this.duplicateBtrees = null;
         this.numDupLimit = Integer.MAX_VALUE;
-        this.name = name;
         this.recMan = manager;
-
-        if ( keyComparator == null )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_591 ) );
-        }
-        else
-        {
-            this.keyComparator = keyComparator;
-        }
-
-        this.valueComparator = null;
 
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
@@ -256,25 +216,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     // Simple Table Properties
     // ------------------------------------------------------------------------
 
-    
-    /**
-     * @see Table#getKeyComparator()
-     */
-    public Comparator<K> getKeyComparator()
-    {
-        return keyComparator;
-    }
-
-
-    /**
-     * @see Table#getValueComparator()
-     */
-    public Comparator<V> getValueComparator()
-    {
-        return valueComparator;
-    }
-
-
     public Serializer getKeySerializer()
     {
         return keySerializer;
@@ -295,21 +236,10 @@ public class JdbmTable<K,V> implements Table<K,V>
         return allowsDuplicates;
     }
 
-
-    /**
-     * @see org.apache.directory.server.xdbm.Table#getName()
-     */
-    public String getName()
-    {
-        return name;
-    }
-
-
+    
     // ------------------------------------------------------------------------
     // Count Overloads
     // ------------------------------------------------------------------------
-
-    
     /**
      * @see Table#greaterThanCount(Object)
      */
@@ -360,15 +290,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         return getBTree( values.getBTreeRedirect() ).size();
-    }
-
-
-    /**
-     * @see org.apache.directory.server.xdbm.Table#count()
-     */
-    public int count() throws IOException
-    {
-        return count;
     }
 
     
