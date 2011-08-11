@@ -66,6 +66,16 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
 
