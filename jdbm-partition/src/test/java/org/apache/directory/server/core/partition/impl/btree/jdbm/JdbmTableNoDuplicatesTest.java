@@ -94,7 +94,7 @@ public class JdbmTableNoDuplicatesTest
     @Before
     public void createTable() throws Exception
     {
-        destryTable();
+        destroyTable();
         File tmpDir = null;
         
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
@@ -113,7 +113,7 @@ public class JdbmTableNoDuplicatesTest
 
 
     @After
-    public void destryTable() throws Exception
+    public void destroyTable() throws Exception
     {
         if ( table != null )
         {
