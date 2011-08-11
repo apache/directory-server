@@ -131,7 +131,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -146,7 +146,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -162,7 +162,7 @@ public class ServerEntrySerializerTest
         Entry entry = new DefaultEntry( schemaManager );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -181,7 +181,7 @@ public class ServerEntrySerializerTest
         entry.add( "SN", "Test" );
         entry.add( "userPassword", Strings.getBytesUtf8("password") );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -200,7 +200,7 @@ public class ServerEntrySerializerTest
         entry.add( "SN", "Test" );
         entry.add( "userPassword", Strings.getBytesUtf8("password") );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -215,7 +215,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
 
@@ -230,7 +230,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
         Attribute oc = new DefaultAttribute( "ObjectClass", schemaManager
             .lookupAttributeTypeRegistry( "objectclass" ) );
         entry.add( oc );
@@ -248,7 +248,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
         entry.add( "ObjectClass", "top", "person" );
 
         byte[] data = ses.serialize( entry );
@@ -264,7 +264,7 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntrySerializer ses = new EntrySerializer( schemaManager );
         entry.add( "userPassword", Strings.getBytesUtf8("secret") );
 
         byte[] data = ses.serialize( entry );

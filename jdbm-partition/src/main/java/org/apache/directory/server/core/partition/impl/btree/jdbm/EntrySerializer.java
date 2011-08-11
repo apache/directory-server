@@ -50,13 +50,13 @@ import org.slf4j.LoggerFactory;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerEntrySerializer implements Serializer
+public class EntrySerializer implements Serializer
 {
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     /** the logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ServerEntrySerializer.class );
+    private static final Logger LOG = LoggerFactory.getLogger( EntrySerializer.class );
 
     /**
      * Speedup for logs
@@ -72,7 +72,7 @@ public class ServerEntrySerializer implements Serializer
      *
      * @param schemaManager The reference to the global schemaManager
      */
-    public ServerEntrySerializer( SchemaManager schemaManager )
+    public EntrySerializer( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
     }

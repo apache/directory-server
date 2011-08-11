@@ -116,7 +116,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      */
     public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
     {
-        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( schemaManager ) );
+        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new EntrySerializer( schemaManager ) );
         adminTbl = new JdbmTable<String,String>( schemaManager, "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 

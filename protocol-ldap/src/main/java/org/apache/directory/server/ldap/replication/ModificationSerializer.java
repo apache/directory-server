@@ -28,7 +28,7 @@ import java.io.ObjectOutputStream;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.ServerEntrySerializer;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.EntrySerializer;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -49,7 +49,7 @@ public class ModificationSerializer implements Serializer
     private static final long serialVersionUID = 1L;
 
     /** The internal entry serializer */
-    private transient ServerEntrySerializer entrySerializer;
+    private transient EntrySerializer entrySerializer;
 
     /**
      * Creates a new instance of ServerEntrySerializer.
@@ -58,7 +58,7 @@ public class ModificationSerializer implements Serializer
      */
     public ModificationSerializer( SchemaManager schemaManager )
     {
-        entrySerializer = new ServerEntrySerializer( schemaManager );
+        entrySerializer = new EntrySerializer( schemaManager );
     }
 
 
