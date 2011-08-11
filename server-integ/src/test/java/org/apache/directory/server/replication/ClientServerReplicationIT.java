@@ -58,6 +58,7 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -148,13 +149,15 @@ public class ClientServerReplicationIT
         
         for ( int i = 0; i < 100; i++ )
         {
-            Thread.sleep( 100 );
+            Thread.sleep( 50 );
             
             if ( session.exists( entryDn ) )
             {
                 replicated = true;
                 break;
             }
+            
+            Thread.sleep( 50 );
         }
         
         if ( replicated == false )
@@ -178,13 +181,15 @@ public class ClientServerReplicationIT
         
         for ( int i = 0; i < 100; i++ )
         {
-            Thread.sleep( 100 );
-            
+            Thread.sleep( 50 );
+
             if ( !session.exists( entryDn ) )
             {
                 deleted = true;
                 break;
             }
+
+            Thread.sleep( 50 );
         }
         
         if ( !exists || !deleted )
@@ -225,6 +230,7 @@ public class ClientServerReplicationIT
         
         assertFalse( consumerSession.exists( provUser.getDn() ) );
         
+        // Add entry : "cn=entryN,dc=example,dc=com"
         providerSession.add( provUser ); // 1
         
         Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
@@ -233,41 +239,112 @@ public class ClientServerReplicationIT
             "objectClass: organizationalUnit",
             "ou: users" );
         
+        // Add entry "ou=users,dc=example,dc=com"
         providerSession.add( entry ); // 2
         
         assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
         waitAndCompareEntries( entry.getDn() );
         
-        // move
+        // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
         Dn userDn = provUser.getDn();
         providerSession.move( userDn, usersContainer );
         
-        userDn = usersContainer.add( userDn.getRdn() );
+        // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
+        Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
         
-        assertTrue( checkEntryExistence( consumerSession, userDn ) );
-        waitAndCompareEntries( userDn );
+        assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
+        waitAndCompareEntries( movedEntryDn );
         
-        // now try renaming
-        Rdn newName = new Rdn( schemaManager, userDn.getRdn().getName() + "renamed");
+        Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed");
         
-        providerSession.rename( userDn, newName, true );
+        // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com"
+        providerSession.rename( movedEntryDn, newName, true );
         
-        userDn = usersContainer.add( newName );
+        Dn renamedEntryDn = usersContainer.add( newName );
         
-        assertTrue( checkEntryExistence( consumerSession, userDn ) );
-        waitAndCompareEntries( userDn );
+        assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
+        waitAndCompareEntries( renamedEntryDn );
         
         // now move and rename
         Dn newParent = usersContainer.getParent();
         
-        newName = new Rdn( schemaManager, userDn.getRdn().getName() + "MovedAndRenamed");
+        newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed");
         
-        providerSession.moveAndRename( userDn, newParent, newName, false ); //4
+        // Move and rename "cn=entryNrenamed,ou=users,dc=example,dc=com" to
+        // "cn=entryNMovedAndRenamed,dc=example,dc=com"
+        providerSession.moveAndRename( renamedEntryDn, newParent, newName, false ); //4
         
-        userDn = newParent.add( newName );
+        Dn movedAndRenamedEntry = newParent.add( newName );
 
-        assertTrue( checkEntryExistence( consumerSession, userDn ) );
-        waitAndCompareEntries( userDn );
+        assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
+        waitAndCompareEntries( movedAndRenamedEntry );
+    }
+    
+    
+    @Test
+    @Ignore
+    public void testModDnLoop() throws Exception
+    {
+        for ( int i = 0; i < 10000; i++ )
+        {
+            System.out.println( ">>>>>> loop " + ( i + 1 ) + " <<<<<<" );
+            Entry newuser = createEntry();
+            
+            assertFalse( consumerSession.exists( newuser.getDn() ) );
+            
+            // Add entry : "cn=entryN,dc=example,dc=com"
+            providerSession.add( newuser ); // 1
+            
+            Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
+            
+            DefaultEntry usersEntry = new DefaultEntry( schemaManager, usersContainer,
+                "objectClass: organizationalUnit",
+                "ou: users" );
+            
+            // Add entry "ou=users,dc=example,dc=com"
+            providerSession.add( usersEntry ); // 2
+            
+            assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
+            waitAndCompareEntries( usersEntry.getDn() );
+            
+            // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
+            Dn userDn = newuser.getDn();
+            providerSession.move( userDn, usersContainer );
+            
+            // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
+            Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
+            
+            assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
+            waitAndCompareEntries( movedEntryDn );
+            
+            Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed");
+            
+            // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com"
+            providerSession.rename( movedEntryDn, newName, true );
+            
+            Dn renamedEntryDn = usersContainer.add( newName );
+            
+            assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
+            waitAndCompareEntries( renamedEntryDn );
+            
+            // now move and rename
+            Dn newParent = usersContainer.getParent();
+            
+            newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed");
+            
+            // Move and rename "cn=entryNrenamed,ou=users,dc=example,dc=com" to
+            // "cn=entryNMovedAndRenamed,dc=example,dc=com"
+            providerSession.moveAndRename( renamedEntryDn, newParent, newName, false ); //4
+            
+            Dn movedAndRenamedEntry = newParent.add( newName );
+    
+            assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
+            waitAndCompareEntries( movedAndRenamedEntry );
+            
+            // Ok, no failure, revert everything
+            providerSession.delete( movedAndRenamedEntry );
+            providerSession.delete( usersContainer );
+        }
     }
     
     
