@@ -1640,7 +1640,7 @@ public abstract class ServerContext implements EventContext
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
             criteria.setBase( buildTarget( JndiUtils.fromName( name ) ) );
 
-            service.getEventService().addListener( listener );
+            service.getEventService().addListener( listener, criteria );
             listeners.put( namingListener, listener );
         }
         catch ( Exception e )

@@ -981,7 +981,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( getEnvironment() ) );
             criteria.setBase( buildTarget( JndiUtils.fromName( name ) ) );
 
-            getDirectoryService().getEventService().addListener( listener );
+            getDirectoryService().getEventService().addListener( listener, criteria );
             getListeners().put( namingListener, listener );
         }
         catch ( Exception e )

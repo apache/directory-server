@@ -115,7 +115,6 @@ public abstract class BaseInterceptor implements Interceptor
     protected static AttributeType UNIQUE_MEMBER_AT;
 
 
-
     /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
      * instances differently

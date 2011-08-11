@@ -34,15 +34,6 @@ import java.util.List;
 public interface EventService
 {
     /**
-     * Registers a DirectoryListener for notification on any and all change 
-     * events on the DIT.
-     *
-     * @param listener the DirectoryListener to deliver notifications to
-     */
-    void addListener( DirectoryListener listener );
-
-    
-    /**
      * Registers a DirectoryListener for notification on change events on the 
      * DIT matching some notification criteria.
      *

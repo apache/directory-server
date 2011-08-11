@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -40,12 +39,10 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -61,30 +58,34 @@ import org.slf4j.LoggerFactory;
  */
 public class EventInterceptor extends BaseInterceptor
 {
+    /** A logger for this class */
     private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
-
-    private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
-    private FilterNormalizingVisitor filterNormalizer;
+    
     private Evaluator evaluator;
     private ExecutorService executor;
 
 
-    @Override
-    public void init( DirectoryService directpryService ) throws LdapException
+    /**
+     * Initialize the event interceptor. It creates a pool of executor which will be used
+     * to call the listeners in separate threads.
+     */
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         LOG.info( "Initializing ..." );
-        super.init( directpryService );
+        super.init( directoryService );
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
-        filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );
         evaluator = new ExpressionEvaluator( schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
 
-        this.directoryService.setEventService( new DefaultEventService() );
+        this.directoryService.setEventService( new DefaultEventService( directoryService ) );
         LOG.info( "Initialization complete." );
     }
 
 
+    /**
+     * Call the listener passing it the context.
+     */
     private void fire( final OperationContext opContext, EventType type, final DirectoryListener listener )
     {
         switch ( type )
@@ -97,7 +98,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryAdded( ( AddOperationContext ) opContext );
                     }
                 } );
+                
                 break;
+                
             case DELETE:
                 executor.execute( new Runnable()
                 {
@@ -106,7 +109,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryDeleted( ( DeleteOperationContext ) opContext );
                     }
                 } );
+                
                 break;
+                
             case MODIFY:
                 executor.execute( new Runnable()
                 {
@@ -115,7 +120,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryModified( ( ModifyOperationContext ) opContext );
                     }
                 } );
+                
                 break;
+                
             case MOVE:
                 executor.execute( new Runnable()
                 {
@@ -124,7 +131,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryMoved( ( MoveOperationContext ) opContext );
                     }
                 } );
+                
                 break;
+
             case RENAME:
                 executor.execute( new Runnable()
                 {
@@ -133,14 +142,19 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryRenamed( ( RenameOperationContext ) opContext );
                     }
                 } );
+                
                 break;
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void add( NextInterceptor next, final AddOperationContext addContext ) throws LdapException
     {
         next.add( addContext );
+        
         List<RegistrationEntry> selecting = getSelectingRegistrations( addContext.getDn(), addContext.getEntry() );
 
         if ( selecting.isEmpty() )
@@ -158,6 +172,9 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void delete( NextInterceptor next, final DeleteOperationContext deleteContext ) throws LdapException
     {
         List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
@@ -178,6 +195,9 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( NextInterceptor next, final ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry oriEntry = modifyContext.getEntry();
@@ -205,6 +225,9 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
@@ -231,6 +254,9 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry oriEntry = moveAndRenameContext.getOriginalEntry();
@@ -283,25 +309,24 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
+    /**
+     * Find a list of registrationEntries given an entry and a name. We check against
+     * the criteria for each registrationEntry
+     */
+    private List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
     {
-        if ( registrations.isEmpty() )
+        if ( directoryService.getEventService().getRegistrationEntries().isEmpty() )
         {
             return Collections.emptyList();
         }
 
         List<RegistrationEntry> selecting = new ArrayList<RegistrationEntry>();
 
-        for ( RegistrationEntry registration : registrations )
+        for ( RegistrationEntry registration : directoryService.getEventService().getRegistrationEntries() )
         {
             NotificationCriteria criteria = registration.getCriteria();
 
             Dn base = criteria.getBase();
-
-            if ( !criteria.getFilter().isSchemaAware() )
-            {
-                criteria.getFilter().accept( filterNormalizer );
-            }
 
             // fix for DIRSERVER-1502
             if ( ( name.equals( base ) || name.isDescendantOf( base ) )
@@ -312,50 +337,5 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         return selecting;
-    }
-
-    // -----------------------------------------------------------------------
-    // EventService Inner Class
-    // -----------------------------------------------------------------------
-
-    class DefaultEventService implements EventService
-    {
-        /*
-         * Does not need normalization since default values in criteria is used.
-         */
-        public void addListener( DirectoryListener listener )
-        {
-            registrations.add( new RegistrationEntry( listener ) );
-        }
-
-
-        /*
-         * Normalizes the criteria filter and the base.
-         */
-        public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
-        {
-            criteria.getBase().apply( directoryService.getSchemaManager() );
-            ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
-            criteria.setFilter( result );
-            registrations.add( new RegistrationEntry( listener, criteria ) );
-        }
-
-
-        public void removeListener( DirectoryListener listener )
-        {
-            for ( RegistrationEntry entry : registrations )
-            {
-                if ( entry.getListener() == listener )
-                {
-                    registrations.remove( entry );
-                }
-            }
-        }
-
-
-        public List<RegistrationEntry> getRegistrationEntries()
-        {
-            return Collections.unmodifiableList( registrations );
-        }
     }
 }
