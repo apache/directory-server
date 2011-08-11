@@ -233,5 +233,4 @@ class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
     {
         throw new UnsupportedOperationException();
     }
-
 }

@@ -332,7 +332,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             {
                 case ADD:
                     Dn remoteDn = directoryService.getDnFactory().create( remoteEntry.getDn().getName() );
-                    //System.out.println( " ============> ADDING " + remoteDn );
+                    //System.out.println( "C: ADDING " + remoteDn );
                     
                     if ( !session.exists( remoteDn ) )
                     {
@@ -352,7 +352,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
                 case MODIFY:
                     LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
-                    //System.out.println( "C: modifying " + remoteEntry.getDn() );
+                    //System.out.println( "C: MODIFY " + remoteEntry.getDn() );
                     modify( remoteEntry );
                     break;
 
@@ -365,7 +365,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                     break;
 
                 case DELETE:
-                    //System.out.println( " ============> DELETING " + remoteEntry.getDn().getNormName() );
+                    //System.out.println( "C: DELETING " + remoteEntry.getDn().getNormName() );
                     LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
                     // incase of a MODDN operation resulting in a branch to be moved out of scope
                     // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
@@ -590,6 +590,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
 
         LOG.debug( "sync operation returned result code {}", resultCode );
+        
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
             // log the error and handle it appropriately
@@ -603,6 +604,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
         {
             LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
+            
             try
             {
                 deleteRecursive( new Dn( config.getBaseDn() ), null );
