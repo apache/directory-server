@@ -121,10 +121,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public void init( DirectoryService service ) throws Exception
     {
         workingDirectory = service.getInstanceLayout().getLogDirectory();
+        this.directoryService = service;
         loadRevision();
         loadTags();
         loadChangeLog();
-        this.directoryService = service;
     }
 
 
