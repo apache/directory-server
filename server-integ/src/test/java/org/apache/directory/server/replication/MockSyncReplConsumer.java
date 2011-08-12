@@ -721,7 +721,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 //session.rename( entryDn, newRdn, deleteOldRdn );
                 break;
 
-            case MOVEANDRENAME:
+            case MOVE_AND_RENAME:
 
                 Dn newParentDn = new Dn( modDnControl.getNewSuperiorDn() );
                 newRdn = new Rdn( modDnControl.getNewRdn() );
