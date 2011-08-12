@@ -96,7 +96,7 @@ public class KeyCursorTest
 
 
     @After
-    public void destryCursor() throws Exception
+    public void destroyCursor() throws Exception
     {
         recman.close();
         recman = null;

@@ -124,7 +124,7 @@ public class KeyTupleBTreeCursorTest
     
     
     @After 
-    public void destroytable() throws Exception
+    public void destroyTable() throws Exception
     {
         recman.close();
         recman = null;

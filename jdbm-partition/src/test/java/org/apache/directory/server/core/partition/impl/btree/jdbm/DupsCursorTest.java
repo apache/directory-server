@@ -118,7 +118,7 @@ public class DupsCursorTest
 
 
     @After
-    public void destryTable() throws Exception
+    public void destroyTable() throws Exception
     {
         table.close();
         table = null;
