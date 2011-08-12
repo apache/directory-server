@@ -74,7 +74,6 @@ import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -1089,7 +1088,6 @@ public class ServiceBuilder
             // Not found ? We will use the index file name
         }
         
-        
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
             index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ).toURI() );
@@ -1295,6 +1293,7 @@ public class ServiceBuilder
         
         // ChangeLog
         ChangeLog cl = createChangeLog( directoryServiceBean.getChangeLog() );
+        
         if ( cl != null )
         {
             directoryService.setChangeLog( cl );

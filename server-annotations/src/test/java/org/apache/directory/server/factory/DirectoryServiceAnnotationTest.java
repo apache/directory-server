@@ -263,5 +263,4 @@ public class DirectoryServiceAnnotationTest
         
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
-
 }
