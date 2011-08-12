@@ -370,7 +370,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
 
             SyncModifyDnDecorator modDnControl = 
-                new SyncModifyDnDecorator( directoryService.getLdapCodecService(), SyncModifyDnType.MOVEANDRENAME );
+                new SyncModifyDnDecorator( directoryService.getLdapCodecService(), SyncModifyDnType.MOVE_AND_RENAME );
             modDnControl.setEntryDn( moveAndRenameContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( moveAndRenameContext.getNewSuperiorDn().getNormName() );
             modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );

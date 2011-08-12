@@ -819,7 +819,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                 session.rename( entryDn, newRdn, deleteOldRdn );
                 break;
 
-            case MOVEANDRENAME:
+            case MOVE_AND_RENAME:
 
                 Dn newParentDn = directoryService.getDnFactory().create( modDnControl.getNewSuperiorDn() );
                 newRdn = new Rdn( schemaManager, modDnControl.getNewRdn() );

@@ -163,7 +163,7 @@ public class ReplicaEventMessage implements Externalizable
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
                     break;
                     
-                case MOVEANDRENAME:
+                case MOVE_AND_RENAME:
                     modDnControl.setNewSuperiorDn( in.readUTF() );
                     modDnControl.setNewRdn( in.readUTF() );
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
@@ -249,7 +249,7 @@ public class ReplicaEventMessage implements Externalizable
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
                     break;
                     
-                case MOVEANDRENAME:
+                case MOVE_AND_RENAME:
                     out.writeUTF( modDnControl.getNewSuperiorDn() );
                     out.writeUTF( modDnControl.getNewRdn() );
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
