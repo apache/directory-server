@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.replication;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -45,6 +46,7 @@ import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.future.WriteFuture;
 import org.slf4j.Logger;
@@ -207,7 +209,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             //System.out.println( "ADD Listener : log " + entry.getDn() );
             // we log it first
-            consumerMsgLog.log( new ReplicaEventMessage( EventType.ADD, entry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.ADD, ((ClonedServerEntry)entry).getClonedEntry() ) );
 
             // We send the added entry directly to the consumer if it's connected
             if ( pushInRealTime )
@@ -253,7 +255,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         try
         {
             //System.out.println( "DELETE Listener : log " + entry.getDn() );
-            consumerMsgLog.log( new ReplicaEventMessage( EventType.DELETE, entry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.DELETE, entry ) );
             
             if ( pushInRealTime )
             {
@@ -287,7 +289,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         try
         {
             //System.out.println( "MODIFY Listener : log " + alteredEntry.getDn() );
-            consumerMsgLog.log( new ReplicaEventMessage( EventType.MODIFY, alteredEntry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODIFY, alteredEntry ) );
             
             if ( pushInRealTime )
             {

@@ -22,11 +22,11 @@ package org.apache.directory.server.ldap.replication;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
 {
     /** Logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLogCursor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicaJournalCursor.class );
     
     /** the underlying journal's cursor */
     private Cursor<Tuple<String, ReplicaEventMessage>> tupleCursor;
@@ -146,10 +146,11 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
             {
                 String evt = "MODDN"; // take this as default cause the event type for MODDN is null
                 
-                EventType evtType = qualifiedEvtMsg.getEventType();
-                if ( evtType != null )
+                ChangeType changeType = qualifiedEvtMsg.getChangeType();
+                
+                if ( changeType != null )
                 {
-                    evt = evtType.name();
+                    evt = changeType.name();
                 }
                 
                 LOG.debug( "event {} for dn {} is not qualified for sending", evt, qualifiedEvtMsg.getEntry().getDn() );

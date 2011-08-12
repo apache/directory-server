@@ -279,7 +279,7 @@ public class ReplConsumerManager
     private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
     {
         String id = entry.get( SchemaConstants.ADS_DS_REPLICA_ID ).getString();
-        ReplicaEventLog replica = new ReplicaEventLog( Integer.parseInt( id ) );
+        ReplicaEventLog replica = new ReplicaEventLog( directoryService, Integer.parseInt( id ) );
 
         NotificationCriteria searchCriteria = new NotificationCriteria();
 

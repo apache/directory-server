@@ -21,15 +21,22 @@
 package org.apache.directory.server.ldap.replication;
 
 
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.ActiveMQSession;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.region.Queue;
-import org.apache.activemq.command.ActiveMQObjectMessage;
-import org.apache.activemq.command.ActiveMQQueue;
+import java.io.File;
+import java.io.IOException;
+
+import jdbm.RecordManager;
+import jdbm.recman.BaseRecordManager;
+
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,20 +84,14 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     private boolean refreshNPersist;
 
     // fields that won't be serialized
-    /** the ActiveMQ session */
-    private ActiveMQSession amqSession;
+    /** The Journal */
+    private JdbmTable<String, ReplicaEventMessage> journal;
 
-    /** the Queue used for storing messages */
-    private ActiveMQQueue queue;
+    /** the underlying file  */
+    private File journalFile;
 
-    /** message producer for Queue */
-    private ActiveMQMessageProducer producer;
-
-    /** the messaging system's connection */
-    private ActiveMQConnection amqConnection;
-
-    /** ActiveMQ's BrokerService */
-    private BrokerService brokerService;
+    /** The record manager*/
+    private RecordManager recman;
 
     /** A flag used to indicate that the consumer is not up to date */
     private volatile boolean dirty;
@@ -100,31 +101,23 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      * Creates a new instance of EventLog for a replica
      * @param replicaId The replica ID
      */
-    public ReplicaEventLog( int replicaId )
+    public ReplicaEventLog( DirectoryService directoryService, int replicaId ) throws IOException
     {
+        SchemaManager schemaManager = directoryService.getSchemaManager();
         this.replicaId = replicaId;
         this.searchCriteria = new NotificationCriteria();
         this.searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
-    }
 
+        // Create the journal file, or open it of it exists
+        File logDir = directoryService.getInstanceLayout().getLogDirectory();
+        journalFile = new File( logDir, "journalRepl." + replicaId );
+        recman = new BaseRecordManager( journalFile.getAbsolutePath() );
 
-    /**
-     * Instantiates a message queue and corresponding producer for storing DIT changes.
-     *
-     * @param amqConnection ActiveMQ connection
-     * @param brokerService ActiveMQ's broker service
-     * @throws Exception If the queue can't be created
-     */
-    public void configure( final ActiveMQConnection amqConnection, final BrokerService brokerService ) throws Exception
-    {
-        if ( ( amqSession == null ) || !amqSession.isRunning() )
-        {
-            this.amqConnection = amqConnection;
-            amqSession = ( ActiveMQSession ) amqConnection.createSession( false, ActiveMQSession.AUTO_ACKNOWLEDGE );
-            queue = ( ActiveMQQueue ) amqSession.createQueue( getQueueName() );
-            producer = ( ActiveMQMessageProducer ) amqSession.createProducer( queue );
-            this.brokerService = brokerService;
-        }
+        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
+        comparator.setSchemaManager( schemaManager );
+        
+        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "replication", recman, comparator, 
+            new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
     }
 
 
@@ -137,12 +130,12 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     {
         try
         {
-            LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getEventType() );
-            
-            ActiveMQObjectMessage ObjectMessage = ( ActiveMQObjectMessage ) amqSession.createObjectMessage();
-            ObjectMessage.setObject( message );
-            
-            producer.send( ObjectMessage );
+            LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getChangeType() );
+
+            String entryCsn = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
+            journal.put( entryCsn, message );
+            journal.sync();
+            recman.commit();
         }
         catch ( Exception e )
         {
@@ -159,12 +152,6 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      */
     public void truncate() throws Exception
     {
-        producer.close();
-
-        String queueName = queue.getQueueName();
-        LOG.debug( "deleting the queue {}", queueName );
-        amqConnection.destroyDestination( queue );
-        queue = null;
     }
 
 
@@ -175,8 +162,6 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     public void recreate() throws Exception
     {
         LOG.debug( "recreating the queue for the replica id {}", replicaId );
-        queue = ( ActiveMQQueue ) amqSession.createQueue( getQueueName() );
-        producer = ( ActiveMQMessageProducer ) amqSession.createProducer( queue );
     }
 
 
@@ -188,8 +173,19 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     public void stop() throws Exception
     {
         // Close the producer and session, DO NOT close connection 
-        producer.close();
-        amqSession.close();
+        if ( journal != null )
+        {
+            journal.close();
+        }
+
+        journal = null;
+
+        if ( recman != null )
+        {
+            recman.close();
+        }
+
+        recman = null;
     }
 
 
@@ -407,11 +403,11 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      * @return A cursor on top of the queue
      * @throws Exception If the cursor can't be created
      */
-    public ReplicaEventLogCursor getCursor( String consumerCsn ) throws Exception
+    public Cursor<Tuple<String, ReplicaEventMessage>> getCursor( String consumerCsn ) throws Exception
     {
-        Queue regionQueue = ( Queue ) brokerService.getRegionBroker().getDestinationMap().get( queue );
+        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( consumerCsn );
         
-        return new ReplicaEventLogCursor( amqSession, queue, regionQueue, consumerCsn );
+        return cursor;
     }
 
 

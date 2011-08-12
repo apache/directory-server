@@ -27,16 +27,12 @@ import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
@@ -58,6 +54,8 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoVa
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -84,6 +82,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.url.LdapUrl;
@@ -118,10 +117,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private static AttributeType OBJECT_CLASS_AT;
 
     private Map<Integer, ReplicaEventLog> replicaLogMap = new HashMap<Integer, ReplicaEventLog>();
-
-    private BrokerService brokerService;
-
-    private ActiveMQConnection amqConnection;
 
     private File syncReplData;
 
@@ -167,28 +162,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 syncReplData.mkdirs();
             }
 
-            String path = syncReplData.getPath();
-
-            // Create the system responsible for transmitting the requests when
-            // the direct connection to the consumer is closed.
-            brokerService = new BrokerService();
-            brokerService.setUseJmx( false );
-            brokerService.setPersistent( true );
-            brokerService.setDataDirectory( path );
-
-            URI vmConnectorUri = new URI( "vm://localhost" );
-            brokerService.setVmConnectorURI( vmConnectorUri );
-
-            brokerService.start();
-            ActiveMQConnectionFactory amqFactory = new ActiveMQConnectionFactory( vmConnectorUri.toString() );
-            amqFactory.setObjectMessageSerializationDefered( false );
-
-            amqConnection = ( ActiveMQConnection ) amqFactory.createConnection();
-            amqConnection.start();
-
-            // set the static reference to SchemaManager
-            ReplicaEventMessage.setSchemaManager( dirService.getSchemaManager() );
-
             replicaUtil = new ReplConsumerManager( dirService );
 
             loadReplicaInfo();
@@ -225,24 +198,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
         }
         
-        try
-        {
-            amqConnection.close();
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Failed to close the message queue connection", e );
-        }
-
-        try
-        {
-            brokerService.stop();
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Failed to close the message broker service", e );
-        }
-
         initialized = false;
     }
 
@@ -318,13 +273,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // do the search from the log
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
-        ReplicaEventLogCursor cursor = clientMsgLog.getCursor( consumerCsn );
+        Cursor<Tuple<String, ReplicaEventMessage>> cursor = clientMsgLog.getCursor( consumerCsn );
         //int i = 0;
         
         while ( cursor.next() )
         {
-            ReplicaEventMessage message = cursor.get();
-            Entry entry = message.getEntry();
+            Tuple<String, ReplicaEventMessage> tuple = cursor.get();
+            ReplicaEventMessage replicaEventMessage = tuple.getValue();
+            Entry entry = replicaEventMessage.getEntry();
             LOG.debug( "received message from the queue {}", entry );
             //i++;
             
@@ -332,12 +288,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             lastSentCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
-            EventType event = message.getEventType();
+            ChangeType event = replicaEventMessage.getChangeType();
 
             // if event type is null, then it is a MODDN operation
-            if ( event == null )
+            if ( event == ChangeType.MODDN )
             {
-                sendSearchResultEntry( session, req, entry, message.getModDnControl() );
+                sendSearchResultEntry( session, req, entry, replicaEventMessage.getModDnControl() );
             }
             else
             {
@@ -917,7 +873,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 for ( ReplicaEventLog replica : eventLogs )
                 {
                     LOG.debug( "initializing the replica log from {}", replica.getId() );
-                    replica.configure( amqConnection, brokerService );
                     replicaLogMap.put( replica.getId(), replica );
 
                     // update the replicaCount's value to assign a correct value to the new replica(s) 
@@ -1068,11 +1023,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         LOG.debug( "creating a new event log for the replica with id {}", replicaId );
 
-        ReplicaEventLog replicaLog = new ReplicaEventLog( replicaId );
+        ReplicaEventLog replicaLog = new ReplicaEventLog( dirService, replicaId );
         replicaLog.setHostName( hostName );
         replicaLog.setSearchFilter( filter );
-
-        replicaLog.configure( amqConnection, brokerService );
 
         return replicaLog;
     }

@@ -27,11 +27,10 @@ import java.io.File;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
-import org.apache.directory.server.ldap.replication.Modification;
-import org.apache.directory.server.ldap.replication.ModificationSerializer;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessageSerializer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -53,7 +53,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * A test to check that we can correctly create a Journal to store the modifications.
+ * A test to check that we can correctly create a Journal to store the ReplicaEventMessages.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
@@ -72,7 +72,7 @@ public class JournalTest
     private static SchemaManager schemaManager;
 
     /** The Journal */
-    private JdbmTable<String, Modification> journal;
+    private JdbmTable<String, ReplicaEventMessage> journal;
     
     /** The CsnFactory */
     private static CsnFactory csnFactory;
@@ -126,12 +126,14 @@ public class JournalTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
+        ((BaseRecordManager)recman).disableTransactions();
 
         SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
         
-        journal = new JdbmTable<String, Modification>( schemaManager, "test", recman, comparator, 
-            new StringSerializer(), new ModificationSerializer( schemaManager ) );
+        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "test", recman, comparator, 
+            new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
+        
     }
 
     /**
@@ -168,7 +170,7 @@ public class JournalTest
     
 
     /**
-     * test that we can write 1000 modifications, and read them back in the right order 
+     * test that we can write 1000 ReplicaEventMessages, and read them back in the right order 
      * starting in the middle.
      */
     @Test
@@ -192,30 +194,30 @@ public class JournalTest
                 "entryCsn", entryCsn.toString()
                 );
             
-            Modification modification = new Modification( EventType.ADD, entry );
-            journal.put( entryCsn.toString(), modification );
+            ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
+            journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
 
             entryCsn = csnFactory.newInstance();
         }
         
-        // Now check that the modification has been written
-        Modification firstModification = journal.get( firstCsn.toString() );
+        // Now check that the ReplicaEventMessages has been written
+        ReplicaEventMessage firstMessage = journal.get( firstCsn.toString() );
         
-        assertEquals( EventType.ADD, firstModification.getEventType());
-        assertEquals( "test0", firstModification.getEntry().get( "ou" ).getString() );
+        assertEquals( ChangeType.ADD, firstMessage.getChangeType());
+        assertEquals( "test0", firstMessage.getEntry().get( "ou" ).getString() );
         
         // Read entry from the 100th element
-        Cursor<Tuple<String, Modification>> cursor = journal.cursor( csn100.toString() );
+        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( csn100.toString() );
         int pos = 100;
         
         while ( cursor.next() )
         {
-            Tuple<String, Modification> tuple = cursor.get();
-            Modification modification = tuple.getValue();
+            Tuple<String, ReplicaEventMessage> tuple = cursor.get();
+            ReplicaEventMessage replicaEventMessage = tuple.getValue();
             
-            assertEquals( EventType.ADD, modification.getEventType());
-            assertEquals( "test" + pos, modification.getEntry().get( "ou" ).getString() );
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+            assertEquals( "test" + pos, replicaEventMessage.getEntry().get( "ou" ).getString() );
             
             pos++;
         }
@@ -223,8 +225,8 @@ public class JournalTest
 
 
     /**
-     * test that we can write 1000 modifications, remove 500 of them, and read the 
-     * remining ones.
+     * test that we can write 1000 ReplicaEventMessages, remove 500 of them, and read the 
+     * remaining ones.
      */
     @Test
     public void testJournalTruncate() throws Exception
@@ -240,40 +242,41 @@ public class JournalTest
                 "entryCsn", entryCsn.toString()
                 );
             
-            Modification modification = new Modification( EventType.ADD, entry );
-            journal.put( entryCsn.toString(), modification );
+            ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
+            journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
 
             entryCsn = csnFactory.newInstance();
         }
         
-        // Remove the first 500 modifications
-        Cursor<Tuple<String, Modification>> deleteCursor = journal.cursor();
+        // Remove the first 500 ReplicaEventMessages
+        Cursor<Tuple<String, ReplicaEventMessage>> deleteCursor = journal.cursor();
         int deleted = 0;
 
         while ( deleteCursor.next() && ( deleted < 500 ) )
         {
-            Tuple<String, Modification> tuple = deleteCursor.get();
-            Modification modification = tuple.getValue();
+            Tuple<String, ReplicaEventMessage> tuple = deleteCursor.get();
+            ReplicaEventMessage replicaEventMessage = tuple.getValue();
             
-            assertEquals( EventType.ADD, modification.getEventType());
-            assertEquals( "test" + deleted, modification.getEntry().get( "ou" ).getString() );
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
+            assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
             
-            journal.remove( modification.getEntry().get( "entryCsn" ).getString() );
+            journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
+            journal.sync();
             deleted++;
         }
         
         // Now check that the first mod is the 501th
         assertEquals( 500, journal.count() );
         
-        Cursor<Tuple<String, Modification>> cursor = journal.cursor();
+        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor();
         
         cursor.next();
 
-        Tuple<String, Modification> tuple = cursor.get();
-        Modification modification = tuple.getValue();
-        assertEquals( EventType.ADD, modification.getEventType() );
-        assertEquals( "test500", modification.getEntry().get( "ou" ).getString() );
+        Tuple<String, ReplicaEventMessage> tuple = cursor.get();
+        ReplicaEventMessage replicaEventMessage = tuple.getValue();
+        assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
+        assertEquals( "test500", replicaEventMessage.getEntry().get( "ou" ).getString() );
     }
 
 
@@ -281,9 +284,9 @@ public class JournalTest
      * Test the performances for 100 000 writes, read and delete.
      * On my laptop, it takes : <br>
      * <ul>
-     * <li>63,4 seconds to create 100 000 modifications ( 1577/s )</li>
-     * <li>18,9 seconds to read 100 000 modifications ( 5298/s )</li>
-     * <li>329 seconds to delete 100 000 modifications ( 303/s )</li>
+     * <li>457 seconds to create 100 000 ReplicaEventMessages ( 219/s )</li>
+     * <li>17 seconds to read 100 000 ReplicaEventMessages ( 5893/s )</li>
+     * <li>546 seconds to delete 100 000 ReplicaEventMessages ( 183/s )</li>
      * </ul>
      * 
      */
@@ -305,59 +308,63 @@ public class JournalTest
                 "entryCsn", entryCsn.toString()
                 );
             
-            Modification modification = new Modification( EventType.ADD, entry );
-            journal.put( entryCsn.toString(), modification );
+            ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
+            journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
+            recman.commit();
 
             entryCsn = csnFactory.newInstance();
         }
         
         long t1 = System.currentTimeMillis();
         
-        System.out.println( "Time to write 100 000 modifications : " + ( t1 - t0 ) );
+        System.out.println( "Time to write 100 000 ReplicaEventMessages : " + ( t1 - t0 ) );
         
         // The read perf
         long t2 = System.currentTimeMillis();
         
-        Cursor<Tuple<String, Modification>> readCursor = journal.cursor();
+        Cursor<Tuple<String, ReplicaEventMessage>> readCursor = journal.cursor();
 
         int pos = 0;
         
         while ( readCursor.next() )
         {
-            Tuple<String, Modification> tuple = readCursor.get();
-            Modification modification = tuple.getValue();
+            Tuple<String, ReplicaEventMessage> tuple = readCursor.get();
+            ReplicaEventMessage replicaEventMessage = tuple.getValue();
             
-            assertEquals( EventType.ADD, modification.getEventType());
-            assertEquals( "test" + pos, modification.getEntry().get( "ou" ).getString() );
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+            assertEquals( "test" + pos, replicaEventMessage.getEntry().get( "ou" ).getString() );
             
             pos++;
         }
         
         long t3 = System.currentTimeMillis();
         
-        System.out.println( "Time to read 100 000 modifications : " + ( t3 - t2 ) );
+        System.out.println( "Time to read 100 000 ReplicaEventMessages : " + ( t3 - t2 ) );
 
         // The delete perf
         long t4 = System.currentTimeMillis();
         
-        Cursor<Tuple<String, Modification>> deleteCursor = journal.cursor();
+        Cursor<Tuple<String, ReplicaEventMessage>> deleteCursor = journal.cursor();
         int deleted = 0;
 
         while ( deleteCursor.next() )
         {
-            Tuple<String, Modification> tuple = deleteCursor.get();
-            Modification modification = tuple.getValue();
+            Tuple<String, ReplicaEventMessage> tuple = deleteCursor.get();
+            ReplicaEventMessage replicaEventMessage = tuple.getValue();
             
-            assertEquals( EventType.ADD, modification.getEventType());
-            assertEquals( "test" + deleted, modification.getEntry().get( "ou" ).getString() );
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+            assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
             
-            journal.remove( modification.getEntry().get( "entryCsn" ).getString() );
+            journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
+            journal.sync();
+            recman.commit();
+
             deleted++;
         }
 
         long t5 = System.currentTimeMillis();
 
-        System.out.println( "Time to delete 100 000 modifications : " + ( t5 - t4 ) );
+        System.out.println( "Time to delete 100 000 ReplicaEventMessages : " + ( t5 - t4 ) );
     }
 }

@@ -84,7 +84,6 @@ public class ClientServerReplicationIT
     public static void setUp() throws Exception
     {
         Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
-        
         startProvider();
         startConsumer();
     }
@@ -145,6 +144,16 @@ public class ClientServerReplicationIT
      */
     private boolean checkEntryExistence( CoreSession session, Dn entryDn ) throws Exception
     {
+        return checkEntryExistence( session, entryDn, false );
+    }
+    
+    
+    /**
+     * Check that the entry exists in the target server. We wait up to 10 seconds, by
+     * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
+     */
+    private boolean checkEntryExistence( CoreSession session, Dn entryDn, boolean print ) throws Exception
+    {
         boolean replicated = false;
         
         for ( int i = 0; i < 100; i++ )
@@ -153,6 +162,11 @@ public class ClientServerReplicationIT
             
             if ( session.exists( entryDn ) )
             {
+                if ( print )
+                {      
+                    System.out.println( entryDn.getName() + " exists " );
+                }
+                
                 replicated = true;
                 break;
             }
@@ -372,6 +386,7 @@ public class ClientServerReplicationIT
     
     
     @Test
+    @Ignore
     public void testRebootConsumer() throws Exception
     {
         System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
@@ -452,7 +467,11 @@ public class ClientServerReplicationIT
     }
     
     
-    @CreateDS(allowAnonAccess = true, name = "provider-replication", partitions =
+    @CreateDS(
+        allowAnonAccess = true, 
+        name = "provider-replication", 
+        enableChangeLog = false,
+        partitions =
         {
             @CreatePartition(
                 name = "example",
@@ -502,7 +521,11 @@ public class ClientServerReplicationIT
     }
     
     
-    @CreateDS(allowAnonAccess = true, name = "consumer-replication", partitions =
+    @CreateDS(
+        allowAnonAccess = true, 
+        enableChangeLog = false,
+        name = "consumer-replication", 
+        partitions =
         {
             @CreatePartition(
                 name = "example",
