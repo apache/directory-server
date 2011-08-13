@@ -61,6 +61,8 @@ public class ReplicaEventMessageSerializer implements Serializer
     /** The LDAP codec used to serialize the entries */
     private transient LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
+    private transient SchemaManager schemaManager;
+    
     /**
      * Creates a new instance of ReplicaEventMessageSerializer.
      *
@@ -68,6 +70,7 @@ public class ReplicaEventMessageSerializer implements Serializer
      */
     public ReplicaEventMessageSerializer( SchemaManager schemaManager )
     {
+        this.schemaManager = schemaManager;
         entrySerializer = new EntrySerializer( schemaManager );
     }
 
@@ -86,14 +89,20 @@ public class ReplicaEventMessageSerializer implements Serializer
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        // The change type
-        out.writeByte( changeType.getValue() );
-        
         // The entry DN
         entry.getDn().writeExternal( out );
         
         // The entry
-        entry.writeExternal( out );
+        byte[] data = entrySerializer.serialize( entry );
+
+        // Entry's length
+        out.writeInt( data.length );
+        
+        // Entry's data
+        out.write( data );
+
+        // The change type
+        out.writeByte( changeType.getValue() );
         
         // The moddn control if any (only if it's a MODDN operation)
         if ( changeType == ChangeType.MODDN )
@@ -117,7 +126,7 @@ public class ReplicaEventMessageSerializer implements Serializer
                     break;
             }
         }
-        
+
         out.flush();
 
         return baos.toByteArray();
@@ -135,22 +144,27 @@ public class ReplicaEventMessageSerializer implements Serializer
     {
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( bytes ) );
 
-        // Read the changeType
-        byte type = in.readByte();
-        ChangeType changeType = ChangeType.getChangeType( type );
         ReplicaEventMessage replicaEventMessage = null;
 
         try
         {
             // The Entry's DN
-            Dn entryDn = new Dn();
+            Dn entryDn = new Dn( schemaManager );
             entryDn.readExternal( in );
 
-            // Read the Entry
-            Entry entry = new DefaultEntry();
-            entry.readExternal( in );
-            entry.setDn( entryDn );
+            // The Entry's length
+            int length = in.readInt();
+            byte[] data = new byte[length];
             
+            // The entry itself
+            in.read( data );
+            Entry entry = ( Entry ) entrySerializer.deserialize( data );
+            entry.setDn( entryDn );
+
+            // Read the changeType
+            byte type = in.readByte();
+            ChangeType changeType = ChangeType.getChangeType( type );
+
             if ( changeType == ChangeType.MODDN )
             {
                 type = in.readByte();

@@ -273,13 +273,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // do the search from the log
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
-        Cursor<Tuple<String, ReplicaEventMessage>> cursor = clientMsgLog.getCursor( consumerCsn );
+        ReplicaJournalCursor cursor = clientMsgLog.getCursor( consumerCsn );
         //int i = 0;
         
         while ( cursor.next() )
         {
-            Tuple<String, ReplicaEventMessage> tuple = cursor.get();
-            ReplicaEventMessage replicaEventMessage = tuple.getValue();
+            ReplicaEventMessage replicaEventMessage = cursor.get();
             Entry entry = replicaEventMessage.getEntry();
             LOG.debug( "received message from the queue {}", entry );
             //i++;

@@ -403,11 +403,9 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      * @return A cursor on top of the queue
      * @throws Exception If the cursor can't be created
      */
-    public Cursor<Tuple<String, ReplicaEventMessage>> getCursor( String consumerCsn ) throws Exception
+    public ReplicaJournalCursor getCursor( String consumerCsn ) throws Exception
     {
-        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( consumerCsn );
-        
-        return cursor;
+        return new ReplicaJournalCursor( journal, consumerCsn );
     }
 
 

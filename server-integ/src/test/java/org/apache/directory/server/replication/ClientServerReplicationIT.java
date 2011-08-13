@@ -386,7 +386,6 @@ public class ClientServerReplicationIT
     
     
     @Test
-    @Ignore
     public void testRebootConsumer() throws Exception
     {
         System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
