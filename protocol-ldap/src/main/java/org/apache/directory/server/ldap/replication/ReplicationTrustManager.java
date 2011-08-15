@@ -21,6 +21,7 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -30,7 +31,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.activemq.util.ByteArrayInputStream;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
