@@ -139,45 +139,6 @@
         <groupId>bouncycastle</groupId>
         <artifactId>bcprov-jdk15</artifactId>
     </dependency>
-    
-    <!-- just have the dependency on activemq core components alone excluding
-         the spring and OSGi related jars, cause we use *only* the QueueS nothing else -->
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>5.5.0</version>
-      <exclusions>
-       <exclusion>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>org.springframework.osgi</groupId>
-        <artifactId>spring-osgi-core</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>avalon-framework</groupId>
-        <artifactId>avalon-framework</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>logkit</groupId>
-        <artifactId>logkit</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-       </exclusion>
-       <exclusion>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-       </exclusion>
-      </exclusions>
-    </dependency>
-    
   </dependencies>
 
   <build>
