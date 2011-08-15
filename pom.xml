@@ -44,7 +44,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>1.0.0-M7-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>1.0.0-M7</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.2</skin.version>
@@ -63,7 +63,7 @@
     <commons.pool.version>1.5.6</commons.pool.version>
     <derby.version>10.8.1.2</derby.version>
     <dnsjava.version>2.1.1</dnsjava.version>
-    <ehcache.version>2.4.2</ehcache.version>
+    <ehcache.version>2.4.3</ehcache.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.2</junit.version>
@@ -74,7 +74,7 @@
     <maven.plugin.api.version>3.0.3</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.4</mina.core.version>
-    <plexus.utils.version>2.1</plexus.utils.version>
+    <plexus.utils.version>3.0</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
     <slf4j.api.version>1.6.1</slf4j.api.version>
     <slf4j.log4j12.version>1.6.1</slf4j.log4j12.version>
