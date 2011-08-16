@@ -80,7 +80,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         }
         else
         {
-            scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+            scopeCursor = db.getRdnIndexHelper().getSubLevelScopeCursor( evaluator.getBaseId() );
         }
 
         if ( evaluator.isDereferencing() )

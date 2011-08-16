@@ -106,10 +106,6 @@ public final class ApacheSchemaConstants
     public final static String APACHE_PRESENCE_AT = "ApachePresence";
     public final static String APACHE_PRESENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
 
-    // ApacheOneLevel
-    public final static String APACHE_ONE_LEVEL_AT = "apacheOneLevel";
-    public final static String APACHE_ONE_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.4";
-
     // ApacheOneAlias
     public final static String APACHE_ONE_ALIAS_AT = "apacheOneAlias";
     public final static String APACHE_ONE_ALIAS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.5";
@@ -156,10 +152,6 @@ public final class ApacheSchemaConstants
     // SubschemaSubentryName
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.37";
-
-    // apacheSubLevel
-    public final static String APACHE_SUB_LEVEL_AT = "apacheSubLevel";
-    public final static String APACHE_SUB_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.43";
 
     // apacheRdn
     public final static String APACHE_RDN_AT = "apacheRdn";

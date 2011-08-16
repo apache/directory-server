@@ -388,7 +388,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
                 }
                 else
                 {
-                    return db.getSubLevelIndex().count( id );
+                    return db.getRdnIndexHelper().getSubLevelCount( id );
                 }
 
             default:

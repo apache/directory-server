@@ -249,14 +249,6 @@ public class JdbmStoreTest
         jdbmPartition.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( jdbmPartition.getPresenceIndex() );
 
-        assertNull( jdbmPartition.getOneLevelIndex() );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( jdbmPartition.getOneLevelIndex() );
-
-        assertNull( jdbmPartition.getSubLevelIndex() );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
-        assertNotNull( jdbmPartition.getSubLevelIndex() );
-
         assertNull( jdbmPartition.getId() );
         jdbmPartition.setId( "foo" );
         assertEquals( "foo", jdbmPartition.getId() );
@@ -330,26 +322,6 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getOneLevelIndex() );
-        try
-        {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
-        assertNotNull( store.getSubLevelIndex() );
-        try
-        {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         assertNotNull( store.getId() );
         try
         {
@@ -404,7 +376,7 @@ public class JdbmStoreTest
 
         Iterator<String> systemIndices = store.getSystemIndices();
 
-        for ( int ii = 0; ii < 10; ii++ )
+        for ( int ii = 0; ii < 8; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -514,8 +486,12 @@ public class JdbmStoreTest
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( 3L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertEquals( 4L, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
         assertEquals( 3, store.getChildCount( 1L ) );
 
         store.delete( 2L );
@@ -537,117 +513,6 @@ public class JdbmStoreTest
 
         store.delete( 12L ); // drops the alias indices
 
-    }
-
-
-    @Test
-    public void testSubLevelIndex() throws Exception
-    {
-        Index idx = store.getSubLevelIndex();
-
-        assertEquals( 19, idx.count() );
-
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = idx.forwardCursor( 2L );
-
-        assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.next() );
-
-        idx.drop( 5L );
-
-        cursor = idx.forwardCursor( 2L );
-
-        assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.next() );
-
-        // dn id 12
-        Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, martinDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
-
-        cursor = idx.forwardCursor( 2L );
-        cursor.afterLast();
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
-
-        Dn newDn = newParentDn.add( martinDn.getRdn() );
-
-        store.move( martinDn, newParentDn, newDn, entry );
-        cursor = idx.forwardCursor( 3L );
-        cursor.afterLast();
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        // dn id 13
-        Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, marketingDn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-        addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
-
-        // dn id 14
-        Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, jimmyDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "cn", "Jimmy Wales" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-        addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
-
-        newDn = newParentDn.add( marketingDn.getRdn() );
-
-        store.move( marketingDn, newParentDn, newDn, entry );
-
-        cursor = idx.forwardCursor( 3L );
-        cursor.afterLast();
-
-        assertTrue( cursor.previous() );
-        assertEquals( 14, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 13, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 10, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.previous() );
     }
 
 

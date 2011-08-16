@@ -25,20 +25,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
-import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -48,18 +41,7 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -67,95 +49,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeTest
+public class SubtreeScopeTest extends TestBase
 {
-    public static final Logger LOG = LoggerFactory.getLogger( SubtreeScopeTest.class );
-
-    File wkdir;
-    Store<Entry, Long> store;
-    static SchemaManager schemaManager = null;
-
-
-    @BeforeClass
-    public static void setup() throws Exception
-    {
-        String workingDirectory = System.getProperty( "workingDirectory" );
-
-        if ( workingDirectory == null )
-        {
-            String path = SubtreeScopeTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy( true );
-        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        schemaManager = new DefaultSchemaManager( loader );
-
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
-
-        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
-
-        if ( !loaded )
-        {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
-        }
-    }
-
-
-    @Before
-    public void createStore() throws Exception
-    {
-        // setup the working directory for the store
-        wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
-        wkdir.delete();
-        wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        wkdir.mkdirs();
-
-        // initialize the store
-        store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( true );
-
-        store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
-
-        ((Partition)store).initialize();
-
-        StoreUtils.loadExampleData( store, schemaManager );
-        
-        LOG.debug( "Created new store" );
-    }
-
-
-    @After
-    public void destryStore() throws Exception
-    {
-        if ( store != null )
-        {
-            ((Partition)store).destroy();
-        }
-
-        store = null;
-        if ( wkdir != null )
-        {
-            FileUtils.deleteDirectory( wkdir );
-        }
-
-        wkdir = null;
-    }
-
 
     @Test
     public void testCursorNoDeref() throws Exception
@@ -181,14 +76,14 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.next() );
@@ -210,14 +105,14 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.next() );
@@ -233,14 +128,14 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
@@ -262,14 +157,14 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
@@ -291,14 +186,14 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.previous() );

@@ -134,7 +134,8 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || db.getSubLevelIndex().forward( baseId, id );
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id )
+            || db.getRdnIndexHelper().isDescendantOf( baseId, id );
 
         /*
          * The candidate id could be any entry in the db.  If search

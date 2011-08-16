@@ -359,7 +359,7 @@ public class LdifPartition extends AbstractLdifPartition
         // Then, if there are some children, move then to the new place
         try
         {
-            IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
+            IndexCursor<Long, Entry, Long> cursor = getRdnIndexHelper().getSubLevelScopeCursor( entryIdOld );
 
             while ( cursor.next() )
             {

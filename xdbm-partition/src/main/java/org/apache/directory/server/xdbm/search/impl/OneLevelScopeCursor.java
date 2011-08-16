@@ -46,7 +46,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
-    private final OneLevelScopeEvaluator evaluator;
+    private final OneLevelScopeEvaluator<Entry, ID> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
     private final IndexCursor<ID, Entry, ID> scopeCursor;
@@ -74,7 +74,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     {
         this.db = db;
         this.evaluator = evaluator;
-        scopeCursor = db.getOneLevelIndex().forwardCursor( evaluator.getBaseId() );
+        scopeCursor = db.getRdnIndexHelper().getOneLevelScopeCursor( evaluator.getBaseId() );
 
         if ( evaluator.isDereferencing() )
         {

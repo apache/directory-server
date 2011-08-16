@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.xdbm.search.impl.RdnIndexHelper;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -91,8 +92,6 @@ public interface Store<E, ID extends Comparable<ID>>
     public static final String[] SYS_INDEX_OID_ARRAY =
         { 
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
-            ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,
             ApacheSchemaConstants.APACHE_N_DN_AT_OID,
             ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
@@ -180,18 +179,6 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * @return The OneLevel system index
-     */
-    Index<ID, E, ID> getOneLevelIndex();
-
-
-    /**
-     * @return The SubLevel system index
-     */
-    Index<ID, E, ID> getSubLevelIndex();
-
-
-    /**
      * @return The Alias system index
      */
     Index<String, E, ID> getAliasIndex();
@@ -213,6 +200,12 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The Rdn system index
      */
     Index<ParentIdAndRdn<ID>, E, ID> getRdnIndex();
+    
+    
+    /**
+     * @return The Rdn index helper
+     */
+    RdnIndexHelper<E, ID> getRdnIndexHelper();
 
 
     /**

@@ -24,9 +24,7 @@ package org.apache.directory.server.core.partition.ldif;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.naming.InvalidNameException;
@@ -38,7 +36,6 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -295,11 +292,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 {
                     return;
                 }
-                
-                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
 
-
-                appendLdif( lookup( suffixId ) );
+                IndexCursor<Long, Entry, Long> cursor = getRdnIndexHelper().getSubLevelScopeCursor( suffixId );
 
                 while ( cursor.next() )
                 {
@@ -308,8 +302,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     Entry entry = lookup( childId );
 
                     appendLdif( entry );
-
-                    appendRecursive( childId, null );
                 }
 
                 cursor.close();
@@ -322,59 +314,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             catch ( Exception e )
             {
                 throw new LdapException( e );
-            }
-        }
-    }
-
-
-    /**
-     * appends all the entries present under a given entry, recursively
-     *
-     * @param entryId the base entry's id
-     * @param cursorMap the open cursor map
-     * @throws Exception
-     */
-    private void appendRecursive( Long entryId, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap ) throws Exception
-    {
-        synchronized ( lock )
-        {
-
-            IndexCursor<Long, Entry, Long> cursor = null;
-            if ( cursorMap == null )
-            {
-                cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
-            }
-
-            cursor = cursorMap.get( entryId );
-
-            if ( cursor == null )
-            {
-                cursor = getOneLevelIndex().forwardCursor( entryId );
-                cursor.beforeFirst();
-                cursorMap.put( entryId, cursor );
-            }
-
-            if ( !cursor.next() ) // if this is a leaf entry's Dn
-            {
-                cursorMap.remove( entryId );
-                cursor.close();
-            }
-            else
-            {
-                do
-                {
-                    IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
-                    Entry entry = lookup( idxEntry.getId() );
-
-                    Long childId = getEntryId( entry.getDn() );
-
-                    appendLdif( entry );
-
-                    appendRecursive( childId, cursorMap );
-                }
-                while ( cursor.next() );
-                cursorMap.remove( entryId );
-                cursor.close();
             }
         }
     }

@@ -26,6 +26,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
@@ -45,12 +46,16 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
 
+    protected AtomicLong oneLevelCount;
+    protected AtomicLong subLevelCount;
 
     /**
      * Serializable constructor.
      */
     public ParentIdAndRdn()
     {
+        this.oneLevelCount = new AtomicLong();
+        this.subLevelCount = new AtomicLong();
     }
 
 
@@ -62,6 +67,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      */
     public ParentIdAndRdn( ID parentId, Rdn... rdns )
     {
+        this();
         this.parentId = parentId;
         this.rdns = rdns;
     }
@@ -75,6 +81,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      */
     public ParentIdAndRdn( ID parentId, List<Rdn> rdns )
     {
+        this();
         this.parentId = parentId;
         this.rdns = rdns.toArray( new Rdn[rdns.size()] );
     }
@@ -124,6 +131,54 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     }
 
 
+    public long getOneLevelCount()
+    {
+        return oneLevelCount.get();
+    }
+
+
+    public void setOneLevelCount( long oneLevelCount )
+    {
+        this.oneLevelCount.set( oneLevelCount );
+    }
+
+
+    public void incrementOneLevelCount()
+    {
+        oneLevelCount.incrementAndGet();
+    }
+
+
+    public void decrementOneLevelCount()
+    {
+        oneLevelCount.decrementAndGet();
+    }
+
+
+    public long getSubLevelCount()
+    {
+        return subLevelCount.get();
+    }
+
+
+    public void setSubLevelCount( long subLevelCount )
+    {
+        this.subLevelCount.set( subLevelCount );
+    }
+
+
+    public void incrementSubLevelCount()
+    {
+        subLevelCount.incrementAndGet();
+    }
+
+
+    public void decrementSubLevelCount()
+    {
+        subLevelCount.decrementAndGet();
+    }
+
+
     @Override
     public int hashCode()
     {
@@ -151,7 +206,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         }
 
         ParentIdAndRdn<ID> that = (ParentIdAndRdn<ID>) obj;
-        
+
+        if ( !parentId.equals( that.parentId ) )
+        {
+            return false;
+        }
+
         if ( rdns == null )
         {
             return that.rdns == null;
@@ -183,7 +243,18 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      */
     public int compareTo( ParentIdAndRdn<ID> that )
     {
-        int val = this.rdns.length - that.rdns.length;
+        // Compare the parent id first so that all entries with the same parent
+        // are grouped together in the index. Required for proper function of
+        // RdnIndexTreeCursor.
+        int val = this.getParentId().compareTo( that.getParentId() );
+        
+        if ( val != 0 )
+        {
+            return val;
+        }
+        
+        // Now compare the RDNs
+        val = this.rdns.length - that.rdns.length;
         
         if ( val != 0 )
         {
@@ -199,10 +270,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
                 return val;
             }
         }
-
-        val = this.getParentId().compareTo( that.getParentId() );
         
-        return val;
+        return 0;
     }
 
 
@@ -215,6 +284,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             rdn.writeExternal( out );
         }
+        out.writeLong( oneLevelCount.get() );
+        out.writeLong( subLevelCount.get() );
     }
 
 
@@ -231,6 +302,9 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             rdn.readExternal( in );
             rdns[i] = rdn;
         }
+        
+        oneLevelCount.set( in.readLong() );
+        subLevelCount.set( in.readLong() );
     }
     
     

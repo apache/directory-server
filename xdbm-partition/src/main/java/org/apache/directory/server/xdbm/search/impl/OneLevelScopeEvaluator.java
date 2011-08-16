@@ -81,7 +81,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      */
     public boolean evaluateId( ID candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate );
+        boolean isChild = db.getRdnIndexHelper().isDirectDescendantOf( baseId, candidate );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -152,7 +152,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      */
     public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
+        boolean isChild = db.getRdnIndexHelper().isDirectDescendantOf( baseId, candidate.getId() );
 
         /*
          * The candidate id could be any entry in the db.  If search
