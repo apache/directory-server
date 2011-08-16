@@ -18,11 +18,12 @@
  *
  */
 
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.provider;
 
 import java.util.Iterator;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -31,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Define a cursor on top of a message queue.
+ * Define a cursor on top of a replication journal.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -61,7 +62,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     {
         this.journal = journal;
         this.tupleCursor = journal.cursor();
-        this.consumerCsn = consumerCsn;        
+        this.consumerCsn = consumerCsn;
     }
 
 
@@ -140,7 +141,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
         
         LOG.debug( "ReplicaEventMessage: {}", qualifiedEvtMsg );
         
-        if( qualifiedEvtMsg.isEventOlderThan( consumerCsn ) )
+        if ( qualifiedEvtMsg.isEventOlderThan( consumerCsn ) )
         {
             if( LOG.isDebugEnabled() )
             {

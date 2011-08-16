@@ -37,7 +37,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.server.ldap.replication.ReplicationRequestHandler;
+import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

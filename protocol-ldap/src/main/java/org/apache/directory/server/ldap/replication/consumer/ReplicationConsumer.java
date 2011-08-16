@@ -18,10 +18,11 @@
  *
  */
 
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.consumer;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 
 
 /**

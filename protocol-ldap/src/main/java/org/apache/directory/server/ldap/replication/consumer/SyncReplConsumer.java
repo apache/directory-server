@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.consumer;
 
 
 import java.io.File;
@@ -38,6 +38,8 @@ import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;

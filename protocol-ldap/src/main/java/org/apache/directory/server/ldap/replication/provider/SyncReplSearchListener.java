@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.provider;
 
 
 import org.apache.directory.server.core.DirectoryService;
@@ -32,6 +32,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;

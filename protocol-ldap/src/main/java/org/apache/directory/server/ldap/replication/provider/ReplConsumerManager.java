@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.provider;
 
 
 import java.util.ArrayList;
@@ -65,6 +65,9 @@ public class ReplConsumerManager
 {
     /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplConsumerManager.class );
+    
+    /** A logger for the replication provider */
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
 
     /** The admin session used to commuicate with the backend */
     private CoreSession adminSession;
@@ -107,6 +110,7 @@ public class ReplConsumerManager
         OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
         
+        PROVIDER_LOG.debug( "Starting the replication consumer manager" );
         createConsumersBranch();
     }
 
@@ -119,7 +123,8 @@ public class ReplConsumerManager
         if ( !adminSession.exists( REPL_CONSUMER_DN ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
-            
+            PROVIDER_LOG.debug( "Creating the entry for storing replication consumers' details in {}", REPL_CONSUMER_DN );
+
             Entry entry = new DefaultEntry( schemaManager , REPL_CONSUMER_DN,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.OU_AT, CONSUMERS );
@@ -143,6 +148,8 @@ public class ReplConsumerManager
             return;
         }
         
+        PROVIDER_LOG.debug( "Adding a consumer for replica {}", replica.toString() );
+
         // Check that we don't already have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
         
@@ -151,6 +158,7 @@ public class ReplConsumerManager
             // Error...
             String message = "The replica " + consumerDn.getName() + " already exists";
             LOG.error( message );
+            PROVIDER_LOG.debug( message );
             throw new LdapEntryAlreadyExistsException( message );
         }
 
@@ -190,11 +198,14 @@ public class ReplConsumerManager
         // Check that we have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
         
+        PROVIDER_LOG.debug( "Deleting the {} consumer", consumerDn );
+
         if ( !adminSession.exists( consumerDn ) )
         {
             // Error...
             String message = "The replica " + consumerDn.getName() + " does not exist";
             LOG.error( message );
+            PROVIDER_LOG.debug( message );
             throw new LdapEntryAlreadyExistsException( message );
         }
 
@@ -235,6 +246,7 @@ public class ReplConsumerManager
         adminSession.modify( dn, mod );
         
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
+        PROVIDER_LOG.debug( "updated the LastSentCSN of consumer entry {}", dn );
     }
 
 

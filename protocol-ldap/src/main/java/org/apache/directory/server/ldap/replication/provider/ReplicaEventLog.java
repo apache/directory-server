@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.provider;
 
 
 import java.io.File;
@@ -32,9 +32,9 @@ import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessageSerializer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.slf4j.Logger;
@@ -62,6 +62,9 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
     
+    /** A logger for the replication provider */
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
+
     /** IP address of the syncrepl consumer */
     private String hostName;
 
@@ -103,6 +106,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      */
     public ReplicaEventLog( DirectoryService directoryService, int replicaId ) throws IOException
     {
+        PROVIDER_LOG.debug( "Creating the replication queue for replica {}", replicaId );
         SchemaManager schemaManager = directoryService.getSchemaManager();
         this.replicaId = replicaId;
         this.searchCriteria = new NotificationCriteria();
@@ -131,15 +135,16 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         try
         {
             LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getChangeType() );
+            PROVIDER_LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getChangeType() );
 
             String entryCsn = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
             journal.put( entryCsn, message );
             journal.sync();
-            recman.commit();
         }
         catch ( Exception e )
         {
             LOG.warn( "Failed to insert the entry into syncrepl log", e );
+            PROVIDER_LOG.error( "Failed to insert the entry into syncrepl log", e );
         }
     }
 
@@ -172,6 +177,8 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      */
     public void stop() throws Exception
     {
+        PROVIDER_LOG.debug( "Stopping the EventLog for replicaId {}", replicaId );
+        
         // Close the producer and session, DO NOT close connection 
         if ( journal != null )
         {

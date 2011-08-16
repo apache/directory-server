@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.ldap.replication;
+package org.apache.directory.server.ldap.replication.provider;
 
 
 import static java.lang.Math.min;
@@ -42,6 +42,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
+import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
@@ -54,8 +55,6 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoVa
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -92,7 +91,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * NOTE: doco is missing at many parts. Will be added once the functionality is satisfactory
+ * Class used to process the incoming synchronization request from the consumers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -102,6 +101,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
 
+    /** A logger for the replication provider */
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
+
+    /** A delimiter for the replicaId */
     public static final String REPLICA_ID_DELIM = ";";
 
     /** Tells if the replication handler is already started */
@@ -141,12 +144,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         if ( initialized )
         {
             LOG.warn( "syncrepl provider was already initialized" );
+            PROVIDER_LOG.warn( "syncrepl provider was already initialized" );
             return;
         }
         
         try
         {
             LOG.info( "initializing the syncrepl provider" );
+            PROVIDER_LOG.debug( "initializing the syncrepl provider" );
 
             this.ldapServer = server;
             this.dirService = server.getDirectoryService();
@@ -174,27 +179,34 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             initialized = true;
             LOG.info( "syncrepl provider initialized successfully" );
+            PROVIDER_LOG.debug( "syncrepl provider initialized successfully" );
         }
         catch ( Exception e )
         {
             LOG.error( "Failed to initialize the log files required by the syncrepl provider", e );
+            PROVIDER_LOG.error( "Failed to initialize the log files required by the syncrepl provider", e );
             throw new RuntimeException( e );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void stop()
     {
         for ( ReplicaEventLog log : replicaLogMap.values() )
         {
             try
             {
+                PROVIDER_LOG.debug( "Stopping the logging for replica ", log.getId() );
                 log.stop();
             }
             catch( Exception e )
             {
                 LOG.warn( "Failed to close the event log {}", log.getId() );
                 LOG.warn( "", e );
+                PROVIDER_LOG.error( "Failed to close the event log {}", log.getId(), e );
             }
         }
         
@@ -212,7 +224,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         try
         {
-            //System.out.println( "Init replication on Provider" );
             // First extract the Sync control from the request
             SyncRequestValue syncControl = ( SyncRequestValue ) request.getControls().get(
                 SyncRequestValue.OID );
@@ -222,18 +233,21 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( cookieBytes == null )
             {
-                // No cookie ? We have to get all the entries from the server
+                PROVIDER_LOG.debug( "Received a replication request {} with no cookie", request );
+                // No cookie ? We have to get all the entries from the provider
                 doInitialRefresh( session, request );
             }
             else
             {
                 String cookieString = Strings.utf8ToString(cookieBytes);
                 
-                LOG.warn( "search request received with the cookie {}", cookieString );
+                PROVIDER_LOG.debug( "Received a replication request {} with a cookie '{}'", request, cookieString );
+                LOG.debug( "search request received with the cookie {}", cookieString );
                 
                 if ( !isValidCookie( cookieString ) )
                 {
                     LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
+                    PROVIDER_LOG.debug( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
                     sendESyncRefreshRequired( session, request );
                 }
                 else
@@ -244,11 +258,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     {
                         LOG.warn( "received a valid cookie {} but there is no event log associated with this replica",
                             cookieString );
+                        PROVIDER_LOG.debug( "received a valid cookie {} but there is no event log associated with this replica",
+                            cookieString );
                         sendESyncRefreshRequired( session, request );
                     }
                     else
                     {
-                        //System.out.println( "  -> We have events" );
                         String consumerCsn = getCsn( cookieString );
                         doContentUpdate( session, request, clientMsgLog, consumerCsn );
                     }
@@ -258,6 +273,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         catch ( Exception e )
         {
             LOG.error( "Failed to handle the syncrepl request", e );
+            PROVIDER_LOG.error( "Failed to handle the syncrepl request", e );
 
             LdapException le = new LdapException( e.getMessage(), e );
             le.initCause( e );
@@ -267,6 +283,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Send all the stored modifications to the consumer
+     */
     private String sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog, String consumerCsn )
         throws Exception
     {
@@ -274,17 +293,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         String lastSentCsn = clientMsgLog.getLastSentCsn();
 
         ReplicaJournalCursor cursor = clientMsgLog.getCursor( consumerCsn );
-        //int i = 0;
         
+        PROVIDER_LOG.debug( "Processing the log for replica {}", clientMsgLog.getId() );
+
         while ( cursor.next() )
         {
             ReplicaEventMessage replicaEventMessage = cursor.get();
             Entry entry = replicaEventMessage.getEntry();
-            LOG.debug( "received message from the queue {}", entry );
-            //i++;
+            LOG.debug( "Read message from the queue {}", entry );
+            PROVIDER_LOG.debug( "Read message from the queue {}", entry );
             
-            //System.out.println( "/////////////-> Message(" + i + ") read from queue : " + message.getEventType() + "/" + entry.getDn() );
-
             lastSentCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
             ChangeType event = replicaEventMessage.getChangeType();
@@ -314,12 +332,17 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
         }
         
+        PROVIDER_LOG.debug( "All pending modifciations for replica {} processed", clientMsgLog.getId() );
         cursor.close();
 
         return lastSentCsn;
     }
 
 
+    /**
+     * process the update of the consumer, starting from the given LastEntryCSN the consumer 
+     * has sent with the sync request.
+     */
     private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog, String consumerCsn )
         throws Exception
     {
@@ -337,11 +360,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         String lastSentCsn = sendContentFromLog( session, req, replicaLog, consumerCsn );
 
+        PROVIDER_LOG.debug( "The latest entry sent to the consumer {} has this CSN : {}", replicaLog.getId(), lastSentCsn );
         byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + lastSentCsn);
 
         if ( refreshNPersist )
         {
-            //System.out.println( "   --> In doContenUpdate, RNP " );
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( SyncInfoValue.OID );
 
@@ -351,19 +374,21 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             syncInfo.setCookie( cookie );
             intermResp.setResponseValue( syncInfo.getValue() );
 
+            PROVIDER_LOG.debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(), intermResp );
             session.getIoSession().write( intermResp );
 
             replicaLog.getPersistentListener().setPushInRealTime( refreshNPersist );
         }
         else
         {
-            //System.out.println( "   --> In doContenUpdate, RO " );
             SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             SyncDoneValue syncDone = new SyncDoneValueDecorator( 
                 ldapServer.getDirectoryService().getLdapCodecService() );
             syncDone.setCookie( cookie );
             searchDoneResp.addControl( syncDone );
+
+            PROVIDER_LOG.debug( "Send a SearchResultDone response to the {} consumer", replicaLog.getId(), searchDoneResp );
 
             session.getIoSession().write( searchDoneResp );
         }
@@ -374,10 +399,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     /**
      * Process the initial refresh : we will send all the entries 
-     * 
-     * @param session The LDAP session to use
-     * @param request The serarch request to process
-     * @throws Exception
      */
     private void doInitialRefresh( LdapSession session, SearchRequest request ) throws Exception
     {
@@ -405,6 +426,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         // now we process entries forever as they change
         LOG.info( "starting persistent search for the client {}", replicaLog );
+        PROVIDER_LOG.debug( "Starting persistent search for the client {}", replicaLog );
 
         // irrespective of the sync mode set the 'isRealtimePush' to false initially so that we can
         // store the modifications in the queue and later if it is a persist mode
@@ -453,6 +475,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 syncInfo.setCookie( cookie );
                 intermResp.setResponseValue( syncInfo.getValue() );
 
+                PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", replicaLog, syncInfo );
+
                 session.getIoSession().write( intermResp );
 
                 // switch the handler mode to realtime push
@@ -465,6 +489,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     ldapServer.getDirectoryService().getLdapCodecService() );
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
+                PROVIDER_LOG.info( "Sending the searchResultDone response to consumer {}, {}", replicaLog, searchDoneResp );
+
                 session.getIoSession().write( searchDoneResp );
             }
         }
@@ -472,6 +498,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // if not succeeded return
         {
             LOG.warn( "initial content refresh didn't succeed due to {}", searchDoneResp.getLdapResult()
+                .getResultCode() );
+            PROVIDER_LOG.warn( "initial content refresh didn't succeed due to {}", searchDoneResp.getLdapResult()
                 .getResultCode() );
             replicaLog.truncate();
             replicaLog = null;
@@ -482,7 +510,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             return;
         }
 
-        // if all is well then store the consumer infor
+        // if all is well then store the consumer information
         replicaUtil.addConsumerEntry(replicaLog );
 
         // add to the map only after storing in the DIT, else the Replica update thread barfs
@@ -490,6 +518,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Process a search on the provider to get all the modified entries. We then send all
+     * of them to the consumer
+     */
     private SearchResultDone doSimpleSearch( LdapSession session, SearchRequest req ) throws Exception
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
@@ -557,6 +589,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 // The client has closed the connection
                 LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
+                PROVIDER_LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
                 break;
             }
 
@@ -564,6 +597,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 // The cursor has been closed by an abandon request.
                 LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
+                PROVIDER_LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
                 break;
             }
 
@@ -614,15 +648,19 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         Response resp = generateResponse( session, req, entry );
         resp.addControl( syncStateControl );
 
-        session.getIoSession().write( resp );
         LOG.debug( "Sending {}", entry.getDn() );
+        PROVIDER_LOG.debug( "Sending the entry:", entry.getDn() );
+        session.getIoSession().write( resp );
     }
 
 
+    /**
+     * Prepare and send a search result entry response, with the associated
+     * SyncState control for a MODDN operation.
+     */
     private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
         SyncModifyDn modDnControl ) throws Exception
     {
-
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
@@ -633,11 +671,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         resp.addControl( syncStateControl );
         resp.addControl( modDnControl );
 
-        session.getIoSession().write( resp );
         LOG.debug( "Sending {}", entry.getDn() );
+        PROVIDER_LOG.debug( "Sending the MODDN modification:", entry.getDn() );
+
+        session.getIoSession().write( resp );
     }
 
 
+    /**
+     * Build the response to be sent to the client
+     */
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
         Attribute ref = entry.get( SchemaConstants.REF_AT );
@@ -838,6 +881,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Update the consumer configuration entries if they are 'dirty' (ie, if
+     * the consumer lastCSN is not up to date)
+     */
     private void storeReplicaInfo()
     {
         try
@@ -849,6 +896,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 if ( replica.isDirty() )
                 {
                     LOG.debug( "updating the details of replica {}", replica );
+                    PROVIDER_LOG.debug( "updating the details of replica {}", replica );
                     replicaUtil.updateReplicaLastSentCsn( replica );
                     replica.setDirty( false );
                 }
@@ -857,10 +905,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         catch ( Exception e )
         {
             LOG.error( "Failed to store the replica information", e );
+            PROVIDER_LOG.error( "Failed to store the replica information", e );
         }
     }
 
 
+    /**
+     * Read and store the consumer's informations
+     */
     private void loadReplicaInfo()
     {
         try
@@ -872,6 +924,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 for ( ReplicaEventLog replica : eventLogs )
                 {
                     LOG.debug( "initializing the replica log from {}", replica.getId() );
+                    PROVIDER_LOG.debug( "initializing the replica log from {}", replica.getId() );
                     replicaLogMap.put( replica.getId(), replica );
 
                     // update the replicaCount's value to assign a correct value to the new replica(s) 
@@ -884,15 +937,20 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             else
             {
                 LOG.debug( "no replica logs found to initialize" );
+                PROVIDER_LOG.debug( "no replica logs found to initialize" );
             }
         }
         catch ( Exception e )
         {
             LOG.error( "Failed to load the replica information", e );
+            PROVIDER_LOG.error( "Failed to load the replica information", e );
         }
     }
 
 
+    /**
+     * Register the listeners for each existing consumers
+     */
     private void registerPersistentSearches() throws Exception
     {
         for ( Map.Entry<Integer, ReplicaEventLog> e : replicaLogMap.entrySet() )
@@ -902,6 +960,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             if ( log.getSearchCriteria() != null )
             {
                 LOG.debug( "registering peristent search for the replica {}", log.getId() );
+                PROVIDER_LOG.debug( "registering peristent search for the replica {}", log.getId() );
                 SyncReplSearchListener handler = new SyncReplSearchListener( null, null, log, false );
                 log.setPersistentListener( handler );
 
@@ -911,11 +970,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
                     .getId() );
+                PROVIDER_LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
+                    .getId() );
             }
         }
     }
 
 
+    /**
+     * Create a thread to process replication communication with a consumer
+     */
     private Runnable createConsumerInfoUpdateTask()
     {
         Runnable task = new Runnable()
@@ -933,6 +997,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     catch ( InterruptedException e )
                     {
                         LOG.warn( "thread storing the replica information was interrupted", e );
+                        PROVIDER_LOG.warn( "thread storing the replica information was interrupted", e );
                     }
                 }
             }
@@ -942,20 +1007,28 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Check the cookie syntax. A cookie must have the following syntax :
+     * <replicaId> [ ';' [ <CSN> ] ]
+     */
     private boolean isValidCookie( String cookieString )
     {
-        if ( cookieString == null || cookieString.trim().length() == 0 )
+        if ( ( cookieString == null ) || ( cookieString.trim().length() == 0 ) )
         {
             return false;
         }
 
         int pos = cookieString.indexOf( REPLICA_ID_DELIM );
-        if ( pos <= 0 ) // position should start from 1 or higher cause a cookie can be like "0;<csn>" or "11;<csn>"
+        
+        // position should start from 1 or higher cause a cookie can be
+        // like "0;<csn>" or "11;<csn>"
+        if ( pos <= 0 )  
         {
             return false;
         }
 
         String replicaId = cookieString.substring( 0, pos );
+        
         try
         {
             Integer.parseInt( replicaId );
@@ -973,7 +1046,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         String csnString = cookieString.substring( pos + 1 );
 
-        return Csn.isValid(csnString);
+        return Csn.isValid( csnString );
     }
 
     /**
@@ -1002,6 +1075,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Get the Replica event log from the replica ID found in the cookie 
+     */
     private ReplicaEventLog getReplicaEventLog( String cookieString ) throws Exception
     {
         ReplicaEventLog replicaLog = null;
@@ -1016,6 +1092,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Create a new ReplicaEventLog
+     */
     private ReplicaEventLog createRelicaEventLog( String hostName, String filter ) throws Exception
     {
         int replicaId = replicaCount.incrementAndGet();
@@ -1030,6 +1109,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    /**
+     * Send an error response to he consue r: it has to send a SYNC_REFRESH request first. 
+     */
     private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
