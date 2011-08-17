@@ -65,8 +65,8 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    /* 
-     * @see org.apache.directory.server.xdbm.IndexCursor#beforeValue(java.lang.Long, java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public void beforeValue( ID id, ID value ) throws Exception
     {

@@ -80,18 +80,6 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
     
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );

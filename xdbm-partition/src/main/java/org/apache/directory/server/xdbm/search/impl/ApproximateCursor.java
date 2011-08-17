@@ -98,6 +98,9 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -108,21 +111,25 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, value );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 

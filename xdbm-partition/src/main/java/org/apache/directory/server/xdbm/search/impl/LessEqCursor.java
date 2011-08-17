@@ -91,6 +91,9 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -117,6 +120,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( compareValue > 0 )
             {
                 afterLast();
+                
                 return;
             }
             else if ( compareValue == 0 )
@@ -124,6 +128,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
                 last();
                 previous();
                 setAvailable( false );
+                
                 return;
             }
 
@@ -132,7 +137,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
@@ -185,9 +190,13 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
@@ -207,6 +216,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( comparedValue >= 0 )
             {
                 afterLast();
+                
                 return;
             }
 
@@ -216,7 +226,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 

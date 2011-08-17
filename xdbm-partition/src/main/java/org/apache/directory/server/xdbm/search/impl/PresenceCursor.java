@@ -84,6 +84,9 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -95,7 +98,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        super.beforeValue( id, value );
     }
 
 
@@ -117,6 +120,9 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
@@ -128,7 +134,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        super.afterValue( id, value );
     }
 
 

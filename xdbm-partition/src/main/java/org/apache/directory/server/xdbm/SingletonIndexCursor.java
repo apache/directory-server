@@ -58,18 +58,6 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     }
 
 
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "()" );

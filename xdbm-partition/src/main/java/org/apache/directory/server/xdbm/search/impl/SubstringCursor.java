@@ -84,18 +84,6 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
     
-    public void beforeValue( ID id, String value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, String value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );

@@ -113,7 +113,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
@@ -139,17 +139,18 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, V key ) throws Exception
+    public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
-        if ( userIdxCursor != null )
+        if ( userIdxCursor
+            != null )
         {
-            userIdxCursor.afterValue( id, key );
+            userIdxCursor.afterValue( id, value );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 

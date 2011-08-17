@@ -93,18 +93,6 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     }
 
     
-    public void beforeValue( ID id, ID value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, ID value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );

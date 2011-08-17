@@ -74,6 +74,24 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void afterValue( ID id, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeValue( ID id, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
+    }
+
 
     /**
      * {@inheritDoc}
