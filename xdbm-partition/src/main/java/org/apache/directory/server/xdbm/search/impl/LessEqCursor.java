@@ -61,9 +61,6 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
      */
     IndexEntry<V, Entry, ID> ndnCandidate;
 
-    /** used in both modes */
-    private boolean available = false;
-
 
     @SuppressWarnings("unchecked")
     public LessEqCursor( Store<Entry, ID> db, LessEqEvaluator<V, ID> lessEqEvaluator ) throws Exception
@@ -82,12 +79,6 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             uuidIdxCursor = ( IndexCursor<V, Entry, ID> ) db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
-    }
-
-
-    public boolean available()
-    {
-        return available;
     }
 
 
@@ -123,12 +114,12 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 last();
                 previous();
-                available = false;
+                setAvailable( false );
                 return;
             }
 
             userIdxCursor.beforeValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
@@ -167,12 +158,12 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 last();
                 previous();
-                available = false;
+                setAvailable( false );
                 return;
             }
 
             userIdxCursor.before( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
@@ -208,7 +199,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.afterValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
@@ -244,7 +235,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.after( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
@@ -266,7 +257,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -286,7 +277,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -315,7 +306,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * values are decreasing with calls to previous().  We will
              * always have lesser values.
              */
-            return available = userIdxCursor.previous();
+            return setAvailable( userIdxCursor.previous() );
         }
 
         while ( uuidIdxCursor.previous() )
@@ -324,7 +315,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = uuidIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
             else
             {
@@ -332,13 +323,14 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -351,23 +343,25 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
+                
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
-                    return available = true;
+                    return setAvailable( true );
                 }
             }
 
-            return available = false;
+            return setAvailable( false );
         }
 
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
             ndnCandidate = uuidIdxCursor.get();
+            
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
             else
             {
@@ -375,16 +369,17 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
     public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( userIdxCursor != null )
         {
-            if ( available )
+            if ( available() )
             {
                 return userIdxCursor.get();
             }
@@ -392,7 +387,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
-        if ( available )
+        if ( available() )
         {
             return ndnCandidate;
         }

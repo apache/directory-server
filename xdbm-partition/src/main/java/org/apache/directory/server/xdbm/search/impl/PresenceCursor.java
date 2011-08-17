@@ -41,7 +41,6 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private final IndexCursor<String, Entry, ID> uuidCursor;
     private final IndexCursor<String, Entry, ID> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
-    private boolean available = false;
 
 
     public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
@@ -72,7 +71,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return presenceCursor.available();
         }
 
-        return available;
+        return super.available();
     }
 
 
@@ -83,6 +82,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         if ( presenceCursor != null )
         {
             presenceCursor.beforeValue( id, value );
+            
             return;
         }
 
@@ -93,9 +93,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void before( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.before( element );
+            
             return;
         }
 
@@ -106,9 +108,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void afterValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.afterValue( id, value );
+            
             return;
         }
 
@@ -119,9 +123,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void after( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.after( element );
+            
             return;
         }
 
@@ -132,20 +138,23 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.beforeFirst();
+            
             return;
         }
 
         uuidCursor.beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         if ( presenceCursor != null )
         {
             presenceCursor.afterLast();
@@ -153,7 +162,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         }
 
         uuidCursor.afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -173,12 +182,14 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
+        
         if ( presenceCursor != null )
         {
             return presenceCursor.last();
         }
 
         afterLast();
+        
         return previous();
     }
 
@@ -186,6 +197,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
+        
         if ( presenceCursor != null )
         {
             return presenceCursor.previous();
@@ -195,13 +207,14 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
+            
             if ( presenceEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -217,19 +230,21 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         {
             checkNotClosed( "next()" );
             IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
+            
             if ( presenceEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
     public IndexEntry<String, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( presenceCursor != null )
         {
             if ( presenceCursor.available() )
@@ -240,7 +255,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
-        if ( available )
+        if ( available() )
         {
             /*
              * The value of NDN indices is the normalized dn and we want the
@@ -249,6 +264,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
              */
             IndexEntry<String, Entry, ID> indexEntry = uuidCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
+            
             return indexEntry;
         }
 

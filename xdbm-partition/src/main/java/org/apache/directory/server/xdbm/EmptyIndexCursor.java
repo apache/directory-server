@@ -30,12 +30,6 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
 {
-    public boolean available()
-    {
-        return false;
-    }
-
-
     public void before( IndexEntry<K, E, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );

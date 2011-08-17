@@ -43,7 +43,6 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     private final IndexCursor<String, Entry, ID> wrapped;
     private final SubstringEvaluator<ID> evaluator;
     private final ForwardIndexEntry<String, Entry, ID> indexEntry = new ForwardIndexEntry<String, Entry, ID>();
-    private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
@@ -73,12 +72,6 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
              */
             wrapped = store.getEntryUuidIndex().forwardCursor();
         }
-    }
-
-
-    public boolean available()
-    {
-        return available;
     }
 
 
@@ -126,7 +119,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
     private void clear()
     {
-        available = false;
+        setAvailable( false );
         indexEntry.setObject( null );
         indexEntry.setId( null );
         indexEntry.setValue( null );
@@ -180,7 +173,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
             IndexEntry<String, Entry, ID> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
-                available = true;
+                setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
                 this.indexEntry.setValue( entry.getValue() );
                 this.indexEntry.setObject( entry.getObject() );
@@ -201,7 +194,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
             IndexEntry<String, Entry, ID> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
-                available = true;
+                setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
                 this.indexEntry.setValue( entry.getValue() );
                 this.indexEntry.setObject( entry.getObject() );
@@ -217,7 +210,8 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     public IndexEntry<String, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return indexEntry;
         }

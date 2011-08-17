@@ -54,9 +54,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
-    private boolean available = false;
-
 
     @SuppressWarnings("unchecked")
     public EqualityCursor( Store<Entry, ID> db, EqualityEvaluator<V, ID> equalityEvaluator ) throws Exception
@@ -90,7 +87,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.available();
         }
 
-        return available;
+        return super.available();
     }
 
 
@@ -182,7 +179,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             uuidIdxCursor.beforeFirst();
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -202,7 +199,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             uuidIdxCursor.afterLast();
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -243,13 +240,14 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -271,11 +269,11 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -292,7 +290,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.get();
         }
 
-        if ( available )
+        if ( available() )
         {
             return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
         }

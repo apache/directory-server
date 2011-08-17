@@ -34,6 +34,28 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
  */
 public abstract class AbstractIndexCursor<K, E, ID> extends AbstractCursor<IndexEntry<K, E, ID>> implements IndexCursor<K, E, ID>
 {
+    /** Tells if there are some element available in the cursor */
+    private boolean available = false;
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean available()
+    {
+        return available;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    protected boolean setAvailable( boolean available )
+    {
+        return this.available = available;
+    }
+
+
     /**
      * {@inheritDoc}
      */

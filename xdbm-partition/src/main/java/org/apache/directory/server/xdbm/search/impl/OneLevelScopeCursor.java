@@ -57,9 +57,6 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     /** Currently active Cursor: we switch between two cursors */
     private Cursor<IndexEntry<ID, Entry, ID>> cursor;
 
-    /** Whether or not this Cursor is positioned so an entry is available */
-    private boolean available = false;
-
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -84,12 +81,6 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         {
             dereferencedCursor = null;
         }
-    }
-
-
-    public boolean available()
-    {
-        return available;
     }
 
 
@@ -122,7 +113,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         checkNotClosed( "beforeFirst()" );
         cursor = scopeCursor;
         cursor.beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -139,7 +130,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         }
 
         cursor.afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -179,21 +170,21 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
                 do
                 {
                     checkNotClosed( "previous()" );
-                    available = cursor.previous();
+                    setAvailable( cursor.previous() );
 
-                    if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
                     }
                 }
-                while ( available );
+                while ( available() );
             }
             else
             {
-                available = cursor.previous();
+                setAvailable( cursor.previous() );
             }
 
-            return available;
+            return available();
         }
 
         /*
@@ -202,8 +193,9 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
          * scopeCursor and try a previous call after positioning past it's 
          * last element.
          */
-        available = cursor.previous();
-        if ( !available )
+        setAvailable( cursor.previous() );
+        
+        if ( !available() )
         {
             cursor = scopeCursor;
             cursor.afterLast();
@@ -212,16 +204,16 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
             do
             {
                 checkNotClosed( "previous()" );
-                available = cursor.previous();
+                setAvailable( cursor.previous() );
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
-            while ( available );
+            while ( available() );
 
-            return available;
+            return available();
         }
 
         return true;
@@ -247,24 +239,24 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
             do
             {
                 checkNotClosed( "next()" );
-                available = cursor.next();
+                setAvailable( cursor.next() );
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
-            while ( available );
+            while ( available() );
         }
         else
         {
-            available = cursor.next();
+            setAvailable( cursor.next() );
         }
 
         // if we're using dereferencedCursor (2nd) then we return the result
         if ( cursor == dereferencedCursor )
         {
-            return available;
+            return available();
         }
 
         /*
@@ -273,13 +265,13 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
          * dereferencedCursor and try a previous call after positioning past
          * it's last element.
          */
-        if ( !available )
+        if ( !available() )
         {
             if ( dereferencedCursor != null )
             {
                 cursor = dereferencedCursor;
                 cursor.beforeFirst();
-                return available = cursor.next();
+                return setAvailable( cursor.next() );
             }
 
             return false;
@@ -292,7 +284,8 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public IndexEntry<ID, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return cursor.get();
         }

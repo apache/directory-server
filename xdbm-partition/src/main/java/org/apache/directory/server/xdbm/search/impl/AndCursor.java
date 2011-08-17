@@ -45,7 +45,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
     private final IndexCursor<V, Entry, ID> wrapped;
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
-    private boolean available = false;
 
 
     public AndCursor( IndexCursor<V, Entry, ID> wrapped,
@@ -53,12 +52,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     {
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
-    }
-
-
-    public boolean available()
-    {
-        return available;
     }
 
 
@@ -90,7 +83,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     {
         checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -98,7 +91,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     {
         checkNotClosed( "afterLast()" );
         wrapped.afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -123,13 +116,14 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             checkNotClosed( "previous()" );
 
             IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            
             if ( matches( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -142,18 +136,19 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             
             if ( matches( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false);
     }
 
 
     public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return wrapped.get();
         }

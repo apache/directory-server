@@ -56,10 +56,6 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
-    private boolean available = false;
-
-
     @SuppressWarnings("unchecked")
     public ApproximateCursor( Store<Entry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
     {
@@ -89,7 +85,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
             return userIdxCursor.available();
         }
 
-        return available;
+        return super.available();
     }
 
 
@@ -160,7 +156,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         else
         {
             uuidIdxCursor.beforeFirst();
-            available = false;
+            setAvailable( false );
         }
     }
 
@@ -175,7 +171,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         else
         {
             uuidIdxCursor.afterLast();
-            available = false;
+            setAvailable( false );
         }
     }
 
@@ -205,13 +201,14 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -226,13 +223,14 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "next()" );
             IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -245,7 +243,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
             return userIdxCursor.get();
         }
 
-        if ( available )
+        if ( available() )
         {
             return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
         }
