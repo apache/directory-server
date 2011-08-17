@@ -32,8 +32,6 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.UUID;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -417,7 +415,7 @@ public class AvlPartitionTest
     {
         assertEquals( 3, partition.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = partition.list( 1L );
+        Cursor<IndexEntry<Long, Long>> cursor = partition.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -454,7 +452,7 @@ public class AvlPartitionTest
 
         assertEquals( 19, idx.count() );
 
-        Cursor<IndexEntry<Long, Attributes, Long>> cursor = idx.forwardCursor( 2L );
+        Cursor<IndexEntry<Long, Long>> cursor = idx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
         assertEquals( 2, ( long ) cursor.get().getId() );

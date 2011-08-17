@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -28,21 +29,20 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
- * @param <O> The associated object
  */
-public abstract class AbstractIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
+public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
 {
-    /** The referenced object if loaded from the store */
-    private O object;
+    /** The referenced Entry if loaded from the store */
+    private Entry entry;
 
     /**
      * Creates an instance of AbstractIndexEntry
      * 
-     * @param object The interned object
+     * @param object The interned Entry
      */
-    protected AbstractIndexEntry( O object )
+    protected AbstractIndexEntry( Entry entry )
     {
-        this.object = object;
+        this.entry = entry;
     }
     
     
@@ -73,9 +73,9 @@ public abstract class AbstractIndexEntry<V, O, ID> implements IndexEntry<V, O, I
     /**
      * {@inheritDoc}
      */
-    public O getObject()
+    public Entry getEntry()
     {
-        return object;
+        return entry;
     }
 
     
@@ -88,9 +88,9 @@ public abstract class AbstractIndexEntry<V, O, ID> implements IndexEntry<V, O, I
     /**
      * {@inheritDoc}
      */
-    public void setObject( O object )
+    public void setEntry( Entry entry )
     {
-        this.object = object;
+        this.entry = entry;
     }
 
     
@@ -99,15 +99,15 @@ public abstract class AbstractIndexEntry<V, O, ID> implements IndexEntry<V, O, I
      */
     public void clear()
     {
-        object = null;
+        entry = null;
     }
 
     
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, O, ID> entry )
+    public void copy( IndexEntry<V, ID> entry )
     {
-        object = entry.getObject();
+        this.entry = entry.getEntry();
     }
 }

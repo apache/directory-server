@@ -90,20 +90,20 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( attributeType.getOid(), indexEntry.getId() );
         }
 
-        Entry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
+            indexEntry.setEntry( entry );
         }
 
         return evaluateEntry( entry );

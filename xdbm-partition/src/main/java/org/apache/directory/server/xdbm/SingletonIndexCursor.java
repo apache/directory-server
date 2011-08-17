@@ -34,10 +34,10 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
-    private final IndexEntry<V, Entry, ID> singleton;
+    private final IndexEntry<V, ID> singleton;
 
 
-    public SingletonIndexCursor( IndexEntry<V, Entry, ID> singleton )
+    public SingletonIndexCursor( IndexEntry<V, ID> singleton )
     {
         this.singleton = singleton;
     }
@@ -172,9 +172,10 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "()" );
+        
         if ( onSingleton )
         {
             return singleton;

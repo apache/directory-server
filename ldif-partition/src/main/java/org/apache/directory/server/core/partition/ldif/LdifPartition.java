@@ -363,7 +363,7 @@ public class LdifPartition extends AbstractLdifPartition
 
             while ( cursor.next() )
             {
-                IndexEntry<Long, Entry, Long> entry = cursor.get();
+                IndexEntry<Long, Long> entry = cursor.get();
 
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )

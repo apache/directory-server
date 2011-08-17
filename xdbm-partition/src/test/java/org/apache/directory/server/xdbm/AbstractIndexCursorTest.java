@@ -114,7 +114,7 @@ public class AbstractIndexCursorTest
     @Test
     public void testIterator()
     {
-        Iterator<IndexEntry<String, Entry, Long>> iterator = indexCursor.iterator();
+        Iterator<IndexEntry<String, Long>> iterator = indexCursor.iterator();
         assertNotNull( iterator );
     }
 

@@ -98,7 +98,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
+            IndexEntry<?, ID> candidate = uuidCursor.get();
             
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -115,7 +115,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = uuidCursor.get();
+            IndexEntry<?, ID> candidate = uuidCursor.get();
             
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -127,7 +127,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

@@ -123,7 +123,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
     {
         ID id = candidate.getId();
         

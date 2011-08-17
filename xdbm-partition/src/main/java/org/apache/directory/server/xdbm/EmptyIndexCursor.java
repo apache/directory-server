@@ -33,7 +33,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, E, ID> element ) throws Exception
+    public void before( IndexEntry<K, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -51,7 +51,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, E, ID> element ) throws Exception
+    public void after( IndexEntry<K, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -97,7 +97,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
-    public IndexEntry<K, E, ID> get() throws Exception
+    public IndexEntry<K, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );

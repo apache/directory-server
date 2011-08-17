@@ -47,6 +47,13 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
 
 
+    /**
+     * Creates an instance of a AndCursor. It wraps an index cursor and the list
+     * of evaluators associated with all the elements connected by the And.
+     * 
+     * @param wrapped The encapsulated IndexCursor
+     * @param evaluators The list of evaluators associated wth the elements
+     */
     public AndCursor( IndexCursor<V, Entry, ID> wrapped,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
@@ -64,6 +71,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -72,6 +82,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
@@ -80,27 +93,38 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            IndexEntry<V, ID> candidate = wrapped.get();
             
             if ( matches( candidate ) )
             {
@@ -112,12 +136,15 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            IndexEntry<V, ID> candidate = wrapped.get();
             
             if ( matches( candidate ) )
             {
@@ -129,7 +156,10 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -142,6 +172,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();
@@ -201,7 +234,10 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    private boolean matches( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    /**
+     * Checks if the entry is a valid candidate by using the evaluators.
+     */
+    private boolean matches( IndexEntry<V, ID> indexEntry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
         {

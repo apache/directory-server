@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
-    private IndexEntry<ID, Entry, ID> indexEntry = new ForwardIndexEntry<ID, Entry, ID>();
+    private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
     private final IndexCursor<String, Entry, ID> wrapped;
 
 
@@ -78,7 +78,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<ID, Entry, ID> indexEntry ) throws Exception
+    public void after( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
         wrapped.afterValue( indexEntry.getId(), null );
@@ -107,7 +107,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#before(java.lang.Object)
      */
-    public void before( IndexEntry<ID, Entry, ID> indexEntry ) throws Exception
+    public void before( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
         wrapped.beforeValue( indexEntry.getId(), null );
@@ -137,13 +137,14 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#get()
      */
-    public IndexEntry<ID, Entry, ID> get() throws Exception
+    public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        IndexEntry<String, Entry, ID> wrappedEntry = wrapped.get();
+        IndexEntry<String, ID> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
-        indexEntry.setObject( wrappedEntry.getObject() );
+        indexEntry.setEntry( wrappedEntry.getEntry() );
+        
         return indexEntry;
     }
 

@@ -116,7 +116,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     }
 
 
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
         {

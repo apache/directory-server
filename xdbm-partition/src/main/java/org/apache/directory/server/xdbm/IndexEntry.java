@@ -20,24 +20,24 @@
 package org.apache.directory.server.xdbm;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
- * Interface for index entries. An index entry associate an Entry object with 
- * a value (the key) and the Object ID in the table where it's stored. The Object
- * may be present in this instance once we read it from the tabe.
+ * Interface for index entries. An index entry associate an Entry with 
+ * a value (the key) and the Entry ID in the table where it's stored. The Entry
+ * may be present in this instance once we read it from the table.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
- * @param <O> The associated object
  */
-public interface IndexEntry<V, O, ID>
+public interface IndexEntry<V, ID>
 {
     /**
      * Gets the value referred to by this IndexEntry.
      *
-     * @return the value of the object referred to
+     * @return the value of the Entry referred to
      */
     V getValue();
 
@@ -45,33 +45,33 @@ public interface IndexEntry<V, O, ID>
     /**
      * Sets the value referred to by this IndexEntry.
      *
-     * @param value the value of the object referred to
+     * @param value the value of the Entry referred to
      */
     void setValue( V value );
 
 
     /**
-     * Gets the id of the indexed object.
+     * Gets the id of the indexed Entry.
      *
-     * @return the id of the indexed object
+     * @return the id of the indexed Entry
      */
     ID getId();
 
 
     /**
-     * Sets the id of the indexed.object
+     * Sets the id of the indexed.Entry
      *
-     * @param id the id of the indexed object
+     * @param id the id of the indexed Entry
      */
     void setId( ID id );
 
 
     /**
-     * Gets the object indexed if resuscitated.
+     * Gets the Entry indexed if found.
      *
-     * @return the object indexed
+     * @return the indexed Entry
      */
-    O getObject();
+    Entry getEntry();
 
 
     /**
@@ -83,15 +83,15 @@ public interface IndexEntry<V, O, ID>
 
 
     /**
-     * Sets the indexed object.
+     * Sets the indexed Entry.
      *
-     * @param obj the indexed object
+     * @param entry the indexed Entry
      */
-    void setObject( O obj );
+    void setEntry( Entry entry );
 
 
     /**
-     * Clears the id, value and object in this IndexEntry.
+     * Clears the id, value and Entry in this IndexEntry.
      */
     void clear();
 
@@ -101,5 +101,5 @@ public interface IndexEntry<V, O, ID>
      *
      * @param entry the entry to copy fields of
      */
-    void copy( IndexEntry<V, O, ID> entry );
+    void copy( IndexEntry<V, ID> entry );
 }

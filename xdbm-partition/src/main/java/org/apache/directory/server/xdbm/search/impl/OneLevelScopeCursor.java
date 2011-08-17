@@ -52,10 +52,10 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     private final IndexCursor<ID, Entry, ID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<ID, Entry, ID>> dereferencedCursor;
+    private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<ID, Entry, ID>> cursor;
+    private Cursor<IndexEntry<ID, ID>> cursor;
 
 
     /**
@@ -266,7 +266,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     }
 
 
-    public IndexEntry<ID, Entry, ID> get() throws Exception
+    public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

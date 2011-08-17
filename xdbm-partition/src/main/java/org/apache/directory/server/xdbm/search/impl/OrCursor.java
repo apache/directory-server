@@ -127,7 +127,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -149,7 +149,8 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         while ( cursors.get( cursorIndex ).previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
+            
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -167,7 +168,8 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             while ( cursors.get( cursorIndex ).previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
+                
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -186,7 +188,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         while ( cursors.get( cursorIndex ).next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -204,7 +206,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             while ( cursors.get( cursorIndex ).next() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -218,7 +220,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

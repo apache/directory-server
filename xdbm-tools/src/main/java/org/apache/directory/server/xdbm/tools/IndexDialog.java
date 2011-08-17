@@ -45,14 +45,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.util.exception.NotImplementedException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +289,7 @@ public class IndexDialog<K, O, ID> extends JDialog
 
         try
         {
-            Cursor<IndexEntry<K, O, ID>> list;
+            Cursor<IndexEntry<K, ID>> list;
 
             if ( scanType.equals( EQUALITY_CURSOR ) )
             {
@@ -298,7 +297,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 list.beforeFirst();
                 while ( list.next() )
                 {
-                    IndexEntry<K, O, ID> rec = list.get();
+                    IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -309,12 +308,12 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( GREATER_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, O, ID> entry = new ForwardIndexEntry<K, O, ID>();
+                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
                 entry.setValue( key );
                 list.before( entry );
                 while ( list.next() )
                 {
-                    IndexEntry<K, O, ID> rec = list.get();
+                    IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -325,12 +324,12 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( LESS_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, O, ID> entry = new ForwardIndexEntry<K, O, ID>();
+                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
                 entry.setValue( key );
                 list.after( entry );
                 while ( list.previous() )
                 {
-                    IndexEntry<K, O, ID> rec = list.get();
+                    IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -363,7 +362,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 list = index.forwardCursor();
                 while ( list.next() )
                 {
-                    IndexEntry<K, O, ID> rec = list.get();
+                    IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();

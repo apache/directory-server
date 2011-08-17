@@ -102,7 +102,7 @@ public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
     }
 
 
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
         {

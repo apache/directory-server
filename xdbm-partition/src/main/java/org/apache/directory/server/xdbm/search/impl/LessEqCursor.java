@@ -59,7 +59,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<V, Entry, ID> ndnCandidate;
+    IndexEntry<V, ID> ndnCandidate;
 
 
     @SuppressWarnings("unchecked")
@@ -145,7 +145,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -234,7 +234,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -293,7 +293,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, Entry, ID> advanceTo = new ForwardIndexEntry<V, Entry, ID>();
+            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             //noinspection unchecked
             advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
@@ -369,7 +369,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             while ( userIdxCursor.next() )
             {
                 checkNotClosed( "next()" );
-                IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
+                IndexEntry<?, ID> candidate = userIdxCursor.get();
                 
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
@@ -400,7 +400,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

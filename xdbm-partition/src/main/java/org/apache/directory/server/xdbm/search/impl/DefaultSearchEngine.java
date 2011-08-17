@@ -157,7 +157,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
                 effectiveBaseId = db.getEntryId( effectiveBase );
             }
 
-            IndexEntry<ID, Entry, ID> indexEntry = new ForwardIndexEntry<ID, Entry, ID>();
+            IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );

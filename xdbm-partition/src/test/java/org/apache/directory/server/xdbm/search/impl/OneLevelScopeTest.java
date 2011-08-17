@@ -172,7 +172,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
@@ -315,7 +315,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
         assertEquals( 4L, ( long ) indexEntry.getValue() );
@@ -459,7 +459,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -582,7 +582,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
@@ -695,7 +695,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -915,7 +915,7 @@ public class OneLevelScopeTest
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
 
-        ForwardIndexEntry<Long, Entry, Long> indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -935,19 +935,19 @@ public class OneLevelScopeTest
          * will not accept an alias candidate because aliases are not returned
          * when alias dereferencing while searching is enabled.
          */
-        ForwardIndexEntry<Long, Entry, Long> indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 11L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 6L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -975,7 +975,7 @@ public class OneLevelScopeTest
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<Long, Entry, Long> entry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
         entry.setValue( 3L );
         cursor.before( entry );
     }
@@ -991,7 +991,7 @@ public class OneLevelScopeTest
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         // test after()
-        ForwardIndexEntry<Long, Entry, Long> entry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
         entry.setValue( 3L );
         cursor.after( entry );
     }

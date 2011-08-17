@@ -59,7 +59,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<String, Entry, ID> ndnCandidate;
+    IndexEntry<String, ID> ndnCandidate;
 
 
     @SuppressWarnings("unchecked")
@@ -173,7 +173,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -207,7 +207,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -255,7 +255,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, Entry, ID> advanceTo = new ForwardIndexEntry<V, Entry, ID>();
+            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.before( advanceTo );
         }
@@ -313,7 +313,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             while ( userIdxCursor.previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
+                IndexEntry<?, ID> candidate = userIdxCursor.get();
                 
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(),
                     greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
@@ -369,7 +369,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -385,7 +385,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
 
         if ( available() )
         {
-            return ( IndexEntry<V, Entry, ID> ) ndnCandidate;
+            return ( IndexEntry<V, ID> ) ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

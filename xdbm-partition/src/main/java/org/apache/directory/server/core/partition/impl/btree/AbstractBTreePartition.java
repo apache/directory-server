@@ -1848,7 +1848,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         // find all the children of the childId
-        Cursor<IndexEntry<ID, Entry, ID>> cursor = subLevelIdx.forwardCursor( entryId );
+        Cursor<IndexEntry<ID, ID>> cursor = subLevelIdx.forwardCursor( entryId );
 
         List<ID> childIds = new ArrayList<ID>();
         childIds.add( entryId );
@@ -2568,7 +2568,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             
             while ( cursor.next() )
             {
-                IndexEntry<?, Entry, ID> entry = cursor.get();
+                IndexEntry<?, ID> entry = cursor.get();
                 
                 System.out.println( entry );
             }

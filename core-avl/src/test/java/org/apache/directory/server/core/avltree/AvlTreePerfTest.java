@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class AvlTreePerfTest
     
     long start, end;
 
-    int numKeys = 100000;
+    int numKeys = 1000000;
 
     Comparator<Integer> comparator = new Comparator<Integer>() 
     {
@@ -109,12 +110,13 @@ public class AvlTreePerfTest
         
         end = System.nanoTime();
      
-        LOG.info( "total time for inserting " + numKeys + " items into the RBTree-->" +  getTime( start, end ) );
+        System.out.println( "total time for inserting " + numKeys + " items into the RBTree-->" +  getTime( start, end ) );
         
     }
 
     
     @Test
+    @Ignore
     public void testRBTreeLookupPerf()
     {
         for( int i=0; i < numKeys; i++ )
@@ -122,7 +124,7 @@ public class AvlTreePerfTest
             set.add( i );
         }
         
-       start = System.nanoTime();
+        start = System.nanoTime();
        
         set.contains( 70 );
         set.contains( -1000 );
@@ -132,11 +134,12 @@ public class AvlTreePerfTest
         
        end = System.nanoTime();
        
-       LOG.info( "total time took to read an item from set " + getTime( start, end ) ) ;
+       System.out.println( "total time took to read an item from set " + getTime( start, end ) ) ;
     }
     
     
     @Test
+    @Ignore
     public void testRemoveFromRBTree()
     {
         for( int i=0; i < numKeys; i++ )
@@ -153,7 +156,7 @@ public class AvlTreePerfTest
         
         end = System.nanoTime();
         
-        LOG.info( "total time took to remove an item from set " + getTime( start, end ) ) ;
+        System.out.println( "total time took to remove an item from set " + getTime( start, end ) ) ;
 
     }
     
@@ -170,11 +173,12 @@ public class AvlTreePerfTest
 
         end = System.nanoTime();
         
-        LOG.info("total time for inserting " + numKeys + " items into the AVLTree-->" + getTime(start, end));
+        System.out.println("total time for inserting " + numKeys + " items into the AVLTree-->" + getTime(start, end));
     }
     
     
     @Test
+    @Ignore
     public void testAVLTreeLookupPerf()
     {
         
@@ -193,11 +197,12 @@ public class AvlTreePerfTest
         
         end = System.nanoTime();
         
-        LOG.info("total time took to read an item from tree " + getTime( start, end ) ) ;
+        System.out.println("total time took to read an item from tree " + getTime( start, end ) ) ;
     }
     
     
     @Test
+    @Ignore
     public void testAVLTreeRemovePerf()
     {
         for( int i=0; i < numKeys; i++ )
@@ -214,12 +219,13 @@ public class AvlTreePerfTest
         
         end = System.nanoTime();
         
-        LOG.info("total time took to remove an item from AVLTree " + getTime( start, end ) ) ;
+        System.out.println("total time took to remove an item from AVLTree " + getTime( start, end ) ) ;
 
     }
     
     
     @Test
+    @Ignore
     public void testRBTreeSerializationPerf() throws Exception
     {
         FileOutputStream fout = new FileOutputStream( setSerialFile );
@@ -240,12 +246,13 @@ public class AvlTreePerfTest
         
         long end = System.nanoTime();
         
-        LOG.info( "total time taken for serializing HashSet ->" + getTime( start, end ) );
+        System.out.println( "total time taken for serializing HashSet ->" + getTime( start, end ) );
     }
     
     
     @SuppressWarnings("unchecked")
     @Test
+    @Ignore
     public void testRBTreeDeserializationPerf() throws Exception
     {
      // read test
@@ -258,11 +265,12 @@ public class AvlTreePerfTest
         
         end = System.nanoTime();
         
-        LOG.info("total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
+        System.out.println("total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
     }
     
     
     @Test
+    @Ignore
     public void testAVLTreeSerializationPerf() throws Exception
     {
       
@@ -281,11 +289,12 @@ public class AvlTreePerfTest
       
       end = System.nanoTime();
       
-      LOG.info( "total time taken for serializing AVLTree ->" + getTime( start, end ) );
+      System.out.println( "total time taken for serializing AVLTree ->" + getTime( start, end ) );
     }
 
     
     @Test
+    @Ignore
     public void testAVLTreeDeserializationPerf() throws Exception
     {
         FileInputStream fin = new FileInputStream( treeSerialFile );
@@ -298,7 +307,7 @@ public class AvlTreePerfTest
         tree = (AvlTree<Integer>) treeMarshaller.deserialize( data );
         
         end = System.nanoTime();
-        LOG.info("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );
+        System.out.println("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );
     }
     
     

@@ -132,14 +132,14 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
      */
     public Entry get() throws Exception
     {
-        IndexEntry<ID, Entry, ID> indexEntry = indexCursor.get();
+        IndexEntry<ID, ID> indexEntry = indexCursor.get();
 
-        if ( indexEntry.getObject() == null )
+        if ( indexEntry.getEntry() == null )
         {
-            indexEntry.setObject( db.lookup( indexEntry.getId() ) );
+            indexEntry.setEntry( db.lookup( indexEntry.getId() ) );
         }
 
-        return indexEntry.getObject();
+        return indexEntry.getEntry();
     }
 
 

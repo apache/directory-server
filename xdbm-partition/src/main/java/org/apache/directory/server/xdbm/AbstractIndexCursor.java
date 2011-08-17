@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, Entry, ID>> implements IndexCursor<V, Entry, ID>
+public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements IndexCursor<V, Entry, ID>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
@@ -60,7 +60,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -69,7 +69,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -105,9 +105,9 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
-    public Iterator<IndexEntry<V, Entry, ID>> iterator()
+    public Iterator<IndexEntry<V, ID>> iterator()
     {
-        return new CursorIterator<IndexEntry<V, Entry, ID>>( this );
+        return new CursorIterator<IndexEntry<V, ID>>( this );
     }
 
 

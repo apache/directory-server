@@ -44,5 +44,5 @@ public interface IndexAssertion<K, E, ID>
      * @throws Exception if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexEntry<K, E, ID> entry ) throws Exception;
+    boolean assertCandidate( IndexEntry<K, ID> entry ) throws Exception;
 }

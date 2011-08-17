@@ -54,7 +54,7 @@ public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
     }
 
 
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         return !childEvaluator.evaluate( indexEntry );
     }

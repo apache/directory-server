@@ -26,8 +26,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -127,20 +127,20 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( node.getValue().getValue(), indexEntry.getId() );
         }
 
-        Entry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
+            indexEntry.setEntry( entry );
         }
 
         return evaluateEntry( entry );

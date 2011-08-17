@@ -98,20 +98,20 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     }
 
 
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         if ( ( idx != null ) && idx.isDupsEnabled() )
         {
             return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().getValue() );
         }
 
-        Entry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
+            indexEntry.setEntry( entry );
         }
 
         if ( null == entry )
@@ -124,7 +124,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
         // if the attribute does not exist just return false
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object, Entry, ID> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, ID> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -146,7 +146,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
                 attr = entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object, Entry, ID> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, ID> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -199,7 +199,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object, Entry, ID> indexEntry, Attribute attribute )
+    private boolean evaluate( IndexEntry<Object, ID> indexEntry, Attribute attribute )
         throws Exception
     {
         /*

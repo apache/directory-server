@@ -299,7 +299,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public IndexEntry<ID, Entry, ID> get() throws Exception
+    public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

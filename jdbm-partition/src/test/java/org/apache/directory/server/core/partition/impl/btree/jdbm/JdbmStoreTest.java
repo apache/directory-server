@@ -510,7 +510,7 @@ public class JdbmStoreTest
     {
         assertEquals( 3, store.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = store.list( 1L );
+        Cursor<IndexEntry<Long, Long>> cursor = store.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -547,7 +547,7 @@ public class JdbmStoreTest
 
         assertEquals( 19, idx.count() );
 
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = idx.forwardCursor( 2L );
+        Cursor<IndexEntry<Long, Long>> cursor = idx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
         assertEquals( 2, ( long ) cursor.get().getId() );

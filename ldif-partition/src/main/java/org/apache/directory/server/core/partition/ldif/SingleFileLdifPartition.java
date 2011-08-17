@@ -363,7 +363,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 do
                 {
-                    IndexEntry<Long, Entry, Long> idxEntry = cursor.get();
+                    IndexEntry<Long, Long> idxEntry = cursor.get();
                     Entry entry = lookup( idxEntry.getId() );
 
                     Long childId = getEntryId( entry.getDn() );

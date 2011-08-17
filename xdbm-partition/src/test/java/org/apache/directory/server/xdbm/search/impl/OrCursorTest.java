@@ -256,9 +256,9 @@ public class OrCursorTest
     public void testOrCursor() throws Exception
     {
         List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
-        List<Cursor<IndexEntry<?, Entry, Long>>> cursors = new ArrayList<Cursor<IndexEntry<?, Entry, Long>>>();
+        List<Cursor<IndexEntry<?, Long>>> cursors = new ArrayList<Cursor<IndexEntry<?, Long>>>();
         Evaluator<? extends ExprNode, Entry, Long> eval;
-        Cursor<IndexEntry<?, Entry, Long>> cursor;
+        Cursor<IndexEntry<?, Long>> cursor;
 
         OrNode orNode = new OrNode();
 

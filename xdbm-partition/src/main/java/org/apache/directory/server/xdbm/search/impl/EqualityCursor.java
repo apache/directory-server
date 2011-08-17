@@ -121,7 +121,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -158,7 +158,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -249,7 +249,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
             
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -275,7 +275,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
             
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -291,7 +291,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -302,7 +302,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
 
         if ( available() )
         {
-            return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
+            return ( IndexEntry<V, ID> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
