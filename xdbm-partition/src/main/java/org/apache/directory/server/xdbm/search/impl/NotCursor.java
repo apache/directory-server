@@ -67,12 +67,6 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void afterValue( ID id, V value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );

@@ -69,6 +69,15 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
+    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     protected boolean setAvailable( boolean available )
     {
         return this.available = available;

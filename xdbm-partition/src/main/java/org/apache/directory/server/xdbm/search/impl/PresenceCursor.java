@@ -99,6 +99,9 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void before( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
@@ -110,7 +113,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        super.before( element );
     }
 
 

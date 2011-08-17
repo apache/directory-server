@@ -130,13 +130,14 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.before( element );
         }
     }
 

@@ -19,6 +19,8 @@
 package org.apache.directory.server.xdbm;
 
 
+import static org.apache.directory.server.xdbm.AbstractIndexCursor.UNSUPPORTED_MSG;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 
@@ -30,6 +32,9 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
 {
+    /**
+     * {@inheritDoc}
+     */
     public void before( IndexEntry<K, E, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );

@@ -131,12 +131,6 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public void before( IndexEntry<ID, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void afterValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );

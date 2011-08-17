@@ -76,12 +76,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );

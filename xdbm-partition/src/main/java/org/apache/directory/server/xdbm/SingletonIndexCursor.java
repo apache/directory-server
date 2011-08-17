@@ -58,12 +58,6 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
     public void beforeValue( ID id, V value ) throws Exception
     {
         throw new UnsupportedOperationException();
