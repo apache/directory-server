@@ -32,11 +32,13 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<K, E, ID> extends AbstractCursor<IndexEntry<K, E, ID>> implements IndexCursor<K, E, ID>
+public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, Entry, ID>> implements IndexCursor<V, Entry, ID>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
 
+    /** The message used for unsupported operations */
+    protected static final String UNSUPPORTED_MSG = "Unsupported operation";
 
     /**
      * {@inheritDoc}
@@ -44,6 +46,23 @@ public abstract class AbstractIndexCursor<K, E, ID> extends AbstractCursor<Index
     public boolean available()
     {
         return available;
+    }
+    
+    
+    /**
+     * Gets the message to return for operations that are not supported
+     * 
+     * @return The Unsupported message
+     */
+    protected abstract String getUnsupportedMessage();
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
@@ -59,9 +78,9 @@ public abstract class AbstractIndexCursor<K, E, ID> extends AbstractCursor<Index
     /**
      * {@inheritDoc}
      */
-    public Iterator<IndexEntry<K, E, ID>> iterator()
+    public Iterator<IndexEntry<V, Entry, ID>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, E, ID>>( this );
+        return new CursorIterator<IndexEntry<V, Entry, ID>>( this );
     }
 
 

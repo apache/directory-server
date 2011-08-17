@@ -39,6 +39,15 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private final IndexCursor<String, Entry, ID> wrapped;
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
@@ -66,8 +75,8 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#after(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public void after( IndexEntry<ID, Entry, ID> indexEntry ) throws Exception
     {

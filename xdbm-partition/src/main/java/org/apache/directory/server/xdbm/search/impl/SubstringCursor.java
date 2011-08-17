@@ -75,6 +75,15 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public void beforeValue( ID id, String value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -88,12 +97,6 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
 
     public void before( IndexEntry<String, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void after( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }

@@ -80,6 +80,15 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -158,7 +167,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 

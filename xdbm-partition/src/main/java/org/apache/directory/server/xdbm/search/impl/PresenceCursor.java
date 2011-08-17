@@ -64,6 +64,15 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public boolean available()
     {
         if ( presenceCursor != null )
@@ -120,6 +129,9 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
@@ -131,7 +143,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             return;
         }
 
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        super.after( element );
     }
 
 

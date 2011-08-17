@@ -71,13 +71,16 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
     {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        return UNSUPPORTED_MSG;
     }
 
-
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    
+    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }

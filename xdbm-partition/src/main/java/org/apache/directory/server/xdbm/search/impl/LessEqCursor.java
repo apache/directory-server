@@ -82,6 +82,15 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -208,9 +217,13 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
@@ -239,7 +252,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 

@@ -36,6 +36,18 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public void after( IndexEntry<K, E, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );

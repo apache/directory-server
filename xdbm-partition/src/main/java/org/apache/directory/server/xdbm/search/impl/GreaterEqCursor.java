@@ -82,6 +82,15 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     @SuppressWarnings("unchecked")
     public void beforeValue( ID id, V value ) throws Exception
     {
@@ -186,10 +195,13 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
@@ -223,7 +235,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 

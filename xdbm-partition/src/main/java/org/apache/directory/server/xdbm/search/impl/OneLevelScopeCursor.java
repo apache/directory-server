@@ -84,6 +84,15 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public void beforeValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -97,12 +106,6 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
 
 
     public void before( IndexEntry<ID, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void after( IndexEntry<ID, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }

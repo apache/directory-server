@@ -78,6 +78,15 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -132,16 +141,21 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 

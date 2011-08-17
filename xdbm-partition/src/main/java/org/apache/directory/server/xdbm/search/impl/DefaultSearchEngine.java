@@ -164,7 +164,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<ID, Entry, ID>( indexEntry );
+                return new SingletonIndexCursor<ID, ID>( indexEntry );
             }
             else
             {

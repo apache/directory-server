@@ -40,7 +40,7 @@ public class SingletonIndexCursorTest
 {
 
     private ForwardIndexEntry<String, Entry, Long> indexEntry;
-    private SingletonIndexCursor<String, Entry, Long> indexCursor;
+    private SingletonIndexCursor<String, Long> indexCursor;
 
 
     @Before
@@ -50,14 +50,14 @@ public class SingletonIndexCursorTest
         indexEntry.setId( 1L );
         indexEntry.setObject( new DefaultEntry() );
         indexEntry.setValue( "test" );
-        indexCursor = new SingletonIndexCursor<String, Entry, Long>( indexEntry );
+        indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
     }
 
 
     @Test
     public void testConstructor()
     {
-        new SingletonIndexCursor<String, Entry, Long>( indexEntry );
+        new SingletonIndexCursor<String, Long>( indexEntry );
     }
 
 
