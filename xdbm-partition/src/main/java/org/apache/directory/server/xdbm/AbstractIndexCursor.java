@@ -23,9 +23,8 @@ package org.apache.directory.server.xdbm;
 import java.util.Iterator;
 
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
 
 
 /**
@@ -33,61 +32,8 @@ import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E, ID>
+public abstract class AbstractIndexCursor<K, E, ID> extends AbstractCursor<IndexEntry<K, E, ID>> implements IndexCursor<K, E, ID>
 {
-    private ClosureMonitor monitor = new DefaultClosureMonitor();
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void setClosureMonitor( ClosureMonitor monitor )
-    {
-        if ( monitor == null )
-        {
-            throw new IllegalArgumentException( "monitor" );
-        }
-
-        this.monitor = monitor;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    protected final void checkNotClosed( String operation ) throws Exception
-    {
-        monitor.checkNotClosed();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean isClosed()
-    {
-        return monitor.isClosed();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void close() throws Exception
-    {
-        monitor.close();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void close( Exception cause ) throws Exception
-    {
-        monitor.close( cause );
-    }
-
-
     /**
      * {@inheritDoc}
      */
