@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -46,6 +45,11 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     private final AndNode node;
 
 
+    /**
+     * Creates an instance of AndEvaluator
+     * @param node The And Node
+     * @param evaluators The list of evaluators for all the contaned nodes
+     */
     public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
         this.node = node;
@@ -64,44 +68,22 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
+    List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
         List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
     {
         List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
         
-        Collections.sort( optimized, new Comparator<Evaluator<?, Entry, ID>>()
-        {
-            public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
-            {
-                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
-
-                if ( scanCount1 == scanCount2 )
-                {
-                    return 0;
-                }
-
-                /*
-                 * We want the Evaluator with the smallest scan count first
-                 * since this node has the highest probability of failing, or
-                 * rather the least probability of succeeding.  That way we
-                 * can short the sub-expression evaluation process.
-                 */
-                if ( scanCount1 < scanCount2 )
-                {
-                    return -1;
-                }
-
-                return 1;
-            }
-        } );
+        Collections.sort( optimized, new ScanCountComparator<ID>() );
 
         return optimized;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
@@ -116,6 +98,9 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
@@ -130,6 +115,9 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public AndNode getExpression()
     {
         return node;

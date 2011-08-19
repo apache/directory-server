@@ -62,8 +62,14 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     IndexEntry<String, ID> ndnCandidate;
 
 
+    /**
+     * Creates a new instance of an GreaterEqCursor
+     * @param db The store
+     * @param equalityEvaluator The GreaterEqEvaluator
+     * @throws Exception If the creation failed
+     */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store<Entry, ID> db, GreaterEqEvaluator greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store<Entry, ID> db, GreaterEqEvaluator<V, ID> greaterEqEvaluator ) throws Exception
     {
         this.greaterEqEvaluator = greaterEqEvaluator;
 
@@ -231,7 +237,8 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
                 
                 return;
             }
-            else if ( comparedValue < 0 )
+            
+            if ( comparedValue < 0 )
             {
                 beforeFirst();
                 
@@ -249,10 +256,14 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        
         if ( userIdxCursor != null )
         {
             IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
@@ -269,9 +280,13 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -286,24 +301,35 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -340,6 +366,9 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
@@ -368,6 +397,9 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public IndexEntry<V, ID> get() throws Exception
     {
@@ -392,6 +424,9 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();

@@ -102,7 +102,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public Tuple<ID, V> getTuple()
+    public Tuple<?, ?> getTuple()
     {
         return tuple;
     }

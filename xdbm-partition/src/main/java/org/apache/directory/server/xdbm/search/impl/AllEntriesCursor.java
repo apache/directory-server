@@ -35,7 +35,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** The index entry we use to return entries one by one.  */
     private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
+    
+    /** The cursor on the EntryUUID index */
     private final IndexCursor<String, Entry, ID> wrapped;
 
 
@@ -48,6 +51,11 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
     
+    /**
+     * Creates a new instance of AllEntriesCursor
+     * @param db
+     * @throws Exception
+     */
     public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
@@ -55,12 +63,13 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    /* 
-     * @see org.apache.directory.server.xdbm.IndexCursor#afterValue(Long, Object)
+    /**
+     * {@inheritDoc}
      */
     public void afterValue( ID key, ID value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         wrapped.afterValue( key, null );
     }
 
@@ -71,6 +80,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void beforeValue( ID id, ID value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
+        
         wrapped.beforeValue( id, null );
     }
 
@@ -81,22 +91,24 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void after( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         wrapped.afterValue( indexEntry.getId(), null );
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#afterLast()
+    /**
+     * {@inheritDoc}
      */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         wrapped.afterLast();
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#available()
+    /**
+     * {@inheritDoc}
      */
     public boolean available()
     {
@@ -104,42 +116,47 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#before(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
     public void before( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         wrapped.beforeValue( indexEntry.getId(), null );
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#beforeFirst()
+    /**
+     * {@inheritDoc}
      */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        
         wrapped.beforeFirst();
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#first()
+    /**
+     * {@inheritDoc}
      */
     public boolean first() throws Exception
     {
         checkNotClosed( "first()" );
+        
         return wrapped.first();
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#get()
+    /**
+     * {@inheritDoc}
      */
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
+        // Create the returned IndexEntry, copying what we get from the wrapped cursor
         IndexEntry<String, ID> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
@@ -149,48 +166,55 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#last()
+    /**
+     * {@inheritDoc}
      */
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
+        
         return wrapped.last();
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#next()
+    /**
+     * {@inheritDoc}
      */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         return wrapped.next();
     }
 
 
-    /* 
-     * @see org.apache.directory.server.core.cursor.Cursor#previous()
+    /**
+     * {@inheritDoc}
      */
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
+        
         return wrapped.previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws Exception
     {
         wrapped.close();
-        super.close();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close( Exception cause ) throws Exception
     {
-        wrapped.close();
-        super.close( cause );
+        wrapped.close( cause );
     }
 }

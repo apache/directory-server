@@ -43,10 +43,11 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
     /** An equality evaluator for candidates */
-    private final EqualityEvaluator equalityEvaluator;
+    private final EqualityEvaluator<V, ID> equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
     private final IndexCursor<V, Entry, ID> userIdxCursor;
@@ -55,6 +56,12 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
 
+    /**
+     * Creates a new instance of an EqualityCursor
+     * @param db The store
+     * @param equalityEvaluator The EqualityEvaluator
+     * @throws Exception If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public EqualityCursor( Store<Entry, ID> db, EqualityEvaluator<V, ID> equalityEvaluator ) throws Exception
     {
@@ -238,7 +245,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         if ( userIdxCursor != null )
@@ -264,7 +270,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         if ( userIdxCursor != null )

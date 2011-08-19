@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
@@ -42,8 +41,13 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  */
 public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
+    
+    /** */
     private final IndexCursor<V, Entry, ID> wrapped;
+    
+    /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
 
 
@@ -183,9 +187,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 
 
     /**
-     * TODO - duplicate code from AndEvaluator just make utility for this and
-     * for the same code in the OrEvaluator once done.
-     *
      * Takes a set of Evaluators and copies then sorts them in a new list with
      * increasing scan counts on their expression nodes.  This is done to have
      * the Evaluators with the least scan count which have the highest
@@ -203,32 +204,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new Comparator<Evaluator<?, Entry, ID>>()
-        {
-            public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
-            {
-                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
-
-                if ( scanCount1 == scanCount2 )
-                {
-                    return 0;
-                }
-
-                /*
-                 * We want the Evaluator with the smallest scan count first
-                 * since this node has the highest probability of failing, or
-                 * rather the least probability of succeeding.  That way we
-                 * can short the sub-expression evaluation process.
-                 */
-                if ( scanCount1 < scanCount2 )
-                {
-                    return -1;
-                }
-
-                return 1;
-            }
-        } );
+        Collections.sort( optimized, new ScanCountComparator<ID>() );
 
         return optimized;
     }

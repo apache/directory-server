@@ -43,6 +43,13 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
+    /**
+     * Creates a new ApproximateEvaluator
+     * @param node The ApproximateNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws Exception If the creation failed
+     */
     public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -71,12 +78,18 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ApproximateNode<T> getExpression()
     {
         return (ApproximateNode<T>)node;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
@@ -116,17 +129,9 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null )
-        {
-            return idx.reverse( id );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
@@ -158,9 +163,8 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
          * appropriate matching rule to perform the check.
          */
 
-        for ( Value value : attribute )
+        for ( Value<?> value : attribute )
         {
-            //noinspection unchecked
             if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) == 0 )
             {
                 return true;
