@@ -977,7 +977,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    public final Entry lookup( ID id ) throws LdapException
+    public Entry lookup( ID id ) throws LdapException
     {
         try
         {
@@ -1793,7 +1793,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public final boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
     {
         try
         {
