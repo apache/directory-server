@@ -35,6 +35,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -714,7 +715,7 @@ public class JdbmStoreTest
     @Test
     public void testRename() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -728,13 +729,18 @@ public class JdbmStoreTest
         Rdn rdn = new Rdn( "sn=James" );
 
         store.rename( dn, rdn, true, null );
+        
+        dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
+        Entry renamed = store.lookup( new LookupOperationContext( null, dn ) );
+        assertNotNull( renamed );
+        assertEquals( "James", renamed.getDn().getRdn().getUpValue().getString() );
     }
 
 
     @Test
     public void testRenameEscaped() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -760,7 +766,7 @@ public class JdbmStoreTest
     @Test
     public void testMove() throws Exception
     {
-        Dn childDn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        Dn childDn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry childEntry = new DefaultEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );

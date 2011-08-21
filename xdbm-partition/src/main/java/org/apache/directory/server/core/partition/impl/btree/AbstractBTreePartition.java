@@ -1655,9 +1655,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
         if ( entry == null )
         {
-            entry = lookup( id );
+            entry = master.get( id );
         }
-
+        
         Dn updn = entry.getDn();
 
         newRdn.apply( schemaManager );
@@ -1858,6 +1858,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             childIds.add( cursor.get().getId() );
         }
 
+        cursor.close();
+        
         // detach the childId and all its children from oldParentId and all it parents excluding the root
         for ( ID pid : parentIds )
         {
