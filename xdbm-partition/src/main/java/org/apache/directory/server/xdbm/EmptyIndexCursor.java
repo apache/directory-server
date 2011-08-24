@@ -30,19 +30,28 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
 {
-    public boolean available()
-    {
-        return false;
-    }
-
-
-    public void before( IndexEntry<K, E, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( IndexEntry<K, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
 
 
-    public void after( IndexEntry<K, E, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void after( IndexEntry<K, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -88,19 +97,25 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
-    public IndexEntry<K, E, ID> get() throws Exception
+    public IndexEntry<K, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );

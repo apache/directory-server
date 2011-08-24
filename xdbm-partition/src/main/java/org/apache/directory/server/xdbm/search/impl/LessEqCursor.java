@@ -59,10 +59,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<V, Entry, ID> ndnCandidate;
-
-    /** used in both modes */
-    private boolean available = false;
+    IndexEntry<V, ID> ndnCandidate;
 
 
     @SuppressWarnings("unchecked")
@@ -85,12 +82,18 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public boolean available()
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
     {
-        return available;
+        return UNSUPPORTED_MSG;
     }
 
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -117,29 +120,35 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( compareValue > 0 )
             {
                 afterLast();
+                
                 return;
             }
             else if ( compareValue == 0 )
             {
                 last();
                 previous();
-                available = false;
+                setAvailable( false );
+                
                 return;
             }
 
             userIdxCursor.beforeValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -167,23 +176,27 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 last();
                 previous();
-                available = false;
+                setAvailable( false );
                 return;
             }
 
             userIdxCursor.before( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.before( element );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
@@ -203,23 +216,28 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( comparedValue >= 0 )
             {
                 afterLast();
+                
                 return;
             }
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.afterValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 
 
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
@@ -244,11 +262,11 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.after( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 
@@ -266,7 +284,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -275,7 +293,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, Entry, ID> advanceTo = new ForwardIndexEntry<V, Entry, ID>();
+            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             //noinspection unchecked
             advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
@@ -286,7 +304,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -315,7 +333,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * values are decreasing with calls to previous().  We will
              * always have lesser values.
              */
-            return available = userIdxCursor.previous();
+            return setAvailable( userIdxCursor.previous() );
         }
 
         while ( uuidIdxCursor.previous() )
@@ -324,7 +342,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             ndnCandidate = uuidIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
             else
             {
@@ -332,13 +350,14 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -350,24 +369,26 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             while ( userIdxCursor.next() )
             {
                 checkNotClosed( "next()" );
-                IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
+                IndexEntry<?, ID> candidate = userIdxCursor.get();
+                
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
-                    return available = true;
+                    return setAvailable( true );
                 }
             }
 
-            return available = false;
+            return setAvailable( false );
         }
 
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
             ndnCandidate = uuidIdxCursor.get();
+            
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
             else
             {
@@ -375,16 +396,17 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( userIdxCursor != null )
         {
-            if ( available )
+            if ( available() )
             {
                 return userIdxCursor.get();
             }
@@ -392,7 +414,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
-        if ( available )
+        if ( available() )
         {
             return ndnCandidate;
         }

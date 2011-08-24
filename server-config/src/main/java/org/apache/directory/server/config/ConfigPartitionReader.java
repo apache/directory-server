@@ -761,7 +761,7 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
+                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
                     .get();
 
                 // Now, get the entry

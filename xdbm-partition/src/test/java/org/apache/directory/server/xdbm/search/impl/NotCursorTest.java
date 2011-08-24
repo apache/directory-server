@@ -159,7 +159,7 @@ public class NotCursorTest extends TestBase
 
         try
         {
-            cursor.after( new ForwardIndexEntry<String, Entry, Long>() );
+            cursor.after( new ForwardIndexEntry<String, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -168,7 +168,7 @@ public class NotCursorTest extends TestBase
 
         try
         {
-            cursor.before( new ForwardIndexEntry<String, Entry, Long>() );
+            cursor.before( new ForwardIndexEntry<String, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

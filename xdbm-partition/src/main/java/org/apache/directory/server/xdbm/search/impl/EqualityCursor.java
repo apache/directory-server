@@ -43,10 +43,11 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
     /** An equality evaluator for candidates */
-    private final EqualityEvaluator equalityEvaluator;
+    private final EqualityEvaluator<V, ID> equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
     private final IndexCursor<V, Entry, ID> userIdxCursor;
@@ -54,10 +55,13 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
-    private boolean available = false;
 
-
+    /**
+     * Creates a new instance of an EqualityCursor
+     * @param db The store
+     * @param equalityEvaluator The EqualityEvaluator
+     * @throws Exception If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public EqualityCursor( Store<Entry, ID> db, EqualityEvaluator<V, ID> equalityEvaluator ) throws Exception
     {
@@ -83,6 +87,15 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -90,7 +103,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.available();
         }
 
-        return available;
+        return super.available();
     }
 
 
@@ -107,7 +120,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
@@ -115,7 +128,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -125,7 +138,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.before( element );
         }
     }
 
@@ -133,17 +146,18 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, V key ) throws Exception
+    public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
-        if ( userIdxCursor != null )
+        if ( userIdxCursor
+            != null )
         {
-            userIdxCursor.afterValue( id, key );
+            userIdxCursor.afterValue( id, value );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 
@@ -151,7 +165,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -161,7 +175,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 
@@ -182,7 +196,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             uuidIdxCursor.beforeFirst();
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -202,7 +216,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             uuidIdxCursor.afterLast();
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -231,7 +245,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         if ( userIdxCursor != null )
@@ -242,21 +255,21 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
+            
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         if ( userIdxCursor != null )
@@ -267,15 +280,15 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
             
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -283,7 +296,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -292,9 +305,9 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
             return userIdxCursor.get();
         }
 
-        if ( available )
+        if ( available() )
         {
-            return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
+            return ( IndexEntry<V, ID> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

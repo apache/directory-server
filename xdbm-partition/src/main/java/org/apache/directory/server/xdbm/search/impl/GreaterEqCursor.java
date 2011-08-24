@@ -59,14 +59,17 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<String, Entry, ID> ndnCandidate;
-
-    /** used in both modes */
-    private boolean available = false;
+    IndexEntry<String, ID> ndnCandidate;
 
 
+    /**
+     * Creates a new instance of an GreaterEqCursor
+     * @param db The store
+     * @param equalityEvaluator The GreaterEqEvaluator
+     * @throws Exception If the creation failed
+     */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store<Entry, ID> db, GreaterEqEvaluator greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store<Entry, ID> db, GreaterEqEvaluator<V, ID> greaterEqEvaluator ) throws Exception
     {
         this.greaterEqEvaluator = greaterEqEvaluator;
 
@@ -85,13 +88,18 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public boolean available()
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
     {
-        return available;
+        return UNSUPPORTED_MSG;
     }
 
-
-    @SuppressWarnings("unchecked")
+    
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -114,19 +122,22 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             }
 
             userIdxCursor.beforeValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( value,
@@ -143,28 +154,32 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             if ( comparedValue == 0 )
             {
                 userIdxCursor.afterValue( id, value );
-                available = false;
+                setAvailable( false );
+                
                 return;
             }
             else if ( comparedValue < 0 )
             {
                 beforeFirst();
+                
                 return;
             }
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.afterValue( id, value );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 
 
-    @SuppressWarnings("unchecked")
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -186,19 +201,22 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             }
 
             userIdxCursor.before( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.before( element );
         }
     }
 
 
-    @SuppressWarnings("unchecked")
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
@@ -215,33 +233,40 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             if ( comparedValue == 0 )
             {
                 userIdxCursor.after( element );
-                available = false;
+                setAvailable( false );
+                
                 return;
             }
-            else if ( comparedValue < 0 )
+            
+            if ( comparedValue < 0 )
             {
                 beforeFirst();
+                
                 return;
             }
 
             // Element is in the valid range as specified by assertion
             userIdxCursor.after( element );
-            available = false;
+            setAvailable( false );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, Entry, ID> advanceTo = new ForwardIndexEntry<V, Entry, ID>();
+            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.before( advanceTo );
         }
@@ -251,13 +276,17 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -268,28 +297,39 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             ndnCandidate = null;
         }
 
-        available = false;
+        setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
+        
         if ( userIdxCursor != null )
         {
             /*
@@ -299,64 +339,75 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             while ( userIdxCursor.previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = userIdxCursor.get();
+                IndexEntry<?, ID> candidate = userIdxCursor.get();
+                
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(),
                     greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
                 {
-                    return available = true;
+                    return setAvailable( true );
                 }
             }
 
-            return available = false;
+            return setAvailable( false );
         }
 
         while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
             ndnCandidate = ndnIdxCursor.get();
+            
             if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( userIdxCursor != null )
         {
             /*
              * No need to do the same check that is done in previous() since
              * values are increasing with calls to next().
              */
-            return available = userIdxCursor.next();
+            return setAvailable( userIdxCursor.next() );
         }
 
         while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
             ndnCandidate = ndnIdxCursor.get();
+            
             if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( userIdxCursor != null )
         {
-            if ( available )
+            if ( available() )
             {
                 return userIdxCursor.get();
             }
@@ -364,15 +415,18 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
-        if ( available )
+        if ( available() )
         {
-            return ( IndexEntry<V, Entry, ID> ) ndnCandidate;
+            return ( IndexEntry<V, ID> ) ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();

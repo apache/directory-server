@@ -26,8 +26,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -43,6 +43,13 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
+    /**
+     * Creates a new ApproximateEvaluator
+     * @param node The ApproximateNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws Exception If the creation failed
+     */
     public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -71,12 +78,18 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ApproximateNode<T> getExpression()
     {
         return (ApproximateNode<T>)node;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
@@ -116,31 +129,23 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null )
-        {
-            return idx.reverse( id );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( node.getValue().getValue(), indexEntry.getId() );
         }
 
-        Entry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
+            indexEntry.setEntry( entry );
         }
 
         return evaluateEntry( entry );
@@ -158,9 +163,8 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
          * appropriate matching rule to perform the check.
          */
 
-        for ( Value value : attribute )
+        for ( Value<?> value : attribute )
         {
-            //noinspection unchecked
             if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) == 0 )
             {
                 return true;

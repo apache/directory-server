@@ -207,7 +207,7 @@ public class GreaterEqTest extends TestBase
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "5" );
 
         assertFalse( cursor.available() );
@@ -230,7 +230,7 @@ public class GreaterEqTest extends TestBase
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -240,7 +240,7 @@ public class GreaterEqTest extends TestBase
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -252,7 +252,7 @@ public class GreaterEqTest extends TestBase
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "4" );
 
         assertFalse( cursor.available() );
@@ -275,7 +275,7 @@ public class GreaterEqTest extends TestBase
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -285,7 +285,7 @@ public class GreaterEqTest extends TestBase
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -414,7 +414,7 @@ public class GreaterEqTest extends TestBase
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "2" );
         try
         {
@@ -428,7 +428,7 @@ public class GreaterEqTest extends TestBase
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "2" );
         try
         {
@@ -451,7 +451,7 @@ public class GreaterEqTest extends TestBase
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -460,31 +460,31 @@ public class GreaterEqTest extends TestBase
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 4L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 7L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 9L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 10L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -496,7 +496,7 @@ public class GreaterEqTest extends TestBase
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -526,7 +526,7 @@ public class GreaterEqTest extends TestBase
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -544,7 +544,7 @@ public class GreaterEqTest extends TestBase
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Entry, Long> indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -553,31 +553,31 @@ public class GreaterEqTest extends TestBase
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 4L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 7L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 9L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 10L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }

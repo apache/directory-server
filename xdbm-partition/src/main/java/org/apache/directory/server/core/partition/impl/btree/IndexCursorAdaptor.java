@@ -44,8 +44,8 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 {
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
-    final ForwardIndexEntry<K, O, ID> forwardEntry;
-    final ReverseIndexEntry<K, O, ID> reverseEntry;
+    final ForwardIndexEntry<K, ID> forwardEntry;
+    final ReverseIndexEntry<K, ID> reverseEntry;
 
 
     /**
@@ -63,13 +63,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
         
         if ( forwardIndex )
         {
-            forwardEntry = new ForwardIndexEntry<K, O, ID>();
+            forwardEntry = new ForwardIndexEntry<K, ID>();
             reverseEntry = null;
         }
         else
         {
             forwardEntry = null;
-            reverseEntry = new ReverseIndexEntry<K, O, ID>();
+            reverseEntry = new ReverseIndexEntry<K, ID>();
         }
     }
 
@@ -100,13 +100,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     }
 
 
-    public void before( IndexEntry<K, O, ID> element ) throws Exception
+    public void before( IndexEntry<K, ID> element ) throws Exception
     {
         wrappedCursor.before( element.getTuple() );
     }
 
 
-    public void after( IndexEntry<K, O, ID> element ) throws Exception
+    public void after( IndexEntry<K, ID> element ) throws Exception
     {
         wrappedCursor.after( element.getTuple() );
     }
@@ -155,7 +155,7 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<K, O, ID> get() throws Exception
+    public IndexEntry<K, ID> get() throws Exception
     {
         if ( forwardEntry != null )
         {
@@ -190,9 +190,9 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     }
 
 
-    public Iterator<IndexEntry<K, O, ID>> iterator()
+    public Iterator<IndexEntry<K, ID>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, O, ID>>( this );
+        return new CursorIterator<IndexEntry<K, ID>>( this );
     }
 
 

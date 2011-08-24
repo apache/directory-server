@@ -436,7 +436,8 @@ public class CursorList implements EntryFilteringCursor
     public void close( Exception reason ) throws Exception
     {
         closed = true;
-        for ( Cursor c : list )
+        
+        for ( Cursor<?> c : list )
         {
             try
             {

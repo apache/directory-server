@@ -36,13 +36,13 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerEntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
+public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
 {
     private final AbstractBTreePartition<ID> db;
     private final IndexCursor<ID, Entry, ID> indexCursor;
 
 
-    public ServerEntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
     {
         this.db = db;
         this.indexCursor = indexCursor;
@@ -132,14 +132,14 @@ public class ServerEntryCursorAdaptor<ID extends Comparable<ID>> implements Curs
      */
     public Entry get() throws Exception
     {
-        IndexEntry<ID, Entry, ID> indexEntry = indexCursor.get();
+        IndexEntry<ID, ID> indexEntry = indexCursor.get();
 
-        if ( indexEntry.getObject() == null )
+        if ( indexEntry.getEntry() == null )
         {
-            indexEntry.setObject( db.lookup( indexEntry.getId() ) );
+            indexEntry.setEntry( db.lookup( indexEntry.getId() ) );
         }
 
-        return indexEntry.getObject();
+        return indexEntry.getEntry();
     }
 
 

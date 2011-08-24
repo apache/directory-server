@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An approximate evaluator for candidates */
@@ -56,10 +57,12 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
-    private boolean available = false;
-
-
+    /**
+     * Creates a new instance of ApproximateCursor
+     * @param db The Store we want to build a cursor on
+     * @param approximateEvaluator The evaluator
+     * @throws Exception If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public ApproximateCursor( Store<Entry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
     {
@@ -82,6 +85,18 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -89,10 +104,13 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
             return userIdxCursor.available();
         }
 
-        return available;
+        return super.available();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
@@ -103,53 +121,69 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.beforeValue( id, value );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, value );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.afterValue( id, value );
         }
     }
 
 
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.before( element );
         }
     }
 
 
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
         }
         else
         {
-            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+            super.after( element );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -160,14 +194,18 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         else
         {
             uuidIdxCursor.beforeFirst();
-            available = false;
+            setAvailable( false );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -175,25 +213,36 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         else
         {
             uuidIdxCursor.afterLast();
-            available = false;
+            setAvailable( false );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         if ( userIdxCursor != null )
@@ -204,17 +253,21 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
+            
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         if ( userIdxCursor != null )
@@ -225,35 +278,42 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
+            
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
+        
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();
         }
 
-        if ( available )
+        if ( available() )
         {
-            return ( IndexEntry<V, Entry, ID> ) uuidIdxCursor.get();
+            return ( IndexEntry<V, ID> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();

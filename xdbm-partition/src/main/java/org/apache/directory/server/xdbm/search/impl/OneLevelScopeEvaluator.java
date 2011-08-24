@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.model.filter.ScopeNode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.filter.ScopeNode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 
 
 /**
@@ -150,7 +150,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
     {
         boolean isChild = db.getRdnIndexHelper().isDirectDescendantOf( baseId, candidate.getId() );
 

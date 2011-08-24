@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
@@ -42,12 +41,23 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  */
 public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
+    
+    /** */
     private final IndexCursor<V, Entry, ID> wrapped;
+    
+    /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
-    private boolean available = false;
 
 
+    /**
+     * Creates an instance of a AndCursor. It wraps an index cursor and the list
+     * of evaluators associated with all the elements connected by the And.
+     * 
+     * @param wrapped The encapsulated IndexCursor
+     * @param evaluators The list of evaluators associated wth the elements
+     */
     public AndCursor( IndexCursor<V, Entry, ID> wrapped,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
@@ -56,104 +66,108 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public boolean available()
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
     {
-        return available;
+        return UNSUPPORTED_MSG;
     }
 
-
-    public void beforeValue( ID id, V value )
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, V value )
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
         wrapped.afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws Exception
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws Exception
     {
         afterLast();
+        
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws Exception
     {
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            IndexEntry<V, ID> candidate = wrapped.get();
+            
             if ( matches( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = wrapped.get();
+            IndexEntry<V, ID> candidate = wrapped.get();
             
             if ( matches( candidate ) )
             {
-                return available = true;
+                return setAvailable( true );
             }
         }
 
-        return available = false;
+        return setAvailable( false);
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return wrapped.get();
         }
@@ -162,6 +176,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         super.close();
@@ -170,9 +187,6 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 
 
     /**
-     * TODO - duplicate code from AndEvaluator just make utility for this and
-     * for the same code in the OrEvaluator once done.
-     *
      * Takes a set of Evaluators and copies then sorts them in a new list with
      * increasing scan counts on their expression nodes.  This is done to have
      * the Evaluators with the least scan count which have the highest
@@ -190,38 +204,16 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new Comparator<Evaluator<?, Entry, ID>>()
-        {
-            public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
-            {
-                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
-
-                if ( scanCount1 == scanCount2 )
-                {
-                    return 0;
-                }
-
-                /*
-                 * We want the Evaluator with the smallest scan count first
-                 * since this node has the highest probability of failing, or
-                 * rather the least probability of succeeding.  That way we
-                 * can short the sub-expression evaluation process.
-                 */
-                if ( scanCount1 < scanCount2 )
-                {
-                    return -1;
-                }
-
-                return 1;
-            }
-        } );
+        Collections.sort( optimized, new ScanCountComparator<ID>() );
 
         return optimized;
     }
 
 
-    private boolean matches( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    /**
+     * Checks if the entry is a valid candidate by using the evaluators.
+     */
+    private boolean matches( IndexEntry<V, ID> indexEntry ) throws Exception
     {
         for ( Evaluator<?, Entry, ID> evaluator : evaluators )
         {

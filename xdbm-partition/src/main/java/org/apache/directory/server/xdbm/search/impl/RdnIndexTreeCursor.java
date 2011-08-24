@@ -97,7 +97,7 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
     }
 
 
-    public void before( IndexEntry<ID, E, ID> element ) throws Exception
+    public void before( IndexEntry<ID, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -115,7 +115,7 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
     }
 
 
-    public void after( IndexEntry<ID, E, ID> element ) throws Exception
+    public void after( IndexEntry<ID, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -225,7 +225,7 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         if ( cursors.getCurrentCursor().previous() )
         {
             // Compare the previous index entry's parent with the start element
-            IndexEntry<ParentIdAndRdn<ID>, E, ID> indexEntry = cursors.getCurrentCursor().get();
+            IndexEntry<ParentIdAndRdn<ID>, ID> indexEntry = cursors.getCurrentCursor().get();
             ParentIdAndRdn<ID> currentParentIdAndRdn = indexEntry.getValue();
             ParentIdAndRdn<ID> startParentIdAndRdn = cursors.getCurrentCursorStartElement().getValue();
             if ( currentParentIdAndRdn.getParentId().equals( startParentIdAndRdn.getParentId() )
@@ -313,7 +313,7 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         if ( cursors.getCurrentCursor().next() )
         {
             // Compare the next index entry's parent with the stop element
-            IndexEntry<ParentIdAndRdn<ID>, E, ID> indexEntry = cursors.getCurrentCursor().get();
+            IndexEntry<ParentIdAndRdn<ID>, ID> indexEntry = cursors.getCurrentCursor().get();
             ParentIdAndRdn<ID> currentParentIdAndRdn = indexEntry.getValue();
             ParentIdAndRdn<ID> stopParentIdAndRdn = cursors.getCurrentCursorStopElement().getValue();
             if ( currentParentIdAndRdn.getParentId().equals( stopParentIdAndRdn.getParentId() )
@@ -338,14 +338,20 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
 
 
     @Override
-    public IndexEntry<ID, E, ID> get() throws Exception
+    public IndexEntry<ID, ID> get() throws Exception
     {
-        IndexEntry<ParentIdAndRdn<ID>, E, ID> wrappedEntry = cursors.getCurrentCursor().get();
-        IndexEntry<ID, E, ID> entry = new ForwardIndexEntry<ID, E, ID>();
+        IndexEntry<ParentIdAndRdn<ID>, ID> wrappedEntry = cursors.getCurrentCursor().get();
+        IndexEntry<ID, ID> entry = new ForwardIndexEntry<ID, ID>();
         entry.setValue( startId );
         //entry.setValue( wrappedEntry.getValue().getParentId() );
         entry.setId( wrappedEntry.getId() );
         return entry;
+    }
+
+    @Override
+    protected String getUnsupportedMessage()
+    {
+        return "Unsupported operation";
     }
 
     private class CursorStack
@@ -386,9 +392,9 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         /**
          * @return the current cursor's start element from the cursor stack
          */
-        public IndexEntry<ParentIdAndRdn<ID>, E, ID> getCurrentCursorStartElement()
+        public IndexEntry<ParentIdAndRdn<ID>, ID> getCurrentCursorStartElement()
         {
-            IndexEntry<ParentIdAndRdn<ID>, E, ID> startElement = cursorStack.getFirst().startElement;
+            IndexEntry<ParentIdAndRdn<ID>, ID> startElement = cursorStack.getFirst().startElement;
             return startElement;
         }
 
@@ -396,9 +402,9 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         /**
          * @return the current cursor's stop element from the cursor stack
          */
-        public IndexEntry<ParentIdAndRdn<ID>, E, ID> getCurrentCursorStopElement()
+        public IndexEntry<ParentIdAndRdn<ID>, ID> getCurrentCursorStopElement()
         {
-            IndexEntry<ParentIdAndRdn<ID>, E, ID> startElement = cursorStack.getFirst().stopElement;
+            IndexEntry<ParentIdAndRdn<ID>, ID> startElement = cursorStack.getFirst().stopElement;
             return startElement;
         }
 
@@ -424,8 +430,8 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         private class CursorStackEntry
         {
             private final IndexCursor<ParentIdAndRdn<ID>, E, ID> cursor;
-            private final IndexEntry<ParentIdAndRdn<ID>, E, ID> startElement;
-            private final IndexEntry<ParentIdAndRdn<ID>, E, ID> stopElement;
+            private final IndexEntry<ParentIdAndRdn<ID>, ID> startElement;
+            private final IndexEntry<ParentIdAndRdn<ID>, ID> stopElement;
 
 
             public CursorStackEntry( ID startId ) throws Exception
@@ -444,9 +450,9 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
             }
 
 
-            private IndexEntry<ParentIdAndRdn<ID>, E, ID> createElement( ParentIdAndRdn<ID> parentIdAndRdn )
+            private IndexEntry<ParentIdAndRdn<ID>, ID> createElement( ParentIdAndRdn<ID> parentIdAndRdn )
             {
-                IndexEntry<ParentIdAndRdn<ID>, E, ID> startElement = new ForwardIndexEntry<ParentIdAndRdn<ID>, E, ID>();
+                IndexEntry<ParentIdAndRdn<ID>, ID> startElement = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
                 startElement.setValue( parentIdAndRdn );
                 return startElement;
             }

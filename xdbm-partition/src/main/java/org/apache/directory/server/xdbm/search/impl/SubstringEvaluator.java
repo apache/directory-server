@@ -125,12 +125,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
 
         if ( idx == null )
         {
-            return evaluateWithoutIndex( ( IndexEntry<String, Entry, ID> ) indexEntry );
+            return evaluateWithoutIndex( ( IndexEntry<String, ID> ) indexEntry );
         }
         else
         {
@@ -180,7 +180,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    private boolean evaluateWithIndex( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    private boolean evaluateWithIndex( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -188,12 +188,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, Entry, ID>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String, ID>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, Entry, ID> rec = entries.get();
+            IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -222,12 +222,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, Entry, ID>> entries = idx.reverseCursor( id );
+        Cursor<IndexEntry<String, ID>> entries = idx.reverseCursor( id );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, Entry, ID> rec = entries.get();
+            IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -326,15 +326,15 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( IndexEntry<String, Entry, ID> indexEntry ) throws Exception
+    private boolean evaluateWithoutIndex( IndexEntry<String, ID> indexEntry ) throws Exception
     {
-        Entry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
+            indexEntry.setEntry( entry );
         }
 
         /*

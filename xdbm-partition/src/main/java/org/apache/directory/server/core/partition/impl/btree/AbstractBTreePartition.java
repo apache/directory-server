@@ -788,7 +788,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         return new BaseEntryFilteringCursor( 
-            new ServerEntryCursorAdaptor<ID>( this, 
+            new EntryCursorAdaptor<ID>( this, 
                 list( getEntryId( listContext.getDn() ) ) ), listContext );
     }
 
@@ -832,7 +832,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             underlying = searchEngine.cursor( dn, derefMode, filter, searchCtls );
 
-            return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), searchContext );
+            return new BaseEntryFilteringCursor( new EntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }
         catch ( LdapException le )
         {
@@ -2504,7 +2504,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             
             while ( cursor.next() )
             {
-                IndexEntry<?, Entry, ID> entry = cursor.get();
+                IndexEntry<?, ID> entry = cursor.get();
                 
                 System.out.println( entry );
             }

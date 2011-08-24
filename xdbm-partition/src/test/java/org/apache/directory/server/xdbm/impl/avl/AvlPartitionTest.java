@@ -385,7 +385,7 @@ public class AvlPartitionTest
     {
         assertEquals( 3, partition.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, Entry, Long>> cursor = partition.list( 1L );
+        Cursor<IndexEntry<Long, Long>> cursor = partition.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );

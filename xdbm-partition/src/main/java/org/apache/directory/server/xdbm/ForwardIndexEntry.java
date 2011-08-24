@@ -20,18 +20,18 @@
 package org.apache.directory.server.xdbm;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
  * An index id value pair based on a Tuple which can optionally reference the
- * indexed object if one has already been loaded.
+ * indexed Entry if one has already been loaded.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
- * @param <O> The associated object
  */
-public class ForwardIndexEntry<V, O, ID> extends AbstractIndexEntry<V, O, ID>
+public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
 {
     /** The underlying Tuple */
     private final Tuple<V, ID> tuple = new Tuple<V, ID>();
@@ -48,15 +48,15 @@ public class ForwardIndexEntry<V, O, ID> extends AbstractIndexEntry<V, O, ID>
     
     /**
      * Sets the key value tuple represented by this ForwardIndexEntry optionally
-     * setting the obj associated with the id if one was loaded from the
+     * setting the Entry associated with the id if one was loaded from the
      * master table.
      *
      * @param tuple the tuple for the ForwardIndexEntry
-     * @param object the resuscitated object if any
+     * @param entry the resuscitated Entry if any
      */
-    public void setTuple( Tuple<V, ID> tuple, O object )
+    public void setTuple( Tuple<V, ID> tuple, Entry entry )
     {
-        setObject( object );
+        setEntry( entry );
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
     }
@@ -121,7 +121,7 @@ public class ForwardIndexEntry<V, O, ID> extends AbstractIndexEntry<V, O, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, O, ID> entry )
+    public void copy( IndexEntry<V, ID> entry )
     {
         super.copy( entry );
         tuple.setKey( entry.getValue() );

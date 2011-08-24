@@ -55,9 +55,6 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     /** Currently active Cursor: we switch between two cursors */
     private IndexCursor<ID, Entry, ID> cursor;
 
-    /** Whether or not this Cursor is positioned so an entry is available */
-    private boolean available = false;
-
     private ID contextEntryId;
 
 
@@ -94,8 +91,16 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
@@ -120,42 +125,12 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public boolean available()
-    {
-        return available;
-    }
-
-
-    public void beforeValue( ID id, ID value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void before( IndexEntry<ID, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, ID value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void after( IndexEntry<ID, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
         cursor = scopeCursor;
         cursor.beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -172,7 +147,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         }
 
         cursor.afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -212,20 +187,21 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 do
                 {
                     checkNotClosed( "previous()" );
-                    available = cursor.previous();
-                    if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    setAvailable( cursor.previous() );
+                    
+                    if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
                     }
                 }
-                while ( available );
+                while ( available() );
             }
             else
             {
-                available = cursor.previous();
+                setAvailable( cursor.previous() );
             }
 
-            return available;
+            return available();
         }
 
         /*
@@ -234,8 +210,9 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
          * scopeCursor and try a previous call after positioning past it's
          * last element.
          */
-        available = cursor.previous();
-        if ( !available )
+        setAvailable( cursor.previous() );
+        
+        if ( !available() )
         {
             cursor = scopeCursor;
             cursor.afterLast();
@@ -244,16 +221,16 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             do
             {
                 checkNotClosed( "previous()" );
-                available = cursor.previous();
+                setAvailable( cursor.previous() );
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
-            while ( available );
+            while ( available() );
 
-            return available;
+            return available();
         }
 
         return true;
@@ -279,24 +256,24 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             do
             {
                 checkNotClosed( "next()" );
-                available = cursor.next();
+                setAvailable( cursor.next() );
 
-                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
-            while ( available );
+            while ( available() );
         }
         else
         {
-            available = cursor.next();
+            setAvailable( cursor.next() );
         }
 
         // if we're using dereferencedCursor (2nd) then we return the result
         if ( cursor == dereferencedCursor )
         {
-            return available;
+            return available();
         }
 
         /*
@@ -305,13 +282,14 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
          * dereferencedCursor and try a previous call after positioning past
          * it's last element.
          */
-        if ( !available )
+        if ( !available() )
         {
             if ( dereferencedCursor != null )
             {
                 cursor = dereferencedCursor;
                 cursor.beforeFirst();
-                return available = cursor.next();
+                
+                return setAvailable( cursor.next() );
             }
 
             return false;
@@ -321,10 +299,11 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public IndexEntry<ID, Entry, ID> get() throws Exception
+    public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return cursor.get();
         }

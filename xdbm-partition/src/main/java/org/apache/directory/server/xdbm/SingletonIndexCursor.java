@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -28,47 +29,32 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SingletonIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
+public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
-    private final IndexEntry<K, E, ID> singleton;
+    private final IndexEntry<V, ID> singleton;
 
 
-    public SingletonIndexCursor( IndexEntry<K, E, ID> singleton )
+    public SingletonIndexCursor( IndexEntry<V, ID> singleton )
     {
         this.singleton = singleton;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
+    }
+
+    
     public boolean available()
     {
         return onSingleton;
-    }
-
-
-    public void before( IndexEntry<K, E, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public void beforeValue( ID id, K value ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public void afterValue( ID id, K value ) throws Exception
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public void after( IndexEntry<K, E, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException();
     }
 
 
@@ -186,9 +172,10 @@ public class SingletonIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID
     }
 
 
-    public IndexEntry<K, E, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "()" );
+        
         if ( onSingleton )
         {
             return singleton;

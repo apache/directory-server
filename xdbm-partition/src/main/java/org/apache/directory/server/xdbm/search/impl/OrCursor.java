@@ -48,7 +48,6 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
     private final List<Set<ID>> blacklists;
     private int cursorIndex = -1;
-    private boolean available = false;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
@@ -72,42 +71,21 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     }
 
 
-    public boolean available()
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
     {
-        return available;
+        return UNSUPPORTED_MSG;
     }
 
-
-    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
-    }
-
-
+    
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
         cursorIndex = 0;
         cursors.get( cursorIndex ).beforeFirst();
-        available = false;
+        setAvailable( false );
     }
 
 
@@ -116,21 +94,23 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         checkNotClosed( "afterLast()" );
         cursorIndex = cursors.size() - 1;
         cursors.get( cursorIndex ).afterLast();
-        available = false;
+        setAvailable( false );
     }
 
 
     public boolean first() throws Exception
     {
         beforeFirst();
-        return available = next();
+        
+        return setAvailable( next() );
     }
 
 
     public boolean last() throws Exception
     {
         afterLast();
-        return available = previous();
+        
+        return setAvailable( previous() );
     }
 
 
@@ -147,7 +127,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -169,11 +149,13 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         while ( cursors.get( cursorIndex ).previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
+            
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
-                return available = true;
+                
+                return setAvailable( true );
             }
         }
 
@@ -186,16 +168,18 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             while ( cursors.get( cursorIndex ).previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
+                
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
-                    return available = true;
+                    
+                    return setAvailable( true );
                 }
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
@@ -204,11 +188,12 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         while ( cursors.get( cursorIndex ).next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
-                return available = true;
+                
+                return setAvailable( true );
             }
         }
 
@@ -221,23 +206,25 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             while ( cursors.get( cursorIndex ).next() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, Entry, ID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
-                    return available = true;
+                    
+                    return setAvailable( true );
                 }
             }
         }
 
-        return available = false;
+        return setAvailable( false );
     }
 
 
-    public IndexEntry<V, Entry, ID> get() throws Exception
+    public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        if ( available )
+        
+        if ( available() )
         {
             return cursors.get( cursorIndex ).get();
         }

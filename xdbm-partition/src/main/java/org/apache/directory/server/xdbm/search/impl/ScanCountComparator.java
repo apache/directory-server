@@ -19,49 +19,45 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+import java.util.Comparator;
 
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.NotNode;
-
 
 /**
- * An Evaluator for logical negation (NOT) expressions.
- *
+ * A helper class used to compare scan counts.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ *
+ * @param <ID> The type of element
  */
-public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
+public class ScanCountComparator<ID> implements Comparator<Evaluator<?, Entry, ID>>
 {
-    /** The ExprNode to evaluate */
-    private final NotNode node;
-
-    /** The Evaluator to use for the inner Node */
-    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
-
-
-    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
+    /**
+     * Compare two scan counts frpm two evaluators 
+     */
+    public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
     {
-        this.node = node;
-        this.childEvaluator = childEvaluator;
+        long scanCount1 = ( Long ) e1.getExpression().get( "count" );
+        long scanCount2 = ( Long ) e2.getExpression().get( "count" );
+
+        if ( scanCount1 == scanCount2 )
+        {
+            return 0;
+        }
+
+        /*
+         * We want the Evaluator with the smallest scan count first
+         * since this node has the highest probability of failing, or
+         * rather the least probability of succeeding.  That way we
+         * can short the sub-expression evaluation process.
+         */
+        if ( scanCount1 < scanCount2 )
+        {
+            return -1;
+        }
+
+        return 1;
     }
 
-
-    public boolean evaluateEntry( Entry entry ) throws Exception
-    {
-        return !childEvaluator.evaluateEntry( entry );
-    }
-
-
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
-    {
-        return !childEvaluator.evaluate( indexEntry );
-    }
-
-
-    public NotNode getExpression()
-    {
-        return node;
-    }
 }

@@ -247,7 +247,7 @@ public class RdnIndexTreeCursorTest extends TestBase
     {
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( value, indexEntry.getValue() );
         assertEquals( id, indexEntry.getId() );
@@ -258,7 +258,7 @@ public class RdnIndexTreeCursorTest extends TestBase
     {
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( value, indexEntry.getValue() );
         assertEquals( id, indexEntry.getId() );
@@ -269,7 +269,7 @@ public class RdnIndexTreeCursorTest extends TestBase
     {
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( value, indexEntry.getValue() );
         assertEquals( id, indexEntry.getId() );
@@ -280,7 +280,7 @@ public class RdnIndexTreeCursorTest extends TestBase
     {
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( value, indexEntry.getValue() );
         assertEquals( id, indexEntry.getId() );

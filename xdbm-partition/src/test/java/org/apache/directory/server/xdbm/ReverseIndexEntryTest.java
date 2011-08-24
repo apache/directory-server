@@ -27,7 +27,6 @@ import static junit.framework.Assert.assertTrue;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,13 +39,13 @@ import org.junit.Test;
 public class ReverseIndexEntryTest
 {
 
-    private ReverseIndexEntry<String, Entry, Long> indexEntry;
+    private ReverseIndexEntry<String, Long> indexEntry;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ReverseIndexEntry<String, Entry, Long>();
+        indexEntry = new ReverseIndexEntry<String, Long>();
     }
 
 
@@ -73,10 +72,10 @@ public class ReverseIndexEntryTest
     @Test
     public void testSetGetObject()
     {
-        assertNull( indexEntry.getObject() );
+        assertNull( indexEntry.getEntry() );
 
-        indexEntry.setObject( new DefaultEntry() );
-        assertEquals( new DefaultEntry(), indexEntry.getObject() );
+        indexEntry.setEntry( new DefaultEntry() );
+        assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
 
@@ -89,7 +88,7 @@ public class ReverseIndexEntryTest
 
         indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
         assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry.getTuple() );
-        assertEquals( new DefaultEntry(), indexEntry.getObject() );
+        assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
 
@@ -101,7 +100,7 @@ public class ReverseIndexEntryTest
 
         assertNull( indexEntry.getId() );
         assertNull( indexEntry.getValue() );
-        assertNull( indexEntry.getObject() );
+        assertNull( indexEntry.getEntry() );
         assertNotNull( indexEntry.getTuple() );
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getValue() );
@@ -115,10 +114,10 @@ public class ReverseIndexEntryTest
         indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
 
         // create empty index entry and assert empty values
-        ReverseIndexEntry<String, Entry, Long> indexEntry2 = new ReverseIndexEntry<String, Entry, Long>();
+        ReverseIndexEntry<String, Long> indexEntry2 = new ReverseIndexEntry<String, Long>();
         assertNull( indexEntry2.getId() );
         assertNull( indexEntry2.getValue() );
-        assertNull( indexEntry2.getObject() );
+        assertNull( indexEntry2.getEntry() );
         assertNotNull( indexEntry2.getTuple() );
         assertNull( indexEntry2.getTuple().getKey() );
         assertNull( indexEntry2.getTuple().getValue() );
@@ -127,7 +126,7 @@ public class ReverseIndexEntryTest
         indexEntry2.copy( indexEntry );
         assertEquals( Long.valueOf( 1L ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getValue() );
-        assertEquals( new DefaultEntry(), indexEntry2.getObject() );
+        assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
         assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry2.getTuple() );
     }
 

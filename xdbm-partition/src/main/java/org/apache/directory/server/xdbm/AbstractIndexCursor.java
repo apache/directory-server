@@ -23,9 +23,8 @@ package org.apache.directory.server.xdbm;
 import java.util.Iterator;
 
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
 
 
 /**
@@ -33,67 +32,82 @@ import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E, ID>
+public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements IndexCursor<V, Entry, ID>
 {
-    private ClosureMonitor monitor = new DefaultClosureMonitor();
+    /** Tells if there are some element available in the cursor */
+    private boolean available = false;
+
+    /** The message used for unsupported operations */
+    protected static final String UNSUPPORTED_MSG = "Unsupported operation";
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean available()
+    {
+        return available;
+    }
+    
+    
+    /**
+     * Gets the message to return for operations that are not supported
+     * 
+     * @return The Unsupported message
+     */
+    protected abstract String getUnsupportedMessage();
 
 
     /**
      * {@inheritDoc}
      */
-    public final void setClosureMonitor( ClosureMonitor monitor )
+    public void after( IndexEntry<V, ID> element ) throws Exception
     {
-        if ( monitor == null )
-        {
-            throw new IllegalArgumentException( "monitor" );
-        }
-
-        this.monitor = monitor;
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    protected final void checkNotClosed( String operation ) throws Exception
+    public void before( IndexEntry<V, ID> element ) throws Exception
     {
-        monitor.checkNotClosed();
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void afterValue( ID id, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public final boolean isClosed()
+    public void beforeValue( ID id, V value ) throws Exception
     {
-        return monitor.isClosed();
+        throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    protected boolean setAvailable( boolean available )
     {
-        monitor.close();
+        return this.available = available;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public Iterator<IndexEntry<V, ID>> iterator()
     {
-        monitor.close( cause );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<IndexEntry<K, E, ID>> iterator()
-    {
-        return new CursorIterator<IndexEntry<K, E, ID>>( this );
+        return new CursorIterator<IndexEntry<V, ID>>( this );
     }
 
 

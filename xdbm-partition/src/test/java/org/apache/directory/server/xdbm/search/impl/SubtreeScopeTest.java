@@ -67,7 +67,7 @@ public class SubtreeScopeTest extends TestBase
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 2L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
@@ -223,7 +223,7 @@ public class SubtreeScopeTest extends TestBase
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -409,7 +409,7 @@ public class SubtreeScopeTest extends TestBase
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
@@ -556,7 +556,7 @@ public class SubtreeScopeTest extends TestBase
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, Entry, Long> indexEntry = cursor.get();
+        IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -811,7 +811,7 @@ public class SubtreeScopeTest extends TestBase
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
 
-        ForwardIndexEntry<Long, Entry, Long> indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -829,15 +829,15 @@ public class SubtreeScopeTest extends TestBase
          * With dereferencing the evaluator does not accept candidates that
          * are aliases.  This is done to filter out aliases from the results.
          */
-        ForwardIndexEntry<Long, Entry, Long> indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 11L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, Entry, Long>();
+        indexEntry = new ForwardIndexEntry<Long, Long>();
         indexEntry.setId( 6L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -863,7 +863,7 @@ public class SubtreeScopeTest extends TestBase
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<Long, Entry, Long> entry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
         entry.setValue( 3L );
         cursor.before( entry );
     }
@@ -878,7 +878,7 @@ public class SubtreeScopeTest extends TestBase
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         // test after()
-        ForwardIndexEntry<Long, Entry, Long> entry = new ForwardIndexEntry<Long, Entry, Long>();
+        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
         entry.setValue( 3L );
         cursor.after( entry );
     }
