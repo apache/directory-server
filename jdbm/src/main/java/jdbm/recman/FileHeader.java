@@ -47,21 +47,44 @@
 package jdbm.recman;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
  * This class represents a file header. It is a 1:1 representation of
- * the data that appears in block 0 of a file.
+ * the data that appears in block 0 of a file.<br/>
+ * The FileHeader is stored into a BlockIo.<br/>
+ * The BlockIo will always contain the following bytes : <br/>
+ * <ul>
+ * <li>[0..3] 0x1350 : a marker for a FILE_HEADER</li>
+ * <li>[4..11]  : The BlockIo reference to the first FREE_PAGE ID</li>
+ * <li>[12..19] : The BlockIo reference to the last FREE_PAGE ID</li>
+ * <li>[20..27] : The BlockIo reference to the first USED_PAGE ID</li>
+ * <li>[28..35] : The BlockIo reference to the last USED_PAGE ID</li>
+ * <li>[36..43] : The BlockIo reference to the first TRANSLATION_PAGE ID</li>
+ * <li>[44..51] : The BlockIo reference to the last TRANSLATION_PAGE ID</li>
+ * <li>[52..59] : The BlockIo reference to the first FREELOGIDS_PAGE ID</li>
+ * <li>[60..67] : The BlockIo reference to the last FREELOGIDS_PAGE ID</li>
+ * <li>[68..71] : The BlockIo reference to the first FREEPHYSIDS_PAGE ID</li>
+ * <li>[72..79] : The BlockIo reference to the last FREEPHYSIDS_PAGE ID</li>
+ * <li>[80..87]* : The reference to the BlockIo which is the root for the data contained in this File.
+ * We may have more than one, but no more than 1014, if the BLOCK_SIZE is 8192</li>
+ * </ul> 
  */
 class FileHeader implements BlockView 
 {
-    // offsets
+    /** Position of the Magic number for FileHeader */
     private static final short O_MAGIC = 0; // short magic
+    
+    /** Position of the Lists in the blockIo */
     private static final short O_LISTS = Magic.SZ_SHORT; // long[2*NLISTS]
+    
+    /** Position of the ROOTs in the blockIo */
     private static final int O_ROOTS = O_LISTS + ( Magic.NLISTS * 2 * Magic.SZ_LONG );
 
-    // my block
+    /** The BlockIo used to store the FileHeader */
     private BlockIo block;
 
     /** The number of "root" rowids available in the file. */

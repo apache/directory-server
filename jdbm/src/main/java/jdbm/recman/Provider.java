@@ -51,13 +51,12 @@ package jdbm.recman;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.directory.server.i18n.I18n;
-
 import jdbm.RecordManager;
 import jdbm.RecordManagerOptions;
 import jdbm.RecordManagerProvider;
-
 import jdbm.helper.MRU;
+
+import org.apache.directory.server.i18n.I18n;
 
 /**
  * Provider of the default RecordManager implementation.
@@ -79,13 +78,9 @@ public final class Provider implements RecordManagerProvider
      */
     public RecordManager createRecordManager( String name, Properties options ) throws IOException
     {
-        RecordManager  recman;
-        String         value;
-        int            cacheSize;
+        RecordManager recman = new BaseRecordManager( name );
 
-        recman = new BaseRecordManager( name );
-
-        value = options.getProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "false" );
+        String value = options.getProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "false" );
         
         if ( value.equalsIgnoreCase( "TRUE" ) ) 
         {
@@ -93,7 +88,7 @@ public final class Provider implements RecordManagerProvider
         }
 
         value = options.getProperty( RecordManagerOptions.CACHE_SIZE, "1000" );
-        cacheSize = Integer.parseInt( value );
+        int cacheSize = Integer.parseInt( value );
 
         value = options.getProperty( RecordManagerOptions.CACHE_TYPE, RecordManagerOptions.NORMAL_CACHE );
         

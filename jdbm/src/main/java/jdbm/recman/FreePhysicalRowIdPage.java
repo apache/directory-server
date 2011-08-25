@@ -47,6 +47,7 @@
 package jdbm.recman;
 
 
+
 /**
  * Class describing a page that holds physical rowids that were freed.
  */
@@ -76,6 +77,7 @@ final class FreePhysicalRowIdPage extends PageHeader
     static FreePhysicalRowIdPage getFreePhysicalRowIdPageView( BlockIo block ) 
     {
         BlockView view = block.getView();
+        
         if ( view != null && view instanceof FreePhysicalRowIdPage )
         {
             return ( FreePhysicalRowIdPage ) view;
@@ -87,21 +89,27 @@ final class FreePhysicalRowIdPage extends PageHeader
     }
     
 
-    /** Returns the number of free rowids */
+    /** 
+     * Returns the number of free rowids 
+     */
     short getCount() 
     {
         return block.readShort( O_COUNT );
     }
 
     
-    /** Sets the number of free rowids */
+    /** 
+     * Sets the number of free rowids 
+     */
     private void setCount( short i ) 
     {
         block.writeShort( O_COUNT, i );
     }
 
     
-    /** Frees a slot */
+    /** 
+     * Frees a slot 
+     */
     void free( int slot ) 
     {
         get( slot ).setSize( 0 );
@@ -109,7 +117,9 @@ final class FreePhysicalRowIdPage extends PageHeader
     }
 
     
-    /** Allocates a slot */
+    /** 
+     * Allocates a slot 
+     */
     FreePhysicalRowId alloc( int slot ) 
     {
         setCount( ( short ) ( getCount() + 1 ) );
@@ -117,21 +127,27 @@ final class FreePhysicalRowIdPage extends PageHeader
     }
 
     
-    /** Returns true if a slot is allocated */
+    /** 
+     * Returns true if a slot is allocated 
+     */
     boolean isAllocated( int slot ) 
     {
         return get( slot ).getSize() != 0;
     }
     
 
-    /** Returns true if a slot is free */
+    /** 
+     * Returns true if a slot is free 
+     */
     boolean isFree( int slot ) 
     {
         return ! isAllocated( slot );
     }
     
     
-    /** Returns the value of the indicated slot */
+    /** 
+     * Returns the value of the indicated slot 
+     */
     FreePhysicalRowId get( int slot ) 
     {
         if ( slots[slot] == null )
@@ -143,7 +159,9 @@ final class FreePhysicalRowIdPage extends PageHeader
     }
     
 
-    /** Converts slot to offset */
+    /** 
+     * Converts slot to offset 
+     */
     short slotToOffset( int slot ) 
     {
         return ( short ) ( O_FREE + ( slot * FreePhysicalRowId.SIZE ) );
@@ -151,7 +169,7 @@ final class FreePhysicalRowIdPage extends PageHeader
     
     
     /** 
-     * Returns first free slot, -1 if no slots are available
+     * @return first free slot, -1 if no slots are available
      */
     int getFirstFree() 
     {
@@ -168,7 +186,7 @@ final class FreePhysicalRowIdPage extends PageHeader
     
 
     /** 
-     * Returns first slot with available size >= indicated size, or -1 if no 
+     * @return first slot with available size >= indicated size, or -1 if no 
      * slots are available.
      */
     int getFirstLargerThan( int size ) 

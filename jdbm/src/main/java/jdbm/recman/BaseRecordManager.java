@@ -88,7 +88,6 @@ import jdbm.helper.DefaultSerializer;
 public final class BaseRecordManager
     implements RecordManager
 {
-
     /** Underlying record recordFile. */
     private RecordFile recordFile;
 

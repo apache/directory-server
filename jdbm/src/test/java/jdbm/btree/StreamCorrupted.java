@@ -46,13 +46,12 @@
 package jdbm.btree;
 
 
+import java.io.File;
+import java.io.IOException;
+
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.helper.StringComparator;
-import jdbm.btree.BTree;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -130,9 +129,9 @@ public class StreamCorrupted
     @Test
     public void testStreamCorrupted() throws IOException
     {
-        RecordManager  recman;
-        BTree<String, Integer>          btree;
-        int            iterations;
+        RecordManager recman;
+        BTree<String, Integer> btree;
+        int iterations;
 
         iterations = 100; // 23 works :-(((((
 
