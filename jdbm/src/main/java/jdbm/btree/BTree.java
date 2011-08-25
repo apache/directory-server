@@ -686,7 +686,7 @@ public class BTree<K, V> implements Externalizable
     {
         BTree<K, V> bTreeCopy;
         
-        if ( readOnlyAction )
+        if ( readOnlyAction && isActionCapable )
         {
             bTreeCopy = ( BTree<K, V> )recordManager.fetch( recordId );
         }
@@ -826,12 +826,19 @@ public class BTree<K, V> implements Externalizable
     
     BPage<K,V> copyOnWrite( BPage<K,V> page) throws IOException
     {
-        byte[] array;
-        array = this.bpageSerializer.serialize( page );
-        BPage<K,V> pageCopy = this.bpageSerializer.deserialize( array );
-        pageCopy.recordId = page.recordId;
-        pageCopy.btree = page.btree;
-        return pageCopy;
+    	if ( !isActionCapable )
+    	{
+    		return page;
+    	}
+    	else
+    	{
+    		byte[] array;
+    		array = this.bpageSerializer.serialize( page );
+    		BPage<K,V> pageCopy = this.bpageSerializer.deserialize( array );
+    		pageCopy.recordId = page.recordId;
+    		pageCopy.btree = page.btree;
+    		return pageCopy;
+    	}
     }
     
     @SuppressWarnings("unchecked") 
