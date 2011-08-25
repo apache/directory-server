@@ -47,6 +47,8 @@
 package jdbm.recman;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -58,6 +60,7 @@ import org.apache.directory.server.i18n.I18n;
  *   <li>2 bytes: the short block type code</li>
  *   <li>8 bytes: the long block id of the next block in the block list</li>
  *   <li>8 bytes: the long block id of the previous block in the block list</li>
+ *   <li>4 bytes: the size of this page
  * </ol>
  * 
  * The page header block view hence sees 18 bytes of page header data.
@@ -65,15 +68,16 @@ import org.apache.directory.server.i18n.I18n;
 public class PageHeader implements BlockView 
 {
     // offsets into page header's (BlockIo's) buffer
-    
     /** the page (BlockIo's type code) short magic code */
     private static final short O_MAGIC = 0; 
+    
     /** the long block id of the next block in the block list */
     private static final short O_NEXT = Magic.SZ_SHORT;  
+    
     /** the long block id of the previous block in the block list */
     private static final short O_PREV = O_NEXT + Magic.SZ_LONG; 
     
-    /** the size of this page header = 18 bytes */
+    /** the size of this page header */
     protected static final short SIZE = O_PREV + Magic.SZ_LONG;
 
     /** the page header block this view is associated with */
@@ -90,6 +94,7 @@ public class PageHeader implements BlockView
     {
         this.block = block;
         block.setView( this );
+        
         if ( ! magicOk() )
         {
             throw new Error( I18n.err( I18n.ERR_546, block.getBlockId(), getMagic() ) );
@@ -115,6 +120,7 @@ public class PageHeader implements BlockView
     static PageHeader getView ( BlockIo block ) 
     {
         BlockView view = block.getView();
+        
         if ( view != null && view instanceof PageHeader )
         {
             return ( PageHeader ) view;
@@ -132,6 +138,7 @@ public class PageHeader implements BlockView
     private boolean magicOk() 
     {
         int magic = getMagic();
+        
         return magic >= Magic.BLOCK
             && magic <= ( Magic.BLOCK + Magic.FREEPHYSIDS_PAGE );
     }
@@ -149,22 +156,31 @@ public class PageHeader implements BlockView
     }
     
     
-    /** Returns the magic code */
+    /** 
+     * @return The magic code (ie, the 2 first bytes of the inner BlockIo) 
+     */
     short getMagic() 
     {
         return block.readShort( O_MAGIC );
     }
 
     
-    /** Returns the next block. */
+    /**
+     * @return the next block (ie the long at position 2 in the BlockIo)
+     */
     long getNext() 
     {
         paranoiaMagicOk();
+        
         return block.readLong( O_NEXT );
     }
     
     
-    /** Sets the next block. */
+    /** 
+     * Sets the next block.
+     * 
+     * @param The next Block ID
+     */
     void setNext( long next ) 
     {
         paranoiaMagicOk();
@@ -172,15 +188,20 @@ public class PageHeader implements BlockView
     }
     
     
-    /** Returns the previous block. */
+    /** 
+     * @return the previous block (ie the long at position 10 in the BlockIo)
+     */
     long getPrev() 
     {
         paranoiaMagicOk();
+        
         return block.readLong( O_PREV );
     }
     
     
-    /** Sets the previous block. */
+    /** 
+     * Sets the previous block. 
+     */
     void setPrev( long prev ) 
     {
         paranoiaMagicOk();
@@ -188,8 +209,12 @@ public class PageHeader implements BlockView
     }
     
     
-    /** Sets the type of the page header */
-    void setType ( short type ) 
+    /** 
+     * Sets the type of the page header
+     * 
+     *  @param type The PageHeader type to store at position 0
+     */
+    void setType( short type ) 
     {
         block.writeShort( O_MAGIC, ( short ) ( Magic.BLOCK + type ) );
     }

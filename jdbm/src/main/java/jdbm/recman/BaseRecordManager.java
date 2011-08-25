@@ -49,15 +49,14 @@
 package jdbm.recman;
 
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.i18n.I18n;
-
 import jdbm.RecordManager;
-import jdbm.helper.Serializer;
 import jdbm.helper.DefaultSerializer;
+import jdbm.helper.Serializer;
+
+import org.apache.directory.server.i18n.I18n;
 
 /**
  *  This class manages records, which are uninterpreted blobs of data. The
@@ -84,7 +83,6 @@ import jdbm.helper.DefaultSerializer;
 public final class BaseRecordManager
     implements RecordManager
 {
-
     /** Underlying record recordFile. */
     private RecordFile recordFile;
 
@@ -326,6 +324,7 @@ public final class BaseRecordManager
         {
             System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
         }
+        
         return serializer.deserialize( data );
     }
 

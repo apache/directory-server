@@ -80,6 +80,7 @@ final class PhysicalRowIdManager
     {
         Location retval = alloc( length );
         write( retval, data, start, length );
+        
         return retval;
     }
 
@@ -172,10 +173,13 @@ final class PhysicalRowIdManager
         throws IOException
     {
         Location retval = freeman.get( size );
-        if ( retval == null ) {
+        
+        if ( retval == null ) 
+        {
             // temporary work around for DIRSERVER-1459
             retval = allocNew( size * 2, pageManager.getLast( Magic.USED_PAGE ) );
         }
+        
         return retval;
     }
 

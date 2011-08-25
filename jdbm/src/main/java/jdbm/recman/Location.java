@@ -54,7 +54,10 @@ package jdbm.recman;
  */
 final class Location 
 {
+    /** The block in which the data is stored */
     private long block;
+    
+    /** The offset within this block */
     private short offset;
 
     

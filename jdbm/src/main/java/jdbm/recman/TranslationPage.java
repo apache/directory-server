@@ -47,6 +47,7 @@
 package jdbm.recman;
 
 
+
 /**
  * Class describing a page that holds translations from physical rowids
  * to logical rowids. In fact, the page just holds physical rowids - the
@@ -78,6 +79,7 @@ final class TranslationPage extends PageHeader
     static TranslationPage getTranslationPageView( BlockIo block ) 
     {
         BlockView view = block.getView();
+        
         if ( view != null && view instanceof TranslationPage )
         {
             return ( TranslationPage ) view;
@@ -93,10 +95,12 @@ final class TranslationPage extends PageHeader
     PhysicalRowId get( short offset ) 
     {
         int slot = ( offset - O_TRANS ) / PhysicalRowId.SIZE;
+        
         if ( slots[slot] == null )
         {
             slots[slot] = new PhysicalRowId( block, offset );
         }
+        
         return slots[slot];
     }
 }

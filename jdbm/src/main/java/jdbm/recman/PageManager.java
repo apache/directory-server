@@ -47,28 +47,34 @@
 package jdbm.recman;
 
 
-import java.io.*;
+import java.io.IOException;
 
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * This class manages the linked lists of pages that make up a recordFile.
+ * This class manages the linked lists of pages that make up a recordFile. It contains
+ * a FileHeadrer and a reference to the recordFile it manages.<br/>
  */
 final class PageManager 
 {
-    // our record recordFile
+    /** our record recordFile */
     private RecordFile recordFile;
     
-    // header data
+    /** header data */
     private FileHeader header;
     
-    // recordFile header containing block
+    /** recordFile header containing block */
     private BlockIo headerBuf;
 
     
     /**
      * Creates a new page manager using the indicated record recordFile.
+     * We will load in memory the associated FileHeader, which is
+     * read from the RecordFile if it exists, or is created if it doesn't.
+     * 
+     * @param The associated RecordFile
+     * @throws IOException If there is an issue storing data into the recordFile
      */
     PageManager( RecordFile recordFile ) throws IOException 
     {
@@ -78,54 +84,54 @@ final class PageManager
         headerBuf = recordFile.get( 0 );
         
         // Assume recordFile is new if the recordFile header's magic number is 0. 
-        if ( headerBuf.readShort( 0 ) == 0 )
-        {
-            header = new FileHeader( headerBuf, true );
-        }
-        else // header is for existing recordFile
-        {
-            header = new FileHeader( headerBuf, false );
-        }
+        boolean isNew = headerBuf.readShort( 0 ) == 0;
+
+        header = new FileHeader( headerBuf, isNew );
     }
     
     
     /**
-     * Allocates a page of the indicated type. Returns recid of the page.
+     * Allocates a page of the indicated type. 
+     * 
+     * @param The page type we want to allocate
+     * @return The record ID of the page.
      */
     long allocate( short type ) throws IOException 
     {
         if ( type == Magic.FREE_PAGE )
         {
+            // We can't allocate FREE page. A page becomes FREE after it ha sbeen used.
             throw new Error( I18n.err( I18n.ERR_548 ) );
         }
         
         boolean isNew = false;
         
         // Do we have something on the free list?
-        long retval = header.getFirstOf( Magic.FREE_PAGE );
-        if ( retval != 0 ) 
+        long freeBlock = header.getFirstOf( Magic.FREE_PAGE );
+        
+        if ( freeBlock != 0 ) 
         {
             // yes. Point to it and make the next of that page the
             // new first free page.
-            header.setFirstOf( Magic.FREE_PAGE, getNext( retval ) );
+            header.setFirstOf( Magic.FREE_PAGE, getNext( freeBlock ) );
         }
         else 
         {
             // nope. make a new record
-            retval = header.getLastOf( Magic.FREE_PAGE );
+            freeBlock = header.getLastOf( Magic.FREE_PAGE );
 
-            if ( retval == 0 )
+            if ( freeBlock == 0 )
             {
                 // very new recordFile - allocate record #1
-                retval = 1;
+                freeBlock = 1;
             }
             
-            header.setLastOf( Magic.FREE_PAGE, retval + 1 );
+            header.setLastOf( Magic.FREE_PAGE, freeBlock + 1 );
             isNew = true;
         }
         
         // Cool. We have a record, add it to the correct list
-        BlockIo buf = recordFile.get( retval );
+        BlockIo buf = recordFile.get( freeBlock );
         PageHeader pageHdr = null;
         
         if ( isNew )
@@ -148,25 +154,25 @@ final class PageManager
         if ( oldLast == 0 )
         {
             // This was the first one of this type
-            header.setFirstOf( type, retval );
+            header.setFirstOf( type, freeBlock );
         }
         
-        header.setLastOf( type, retval );
-        recordFile.release( retval, true );
+        header.setLastOf( type, freeBlock );
+        recordFile.release( freeBlock, true );
         
         // If there's a previous, fix up its pointer
         if ( oldLast != 0 ) 
         {
             buf = recordFile.get( oldLast );
             pageHdr = PageHeader.getView( buf );
-            pageHdr.setNext( retval );
+            pageHdr.setNext( freeBlock );
             recordFile.release( oldLast, true );
         }
         
         // remove the view, we have modified the type.
         buf.setView( null );
         
-        return retval;
+        return freeBlock;
     }
     
     
