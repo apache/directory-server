@@ -52,6 +52,10 @@ import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -109,6 +113,102 @@ public final class BaseRecordManager
      * the NAME_DIRECTORY_ROOT.
      */
     private Map<String,Long> nameDirectory;
+    
+    private static enum IOType
+    {
+        READ_IO,
+        WRITE_IO
+    }
+
+    /** TODO add asserts to check internal consistency */
+    private static class LockElement
+    {
+        private int readers;
+        private int waiters;
+        private boolean writer;
+
+        private Lock lock = new ReentrantLock();
+        private Condition cv = lock.newCondition();
+
+
+        public boolean anyReaders()
+        {
+            return readers > 0;
+        }
+
+
+        public boolean anyWaiters()
+        {
+            return waiters > 0;
+        }
+
+
+        public boolean beingWritten()
+        {
+            return writer;
+        }
+
+
+        public boolean anyUser()
+        {
+            return ( readers > 0 || waiters > 0 || writer );
+        }
+
+
+        public void bumpReaders()
+        {
+            readers++;
+        }
+
+
+        public void decrementReaders()
+        {
+            readers--;
+        }
+
+
+        public void bumpWaiters()
+        {
+            waiters++;
+        }
+
+
+        public void decrementWaiters()
+        {
+            waiters--;
+        }
+
+
+        public void setWritten()
+        {
+            writer = true;
+        }
+
+
+        public void unsetWritten()
+        {
+            writer = false;
+        }
+
+
+        public Lock getLock()
+        {
+            return lock;
+        }
+
+
+        public Condition getNoConflictingIOCondition()
+        {
+            return cv;
+        }
+
+    }
+
+    /**
+     * Map used to synchronize reads and writes on the same logical
+     * recid.
+     */
+    private final ConcurrentHashMap<Long, LockElement> lockElements;
 
 
     /**
@@ -123,13 +223,14 @@ public final class BaseRecordManager
         pageMgr = new PageManager( recordFile );
         physMgr = new PhysicalRowIdManager( pageMgr );
         logMgr = new LogicalRowIdManager( pageMgr );
+        lockElements = new ConcurrentHashMap<Long, LockElement>();
     }
 
 
     /**
      * Get the underlying Transaction Manager
      */
-    public synchronized TransactionManager getTransactionManager() throws IOException
+    public TransactionManager getTransactionManager() throws IOException
     {
         checkIfClosed();
         return recordFile.getTxnMgr();
@@ -145,7 +246,7 @@ public final class BaseRecordManager
      *  Only call this method directly after opening the file, otherwise
      *  the results will be undefined.
      */
-    public synchronized void disableTransactions()
+    public void disableTransactions()
     {
         checkIfClosed();
         recordFile.disableTransactions();
@@ -157,7 +258,7 @@ public final class BaseRecordManager
      *
      * @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized void close() throws IOException
+    public void close() throws IOException
     {
         checkIfClosed();
 
@@ -190,7 +291,7 @@ public final class BaseRecordManager
      * @return the rowid for the new record.
      * @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized long insert( Object obj, Serializer serializer ) throws IOException
+    public long insert( Object obj, Serializer serializer ) throws IOException
     {
         byte[]    data;
         long      recid;
@@ -217,8 +318,9 @@ public final class BaseRecordManager
      * @param recid the rowid for the record that should be deleted.
      * @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized void delete( long recid ) throws IOException
+    public void delete( long recid ) throws IOException
     {
+    	LockElement element;
         checkIfClosed();
         
         if ( recid <= 0 ) 
@@ -231,10 +333,20 @@ public final class BaseRecordManager
             System.out.println( "BaseRecordManager.delete() recid " + recid ) ;
         }
 
-        Location logRowId = new Location( recid );
-        Location physRowId = logMgr.fetch( logRowId );
-        physMgr.delete( physRowId );
-        logMgr.delete( logRowId );
+        
+        element = this.beginIO(recid, IOType.WRITE_IO);
+        
+        try
+        {
+        	Location logRowId = new Location( recid );
+        	Location physRowId = logMgr.fetch( logRowId );
+        	physMgr.delete( physRowId );
+        	logMgr.delete( logRowId );
+        }
+        finally
+        {
+        	this.endIO(recid, element, IOType.WRITE_IO);
+        }
     }
 
 
@@ -250,7 +362,6 @@ public final class BaseRecordManager
         update( recid, obj, DefaultSerializer.INSTANCE );
     }
 
-    
     /**
      * Updates a record using a custom serializer.
      *
@@ -259,33 +370,45 @@ public final class BaseRecordManager
      * @param serializer a custom serializer
      * @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized void update( long recid, Object obj, Serializer serializer ) throws IOException
+    public void update( long recid, Object obj, Serializer serializer ) throws IOException
     {
-        checkIfClosed();
+    	LockElement element;
+    	
+    	checkIfClosed();
 
         if ( recid <= 0 ) 
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
-        Location logRecid = new Location( recid );
-        Location physRecid = logMgr.fetch( logRecid );
+        element = this.beginIO(recid, IOType.WRITE_IO);
+     	
+        try
+     	{
+        	Location logRecid = new Location( recid );
+            Location physRecid = logMgr.fetch( logRecid );
 
-        byte[] data = serializer.serialize( obj );
-        
-        if ( DEBUG ) 
-        {
-            System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length ) ;
-        }
-        
-        Location newRecid = physMgr.update( physRecid, data, 0, data.length );
-        
-        if ( ! newRecid.equals( physRecid ) ) 
-        {
-            logMgr.update( logRecid, newRecid );
-        }
+            byte[] data = serializer.serialize( obj );
+            
+            if ( DEBUG ) 
+            {
+                System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length ) ;
+            }
+            
+            Location newRecid = physMgr.update( physRecid, data, 0, data.length );
+            
+            if ( ! newRecid.equals( physRecid ) ) 
+            {
+                logMgr.update( logRecid, newRecid );
+            }
+
+     	}
+     	finally
+     	{
+     	    this.endIO(recid, element, IOType.WRITE_IO);
+     	} 
     }
-
+    
 
     /**
      * Fetches a record using standard java object serialization.
@@ -299,7 +422,7 @@ public final class BaseRecordManager
         return fetch( recid, DefaultSerializer.INSTANCE );
     }
 
-
+    
     /**
      * Fetches a record using a custom serializer.
      *
@@ -308,26 +431,41 @@ public final class BaseRecordManager
      * @return the object contained in the record.
      * @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized Object fetch( long recid, Serializer serializer )
-        throws IOException
+    public Object fetch( long recid, Serializer serializer ) throws IOException
     {
-        byte[] data;
-
-        checkIfClosed();
-       
+    	Object result;
+    	LockElement element;
+    	
+    	checkIfClosed();
+        
         if ( recid <= 0 ) 
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
-        
-        data = physMgr.fetch( logMgr.fetch( new Location( recid ) ) );
-        
-        if ( DEBUG ) 
-        {
-            System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
-        }
-        return serializer.deserialize( data );
+    	
+    	element = this.beginIO(recid, IOType.READ_IO);
+    	
+    	try
+    	{
+    		byte[] data; 
+            
+            data = physMgr.fetch( logMgr.fetch( new Location( recid ) ) );
+            
+            if ( DEBUG ) 
+            {
+                System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
+            }
+            result = serializer.deserialize( data );
+    	}
+    	finally
+    	{
+    		this.endIO(recid, element, IOType.READ_IO);
+    	}
+    	
+    	return result;
+    	
     }
+    
 
 
     /**
@@ -347,7 +485,7 @@ public final class BaseRecordManager
      *
      *  @see #getRootCount
      */
-    public synchronized long getRoot( int id ) throws IOException
+    public long getRoot( int id ) throws IOException
     {
         checkIfClosed();
 
@@ -360,7 +498,7 @@ public final class BaseRecordManager
      *
      *  @see #getRootCount
      */
-    public synchronized void setRoot( int id, long rowid ) throws IOException
+    public void setRoot( int id, long rowid ) throws IOException
     {
         checkIfClosed();
 
@@ -411,7 +549,7 @@ public final class BaseRecordManager
     /**
      * Commit (make persistent) all changes since beginning of transaction.
      */
-    public synchronized void commit()
+    public void commit()
         throws IOException
     {
         checkIfClosed();
@@ -423,7 +561,7 @@ public final class BaseRecordManager
     /**
      * Rollback (cancel) all changes since beginning of transaction.
      */
-    public synchronized void rollback() throws IOException
+    public void rollback() throws IOException
     {
         checkIfClosed();
 
@@ -478,4 +616,125 @@ public final class BaseRecordManager
             throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
+    
+
+    /**
+     * Used to serialize reads/write on a given logical rowid. Checks if there is a 
+     * ongoing conflicting IO to the same logical rowid and waits for the ongoing
+     * write if there is one. 
+     *
+     * @param recid the logical rowid for which the fetch will be done.
+     * @param io type of the IO
+     * @return lock element representing the logical lock gotten
+     */
+    private LockElement beginIO( Long recid, IOType io )
+    {
+        boolean lockVerified = false;
+        LockElement element = null;
+
+        // loop until we successfully verify that there is no concurrent writer
+/*
+        element = lockElements.get( recid );
+        do
+        {
+            if ( element == null )
+            {
+                element = new LockElement();
+
+                if ( io == IOType.READ_IO )
+                    element.bumpReaders();
+                else
+                    element.setWritten();
+
+                LockElement existingElement = lockElements.putIfAbsent( recid, element );
+
+                if ( existingElement == null )
+                    lockVerified = true;
+                else
+                    element = existingElement;
+            }
+            else
+            {
+                Lock lock = element.getLock();
+                lock.lock();
+                if ( element.anyUser() )
+                {
+                    if ( this.conflictingIOPredicate( io, element ) )
+                    {
+                        element.bumpWaiters();
+                        do
+                        {
+                            element.getNoConflictingIOCondition()
+                                .awaitUninterruptibly();
+                        }
+                        while ( this.conflictingIOPredicate( io, element ) );
+
+                        element.decrementWaiters();
+                    }
+
+                    // no conflicting IO anymore..done
+                    if ( io == IOType.READ_IO )
+                        element.bumpReaders();
+                    else
+                        element.setWritten();
+                    lockVerified = true;
+                }
+                else
+                {
+                    if ( io == IOType.READ_IO )
+                        element.bumpReaders();
+                    else
+                        element.setWritten();
+
+                    LockElement existingElement = lockElements.get( recid );
+
+                    if ( element != existingElement )
+                        element = existingElement;
+                    else
+                        lockVerified = true; // done
+                }
+                lock.unlock();
+            }
+        }
+        while ( !lockVerified );
+*/
+        return element;
+    }
+
+
+    /**
+     * Ends the IO by releasing the logical lock on the given recid
+     * 
+     * @param recid logical recid for which the IO is being ended
+     * @param element logical lock to be released
+     * @param io type of the io
+     */
+    private void endIO( Long recid, LockElement element, IOType io )
+    {
+  /*      Lock lock = element.getLock();
+        lock.lock();
+
+        if ( io == IOType.READ_IO )
+            element.decrementReaders();
+        else
+            element.unsetWritten();
+
+        if ( element.anyWaiters() )
+            element.getNoConflictingIOCondition().notifyAll();
+
+        if ( !element.anyUser() )
+            lockElements.remove( recid );
+
+        lock.unlock();*/
+    }
+
+
+    private boolean conflictingIOPredicate( IOType io, LockElement element )
+    {
+        if ( io == IOType.READ_IO )
+            return element.beingWritten();
+        else
+            return ( element.anyReaders() || element.beingWritten() );
+    }
+
 }
