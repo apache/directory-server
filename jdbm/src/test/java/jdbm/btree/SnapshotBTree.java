@@ -1,4 +1,4 @@
-package jdbm.btree;
+    package jdbm.btree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -108,6 +108,8 @@ public class SnapshotBTree
         {
             int count = 0;
             int idx;
+            boolean sawXXX = false;
+            
             TupleBrowser<Integer, String> browser = btree.browse();
             Tuple<Integer, String> tuple = new Tuple();
             browseSem.release();
@@ -128,24 +130,48 @@ public class SnapshotBTree
                 if ( (count & 7) == 0 )
                     Thread.sleep( 1 );
                 
-                assertTrue( !tuple.getValue().equals( "xxx" ) );
+                if ( !sawXXX && tuple.getValue().equals( "xxx" ) )
+                    sawXXX = true;
+                
+                if ( sawXXX )
+                {
+                    assertTrue( tuple.getValue().equals( "xxx" ) );
+                }
+                else
+                {
+                    assertTrue( tuple.getValue().equals( "value" + tuple.getKey().intValue() ) );
+                }                    
             }
             
             
             System.out.println( "count is " + count );
-            assertEquals( count, 1024 );            
+            assertTrue( count <= 2048 );            
             browser.close();
             
             updateSem.acquireUninterruptibly();
             browser = btree.browse( new Integer( 10 ) );
-            
+            assertTrue( browser.getNext( tuple ) );
+            assertEquals( tuple.getKey().intValue(), 20 );
+            browser = btree.browse( new Integer( 2047 ) );
+            assertTrue( browser.getNext( tuple ) );
+            assertTrue( tuple.getValue().equals("xxx") );
+            boolean sawNonXXX = false;
             browseSem.release();
-            for ( idx = 20; idx < 1024; idx++ )
+
+            while ( browser.getPrevious( tuple ) )
             {
-                assertTrue( browser.getNext( tuple ) );
                 
-                System.out.println( "key:"+ tuple.getKey().intValue() + " idx:" + idx );
-                assertTrue( tuple.getKey().intValue() == idx );
+                if ( !sawNonXXX && !tuple.getValue().equals( "xxx" ) )
+                    sawNonXXX = true;
+                
+                if ( sawNonXXX )
+                {
+                    assertTrue( tuple.getValue().equals( "value" + tuple.getKey().intValue() ) );
+                }
+                else 
+                {
+                    assertTrue( tuple.getValue().equals( "xxx") );
+                }
             }
             browser.close();
             
@@ -158,14 +184,16 @@ public class SnapshotBTree
             for ( idx = 0; idx < numReadThreads; idx++ )
                 browseSem.acquireUninterruptibly();
             
-            btree.insert( new Integer(1024), "xxx", true );
+            for ( idx = 512; idx < 1024; idx++ )
+            {
+                btree.insert( new Integer( idx ), "xxx", true );
+            }
+            
             for ( idx = 1024; idx < 2048; idx++ )
             {
-                btree.insert( new Integer( 0 ), "value" + idx, true );
+                btree.insert( new Integer( idx ), "xxx", true );
             }
            
-            btree.insert( new Integer(1), "xxx", true );
-            btree.insert( new Integer(1024), "xxx", true );
             for ( idx = 10; idx < 20; idx++ )
             {
                 btree.remove( new Integer( idx ) );

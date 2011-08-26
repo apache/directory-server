@@ -87,7 +87,6 @@ import org.apache.directory.server.i18n.I18n;
  * user is responsible to supply a serializable <code>Comparator</code> object
  * to be used for the ordering of entries, which are also called <code>Tuple</code>.
  * The B+Tree allows traversing the keys in forward and reverse order using a
- * TupleBrowser obtained from the browse() methods.
  * <p>
  * This implementation does not directly support duplicate keys, but it is
  * possible to handle duplicates by inlining or referencing an object collection
@@ -116,7 +115,7 @@ public class BTree<K, V> implements Externalizable
     private transient long recordId;
 
     /** Comparator used to index entries. */
-    private Comparator<K> comparator;
+    Comparator<K> comparator;
 
     /** Serializer used to serialize index keys (optional) */
     protected Serializer keySerializer;
@@ -128,7 +127,7 @@ public class BTree<K, V> implements Externalizable
      * Height of the B+Tree.  This is the number of BPages you have to traverse
      * to get to a leaf BPage, starting from the root.
      */
-    private int bTreeHeight;
+    int bTreeHeight;
 
     /** Record id of the root BPage */
     private transient long rootId;
@@ -518,7 +517,7 @@ public class BTree<K, V> implements Externalizable
                 }
                 else
                 {
-                    return tuple.getValue();
+                   return this.copyValue( tuple.getValue() );
                 }
             }
             else
@@ -568,6 +567,7 @@ public class BTree<K, V> implements Externalizable
             
             if ( browser.getNext( tuple ) )
             {
+                tuple.setValue( this.copyValue( tuple.getValue() ) );
                 return tuple;
             }
             else
@@ -599,7 +599,8 @@ public class BTree<K, V> implements Externalizable
     public TupleBrowser<K, V> browse() throws IOException
     {
         TupleBrowser<K, V> browser = null;
-        ActionContext context = this.beginAction( true );      
+        ActionContext context = this.beginAction( true ); 
+        boolean abortedAction = false;
         try
         {
             BPage<K, V> rootPage = getRoot( true );
@@ -609,12 +610,20 @@ public class BTree<K, V> implements Externalizable
                 this.endAction( context );
                 return new EmptyBrowser(){};
             }
-            browser = rootPage.findFirst( context );         
+            browser = rootPage.findFirst();         
         }
         catch( IOException e )
         {
+            abortedAction = true;
             this.abortAction( context );
             throw e;
+        }
+        finally
+        {
+            if ( !abortedAction )
+            {
+                this.endAction( context );
+            }
         }
         
         return browser;
@@ -637,7 +646,7 @@ public class BTree<K, V> implements Externalizable
     {
         TupleBrowser<K, V> browser = null;
         ActionContext context = this.beginAction( true );  
-        
+        boolean abortedAction = false;
         try
         {
             BPage<K, V> rootPage = getRoot( true );
@@ -648,12 +657,20 @@ public class BTree<K, V> implements Externalizable
                 return new EmptyBrowser(){};
             }
           
-            browser  = rootPage.find( rootPage.btree.bTreeHeight, key, context );
+            browser  = rootPage.find( rootPage.btree.bTreeHeight, key);
         }
         catch( IOException e )
         {
+            abortedAction = true;
             this.abortAction( context );
             throw e;
+        }
+        finally
+        {
+            if ( !abortedAction )
+            {
+                this.endAction( context );
+            }
         }
         
         return browser;
@@ -682,13 +699,19 @@ public class BTree<K, V> implements Externalizable
     /**
      * Return the root BPage<Object, Object>, or null if it doesn't exist.
      */
-    private BPage<K, V> getRoot( boolean readOnlyAction ) throws IOException
+    BPage<K, V> getRoot( boolean readOnlyAction ) throws IOException
     {
         BTree<K, V> bTreeCopy;
         
-        if ( readOnlyAction && isActionCapable )
+        if ( readOnlyAction )
         {
             bTreeCopy = ( BTree<K, V> )recordManager.fetch( recordId );
+            bTreeCopy.comparator = this.comparator;
+            bTreeCopy.keySerializer = this.keySerializer;
+            bTreeCopy.valueSerializer = this.valueSerializer;
+            bTreeCopy.recordManager = this.recordManager;
+            bTreeCopy.recordId = this.recordId;
+            bTreeCopy.bpageSerializer = this.bpageSerializer;
         }
         else
         {
@@ -826,62 +849,59 @@ public class BTree<K, V> implements Externalizable
     
     BPage<K,V> copyOnWrite( BPage<K,V> page) throws IOException
     {
-    	if ( !isActionCapable )
-    	{
-    		return page;
-    	}
-    	else
-    	{
-    		byte[] array;
-    		array = this.bpageSerializer.serialize( page );
-    		BPage<K,V> pageCopy = this.bpageSerializer.deserialize( array );
-    		pageCopy.recordId = page.recordId;
-    		pageCopy.btree = page.btree;
-    		return pageCopy;
-    	}
+        return page.copyOnWrite();
     }
-    
-    @SuppressWarnings("unchecked") 
-    private BTree<K,V> copyOnWrite() throws IOException
+   
+
+    V copyValue( V value) throws IOException 
     {
-        ObjectOutputStream out = null;
-        ObjectInputStream in = null;
-        ByteArrayOutputStream bout = null;
-        ByteArrayInputStream bin = null;
-        
-        BTree<K,V> tree;
-        
-        try 
+        byte[] array;
+        V valueCopy = null;
+
+        if ( this.valueSerializer != null ) 
         {
-            bout = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bout );
-            out.writeObject( this );
-            out.flush();
-            byte[]  arr = bout.toByteArray();
-            bin = new ByteArrayInputStream( arr );
-            in =new ObjectInputStream( bin );
-            tree = ( BTree<K, V> )in.readObject();
+            array = this.valueSerializer.serialize( value );
+            valueCopy = (V) this.valueSerializer.deserialize( array );
         }
-        catch ( ClassNotFoundException e ) 
+        else
         {
-            throw new WrappedRuntimeException( e );
-        }
-        finally
-        {
-            if ( bout != null )
-                bout.close();
-            
-            if ( out != null )
-                out.close();
-            
-            if ( bin != null )
-                bin.close();
-           
-            if ( in != null )
-                in.close();
+            ObjectOutputStream out = null;
+            ObjectInputStream in = null;
+            ByteArrayOutputStream bout = null;
+            ByteArrayInputStream bin = null;
+
+            try
+            {
+                bout = new ByteArrayOutputStream();
+                out = new ObjectOutputStream( bout );
+                out.writeObject( value );
+                out.flush();
+                byte[]  arr = bout.toByteArray();
+                bin = new ByteArrayInputStream( arr );
+                in =new ObjectInputStream( bin );
+                valueCopy = ( V )in.readObject();
+            }
+            catch ( ClassNotFoundException e )
+            {
+                throw new WrappedRuntimeException( e );
+            }
+            finally
+            {
+                if ( bout != null )
+                    bout.close();
+
+                if ( out != null )
+                    out.close();
+
+                if ( bin != null )
+                    bin.close();
+
+                if ( in != null )
+                    in.close();
+            }
         }
         
-        return tree;
+        return valueCopy;
     }
     
     

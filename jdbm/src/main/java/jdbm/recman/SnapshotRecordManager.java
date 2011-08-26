@@ -169,18 +169,45 @@ public class SnapshotRecordManager implements ActionRecordManager
         checkIfClosed();
         
         ActionContext actionContext = actionContextVar.get();
-        assert( actionContext.isWriteAction() == true );
-
-        long recid = recordManager.insert( obj, serializer );
-        
-        try 
+        boolean startedAction = false;
+        boolean abortedAction = false;
+        if ( actionContext.isWriteAction() == false )
         {
+            actionContext = this.beginAction( false );
+            this.setCurrentActionContext( actionContext );
+            startedAction = true;
+        }
+        
+        long recid = 0;
+        try
+        {
+            recid = recordManager.insert( obj, serializer );
+            
             versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
                 serializer );
         } 
+        catch ( IOException e )
+        {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
+            throw e;
+        }
         catch ( CacheEvictionException except ) 
         {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
             throw new IOException( except.getLocalizedMessage() );
+        }       
+        finally
+        {
+            if ( startedAction && !abortedAction )
+                this.endAction ( actionContext );
         }
         
         return recid;
@@ -198,18 +225,45 @@ public class SnapshotRecordManager implements ActionRecordManager
         checkIfClosed();
         
         ActionContext actionContext = actionContextVar.get();
-        assert( actionContext.isWriteAction() == true );
-
+        boolean startedAction = false;
+        boolean abortedAction = false;
+        if ( actionContext.isWriteAction() == false )
+        {
+            actionContext = this.beginAction( false );
+            this.setCurrentActionContext( actionContext );
+            startedAction = true;
+        }       
+        
         // Update the cache
         try 
         {
             versionedCache.put( new Long( recid ), null, actionContext.getVersion().getVersion(),
                 null );
-        } 
+        }
+        catch ( IOException e )
+        {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
+            throw e;
+        }
         catch ( CacheEvictionException except ) 
         {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
             throw new IOException( except.getLocalizedMessage() );
-        } 
+        }       
+        finally
+        {
+            if ( startedAction && !abortedAction )
+                this.endAction ( actionContext );
+        }
+         
     }
 
 
@@ -238,16 +292,42 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         checkIfClosed();
         ActionContext actionContext = actionContextVar.get();
-        assert( actionContext.isWriteAction() == true );
+        boolean startedAction = false;
+        boolean abortedAction = false;
+        if ( actionContext.isWriteAction() == false )
+        {
+            actionContext = this.beginAction( false );
+            this.setCurrentActionContext( actionContext );
+            startedAction = true;
+        }
 
         try 
         {
            versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
                serializer );       
-        } 
+        }
+        catch ( IOException e )
+        {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
+            throw e;
+        }
         catch ( CacheEvictionException except ) 
         {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
             throw new IOException( except.getLocalizedMessage() );
+        }       
+        finally
+        {
+            if ( startedAction && !abortedAction )
+                this.endAction ( actionContext );
         }
     }
 
@@ -278,16 +358,43 @@ public class SnapshotRecordManager implements ActionRecordManager
         checkIfClosed();
         Object obj;
         ActionContext actionContext = actionContextVar.get();
-        assert( actionContext.isActive() == true );
+        
+        boolean startedAction = false;
+        boolean abortedAction = false;
+        if ( actionContext.isActive() == false )
+        {
+            actionContext = this.beginAction( false );
+            this.setCurrentActionContext( actionContext );
+            startedAction = true;
+        }
         
         try 
         {
            obj = versionedCache.get( new Long( recid ), actionContext.getVersion().getVersion(),
                serializer );       
         } 
+        catch ( IOException e )
+        {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
+            throw e;
+        }
         catch ( CacheEvictionException except ) 
         {
+            if ( startedAction )
+            {
+                this.abortAction( actionContext );
+                abortedAction = true;
+            }
             throw new IOException( except.getLocalizedMessage() );
+        }       
+        finally
+        {
+            if ( startedAction && !abortedAction )
+                this.endAction ( actionContext );
         }
         
         return obj;
