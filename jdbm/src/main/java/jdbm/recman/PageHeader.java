@@ -81,23 +81,23 @@ public class PageHeader implements BlockView
     protected static final short SIZE = O_PREV + Magic.SZ_LONG;
 
     /** the page header block this view is associated with */
-    protected BlockIo block;
+    protected BlockIo blockIo;
 
     
     /**
      * Constructs a PageHeader object from a block
      *
-     * @param block The block that contains the page header
+     * @param blockIo The block that contains the page header
      * @throws IOException if the block is too short to keep the page header.
      */
-    protected PageHeader( BlockIo block ) 
+    protected PageHeader( BlockIo blockIo ) 
     {
-        this.block = block;
-        block.setView( this );
+        this.blockIo = blockIo;
+        blockIo.setView( this );
         
         if ( ! magicOk() )
         {
-            throw new Error( I18n.err( I18n.ERR_546, block.getBlockId(), getMagic() ) );
+            throw new Error( I18n.err( I18n.ERR_546, blockIo.getBlockId(), getMagic() ) );
         }
     }
     
@@ -106,10 +106,10 @@ public class PageHeader implements BlockView
      * Constructs a new PageHeader of the indicated type. Used for newly
      * created pages.
      */
-    PageHeader( BlockIo block, short type ) 
+    PageHeader( BlockIo blockIo, short type ) 
     {
-        this.block = block;
-        block.setView( this );
+        this.blockIo = blockIo;
+        blockIo.setView( this );
         setType( type );
     }
     
@@ -117,9 +117,9 @@ public class PageHeader implements BlockView
     /**
      * Factory method to create or return a page header for the indicated block.
      */
-    static PageHeader getView ( BlockIo block ) 
+    static PageHeader getView ( BlockIo blockIo ) 
     {
-        BlockView view = block.getView();
+        BlockView view = blockIo.getView();
         
         if ( view != null && view instanceof PageHeader )
         {
@@ -127,7 +127,7 @@ public class PageHeader implements BlockView
         }
         else
         {
-            return new PageHeader( block );
+            return new PageHeader( blockIo );
         }
     }
     
@@ -161,7 +161,7 @@ public class PageHeader implements BlockView
      */
     short getMagic() 
     {
-        return block.readShort( O_MAGIC );
+        return blockIo.readShort( O_MAGIC );
     }
 
     
@@ -172,19 +172,19 @@ public class PageHeader implements BlockView
     {
         paranoiaMagicOk();
         
-        return block.readLong( O_NEXT );
+        return blockIo.readLong( O_NEXT );
     }
     
     
     /** 
-     * Sets the next block.
+     * Sets the next blockIo.
      * 
      * @param The next Block ID
      */
     void setNext( long next ) 
     {
         paranoiaMagicOk();
-        block.writeLong( O_NEXT, next );
+        blockIo.writeLong( O_NEXT, next );
     }
     
     
@@ -195,7 +195,7 @@ public class PageHeader implements BlockView
     {
         paranoiaMagicOk();
         
-        return block.readLong( O_PREV );
+        return blockIo.readLong( O_PREV );
     }
     
     
@@ -205,7 +205,7 @@ public class PageHeader implements BlockView
     void setPrev( long prev ) 
     {
         paranoiaMagicOk();
-        block.writeLong( O_PREV, prev );
+        blockIo.writeLong( O_PREV, prev );
     }
     
     
@@ -216,6 +216,80 @@ public class PageHeader implements BlockView
      */
     void setType( short type ) 
     {
-        block.writeShort( O_MAGIC, ( short ) ( Magic.BLOCK + type ) );
+        blockIo.writeShort( O_MAGIC, ( short ) ( Magic.BLOCK + type ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "PageHeader ( " );
+        
+        // The blockIO
+        sb.append( "BlockIO ( " );
+        
+        // The blockID
+        sb.append( blockIo.getBlockId() ).append( ", " );
+        
+        // Is it dirty ?
+        if ( blockIo.isDirty() )
+        {
+            sb.append( "dirty, " );
+        }
+        else
+        {
+            sb.append( "clean, " );
+        }
+        
+        // The transaction count
+        if ( blockIo.isInTransaction() )
+        {
+            sb.append( "in tx" );
+        }
+        else
+        {
+            sb.append( "no tx" );
+        }
+
+        sb.append( " ), " );
+        
+        // The Type
+        int magic = getMagic();
+        
+        switch ( magic - Magic.BLOCK )
+        {
+            case Magic.FREE_PAGE :
+                sb.append( "FREE_PAGE" ).append( ", " );
+                break;
+                
+            case Magic.USED_PAGE :
+                sb.append( "USED_PAGE" ).append( ", " );
+                break;
+                
+            case Magic.TRANSLATION_PAGE :
+                sb.append( "TRANSLATION_PAGE" ).append( ", " );
+                break;
+                
+            case Magic.FREELOGIDS_PAGE :
+                sb.append( "FREELOGIDS_PAGE" ).append( ", " );
+                break;
+                
+            case Magic.FREEPHYSIDS_PAGE :
+                sb.append( "FREEPHYSIDS_PAGE" ).append( ", " );
+                break;
+                
+        }
+        
+        // The previous page
+        sb.append( "[p:" ).append( getPrev() ).append( ", " );
+        
+        // The next page
+        sb.append( "n:" ).append( getNext() ).append( "] )" );
+        
+        return sb.toString();
     }
 }

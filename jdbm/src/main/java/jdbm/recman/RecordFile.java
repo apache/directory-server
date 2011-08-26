@@ -60,7 +60,7 @@ import org.apache.directory.server.i18n.I18n;
  *  This class represents a random access file as a set of fixed size
  *  records. Each record has a physical record number, and records are
  *  cached in order to improve access.
- *<p>
+ * <p>
  *  The set of dirty records on the in-use list constitutes a transaction.
  *  Later on, we will send these records to some recovery thingy.
  */
@@ -321,9 +321,7 @@ public final class RecordFile
             // System.out.println("node " + node + " map size now " + dirty.size());
             if ( transactionsDisabled ) 
             {
-                long offset = blockIo.getBlockId() * BLOCK_SIZE;
-                file.seek( offset );
-                file.write( blockIo.getData() );
+                sync( blockIo );
                 blockIo.setClean();
                 free.add( blockIo );
             }
@@ -530,5 +528,77 @@ public final class RecordFile
             remaining -= read;
             pos += read;
         }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "RecordFile<" ).append( fileName ).append( ", " );
+        
+        // The file size
+        sb.append( "size : " );
+        
+        try
+        {
+            sb.append( file.length() ).append( "bytes" );
+        }
+        catch ( IOException ioe )
+        {
+            sb.append( "unknown" );
+        }
+        
+        // Transactions
+        if ( transactionsDisabled )
+        {
+            sb.append( "(noTx)" );
+        }
+        else
+        {
+            sb.append( "(Tx)" );
+        }
+        
+        // Dump the free blocks
+        sb.append( "\n    Free blockIo : " ).append( free.size() );
+                
+        for ( BlockIo blockIo : free )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the inUse blocks
+        sb.append( "\n    InUse blockIo : " ).append( inUse.size() );
+        
+        for ( BlockIo blockIo : inUse.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the dirty blocks
+        sb.append( "\n    Dirty blockIo : " ).append( dirty.size() );
+        
+        for ( BlockIo blockIo : dirty.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the inTxn blocks
+        sb.append( "\n    InTxn blockIo : " ).append( inTxn.size() );
+        
+        for ( BlockIo blockIo : inTxn.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+
+        
+        return sb.toString();
     }
 }

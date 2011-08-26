@@ -202,4 +202,57 @@ class FileHeader implements BlockView
     {
         block.writeLong( offsetOfRoot( root ), rowid );
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "FileHeader ( " );
+        
+        // The blockIO
+        sb.append( block ).append( ", " );
+        
+        // The free pages
+        sb.append( "free[" );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREE_PAGE ) ) ) );
+        sb.append( ", " );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREE_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( "], " );
+
+        // The used pages
+        sb.append( "used[" );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.USED_PAGE ) ) ) );
+        sb.append( ", " );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.USED_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( "], " );
+        
+        // The translation pages
+        sb.append( "translation[" );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.TRANSLATION_PAGE ) ) ) );
+        sb.append( ", " );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.TRANSLATION_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( "], " );
+
+        // The freeLogIds pages
+        sb.append( "freeLogIds[" );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREELOGIDS_PAGE ) ) ) );
+        sb.append( ", " );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREELOGIDS_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( "], " );
+
+        // The freePhysIds pages
+        sb.append( "freePhysIds[" );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREEPHYSIDS_PAGE ) ) ) );
+        sb.append( ", " );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREEPHYSIDS_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( "]" );
+
+        sb.append( " )" );
+        
+        return sb.toString();
+    }
 }

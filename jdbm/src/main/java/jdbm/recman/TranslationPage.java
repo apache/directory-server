@@ -56,37 +56,39 @@ package jdbm.recman;
  */
 final class TranslationPage extends PageHeader 
 {
-    // offsets
+    /** Offset of the PageHeader */
     static final short O_TRANS = PageHeader.SIZE; // short count
+    
+    /** Number of PhysicalRowId in this page */
     static final short ELEMS_PER_PAGE = ( RecordFile.BLOCK_SIZE - O_TRANS ) / PhysicalRowId.SIZE;
     
-    // slots we returned.
+    /** The table of PhysicalRowId */
     final PhysicalRowId[] slots = new PhysicalRowId[ELEMS_PER_PAGE];
 
     
     /**
      * Constructs a data page view from the indicated block.
      */
-    TranslationPage( BlockIo block ) 
+    TranslationPage( BlockIo blockIo ) 
     {
-        super( block );
+        super( blockIo );
     }
     
 
     /**
      * Factory method to create or return a data page for the indicated block.
      */
-    static TranslationPage getTranslationPageView( BlockIo block ) 
+    static TranslationPage getTranslationPageView( BlockIo blockIo ) 
     {
-        BlockView view = block.getView();
+        BlockView view = blockIo.getView();
         
-        if ( view != null && view instanceof TranslationPage )
+        if ( ( view != null ) && view instanceof TranslationPage )
         {
             return ( TranslationPage ) view;
         }
         else
         {
-            return new TranslationPage( block );
+            return new TranslationPage( blockIo );
         }
     }
     
@@ -98,9 +100,37 @@ final class TranslationPage extends PageHeader
         
         if ( slots[slot] == null )
         {
-            slots[slot] = new PhysicalRowId( block, offset );
+            slots[slot] = new PhysicalRowId( blockIo, offset );
         }
         
         return slots[slot];
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "TranslationPage ( " );
+        
+        // The blockIO
+        sb.append( super.toString() ).append( ", " );
+        
+        // Dump the Physical row id
+        for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
+        {
+            if ( slots[i] != null )
+            {
+                sb.append( ", [" ).append( i ).append( "]=<" ).
+                append( slots[i].getBlock() ).append( ", " ).
+                append( slots[i].getOffset() ).append( ">" );
+            }
+        }
+        
+        sb.append( ")" );
+        return sb.toString();
     }
 }

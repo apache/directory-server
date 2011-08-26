@@ -52,7 +52,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -364,10 +363,44 @@ public final class BlockIo implements java.io.Externalizable
      */
     public String toString() 
     {
-        return "BlockIO ( "
-            + blockId + ", "
-            + dirty   + ", "
-            + view    + " )";
+        if ( view != null )
+        {
+            return view.toString();
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "BlockIO ( " );
+        
+        // The blockID
+        sb.append( blockId ).append( ", " );
+        
+        // Is it dirty ?
+        if ( dirty )
+        {
+            sb.append( "dirty, " );
+        }
+        else
+        {
+            sb.append( "clean, " );
+        }
+        
+        // The view
+        if ( view != null )
+        {
+            sb.append( view.getClass().getSimpleName() ).append( ", " );
+        }
+        else
+        {
+            sb.append( "no view, " );
+        }
+        
+        // The transaction count
+        sb.append( "tx: " ).append( transactionCount.get() );
+
+        sb.append( " )" );
+        
+        return sb.toString();
     }
 
     

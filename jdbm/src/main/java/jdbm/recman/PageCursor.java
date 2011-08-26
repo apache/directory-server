@@ -55,65 +55,85 @@ import java.io.IOException;
  */
 final class PageCursor 
 {
-    PageManager pageman;
-    long current;
+    /** The PageManager */
+    PageManager pageManager;
+    
+    /** The current block ID */
+    long blockId;
+    
+    /** The page type */
     short type;
     
 
     /**
      * Constructs a page cursor that starts at the indicated block.
+     * 
+     * @param pageManager The PageManager
      */
-    PageCursor( PageManager pageman, long current ) 
+    PageCursor( PageManager pageManager, long blockId ) 
     {
-        this.pageman = pageman;
-        this.current = current;
+        this.pageManager = pageManager;
+        this.blockId = blockId;
     }
     
     
     /**
      * Constructs a page cursor that starts at the first block of the 
      * indicated list.
+     * 
+     * @param pageManager The PageManager
+     * @param type The page type
      */
-    PageCursor( PageManager pageman, short type ) throws IOException 
+    PageCursor( PageManager pageManager, short type ) throws IOException 
     {
-        this.pageman = pageman;
+        this.pageManager = pageManager;
         this.type = type;
     }
     
     
     /**
-     * Returns the current value of the cursor.
+     * @return the BlockId
      */
-    long getCurrent() throws IOException 
+    long getBlockId() throws IOException 
     {
-        return current;
+        return blockId;
     }
     
     
     /**
-     * Returns the next value of the cursor.
+     * @return the next blockId 
      */
     long next() throws IOException 
     {
-        if ( current == 0 )
+        if ( blockId == 0 )
         {
-            current = pageman.getFirst( type );
+            blockId = pageManager.getFirst( type );
         }
         else
         {
-            current = pageman.getNext( current );
+            blockId = pageManager.getNext( blockId );
         }
         
-        return current;
+        return blockId;
     } 
     
     
     /**
-     * Returns the previous value of the cursor
+     * @return the previous blockId
      */
     long prev() throws IOException 
     {
-        current = pageman.getPrev( current );
-        return current;
+        blockId = pageManager.getPrev( blockId );
+        
+        return blockId;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        return "Location( " + blockId + ", " + type + ")";
     }
 }

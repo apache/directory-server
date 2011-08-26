@@ -94,7 +94,7 @@ final class FreePhysicalRowIdPage extends PageHeader
      */
     short getCount() 
     {
-        return block.readShort( O_COUNT );
+        return blockIo.readShort( O_COUNT );
     }
 
     
@@ -103,7 +103,7 @@ final class FreePhysicalRowIdPage extends PageHeader
      */
     private void setCount( short i ) 
     {
-        block.writeShort( O_COUNT, i );
+        blockIo.writeShort( O_COUNT, i );
     }
 
     
@@ -152,7 +152,7 @@ final class FreePhysicalRowIdPage extends PageHeader
     {
         if ( slots[slot] == null )
         {
-            slots[slot] = new FreePhysicalRowId( block, slotToOffset( slot ) ) ;
+            slots[slot] = new FreePhysicalRowId( blockIo, slotToOffset( slot ) ) ;
         }
   
         return slots[slot];
@@ -200,5 +200,38 @@ final class FreePhysicalRowIdPage extends PageHeader
         }
   
         return -1;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "FreePhysRowIdPage ( " );
+        
+        // The blockIO
+        sb.append( super.toString() ).append( ", " );
+        
+        // The first rowId
+        sb.append( "count: " ).append( getCount() );
+        
+        // Dump the Physical row id
+        for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
+        {
+            if ( slots[i] != null )
+            {
+                sb.append( ", [" ).append( i ).append( "]=<" ).
+                append( slots[i].getBlock() ).append( ", " ).
+                append( slots[i].getOffset() ).append( ", " ).
+                append( slots[i].getSize() ).append( ">" );
+            }
+        }
+        
+        sb.append( ")" );
+        
+        return sb.toString();
     }
 }

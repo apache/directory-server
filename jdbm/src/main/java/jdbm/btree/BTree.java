@@ -121,7 +121,7 @@ public class BTree<K, V> implements Externalizable
     private int bTreeHeight;
 
     /** Record id of the root BPage */
-    private transient long rootId;
+    private long rootId;
 
     /** Number of entries in each BPage. */
     protected int pageSize;

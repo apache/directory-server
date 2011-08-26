@@ -99,7 +99,7 @@ final class DataPage extends PageHeader
      */
     short getFirst() 
     {
-        return block.readShort( O_FIRST );
+        return blockIo.readShort( O_FIRST );
     }
     
     
@@ -109,11 +109,37 @@ final class DataPage extends PageHeader
     void setFirst( short value ) 
     {
         paranoiaMagicOk();
+        
         if ( value > 0 && value < O_DATA )
         {
             throw new Error( I18n.err( I18n.ERR_543, value ) );
         }
   
-        block.writeShort( O_FIRST, value );
+        blockIo.writeShort( O_FIRST, value );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "DataPage ( " );
+        
+        // The blockIO
+        sb.append( super.toString() ).append( ", " );
+        
+        // The first rowId
+        sb.append( "first rowId: " ).append( getFirst() ).append( ", " );
+        
+        // The data per page 
+        sb.append( "[p:" ).append( getPrev() ).append( ", " );
+        
+        // The next page
+        sb.append( "n:" ).append( getNext() ).append( "] )" );
+        
+        return sb.toString();
     }
 }

@@ -55,9 +55,10 @@ import java.io.IOException;
  */
 final class FreeLogicalRowIdPageManager 
 {
-    // our record recordFile
+    /** our record recordFile */
     private RecordFile recordFile;
-    // our page manager
+    
+    /** our page manager */
     private PageManager pageManager;
 
     /**
@@ -78,39 +79,45 @@ final class FreeLogicalRowIdPageManager
     {
         // Loop through the free Logical rowid list until we find
         // the first rowid.
-        Location retval = null;
-        PageCursor curs = new PageCursor(pageManager, Magic.FREELOGIDS_PAGE);
+        // Create a cursor to browse the pages
+        PageCursor cursor = new PageCursor( pageManager, Magic.FREELOGIDS_PAGE );
         
-        while (curs.next() != 0) 
+        // Loop on the pages now
+        while ( cursor.next() != 0 ) 
         {
-            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage
-                .getFreeLogicalRowIdPageView( recordFile.get( curs.getCurrent() ) );
+            // Get the blockIo associated with the blockId
+            BlockIo blockIo = recordFile.get( cursor.getBlockId() );
+            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage.getFreeLogicalRowIdPageView( blockIo );
+            
+            // Get the first allocated FreeLogicalRowId
             int slot = fp.getFirstAllocated();
             
             if ( slot != -1 ) 
             {
                 // got one!
-                retval = new Location( fp.get( slot ) );
-                fp.free(slot);
+                Location location = new Location( fp.get( slot ) );
                 
-                if ( fp.getCount() == 0 ) 
+                // Remove the block from the page
+                fp.free( slot );
+                
+                boolean hasMore = fp.getCount() != 0;
+                
+                // Upate the recordFile
+                recordFile.release( cursor.getBlockId(), hasMore );
+
+                if ( !hasMore ) 
                 {
                     // page became empty - free it
-                    recordFile.release(curs.getCurrent(), false);
-                    pageManager.free(Magic.FREELOGIDS_PAGE, curs.getCurrent());
+                    pageManager.free( Magic.FREELOGIDS_PAGE, cursor.getBlockId() );
                 }
-                else
-                {
-                    recordFile.release(curs.getCurrent(), true);
-                }    
                 
-                return retval;
+                return location;
             }
             else 
             {
                 // no luck, go to next page
-                recordFile.release(curs.getCurrent(), false);
-            }     
+                recordFile.release( cursor.getBlockId(), false );
+            }
         }
         
         return null;
@@ -119,19 +126,24 @@ final class FreeLogicalRowIdPageManager
     
     /**
      *  Puts the indicated rowid on the free list
+     *  
+     *  @param rowId The Location where we will store the rowId
      */
-    void put(Location rowid) throws IOException 
+    void put( Location rowId ) throws IOException 
     {
         
         PhysicalRowId free = null;
-        PageCursor curs = new PageCursor(pageManager, Magic.FREELOGIDS_PAGE);
+        
+        // Create a cursor on the FREELOGIDs list
+        PageCursor curs = new PageCursor( pageManager, Magic.FREELOGIDS_PAGE );
         long freePage = 0;
         
-        while (curs.next() != 0) 
+        // Loop on all the list
+        while ( curs.next() != 0 )
         {
-            freePage = curs.getCurrent();
-            BlockIo curBlock = recordFile.get(freePage);
-            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage.getFreeLogicalRowIdPageView(curBlock);
+            freePage = curs.getBlockId();
+            BlockIo curBlockIo = recordFile.get( freePage );
+            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage.getFreeLogicalRowIdPageView( curBlockIo );
             int slot = fp.getFirstFree();
             
             if ( slot != -1 ) 
@@ -140,20 +152,20 @@ final class FreeLogicalRowIdPageManager
                 break;
             }
             
-            recordFile.release(curBlock);
+            recordFile.release( curBlockIo );
         }
         
-        if (free == null) 
+        if ( free == null ) 
         {
             // No more space on the free list, add a page.
-            freePage = pageManager.allocate(Magic.FREELOGIDS_PAGE);
-            BlockIo curBlock = recordFile.get(freePage);
-            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage.getFreeLogicalRowIdPageView(curBlock);
-            free = fp.alloc(0);
+            freePage = pageManager.allocate( Magic.FREELOGIDS_PAGE );
+            BlockIo curBlockIo = recordFile.get( freePage );
+            FreeLogicalRowIdPage fp = FreeLogicalRowIdPage.getFreeLogicalRowIdPageView( curBlockIo );
+            free = fp.alloc( 0 );
         }
         
-        free.setBlock(rowid.getBlock());
-        free.setOffset(rowid.getOffset());
-        recordFile.release(freePage, true);
+        free.setBlock( rowId.getBlock() );
+        free.setOffset( rowId.getOffset() );
+        recordFile.release( freePage, true );
     }
 }
