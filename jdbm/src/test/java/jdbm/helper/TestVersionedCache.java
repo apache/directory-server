@@ -41,9 +41,9 @@ public class TestVersionedCache
         val = cache.get( new Integer ( 20 ), 0, null );
         assertEquals( val.intValue(), 1 );
         
-        cache.put( new Integer(1), 2, 1, null );
-        cache.put( new Integer(5), 2, 1, null );
-        cache.put( new Integer(30), 2, 1, null );
+        cache.put( new Integer(1), 2, 1, null, false );
+        cache.put( new Integer(5), 2, 1, null, false );
+        cache.put( new Integer(30), 2, 1, null, false );
         
         int sum = 0;
         for ( idx = 0; idx < numEntries; idx++ )
@@ -209,13 +209,13 @@ public class TestVersionedCache
                 
                 for ( idx = 0; idx <= intsArray.length; idx = idx + 100)
                 {
-                    cache.put( new Integer( idx ), 2, 1, null );
+                    cache.put( new Integer( idx ), 2, 1, null, false );
                     expectedSum = expectedSum + 1;
                 }
                 
                 for ( idx = 0; idx <= intsArray.length; idx = idx + 100)
                 {
-                    cache.put( new Integer( idx ), 3, 2, null );
+                    cache.put( new Integer( idx ), 3, 2, null, false );
                     expectedSum = expectedSum + 1;
                 }
                 

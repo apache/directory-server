@@ -76,6 +76,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void before( E element ) throws Exception
     {
         checkNotClosed( "before()" );
+        this.closeBrowser( browser );
         browser = btree.browse( element );
         clearValue();
     }
@@ -84,6 +85,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @SuppressWarnings("unchecked")
     public void after( E element ) throws Exception
     {
+        this.closeBrowser( browser );
         browser = btree.browse( element );
 
         /*
@@ -125,6 +127,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        this.closeBrowser( browser );
         browser = btree.browse();
         clearValue();
     }
@@ -133,6 +136,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        this.closeBrowser( browser );
         browser = btree.browse( null );
     }
 
@@ -201,5 +205,34 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         }
 
         throw new InvalidCursorPositionException();
+    }
+ 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        this.closeBrowser( browser );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        this.closeBrowser( browser );
+    }
+    
+    private void closeBrowser(TupleBrowser browser)
+    {
+        if ( browser != null )
+        {
+            browser.close();
+        }
     }
 }

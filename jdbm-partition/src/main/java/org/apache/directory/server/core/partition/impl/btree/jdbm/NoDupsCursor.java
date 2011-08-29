@@ -78,6 +78,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeKey( K key ) throws Exception
     {
         checkNotClosed( "beforeKey()" );
+        this.closeBrowser( browser );
         browser = table.getBTree().browse( key );
         clearValue();
     }
@@ -86,6 +87,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     @SuppressWarnings("unchecked")
     public void afterKey( K key ) throws Exception
     {
+        this.closeBrowser( browser );
         browser = table.getBTree().browse( key );
 
         /*
@@ -147,6 +149,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        this.closeBrowser( browser );
         browser = table.getBTree().browse();
         clearValue();
     }
@@ -155,6 +158,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        this.closeBrowser( browser );
         browser = table.getBTree().browse( null );
         clearValue();
     }
@@ -241,5 +245,34 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
         }
 
         throw new InvalidCursorPositionException();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        this.closeBrowser( browser );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        this.closeBrowser( browser );
+    }
+    
+    private void closeBrowser(TupleBrowser browser)
+    {
+        if ( browser != null )
+        {
+            browser.close();
+        }
     }
 }

@@ -69,8 +69,10 @@ public class SnapshotRecordManager implements ActionRecordManager
     
    
     
-         
-     public ActionContext beginAction( boolean readOnly )
+    /**
+     * {@inheritDoc}
+     */     
+     public ActionContext beginAction( boolean readOnly , String whoStarted )
      {
          ActionContext actionContext = new ActionContext();
          ActionVersioning.Version version;
@@ -85,16 +87,24 @@ public class SnapshotRecordManager implements ActionRecordManager
              version = versioning.beginWriteAction();
          }
          
-         actionContext.beginAction( readOnly, version );
+         actionContext.beginAction( readOnly, version, whoStarted );
+         this.setCurrentActionContext( actionContext );
          return actionContext;
      }
      
+     /**
+      * {@inheritDoc}
+      */
      public void setCurrentActionContext( ActionContext context )
      {
          ActionContext actionContext = actionContextVar.get();
+         assert( actionContext == null ) : "Action Context Not Null: " + actionContext.getWhoStarted();
          actionContextVar.set( context );
      }
      
+     /**
+      * {@inheritDoc}
+      */
      public void unsetCurrentActionContext( ActionContext context )
      {
          ActionContext actionContext = actionContextVar.get();
@@ -102,6 +112,9 @@ public class SnapshotRecordManager implements ActionRecordManager
          actionContextVar.set( null );
      }
      
+     /**
+      * {@inheritDoc}
+      */
      public void endAction( ActionContext actionContext )
      {
          ActionVersioning.Version minVersion = null;
@@ -122,13 +135,48 @@ public class SnapshotRecordManager implements ActionRecordManager
              assert( false );
          }
          
+         this.unsetCurrentActionContext( actionContext );
+         
          if ( minVersion != null )
              versionedCache.advanceMinReadVersion( minVersion.getVersion() );
      }
      
-     public void abortAction( ActionContext context )
+     /**
+      * {@inheritDoc}
+      */
+     public void abortAction( ActionContext actionContext )
      {
-         // TODO handle this
+         ActionVersioning.Version minVersion = null;
+         if ( actionContext.isReadOnlyAction() )
+         {
+             ActionVersioning.Version version = actionContext.getVersion(); 
+             minVersion = versioning.endReadAction( version );
+             actionContext.endAction();
+         }
+         else if ( actionContext.isWriteAction() )
+         {
+             /*
+              *  Do not let versioning know that write action is complete,
+              *  so that the readers wont see the effect of the aborted
+              *  txn. The sensible thing to do would be to have the underling
+              *  record manager expose a abort action interface. When that lacks.
+              *  the right thing for the upper layer to do would is to rollback whatever 
+              *  is part of what JDBM calls a txn.
+              */
+             
+             actionContext.endAction();
+             bigLock.unlock();
+         }
+         else
+         {
+             assert( false );
+         }
+         
+         this.unsetCurrentActionContext( actionContext );
+         
+         if ( minVersion != null )
+             versionedCache.advanceMinReadVersion( minVersion.getVersion() );
+
      }
      
          
@@ -171,10 +219,9 @@ public class SnapshotRecordManager implements ActionRecordManager
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        if ( actionContext.isWriteAction() == false )
+        if ( actionContext == null )
         {
-            actionContext = this.beginAction( false );
-            this.setCurrentActionContext( actionContext );
+            actionContext = this.beginAction( false, "insert missing action" );
             startedAction = true;
         }
         
@@ -184,7 +231,7 @@ public class SnapshotRecordManager implements ActionRecordManager
             recid = recordManager.insert( obj, serializer );
             
             versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
-                serializer );
+                serializer, false );
         } 
         catch ( IOException e )
         {
@@ -227,10 +274,9 @@ public class SnapshotRecordManager implements ActionRecordManager
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        if ( actionContext.isWriteAction() == false )
+        if ( actionContext == null )
         {
-            actionContext = this.beginAction( false );
-            this.setCurrentActionContext( actionContext );
+            actionContext = this.beginAction( false, "delete missing action" );
             startedAction = true;
         }       
         
@@ -238,7 +284,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         try 
         {
             versionedCache.put( new Long( recid ), null, actionContext.getVersion().getVersion(),
-                null );
+                null, false );
         }
         catch ( IOException e )
         {
@@ -294,17 +340,16 @@ public class SnapshotRecordManager implements ActionRecordManager
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        if ( actionContext.isWriteAction() == false )
+        if ( actionContext == null )
         {
-            actionContext = this.beginAction( false );
-            this.setCurrentActionContext( actionContext );
+            actionContext = this.beginAction( false, "update missing action" );
             startedAction = true;
         }
 
         try 
         {
            versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
-               serializer );       
+               serializer, recid < 0 );       
         }
         catch ( IOException e )
         {
@@ -361,10 +406,9 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         boolean startedAction = false;
         boolean abortedAction = false;
-        if ( actionContext.isActive() == false )
+        if ( actionContext == null )
         {
-            actionContext = this.beginAction( false );
-            this.setCurrentActionContext( actionContext );
+            actionContext = this.beginAction( false, "fetch missing action" );
             startedAction = true;
         }
         
@@ -382,15 +426,6 @@ public class SnapshotRecordManager implements ActionRecordManager
             }
             throw e;
         }
-        catch ( CacheEvictionException except ) 
-        {
-            if ( startedAction )
-            {
-                this.abortAction( actionContext );
-                abortedAction = true;
-            }
-            throw new IOException( except.getLocalizedMessage() );
-        }       
         finally
         {
             if ( startedAction && !abortedAction )
@@ -410,7 +445,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         checkIfClosed();
 
-        // TODO quiesce all actions
+        // Maybe quiesce all actions ..( not really required)
         recordManager.close();
         recordManager = null;
         versionedCache = null;
@@ -558,11 +593,18 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         public Object read( Long key, Serializer serializer) throws IOException
         {
+            // Meta objects are kept in memory only
+            if ( key < 0 )
+                return null;
+            
             return recordManager.fetch( key.longValue(), serializer );
         }
         
         public void write( Long key, Object value, Serializer serializer ) throws IOException
         {
+            if ( key < 0 )
+                return;
+            
             if ( value != null )
             {
                 recordManager.update( key.longValue(), value , serializer );

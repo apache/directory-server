@@ -48,6 +48,8 @@ package jdbm.btree;
 
 
 import jdbm.btree.BTree.EmptyBrowser;
+import jdbm.btree.BTree.MetaRoot;
+import jdbm.helper.LRUCache;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
@@ -60,6 +62,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -82,7 +86,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
 public class BPage<K, V> implements Serializer
-{
+{ 
     private static final boolean DEBUG = false;
 
     /** Version id for serialization. */
@@ -114,6 +118,8 @@ public class BPage<K, V> implements Serializer
 
     /** Next leaf BPage (only if this BPage is a leaf) */
     protected long next;
+    
+    public static AtomicInteger outstandingBrowsers = new AtomicInteger(0);
 
 
     /**
@@ -129,7 +135,7 @@ public class BPage<K, V> implements Serializer
      * Root page overflow constructor
      */
     @SuppressWarnings("unchecked")
-    BPage( BTree btree, BPage<K, V> root, BPage<K, V> overflow ) throws IOException
+    BPage( BTree<K, V> btree, BPage<K, V> root, BPage<K, V> overflow ) throws IOException
     {
         this.btree = btree;
 
@@ -153,7 +159,7 @@ public class BPage<K, V> implements Serializer
      * Root page (first insert) constructor.
      */
     @SuppressWarnings("unchecked") // Cannot create an array of generic objects
-    BPage( BTree btree, K key, V value ) throws IOException
+    BPage( BTree<K,V> btree, K key, V value ) throws IOException
     {
         this.btree = btree;
 
@@ -166,7 +172,7 @@ public class BPage<K, V> implements Serializer
         keys[btree.pageSize - 1] = null; // I am the root BPage for now
 
         values = (V[])new Object[btree.pageSize];
-        values[btree.pageSize - 2] = value;
+        values[btree.pageSize - 2] = btree.copyValue( value );
         values[btree.pageSize - 1] = null; // I am the root BPage for now
 
         recordId = btree.recordManager.insert( this, this );
@@ -288,10 +294,11 @@ public class BPage<K, V> implements Serializer
      *
      * @param height Height of the current BPage (zero is leaf page)
      * @param key The key
+     * @param context action context in case of action capable record manager
      * @return TupleBrowser positionned just before the given key, or before
      *                      next greater key if key isn't found.
      */
-    TupleBrowser<K, V> find( int height, K key) throws IOException
+    TupleBrowser<K, V> find( int height, K key, ActionContext context) throws IOException
     {
         int index = this.findChildren( key );
         
@@ -314,26 +321,26 @@ public class BPage<K, V> implements Serializer
             }
         }
 
-        return new Browser( child, index);
+        return new Browser( child, index, context);
     }
 
 
     /**
      * Find first entry and return a browser positioned before it.
-     *
+     *@param context Action Context in case of 
      * @return TupleBrowser positionned just before the first entry.
      */
-    TupleBrowser<K, V> findFirst() throws IOException
+    TupleBrowser<K, V> findFirst( ActionContext context ) throws IOException
     {
         if ( isLeaf )
         {
-            return new Browser( this, first );
+            return new Browser( this, first, context );
         }
         else
         {
             BPage<K, V> child = childBPage( first );
             
-            return child.findFirst();
+            return child.findFirst( context );
         }
     }
 
@@ -894,7 +901,7 @@ public class BPage<K, V> implements Serializer
     /**
      * Insert entry at given position.
      */
-    private void insertEntry( BPage<K, V> page, int index, K key, V value )
+    private void insertEntry( BPage<K, V> page, int index, K key, V value ) throws IOException
     {
         K[] keys = page.keys;
         V[] values = page.values;
@@ -906,7 +913,7 @@ public class BPage<K, V> implements Serializer
         System.arraycopy( values, start, values, start - 1, count );
         page.first -= 1;
         keys[index] = key;
-        values[index] = value;
+        values[index] = btree.copyValue( value );
     }
 
 
@@ -1413,7 +1420,10 @@ public class BPage<K, V> implements Serializer
     {
         /** Current page. */
         private BPage<K, V> page;
-      
+        
+        /** context used to track browsing action */
+        ActionContext context;
+        
         /**
          * Current index in the page.  The index positionned on the next
          * tuple to return.
@@ -1425,12 +1435,16 @@ public class BPage<K, V> implements Serializer
          * Create a browser.
          *
          * @param page Current page
+         * @param context context in case of action capable record manager 
          * @param index Position of the next tuple to return.
          */
-        Browser( BPage<K, V> page, int index)
+        Browser( BPage<K, V> page, int index, ActionContext context)
         {
             this.page = page;
             this.index = index;
+            this.context = context;
+            
+            outstandingBrowsers.incrementAndGet();
         }
 
 
@@ -1444,192 +1458,106 @@ public class BPage<K, V> implements Serializer
          */
         public boolean getNext( Tuple<K, V> tuple ) throws IOException
         {
-            // First, check that we are within a page
-            if ( index < page.btree.pageSize )
+            btree.setAsCurrentAction( context ); 
+            try
             {
-                // We are. Now check that we have a Tuple
-                if ( page.keys[index] == null )
+                // First, check that we are within a page                                                            
+                if ( index < page.btree.pageSize )
                 {
-                    // no : reached end of the tree.
-                    return false;
+                    // We are. Now check that we have a Tuple                                                        
+                    if ( page.keys[index] == null )
+                    {
+                        // no : reached end of the tree.                                                             
+                        return false;
+                    }
                 }
-                
+                // all the tuple for this page has been read. Move to the                                            
+                // next page, if we have one.                                                                        
+                else if ( page.next != 0 )
+                {
+                    // move to next page                                                                             
+                    page = page.loadBPage( page.next );
+                    index = page.first;
+                }
+    
                 tuple.setKey( page.keys[index] );
                 tuple.setValue( btree.copyValue( page.values[index] ) );
                 index++;
-                return true;
             }
-            // all the tuple for this page has been read. Move to the 
-            // next page, if we have one. Start a new action while
-            // doing so.
-
-            ActionContext context = btree.beginAction( true );
-            boolean abortedAction = false;
-            try
+            catch( IOException e )
             {
-                BPage<K, V> rootPage = btree.getRoot( true );
-
-                if ( rootPage == null )
-                {
-                    return false;
-                }
-
-                K prevKey = page.keys[index - 1];
-                Browser browser = ( Browser ) rootPage.find( rootPage.btree.bTreeHeight, prevKey );
-
-                if ( browser.getNextWithinAction( tuple ) )
-                {
-                    if ( btree.comparator.compare( prevKey, tuple.getKey() ) == 0 )
-                    {
-                        // Do not return the same key again, move on to the next key
-                        if ( browser.getNextWithinAction( tuple ) )
-                        {
-                            page = browser.getCurrentPage();
-                            index = browser.getCurrentIndex();
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-
-            }
-            catch ( IOException e )
-            {
-                abortedAction = true;
                 btree.abortAction( context );
+                context = null;
+                this.close();
+                throw e;
             }
             finally
             {
-                if ( !abortedAction )
-                    btree.endAction( context );
+                if ( context != null )
+                    btree.unsetAsCurrentAction( context );
             }
-
-            return false;
+          
+            return true;
         }
-
 
         public boolean getPrevious( Tuple<K, V> tuple ) throws IOException
         {
-            if ( index == page.first )
+            btree.setAsCurrentAction( context );           
+            try
             {
-                ActionContext context = btree.beginAction( true );
-                boolean abortedAction = false;
-                try
+                if ( index == page.first )
                 {
-                    BPage<K, V> rootPage = btree.getRoot( true );
-
-                    if ( rootPage == null )
+                    if ( page.previous != 0 )
                     {
+                        page = page.loadBPage( page.previous );
+                        index = page.btree.pageSize;
+                    }
+                    else
+                    {
+                        // reached beginning of the tree                                                             
                         return false;
                     }
-
-                    K prevKey = page.keys[index];
-                    Browser browser = ( Browser ) rootPage.find( rootPage.btree.bTreeHeight, prevKey );
-
-                    while ( browser.getPrevWithinAction( tuple ) )
-                    {
-                        if ( btree.comparator.compare( tuple.getKey(), prevKey ) < 0 )
-                        {
-
-                            page = browser.getCurrentPage();
-                            index = browser.getCurrentIndex();
-                            return true;
-
-                        }
-                    }
                 }
-                catch ( IOException e )
-                {
-                    abortedAction = true;
-                    btree.abortAction( context );
-                }
-                finally
-                {
-                    if ( !abortedAction )
-                        btree.endAction( context );
-                }
-
-                return false;
+    
+                index--;
+                tuple.setKey( page.keys[index] );
+                tuple.setValue( btree.copyValue( page.values[index] ) );
             }
-            
-            index--;
-            tuple.setKey( page.keys[index] );
-            tuple.setValue( btree.copyValue( page.values[index] ) );
-            
-            return true;
-        }
-
-
-        BPage<K, V> getCurrentPage()
-        {
-            return page;
-        }
-
-
-        int getCurrentIndex()
-        {
-            return index;
-        }
-        
-        boolean getNextWithinAction( Tuple<K, V> tuple ) throws IOException
-        {
-            // First, check that we are within a page
-            if ( index < page.btree.pageSize )
+            catch( IOException e )
             {
-                // We are. Now check that we have a Tuple
-                if ( page.keys[index] == null )
-                {
-                    // no : reached end of the tree.
-                    return false;
-                }
+                btree.abortAction( context );
+                context = null;
+                this.close();
+                throw e;
             }
-            // all the tuple for this page has been read. Move to the 
-            // next page,
-            else if ( page.next != 0 )
+            finally
             {
-                // move to next page                                                        
-                page = page.loadBPage( page.next );
-                index = page.first;
-            }
-
-            tuple.setKey( page.keys[index] );
-            tuple.setValue( btree.copyValue( page.values[index] ) );
-            index++;
-
-            return true;
-            
-        }
-        
-        boolean getPrevWithinAction( Tuple<K, V> tuple ) throws IOException
-        {
-            if ( index == page.first )
-            {
-                if ( page.previous != 0 )
-                {
-                    page = page.loadBPage( page.previous );
-                    index = page.btree.pageSize;
-                }
-                else
-                {
-                    // reached beginning of the tree
-                    return false;
-                }
-            }
-
-            index--;
-            tuple.setKey( page.keys[index] );
-            tuple.setValue( btree.copyValue( page.values[index] ) );
+                if ( context != null )
+                    btree.unsetAsCurrentAction( context );
+            }          
 
             return true;
         }
         
+        @Override
+        public void close()
+        {
+            super.close();
+            
+            if ( context!= null )
+            {
+                btree.setAsCurrentAction( context );
+                btree.endAction( context );
+                context = null;
+            }
+            
+            int browserCount = outstandingBrowsers.decrementAndGet();
+            if ( browserCount > 0 )
+            {
+                //System.out.println( "JDBM btree browsers are outstanding after close: " + browserCount );
+            }
+        }
+
     }
     
     

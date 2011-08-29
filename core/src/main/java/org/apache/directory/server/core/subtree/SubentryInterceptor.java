@@ -371,6 +371,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
+            subentries.close();
         }
         catch ( Exception e )
         {
@@ -1085,6 +1086,8 @@ public class SubentryInterceptor extends BaseInterceptor
                             getOperationalModsForRemove( dn, candidate ) ) );
                     }
                 }
+                
+                subentries.close();
             }
             catch ( Exception e )
             {
@@ -1115,6 +1118,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             getOperationalModsForAdd( candidate, operationalAttributes ) ) );
                     }
                 }
+                subentries.close();
             }
             catch ( Exception e )
             {

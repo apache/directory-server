@@ -147,6 +147,9 @@ public class BTree<K, V> implements Externalizable
     
     /** Big lock snychronizing all actions */
     private transient Lock bigLock = new ReentrantLock(); 
+    
+    /** Meta root used to access versions of Btree root */
+    private transient MetaRoot metaRoot = new MetaRoot();
 
     /**
      * No-argument constructor used by serialization.
@@ -239,11 +242,11 @@ public class BTree<K, V> implements Externalizable
         this.isActionCapable = recordManager instanceof ActionRecordManager; 
 
         boolean abortedAction = false;
-        ActionContext context = this.beginAction( false );
-        
+        ActionContext context = this.beginAction( false, "createInstance" );
         try
         {
             this.recordId = recordManager.insert( this );
+            updateMetaRoot( this.rootId, this.bTreeHeight );
         }
         catch ( IOException e )
         {
@@ -280,12 +283,32 @@ public class BTree<K, V> implements Externalizable
      */
     public BTree<K, V> load( RecordManager recman, long recid ) throws IOException
     {
-        BTree<K, V> btree = (BTree<K, V>) recman.fetch( recid );
-        btree.recordId = recid;
-        btree.recordManager = recman;
-        btree.bpageSerializer = new BPage<K, V>();
-        btree.bpageSerializer.btree = btree;
+        BTree<K, V> btree = null;
+        boolean abortedAction = false;
+        ActionContext context = this.beginAction( false, "load" );
+        try
+        {
+            btree = (BTree<K, V>) recman.fetch( recid );
+            btree.recordId = recid;
+            btree.recordManager = recman;
+            btree.bpageSerializer = new BPage<K, V>();
+            btree.bpageSerializer.btree = btree;
+            btree.updateMetaRoot( btree.rootId, btree.bTreeHeight );
+
+        }
+        catch ( IOException e )
+        {
+            abortedAction = true;
+            this.abortAction( context );
+            throw e;
+        }
+        finally
+        {
+            if ( !abortedAction )
+                this.endAction( context );
+        }
         
+               
         return btree;
     }
 
@@ -316,7 +339,7 @@ public class BTree<K, V> implements Externalizable
 
         
         boolean abortedAction = false;
-        ActionContext context  = this.beginAction( false );
+        ActionContext context  = this.beginAction( false, "insert" );
         
 
         if ( !isActionCapable )
@@ -324,7 +347,7 @@ public class BTree<K, V> implements Externalizable
         
         try
         {
-            BPage<K, V> rootPage = getRoot( false );
+            BPage<K, V> rootPage = getRoot();
     
             if ( rootPage == null )
             {
@@ -339,7 +362,7 @@ public class BTree<K, V> implements Externalizable
                 bTreeHeight = 1;
                 nbEntries.set( 1 );
                 recordManager.update( recordId, this );
-                
+                updateMetaRoot( this.rootId, this.bTreeHeight );
                 return null;
             }
             else
@@ -362,6 +385,7 @@ public class BTree<K, V> implements Externalizable
                     rootId = rootPage.getRecordId();
                     bTreeHeight += 1;
                     dirty = true;
+                    updateMetaRoot( this.rootId, this.bTreeHeight );
                 }
                 
                 if ( insert.existing == null )
@@ -414,7 +438,7 @@ public class BTree<K, V> implements Externalizable
        
         
         boolean abortedAction = false;
-        ActionContext context = this.beginAction( false );
+        ActionContext context = this.beginAction( false, "remove" );
 
         if ( !isActionCapable )
             bigLock.lock();
@@ -422,7 +446,7 @@ public class BTree<K, V> implements Externalizable
         try
         {
 
-            BPage<K, V> rootPage = getRoot( false );
+            BPage<K, V> rootPage = getRoot();
             
             if ( rootPage == null )
             {
@@ -449,6 +473,7 @@ public class BTree<K, V> implements Externalizable
                 {
                     rootId = rootPage.childBPage( pageSize - 1 ).getRecordId();
                 }
+                updateMetaRoot( this.rootId, this.bTreeHeight );
             }
             
             if ( remove.value != null )
@@ -599,33 +624,26 @@ public class BTree<K, V> implements Externalizable
     public TupleBrowser<K, V> browse() throws IOException
     {
         TupleBrowser<K, V> browser = null;
-        ActionContext context = this.beginAction( true ); 
-        boolean abortedAction = false;
+        ActionContext context = this.beginAction( true, "browse" ); 
         try
         {
-            BPage<K, V> rootPage = getRoot( true );
+            MetaRoot meta = this.getMetaRoot();
+            BPage<K, V> rootPage = this.getRoot( meta );
             
             if ( rootPage == null )
             {
                 this.endAction( context );
                 return new EmptyBrowser(){};
             }
-            browser = rootPage.findFirst();         
+            browser = rootPage.findFirst( context );         
         }
         catch( IOException e )
         {
-            abortedAction = true;
             this.abortAction( context );
             throw e;
         }
-        finally
-        {
-            if ( !abortedAction )
-            {
-                this.endAction( context );
-            }
-        }
         
+        this.unsetAsCurrentAction( context );
         return browser;
     }
 
@@ -645,11 +663,11 @@ public class BTree<K, V> implements Externalizable
     public TupleBrowser<K, V> browse( K key ) throws IOException
     {
         TupleBrowser<K, V> browser = null;
-        ActionContext context = this.beginAction( true );  
-        boolean abortedAction = false;
+        ActionContext context = this.beginAction( true, "browse key" );  
         try
         {
-            BPage<K, V> rootPage = getRoot( true );
+            MetaRoot meta = this.getMetaRoot();
+            BPage<K, V> rootPage = this.getRoot( meta );
             
             if ( rootPage == null )
             {
@@ -657,22 +675,15 @@ public class BTree<K, V> implements Externalizable
                 return new EmptyBrowser(){};
             }
           
-            browser  = rootPage.find( rootPage.btree.bTreeHeight, key);
+            browser  = rootPage.find( meta.treeHeight, key, context );
         }
         catch( IOException e )
         {
-            abortedAction = true;
             this.abortAction( context );
             throw e;
         }
-        finally
-        {
-            if ( !abortedAction )
-            {
-                this.endAction( context );
-            }
-        }
         
+        this.unsetAsCurrentAction( context );
         return browser;
     }
     
@@ -699,36 +710,54 @@ public class BTree<K, V> implements Externalizable
     /**
      * Return the root BPage<Object, Object>, or null if it doesn't exist.
      */
-    BPage<K, V> getRoot( boolean readOnlyAction ) throws IOException
-    {
-        BTree<K, V> bTreeCopy;
+    BPage<K, V> getRoot( ) throws IOException
+    {        
+        assert( this.rootId == metaRoot.rootID) : "Stale root id " + this.rootId + " "+ metaRoot.rootID;
         
-        if ( readOnlyAction )
-        {
-            bTreeCopy = ( BTree<K, V> )recordManager.fetch( recordId );
-            bTreeCopy.comparator = this.comparator;
-            bTreeCopy.keySerializer = this.keySerializer;
-            bTreeCopy.valueSerializer = this.valueSerializer;
-            bTreeCopy.recordManager = this.recordManager;
-            bTreeCopy.recordId = this.recordId;
-            bTreeCopy.bpageSerializer = this.bpageSerializer;
-        }
-        else
-        {
-            bTreeCopy = this;
-        }
-        
-        if ( bTreeCopy.rootId == 0 )
+        if ( this.rootId == 0 )
         {
             return null;
         }
         
-        BPage<K, V> root = ( BPage<K, V> ) recordManager.fetch( bTreeCopy.rootId, bpageSerializer );
-        root.setRecordId( bTreeCopy.rootId );
-        root.btree = bTreeCopy;
+        BPage<K, V> root = ( BPage<K, V> ) recordManager.fetch( this.rootId, bpageSerializer );
+        root.setRecordId( this.rootId );
+        root.btree = this;
         
         return root;
     }
+    
+    BPage<K, V> getRoot( MetaRoot meta ) throws IOException
+    {        
+        if ( meta.rootID == 0 )
+        {
+            return null;
+        }
+        
+        BPage<K, V> root = ( BPage<K, V> ) recordManager.fetch( meta.rootID, bpageSerializer );
+        root.setRecordId( meta.rootID );
+        root.btree = this;
+        
+        return root;
+    }
+    
+    /**
+     * 
+     * Returns the meta root that can be used to fetch the root page
+     *
+     * @return meta root
+     * @throws IOException
+     */
+    MetaRoot getMetaRoot() throws IOException
+    {
+        if ( isActionCapable )
+            return ( MetaRoot )recordManager.fetch( -this.recordId );
+        else
+            return metaRoot;
+    }
+    
+    
+    
+    
 
 
     /**
@@ -793,6 +822,7 @@ public class BTree<K, V> implements Externalizable
     }
     
     
+    
     void setAsCurrentAction( ActionContext context )
     {
         if ( context != null )
@@ -801,24 +831,23 @@ public class BTree<K, V> implements Externalizable
             ( ( ActionRecordManager )recordManager ).setCurrentActionContext( context );
         }
     }
-    
+
     void unsetAsCurrentAction( ActionContext context )
     {
         if ( context != null )
         {
             assert( isActionCapable == true );
-            ( ( ActionRecordManager )recordManager ).setCurrentActionContext( context );
+            ( ( ActionRecordManager )recordManager ).unsetCurrentActionContext( context );
         }
     }
+
     
-    
-    ActionContext beginAction( boolean readOnly )
+    ActionContext beginAction( boolean readOnly, String whoStarted )
     {
         ActionContext context = null;
         if ( isActionCapable )
         {
-            context = ( ( ActionRecordManager )recordManager ).beginAction( readOnly );
-            this.setAsCurrentAction( context );
+            context = ( ( ActionRecordManager )recordManager ).beginAction( readOnly, whoStarted );
         }
         return context;
     }
@@ -830,7 +859,6 @@ public class BTree<K, V> implements Externalizable
         {
             assert( isActionCapable );
             ( ( ActionRecordManager )recordManager ).endAction( context );
-            this.unsetAsCurrentAction( context );
         }
     }
     
@@ -839,9 +867,7 @@ public class BTree<K, V> implements Externalizable
         if ( context != null )
         {
             assert( isActionCapable );
-            this.abortAction( context );
             ( ( ActionRecordManager )recordManager ).abortAction( context );
-            this.unsetAsCurrentAction( context );
         }
 
     }
@@ -849,16 +875,36 @@ public class BTree<K, V> implements Externalizable
     
     BPage<K,V> copyOnWrite( BPage<K,V> page) throws IOException
     {
-        return page.copyOnWrite();
-    }
-   
+       return page.copyOnWrite();
 
+    }
+    
+    private MetaRoot copyOnWrite( MetaRoot oldMetaRoot )
+    {
+        MetaRoot newMetaRoot = new MetaRoot();
+        newMetaRoot.rootID = oldMetaRoot.rootID;
+        newMetaRoot.treeHeight = oldMetaRoot.treeHeight;
+        
+        return newMetaRoot;
+    }
+    
+    private void updateMetaRoot( long newRootId, int newTreeHeight ) throws IOException
+    {
+        metaRoot = this.copyOnWrite( metaRoot );
+        metaRoot.rootID = newRootId;
+        metaRoot.treeHeight = newTreeHeight;
+        
+        if ( isActionCapable )
+            recordManager.update( -this.recordId, metaRoot );
+    }
+    
     V copyValue( V value) throws IOException 
     {
+
         byte[] array;
         V valueCopy = null;
-
-        if ( this.valueSerializer != null ) 
+        
+        if ( this.valueSerializer != null )
         {
             array = this.valueSerializer.serialize( value );
             valueCopy = (V) this.valueSerializer.deserialize( array );
@@ -899,9 +945,9 @@ public class BTree<K, V> implements Externalizable
                 if ( in != null )
                     in.close();
             }
-        }
-        
-        return valueCopy;
+
+           }
+           return valueCopy;   
     }
     
     
@@ -951,5 +997,15 @@ public class BTree<K, V> implements Externalizable
         sb.append( ")\n" );
 
         return sb.toString();
+    }
+    
+    /**
+     * Used to poin to the root page that the reader needs based on the reader's
+     * read action context. ReadWrite actions always use the latest root. 
+     */
+    class MetaRoot
+    {
+        long rootID;
+        int treeHeight;
     }
 }

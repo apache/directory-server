@@ -8,13 +8,20 @@ package jdbm.helper;
 public class ActionContext
     {
 
+        /** track whether action is read only */ 
         boolean readOnly;
+        
+        /** Version associated with the context */
         ActionVersioning.Version version;
         
-        public void beginAction( boolean readOnly, ActionVersioning.Version version )
+        /** Who started the action. Usefule for debugging */
+        String whoStarted;
+        
+        public void beginAction( boolean readOnly, ActionVersioning.Version version, String whoStarted )
         {
             this.readOnly = readOnly;
             this.version = version;
+            this.whoStarted = whoStarted;
         }
         
         public void endAction()
@@ -42,6 +49,11 @@ public class ActionContext
         public ActionVersioning.Version getVersion()
         {
             return version;
+        }
+        
+        public String getWhoStarted()
+        {
+            return whoStarted;
         }
     
         

@@ -3,7 +3,16 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
@@ -31,6 +40,15 @@ public class SnapshotBTree
 {
     public TemporaryFolder folder = new TemporaryFolder();
     
+    private static class IntWrapper implements Serializable
+    {
+        int value;
+        IntWrapper( int value )
+        {
+            this.value = value;
+        }
+    }
+    
     private String getTemporaryFile( String name ) throws IOException
     {
         String file = folder.newFile( name ).getAbsolutePath();
@@ -41,7 +59,7 @@ public class SnapshotBTree
     public void testBasic1() throws IOException, InterruptedException
     {
         RecordManager recman;
-        BTree<Integer, String> tree;
+        BTree<Integer, IntWrapper> tree;
       
         int idx;
         int numReadThreads = 1;
@@ -54,11 +72,11 @@ public class SnapshotBTree
         recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "testBasic1" ) );
         SnapshotRecordManager snapshotRecman = new SnapshotRecordManager( recman, 1 << 12 );
         
-        tree = new BTree<Integer, String>( snapshotRecman, new IntegerComparator() );
+        tree = new BTree<Integer, IntWrapper>( snapshotRecman, new IntegerComparator() );
      
         for ( idx = 0; idx < 1024; idx++ )
         {
-            tree.insert( new Integer( idx ), "value" + idx, true );
+            tree.insert( new Integer( idx ), new IntWrapper( idx ), true );
         }
 
         for ( idx = 0; idx < numReadThreads; idx++ )
@@ -87,12 +105,12 @@ public class SnapshotBTree
     class TestThread extends Thread
     {
         boolean readOnly;
-        BTree<Integer, String> btree;
+        BTree<Integer, IntWrapper> btree;
         Semaphore browseSem;
         Semaphore updateSem;
         int numReadThreads;
 
-        TestThread( boolean readOnly, BTree<Integer, String> btree, Semaphore firstBrowse,
+        TestThread( boolean readOnly, BTree<Integer, IntWrapper> btree, Semaphore firstBrowse,
                     Semaphore updateDone, int numReadThreads)
         {
             this.readOnly = readOnly;
@@ -108,108 +126,94 @@ public class SnapshotBTree
         {
             int count = 0;
             int idx;
-            boolean sawXXX = false;
-            
-            TupleBrowser<Integer, String> browser = btree.browse();
-            Tuple<Integer, String> tuple = new Tuple();
+            TupleBrowser<Integer, IntWrapper> browser = btree.browse();
+            Tuple<Integer, IntWrapper> tuple = new Tuple();
             browseSem.release();
-            
+
             assertTrue( browser.getNext( tuple ) );
             assertEquals( tuple.getKey().intValue(), 0 );
             count++;
-            
+
             assertTrue( browser.getNext( tuple ) );
             assertEquals( tuple.getKey().intValue(), 1 );
             count++;
-            
+
             while( browser.getNext( tuple ) )
             {
                 count++;
-                
-                // Sleep a little randomly.
+
+                // Sleep a little randomly.                                                                                                                                                               
                 if ( (count & 7) == 0 )
                     Thread.sleep( 1 );
-                
-                if ( !sawXXX && tuple.getValue().equals( "xxx" ) )
-                    sawXXX = true;
-                
-                if ( sawXXX )
-                {
-                    assertTrue( tuple.getValue().equals( "xxx" ) );
-                }
-                else
-                {
-                    assertTrue( tuple.getValue().equals( "value" + tuple.getKey().intValue() ) );
-                }                    
+
+                assertTrue( tuple.getValue().value != -1 );
             }
-            
-            
+
+
             System.out.println( "count is " + count );
-            assertTrue( count <= 2048 );            
+            assertEquals( count, 1024 );
             browser.close();
-            
+
             updateSem.acquireUninterruptibly();
             browser = btree.browse( new Integer( 10 ) );
-            assertTrue( browser.getNext( tuple ) );
-            assertEquals( tuple.getKey().intValue(), 20 );
-            browser = btree.browse( new Integer( 2047 ) );
-            assertTrue( browser.getNext( tuple ) );
-            assertTrue( tuple.getValue().equals("xxx") );
-            boolean sawNonXXX = false;
-            browseSem.release();
 
-            while ( browser.getPrevious( tuple ) )
+            browseSem.release();
+            for ( idx = 20; idx < 1024; idx++ )
             {
-                
-                if ( !sawNonXXX && !tuple.getValue().equals( "xxx" ) )
-                    sawNonXXX = true;
-                
-                if ( sawNonXXX )
-                {
-                    assertTrue( tuple.getValue().equals( "value" + tuple.getKey().intValue() ) );
-                }
-                else 
-                {
-                    assertTrue( tuple.getValue().equals( "xxx") );
-                }
+                assertTrue( browser.getNext( tuple ) );
+
+                System.out.println( "key:"+ tuple.getKey().intValue() + " idx:" + idx );
+                assertTrue( tuple.getKey().intValue() == idx );
             }
             browser.close();
-            
         }
         
         private void readWriteActions() throws IOException
         {
             int idx;
-            
+
             for ( idx = 0; idx < numReadThreads; idx++ )
                 browseSem.acquireUninterruptibly();
+
             
-            for ( idx = 512; idx < 1024; idx++ )
-            {
-                btree.insert( new Integer( idx ), "xxx", true );
-            }
+            Integer key = new Integer( 1023 );
+            IntWrapper value = btree.find( key );
+            value.value = -1;
+            btree.insert( key, value, true );
             
+            key = new Integer(512);
+            value = btree.find( key );
+            value.value = -1;
+            
+            btree.insert( key, value , true );
             for ( idx = 1024; idx < 2048; idx++ )
             {
-                btree.insert( new Integer( idx ), "xxx", true );
+                btree.insert( new Integer( idx ), new IntWrapper( idx ), true );
             }
-           
+
+            key = new Integer(1);
+            value = btree.find( key );
+            value.value = -1;
+            
+            btree.insert( key, value , true );
+            btree.insert( new Integer(1024), new IntWrapper( -1 ), true );
             for ( idx = 10; idx < 20; idx++ )
             {
                 btree.remove( new Integer( idx ) );
             }
-            
+
             updateSem.release();
-            
+
             for ( idx = 0; idx < numReadThreads; idx++ )
                 browseSem.acquireUninterruptibly();
-            
+
             for ( idx = 0; idx < 10; idx++ )
                 btree.remove( new Integer( idx ) );
-            
+
             for ( idx = 20; idx < 1024; idx++ )
                 btree.remove( new Integer( idx ) );
-            
+
+
         }
 
 

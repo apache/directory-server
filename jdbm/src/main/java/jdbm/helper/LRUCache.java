@@ -19,6 +19,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.tools.javac.util.Log;
+
+
+
 
 /**
  * This class implements a versioned lru cache. Entries in the cache are identified with a key. 
@@ -36,13 +43,11 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 
-/*
- * TODO handle cache eviction exception, abort of actions and closing of cache
- */
-
 public class LRUCache<K, V>
 {
-   
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( LRUCache.class.getSimpleName() );
+       
     /** Array of hash buckets */
     private List<CacheEntry> buckets[];
     
@@ -59,7 +64,10 @@ public class LRUCache<K, V>
     private final static int NUM_LRUS = 16;
     
     /** Min number of entries */
-    private final static int MIN_ENTRIES = 1024;
+    private final static int MIN_ENTRIES = 1 << 10;
+    
+    /** Max sleep time(in ms) for writes in case of cache eviction failure */
+    private final static long MAX_WRITE_SLEEP_TIME = 10000;
     
     /** lru list */
     LRU lrus[];
@@ -143,14 +151,17 @@ public class LRUCache<K, V>
      * @param value new value of the entry
      * @param newVersion version of the new value
      * @param serializer used in case of IO
-     * @throws IOException
+     * @param neverReplace true if caller wants to always keep the entry in cache 
+     * @throws IOException, CacheEvictionException
      */
-    public void put( K key, V value, long newVersion , Serializer serializer ) throws IOException, CacheEvictionException
+    public void put( K key, V value, long newVersion , Serializer serializer, 
+        boolean neverReplace ) throws IOException, CacheEvictionException
     {
         int hashValue = hash(key);
         int hashIndex = ( hashValue & ( numBuckets - 1 ) );
         int latchIndex = ( hashIndex >> LOG_BUCKET_PER_LATCH );
-        boolean done = false;
+        long sleepInterval = 100; 
+        long totalSleepTime = 0;
         
         /*
          * Lock the hash bucket and find the current version of the entry: 
@@ -166,85 +177,117 @@ public class LRUCache<K, V>
          * While reading or waiting, latch is released.
          */
         
-        
-        latches[latchIndex].lock();
-        boolean entryExists = false;
-        
-        Iterator<CacheEntry> it = buckets[hashIndex].listIterator();
-        CacheEntry entry = null;
-        
-        while (it.hasNext() )
+        while ( true )
         {
-            entry = it.next();
-            if ( entry.getKey().equals( key ) )
+            latches[latchIndex].lock();
+            boolean entryExists = false;
+            boolean sleepForFreeEntry = false;
+            
+            Iterator<CacheEntry> it = buckets[hashIndex].listIterator();
+            CacheEntry entry = null;
+            
+            while (it.hasNext() )
             {
-                entryExists = true;
-                break;
-            }
-        }
-
-        try
-        {
-            if ( entryExists )
-            {
-                switch ( entry.getState() )
+                entry = it.next();
+                if ( entry.getKey().equals( key ) )
                 {
-    
-                    case ENTRY_READY: // should be the common case
-                        
-                        if ( !entry.isCurrentVersion() )
-                        {
-                            CacheEntry newEntry = this.findNewEntry( key, latchIndex );
-                            
-                            /*
-                             * Remove existing entry, chain as a snapshot
-                             * entry to the new entry and add newentry to the
-                             * list.
-                             */
-                            buckets[hashIndex].remove( entry );
-                            newEntry.getVersionsLink().splice( entry.getVersionsLink() );
-                            buckets[hashIndex].add( newEntry );
-                            entry = newEntry;
-                            this.doRead( entry, latches[latchIndex], serializer );
-                        }
-                        
-                        
-                        this.putNewVersion( entry, key, value, newVersion, hashIndex, 
-                            latches[latchIndex], serializer );                       
-                        break;
-                    case ENTRY_READING:
-                        // Somebody is reading our entry, wait until the read is done and then retry
-                        this.doWaitForStateChange( entry, latches[latchIndex] );
-                        if ( entry.getState() == EntryState.ENTRY_READY )
-                        {
-                            this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
-                                serializer );
-                            break;
-                        }
-                        // FALLTHROUGH
-                    case ENTRY_INITIAL:
-                        this.doRead( entry, latches[latchIndex], serializer );
-                        this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], serializer );
-                        break;
-                    case ENTRY_WRITING:
-                        // FALLTHROUGH
-                    default:
-                        assert ( false );
+                    entryExists = true;
+                    break;
                 }
+            }
     
+            try
+            {
+                if ( entryExists )
+                {
+                    switch ( entry.getState() )
+                    {
+        
+                        case ENTRY_READY: // should be the common case
+                            
+                            if ( !entry.isCurrentVersion() )
+                            {
+                                CacheEntry newEntry = this.findNewEntry( key, latchIndex );
+                                
+                                /*
+                                 * Remove existing entry, chain as a snapshot
+                                 * entry to the new entry and add newentry to the
+                                 * list.
+                                 */
+                                buckets[hashIndex].remove( entry );
+                                newEntry.getVersionsLink().splice( entry.getVersionsLink() );
+                                buckets[hashIndex].add( newEntry );
+                                entry = newEntry;
+                                this.doRead( entry, latches[latchIndex], serializer );
+                            }
+                            
+                            
+                            this.putNewVersion( entry, key, value, newVersion, hashIndex, 
+                                latches[latchIndex], serializer, neverReplace );                       
+                            break;
+                        case ENTRY_READING:
+                            // Somebody is reading our entry, wait until the read is done and then retry
+                            this.doWaitForStateChange( entry, latches[latchIndex] );
+                            if ( entry.getState() == EntryState.ENTRY_READY )
+                            {
+                                this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
+                                    serializer, neverReplace );
+                                break;
+                            }
+                            
+                            LOG.warn( "Entry with key {} is at intial state after waiting for IO", entry.getKey() );
+                            // FALLTHROUGH
+                        case ENTRY_INITIAL:
+                            
+                            LOG.warn( "Entry with key {} is at intial while trying to read from it", entry.getKey() );
+                            this.doRead( entry, latches[latchIndex], serializer );
+                            this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
+                                serializer, neverReplace );
+                            break;
+                        case ENTRY_WRITING:
+                            // FALLTHROUGH
+                        default:
+                            assert ( false );
+                    }
+        
+                }
+                else
+                {
+                    entry = this.findNewEntry( key, latchIndex );
+                    buckets[hashIndex].add( entry );
+                    this.doRead( entry, latches[latchIndex], serializer );
+                    this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
+                        serializer, neverReplace );
+                }            
+            }
+            catch ( CacheEvictionException e )
+            {
+                sleepForFreeEntry = totalSleepTime < this.MAX_WRITE_SLEEP_TIME;
+                
+                if ( sleepForFreeEntry == false )
+                    throw e;
+            }
+            finally
+            {
+                latches[latchIndex].unlock();
+            }
+            
+            if ( sleepForFreeEntry )
+            {
+                try
+                {
+                    Thread.sleep( sleepInterval );
+                }
+                catch ( InterruptedException e )
+                {
+                    // Restore interrupted stat
+                    Thread.currentThread().interrupt();
+                }
+                
+                totalSleepTime += sleepInterval;
             }
             else
-            {
-                entry = this.findNewEntry( key, latchIndex );
-                buckets[hashIndex].add( entry );
-                this.doRead( entry, latches[latchIndex], serializer );
-                this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
-                    serializer );
-            }            
-        }
-        finally
-        {
-            latches[latchIndex].unlock();
+                break;
         }
     }
     
@@ -259,7 +302,7 @@ public class LRUCache<K, V>
      * @return value read
      * @throws IOException
      */
-    public V get( K key, long version, Serializer serializer ) throws IOException, CacheEvictionException
+    public V get( K key, long version, Serializer serializer ) throws IOException
     {
         int hashValue = hash(key);
         int hashIndex = ( hashValue & ( numBuckets - 1 ) );
@@ -337,13 +380,11 @@ public class LRUCache<K, V>
                             value = this.searchChainForVersion( entry, version );
                             break;
                         }
+                        LOG.warn( "Entry with key {} is at intial state after waiting for IO", entry.getKey() );
                         // FALLTHROUGH
                     case ENTRY_INITIAL:
                         
-                        // TODO remove this, this can happen when there is an io exception
-                        // with the thread that we waited for the IO.
-                        assert( false );
-                        
+                        LOG.warn( "Entry with key {} is at intial while trying to read from it", entry.getKey() );
                         this.doRead( entry, latches[latchIndex], serializer );
                         value = this.searchChainForVersion( entry, version );
                         break;                
@@ -359,6 +400,16 @@ public class LRUCache<K, V>
                 this.doRead( entry, latches[latchIndex], serializer );
                 value = this.searchChainForVersion( entry, version );
             }
+        }
+        catch ( CacheEvictionException e)
+        {
+            /*
+             * In this case read while holding the hash bucket lock. Entry
+             * wont be put into the cache but write to the same location will be
+             * blocked
+             */
+            return entryIO.read( key, serializer );
+            
         }
         finally
         {
@@ -379,10 +430,11 @@ public class LRUCache<K, V>
      * @param hashIndex hash bucket index which covers the enrtry 
      * @param latch lock covering the entry
      * @param serializer used in case of IO
+     * @param neverReplace true if most recent version of entry should be kept in memory all the time
      * @throws IOException
      */
     private void putNewVersion( CacheEntry entry, K key, V value, long newVersion, int hashIndex, 
-        Lock latch, Serializer serializer ) throws IOException
+        Lock latch, Serializer serializer, boolean neverReplace ) throws IOException, CacheEvictionException
     {
         if ( entry.getStartVersion() != newVersion  )
         {
@@ -410,6 +462,10 @@ public class LRUCache<K, V>
             // Entry already at current version. Just update the value
             entry.setAsCurrentVersion( value, newVersion );
         }
+        
+        if ( neverReplace )
+            entry.setNeverReplace();
+
         
         entry.setState( EntryState.ENTRY_WRITING );
         latch.unlock();
@@ -477,7 +533,7 @@ public class LRUCache<K, V>
                 continue;
             }
         
-            if ( curStartVersion != 0 && ( curEntry.getEndVersion() != curStartVersion ) )
+            if ( curStartVersion != 0 && ( curEntry.getEndVersion() > curStartVersion ) )
                 assert( false );
             
             curStartVersion = curEntry.getStartVersion();
@@ -592,8 +648,9 @@ public class LRUCache<K, V>
      * @param key identifier which we try to put into the cache 
      * @param latchIndex index of the currently held hash bucket lock 
      * @return
+     * @throws CacheEvictionException
      */
-    private CacheEntry findNewEntry( K key, int latchIndex )
+    private CacheEntry findNewEntry( K key, int latchIndex ) throws CacheEvictionException
     {
         LRU lru;
         int index = lruRandomizer.nextInt( NUM_LRUS );
@@ -664,7 +721,8 @@ public class LRUCache<K, V>
             victimEntry.initialize( key );
         else
         {
-            // TODO handle cache eviction failure.
+            LOG.warn( "Cache eviction failure: " + this.minReadVersion );
+            throw new CacheEvictionException( null );
         }
         
         return victimEntry;
@@ -725,6 +783,9 @@ public class LRUCache<K, V>
         /** id of lru this cache entry lives on */
         int lruid;
         
+        /** true if entry should not be replaced */
+        boolean neverReplace;
+        
         public CacheEntry(int lruid)
         {
             versionsLink = new ExplicitList.Link<CacheEntry>( this );
@@ -750,9 +811,15 @@ public class LRUCache<K, V>
             assert ( versionsLink.isUnLinked() == true );
             
             hashIndex = hash( key ) & ( numBuckets - 1 );
+            
+            assert( neverReplace == false );
         }
 
-
+        public void setNeverReplace()
+        {
+            neverReplace = true;
+        }
+        
         public K getKey()
         {
             return key;
@@ -870,6 +937,7 @@ public class LRUCache<K, V>
         public void setAsSnapshotVersion( long newEndVersion )
         {
             this.endVersion = newEndVersion;
+            neverReplace = false;
             LRU lru = this.getLru();
             lru.getLock().lock();
             lru.addToSnapshots( this );
@@ -879,7 +947,7 @@ public class LRUCache<K, V>
         public boolean isEntryFreeable()
         {
             return ( this.state != EntryState.ENTRY_READING && this.numWaiters == 0 && 
-                this.state != EntryState.ENTRY_WRITING );
+                this.state != EntryState.ENTRY_WRITING && !neverReplace);
         }
         
     }

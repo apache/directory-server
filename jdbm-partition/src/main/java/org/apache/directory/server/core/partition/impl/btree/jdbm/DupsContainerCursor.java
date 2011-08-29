@@ -106,7 +106,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public void beforeKey( K key ) throws Exception
     {
         checkNotClosed( "beforeKey()" );
-        
+        this.closeBrowser( browser );
         browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
         clearValue();
@@ -121,6 +121,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     {
         checkNotClosed( "afterKey()" );
 
+        this.closeBrowser( browser );
         browser = ((BTree<K,V>)table.getBTree()).browse( key );
         forwardDirection = null;
 
@@ -203,7 +204,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+        this.closeBrowser( browser );
         browser = table.getBTree().browse();
         forwardDirection = null;
         clearValue();
@@ -217,7 +218,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+        this.closeBrowser( browser );
         browser = table.getBTree().browse( null );
         forwardDirection = null;
         clearValue();
@@ -366,5 +367,34 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
         }
 
         throw new InvalidCursorPositionException();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        this.closeBrowser( browser );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        this.closeBrowser( browser );
+    }
+    
+    private void closeBrowser(TupleBrowser browser)
+    {
+        if ( browser != null )
+        {
+            browser.close();
+        }
     }
 }
