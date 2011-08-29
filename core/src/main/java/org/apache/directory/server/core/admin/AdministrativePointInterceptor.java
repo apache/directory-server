@@ -113,21 +113,21 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     // Initialize the ROLES field
     static
     {
-        ROLES.add( SchemaConstants.AUTONOMOUS_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.AUTONOMOUS_AREA ) );
         ROLES.add( SchemaConstants.AUTONOMOUS_AREA_OID );
-        ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) );
         ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
-        ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) );
         ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
-        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) );
         ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
-        ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) );
         ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
-        ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) );
         ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
-        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) );
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
-        ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
+        ROLES.add( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) );
         ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
@@ -137,20 +137,20 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     // Initialize the roles/oid map
     static
     {
-        ROLES_OID.put( SchemaConstants.AUTONOMOUS_AREA.toLowerCase(), SchemaConstants.AUTONOMOUS_AREA_OID );
-        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.AUTONOMOUS_AREA ), SchemaConstants.AUTONOMOUS_AREA_OID );
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ),
             SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
-        ROLES_OID.put( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ),
             SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
-        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ),
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
-        ROLES_OID.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ),
             SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
-        ROLES_OID.put( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ),
             SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
-        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ),
             SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
-        ROLES_OID.put( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase(),
+        ROLES_OID.put( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ),
             SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
@@ -159,11 +159,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     static
     {
-        INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) );
         INNER_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
-        INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) );
         INNER_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
-        INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA.toLowerCase() );
+        INNER_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) );
         INNER_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
@@ -172,13 +172,13 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     static
     {
-        SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) );
         SPECIFIC_AREA_ROLES.add( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
-        SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) );
         SPECIFIC_AREA_ROLES.add( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
-        SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) );
         SPECIFIC_AREA_ROLES.add( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
-        SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA.toLowerCase() );
+        SPECIFIC_AREA_ROLES.add( Strings.toLowerCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) );
         SPECIFIC_AREA_ROLES.add( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
@@ -603,7 +603,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkAddRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
+        String roleStr = Strings.toLowerCase( Strings.trim( role.getString() ) );
 
         // Check that the added AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -658,7 +658,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkDelRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCase(Strings.trim(role.getString()));
+        String roleStr = Strings.toLowerCase( Strings.trim( role.getString() ) );
 
         // Check that the removed AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -802,7 +802,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isValidRole( String role )
     {
-        return ROLES.contains( Strings.toLowerCase(Strings.trim(role)) );
+        return ROLES.contains( Strings.toLowerCase( Strings.trim( role ) ) );
     }
 
 

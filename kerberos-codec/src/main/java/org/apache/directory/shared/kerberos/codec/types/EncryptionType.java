@@ -23,6 +23,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.shared.util.Strings;
+
+
 
 /**
  * A type-safe enumeration of Kerberos encryption types.
@@ -177,7 +180,7 @@ public enum EncryptionType
     {
         for ( EncryptionType type : EncryptionType.values() )
         {
-            encryptionTypesByName.put( type.getName().toLowerCase(), type );
+            encryptionTypesByName.put( Strings.toLowerCase( type.getName() ), type );
             encryptionTypesByValue.put( type.getValue(), type );
         }
     }
@@ -255,7 +258,7 @@ public enum EncryptionType
             return UNKNOWN;
         }
         
-        String lcType = type.toLowerCase();
+        String lcType = Strings.toLowerCase( type );
         
         if ( encryptionTypesByName.containsKey( lcType ) )
         {

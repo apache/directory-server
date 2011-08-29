@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -133,9 +134,9 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     {
         attributes = new HashSet<String>();
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-        attributes.add( SchemaConstants.ENTRY_UUID_AT.toLowerCase() );
-        attributes.add( SchemaConstants.ENTRY_CSN_AT.toLowerCase() );
-        attributes.add( SchemaConstants.REF_AT.toLowerCase() );
+        attributes.add( Strings.toLowerCase( SchemaConstants.ENTRY_UUID_AT ) );
+        attributes.add( Strings.toLowerCase( SchemaConstants.ENTRY_CSN_AT ) );
+        attributes.add( Strings.toLowerCase( SchemaConstants.REF_AT ) );
     }
 
 
@@ -318,7 +319,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
         {
             at = at.trim();
 
-            if ( !attributes.contains( at.toLowerCase() ) )
+            if ( !attributes.contains( Strings.toLowerCase( at ) ) )
             {
                 attributes.add( at );
             }

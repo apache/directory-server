@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.registries.OidRegistry;
+import org.bouncycastle.util.Strings;
 
 
 /**
@@ -39,7 +40,7 @@ class DummyOidRegistry extends OidRegistry
 {
     public String getOid( String name ) throws LdapException
     {
-        return name.toLowerCase();
+        return Strings.toLowerCase( name );
     }
 
 

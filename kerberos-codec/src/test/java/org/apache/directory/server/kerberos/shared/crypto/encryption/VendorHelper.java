@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * Helper for determining whether various ciphers are supported by the JRE.  For now
@@ -28,7 +30,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
  */
 public class VendorHelper
 {
-    private static final String vendor = System.getProperty( "java.vendor" ).toLowerCase();
+    private static final String vendor = Strings.toLowerCase( System.getProperty( "java.vendor" ) );
 
 
     static String getTripleDesAlgorithm()

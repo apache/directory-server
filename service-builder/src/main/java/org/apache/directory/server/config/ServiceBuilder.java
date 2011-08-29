@@ -102,6 +102,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,7 @@ public class ServiceBuilder
                 return true;
             }
 
-            return file.getName().toLowerCase().endsWith( ".ldif" );
+            return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
         }
     };
     

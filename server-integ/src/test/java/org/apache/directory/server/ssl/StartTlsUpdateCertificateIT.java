@@ -53,6 +53,7 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -208,7 +209,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         assertEquals( 1, lastReceivedServerCertificates.length );
         String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
-        assertEquals( "Expected the new certificate with the new issuer", newIssuerDN.toLowerCase(), issuerDN.toLowerCase() );
-        assertEquals( "Expected the new certificate with the new subject", newSubjectDN.toLowerCase(), subjectDN.toLowerCase() );
+        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
+        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
     }
 }

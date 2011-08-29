@@ -45,6 +45,7 @@ import org.apache.directory.shared.kerberos.components.KrbCredInfo;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -158,14 +159,14 @@ public class KrbCredInfoDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = krbCredInfoFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             for ( int j = i + 1; j < size; j++ )
             {
                 fieldValHolder = optionalFieldValueList.get( j );
                 presentFieldList.add( fieldValHolder );
-                f = krbCredInfoFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+                f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
                 f.set( expected, fieldValHolder.value );
             }
 
@@ -213,7 +214,7 @@ public class KrbCredInfoDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = krbCredInfoFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             ByteBuffer stream = ByteBuffer.allocate( expected.computeLength() );
@@ -254,7 +255,7 @@ public class KrbCredInfoDecoderTest
 
         for ( FieldValueHolder fh : presentFieldList )
         {
-            Field actualField = krbCredInfoFieldNameMap.get( fh.fieldName.toLowerCase() );
+            Field actualField = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fh.fieldName ) );
             Object decodedValue = actualField.get( decoded );
 
             //System.out.println( fh.fieldName + " expected: " + fh.value + " , actual: " + decodedValue );
@@ -278,7 +279,7 @@ public class KrbCredInfoDecoderTest
         for ( Field f : fields )
         {
             f.setAccessible( true );
-            fieldNameMap.put( f.getName().toLowerCase(), f );
+            fieldNameMap.put( Strings.toLowerCase( f.getName() ), f );
         }
 
         return fieldNameMap;

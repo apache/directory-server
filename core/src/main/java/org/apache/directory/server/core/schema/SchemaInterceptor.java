@@ -94,6 +94,7 @@ import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -889,7 +890,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
-                String ocLowerName = ocName.toLowerCase();
+                String ocLowerName = Strings.toLowerCase( ocName );
 
                 ObjectClass objectClass = schemaManager.lookupObjectClassRegistry( ocLowerName );
 
@@ -905,7 +906,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     for ( ObjectClass oc : ocSuperiors )
                     {
-                        if ( !objectClasses.contains( oc.getName().toLowerCase() ) )
+                        if ( !objectClasses.contains( Strings.toLowerCase( oc.getName() ) ) )
                         {
                             objectClasses.add( oc.getName() );
                             objectClassesUP.add( oc.getName() );

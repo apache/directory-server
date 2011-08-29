@@ -23,6 +23,7 @@ package org.apache.directory.server.core;
 import javax.naming.Context;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -79,7 +80,7 @@ public enum ReferralHandlingMode
      */
     public static final ReferralHandlingMode getModeFromJndi( String jndiValue )
     {
-        jndiValue = jndiValue.trim().toLowerCase();
+        jndiValue = Strings.toLowerCase( Strings.trim( jndiValue ) );
         
         if ( jndiValue.equals( "throw" ) )
         {

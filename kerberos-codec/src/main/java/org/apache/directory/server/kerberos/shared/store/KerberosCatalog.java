@@ -24,6 +24,7 @@ package org.apache.directory.server.kerberos.shared.store;
 import java.util.Map;
 
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -49,7 +50,7 @@ class KerberosCatalog implements Catalog
 
     public String getBaseDn( String name )
     {
-        name = name.toLowerCase();
+        name = Strings.toLowerCase( name );
 
         if ( name.endsWith( "." ) )
         {

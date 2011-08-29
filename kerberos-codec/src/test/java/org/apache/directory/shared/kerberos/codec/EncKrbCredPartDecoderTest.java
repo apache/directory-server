@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.DecoderException;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.encKrbCredPart.EncKrbCredPartContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -41,6 +41,7 @@ import org.apache.directory.shared.kerberos.components.EncKrbCredPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.KrbCredInfo;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -131,14 +132,14 @@ public class EncKrbCredPartDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = EncKrbCrePartFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+            Field f = EncKrbCrePartFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             for ( int j = i + 1; j < size; j++ )
             {
                 fieldValHolder = optionalFieldValueList.get( j );
                 presentFieldList.add( fieldValHolder );
-                f = EncKrbCrePartFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+                f = EncKrbCrePartFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
                 f.set( expected, fieldValHolder.value );
             }
 
@@ -184,7 +185,7 @@ public class EncKrbCredPartDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = encKrbCredPartFieldNameMap.get( fieldValHolder.fieldName.toLowerCase() );
+            Field f = encKrbCredPartFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             ByteBuffer stream = ByteBuffer.allocate( expected.computeLength() );
@@ -222,7 +223,7 @@ public class EncKrbCredPartDecoderTest
         Map<String, Field> fieldNameMap = getFieldMap( decoded );
         for ( FieldValueHolder fh : presentFieldList )
         {
-            Field actualField = fieldNameMap.get( fh.fieldName.toLowerCase() );
+            Field actualField = fieldNameMap.get( Strings.toLowerCase( fh.fieldName ) );
             Object decodedValue = actualField.get( decoded );
 
             //System.out.println( fh.fieldName + " expected: " + fh.value + " , actual: " + decodedValue );
@@ -246,7 +247,7 @@ public class EncKrbCredPartDecoderTest
         for ( Field f : fields )
         {
             f.setAccessible( true );
-            fieldNameMap.put( f.getName().toLowerCase(), f );
+            fieldNameMap.put( Strings.toLowerCase( f.getName() ), f );
         }
 
         return fieldNameMap;

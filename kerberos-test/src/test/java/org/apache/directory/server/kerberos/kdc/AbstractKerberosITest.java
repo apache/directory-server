@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -287,8 +288,8 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         data += "}" + SystemUtils.LINE_SEPARATOR;
 
         data += "[domain_realm]" + SystemUtils.LINE_SEPARATOR;
-        data += "." + REALM.toLowerCase() + " = " + REALM + SystemUtils.LINE_SEPARATOR;
-        data += REALM.toLowerCase() + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += "." + Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
 
         FileUtils.writeStringToFile( file, data );
 

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -50,13 +51,14 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( DnsAttribute.SOA_M_NAME.toLowerCase(), mName );
-        map.put( DnsAttribute.SOA_R_NAME.toLowerCase(), rName );
-        map.put( DnsAttribute.SOA_SERIAL.toLowerCase(), serial );
-        map.put( DnsAttribute.SOA_REFRESH.toLowerCase(), refresh );
-        map.put( DnsAttribute.SOA_RETRY.toLowerCase(), retry );
-        map.put( DnsAttribute.SOA_EXPIRE.toLowerCase(), expire );
-        map.put( DnsAttribute.SOA_MINIMUM.toLowerCase(), minimum );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_M_NAME ), mName );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_R_NAME ), rName );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_SERIAL ), serial );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_REFRESH ), refresh );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_RETRY ), retry );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_EXPIRE ), expire );
+        map.put( Strings.toLowerCase( DnsAttribute.SOA_MINIMUM ), minimum );
+        
         return map;
     }
 
