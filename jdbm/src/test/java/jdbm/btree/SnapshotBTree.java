@@ -1,39 +1,51 @@
-    package jdbm.btree;
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package jdbm.btree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.concurrent.Semaphore;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
-import jdbm.helper.CacheEvictionException;
 import jdbm.helper.IntegerComparator;
-import jdbm.helper.LRUCache;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-
 import jdbm.recman.SnapshotRecordManager;
 
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
-import org.junit.rules.TemporaryFolder;
-
-import org.junit.Test;
-
-import java.util.concurrent.Semaphore;
-
+/**
+ * 
+ * TODO SnapshotBTree.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
 public class SnapshotBTree

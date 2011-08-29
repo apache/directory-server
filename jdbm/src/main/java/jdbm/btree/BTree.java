@@ -47,28 +47,27 @@
 package jdbm.btree;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.Serializable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import jdbm.RecordManager;
 import jdbm.ActionRecordManager;
+import jdbm.RecordManager;
+import jdbm.helper.ActionContext;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.helper.WrappedRuntimeException;
-import jdbm.helper.ActionContext;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -286,6 +285,7 @@ public class BTree<K, V> implements Externalizable
         BTree<K, V> btree = null;
         boolean abortedAction = false;
         ActionContext context = this.beginAction( false, "load" );
+        
         try
         {
             btree = (BTree<K, V>) recman.fetch( recid );
@@ -305,10 +305,11 @@ public class BTree<K, V> implements Externalizable
         finally
         {
             if ( !abortedAction )
+            {
                 this.endAction( context );
+            }
         }
         
-               
         return btree;
     }
 
@@ -343,7 +344,9 @@ public class BTree<K, V> implements Externalizable
         
 
         if ( !isActionCapable )
+        {
             bigLock.lock();
+        }
         
         try
         {
@@ -363,13 +366,17 @@ public class BTree<K, V> implements Externalizable
                 nbEntries.set( 1 );
                 recordManager.update( recordId, this );
                 updateMetaRoot( this.rootId, this.bTreeHeight );
+                
                 return null;
             }
             else
             {
                 BPage.InsertResult<K, V> insert = rootPage.insert( bTreeHeight, key, value, replace );
+                
                 if ( insert.pageNewCopy != null )
+                {
                     rootPage = insert.pageNewCopy;
+                }
                 
                 boolean dirty = false;
                 
@@ -412,14 +419,16 @@ public class BTree<K, V> implements Externalizable
         finally
         {
             if ( !abortedAction )
+            {
                 this.endAction( context );
+            }
             
             if ( !isActionCapable )
+            {
                 bigLock.unlock();
+            }
         }
-        
     }
-        
 
 
     /**
@@ -441,11 +450,12 @@ public class BTree<K, V> implements Externalizable
         ActionContext context = this.beginAction( false, "remove" );
 
         if ( !isActionCapable )
+        {
             bigLock.lock();
+        }
         
         try
         {
-
             BPage<K, V> rootPage = getRoot();
             
             if ( rootPage == null )
@@ -455,8 +465,11 @@ public class BTree<K, V> implements Externalizable
             
             boolean dirty = false;
             BPage.RemoveResult<K, V> remove = rootPage.remove( bTreeHeight, key );
+            
             if ( remove.pageNewCopy != null )
+            {
                 rootPage = remove.pageNewCopy;
+            }
             
             if ( remove.underflow && rootPage.isEmpty() )
             {
@@ -498,12 +511,15 @@ public class BTree<K, V> implements Externalizable
         finally
         {
             if ( !abortedAction )
+            {
                 this.endAction( context );
+            }
             
             if ( !isActionCapable )
+            {
                 bigLock.unlock();
+            }
         }
-        
     }
 
 
@@ -524,7 +540,9 @@ public class BTree<K, V> implements Externalizable
         }
         
         if ( !isActionCapable )
+        {
             bigLock.lock();
+        }
         
         try
         {      
@@ -553,10 +571,14 @@ public class BTree<K, V> implements Externalizable
         finally
         {
             if ( browser != null )
-                browser.close();  
+            {
+                browser.close();
+            }
 
             if ( !isActionCapable )
+            {
                 bigLock.unlock();
+            }
         }
         
     }
@@ -583,9 +605,12 @@ public class BTree<K, V> implements Externalizable
         }
 
         if ( !isActionCapable )
+        { 
             bigLock.lock();
+        }
         
         tuple = new Tuple<K, V>( null, null );
+        
         try
         {
             browser = browse( key );
@@ -603,11 +628,14 @@ public class BTree<K, V> implements Externalizable
         finally
         {
             if ( browser != null )
-                browser.close(); 
+            {
+                browser.close();
+            }
             
             if ( !isActionCapable )
+            {
                 bigLock.unlock();
-
+            }
         }
     }
 
@@ -624,7 +652,8 @@ public class BTree<K, V> implements Externalizable
     public TupleBrowser<K, V> browse() throws IOException
     {
         TupleBrowser<K, V> browser = null;
-        ActionContext context = this.beginAction( true, "browse" ); 
+        ActionContext context = this.beginAction( true, "browse" );
+        
         try
         {
             MetaRoot meta = this.getMetaRoot();
@@ -635,7 +664,8 @@ public class BTree<K, V> implements Externalizable
                 this.endAction( context );
                 return new EmptyBrowser(){};
             }
-            browser = rootPage.findFirst( context );         
+            
+            browser = rootPage.findFirst( context );
         }
         catch( IOException e )
         {
@@ -663,7 +693,8 @@ public class BTree<K, V> implements Externalizable
     public TupleBrowser<K, V> browse( K key ) throws IOException
     {
         TupleBrowser<K, V> browser = null;
-        ActionContext context = this.beginAction( true, "browse key" );  
+        ActionContext context = this.beginAction( true, "browse key" );
+        
         try
         {
             MetaRoot meta = this.getMetaRoot();
@@ -708,7 +739,7 @@ public class BTree<K, V> implements Externalizable
 
 
     /**
-     * Return the root BPage<Object, Object>, or null if it doesn't exist.
+     * @return the root BPage<Object, Object>, or null if it doesn't exist.
      */
     BPage<K, V> getRoot( ) throws IOException
     {        
@@ -726,8 +757,14 @@ public class BTree<K, V> implements Externalizable
         return root;
     }
     
+    
+    /**
+     * @param meta The root to search for
+     * 
+     * @return the root BPage<Object, Object>, or null if it doesn't exist.
+     */
     BPage<K, V> getRoot( MetaRoot meta ) throws IOException
-    {        
+    {
         if ( meta.rootID == 0 )
         {
             return null;
@@ -740,26 +777,27 @@ public class BTree<K, V> implements Externalizable
         return root;
     }
     
+    
     /**
      * 
      * Returns the meta root that can be used to fetch the root page
      *
-     * @return meta root
-     * @throws IOException
+     * @return meta root The meta root to search for
+     * @throws IOException If we had an exception during the fetch operation
      */
     MetaRoot getMetaRoot() throws IOException
     {
         if ( isActionCapable )
+        { 
             return ( MetaRoot )recordManager.fetch( -this.recordId );
+        }
         else
+        {
             return metaRoot;
+        }
     }
     
     
-    
-    
-
-
     /**
      * Implement Externalizable interface.
      */
@@ -822,7 +860,6 @@ public class BTree<K, V> implements Externalizable
     }
     
     
-    
     void setAsCurrentAction( ActionContext context )
     {
         if ( context != null )
@@ -832,6 +869,7 @@ public class BTree<K, V> implements Externalizable
         }
     }
 
+    
     void unsetAsCurrentAction( ActionContext context )
     {
         if ( context != null )
@@ -845,10 +883,12 @@ public class BTree<K, V> implements Externalizable
     ActionContext beginAction( boolean readOnly, String whoStarted )
     {
         ActionContext context = null;
+        
         if ( isActionCapable )
         {
             context = ( ( ActionRecordManager )recordManager ).beginAction( readOnly, whoStarted );
         }
+        
         return context;
     }
     
@@ -861,6 +901,7 @@ public class BTree<K, V> implements Externalizable
             ( ( ActionRecordManager )recordManager ).endAction( context );
         }
     }
+    
     
     void abortAction( ActionContext context )
     {
@@ -879,6 +920,7 @@ public class BTree<K, V> implements Externalizable
 
     }
     
+    
     private MetaRoot copyOnWrite( MetaRoot oldMetaRoot )
     {
         MetaRoot newMetaRoot = new MetaRoot();
@@ -888,6 +930,7 @@ public class BTree<K, V> implements Externalizable
         return newMetaRoot;
     }
     
+    
     private void updateMetaRoot( long newRootId, int newTreeHeight ) throws IOException
     {
         metaRoot = this.copyOnWrite( metaRoot );
@@ -895,12 +938,14 @@ public class BTree<K, V> implements Externalizable
         metaRoot.treeHeight = newTreeHeight;
         
         if ( isActionCapable )
+        { 
             recordManager.update( -this.recordId, metaRoot );
+        }
     }
+    
     
     V copyValue( V value) throws IOException 
     {
-
         byte[] array;
         V valueCopy = null;
         
@@ -934,22 +979,30 @@ public class BTree<K, V> implements Externalizable
             finally
             {
                 if ( bout != null )
+                {
                     bout.close();
+                }
 
                 if ( out != null )
+                {
                     out.close();
+                }
 
                 if ( bin != null )
+                {
                     bin.close();
+                }
 
                 if ( in != null )
+                {
                     in.close();
+                }
             }
 
-           }
-           return valueCopy;   
+        }
+        
+        return valueCopy;
     }
-    
     
     
     public String toString()
@@ -1000,7 +1053,7 @@ public class BTree<K, V> implements Externalizable
     }
     
     /**
-     * Used to poin to the root page that the reader needs based on the reader's
+     * Used to point to the root page that the reader needs based on the reader's
      * read action context. ReadWrite actions always use the latest root. 
      */
     class MetaRoot

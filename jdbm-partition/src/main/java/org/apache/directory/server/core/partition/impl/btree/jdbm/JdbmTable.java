@@ -312,7 +312,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         if ( ! allowsDuplicates )
         {
             return ( V ) bt.find( key );
-        }                         
+        }
 
         
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
@@ -467,11 +467,13 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
              * be the previous tuple if it exists.
              */
             TupleBrowser browser = bt.browse( tuple.getKey() );
+            
             if ( browser.getPrevious( tuple ) )
             {
                 this.closeBrowser( browser );
                 return true;
             }
+            
             this.closeBrowser( browser );
         }
 
@@ -566,6 +568,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                 {
                     return;
                 }
+                
                 if ( set.size() > numDupLimit )
                 {
                     BTree tree = convertToBTree( set );
@@ -632,6 +635,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                 {
                     LOG.debug( "<--- Remove NULL key " + name );
                 }
+                
                 return;
             }
     
@@ -673,6 +677,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                     {
                         bt.insert( key, (V)marshaller.serialize( set ), true );
                     }
+                    
                     count--;
 
                     if ( LOG.isDebugEnabled() )
@@ -774,6 +779,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
 
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
+                
                 return;
             }
             else
@@ -841,6 +847,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
 
         ArrayTree<V> set = marshaller.deserialize( serialized );
+        
         return new KeyTupleArrayCursor<K,V>( set, key );
     }
 
@@ -866,6 +873,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
 
         byte[] serialized = ( byte[] ) raw;
+        
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
@@ -930,6 +938,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }                         
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isBTreeRedirect() )
         {
             return true;
@@ -976,6 +985,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         BTree<K, V> tree = new BTree<K, V>().load( recMan, redirect.getRecId() );
         ((SerializableComparator<K>)tree.getComparator()).setSchemaManager( schemaManager );
         duplicateBtrees.put( redirect.getRecId(), tree );
+        
         return tree;
     }
 
@@ -1014,6 +1024,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                      * which is the only chance for returning true.
                      */
                     V firstKey = ( V ) tuple.getKey();
+                    
                     return valueComparator.compare( key, firstKey ) == 0;
                 }
             }
@@ -1038,6 +1049,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
 
         this.closeBrowser( browser );
+        
         return avlTree;
     }
     

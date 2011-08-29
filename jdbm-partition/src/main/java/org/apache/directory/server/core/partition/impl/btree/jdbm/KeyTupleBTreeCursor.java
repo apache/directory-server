@@ -334,6 +334,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
         super.close( cause );
         this.closeBrowser( browser );
     }
+
     
     private void closeBrowser(TupleBrowser browser)
     {

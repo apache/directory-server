@@ -1,30 +1,37 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package jdbm.helper;
 
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Iterator;
-import java.util.PriorityQueue;
-
-
-import java.util.Comparator;
-
 import java.util.Random;
-
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Condition;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.tools.javac.util.Log;
-
-
 
 
 /**
@@ -96,41 +103,53 @@ public class LRUCache<K, V>
         this.entryIO =entryIO;
         
         if ( cacheSize < MIN_ENTRIES )
+        {
             cacheSize = MIN_ENTRIES;
+        }
         
         maxEntries = cacheSize;
         
         int numHashBuckets = MIN_ENTRIES;
+        
         while ( numHashBuckets < maxEntries )
+        {
             numHashBuckets  = numHashBuckets << 1;
+        }
         
         if ( numHashBuckets >  maxEntries)
+        {
             numBuckets = numHashBuckets >> 1;
+        }
         else
+        {
             numBuckets  = numHashBuckets;
+        }
         
        buckets = ( List<CacheEntry>[] )new LinkedList[numBuckets];
+       
        for ( idx = 0; idx < numBuckets; idx++ ) 
        {
            buckets[idx] = new LinkedList<CacheEntry>(); 
        }
         
        int numLatches = numBuckets >> LOG_BUCKET_PER_LATCH;
-       latches = new Lock[numLatches];      
-       for ( idx = 0; idx < numLatches; idx++ )          
+       latches = new Lock[numLatches];
+       
+       for ( idx = 0; idx < numLatches; idx++ )
        {
            latches[idx] = new ReentrantLock(); 
        }
        
        lrus = ( LRUCache.LRU[] ) new LRUCache.LRU[NUM_LRUS];
-       for ( idx = 0; idx < NUM_LRUS; idx++ )          
+       
+       for ( idx = 0; idx < NUM_LRUS; idx++ )
        {
            lrus[idx] = new LRU(); 
        }
        
        numEntries = new AtomicInteger( 0 );
-        
     }
+    
     
     /**
      * Called as the minimum version that readers will use advances. This lets
@@ -143,9 +162,9 @@ public class LRUCache<K, V>
         minReadVersion = minVersion;
     }
     
+    
     /**
      * Updates the entry identified with the key with the new value.
-     *   
      *   
      * @param key identifier of the entry
      * @param value new value of the entry
@@ -189,6 +208,7 @@ public class LRUCache<K, V>
             while (it.hasNext() )
             {
                 entry = it.next();
+                
                 if ( entry.getKey().equals( key ) )
                 {
                     entryExists = true;
@@ -202,7 +222,6 @@ public class LRUCache<K, V>
                 {
                     switch ( entry.getState() )
                     {
-        
                         case ENTRY_READY: // should be the common case
                             
                             if ( !entry.isCurrentVersion() )
@@ -221,13 +240,14 @@ public class LRUCache<K, V>
                                 this.doRead( entry, latches[latchIndex], serializer );
                             }
                             
-                            
                             this.putNewVersion( entry, key, value, newVersion, hashIndex, 
                                 latches[latchIndex], serializer, neverReplace );                       
                             break;
+                            
                         case ENTRY_READING:
                             // Somebody is reading our entry, wait until the read is done and then retry
                             this.doWaitForStateChange( entry, latches[latchIndex] );
+                            
                             if ( entry.getState() == EntryState.ENTRY_READY )
                             {
                                 this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
@@ -237,19 +257,20 @@ public class LRUCache<K, V>
                             
                             LOG.warn( "Entry with key {} is at intial state after waiting for IO", entry.getKey() );
                             // FALLTHROUGH
-                        case ENTRY_INITIAL:
                             
+                        case ENTRY_INITIAL:
                             LOG.warn( "Entry with key {} is at intial while trying to read from it", entry.getKey() );
                             this.doRead( entry, latches[latchIndex], serializer );
                             this.putNewVersion( entry, key, value, newVersion, hashIndex, latches[latchIndex], 
                                 serializer, neverReplace );
                             break;
+                            
                         case ENTRY_WRITING:
                             // FALLTHROUGH
+                            
                         default:
                             assert ( false );
                     }
-        
                 }
                 else
                 {
@@ -265,7 +286,9 @@ public class LRUCache<K, V>
                 sleepForFreeEntry = totalSleepTime < this.MAX_WRITE_SLEEP_TIME;
                 
                 if ( sleepForFreeEntry == false )
+                {
                     throw e;
+                }
             }
             finally
             {
@@ -287,7 +310,9 @@ public class LRUCache<K, V>
                 totalSleepTime += sleepInterval;
             }
             else
+            {
                 break;
+            }
         }
     }
     
@@ -309,8 +334,6 @@ public class LRUCache<K, V>
         int latchIndex = ( hashIndex >> LOG_BUCKET_PER_LATCH );
         V value = null;
         
-        
-        
         /*
          * 1) If entry exists
          *   1.1) if the version chain contains the desired version, then return it, otherwise read
@@ -323,7 +346,6 @@ public class LRUCache<K, V>
          * 
          * While reading or waiting, latch is released.
          */
-        
         latches[latchIndex].lock();
         boolean chainExists = false;
         
@@ -333,6 +355,7 @@ public class LRUCache<K, V>
         while ( it.hasNext() )
         {
             entry = it.next();
+            
             if ( entry.getKey().equals( key ) )
             {
                 chainExists = true;
@@ -372,9 +395,11 @@ public class LRUCache<K, V>
                     case ENTRY_WRITING:    // being written entry is always at current version                        
                         value = this.searchChainForVersion( entry, version );
                         break;
+                        
                     case ENTRY_READING:
                         // Somebody is reading our entry, wait until the read is done and then retry
                         this.doWaitForStateChange( entry, latches[latchIndex] );
+                        
                         if ( entry.getState() == EntryState.ENTRY_READY )
                         {
                             value = this.searchChainForVersion( entry, version );
@@ -382,16 +407,17 @@ public class LRUCache<K, V>
                         }
                         LOG.warn( "Entry with key {} is at intial state after waiting for IO", entry.getKey() );
                         // FALLTHROUGH
+                        
                     case ENTRY_INITIAL:
                         
                         LOG.warn( "Entry with key {} is at intial while trying to read from it", entry.getKey() );
                         this.doRead( entry, latches[latchIndex], serializer );
                         value = this.searchChainForVersion( entry, version );
-                        break;                
+                        break;
+
                     default:
                         assert ( false );
                 }
-    
             }
             else
             {
@@ -409,7 +435,6 @@ public class LRUCache<K, V>
              * blocked
              */
             return entryIO.read( key, serializer );
-            
         }
         finally
         {
@@ -417,8 +442,8 @@ public class LRUCache<K, V>
         }
         
         return value;
-        
     }
+    
      
     /**
      * Creates a new version of the given entry with the given new version.
@@ -464,15 +489,16 @@ public class LRUCache<K, V>
         }
         
         if ( neverReplace )
+        {
             entry.setNeverReplace();
-
+        }
         
         entry.setState( EntryState.ENTRY_WRITING );
         latch.unlock();
         
         try
         {
-         entryIO.write( key, value, serializer );
+            entryIO.write( key, value, serializer );
         }
         catch( IOException e )
         {
@@ -481,8 +507,11 @@ public class LRUCache<K, V>
              * inconsistent state.
              */
             entry.setState( EntryState.ENTRY_INITIAL );
+            
             if ( entry.anyWaiters() )
+            {
                 entry.getStateCondition( latch ).notifyAll();
+            }
             else
             {
                 LRU lru = entry.getLru();
@@ -494,13 +523,12 @@ public class LRUCache<K, V>
             latch.unlock();
             
             throw e;
-            
         }
         
         latch.lock();
         entry.setState( EntryState.ENTRY_READY );
-
     }
+    
     
     /**
      * Searches the given version for the entry that can satisfy the read with the 
@@ -521,11 +549,14 @@ public class LRUCache<K, V>
         V value = null;
         
         if ( head.getState() !=  EntryState.ENTRY_READY || !head.isCurrentVersion() )
+        {
             mustFind = false;
+        }
         
         do
         {
             curEntry = curLink.getElement();
+            
             if ( curEntry.getState() != EntryState.ENTRY_READY )
             {
                 assert( curEntry == head );
@@ -534,10 +565,11 @@ public class LRUCache<K, V>
             }
         
             if ( curStartVersion != 0 && ( curEntry.getEndVersion() > curStartVersion ) )
+            {
                 assert( false );
+            }
             
             curStartVersion = curEntry.getStartVersion();
-            
             
             if ( !curEntry.canReadFrom( version ) )
             {
@@ -546,7 +578,6 @@ public class LRUCache<K, V>
             }
             
             // found it
-            
             if ( curEntry.isCurrentVersion() )
             {
                 // Warm the entry in the lru
@@ -558,13 +589,17 @@ public class LRUCache<K, V>
             
             value = curEntry.getValue();
             break;
-        }while( curLink != head.getVersionsLink() );
+            
+        } while ( curLink != head.getVersionsLink() );
         
-        if ( value == null && mustFind == true )            
+        if ( value == null && mustFind == true )
+        {
             assert( false );
+        }
         
         return value;
     }
+    
     
     /**
      * Wait for the state change to happen. Usually used to wait for another 
@@ -578,6 +613,7 @@ public class LRUCache<K, V>
         EntryState curState = entry.getState();
         Condition cond = entry.getStateCondition( latch );
         entry.bumpWaiters();
+        
         do
         {
             cond.awaitUninterruptibly();
@@ -586,6 +622,7 @@ public class LRUCache<K, V>
         
         entry.decrementWaiters();
     }
+    
     
    /**
     * Does read the value for the given entry. At entry, latch is held. It is
@@ -611,8 +648,11 @@ public class LRUCache<K, V>
             // do cleanup and rethrow
             latch.lock();
             entry.setState( EntryState.ENTRY_INITIAL );
+            
             if ( entry.anyWaiters() )
+            {
                 entry.getStateCondition( latch ).notifyAll();
+            }
             else
             {
                 LRU lru = entry.getLru();
@@ -631,14 +671,22 @@ public class LRUCache<K, V>
         // set the version range
         ExplicitList.Link<CacheEntry> nextLink = entry.getVersionsLink().getNext();
         long startVersion;
+        
         if ( entry.getVersionsLink().isUnLinked() )
+        {
             startVersion = 0;
+        }
         else
+        {
             startVersion = nextLink.getElement().getEndVersion();
+        }
         
         entry.setAsCurrentVersion( value, startVersion );
+        
         if ( entry.anyWaiters() )
+        {
             entry.getStateCondition( latch ).signalAll();
+        }
     }
     
     /**
@@ -657,7 +705,6 @@ public class LRUCache<K, V>
         int id, curIndex;
         boolean lruLocked = false;
         
-        
         // if under max entries, allocate a new one and add it to the lru with the index.. numEntries check is dirty
         if ( numEntries.get() < maxEntries )
         {
@@ -668,6 +715,7 @@ public class LRUCache<K, V>
             lru.addToLRU( newEntry );
             lru.getLock().unlock();
             newEntry.initialize( key );
+            
             return newEntry;
         }
         
@@ -679,6 +727,7 @@ public class LRUCache<K, V>
         CacheEntry victimEntry = null;
         lru = null;
         curIndex = 0;
+        
         for ( id = 0; id < NUM_LRUS; id++ )
         {
             curIndex = ( index + id ) % NUM_LRUS;
@@ -699,6 +748,7 @@ public class LRUCache<K, V>
         }
         
         int startingIndex = curIndex;
+        
         do
         {
             victimEntry = lru.findVictim( latchIndex );
@@ -715,10 +765,13 @@ public class LRUCache<K, V>
             
             lru = lrus[curIndex];
             lru.getLock().lock();
-        }while ( true );
+        } 
+        while ( true );
         
         if ( victimEntry != null )
+        { 
             victimEntry.initialize( key );
+        }
         else
         {
             LOG.warn( "Cache eviction failure: " + this.minReadVersion );
@@ -736,6 +789,7 @@ public class LRUCache<K, V>
         h ^= ( h >>> 14 );
         h += ( h << 4 );
         h ^= ( h >>> 10 );
+        
         return h;
     }
     
@@ -820,6 +874,7 @@ public class LRUCache<K, V>
             neverReplace = true;
         }
         
+        
         public K getKey()
         {
             return key;
@@ -830,6 +885,7 @@ public class LRUCache<K, V>
         {
             return value;
         }
+        
         
         public int getHashIndex()
         {
@@ -842,10 +898,13 @@ public class LRUCache<K, V>
             return lrus[lruid];
         }
 
+        
         public Condition getStateCondition( Lock lock )
         {
             if ( stateCondition == null )
+            {
                 stateCondition = lock.newCondition();
+            }
 
             return stateCondition;
         }
@@ -868,6 +927,7 @@ public class LRUCache<K, V>
         {
             return numWaiters > 0;
         }
+        
 
         public long getEndVersion()
         {
@@ -879,6 +939,7 @@ public class LRUCache<K, V>
         {
             return startVersion;
         }
+        
         
         /**
          * Check if entry is the most recent version for its key
@@ -914,6 +975,7 @@ public class LRUCache<K, V>
         {
             this.state = newState;
         }
+        
 
         public ExplicitList.Link<CacheEntry> getVersionsLink()
         {
@@ -926,6 +988,7 @@ public class LRUCache<K, V>
             return lruLink;
         }
         
+        
         public void setAsCurrentVersion( V newValue, long startVersion )
         {
             this.startVersion = startVersion;
@@ -933,6 +996,7 @@ public class LRUCache<K, V>
             this.value = newValue;
             this.state = EntryState.ENTRY_READY;
         }
+        
         
         public void setAsSnapshotVersion( long newEndVersion )
         {
@@ -944,12 +1008,12 @@ public class LRUCache<K, V>
             lru.getLock().unlock();
         }
         
+        
         public boolean isEntryFreeable()
         {
             return ( this.state != EntryState.ENTRY_READING && this.numWaiters == 0 && 
                 this.state != EntryState.ENTRY_WRITING && !neverReplace);
         }
-        
     }
     
         
@@ -969,6 +1033,7 @@ public class LRUCache<K, V>
             return lock;
         }
         
+        
         /**
          * add the new entry to the head of the lru
          *
@@ -978,6 +1043,7 @@ public class LRUCache<K, V>
         {
             mostRecentVersions.addFirst( entry.getLruLink() );
         }
+        
         
         /**
          * Removes the entry from the lru list and Adds the entry to the list of snapshot entries.
@@ -991,6 +1057,7 @@ public class LRUCache<K, V>
             snapshotVersions.addLast( entry );
         }
         
+        
         /**
          * Moves the entry to the cold end of the lru. Entry should be a most
          * recent entry
@@ -1002,6 +1069,7 @@ public class LRUCache<K, V>
             mostRecentVersions.remove( entry.getLruLink() );
             mostRecentVersions.addFirst( entry.getLruLink() );
         }
+        
         
         /**
          * Increases the hotness of the given entry
@@ -1035,12 +1103,15 @@ public class LRUCache<K, V>
              */
             
             Iterator<CacheEntry> it = snapshotVersions.listIterator();
+            
             while ( it.hasNext() )
             {
                 victimEntry = it.next();
                 
                 if ( victimEntry.getEndVersion() > minReadVersion )
+                {
                     break;
+                }
                 
                 assert ( victimEntry.isEntryFreeable() == true );
                 
@@ -1048,13 +1119,17 @@ public class LRUCache<K, V>
                 victimBucketIndex = victimEntry.getHashIndex();
                 victimLatchIndex = (victimBucketIndex >> LOG_BUCKET_PER_LATCH );
                 
-                if ( latchIndex != victimLatchIndex && latches[victimLatchIndex].tryLock() == false )
+                if ( ( latchIndex != victimLatchIndex ) && ( latches[victimLatchIndex].tryLock() == false ) )
+                {
                     continue;
+                }
                 
-                int hashChainIndex = buckets[victimEntry.getHashIndex()].indexOf( victimEntry ); 
+                int hashChainIndex = buckets[victimEntry.getHashIndex()].indexOf( victimEntry );
+                
                 if ( hashChainIndex != -1 )
                 {
                     buckets[victimEntry.getHashIndex()].remove( hashChainIndex );
+                    
                     if ( victimEntry.getVersionsLink().isLinked() )
                     {
                         ExplicitList.Link<CacheEntry> nextLink = victimEntry.getVersionsLink().getNext();
@@ -1069,17 +1144,19 @@ public class LRUCache<K, V>
                     victimEntry.getVersionsLink().remove();
                 }
                 
-                
                 if ( latchIndex != victimLatchIndex )
+                {
                     latches[victimLatchIndex].unlock();
+                }
                 
                 it.remove();
                 this.mostRecentVersions.addLast( victimEntry.lruLink );
-                return victimEntry;
                 
+                return victimEntry;
             }
             
             ExplicitList.Link<CacheEntry> curLink = mostRecentVersions.begin();
+            
             while ( curLink != mostRecentVersions.end() )
             {
                 victimEntry = curLink.getElement();
@@ -1104,14 +1181,16 @@ public class LRUCache<K, V>
                 if ( victimEntry.isEntryFreeable() == false )
                 {
                     if ( latchIndex != victimLatchIndex )
+                    {
                         latches[victimLatchIndex].unlock();
+                    }
                     
                     curLink = curLink.getNext();
                     continue;
                 }
                 
-                
                 buckets[victimEntry.getHashIndex()].remove( victimEntry );
+                
                 if ( victimEntry.getVersionsLink().isLinked() )
                 {
                     ExplicitList.Link<CacheEntry> nextLink = victimEntry.getVersionsLink().getNext();
@@ -1122,18 +1201,15 @@ public class LRUCache<K, V>
                 }
                 
                 if ( latchIndex != victimLatchIndex )
+                {
                     latches[victimLatchIndex].unlock();
+                }
                 
                 this.touch( victimEntry );
                 return victimEntry;
-                
             }
             
             return null;
-           
         }
-       
     }
-
-
 }

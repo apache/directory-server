@@ -1,9 +1,26 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package jdbm.helper;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,10 +35,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-
 public class ActionVersioning
 {
-
     /** Current write version */
     private Version nextVersion;
     
@@ -78,7 +93,7 @@ public class ActionVersioning
         listLock.lock();
         versions.addLast( newNextVersion.getVersionsLink() );
         
-        if ( oldReadVersion.getNumActions().get() == 0 && 
+        if ( ( oldReadVersion.getNumActions().get() == 0 ) && 
             oldReadVersion.getVersionsLink().isLinked() )
         {
             versions.remove( oldReadVersion.getVersionsLink() );
@@ -91,6 +106,7 @@ public class ActionVersioning
         nextVersion = newNextVersion;
         return minVersion;
     }
+    
     
     /**
      * Returns a version that can be used by the read only action
@@ -111,17 +127,19 @@ public class ActionVersioning
         if ( readVersion != readReference.get() )
         {
             listLock.lock();
+            
             if ( readVersion.getVersionsLink().isUnLinked() )
             {
                 readVersion = readReference.get();
                 readVersion.getNumActions().incrementAndGet();
             }
+            
             listLock.unlock();
-
         }
         
         return readVersion;
     }
+    
     
     /**
      * Called when the read action with the given action is ended.
@@ -137,9 +155,7 @@ public class ActionVersioning
         
         assert( numActions >= 0 );
         
-        
-        
-        if ( numActions > 0 || version == readReference.get() )
+        if ( ( numActions > 0 ) || ( version == readReference.get() ) )
         {
             // minimum read version did not change for sure
             return null;
@@ -147,18 +163,20 @@ public class ActionVersioning
         
         Version minVersion = null;
         listLock.lock();
-        if ( version.getNumActions().get() == 0 && 
+        
+        if ( ( version.getNumActions().get() == 0 ) && 
             version.getVersionsLink().isLinked() )
         {
             version.getVersionsLink().remove();
             version.getVersionsLink().uninit();
         }
+        
         minVersion = versions.begin().getElement();
         listLock.unlock();
         
         return minVersion;
-        
     }
+    
     
     public static class Version
     {
@@ -181,15 +199,18 @@ public class ActionVersioning
             numActions = new AtomicInteger( 0 );
         }
         
+        
         private ExplicitList.Link<Version> getVersionsLink()
         {
             return versionsLink;
         }
         
+        
         private AtomicInteger getNumActions()
         {
             return numActions;
         }
+        
         
         public long getVersion()
         {
