@@ -477,4 +477,26 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
         super.close( cause );
         containerCursor.close( cause );
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        containerCursor.close();            
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        containerCursor.close( cause );
+    }
+
 }

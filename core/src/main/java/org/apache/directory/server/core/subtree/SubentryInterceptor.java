@@ -245,12 +245,21 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     subentryCache.addSubentry( subentryDn, newSubentry );
                 }
-
-                subentries.close();
             }
             catch ( Exception e )
             {
                 throw new LdapOperationException( e.getMessage(), e );
+            }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
             }
         }
     }
@@ -376,6 +385,17 @@ public class SubentryInterceptor extends BaseInterceptor
         catch ( Exception e )
         {
             throw new LdapOtherException( e.getMessage(), e );
+        }
+        finally
+        {
+            try
+            {
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                LOG.error( I18n.err( I18n.ERR_168 ), e );
+            }
         }
     }
 
@@ -1093,6 +1113,17 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 throw new LdapOperationErrorException( e.getMessage(), e );
             }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
+            }
 
             // search for all selected entries by the new SS and add references to subentry
             subentry = subentryCache.getSubentry( dn );
@@ -1123,6 +1154,17 @@ public class SubentryInterceptor extends BaseInterceptor
             catch ( Exception e )
             {
                 throw new LdapOperationErrorException( e.getMessage(), e );
+            }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
             }
         }
         else
@@ -1232,12 +1274,21 @@ public class SubentryInterceptor extends BaseInterceptor
                             oldDn, newName, subentry, candidate ) ) );
                     }
                 }
-
-                subentries.close();
             }
             catch ( Exception e )
             {
                 throw new LdapOperationException( e.getMessage(), e );
+            }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
             }
         }
         else
@@ -1323,12 +1374,21 @@ public class SubentryInterceptor extends BaseInterceptor
                             oldDn, newName, subentry, candidate ) ) );
                     }
                 }
-
-                subentries.close();
             }
             catch ( Exception e )
             {
                 throw new LdapOperationException( e.getMessage(), e );
+            }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
             }
         }
         else
@@ -1404,12 +1464,21 @@ public class SubentryInterceptor extends BaseInterceptor
                             oldDn, newName, subentry, candidate ) ) );
                     }
                 }
-
-                subentries.close();
             }
             catch ( Exception e )
             {
                 throw new LdapOperationException( e.getMessage(), e );
+            }
+            finally
+            {
+                try
+                {
+                    subentries.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                }
             }
         }
         else
