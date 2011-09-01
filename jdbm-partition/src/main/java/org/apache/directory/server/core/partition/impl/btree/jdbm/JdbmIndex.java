@@ -26,9 +26,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import jdbm.RecordManager;
-import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
+import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
@@ -176,7 +175,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
-        this.recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
+        this.recMan = new SnapshotRecordManager( base, DEFAULT_INDEX_CACHE_SIZE );
 
         try
         {

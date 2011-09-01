@@ -27,9 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import jdbm.RecordManager;
-import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
+import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
@@ -141,7 +140,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             }
     
             // Now, create the entry cache for this partition
-            recMan = new CacheRecordManager( baseRecordManager, new MRU( cacheSize ) );
+            recMan = new SnapshotRecordManager( baseRecordManager, cacheSize );
     
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable<Entry>( recMan, schemaManager );

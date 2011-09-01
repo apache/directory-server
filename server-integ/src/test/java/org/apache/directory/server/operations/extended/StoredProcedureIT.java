@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Ignore;
 
 
 /**
@@ -98,6 +99,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     }
 
 
+    @Ignore
     @Test
     public void testExecuteProcedureWithReturnValue() throws Exception
     {
@@ -109,6 +111,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     }
 
 
+    @Ignore
     @Test
     public void testExecuteProcedureWithParametersAndReturnValue() throws Exception
     {

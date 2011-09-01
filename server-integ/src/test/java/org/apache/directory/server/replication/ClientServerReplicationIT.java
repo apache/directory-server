@@ -120,6 +120,7 @@ public class ClientServerReplicationIT
                 if ( entry.getDn().equals( entryDn ) )
                 {
                     System.out.println( "The searched entry exists !!!" );
+                    System.out.println( "found Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
                     break;
                 }
                 

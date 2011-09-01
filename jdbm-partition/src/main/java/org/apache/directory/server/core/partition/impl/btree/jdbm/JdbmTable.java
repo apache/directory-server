@@ -312,7 +312,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         if ( ! allowsDuplicates )
         {
             return ( V ) bt.find( key );
-        }                         
+        }
 
         
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
@@ -332,7 +332,9 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         BTree tree = getBTree( values.getBTreeRedirect() );
 
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
-        tree.browse().getNext( tuple );
+        TupleBrowser<K,V> browser = tree.browse();
+        browser.getNext( tuple );
+        this.closeBrowser( browser );
         //noinspection unchecked
         
         return ( V ) tuple.getKey();
@@ -468,8 +470,11 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
             
             if ( browser.getPrevious( tuple ) )
             {
+                this.closeBrowser( browser );
                 return true;
             }
+            
+            this.closeBrowser( browser );
         }
 
         return false;
@@ -563,6 +568,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                 {
                     return;
                 }
+                
                 if ( set.size() > numDupLimit )
                 {
                     BTree tree = convertToBTree( set );
@@ -629,6 +635,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                 {
                     LOG.debug( "<--- Remove NULL key " + name );
                 }
+                
                 return;
             }
     
@@ -670,6 +677,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                     {
                         bt.insert( key, (V)marshaller.serialize( set ), true );
                     }
+                    
                     count--;
 
                     if ( LOG.isDebugEnabled() )
@@ -771,6 +779,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
 
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
+                
                 return;
             }
             else
@@ -838,6 +847,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
 
         ArrayTree<V> set = marshaller.deserialize( serialized );
+        
         return new KeyTupleArrayCursor<K,V>( set, key );
     }
 
@@ -863,6 +873,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
 
         byte[] serialized = ( byte[] ) raw;
+        
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
@@ -927,6 +938,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }                         
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isBTreeRedirect() )
         {
             return true;
@@ -973,6 +985,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         BTree<K, V> tree = new BTree<K, V>().load( recMan, redirect.getRecId() );
         ((SerializableComparator<K>)tree.getComparator()).setSchemaManager( schemaManager );
         duplicateBtrees.put( redirect.getRecId(), tree );
+        
         return tree;
     }
 
@@ -983,33 +996,42 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         
         TupleBrowser browser = tree.browse( key );
-        if ( isGreaterThan )
+        
+        try
         {
-            return browser.getNext( tuple );
-        }
-        else
-        {
-            if ( browser.getPrevious( tuple ) )
-            {
-                return true;
+            if ( isGreaterThan )
+            { 
+                return browser.getNext( tuple );
             }
             else
             {
-                /*
-                 * getPrevious() above fails which means the browser has is
-                 * before the first Tuple of the btree.  A call to getNext()
-                 * should work every time.
-                 */
-                browser.getNext( tuple );
-
-                /*
-                 * Since the browser is positioned now on the Tuple with the
-                 * smallest key we just need to check if it equals this key
-                 * which is the only chance for returning true.
-                 */
-                V firstKey = ( V ) tuple.getKey();
-                return valueComparator.compare( key, firstKey ) == 0;
+                if ( browser.getPrevious( tuple ) )
+                {
+                    return true;
+                }
+                else
+                {
+                    /*
+                     * getPrevious() above fails which means the browser has is
+                     * before the first Tuple of the btree.  A call to getNext()
+                     * should work every time.
+                     */
+                    browser.getNext( tuple );
+    
+                    /*
+                     * Since the browser is positioned now on the Tuple with the
+                     * smallest key we just need to check if it equals this key
+                     * which is the only chance for returning true.
+                     */
+                    V firstKey = ( V ) tuple.getKey();
+                    
+                    return valueComparator.compare( key, firstKey ) == 0;
+                }
             }
+        }
+        finally
+        {
+            this.closeBrowser( browser );
         }
     }
 
@@ -1026,6 +1048,8 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
             avlTree.insert( ( V ) tuple.getKey() );
         }
 
+        this.closeBrowser( browser );
+        
         return avlTree;
     }
     
@@ -1052,5 +1076,13 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
         }
         
         return bTree;
+    }
+    
+    private void closeBrowser(TupleBrowser<K,V> browser)
+    {
+        if ( browser != null )
+        {
+            browser.close();
+        }
     }
 }

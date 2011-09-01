@@ -108,7 +108,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
-
+        this.closeBrowser( browser );
         browser = btree.browse( value );
         clearValue();
     }
@@ -125,6 +125,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
+        this.closeBrowser( browser );
         browser = btree.browse( value );
 
         /*
@@ -152,6 +153,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
                  */
                 if ( !browser.getPrevious( valueTuple ) )
                 {
+                    this.closeBrowser( browser );
                     browser = btree.browse( this.key );
                 }
 
@@ -176,6 +178,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public void before( Tuple<K,V> element ) throws Exception
     {
         checkNotClosed( "before()" );
+        this.closeBrowser( browser );
         browser = btree.browse( element.getValue() );
         clearValue();
     }
@@ -196,6 +199,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
+        this.closeBrowser( browser );
         browser = btree.browse();
         clearValue();
     }
@@ -207,6 +211,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
+        this.closeBrowser( browser );
         browser = btree.browse( null );
     }
 
@@ -307,5 +312,35 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
         }
 
         throw new InvalidCursorPositionException();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        this.closeBrowser( browser );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        this.closeBrowser( browser );
+    }
+
+    
+    private void closeBrowser(TupleBrowser browser)
+    {
+        if ( browser != null )
+        {
+            browser.close();
+        }
     }
 }

@@ -47,17 +47,19 @@
 package jdbm.btree;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import jdbm.helper.ActionContext;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -80,7 +82,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
 public class BPage<K, V> implements Serializer
-{
+{ 
     private static final boolean DEBUG = false;
 
     /** Version id for serialization. */
@@ -112,6 +114,8 @@ public class BPage<K, V> implements Serializer
 
     /** Next leaf BPage (only if this BPage is a leaf) */
     protected long next;
+    
+    public static AtomicInteger outstandingBrowsers = new AtomicInteger(0);
 
 
     /**
@@ -127,7 +131,7 @@ public class BPage<K, V> implements Serializer
      * Root page overflow constructor
      */
     @SuppressWarnings("unchecked")
-    BPage( BTree btree, BPage<K, V> root, BPage<K, V> overflow ) throws IOException
+    BPage( BTree<K, V> btree, BPage<K, V> root, BPage<K, V> overflow ) throws IOException
     {
         this.btree = btree;
 
@@ -151,7 +155,7 @@ public class BPage<K, V> implements Serializer
      * Root page (first insert) constructor.
      */
     @SuppressWarnings("unchecked") // Cannot create an array of generic objects
-    BPage( BTree btree, K key, V value ) throws IOException
+    BPage( BTree<K,V> btree, K key, V value ) throws IOException
     {
         this.btree = btree;
 
@@ -164,7 +168,7 @@ public class BPage<K, V> implements Serializer
         keys[btree.pageSize - 1] = null; // I am the root BPage for now
 
         values = (V[])new Object[btree.pageSize];
-        values[btree.pageSize - 2] = value;
+        values[btree.pageSize - 2] = btree.copyValue( value );
         values[btree.pageSize - 1] = null; // I am the root BPage for now
 
         recordId = btree.recordManager.insert( this, this );
@@ -196,6 +200,33 @@ public class BPage<K, V> implements Serializer
         }
 
         recordId = btree.recordManager.insert( this, this );
+    }
+    
+    @SuppressWarnings("unchecked") // Cannot create an array of generic objects
+    BPage<K,V> copyOnWrite()
+    {
+        BPage<K, V> newPage = new BPage<K,V>();
+        
+        newPage.btree = this.btree;
+        newPage.isLeaf = this.isLeaf;
+        
+        newPage.first = this.first;
+        newPage.previous = this.previous;
+        newPage.next = this.next;
+        
+        newPage.keys = (K[])new Object[btree.pageSize];
+        newPage.values = (V[])new Object[btree.pageSize];
+        newPage.children = new long[btree.pageSize];
+        
+        newPage.recordId = this.recordId;
+        
+        if ( this.children != null )
+            this.copyChildren( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        
+        if (this.values != null ) 
+            this.copyEntries( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        
+        return newPage;
     }
 
 
@@ -259,10 +290,11 @@ public class BPage<K, V> implements Serializer
      *
      * @param height Height of the current BPage (zero is leaf page)
      * @param key The key
+     * @param context action context in case of action capable record manager
      * @return TupleBrowser positionned just before the given key, or before
      *                      next greater key if key isn't found.
      */
-    TupleBrowser<K, V> find( int height, K key ) throws IOException
+    TupleBrowser<K, V> find( int height, K key, ActionContext context) throws IOException
     {
         int index = this.findChildren( key );
         
@@ -285,26 +317,26 @@ public class BPage<K, V> implements Serializer
             }
         }
 
-        return new Browser( child, index );
+        return new Browser( child, index, context);
     }
 
 
     /**
      * Find first entry and return a browser positioned before it.
-     *
+     *@param context Action Context in case of 
      * @return TupleBrowser positionned just before the first entry.
      */
-    TupleBrowser<K, V> findFirst() throws IOException
+    TupleBrowser<K, V> findFirst( ActionContext context ) throws IOException
     {
         if ( isLeaf )
         {
-            return new Browser( this, first );
+            return new Browser( this, first, context );
         }
         else
         {
             BPage<K, V> child = childBPage( first );
             
-            return child.findFirst();
+            return child.findFirst( context );
         }
     }
 
@@ -337,9 +369,13 @@ public class BPage<K, V> implements Serializer
 
         height -= 1;
         
+        BPage<K,V> pageNewCopy = null;
+        
         if ( height == 0 )
         {
+            pageNewCopy = btree.copyOnWrite( this );
             result = new InsertResult<K, V>();
+            result.pageNewCopy = pageNewCopy;
 
             // inserting on a leaf BPage
             overflow = -1;
@@ -365,8 +401,8 @@ public class BPage<K, V> implements Serializer
                 
                 if ( replace )
                 {
-                    values[index] = value;
-                    btree.recordManager.update( recordId, this, this );
+                    pageNewCopy.values[index] = value;
+                    btree.recordManager.update( recordId, pageNewCopy, this );
                 }
                 
                 // return the existing key
@@ -378,6 +414,12 @@ public class BPage<K, V> implements Serializer
             // non-leaf BPage
             BPage<K, V> child = childBPage( index );
             result = child.insert( height, key, value, replace );
+            
+            if( result.pageNewCopy != null)
+            {
+                child = result.pageNewCopy;
+                result.pageNewCopy = null;
+            }
 
             if ( result.existing != null )
             {
@@ -393,6 +435,9 @@ public class BPage<K, V> implements Serializer
 
             // there was an overflow, we need to insert the overflow page
             // on this BPage
+            pageNewCopy = btree.copyOnWrite( this );
+            result.pageNewCopy = pageNewCopy;
+            
             if ( DEBUG )
             {
                 System.out.println( "BPage.insert() Overflow page: " + result.overflow.recordId );
@@ -402,7 +447,7 @@ public class BPage<K, V> implements Serializer
             overflow = result.overflow.recordId;
 
             // update child's largest key
-            keys[index] = child.getLargestKey();
+            pageNewCopy.keys[index] = child.getLargestKey();
 
             // clean result so we can reuse it
             result.overflow = null;
@@ -410,24 +455,25 @@ public class BPage<K, V> implements Serializer
 
         // if we get here, we need to insert a new entry on the BPage
         // before children[ index ]
-        if ( !isFull() )
-        {
+        if ( !pageNewCopy.isFull() )
+        {            
             if ( height == 0 )
             {
-                insertEntry( this, index - 1, key, value );
+                insertEntry( pageNewCopy, index - 1, key, value );
             }
             else
             {
-                insertChild( this, index - 1, key, overflow );
+                insertChild( pageNewCopy, index - 1, key, overflow );
             }
             
-            btree.recordManager.update( recordId, this, this );
+            btree.recordManager.update( recordId, pageNewCopy, this );
+            
             return result;
         }
 
         // page is full, we must divide the page
         int half = btree.pageSize >> 1;
-        BPage<K, V> newPage = new BPage<K, V>( btree, isLeaf );
+        BPage<K, V> newPage = new BPage<K, V>( btree, pageNewCopy.isLeaf );
         
         if ( index < half )
         {
@@ -441,15 +487,15 @@ public class BPage<K, V> implements Serializer
             
             if ( height == 0 )
             {
-                copyEntries( this, 0, newPage, half, index );
+                copyEntries( pageNewCopy, 0, newPage, half, index );
                 setEntry( newPage, half + index, key, value );
-                copyEntries( this, index, newPage, half + index + 1, half - index - 1 );
+                copyEntries( pageNewCopy, index, newPage, half + index + 1, half - index - 1 );
             }
             else
             {
-                copyChildren( this, 0, newPage, half, index );
+                copyChildren( pageNewCopy, 0, newPage, half, index );
                 setChild( newPage, half + index, key, overflow );
-                copyChildren( this, index, newPage, half + index + 1, half - index - 1 );
+                copyChildren( pageNewCopy, index, newPage, half + index + 1, half - index - 1 );
             }
         }
         else
@@ -463,50 +509,51 @@ public class BPage<K, V> implements Serializer
             
             if ( height == 0 )
             {
-                copyEntries( this, 0, newPage, half, half );
-                copyEntries( this, half, this, half - 1, index - half );
-                setEntry( this, index - 1, key, value );
+                copyEntries( pageNewCopy, 0, newPage, half, half );
+                copyEntries( pageNewCopy, half, pageNewCopy, half - 1, index - half );
+                setEntry( pageNewCopy, index - 1, key, value );
             }
             else
             {
-                copyChildren( this, 0, newPage, half, half );
-                copyChildren( this, half, this, half - 1, index - half );
-                setChild( this, index - 1, key, overflow );
+                copyChildren( pageNewCopy, 0, newPage, half, half );
+                copyChildren( pageNewCopy, half, pageNewCopy, half - 1, index - half );
+                setChild( pageNewCopy, index - 1, key, overflow );
             }
         }
 
-        first = half - 1;
+        pageNewCopy.first = half - 1;
 
         // nullify lower half of entries
-        for ( int i = 0; i < first; i++ )
+        for ( int i = 0; i < pageNewCopy.first; i++ )
         {
             if ( height == 0 )
             {
-                setEntry( this, i, null, null );
+                setEntry( pageNewCopy, i, null, null );
             }
             else
             {
-                setChild( this, i, null, -1 );
+                setChild( pageNewCopy, i, null, -1 );
             }
         }
 
-        if ( isLeaf )
+        if ( pageNewCopy.isLeaf )
         {
             // link newly created BPage
-            newPage.previous = previous;
-            newPage.next = recordId;
+            newPage.previous = pageNewCopy.previous;
+            newPage.next = pageNewCopy.recordId;
             
-            if ( previous != 0 )
+            if ( pageNewCopy.previous != 0 )
             {
-                BPage<K, V> previousBPage = loadBPage( previous );
+                BPage<K, V> previousBPage = loadBPage( pageNewCopy.previous );
+                previousBPage = btree.copyOnWrite( previousBPage );
                 previousBPage.next = newPage.recordId;
-                btree.recordManager.update( previous, previousBPage, this );
+                btree.recordManager.update( pageNewCopy.previous, previousBPage, this );
             }
             
-            previous = newPage.recordId;
+            pageNewCopy.previous = newPage.recordId;
         }
 
-        btree.recordManager.update( recordId, this, this );
+        btree.recordManager.update( recordId, pageNewCopy, this );
         btree.recordManager.update( newPage.recordId, newPage, this );
 
         result.overflow = newPage;
@@ -521,9 +568,9 @@ public class BPage<K, V> implements Serializer
      * @param key Removal key
      * @return Remove result object
      */
-    RemoveResult<V> remove( int height, K key ) throws IOException
+    RemoveResult<K, V> remove( int height, K key ) throws IOException
     {
-        RemoveResult<V> result;
+        RemoveResult<K, V> result;
 
         int half = btree.pageSize / 2;
         int index = findChildren( key );
@@ -536,6 +583,8 @@ public class BPage<K, V> implements Serializer
 
         height -= 1;
         
+        BPage<K,V> pageNewCopy = btree.copyOnWrite( this );
+        
         if ( height == 0 )
         {
             // remove leaf entry
@@ -544,22 +593,32 @@ public class BPage<K, V> implements Serializer
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_514, key ) );
             }
             
-            result = new RemoveResult<V>();
-            result.value = values[index];
-            removeEntry( this, index );
+            result = new RemoveResult<K, V>();
+            result.value = pageNewCopy.values[index];
+            removeEntry( pageNewCopy, index );
 
             // update this BPage
-            btree.recordManager.update( recordId, this, this );
+            btree.recordManager.update( recordId, pageNewCopy, this );
         }
         else
         {
             // recurse into Btree to remove entry on a children page
             BPage<K, V> child = childBPage( index );
             result = child.remove( height, key );
+            
+            if ( result.pageNewCopy != null )
+            {
+                child = result.pageNewCopy;
+                result.pageNewCopy = null;
+            }
+            else
+            {
+                child = btree.copyOnWrite( child );
+            }
 
             // update children
-            keys[index] = child.getLargestKey();
-            btree.recordManager.update( recordId, this, this );
+            pageNewCopy.keys[index] = child.getLargestKey();
+            btree.recordManager.update( recordId, pageNewCopy, this );
 
             if ( result.underflow )
             {
@@ -569,10 +628,11 @@ public class BPage<K, V> implements Serializer
                     throw new IllegalStateException( I18n.err( I18n.ERR_513, "1" ) );
                 }
                 
-                if ( index < children.length - 1 )
+                if ( index < pageNewCopy.children.length - 1 )
                 {
                     // exists greater brother page
-                    BPage<K, V> brother = childBPage( index + 1 );
+                    BPage<K, V> brother = pageNewCopy.childBPage( index + 1 );
+                    brother = btree.copyOnWrite( brother );
                     int bfirst = brother.first;
                     
                     if ( bfirst < half )
@@ -606,12 +666,12 @@ public class BPage<K, V> implements Serializer
                         }
 
                         // update child's largest key
-                        keys[index] = child.getLargestKey();
+                        pageNewCopy.keys[index] = child.getLargestKey();
 
                         // no change in previous/next BPage
 
                         // update BPages
-                        btree.recordManager.update( recordId, this, this );
+                        btree.recordManager.update( recordId, pageNewCopy, this );
                         btree.recordManager.update( brother.recordId, brother, this );
                         btree.recordManager.update( child.recordId, child, this );
 
@@ -638,24 +698,25 @@ public class BPage<K, V> implements Serializer
                         btree.recordManager.update( brother.recordId, brother, this );
 
                         // remove "child" from current BPage
-                        if ( isLeaf )
+                        if ( pageNewCopy.isLeaf )
                         {
-                            copyEntries( this, first, this, first + 1, index - first );
-                            setEntry( this, first, null, null );
+                            copyEntries( pageNewCopy, pageNewCopy.first, pageNewCopy, pageNewCopy.first + 1, index - pageNewCopy.first );
+                            setEntry( pageNewCopy, pageNewCopy.first, null, null );
                         }
                         else
                         {
-                            copyChildren( this, first, this, first + 1, index - first );
-                            setChild( this, first, null, -1 );
+                            copyChildren( pageNewCopy, pageNewCopy.first, pageNewCopy, pageNewCopy.first + 1, index - pageNewCopy.first );
+                            setChild( pageNewCopy, pageNewCopy.first, null, -1 );
                         }
                         
-                        first += 1;
-                        btree.recordManager.update( recordId, this, this );
+                        pageNewCopy.first += 1;
+                        btree.recordManager.update( recordId, pageNewCopy, this );
 
                         // re-link previous and next BPages
                         if ( child.previous != 0 )
                         {
                             BPage<K, V> prev = loadBPage( child.previous );
+                            prev = btree.copyOnWrite( prev );
                             prev.next = child.next;
                             btree.recordManager.update( prev.recordId, prev, this );
                         }
@@ -663,6 +724,7 @@ public class BPage<K, V> implements Serializer
                         if ( child.next != 0 )
                         {
                             BPage<K, V> next = loadBPage( child.next );
+                            next = btree.copyOnWrite( next );
                             next.previous = child.previous;
                             btree.recordManager.update( next.recordId, next, this );
                         }
@@ -674,7 +736,8 @@ public class BPage<K, V> implements Serializer
                 else
                 {
                     // page "brother" is before "child"
-                    BPage<K, V> brother = childBPage( index - 1 );
+                    BPage<K, V> brother = pageNewCopy.childBPage( index - 1 );
+                    brother = btree.copyOnWrite( brother );
                     int bfirst = brother.first;
                     
                     if ( bfirst < half )
@@ -708,12 +771,12 @@ public class BPage<K, V> implements Serializer
                         }
 
                         // update brother's largest key
-                        keys[index - 1] = brother.getLargestKey();
+                        pageNewCopy.keys[index - 1] = brother.getLargestKey();
 
                         // no change in previous/next BPage
 
                         // update BPages
-                        btree.recordManager.update( recordId, this, this );
+                        btree.recordManager.update( recordId, pageNewCopy, this );
                         btree.recordManager.update( brother.recordId, brother, this );
                         btree.recordManager.update( child.recordId, child, this );
 
@@ -740,24 +803,25 @@ public class BPage<K, V> implements Serializer
                         btree.recordManager.update( child.recordId, child, this );
 
                         // remove "brother" from current BPage
-                        if ( isLeaf )
+                        if ( pageNewCopy.isLeaf )
                         {
-                            copyEntries( this, first, this, first + 1, index - 1 - first );
-                            setEntry( this, first, null, null );
+                            copyEntries( pageNewCopy, pageNewCopy.first, pageNewCopy, pageNewCopy.first + 1, index - 1 - pageNewCopy.first );
+                            setEntry( pageNewCopy, pageNewCopy.first, null, null );
                         }
                         else
                         {
-                            copyChildren( this, first, this, first + 1, index - 1 - first );
-                            setChild( this, first, null, -1 );
+                            copyChildren( pageNewCopy, pageNewCopy.first, pageNewCopy, pageNewCopy.first + 1, index - 1 - pageNewCopy.first );
+                            setChild( pageNewCopy, pageNewCopy.first, null, -1 );
                         }
                         
-                        first += 1;
-                        btree.recordManager.update( recordId, this, this );
+                        pageNewCopy.first += 1;
+                        btree.recordManager.update( recordId, pageNewCopy, this );
 
                         // re-link previous and next BPages
                         if ( brother.previous != 0 )
                         {
                             BPage<K, V> prev = loadBPage( brother.previous );
+                            prev = btree.copyOnWrite( prev );
                             prev.next = brother.next;
                             btree.recordManager.update( prev.recordId, prev, this );
                         }
@@ -765,6 +829,7 @@ public class BPage<K, V> implements Serializer
                         if ( brother.next != 0 )
                         {
                             BPage<K, V> next = loadBPage( brother.next );
+                            next = btree.copyOnWrite( next );
                             next.previous = brother.previous;
                             btree.recordManager.update( next.recordId, next, this );
                         }
@@ -777,7 +842,8 @@ public class BPage<K, V> implements Serializer
         }
 
         // underflow if page is more than half-empty
-        result.underflow = first > half;
+        result.underflow = pageNewCopy.first > half;
+        result.pageNewCopy = pageNewCopy;
 
         return result;
     }
@@ -834,7 +900,7 @@ public class BPage<K, V> implements Serializer
     /**
      * Insert entry at given position.
      */
-    private void insertEntry( BPage<K, V> page, int index, K key, V value )
+    private void insertEntry( BPage<K, V> page, int index, K key, V value ) throws IOException
     {
         K[] keys = page.keys;
         V[] values = page.values;
@@ -846,7 +912,7 @@ public class BPage<K, V> implements Serializer
         System.arraycopy( values, start, values, start - 1, count );
         page.first -= 1;
         keys[index] = key;
-        values[index] = value;
+        values[index] = btree.copyValue( value );
     }
 
 
@@ -1295,6 +1361,7 @@ public class BPage<K, V> implements Serializer
         data = baos.toByteArray();
         oos.close();
         baos.close();
+        
         return data;
     }
 
@@ -1316,13 +1383,18 @@ public class BPage<K, V> implements Serializer
          * Existing value for the insertion key.
          */
         V existing;
+        
+        /**
+         * New version of the page doing the insert
+         */
+        BPage<K, V> pageNewCopy;
     }
 
     /** STATIC INNER CLASS
      *  Result from remove() method call. If we had to removed a BPage,
      *  it will be stored into the underflow field.
      */
-    static class RemoveResult<V>
+    static class RemoveResult<K, V>
     {
         /**
          * Set to true if underlying pages underflowed
@@ -1333,6 +1405,12 @@ public class BPage<K, V> implements Serializer
          * Removed entry value
          */
         V value;
+        
+        /**
+         * New version of the page doing the remove
+         */
+        BPage<K, V> pageNewCopy;   
+        
     }
 
     /** PRIVATE INNER CLASS
@@ -1342,7 +1420,10 @@ public class BPage<K, V> implements Serializer
     {
         /** Current page. */
         private BPage<K, V> page;
-
+        
+        /** context used to track browsing action */
+        ActionContext context;
+        
         /**
          * Current index in the page.  The index positionned on the next
          * tuple to return.
@@ -1354,12 +1435,16 @@ public class BPage<K, V> implements Serializer
          * Create a browser.
          *
          * @param page Current page
+         * @param context context in case of action capable record manager 
          * @param index Position of the next tuple to return.
          */
-        Browser( BPage<K, V> page, int index )
+        Browser( BPage<K, V> page, int index, ActionContext context)
         {
             this.page = page;
             this.index = index;
+            this.context = context;
+            
+            outstandingBrowsers.incrementAndGet();
         }
 
 
@@ -1373,55 +1458,106 @@ public class BPage<K, V> implements Serializer
          */
         public boolean getNext( Tuple<K, V> tuple ) throws IOException
         {
-            // First, check that we are within a page
-            if ( index < page.btree.pageSize )
+            btree.setAsCurrentAction( context ); 
+            try
             {
-                // We are. Now check that we have a Tuple
-                if ( page.keys[index] == null )
+                // First, check that we are within a page                                                            
+                if ( index < page.btree.pageSize )
                 {
-                    // no : reached end of the tree.
-                    return false;
+                    // We are. Now check that we have a Tuple                                                        
+                    if ( page.keys[index] == null )
+                    {
+                        // no : reached end of the tree.                                                             
+                        return false;
+                    }
                 }
+                // all the tuple for this page has been read. Move to the                                            
+                // next page, if we have one.                                                                        
+                else if ( page.next != 0 )
+                {
+                    // move to next page                                                                             
+                    page = page.loadBPage( page.next );
+                    index = page.first;
+                }
+    
+                tuple.setKey( page.keys[index] );
+                tuple.setValue( btree.copyValue( page.values[index] ) );
+                index++;
             }
-            // all the tuple for this page has been read. Move to the 
-            // next page, if we have one.
-            else if ( page.next != 0 )
+            catch( IOException e )
             {
-                // move to next page
-                page = page.loadBPage( page.next );
-                index = page.first;
+                btree.abortAction( context );
+                context = null;
+                this.close();
+                throw e;
             }
-            
-            tuple.setKey( page.keys[index] );
-            tuple.setValue( page.values[index] );
-            index++;
-            
+            finally
+            {
+                if ( context != null )
+                    btree.unsetAsCurrentAction( context );
+            }
+          
             return true;
         }
-
 
         public boolean getPrevious( Tuple<K, V> tuple ) throws IOException
         {
-            if ( index == page.first )
+            btree.setAsCurrentAction( context );           
+            try
             {
-                if ( page.previous != 0 )
+                if ( index == page.first )
                 {
-                    page = page.loadBPage( page.previous );
-                    index = page.btree.pageSize;
+                    if ( page.previous != 0 )
+                    {
+                        page = page.loadBPage( page.previous );
+                        index = page.btree.pageSize;
+                    }
+                    else
+                    {
+                        // reached beginning of the tree                                                             
+                        return false;
+                    }
                 }
-                else
-                {
-                    // reached beginning of the tree
-                    return false;
-                }
+    
+                index--;
+                tuple.setKey( page.keys[index] );
+                tuple.setValue( btree.copyValue( page.values[index] ) );
             }
-            
-            index--;
-            tuple.setKey( page.keys[index] );
-            tuple.setValue( page.values[index] );
-            
+            catch( IOException e )
+            {
+                btree.abortAction( context );
+                context = null;
+                this.close();
+                throw e;
+            }
+            finally
+            {
+                if ( context != null )
+                    btree.unsetAsCurrentAction( context );
+            }          
+
             return true;
         }
+        
+        @Override
+        public void close()
+        {
+            super.close();
+            
+            if ( context!= null )
+            {
+                btree.setAsCurrentAction( context );
+                btree.endAction( context );
+                context = null;
+            }
+            
+            int browserCount = outstandingBrowsers.decrementAndGet();
+            if ( browserCount > 0 )
+            {
+                //System.out.println( "JDBM btree browsers are outstanding after close: " + browserCount );
+            }
+        }
+
     }
     
     
@@ -1469,7 +1605,6 @@ public class BPage<K, V> implements Serializer
         else
         {
             boolean isFirst = true;
-            //int index = 0;
             
             for ( K key : keys )
             {
@@ -1484,8 +1619,6 @@ public class BPage<K, V> implements Serializer
 
                 sb.append( "<" );
                 sb.append( key );
-                //sb.append( "/" );
-                //sb.append( values[index] );
                 sb.append( ">" );
             }
         }
