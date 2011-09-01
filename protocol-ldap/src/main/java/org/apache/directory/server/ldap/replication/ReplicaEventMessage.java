@@ -21,7 +21,6 @@
 package org.apache.directory.server.ldap.replication;
 
 
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
@@ -40,10 +39,6 @@ public class ReplicaEventMessage
     /** The entry */
     private Entry entry;
 
-    /** The modifyDN control */
-    private SyncModifyDn modDnControl;
-    
-
     /**
      * Create a new ReplicaEvent instance for a Add/Delete+Modify operation
      * @param changeType The change type
@@ -56,18 +51,6 @@ public class ReplicaEventMessage
     }
 
 
-    /**
-     * Create a new ReplicaEvent instance for a ModDN operation
-     * @param modDnControl The modDN control
-     * @param entry The entry
-     */
-    public ReplicaEventMessage( SyncModifyDn modDnControl, Entry entry )
-    {
-        this.modDnControl = modDnControl;
-        this.entry = entry;
-    }
-
-    
     /**
      * @return The changeType
      */
@@ -86,15 +69,6 @@ public class ReplicaEventMessage
     }
 
 
-    /**
-     * @return The ModDN conrol
-     */
-    public SyncModifyDn getModDnControl()
-    {
-        return modDnControl;
-    }
-
-    
     /**
      * checks if the event's CSN is older than the given CSN
      *

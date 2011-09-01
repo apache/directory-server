@@ -30,10 +30,6 @@ import jdbm.helper.Serializer;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.EntrySerializer;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -84,7 +80,6 @@ public class ReplicaEventMessageSerializer implements Serializer
     
         Entry entry = replicaEventMessage.getEntry();
         ChangeType changeType = replicaEventMessage.getChangeType();
-        SyncModifyDn modDnControl = replicaEventMessage.getModDnControl();
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
@@ -104,29 +99,6 @@ public class ReplicaEventMessageSerializer implements Serializer
         // The change type
         out.writeByte( changeType.getValue() );
         
-        // The moddn control if any (only if it's a MODDN operation)
-        if ( changeType == ChangeType.MODDN )
-        {
-            SyncModifyDnType modDnType = modDnControl.getModDnType();
-            out.writeByte( modDnType.getValue() );
-
-            switch ( modDnType )
-            {
-                case MOVE:
-                    out.writeUTF( modDnControl.getNewSuperiorDn() );
-                    break;
-                   
-                case MOVE_AND_RENAME:
-                    out.writeUTF( modDnControl.getNewSuperiorDn() );
-                    // Fall through
-
-                case RENAME:
-                    out.writeUTF( modDnControl.getNewRdn() );
-                    out.writeBoolean( modDnControl.isDeleteOldRdn() );
-                    break;
-            }
-        }
-
         out.flush();
 
         return baos.toByteArray();
@@ -165,39 +137,8 @@ public class ReplicaEventMessageSerializer implements Serializer
             byte type = in.readByte();
             ChangeType changeType = ChangeType.getChangeType( type );
 
-            if ( changeType == ChangeType.MODDN )
-            {
-                type = in.readByte();
-                SyncModifyDnType modDnType = SyncModifyDnType.getModifyDnType( type );
-                SyncModifyDn modDnControl = new SyncModifyDnDecorator( codec );
-                
-                modDnControl.setModDnType( modDnType );
-                
-                switch ( modDnType )
-                {
-                    case MOVE :
-                        modDnControl.setNewSuperiorDn( in.readUTF() );
-                        break;
-
-                    case MOVE_AND_RENAME :
-                        modDnControl.setNewSuperiorDn( in.readUTF() );
-                        // Fallthrough
-
-                    case RENAME :
-                        modDnControl.setNewRdn( in.readUTF() );
-                        modDnControl.setDeleteOldRdn( in.readBoolean() );
-                        break;
-                }
-                
-                // And create a ReplicaEventMessage
-                replicaEventMessage = new ReplicaEventMessage( modDnControl, entry );
-
-            }
-            else
-            {
-                // And create a ReplicaEventMessage
-                replicaEventMessage = new ReplicaEventMessage( changeType, entry );
-            }
+            // And create a ReplicaEventMessage
+            replicaEventMessage = new ReplicaEventMessage( changeType, entry );
         }
         catch ( ClassNotFoundException cnfe )
         {

@@ -44,14 +44,15 @@ import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -73,6 +74,7 @@ import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -317,7 +319,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             switch ( state )
             {
                 case ADD:
-                    //System.out.println( "Entry added : " + remoteEntry.getDn() );
+                    LOG.debug( "adding entry with dn {}, {}", remoteEntry.getDn().getName(), remoteEntry );
                     nbAdded.getAndIncrement();
                     break;
 
@@ -327,9 +329,9 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                     break;
 
                 case MODDN:
-                    SyncModifyDn adsModDnControl = ( SyncModifyDn ) syncResult.getControls().get( SyncModifyDn.OID );
-                    //Apache Directory Server's special control
-                    applyModDnOperation( adsModDnControl );
+                    String entryUuid = Strings.uuidToString( syncStateCtrl.getEntryUUID() );
+                    applyModDnOperation( remoteEntry, entryUuid );
+                    
                     break;
 
                 case DELETE:
@@ -514,7 +516,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValueDecorator syncReq = new SyncRequestValueDecorator( ldapCodecService );
+        SyncRequestValue syncReq = new SyncRequestValueDecorator( ldapCodecService );
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );
@@ -553,6 +555,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
 
         LOG.debug( "sync operation returned result code {}", resultCode );
+        
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
             // log the error and handle it appropriately
@@ -697,42 +700,77 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     }
 
 
-    private void applyModDnOperation( SyncModifyDn modDnControl ) throws Exception
+    private void applyModDnOperation( Entry remoteEntry, String entryUuid ) throws Exception
     {
-        SyncModifyDnType modDnType = modDnControl.getModDnType();
+        LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
+        
+        // First, compute the MODDN type
+        SyncModifyDnType modDnType = null;
 
-        Dn entryDn = new Dn( modDnControl.getEntryDn() );
-        switch ( modDnType )
+        try
         {
-            case MOVE:
+            // Retrieve locally the moved or renamed entry
+            String filter = "(entryUuid=" + entryUuid + ")";
+            EntryCursor cursor = connection.search( Dn.ROOT_DSE, filter, SearchScope.SUBTREE, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-                LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
+            Entry localEntry = cursor.get();
 
-                //session.move( entryDn, new Dn( modDnControl.getNewSuperiorDn() ) );
-                break;
+            // Compute the DN, parentDn and Rdn for both entries
+            Dn localDn = localEntry.getDn();
+            Dn remoteDn = remoteEntry.getDn();
 
-            case RENAME:
+            Dn localParentDn = localDn.getParent();
+            Dn remoteParentDn = remoteDn.getParent();
 
-                Rdn newRdn = new Rdn( modDnControl.getNewRdn() );
-                boolean deleteOldRdn = modDnControl.isDeleteOldRdn();
-                LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
-                    { entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+            Rdn localRdn = localDn.getRdn();
+            Rdn remoteRdn = remoteDn.getRdn();
 
-                //session.rename( entryDn, newRdn, deleteOldRdn );
-                break;
+            // If the RDN are equals, it's a MOVE
+            if ( localRdn.equals( remoteRdn ) )
+            {
+                modDnType = SyncModifyDnType.MOVE;
+            }
 
-            case MOVE_AND_RENAME:
+            // If the parentDn are equals, it's a RENAME
+            if ( localParentDn.equals( remoteParentDn ) )
+            {
+                modDnType = SyncModifyDnType.RENAME;
+            }
 
-                Dn newParentDn = new Dn( modDnControl.getNewSuperiorDn() );
-                newRdn = new Rdn( modDnControl.getNewRdn() );
-                deleteOldRdn = modDnControl.isDeleteOldRdn();
+            // Otherwise, it's a MOVE and RENAME
+            if ( modDnType == null )
+            {
+                modDnType = SyncModifyDnType.MOVE_AND_RENAME;
+            }
 
-                LOG.debug(
-                    "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
-                    new String[]
-                        { entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+            // Check if the OldRdn has been deleted
+            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
 
-                //session.moveAndRename( entryDn, newParentDn, newRdn, deleteOldRdn );
+            switch ( modDnType )
+            {
+                case MOVE:
+                    LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
+                    
+                    break;
+
+                case RENAME:
+                    LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
+                        { localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
+                    break;
+
+                case MOVE_AND_RENAME:
+                    LOG.debug(
+                        "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
+                        new String[]
+                            { localDn.getName(), remoteParentDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
+                    break;
+            }
+        }
+        catch ( Exception e )
+        {
+            throw e;
         }
     }
 

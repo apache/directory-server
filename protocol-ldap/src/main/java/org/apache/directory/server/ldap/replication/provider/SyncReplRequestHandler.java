@@ -45,9 +45,9 @@ import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationInfoEnum;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
@@ -235,11 +235,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 PROVIDER_LOG.debug( "Received a replication request {} with no cookie", request );
                 // No cookie ? We have to get all the entries from the provider
+                // This is an initiate Content Poll action (RFC 4533, 3.3.1)
                 doInitialRefresh( session, request );
             }
             else
             {
-                String cookieString = Strings.utf8ToString(cookieBytes);
+                String cookieString = Strings.utf8ToString( cookieBytes );
                 
                 PROVIDER_LOG.debug( "Received a replication request {} with a cookie '{}'", request, cookieString );
                 LOG.debug( "search request received with the cookie {}", cookieString );
@@ -310,7 +311,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             // if event type is null, then it is a MODDN operation
             if ( event == ChangeType.MODDN )
             {
-                sendSearchResultEntry( session, req, entry, replicaEventMessage.getModDnControl() );
+                sendSearchResultEntry( session, req, entry, SyncStateTypeEnum.MODIFY );
             }
             else
             {
@@ -412,7 +413,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         boolean refreshNPersist = isRefreshNPersist( request );
 
-        // first register a persistent search handler before starting the initial content refresh
+        // first register a ReplicaEventLog before starting the initial content refresh
         // this is to log all the operations happen on DIT during initial content refresh
         ReplicaEventLog replicaLog = createRelicaEventLog( hostName, originalFilter );
 
@@ -455,6 +456,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
         request.setFilter( initialContentFilter );
 
+        // Now, do a search to get all the entries
         SearchResultDone searchDoneResp = doSimpleSearch( session, request );
 
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
@@ -470,10 +472,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
                 intermResp.setResponseName( SyncInfoValue.OID );
 
-                SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( 
+                SyncInfoValue syncInfo = new SyncInfoValueDecorator( 
                     ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( syncInfo.getValue() );
+                intermResp.setResponseValue( ((SyncInfoValueDecorator)syncInfo).getValue() );
 
                 PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", replicaLog, syncInfo );
 
@@ -633,7 +635,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
         
         // Create the SyncState control
-        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
+        SyncStateValue syncStateControl = new SyncStateValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
         syncStateControl.setSyncStateType( syncStateType );
         syncStateControl.setEntryUUID( Strings.uuidToBytes( uuid.getString() ) );
@@ -650,30 +652,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         LOG.debug( "Sending {}", entry.getDn() );
         PROVIDER_LOG.debug( "Sending the entry:", entry.getDn() );
-        session.getIoSession().write( resp );
-    }
-
-
-    /**
-     * Prepare and send a search result entry response, with the associated
-     * SyncState control for a MODDN operation.
-     */
-    private void sendSearchResultEntry( LdapSession session, SearchRequest req, Entry entry,
-        SyncModifyDn modDnControl ) throws Exception
-    {
-        Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-        SyncStateValueDecorator syncStateControl = new SyncStateValueDecorator(
-            ldapServer.getDirectoryService().getLdapCodecService() );
-        syncStateControl.setSyncStateType( SyncStateTypeEnum.MODDN );
-        syncStateControl.setEntryUUID( Strings.uuidToBytes(uuid.getString()) );
-
-        Response resp = generateResponse( session, req, entry );
-        resp.addControl( syncStateControl );
-        resp.addControl( modDnControl );
-
-        LOG.debug( "Sending {}", entry.getDn() );
-        PROVIDER_LOG.debug( "Sending the MODDN modification:", entry.getDn() );
-
         session.getIoSession().write( resp );
     }
 
@@ -828,16 +806,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     public ExprNode modifyFilter( LdapSession session, SearchRequest req ) throws Exception
     {
-        /*
-         * Do not add the OR'd (objectClass=referral) expression if the user 
-         * searches for the subSchemaSubEntry as the SchemaIntercepter can't 
-         * handle an OR'd filter.
-         */
-        //        if ( isSubSchemaSubEntrySearch( session, req ) )
-        //        {
-        //            return;
-        //        }
-
         /*
          * Most of the time the search filter is just (objectClass=*) and if 
          * this is the case then there's no reason at all to OR this with an

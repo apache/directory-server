@@ -33,11 +33,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -172,8 +169,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         SyncStateValue syncStateValue = new SyncStateValueDecorator( directoryService.getLdapCodecService() );
 
         syncStateValue.setSyncStateType( operation );
-        syncStateValue.setEntryUUID( 
-            Strings.uuidToBytes( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString() ) );
+        String uuidStr = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+        syncStateValue.setEntryUUID( Strings.uuidToBytes( uuidStr ) );
         syncStateValue.setCookie( getCookie( entry ) );
         
         return syncStateValue;
@@ -184,7 +181,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      * Send the result to the consumer. If the consumer has disconnected, we fail back to the queue.
      */
     private void sendResult( SearchResultEntry searchResultEntry, Entry entry, EventType eventType, 
-        SyncStateValue syncStateValue, SyncModifyDn syncModifyDn )
+        SyncStateValue syncStateValue )
     {
         searchResultEntry.addControl( syncStateValue );
 
@@ -192,7 +189,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         WriteFuture future = session.getIoSession().write( searchResultEntry );
 
         // Now, send the entry to the consumer
-        handleWriteFuture( future, entry, eventType, syncModifyDn );
+        handleWriteFuture( future, entry, eventType );
     }
     
 
@@ -223,7 +220,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 // Create the control which will be added to the response.
                 SyncStateValue syncAdd = createControl( directoryService, SyncStateTypeEnum.ADD, entry );
                 
-                sendResult( resultEntry, entry, EventType.ADD, syncAdd, null );
+                sendResult( resultEntry, entry, EventType.ADD, syncAdd );
             }
             
         }
@@ -266,7 +263,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValue syncDelete = createControl( directoryService, SyncStateTypeEnum.DELETE, entry );
 
-                sendResult( resultEntry, entry, EventType.DELETE, syncDelete, null );
+                sendResult( resultEntry, entry, EventType.DELETE, syncDelete );
             }
         }
         catch ( LdapInvalidAttributeValueException e )
@@ -301,7 +298,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODIFY, alteredEntry );
 
-                sendResult( resultEntry, alteredEntry, EventType.MODIFY, syncModify, null );
+                sendResult( resultEntry, alteredEntry, EventType.MODIFY, syncModify );
             }
         }
         catch ( Exception e )
@@ -319,7 +316,8 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryMoved( MoveOperationContext moveContext )
     {
-        Entry entry = moveContext.getOriginalEntry();
+        // should always send the modified entry cause the consumer perform the modDn operation locally
+        Entry entry = moveContext.getModifiedEntry();
 
         try
         {
@@ -329,24 +327,18 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDn modDnControl = 
-                new SyncModifyDnDecorator( directoryService.getLdapCodecService(), SyncModifyDnType.MOVE );
-            modDnControl.setEntryDn( moveContext.getDn().getNormName() );
-            modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
-
             //System.out.println( "MOVE Listener : log " + moveContext.getDn() + " moved to " + moveContext.getNewSuperior() );
-            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
             
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( moveContext.getDn() );
                 resultEntry.setEntry( entry );
-                resultEntry.addControl( modDnControl );
 
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
 
-                sendResult( resultEntry, entry, null, syncModify, modDnControl );
+                sendResult( resultEntry, entry, null, syncModify );
             }
         }
         catch ( Exception e )
@@ -372,30 +364,22 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 return;
             }
 
-            SyncModifyDnDecorator modDnControl = 
-                new SyncModifyDnDecorator( directoryService.getLdapCodecService(), SyncModifyDnType.MOVE_AND_RENAME );
-            modDnControl.setEntryDn( moveAndRenameContext.getDn().getNormName() );
-            modDnControl.setNewSuperiorDn( moveAndRenameContext.getNewSuperiorDn().getNormName() );
-            modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
-            modDnControl.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
-
-            // should always send the original entry cause the consumer perform the modDn operation there
-            Entry entry = moveAndRenameContext.getOriginalEntry();
+            // should always send the modified entry cause the consumer perform the modDn operation locally
+            Entry entry = moveAndRenameContext.getModifiedEntry();
 
             //System.out.println( "MOVE AND RENAME Listener : log " + moveAndRenameContext.getDn() + 
             //    " moved to " + moveAndRenameContext.getNewSuperiorDn() + " renamed to " + moveAndRenameContext.getNewRdn() );
-            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
             
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
-                resultEntry.addControl( modDnControl );
 
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
 
-                sendResult( resultEntry, entry, null, syncModify, modDnControl );
+                sendResult( resultEntry, entry, null, syncModify );
             }
         }
         catch ( Exception e )
@@ -413,33 +397,27 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryRenamed( RenameOperationContext renameContext )
     {
-        Entry entry = renameContext.getOriginalEntry();
+        // should always send the modified entry cause the consumer perform the modDn operation locally
+        Entry entry = renameContext.getModifiedEntry();
 
         try
         {
-            SyncModifyDnDecorator modDnControl = new SyncModifyDnDecorator( directoryService.getLdapCodecService() );
-            modDnControl.setModDnType( SyncModifyDnType.RENAME );
-            modDnControl.setEntryDn( renameContext.getDn().getName() );
-            modDnControl.setNewRdn( renameContext.getNewRdn().getName() );
-            modDnControl.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
-
             // should always send the original entry cause the consumer perform the modDn operation there
             //System.out.println( "RENAME Listener : log " + renameContext.getDn() + " renamed to " + renameContext.getNewRdn() );
-            consumerMsgLog.log( new ReplicaEventMessage( modDnControl, entry ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
             
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
-                resultEntry.addControl( modDnControl );
 
                 SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
                 
                 // In this case, the cookie is different
                 syncModify.setCookie( getCookie( entry ) );
 
-                sendResult( resultEntry, entry, null, syncModify, modDnControl );
+                sendResult( resultEntry, entry, null, syncModify );
             }
         }
         catch ( Exception e )
@@ -482,7 +460,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     /**
      * Process the writing of the replicated entry to the consumer
      */
-    private void handleWriteFuture( WriteFuture future, Entry entry, EventType event, SyncModifyDn modDnControl )
+    private void handleWriteFuture( WriteFuture future, Entry entry, EventType event )
     {
         // Let the operation be executed.
         // Note : we wait 10 seconds max

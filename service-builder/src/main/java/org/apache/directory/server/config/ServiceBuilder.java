@@ -84,7 +84,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
-import org.apache.directory.server.ldap.replication.consumer.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -997,7 +997,7 @@ public class ServiceBuilder
             {
                 if( className == null )
                 {
-                    consumerClass = SyncReplConsumer.class; 
+                    consumerClass = ReplicationConsumerImpl.class; 
                 }
                 else
                 {

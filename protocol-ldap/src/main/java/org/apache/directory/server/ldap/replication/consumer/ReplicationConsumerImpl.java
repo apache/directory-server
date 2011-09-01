@@ -43,8 +43,8 @@ import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncModifyDnType;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
@@ -90,10 +90,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SyncReplConsumer implements ConnectionClosedEventListener, ReplicationConsumer
+public class ReplicationConsumerImpl implements ConnectionClosedEventListener, ReplicationConsumer
 {
     /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicationConsumerImpl.class );
 
     /** the syncrepl configuration */
     private SyncreplConfiguration config;
@@ -334,18 +334,15 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
             {
                 case ADD:
                     Dn remoteDn = directoryService.getDnFactory().create( remoteEntry.getDn().getName() );
-                    //System.out.println( "C: ADDING " + remoteDn );
                     
                     if ( !session.exists( remoteDn ) )
                     {
-                        //System.out.println( "C: " + remoteDn + " does not exist, adding it" );
                         LOG.debug( "adding entry with dn {}", remoteDn );
                         LOG.debug( remoteEntry.toString() );
                         session.add( new DefaultEntry( schemaManager, remoteEntry ) );
                     }
                     else
                     {
-                        //System.out.println( "C: " + remoteDn + " exists, modifying it" );
                         LOG.debug( "updating entry in refreshOnly mode {}", remoteDn );
                         modify( remoteEntry );
                     }
@@ -354,25 +351,23 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
                 case MODIFY:
                     LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
-                    //System.out.println( "C: MODIFY " + remoteEntry.getDn() );
                     modify( remoteEntry );
+                    
                     break;
 
                 case MODDN:
-                    SyncModifyDn adsModDnControl = ( SyncModifyDn ) syncResult.getControls().get( SyncModifyDn.OID );
-                    //System.out.println( "C: MODDN " + adsModDnControl.getModDnType() + ", " + adsModDnControl.getEntryDn() 
-                    //    + ", " + adsModDnControl.getNewSuperiorDn() + ", " + adsModDnControl.getNewRdn() );
-                    //Apache Directory Server's special control
-                    applyModDnOperation( adsModDnControl );
+                    String entryUuid = Strings.uuidToString( syncStateCtrl.getEntryUUID() ).toString();
+                    applyModDnOperation( remoteEntry, entryUuid );
+                    
                     break;
 
                 case DELETE:
-                    //System.out.println( "C: DELETING " + remoteEntry.getDn().getNormName() );
                     LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
                     // incase of a MODDN operation resulting in a branch to be moved out of scope
                     // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
                     // so the branch needs to be recursively deleted here
                     deleteRecursive( remoteEntry.getDn(), null );
+                    
                     break;
 
                 case PRESENT:
@@ -544,17 +539,26 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     
     
     /**
-     * performs a search on connection with updated syncRequest control.
+     * Performs a search on connection with updated syncRequest control. The provider
+     * will initiate an UpdateContant or an initContent depending on the current consumer
+     * status, accordingly to the cookie's content.
+     * If the mode is refreshOnly, the server will send a SearchResultDone when all the modified
+     * entries have been sent.
+     * If the mode is refreshAndPersist, the provider never send a SearchResultDone, so we keep
+     * receiving modifications' notifications on the consumer, and never exit the loop, unless
+     * some communication error occurs.
      *
      * @throws Exception in case of any problems encountered while searching
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValueDecorator syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
+        // Prepare the Syncrepl Request
+        SyncRequestValue syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );
 
+         // If we have a persisted cookie, send it.
         if ( syncCookie != null )
         {
             LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString(syncCookie) );
@@ -568,6 +572,8 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
 
         Response resp = sf.get();
         
+        // Now, process the responses. We loop until we have a connection termination or
+        // a SearchResultDone (RefreshOnly mode)
         while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() && !disconnected )
         {
             if ( resp instanceof SearchResultEntry )
@@ -586,6 +592,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                 handleSyncInfo( (IntermediateResponse) resp );
             }
 
+            // Next entry
             resp = sf.get();
         }
 
@@ -597,6 +604,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
         {
             // log the error and handle it appropriately
             LOG.warn( "given replication base Dn {} is not found on provider", config.getBaseDn() );
+            
             if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
             {
                 LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
@@ -619,6 +627,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                         e );
             }
 
+            // Do a full update.
             removeCookie();
             doSyncSearch( syncType, true );
         }
@@ -730,9 +739,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
                 try
                 {
                     Entry entry = session.lookup( config.getConfigEntryDn(), COOKIE_AT_TYPE.getName() );
+                    
                     if ( entry != null )
                     {
                         Attribute attr = entry.get( COOKIE_AT_TYPE );
+                        
                         if ( attr != null )
                         {
                             syncCookie = attr.getBytes();
@@ -792,48 +803,90 @@ public class SyncReplConsumer implements ConnectionClosedEventListener, Replicat
     }
 
 
-    private void applyModDnOperation( SyncModifyDn modDnControl ) throws Exception
+    private void applyModDnOperation( Entry remoteEntry, String entryUuid ) throws Exception
     {
-        LOG.debug( "{}", modDnControl );
+        LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
         
-        SyncModifyDnType modDnType = modDnControl.getModDnType();
-
-        Dn entryDn = directoryService.getDnFactory().create( modDnControl.getEntryDn() );
+        // First, compute the MODDN type
+        SyncModifyDnType modDnType = null;
         
-        switch ( modDnType )
+        try
         {
-            case MOVE:
+            // Retrieve locally the moved or renamed entry
+            String filter = "(entryUuid=" + entryUuid + ")";
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBase( Dn.ROOT_DSE );
+            searchRequest.setFilter( filter );
+            searchRequest.setScope( SearchScope.SUBTREE );
+            searchRequest.addAttributes( "entryUuid", "entryCsn", "*" );
 
-                //System.out.println( " ============> MOVING " + entryDn.getNormName() + " to " + modDnControl.getNewSuperiorDn() );
-                LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
+            EntryFilteringCursor cursor = session.search( searchRequest );
+            cursor.beforeFirst();
+            cursor.next();
 
-                session.move( entryDn, directoryService.getDnFactory().create( modDnControl.getNewSuperiorDn() ) );
-                break;
+            Entry localEntry = cursor.get();
 
-            case RENAME:
+            cursor.close();
 
-                //System.out.println( " ============> RENAMING " + entryDn.getNormName() + " to " + modDnControl.getNewRdn() );
-                Rdn newRdn = new Rdn( schemaManager, modDnControl.getNewRdn() );
-                boolean deleteOldRdn = modDnControl.isDeleteOldRdn();
-                LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
-                    { entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+            // Compute the DN, parentDn and Rdn for both entries
+            Dn localDn = localEntry.getDn();
+            Dn remoteDn = directoryService.getDnFactory().create( remoteEntry.getDn().getName() );
 
-                session.rename( entryDn, newRdn, deleteOldRdn );
-                break;
+            Dn localParentDn = localDn.getParent();
+            Dn remoteParentDn = directoryService.getDnFactory().create( remoteDn.getParent().getName() );
 
-            case MOVE_AND_RENAME:
+            Rdn localRdn = localDn.getRdn();
+            Rdn remoteRdn = directoryService.getDnFactory().create( remoteDn.getRdn().getName() ).getRdn();
 
-                Dn newParentDn = directoryService.getDnFactory().create( modDnControl.getNewSuperiorDn() );
-                newRdn = new Rdn( schemaManager, modDnControl.getNewRdn() );
-                deleteOldRdn = modDnControl.isDeleteOldRdn();
-                //System.out.println( " ============> MOVING and RENAMING " + entryDn.getNormName() + " to " + newRdn + "/" +modDnControl.getNewRdn() );
+            if ( localRdn.equals( remoteRdn ) )
+            {
+                // If the RDN are equals, it's a MOVE
+                modDnType = SyncModifyDnType.MOVE;
+            }
+            else if ( localParentDn.equals( remoteParentDn ) )
+            {
+                // If the parentDn are equals, it's a RENAME
+                modDnType = SyncModifyDnType.RENAME;
+            }
+            else
+            {
+                // Otherwise, it's a MOVE and RENAME
+                modDnType = SyncModifyDnType.MOVE_AND_RENAME;
+            }
 
-                LOG.debug(
-                    "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
-                    new String[]
-                        { entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+            // Check if the OldRdn has been deleted
+            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
 
-                session.moveAndRename( entryDn, newParentDn, newRdn, deleteOldRdn );
+            switch ( modDnType )
+            {
+                case MOVE:
+                    LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
+                    session.move( localDn, remoteParentDn );
+                    
+                    break;
+
+                case RENAME:
+                    LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
+                        { localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
+                    session.rename( localDn, remoteRdn, deleteOldRdn );
+                    
+                    break;
+
+                case MOVE_AND_RENAME:
+                    LOG.debug(
+                        "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
+                        new String[]
+                            { localDn.getName(), remoteParentDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
+                    session.moveAndRename( localDn, remoteParentDn, remoteRdn, deleteOldRdn );
+                    
+                    break;
+            }
+        }
+        catch ( Exception e )
+        {
+            throw e;
         }
     }
 

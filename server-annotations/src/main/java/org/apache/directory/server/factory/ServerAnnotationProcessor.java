@@ -39,7 +39,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
-import org.apache.directory.server.ldap.replication.consumer.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
@@ -225,7 +225,7 @@ public class ServerAnnotationProcessor
      */
     private static ReplicationConsumer createConsumer( CreateConsumer createConsumer )
     {
-        ReplicationConsumer consumer = new SyncReplConsumer();
+        ReplicationConsumer consumer = new ReplicationConsumerImpl();
         
         SyncreplConfiguration config = new SyncreplConfiguration();
         config.setRemoteHost( createConsumer.remoteHost() );

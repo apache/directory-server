@@ -44,7 +44,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
-import org.apache.directory.server.ldap.replication.consumer.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -106,6 +106,7 @@ public class ClientServerReplicationIT
             searchRequest.setBase( new Dn( schemaManager, "dc=example,dc=com" ) );
             searchRequest.setFilter( "(objectClass=*)" );
             searchRequest.setScope( SearchScope.SUBTREE );
+            searchRequest.addAttributes( "entryUuid" );
             
             System.out.println( "-----------> Dumping the consumer <-----------" );
             System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
@@ -122,7 +123,7 @@ public class ClientServerReplicationIT
                     break;
                 }
                 
-                System.out.println( "Entry " + entry.getDn().getNormName() + " exists" );
+                System.out.println( "Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
             }
             
             cursor.close();
@@ -191,27 +192,29 @@ public class ClientServerReplicationIT
     private boolean checkEntryDeletion( CoreSession session, Dn entryDn ) throws Exception
     {
         boolean exists = session.exists( entryDn );
-        boolean deleted = false;
+        
+        if ( ! exists )
+        {
+            return true;
+        }
         
         for ( int i = 0; i < 100; i++ )
         {
             Thread.sleep( 50 );
 
-            if ( !session.exists( entryDn ) )
+            exists = session.exists( entryDn );
+            
+            if ( !exists )
             {
-                deleted = true;
-                break;
+                return true;
             }
 
             Thread.sleep( 50 );
         }
         
-        if ( !exists || !deleted )
-        {
-            dump( session, entryDn );
-        }
+        dump( session, entryDn );
         
-        return exists && deleted;
+        return false;
     }
 
     
@@ -386,6 +389,7 @@ public class ClientServerReplicationIT
     
     
     @Test
+    @Ignore( "Ignored until Selcuk's fix is injected into trunk" )
     public void testRebootConsumer() throws Exception
     {
         System.out.println( "----> 1 testRebootConsumer started --------------------------------" );
@@ -558,7 +562,7 @@ public class ClientServerReplicationIT
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
         consumerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
         
-        final SyncReplConsumer consumer = (SyncReplConsumer)ServerAnnotationProcessor.createConsumer();
+        final ReplicationConsumerImpl consumer = (ReplicationConsumerImpl)ServerAnnotationProcessor.createConsumer();
         
         List<ReplicationConsumer> replConsumers = new ArrayList<ReplicationConsumer>();
         replConsumers.add( consumer );
