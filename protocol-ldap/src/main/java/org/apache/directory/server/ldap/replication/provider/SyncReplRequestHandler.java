@@ -369,11 +369,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
             intermResp.setResponseName( SyncInfoValue.OID );
 
-            SyncInfoValueDecorator syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
+            SyncInfoValue syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
                 .getLdapCodecService(),
                 SynchronizationInfoEnum.NEW_COOKIE );
             syncInfo.setCookie( cookie );
-            intermResp.setResponseValue( syncInfo.getValue() );
+            intermResp.setResponseValue( ((SyncInfoValueDecorator)syncInfo).getValue() );
 
             PROVIDER_LOG.debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(), intermResp );
             session.getIoSession().write( intermResp );
@@ -1084,7 +1084,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
-        SyncDoneValueDecorator syncDone = new SyncDoneValueDecorator(
+        SyncDoneValue syncDone = new SyncDoneValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );
         searchDoneResp.addControl( syncDone );
 

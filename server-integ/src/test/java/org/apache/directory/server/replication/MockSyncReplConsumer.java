@@ -371,10 +371,10 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( ldapCodecService );
+            SyncInfoValue decorator = new SyncInfoValueDecorator( ldapCodecService );
             byte[] syncinfo = syncInfoResp.getResponseValue();
-            decorator.setValue( syncinfo );
-            SyncInfoValue syncInfoValue = decorator.getDecorated();
+            ((SyncInfoValueDecorator)decorator).setValue( syncinfo );
+            SyncInfoValue syncInfoValue = ((SyncInfoValueDecorator)decorator).getDecorated();
 
             byte[] cookie = syncInfoValue.getCookie();
 
