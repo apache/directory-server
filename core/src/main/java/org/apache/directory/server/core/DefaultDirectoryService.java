@@ -984,7 +984,9 @@ public class DefaultDirectoryService implements DirectoryService
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
         loc.setDn( systemPartition.getSuffixDn() );
-        loc.setAttrsId( new String[]{ SchemaConstants.CONTEXT_CSN_AT } );
+        
+        // get back all the attributes
+        loc.setAttrsId( new String[]{ SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );

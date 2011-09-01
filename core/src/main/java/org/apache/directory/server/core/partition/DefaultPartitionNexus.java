@@ -568,7 +568,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             Entry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
 
-            if ( lookupContext.getAttrsId() != null && !lookupContext.getAttrsId().isEmpty() )
+            if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
             {
                 for ( AttributeType attributeType : attributeTypes )
                 {
