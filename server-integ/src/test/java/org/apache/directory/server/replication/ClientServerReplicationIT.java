@@ -60,6 +60,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for replication subsystem in client-server mode.
@@ -68,6 +70,7 @@ import org.junit.Test;
  */
 public class ClientServerReplicationIT
 {
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
     private static LdapServer providerServer;
 
     private static LdapServer consumerServer;
@@ -108,8 +111,8 @@ public class ClientServerReplicationIT
             searchRequest.setScope( SearchScope.SUBTREE );
             searchRequest.addAttributes( "entryUuid" );
             
-            System.out.println( "-----------> Dumping the consumer <-----------" );
-            System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
+            CONSUMER_LOG.debug( "-----------> Dumping the server <-----------" );
+            CONSUMER_LOG.debug( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
             
             EntryFilteringCursor cursor = session.search( searchRequest );
             
@@ -119,18 +122,18 @@ public class ClientServerReplicationIT
                 
                 if ( entry.getDn().equals( entryDn ) )
                 {
-                    System.out.println( "The searched entry exists !!!" );
-                    System.out.println( "found Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
-                    break;
+                    CONSUMER_LOG.debug( "The searched entry exists !!!" );
+                    CONSUMER_LOG.debug( "found Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
+                    continue;
                 }
                 
-                System.out.println( "Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
+                CONSUMER_LOG.debug( "Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
             }
             
             cursor.close();
 
-            System.out.println( "-----------> Dump done <-----------" );
-            new Exception().printStackTrace();
+            CONSUMER_LOG.debug( "-----------> Dump done <-----------" );
+            //new Exception().printStackTrace();
         }
         catch ( Exception le )
         {
@@ -389,6 +392,50 @@ public class ClientServerReplicationIT
     }
     
     
+    private Entry restartConsumer( Entry provUser ) throws Exception
+    {
+        // Now stop the consumer
+        CONSUMER_LOG.debug( "--------------------------------------------------------------" );
+        CONSUMER_LOG.debug( "----> 1 Stopping the consumer --------------------------------" );
+        CONSUMER_LOG.debug( "--------------------------------------------------------------" );
+        consumerServer.stop();
+        
+        // And delete the entry in the provider
+        Dn deletedUserDn = provUser.getDn();
+        //System.out.println( "----> 5 deleting entry " + deletedUserDn + " from provider --------------------------------" );
+        providerSession.delete( deletedUserDn );
+        
+        // Create a new entry
+        provUser = createEntry();
+        Dn addedUserDn = provUser.getDn();
+        //System.out.println( "----> 6 adding entry " + provUser.getDn() + " into provider --------------------------------" );
+        providerSession.add( provUser );
+        
+        // let the provider log the events before the consumer sends a request
+        // we are dealing with fraction of seconds cause of the programmatic simulation
+        // it is impossible in the real world scenario
+        Thread.sleep( 1000 );
+        
+        // Restart the consumer
+        CONSUMER_LOG.debug( "--------------------------------------------------------------" );
+        CONSUMER_LOG.debug( "----> 2 Restarting the consumer --------------------------------" );
+        CONSUMER_LOG.debug( "--------------------------------------------------------------" );
+        consumerServer.start();
+        
+        //assertTrue( consumerSession.exists( deletedUserDn ) );
+        //System.out.println( "----> 7bis entry " + deletedUserDn + " is still present in consumer --------------------------------" );
+        
+        assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
+        //System.out.println( "----> 8 Entry " + deletedUserDn + " deleted from consumer --------------------------------" );
+        
+        assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
+        waitAndCompareEntries( addedUserDn );
+        //System.out.println( "----> 8 Entry " + addedUserDn + " added into consumer --------------------------------" );
+
+        return provUser;
+    }
+    
+    
     @Test
     @Ignore( "we have some random failures" )
     public void testRebootConsumer() throws Exception
@@ -410,39 +457,17 @@ public class ClientServerReplicationIT
         assertTrue( providerSession.exists(provUser.getDn() ) );
         assertTrue( consumerSession.exists(provUser.getDn() ) );
         
-        // Now stop the consumer
-        System.out.println( "----> 4 Stopping the consumer --------------------------------" );
-        consumerServer.stop();
+        for ( int i = 0; i < 1000; i++ )
+        {
+            CONSUMER_LOG.debug( "=============================== Loop " + i );
+            System.out.println( "=============================== Loop " + i );
+            provUser = restartConsumer( provUser );
+        }
         
-        // And delete the entry in the provider
-        Dn deletedUserDn = provUser.getDn();
-        System.out.println( "----> 5 deleting entry " + deletedUserDn + " from provider --------------------------------" );
-        providerSession.delete( deletedUserDn );
-        
-        // Create a new entry
-        provUser = createEntry();
-        Dn addedUserDn = provUser.getDn();
-        System.out.println( "----> 6 adding entry " + provUser.getDn() + " into provider --------------------------------" );
-        providerSession.add( provUser );
-        
-        // let the provider log the events before the consumer sends a request
-        // we are dealing with fraction of seconds cause of the programmatic simulation
-        // it is impossible in the real world scenario
-        Thread.sleep( 1000 );
-        
-        // Restart the consumer
-        System.out.println( "----> 7 Restarting the consumer --------------------------------" );
-        consumerServer.start();
-        
-        //assertTrue( consumerSession.exists( deletedUserDn ) );
-        System.out.println( "----> 7bis entry " + deletedUserDn + " is still present in consumer --------------------------------" );
-        
-        assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
-        System.out.println( "----> 8 Entry " + deletedUserDn + " deleted from consumer --------------------------------" );
-        
-        assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
-        waitAndCompareEntries( addedUserDn );
-        System.out.println( "----> 8 Entry " + addedUserDn + " added into consumer --------------------------------" );
+        CONSUMER_LOG.debug( "===========> Dumping the provider <===========" );
+        dump( providerSession, Dn.ROOT_DSE );
+        CONSUMER_LOG.debug( "===========> Dumping the consumer <===========" );
+        dump( consumerSession, Dn.ROOT_DSE );
     }
     
     

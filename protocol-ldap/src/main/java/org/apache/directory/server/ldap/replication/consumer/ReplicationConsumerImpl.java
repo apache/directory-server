@@ -490,7 +490,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         // read the cookie if persisted
         readCookie();
         
-        CONSUMER_LOG.debug( "Cookie read : ''", syncCookie );
+        CONSUMER_LOG.debug( "Cookie read : '{}'", syncCookie );
 
 
         if ( config.isRefreshNPersist() )
