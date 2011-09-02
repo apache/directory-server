@@ -46,14 +46,15 @@
 package jdbm.btree;
 
 
-import java.io.File;
 import java.io.IOException;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.helper.StringComparator;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Contributed test case for BTree by Christof Dallermassl (cdaller@iicm.edu):
@@ -90,36 +91,14 @@ import org.junit.Test;
  */
 public class StreamCorrupted
 {
-    public final static String testFileName = "test";
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
-    public static void deleteFile( String filename )
+
+    private String getTemporaryFile( String name ) throws IOException
     {
-        File file = new File( filename );
-
-        if ( file.exists() ) {
-            try 
-            {
-                file.delete();
-            } 
-            catch ( Exception except ) 
-            {
-                except.printStackTrace();
-            }
-            
-            if ( file.exists() ) 
-            {
-                System.out.println( "WARNING:  Cannot delete file: " + file );
-            }
-        }
-    }
-
-    
-    public static void deleteTestFile()
-    {
-        System.gc();
-        deleteFile( testFileName);
-        deleteFile( testFileName + ".db" );
-        deleteFile( testFileName + ".lg" );
+        String file = folder.newFile( name ).getAbsolutePath();
+        return file;
     }
 
 
@@ -136,7 +115,7 @@ public class StreamCorrupted
         iterations = 100; // 23 works :-(((((
 
         // open database
-        recman = RecordManagerFactory.createRecordManager( testFileName );
+        recman = RecordManagerFactory.createRecordManager( getTemporaryFile( "test" ) );
 
         // create a new B+Tree data structure
         btree = new BTree<String, Integer>( recman, new StringComparator() );

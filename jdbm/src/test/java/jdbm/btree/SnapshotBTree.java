@@ -33,6 +33,7 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.recman.SnapshotRecordManager;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
@@ -50,6 +51,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class SnapshotBTree
 {
+    @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     
     private static class IntWrapper implements Serializable

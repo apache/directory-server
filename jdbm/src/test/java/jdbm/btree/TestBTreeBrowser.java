@@ -72,7 +72,7 @@ public class TestBTreeBrowser
     public void setup() throws IOException
     {
         tuple = new Tuple<String, String>();
-        recordManager = RecordManagerFactory.createRecordManager( getTemporaryFile( "testInsertMany" ) );
+        recordManager = RecordManagerFactory.createRecordManager( getTemporaryFile( "testBrowser" ) );
         snapshotRecman = new SnapshotRecordManager( recordManager, 1 << 12 );
         tree = new BTree<String, String>( snapshotRecman, new StringComparator() );
         tree.setPageSize( 4 );
