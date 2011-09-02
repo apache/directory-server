@@ -986,7 +986,7 @@ public class DefaultDirectoryService implements DirectoryService
         loc.setDn( systemPartition.getSuffixDn() );
         
         // get back all the attributes
-        loc.setAttrsId( new String[]{ SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
+        loc.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
