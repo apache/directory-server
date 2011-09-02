@@ -71,7 +71,7 @@ public class RenamePerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        String oldDn ="cn=test0,ou=system";
+        String oldDn ="cn=test,ou=system";
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
