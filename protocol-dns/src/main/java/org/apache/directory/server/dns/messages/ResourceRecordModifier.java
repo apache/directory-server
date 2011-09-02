@@ -23,6 +23,8 @@ package org.apache.directory.server.dns.messages;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -90,6 +92,6 @@ public class ResourceRecordModifier
      */
     public void put( String id, String value )
     {
-        attributes.put( id.toLowerCase(), value );
+        attributes.put( Strings.toLowerCase( id ), value );
     }
 }

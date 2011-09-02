@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -44,8 +45,8 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( DnsAttribute.MX_PREFERENCE.toLowerCase(), mxPreference );
-        map.put( DnsAttribute.DOMAIN_NAME.toLowerCase(), mxHost );
+        map.put( Strings.toLowerCase( DnsAttribute.MX_PREFERENCE ), mxPreference );
+        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), mxHost );
         return map;
     }
 

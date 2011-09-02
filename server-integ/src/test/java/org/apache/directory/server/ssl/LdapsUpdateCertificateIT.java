@@ -49,6 +49,7 @@ import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -152,8 +153,10 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
-        assertEquals( "Expected the new certificate with the new issuer", newIssuerDN.toLowerCase(), issuerDN.toLowerCase() );
-        assertEquals( "Expected the new certificate with the new subject", newSubjectDN.toLowerCase(), subjectDN.toLowerCase() );
+        assertEquals( "Expected the new certificate with the new issuer", 
+            Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
+        assertEquals( "Expected the new certificate with the new subject", 
+            Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
     }
 
 }

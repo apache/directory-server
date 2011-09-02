@@ -250,7 +250,7 @@ public final class TransactionManager {
         // write block vector elements to the data file.
         while ( blockIterator.hasNext() ) {
             BlockIo cur = (BlockIo)blockIterator.next();
-            owner.synch(cur);
+            owner.sync(cur);
             if (fromCore) {
                 cur.decrementTransactionCount();
                 if (!cur.isInTransaction()) {

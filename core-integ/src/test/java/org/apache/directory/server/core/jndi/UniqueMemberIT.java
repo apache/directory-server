@@ -46,6 +46,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.bouncycastle.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -116,7 +117,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
                 
                 while ( values.hasMoreElements() )
                 {
-                    String value = ( (String)values.nextElement() ).toLowerCase();
+                    String value = Strings.toLowerCase( ( (String)values.nextElement() ) );
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
@@ -188,7 +189,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
                 
                 while ( values.hasMoreElements() )
                 {
-                    String value = ( (String)values.nextElement() ).toLowerCase();
+                    String value = Strings.toLowerCase( ( (String)values.nextElement() ) );
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
@@ -312,7 +313,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
-            map.put( result.getName().toLowerCase(), result.getAttributes() );
+            map.put( Strings.toLowerCase( result.getName() ), result.getAttributes() );
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
@@ -364,7 +365,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
-            map.put( result.getName().toLowerCase(), result.getAttributes() );
+            map.put( Strings.toLowerCase( result.getName() ), result.getAttributes() );
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
@@ -455,7 +456,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
-            map.put( result.getName().toLowerCase(), result.getAttributes() );
+            map.put( Strings.toLowerCase( result.getName() ), result.getAttributes() );
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );

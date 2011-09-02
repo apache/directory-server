@@ -47,8 +47,11 @@
 package jdbm.recman;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -57,7 +60,7 @@ import org.apache.directory.server.i18n.I18n;
  *  This class represents a random access file as a set of fixed size
  *  records. Each record has a physical record number, and records are
  *  cached in order to improve access.
- *<p>
+ * <p>
  *  The set of dirty records on the in-use list constitutes a transaction.
  *  Later on, we will send these records to some recovery thingy.
  */
@@ -67,24 +70,34 @@ public final class RecordFile
 
     // state transitions: free -> inUse -> dirty -> inTxn -> free
     // free is a cache, thus a FIFO. The rest are hashes.
+    /** The list of free pages */
     private final LinkedList<BlockIo> free = new LinkedList<BlockIo>();
+    
+    /** The map of pages being currently used */
     private final HashMap<Long,BlockIo> inUse = new HashMap<Long,BlockIo>();
+    
+    /** The map of dirty pages (page being modified) */
     private final HashMap<Long,BlockIo> dirty = new HashMap<Long,BlockIo>();
+    
+    /** The map of page in a transaction */
     private final HashMap<Long,BlockIo> inTxn = new HashMap<Long,BlockIo>();
 
-    // transactions disabled?
+    /** A flag set if transactions is disabled. Default to false */
     private boolean transactionsDisabled = false;
 
     /** The length of a single block. */
-    public final static int BLOCK_SIZE = 8192;//4096;
+    public final static int BLOCK_SIZE = 4096;
 
     /** The extension of a record file */
-    final static String extension = ".db";
+    final static String EXTENSION = ".db";
 
     /** A block of clean data to wipe clean pages. */
     final static byte[] cleanData = new byte[BLOCK_SIZE];
 
+    /** The underlying file */
     private RandomAccessFile file;
+    
+    /** The file name */
     private final String fileName;
 
     
@@ -97,29 +110,35 @@ public final class RecordFile
      * @throws IOException whenever the creation of the underlying
      *         RandomAccessFile throws it.
      */
-    RecordFile ( String fileName ) throws IOException 
+    RecordFile( String fileName ) throws IOException 
     {
         this.fileName = fileName;
-        file = new RandomAccessFile(fileName + extension, "rw");
+        file = new RandomAccessFile( fileName + EXTENSION, "rw" );
     }
 
 
+    /**
+     * @return The TransactionManager if the transaction system is enabled.
+     * @throws IOException If we can't create a TransactionManager
+     */
     TransactionManager getTxnMgr() throws IOException
     {
         if ( transactionsDisabled )
         {
             throw new IllegalStateException( "Transactions are disabled." );
         }
+        
         if ( transactionManager == null )
         {
             transactionManager = new TransactionManager( this );
         }
+        
         return transactionManager;
     }
 
 
     /**
-     * Returns the file name.
+     * @return the file name.
      */
     String getFileName() 
     {
@@ -142,85 +161,89 @@ public final class RecordFile
      * copy of the record, and thus can be written (and subsequently released 
      * with a dirty flag in order to write the block back).
      *
-     * @param blockid The record number to retrieve.
+     * @param blockId The record number to retrieve.
      */
-     BlockIo get( long blockid ) throws IOException 
+     BlockIo get( long blockId ) throws IOException 
      {
          // try in transaction list, dirty list, free list
+         BlockIo blockIo = inTxn.get( blockId );
          
-         BlockIo node = inTxn.get( blockid );
-         if ( node != null ) 
+         if ( blockIo != null ) 
          {
-             inTxn.remove( blockid );
-             inUse.put( blockid, node );
-             return node;
+             inTxn.remove( blockId );
+             inUse.put( blockId, blockIo );
+             
+             return blockIo;
          }
          
-         node = dirty.get( blockid );
-         if ( node != null ) 
+         blockIo = dirty.get( blockId );
+         
+         if ( blockIo != null ) 
          {
-             dirty.remove( blockid );
-             inUse.put( blockid, node );
-             return node;
+             dirty.remove( blockId );
+             inUse.put( blockId, blockIo );
+             
+             return blockIo;
          }
          
-         for ( Iterator<BlockIo> i = free.iterator(); i.hasNext(); ) 
+         for ( Iterator<BlockIo> iterator = free.iterator(); iterator.hasNext(); ) 
          {
-             BlockIo cur = i.next();
-             if ( cur.getBlockId() == blockid ) 
+             BlockIo cur = iterator.next();
+             
+             if ( cur.getBlockId() == blockId ) 
              {
-                 node = cur;
-                 i.remove();
-                 inUse.put( blockid, node );
-                 return node;
+                 blockIo = cur;
+                 iterator.remove();
+                 inUse.put( blockId, blockIo );
+                 
+                 return blockIo;
              }
          }
 
          // sanity check: can't be on in use list
-         if ( inUse.get( blockid ) != null ) 
+         if ( inUse.get( blockId ) != null ) 
          {
-             throw new Error( I18n.err( I18n.ERR_554, blockid ) );
+             throw new Error( I18n.err( I18n.ERR_554, blockId ) );
          }
 
          // get a new node and read it from the file
-         node = getNewNode( blockid );
-         long offset = blockid * BLOCK_SIZE;
-         if ( file.length() > 0 && offset <= file.length() ) 
-         {
-             read( file, offset, node.getData(), BLOCK_SIZE );
-         } 
-         else 
-         {
-             System.arraycopy( cleanData, 0, node.getData(), 0, BLOCK_SIZE );
-         }
+         blockIo = getNewBlockIo( blockId );
+         long offset = blockId * BLOCK_SIZE;
+         long fileLength = file.length();
          
-         inUse.put( blockid, node );
-         node.setClean();
-         return node;
+         if ( ( fileLength > 0 ) && ( offset <= fileLength ) ) 
+         {
+             read( file, offset, blockIo.getData(), BLOCK_SIZE );
+         } 
+         
+         inUse.put( blockId, blockIo );
+         blockIo.setClean();
+         
+         return blockIo;
      }
 
 
     /**
      * Releases a block.
      *
-     * @param blockid The record number to release.
+     * @param blockId The record number to release.
      * @param isDirty If true, the block was modified since the get().
      */
-    void release( long blockid, boolean isDirty ) throws IOException 
+    void release( long blockId, boolean isDirty ) throws IOException 
     {
-        BlockIo node = inUse.get( blockid );
+        BlockIo blockIo = inUse.get( blockId );
         
-        if ( node == null )
+        if ( blockIo == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_555, blockid ) );
+            throw new IOException( I18n.err( I18n.ERR_555, blockId ) );
         }
         
-        if ( ! node.isDirty() && isDirty )
+        if ( ! blockIo.isDirty() && isDirty )
         {
-            node.setDirty();
+            blockIo.setDirty();
         }
             
-        release( node );
+        release( blockIo );
     }
 
     
@@ -293,26 +316,23 @@ public final class RecordFile
         }
 
         
-        for ( Iterator<BlockIo> i = dirty.values().iterator(); i.hasNext(); ) 
+        for ( BlockIo blockIo : dirty.values() ) 
         {
-            BlockIo node = ( BlockIo ) i.next();
-            i.remove();
-            
             // System.out.println("node " + node + " map size now " + dirty.size());
             if ( transactionsDisabled ) 
             {
-                long offset = node.getBlockId() * BLOCK_SIZE;
-                file.seek( offset );
-                file.write( node.getData() );
-                node.setClean();
-                free.add( node );
+                sync( blockIo );
+                blockIo.setClean();
+                free.add( blockIo );
             }
             else 
             {
-                getTxnMgr().add( node );
-                inTxn.put( node.getBlockId(), node );
+                getTxnMgr().add( blockIo );
+                inTxn.put( blockIo.getBlockId(), blockIo );
             }
         }
+        
+        dirty.clear();
 
         if ( ! transactionsDisabled ) 
         {
@@ -421,39 +441,45 @@ public final class RecordFile
 
 
     /**
-     * Returns a new node. The node is retrieved (and removed) from the 
+     * Returns a new BlockIo. The BlockIo is retrieved (and removed) from the 
      * released list or created new.
      */
-    private BlockIo getNewNode( long blockid ) throws IOException 
+    private BlockIo getNewBlockIo( long blockId ) throws IOException 
     {
-        BlockIo retval = null;
+        BlockIo blockIo = null;
 
         if ( ! free.isEmpty() ) 
         {
-            retval = ( BlockIo ) free.removeFirst();
+            blockIo = ( BlockIo ) free.removeFirst();
+            blockIo.setBlockId( blockId );
         }
         
-        if ( retval == null )
+        if ( blockIo == null )
         {
-            retval = new BlockIo( 0, new byte[BLOCK_SIZE] );
+            blockIo = new BlockIo( blockId, new byte[BLOCK_SIZE] );
         }
         
-        retval.setBlockId(blockid);
-        retval.setView( null );
-        return retval;
+        blockIo.setView( null );
+        
+        return blockIo;
     }
     
 
     /**
-     * Synchronizes a node to disk. This is called by the transaction manager's
+     * Synchronizes a BlockIo to disk. This is called by the transaction manager's
      * synchronization code.
+     * 
+     * @param blockIo The blocIo to write on disk
+     * @exception IOException If we have a problem while trying to write the blockIo to disk
      */
-    void synch( BlockIo node ) throws IOException 
+    void sync( BlockIo blockIo ) throws IOException 
     {
-        byte[] data = node.getData();
+        byte[] data = blockIo.getData();
+        
         if ( data != null ) 
         {
-            long offset = node.getBlockId() * BLOCK_SIZE;
+            // Write the data to disk now.
+            long offset = blockIo.getBlockId() * BLOCK_SIZE;
             file.seek( offset );
             file.write( data );
         }
@@ -502,5 +528,77 @@ public final class RecordFile
             remaining -= read;
             pos += read;
         }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "RecordFile<" ).append( fileName ).append( ", " );
+        
+        // The file size
+        sb.append( "size : " );
+        
+        try
+        {
+            sb.append( file.length() ).append( "bytes" );
+        }
+        catch ( IOException ioe )
+        {
+            sb.append( "unknown" );
+        }
+        
+        // Transactions
+        if ( transactionsDisabled )
+        {
+            sb.append( "(noTx)" );
+        }
+        else
+        {
+            sb.append( "(Tx)" );
+        }
+        
+        // Dump the free blocks
+        sb.append( "\n    Free blockIo : " ).append( free.size() );
+                
+        for ( BlockIo blockIo : free )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the inUse blocks
+        sb.append( "\n    InUse blockIo : " ).append( inUse.size() );
+        
+        for ( BlockIo blockIo : inUse.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the dirty blocks
+        sb.append( "\n    Dirty blockIo : " ).append( dirty.size() );
+        
+        for ( BlockIo blockIo : dirty.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+        
+        // Dump the inTxn blocks
+        sb.append( "\n    InTxn blockIo : " ).append( inTxn.size() );
+        
+        for ( BlockIo blockIo : inTxn.values() )
+        {
+            sb.append( "\n         " );
+            sb.append( blockIo );
+        }
+
+        
+        return sb.toString();
     }
 }

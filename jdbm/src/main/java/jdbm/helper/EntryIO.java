@@ -17,38 +17,18 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.replication;
+package jdbm.helper;
 
+import java.io.IOException;
 
 /**
- * A connection to a replica. This is an abstract class, extended by the 
- * SimpleReplicaConnection or the SaslReplicaConnection.
  * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * TODO EntryIO.
  *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class ReplicaConnection
+public interface EntryIO<K, V>
 {
-    /** The bind method to use */
-    private BindMethod bindMethod;
-    
-    /**
-     * @return the bindMethod
-     */
-    public BindMethod getBindMethod()
-    {
-        return bindMethod;
-    }
-
-    
-    /**
-     * @param bindMethod the bindMethod to set
-     */
-    public void setBindMethod( String bindMethod )
-    {
-        this.bindMethod = BindMethod.getInstance( bindMethod );
-    }
-
-
-
+    public V read( K key, Serializer serializer) throws IOException;
+    public void write( K key, V value, Serializer serializer ) throws IOException;
 }

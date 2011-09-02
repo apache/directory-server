@@ -54,16 +54,22 @@ package jdbm.recman;
  */
 final class Location 
 {
-    private long block;
+    /** The block in which the data is stored */
+    private long blockId;
+    
+    /** The offset within this block */
     private short offset;
 
     
     /**
      * Creates a location from a (block, offset) tuple.
+     * 
+     * @param blockId The block identifier
+     * @param offset the offset in the block
      */
-    Location( long block, short offset ) 
+    Location( long blockId, short offset ) 
     {
-        this.block = block;
+        this.blockId = blockId;
         this.offset = offset;
     }
 
@@ -71,30 +77,34 @@ final class Location
     /**
      * Creates a location from a combined block/offset long, as used in the 
      * external representation of logical rowids. A recid is a logical rowid.
+     * 
+     * @param blockOffset The block + offset combinaison
      */
     Location( long blockOffset ) 
     {
         this.offset = ( short ) ( blockOffset & 0xffff );
-        this.block = blockOffset >> 16;
+        this.blockId = blockOffset >> 16;
     }
 
     
     /**
      * Creates a location based on the data of the physical rowid.
+     * 
+     * @param physicalRowId The physical row id used as a base for the Location creation
      */
-    Location( PhysicalRowId src ) 
+    Location( PhysicalRowId physicalRowId ) 
     {
-        block = src.getBlock();
-        offset = src.getOffset();
+        blockId = physicalRowId.getBlock();
+        offset = physicalRowId.getOffset();
     }
 
     
     /**
-     * Returns the file block of the location
+     * @eturn the blockId of the location
      */
     long getBlock() 
     {
-        return block;
+        return blockId;
     }
 
     
@@ -114,7 +124,7 @@ final class Location
      */
     long toLong() 
     {
-        return ( block << 16 ) + ( long ) offset;
+        return ( blockId << 16 ) + ( long ) offset;
     }
 
     
@@ -133,21 +143,26 @@ final class Location
     @Override
    public boolean equals( Object o ) 
     {
-        if ( o == null || ! ( o instanceof Location ) )
+        if ( ( o == null ) || ! ( o instanceof Location ) )
         {
             return false;
         }
         
         Location ol = ( Location ) o;
-        return ol.block == block && ol.offset == offset;
+        
+        return ( ol.blockId == blockId ) && ( ol.offset == offset );
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public String toString() 
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Location ( " ).append( block ).append( " : " );
+        sb.append( "Location ( " ).append( blockId ).append( " : " );
         sb.append( offset ).append( " ) " );
+        
         return sb.toString();
     }
 }

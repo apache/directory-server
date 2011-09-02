@@ -81,7 +81,6 @@ import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncModifyDn;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -90,7 +89,6 @@ import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyIm
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
@@ -184,7 +182,6 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncInfoValue.OID, ControlEnum.SYNC_INFO_VALUE_CONTROL );
-        ADS_CONTROLS.put( SyncModifyDn.OID, ControlEnum.SYNC_MODIFY_DN_CONTROL );
         ADS_CONTROLS.put( SyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
     }
@@ -434,11 +431,6 @@ public abstract class ServerContext implements EventContext
 
             case SYNC_INFO_VALUE_CONTROL:
                 control = new SyncInfoValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_MODIFY_DN_CONTROL:
-                control = new SyncModifyDnDecorator( getDirectoryService().getLdapCodecService() );
 
                 break;
 

@@ -84,7 +84,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
-import org.apache.directory.server.ldap.replication.consumer.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -102,6 +102,7 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,7 @@ public class ServiceBuilder
                 return true;
             }
 
-            return file.getName().toLowerCase().endsWith( ".ldif" );
+            return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
         }
     };
     
@@ -996,7 +997,7 @@ public class ServiceBuilder
             {
                 if( className == null )
                 {
-                    consumerClass = SyncReplConsumer.class; 
+                    consumerClass = ReplicationConsumerImpl.class; 
                 }
                 else
                 {

@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescr
 import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,17 +96,17 @@ public class SchemaSubentryManager
     
     static 
     {
-        VALID_OU_VALUES.add( SchemaConstants.NORMALIZERS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.COMPARATORS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.SYNTAX_CHECKERS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( "syntaxes".toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULE_USE_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.OBJECT_CLASSES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NAME_FORMS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
     }
 
 

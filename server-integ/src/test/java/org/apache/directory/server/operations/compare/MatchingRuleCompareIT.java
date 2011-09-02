@@ -33,6 +33,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -96,7 +97,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String[] values =
-            { PERSON_SN, PERSON_SN.toUpperCase(), PERSON_SN.toLowerCase(), PERSON_SN + "X" };
+            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCase( PERSON_SN ), PERSON_SN + "X" };
         boolean[] expected =
             { true, true, true, false };
 

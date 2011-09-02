@@ -78,7 +78,6 @@ public class FrameworkSuite extends Suite
             "org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
         

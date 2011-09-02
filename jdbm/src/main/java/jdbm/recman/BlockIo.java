@@ -50,6 +50,8 @@ package jdbm.recman;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -73,15 +75,16 @@ public final class BlockIo implements java.io.Externalizable
     private long blockId;
 
     /** The row data contained in this block */
-    private transient byte[] data;
+    private byte[] data;
     
-    private transient BlockView view = null;
+    /** A view on the BlockIo */
+    private BlockView view = null;
     
     /** A flag set when this block has been modified */
-    private transient boolean dirty = false;
+    private boolean dirty = false;
     
     /** The number of pending transaction on this block */
-    private transient int transactionCount = 0;
+    private AtomicInteger transactionCount = new AtomicInteger( 0 );
 
     
     /**
@@ -99,7 +102,7 @@ public final class BlockIo implements java.io.Externalizable
      * @param blockId The identifier for this block
      * @param data The data to store
      */
-    BlockIo( long blockId, byte[] data ) 
+    /*No qualifier*/ BlockIo( long blockId, byte[] data ) 
     {
         // remove me for production version
         if ( blockId < 0 )
@@ -115,7 +118,7 @@ public final class BlockIo implements java.io.Externalizable
     /**
      * @return the underlying array
      */
-    byte[] getData() 
+    /*No qualifier*/ byte[] getData() 
     {
         return data;
     }
@@ -126,7 +129,7 @@ public final class BlockIo implements java.io.Externalizable
      * 
      * @param The block identifier
      */
-    void setBlockId( long blockId ) 
+    /*No qualifier*/ void setBlockId( long blockId ) 
     {
         if ( isInTransaction() )
         {
@@ -145,7 +148,7 @@ public final class BlockIo implements java.io.Externalizable
     /**
      * @return the block number.
      */
-    long getBlockId() 
+    /*No qualifier*/ long getBlockId() 
     {
         return blockId;
     }
@@ -162,6 +165,8 @@ public final class BlockIo implements java.io.Externalizable
     
     /**
      * Sets the current view of the block.
+     * 
+     * @param view the current view
      */
     public void setView( BlockView view ) 
     {
@@ -172,7 +177,7 @@ public final class BlockIo implements java.io.Externalizable
     /**
      * Sets the dirty flag
      */
-    void setDirty() 
+    /*No qualifier*/ void setDirty() 
     {
         dirty = true;
     }
@@ -181,7 +186,7 @@ public final class BlockIo implements java.io.Externalizable
     /**
      * Clears the dirty flag
      */
-    void setClean() 
+    /*No qualifier*/ void setClean() 
     {
         dirty = false;
     }
@@ -190,7 +195,7 @@ public final class BlockIo implements java.io.Externalizable
     /**
      * Returns true if the dirty flag is set.
      */
-    boolean isDirty() 
+    /*No qualifier*/ boolean isDirty() 
     {
         return dirty;
     }
@@ -200,9 +205,9 @@ public final class BlockIo implements java.io.Externalizable
      * Returns true if the block is still dirty with respect to the 
      * transaction log.
      */
-    boolean isInTransaction() 
+    /*No qualifier*/ boolean isInTransaction() 
     {
-        return transactionCount != 0;
+        return transactionCount.get() != 0;
     }
 
 
@@ -211,12 +216,9 @@ public final class BlockIo implements java.io.Externalizable
      * block is in the log but not yet in the data recordFile. The method also
      * takes a snapshot so that the data may be modified in new transactions.
      */
-    synchronized void incrementTransactionCount() 
+    /*No qualifier*/ void incrementTransactionCount() 
     {
-        transactionCount++;
-    
-        // @fix me ( alex )
-        setClean();
+        transactionCount.getAndIncrement();
     }
 
     
@@ -224,11 +226,9 @@ public final class BlockIo implements java.io.Externalizable
      * Decrements transaction count for this block, to signal that this
      * block has been written from the log to the data recordFile.
      */
-    synchronized void decrementTransactionCount() 
+    /*No qualifier*/ void decrementTransactionCount() 
     {
-        transactionCount--;
-        
-        if ( transactionCount < 0 )
+        if ( transactionCount.decrementAndGet() < 0 )
         {
             throw new Error( I18n.err( I18n.ERR_541, getBlockId() ) );
         }
@@ -237,6 +237,9 @@ public final class BlockIo implements java.io.Externalizable
 
     /**
      * Reads a byte from the indicated position
+     * 
+     * @param pos the position at which we will read the byte
+     * @return the read byte
      */
     public byte readByte( int pos ) 
     {
@@ -246,51 +249,66 @@ public final class BlockIo implements java.io.Externalizable
 
     /**
      * Writes a byte to the indicated position
+     * 
+     * @param pos The position where we want to write the value to
+     * @param value the byte value we want to write into the BlockIo
      */
     public void writeByte( int pos, byte value ) 
     {
         data[pos] = value;
-        setDirty();
+        dirty = true;
     }
 
     
     /**
      * Reads a short from the indicated position
+     * 
+     * @param pos the position at which we will read the short
+     * @return the read short
      */
     public short readShort( int pos ) 
     {
         return ( short )
-            ( ( ( short ) ( data[pos+0] & 0xff ) << 8 ) |
-             ( ( short ) ( data[pos+1] & 0xff ) << 0 ) );
+            ( ( ( data[pos+0] & 0xff ) << 8 ) |
+             ( ( data[pos+1] & 0xff ) << 0 ) );
     }
 
     
     /**
      * Writes a short to the indicated position
+     * 
+     * @param pos The position where we want to write the value to
+     * @param value the short value we want to write into the BlockIo
      */
     public void writeShort( int pos, short value ) 
     {
         data[pos+0] = ( byte ) ( 0xff & ( value >> 8 ) );
         data[pos+1] = ( byte ) ( 0xff & ( value >> 0 ) );
-        setDirty();
+        dirty = true;
     }
 
     
     /**
      * Reads an int from the indicated position
+     * 
+     * @param pos the position at which we will read the int
+     * @return the read int
      */
     public int readInt( int pos ) 
     {
         return
-            ( ( ( int ) ( data[pos+0] & 0xff ) << 24) |
-              ( ( int ) ( data[pos+1] & 0xff ) << 16) |
-              ( ( int ) ( data[pos+2] & 0xff ) <<  8) |
-              ( ( int ) ( data[pos+3] & 0xff ) <<  0 ) );
+            ( data[pos+0] << 24) |
+            ( ( data[pos+1] & 0xff ) << 16) |
+            ( ( data[pos+2] & 0xff ) <<  8) |
+            ( ( data[pos+3] & 0xff ) <<  0 );
     }
 
     
     /**
      * Writes an int to the indicated position
+     * 
+     * @param pos The position where we want to write the value to
+     * @param value the int value we want to write into the BlockIo
      */
     public void writeInt( int pos, int value ) 
     {
@@ -298,31 +316,35 @@ public final class BlockIo implements java.io.Externalizable
         data[pos+1] = ( byte ) ( 0xff & ( value >> 16 ) );
         data[pos+2] = ( byte ) ( 0xff & ( value >>  8 ) );
         data[pos+3] = ( byte ) ( 0xff & ( value >>  0 ) );
-        setDirty();
+        dirty = true;
     }
 
     
     /**
      * Reads a long from the indicated position
+     * 
+     * @param pos the position at which we will read the long
+     * @return the read long
      */
     public long readLong( int pos )
     {
-        // Contributed by Erwin Bolwidt <ejb@klomp.org>
-        // Gives about 15% performance improvement
         return
-            ( ( long )( ( ( data[pos+0] & 0xff ) << 24 ) |
-                        ( ( data[pos+1] & 0xff ) << 16 ) |
-                        ( ( data[pos+2] & 0xff ) <<  8 ) |
-                        ( ( data[pos+3] & 0xff )       ) ) << 32 ) |
-            ( ( long )( ( ( data[pos+4] & 0xff ) << 24 ) |
-                        ( ( data[pos+5] & 0xff ) << 16 ) |
-                        ( ( data[pos+6] & 0xff ) <<  8 ) |
-                        ( ( data[pos+7] & 0xff )       ) ) & 0xffffffff );
+            ( ( long )( (long)data[pos+0] << 56 ) |
+                        ( (long)( data[pos+1] & 0xff ) << 48 ) |
+                        ( (long)( data[pos+2] & 0xff ) << 40 ) |
+                        ( (long)( data[pos+3] & 0xff ) << 32 ) |
+                        ( (long)( data[pos+4] & 0xff ) << 24 ) |
+                        ( (long)( data[pos+5] & 0xff ) << 16 ) |
+                        ( (long)( data[pos+6] & 0xff ) <<  8 ) |
+                        ( (long)( data[pos+7] & 0xff ) ) );
     }
 
     
     /**
      * Writes a long to the indicated position
+     * 
+     * @param pos The position where we want to write the value to
+     * @param value the long value we want to write into the BlockIo
      */
     public void writeLong(int pos, long value) {
         data[pos+0] = (byte)(0xff & (value >> 56));
@@ -333,23 +355,59 @@ public final class BlockIo implements java.io.Externalizable
         data[pos+5] = (byte)(0xff & (value >> 16));
         data[pos+6] = (byte)(0xff & (value >>  8));
         data[pos+7] = (byte)(0xff & (value >>  0));
-        setDirty();
+        dirty = true;
     }
 
     
-    // overrides java.lang.Object
-    
+    /**
+     * {@inheritDoc}
+     */
     public String toString() 
     {
-        return "BlockIO ( "
-            + blockId + ", "
-            + dirty   + ", "
-            + view    + " )";
+        if ( view != null )
+        {
+            return view.toString();
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "BlockIO ( " );
+        
+        // The blockID
+        sb.append( blockId ).append( ", " );
+        
+        // Is it dirty ?
+        if ( dirty )
+        {
+            sb.append( "dirty, " );
+        }
+        else
+        {
+            sb.append( "clean, " );
+        }
+        
+        // The view
+        if ( view != null )
+        {
+            sb.append( view.getClass().getSimpleName() ).append( ", " );
+        }
+        else
+        {
+            sb.append( "no view, " );
+        }
+        
+        // The transaction count
+        sb.append( "tx: " ).append( transactionCount.get() );
+
+        sb.append( " )" );
+        
+        return sb.toString();
     }
 
     
-    // implement externalizable interface
-    
+    /**
+     * implement externalizable interface
+     */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException 
     {
         blockId = in.readLong();
@@ -359,7 +417,9 @@ public final class BlockIo implements java.io.Externalizable
     }
 
     
-    // implement externalizable interface
+    /**
+     * implement externalizable interface
+     */
     public void writeExternal( ObjectOutput out ) throws IOException 
     {
         out.writeLong( blockId );

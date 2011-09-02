@@ -87,7 +87,7 @@ final class FreePhysicalRowIdPageManager
         while ( curs.next() != 0 ) 
         {
             FreePhysicalRowIdPage fp = FreePhysicalRowIdPage
-                .getFreePhysicalRowIdPageView( recordFile.get( curs.getCurrent() ) );
+                .getFreePhysicalRowIdPageView( recordFile.get( curs.getBlockId() ) );
             int slot = fp.getFirstLargerThan( size );
             
             if ( slot != -1 ) 
@@ -99,12 +99,12 @@ final class FreePhysicalRowIdPageManager
                 if ( fp.getCount() == 0 ) 
                 {
                     // page became empty - free it
-                    recordFile.release( curs.getCurrent(), false );
-                    pageManager.free( Magic.FREEPHYSIDS_PAGE, curs.getCurrent() );
+                    recordFile.release( curs.getBlockId(), false );
+                    pageManager.free( Magic.FREEPHYSIDS_PAGE, curs.getBlockId() );
                 } 
                 else 
                 {
-                    recordFile.release( curs.getCurrent(), true );
+                    recordFile.release( curs.getBlockId(), true );
                 }
 
                 return retval;
@@ -112,7 +112,7 @@ final class FreePhysicalRowIdPageManager
             else 
             {
                 // no luck, go to next page
-                recordFile.release( curs.getCurrent(), false );
+                recordFile.release( curs.getBlockId(), false );
             }
         }
         return null;
@@ -130,7 +130,7 @@ final class FreePhysicalRowIdPageManager
         
         while ( curs.next() != 0 ) 
         {
-            freePage = curs.getCurrent();
+            freePage = curs.getBlockId();
             BlockIo curBlock = recordFile.get( freePage );
             FreePhysicalRowIdPage fp = FreePhysicalRowIdPage.getFreePhysicalRowIdPageView( curBlock );
             int slot = fp.getFirstFree();

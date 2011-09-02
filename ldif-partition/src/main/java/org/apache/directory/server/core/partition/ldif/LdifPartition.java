@@ -670,7 +670,7 @@ public class LdifPartition extends AbstractLdifPartition
             }
         }
 
-        return sb.toString().toLowerCase();
+        return Strings.toLowerCase( sb.toString() );
     }
 
 

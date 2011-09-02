@@ -73,4 +73,11 @@ public abstract class TupleBrowser<K, V> {
      *         no previous tuple.
      */
     public abstract boolean getPrevious( Tuple<K, V> tuple ) throws IOException;
+    
+    
+    /**
+     * Closes the browser and deallocates any resources it might have allocated.
+     * Repeated calls of close are OK.
+     */
+    public void close() {}
 }

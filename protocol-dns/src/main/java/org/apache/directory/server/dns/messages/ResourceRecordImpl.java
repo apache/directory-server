@@ -23,6 +23,8 @@ package org.apache.directory.server.dns.messages;
 
 import java.util.Map;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * The answer, authority, and additional sections all share the same
@@ -152,7 +154,7 @@ public class ResourceRecordImpl implements ResourceRecord
      */
     public String get( String id )
     {
-        return ( String ) attributes.get( id.toLowerCase() );
+        return ( String ) attributes.get( Strings.toLowerCase( id ) );
     }
 
 

@@ -588,7 +588,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             {
                 String dependency = value.getString();
 
-                if ( schemaManager.getLoadedSchema( Strings.toLowerCase(dependency) ) == null )
+                if ( schemaManager.getLoadedSchema( Strings.toLowerCase( dependency ) ) == null )
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                         I18n.err( I18n.ERR_385, dependency ) );

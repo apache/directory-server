@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.model.schema.registries.Registries;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,17 +106,17 @@ public class RegistrySynchronizerAdaptor
 
     static 
     {
-        VALID_OU_VALUES.add( SchemaConstants.NORMALIZERS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.COMPARATORS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.SYNTAX_CHECKERS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( "syntaxes".toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT.toLowerCase() );
-        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULE_USE_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.OBJECT_CLASSES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NAME_FORMS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
     }
 
 
@@ -197,7 +198,7 @@ public class RegistrySynchronizerAdaptor
             }
             
             String ouValue = addContext.getDn().getRdn().getNormValue().getString();
-            ouValue = ouValue.trim().toLowerCase();
+            ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
@@ -253,7 +254,7 @@ public class RegistrySynchronizerAdaptor
             }
             
             String ouValue = deleteContext.getDn().getRdn().getNormValue().getString();
-            ouValue = ouValue.trim().toLowerCase();
+            ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {

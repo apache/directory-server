@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -46,10 +47,10 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( DnsAttribute.SERVICE_PRIORITY.toLowerCase(), priority );
-        map.put( DnsAttribute.SERVICE_WEIGHT.toLowerCase(), weight );
-        map.put( DnsAttribute.SERVICE_PORT.toLowerCase(), port );
-        map.put( DnsAttribute.DOMAIN_NAME.toLowerCase(), srvName );
+        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_PRIORITY ), priority );
+        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_WEIGHT ), weight );
+        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_PORT ), port );
+        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), srvName );
         return map;
     }
 

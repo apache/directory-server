@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -42,7 +43,7 @@ public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( DnsAttribute.CHARACTER_STRING.toLowerCase(), characterString );
+        map.put( Strings.toLowerCase( DnsAttribute.CHARACTER_STRING ), characterString );
         return map;
     }
 

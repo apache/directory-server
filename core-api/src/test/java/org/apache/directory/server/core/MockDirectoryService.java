@@ -38,7 +38,6 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
@@ -457,15 +456,6 @@ public class MockDirectoryService implements DirectoryService
 
     public void setJournal( Journal journal )
     {
-    }
-
-    public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
-    {
-    }
-
-    public ReplicationConfiguration getReplicationConfiguration()
-    {
-        return null;
     }
 
     public String getContextCsn()

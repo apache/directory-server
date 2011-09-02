@@ -72,7 +72,6 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
@@ -168,9 +167,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The directory instance replication ID */
     private int replicaId;
-
-    /** The replication configuration structure */
-    private ReplicationConfiguration replicationConfig;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -988,7 +984,9 @@ public class DefaultDirectoryService implements DirectoryService
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
         loc.setDn( systemPartition.getSuffixDn() );
-        loc.setAttrsId( new String[]{ SchemaConstants.CONTEXT_CSN_AT } );
+        
+        // get back all the attributes
+        loc.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
@@ -1788,22 +1786,6 @@ public class DefaultDirectoryService implements DirectoryService
         {
             this.replicaId = replicaId;
         }
-    }
-
-
-    public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
-    {
-        this.replicationConfig = replicationConfig;
-
-    }
-
-
-    /**
-     * @return the replication configuration for this DirectoryService
-     */
-    public ReplicationConfiguration getReplicationConfiguration()
-    {
-        return replicationConfig;
     }
 
 
