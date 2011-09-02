@@ -89,7 +89,7 @@ import org.junit.rules.TemporaryFolder;
  *
  *  @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
  */
-public class StreamCorrupted
+public class TestStreamCorrupted
 {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();

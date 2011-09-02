@@ -49,7 +49,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
-public class SnapshotBTree
+public class TestSnapshotBTree
 {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -176,7 +176,7 @@ public class SnapshotBTree
             {
                 assertTrue( browser.getNext( tuple ) );
 
-                System.out.println( "key:"+ tuple.getKey().intValue() + " idx:" + idx );
+                //System.out.println( "key:"+ tuple.getKey().intValue() + " idx:" + idx );
                 assertTrue( tuple.getKey().intValue() == idx );
             }
             browser.close();
