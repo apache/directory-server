@@ -348,6 +348,29 @@ public class RdnIndexTreeCursor<E, ID extends Comparable<ID>> extends AbstractIn
         return entry;
     }
 
+
+    @Override
+    public void close() throws Exception
+    {
+        super.close();
+        while ( cursors.size() > 0 )
+        {
+            cursors.closeCurrentCursor();
+        }
+    }
+
+
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        super.close( cause );
+        while ( cursors.size() > 0 )
+        {
+            cursors.closeCurrentCursor();
+        }
+    }
+
+
     @Override
     protected String getUnsupportedMessage()
     {
