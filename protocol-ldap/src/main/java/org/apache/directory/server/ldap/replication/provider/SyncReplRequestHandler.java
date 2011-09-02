@@ -651,7 +651,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         resp.addControl( syncStateControl );
 
         LOG.debug( "Sending {}", entry.getDn() );
-        PROVIDER_LOG.debug( "Sending the entry:", entry.getDn() );
+        PROVIDER_LOG.debug( "Sending the entry: {}", entry );
         session.getIoSession().write( resp );
     }
 

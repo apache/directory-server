@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -94,6 +95,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicationConsumerImpl.class );
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
     /** the syncrepl configuration */
     private SyncreplConfiguration config;
@@ -399,24 +401,29 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValue syncInfoValue = ( SyncInfoValue ) syncInfoResp.getControl( SyncInfoValue.OID );
+            byte[] syncInfoBytes = syncInfoResp.getResponseValue();
 
-            if ( syncInfoValue == null )
+            if ( syncInfoBytes == null )
             {
                 return;
             }
             
+            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( directoryService.getLdapCodecService() );
+            SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
+
             byte[] cookie = syncInfoValue.getCookie();
 
             if ( cookie != null )
             {
                 LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString(cookie) );
+                CONSUMER_LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString(cookie) );
                 syncCookie = cookie;
             }
 
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
+            
             // if refreshDeletes set to true then delete all the entries with entryUUID
             // present in the syncIdSet
             if ( syncInfoValue.isRefreshDeletes() )
@@ -478,8 +485,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     public void startSync()
     {
+        CONSUMER_LOG.debug( "Starting the SyncRepl process" );
+        
         // read the cookie if persisted
         readCookie();
+        
+        CONSUMER_LOG.debug( "Cookie read : ''", syncCookie );
+
 
         if ( config.isRefreshNPersist() )
         {
@@ -552,6 +564,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
+        CONSUMER_LOG.debug( "In doSyncSearch, mode {}, reloadHint {}", syncType, reloadHint );
         // Prepare the Syncrepl Request
         SyncRequestValue syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
 
@@ -561,8 +574,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
          // If we have a persisted cookie, send it.
         if ( syncCookie != null )
         {
-            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString(syncCookie) );
+            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString( syncCookie ) );
             syncReq.setCookie( syncCookie );
+        }
+        else
+        {
+            CONSUMER_LOG.debug( "searching with searchRequest, no cookie" );
         }
 
         searchRequest.addControl( syncReq );
@@ -672,12 +689,14 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void storeCookie()
     {
+        CONSUMER_LOG.debug( "Storing the cookie '{}'", Strings.utf8ToString( syncCookie ) );
+        
         if ( syncCookie == null )
         {
             return;
         }
 
-        if ( lastSavedCookie != null && Arrays.equals( syncCookie, lastSavedCookie ) )
+        if ( ( lastSavedCookie != null ) && Arrays.equals( syncCookie, lastSavedCookie ) )
         {
             return;
         }
@@ -686,6 +705,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             if ( config.isStoreCookieInFile() )
             {
+                CONSUMER_LOG.debug( "Storingthe cookie in a file : {}", cookieFile );
                 FileOutputStream fout = new FileOutputStream( cookieFile );
                 fout.write( syncCookie.length );
                 fout.write( syncCookie );
@@ -697,7 +717,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 attr.clear();
                 attr.add( syncCookie );
 
+                CONSUMER_LOG.debug( "Storing the cookie in the DIT : {}", config.getConfigEntryDn() );
+                
                 session.modify( config.getConfigEntryDn(), cookieMod );
+                
+                Entry entry = session.lookup( config.getConfigEntryDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                
+                CONSUMER_LOG.debug( "stored entry : {}", entry );
             }
 
             lastSavedCookie = new byte[syncCookie.length];
@@ -721,6 +747,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             if ( config.isStoreCookieInFile() )
             {
+                CONSUMER_LOG.debug( "The cookie is stored in a file : {}", cookieFile );
+                
                 if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
                 {
                     FileInputStream fin = new FileInputStream( cookieFile );
@@ -738,8 +766,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 try
                 {
-                    Entry entry = session.lookup( config.getConfigEntryDn(), COOKIE_AT_TYPE.getName() );
+                    Entry entry = session.lookup( config.getConfigEntryDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
                     
+                    CONSUMER_LOG.debug( "The cookie is stored in the DIT : {}", entry );
+
                     if ( entry != null )
                     {
                         Attribute attr = entry.get( COOKIE_AT_TYPE );
@@ -748,6 +778,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                         {
                             syncCookie = attr.getBytes();
                             lastSavedCookie = syncCookie;
+                            CONSUMER_LOG.debug( "Read cookie : '{}'", attr );
                             LOG.debug( "loaded cookie from DIT" );
                         }
                     }
