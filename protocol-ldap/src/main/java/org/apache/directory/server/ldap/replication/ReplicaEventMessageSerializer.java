@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
@@ -82,7 +83,7 @@ public class ReplicaEventMessageSerializer implements Serializer
         ChangeType changeType = replicaEventMessage.getChangeType();
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ObjectOutput out = new ObjectOutputStream( baos );
 
         // The entry DN
         entry.getDn().writeExternal( out );
@@ -126,10 +127,12 @@ public class ReplicaEventMessageSerializer implements Serializer
 
             // The Entry's length
             int length = in.readInt();
+
             byte[] data = new byte[length];
             
             // The entry itself
-            in.read( data );
+            in.readFully( data );
+
             Entry entry = ( Entry ) entrySerializer.deserialize( data );
             entry.setDn( entryDn );
 
