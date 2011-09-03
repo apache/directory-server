@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
@@ -105,7 +106,7 @@ public class EntrySerializer implements Serializer
         Entry entry = (Entry) object;
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ObjectOutput out = new ObjectOutputStream( baos );
 
         // First, the Dn
         Dn dn = entry.getDn();
@@ -206,7 +207,7 @@ public class EntrySerializer implements Serializer
             {
                 // Read the attribute's OID
                 String oid = in.readUTF();
-
+                
                 try
                 {
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
