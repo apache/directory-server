@@ -231,7 +231,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         byte[] data = new byte[ dLen ];
 
         //noinspection ResultOfMethodCallIgnored
-        in.read( data );
+        in.readFully( data );
 
         E key = keyMarshaller.deserialize( data );
         node = new LinkedAvlNode( key );
