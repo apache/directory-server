@@ -31,6 +31,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
@@ -453,7 +454,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         String csn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
 
-        return Strings.getBytesUtf8( consumerMsgLog.getId() + SyncReplRequestHandler.REPLICA_ID_DELIM + csn );
+        return LdapProtocolUtils.createCookie( consumerMsgLog.getId(), csn );
     }
 
 

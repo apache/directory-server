@@ -38,6 +38,7 @@ import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
@@ -54,7 +55,6 @@ import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneVa
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -103,9 +103,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     /** A logger for the replication provider */
     private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
-
-    /** A delimiter for the replicaId */
-    public static final String REPLICA_ID_DELIM = ";";
 
     /** Tells if the replication handler is already started */
     private boolean initialized = false;
@@ -245,7 +242,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 PROVIDER_LOG.debug( "Received a replication request {} with a cookie '{}'", request, cookieString );
                 LOG.debug( "search request received with the cookie {}", cookieString );
                 
-                if ( !isValidCookie( cookieString ) )
+                if ( !LdapProtocolUtils.isValidCookie( cookieString ) )
                 {
                     LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
                     PROVIDER_LOG.debug( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
@@ -265,7 +262,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     }
                     else
                     {
-                        String consumerCsn = getCsn( cookieString );
+                        String consumerCsn = LdapProtocolUtils.getCsn( cookieString );
                         doContentUpdate( session, request, clientMsgLog, consumerCsn );
                     }
                 }
@@ -362,7 +359,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         String lastSentCsn = sendContentFromLog( session, req, replicaLog, consumerCsn );
 
         PROVIDER_LOG.debug( "The latest entry sent to the consumer {} has this CSN : {}", replicaLog.getId(), lastSentCsn );
-        byte[] cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + lastSentCsn);
+        byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), lastSentCsn );
 
         if ( refreshNPersist )
         {
@@ -462,12 +459,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             replicaLog.setLastSentCsn( contextCsn );
-            byte[] cookie = Strings.getBytesUtf8( replicaLog.getId() + REPLICA_ID_DELIM + contextCsn );
+            byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
 
             if ( refreshNPersist ) // refreshAndPersist mode
             {
                 contextCsn = sendContentFromLog( session, request, replicaLog, contextCsn );
-                cookie = Strings.getBytesUtf8(replicaLog.getId() + REPLICA_ID_DELIM + contextCsn);
+                cookie = LdapProtocolUtils.createCookie(replicaLog.getId(), contextCsn);
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
                 intermResp.setResponseName( SyncInfoValue.OID );
@@ -976,83 +973,15 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * Check the cookie syntax. A cookie must have the following syntax :
-     * <replicaId> [ ';' [ <CSN> ] ]
-     */
-    private boolean isValidCookie( String cookieString )
-    {
-        if ( ( cookieString == null ) || ( cookieString.trim().length() == 0 ) )
-        {
-            return false;
-        }
-
-        int pos = cookieString.indexOf( REPLICA_ID_DELIM );
-        
-        // position should start from 1 or higher cause a cookie can be
-        // like "0;<csn>" or "11;<csn>"
-        if ( pos <= 0 )  
-        {
-            return false;
-        }
-
-        String replicaId = cookieString.substring( 0, pos );
-        
-        try
-        {
-            Integer.parseInt( replicaId );
-        }
-        catch ( NumberFormatException e )
-        {
-            LOG.debug( "Failed to parse the replica id {}", replicaId );
-            return false;
-        }
-
-        if ( pos == cookieString.length() )
-        {
-            return false;
-        }
-
-        String csnString = cookieString.substring( pos + 1 );
-
-        return Csn.isValid( csnString );
-    }
-
-    /**
-     * returns the CSN present in cookie
-     * 
-     * @param cookieString the cookie
-     * @return
-     */
-    private String getCsn( String cookieString )
-    {
-        int pos = cookieString.indexOf( REPLICA_ID_DELIM );
-        return cookieString.substring( pos + 1 );
-    }
-
-    
-    /**
-     * returns the replica id present in cookie
-     * 
-     * @param cookieString  the cookie
-     * @return
-     */
-    private int getReplicaId( String cookieString )
-    {
-        String replicaId = cookieString.substring( 0, cookieString.indexOf( REPLICA_ID_DELIM ) );
-        return Integer.parseInt( replicaId );
-    }
-
-
-    /**
      * Get the Replica event log from the replica ID found in the cookie 
      */
     private ReplicaEventLog getReplicaEventLog( String cookieString ) throws Exception
     {
         ReplicaEventLog replicaLog = null;
 
-        if ( isValidCookie( cookieString ) )
+        if ( LdapProtocolUtils.isValidCookie( cookieString ) )
         {
-            int clientId = getReplicaId( cookieString );
+            int clientId = LdapProtocolUtils.getReplicaId( cookieString );
             replicaLog = replicaLogMap.get( clientId );
         }
 
