@@ -181,7 +181,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
                 {
                     byte[] bytes = new byte[ dataSize ];
                     
-                    din.read( bytes );
+                    din.readFully( bytes );
                     E key = keyMarshaller.deserialize( bytes );
                     nodes[i] = key;
                 }
