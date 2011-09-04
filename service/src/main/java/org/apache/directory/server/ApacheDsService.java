@@ -105,20 +105,27 @@ public class ApacheDsService
     /** The Kerberos server instance */
     private KdcServer kdcServer;
 
+    /** The started HttpServer */
     private HttpServer httpServer;
 
+    /** The Schema partition */
     private LdifPartition schemaLdifPartition;
 
+    /** The SchemaManager instance */
     private SchemaManager schemaManager;
 
+    /** The configuration partition */
     private SingleFileLdifPartition configPartition;
 
+    /** The configuration reader instance */
     private ConfigPartitionReader cpReader;
 
     // variables used during the initial startup to update the mandatory operational
     // attributes
+    /** The UUID syntax checker instance */
     private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
 
+    /** The CSN syntax checker instance */
     private CsnSyntaxChecker csnChecker = new CsnSyntaxChecker();
 
     private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();

@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.message.Request;
@@ -83,7 +84,8 @@ public class LdapProtocolUtils
     {
         // the syncrepl cookie format (compatible with OpenLDAP)
         // rid=nn,csn=xxxz
-        return Strings.getBytesUtf8( REPLICA_ID_PREFIX + replicaId + COOKIE_DELIM + CSN_PREFIX + csn );
+        String replicaIdStr = StringUtils.leftPad( Integer.toString( replicaId ), 3, '0' );
+        return Strings.getBytesUtf8( REPLICA_ID_PREFIX + replicaIdStr + COOKIE_DELIM + CSN_PREFIX + csn );
     }
 
 
@@ -152,6 +154,7 @@ public class LdapProtocolUtils
     public static int getReplicaId( String cookieString )
     {
         String replicaId = cookieString.substring( REPLICA_ID_PREFIX_LEN, cookieString.indexOf( COOKIE_DELIM ) );
+        
         return Integer.parseInt( replicaId );
     }
 }
