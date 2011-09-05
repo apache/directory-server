@@ -143,17 +143,9 @@
     <module>hbase-partition</module>
     <module>hbase-partition-test</module>
     -->
+    <module>installers-maven-plugin</module>
+    <module>installers</module>
   </modules>
-  
-  <profiles>
-    <profile>
-      <id>installers</id>
-      <modules>
-        <module>installers-maven-plugin</module>
-        <module>installers</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <build>
     <pluginManagement>
