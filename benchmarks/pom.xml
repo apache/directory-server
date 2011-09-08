@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.8-SNAPSHOT</version>
+    <version>2.0.0-M3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-benchmarks</artifactId>
   <name>ApacheDS Benchmarks</name>
