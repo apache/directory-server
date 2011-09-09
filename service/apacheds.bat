@@ -19,7 +19,7 @@ REM under the License.
 
 REM this script starts ApacheDS (as non-windows-service)
 
-IF NOT exist target/apacheds-service-2.0.0-M4-SNAPSHOT.jar GOTO :MVN
+IF NOT exist target/apacheds-service-2.0.0-M3.jar GOTO :MVN
    echo "Service jar exists"
    GOTO :JAVA
 
