@@ -951,7 +951,9 @@ public class BTree<K, V> implements Externalizable
         
         
         if ( value == null )
+        {
             return null;
+        }
         
         if ( this.valueSerializer != null )
         {

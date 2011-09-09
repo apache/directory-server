@@ -37,10 +37,6 @@ import jdbm.recman.SnapshotRecordManager;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 /**
  * 
@@ -48,8 +44,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-//@RunWith(ConcurrentJunitRunner.class)
-//@Concurrency()
 public class TestSnapshotBTree
 {
     @Rule
@@ -101,11 +95,11 @@ public class TestSnapshotBTree
         updateThread = new BasicTestThread( false, tree, browseSem, updateSem, numReadThreads );      
         
         updateThread.start();
+        
         for ( idx = 0; idx < numReadThreads; idx++ )
         {
             readThreads[idx].start();
         }
-        
         
         for ( idx = 0; idx < numReadThreads; idx++ )
         {
@@ -161,7 +155,9 @@ public class TestSnapshotBTree
 
                 // Sleep a little randomly.                                                                                                                                                               
                 if ( (count & 7) == 0 )
+                {
                     Thread.sleep( 1 );
+                }
 
                 assertTrue( tuple.getValue().value != -1 );
             }
@@ -175,6 +171,7 @@ public class TestSnapshotBTree
             browser = btree.browse( new Integer( 10 ) );
 
             browseSem.release();
+            
             for ( idx = 20; idx < 1024; idx++ )
             {
                 assertTrue( browser.getNext( tuple ) );
@@ -182,6 +179,7 @@ public class TestSnapshotBTree
                 //System.out.println( "key:"+ tuple.getKey().intValue() + " idx:" + idx );
                 assertTrue( tuple.getKey().intValue() == idx );
             }
+            
             browser.close();
         }
         
@@ -190,7 +188,9 @@ public class TestSnapshotBTree
             int idx;
 
             for ( idx = 0; idx < numReadThreads; idx++ )
+            {
                 browseSem.acquireUninterruptibly();
+            }
 
             
             Integer key = new Integer( 1023 );
@@ -214,6 +214,7 @@ public class TestSnapshotBTree
             
             btree.insert( key, value , true );
             btree.insert( new Integer(1024), new IntWrapper( -1 ), true );
+            
             for ( idx = 10; idx < 20; idx++ )
             {
                 btree.remove( new Integer( idx ) );
@@ -222,15 +223,19 @@ public class TestSnapshotBTree
             updateSem.release();
 
             for ( idx = 0; idx < numReadThreads; idx++ )
+            {
                 browseSem.acquireUninterruptibly();
+            }
 
             for ( idx = 0; idx < 10; idx++ )
+            {
                 btree.remove( new Integer( idx ) );
+            }
 
             for ( idx = 20; idx < 1024; idx++ )
+            {
                 btree.remove( new Integer( idx ) );
-
-
+            }
         }
 
 
@@ -239,9 +244,13 @@ public class TestSnapshotBTree
             try
             {
                 if ( readOnly )
+                {
                     this.readOnlyActions();
+                }
                 else
+                {
                     this.readWriteActions();
+                }
             }
             catch( IOException e )
             {
@@ -292,17 +301,18 @@ public class TestSnapshotBTree
         Thread.sleep( 10 );
         
         updateThread.start();
+        
         for ( idx = 1; idx < numReadThreads; idx++ )
         {
             Thread.sleep( 1000 );
             readThreads[idx].start();
         }
         
-        
         for ( idx = 0; idx < numReadThreads; idx++ )
         {
             readThreads[idx].join();
         }
+        
         updateThread.join();
         
         snapshotRecman.close();
@@ -401,9 +411,13 @@ public class TestSnapshotBTree
             try
             {
                 if ( readOnly )
+                {
                     this.readOnlyActions();
+                }
                 else
+                {
                     this.readWriteActions();
+                }
             }
             catch( IOException e )
             {
@@ -453,12 +467,12 @@ public class TestSnapshotBTree
         
         
         updateThread.start();
+        
         for ( idx = 0; idx < numReadThreads; idx++ )
         {
             Thread.sleep( 1000 );
             readThreads[idx].start();
         }
-        
         
         for ( idx = 0; idx < numReadThreads; idx++ )
         {
@@ -525,7 +539,9 @@ public class TestSnapshotBTree
             Random updateRandomizer = new Random();
             
             for ( idx = 0; idx < numReadThreads; idx++ )
+            {
                 browseSem.acquireUninterruptibly();
+            }
             
           
             Integer key;
@@ -542,15 +558,16 @@ public class TestSnapshotBTree
                     key = new Integer( startingIndex + updates );
                     
                     if ( key.intValue() >= numElements )
+                    {
                         break;
-                        
+                    }   
                         
                     btree.remove( key );
                 }
                 
                 for ( int updates = 0; updates < 32; updates++ )
-                {                    
-                    key = new Integer( startingIndex + updates );                          
+                {
+                    key = new Integer( startingIndex + updates );
                     btree.insert( key, value, true );
                 }
             }
@@ -565,9 +582,13 @@ public class TestSnapshotBTree
             try
             {
                 if ( readOnly )
+                {
                     this.readOnlyActions();
+                }
                 else
+                {
                     this.readWriteActions();
+                }
             }
             catch( IOException e )
             {
@@ -583,7 +604,4 @@ public class TestSnapshotBTree
             
         }
     } // end of class RemoveInsertTestThread
-    
-    
-    
 }

@@ -221,10 +221,14 @@ public class BPage<K, V> implements Serializer
         newPage.recordId = this.recordId;
         
         if ( this.children != null )
+        {
             this.copyChildren( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        }
         
-        if (this.values != null ) 
+        if (this.values != null )
+        {
             this.copyEntries( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        }
         
         return newPage;
     }
@@ -1494,7 +1498,9 @@ public class BPage<K, V> implements Serializer
             finally
             {
                 if ( context != null )
+                {
                     btree.unsetAsCurrentAction( context );
+                }
             }
           
             return true;
@@ -1502,7 +1508,8 @@ public class BPage<K, V> implements Serializer
 
         public boolean getPrevious( Tuple<K, V> tuple ) throws IOException
         {
-            btree.setAsCurrentAction( context );           
+            btree.setAsCurrentAction( context );
+            
             try
             {
                 if ( index == page.first )
@@ -1514,7 +1521,7 @@ public class BPage<K, V> implements Serializer
                     }
                     else
                     {
-                        // reached beginning of the tree                                                             
+                        // reached beginning of the tree
                         return false;
                     }
                 }
@@ -1533,8 +1540,10 @@ public class BPage<K, V> implements Serializer
             finally
             {
                 if ( context != null )
+                {
                     btree.unsetAsCurrentAction( context );
-            }          
+                }
+            }
 
             return true;
         }
@@ -1552,6 +1561,7 @@ public class BPage<K, V> implements Serializer
             }
             
             int browserCount = outstandingBrowsers.decrementAndGet();
+            
             if ( browserCount > 0 )
             {
                 //System.out.println( "JDBM btree browsers are outstanding after close: " + browserCount );

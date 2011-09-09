@@ -242,6 +242,7 @@ public class LRUCache<K, V>
                                 
                                 entry.setNeverReplace();
                                 CacheEntry newEntry = null;
+                                
                                 try
                                 {
                                     newEntry = this.findNewEntry( key, hashIndex >> LOG_BUCKET_PER_LATCH );
@@ -340,7 +341,9 @@ public class LRUCache<K, V>
         }
         
         if ( totalSleepTime != 0 )
+        {  
             this.cachePutSleeps++;
+        }
     }
     
     
@@ -404,8 +407,10 @@ public class LRUCache<K, V>
                         {
                             value = this.searchChainForVersion( entry, version );
                             
-                            if (value != null)
+                            if ( value != null )
+                            {
                                 break;
+                            }
                             
                             this.cacheMisses++;
                             
@@ -413,6 +418,7 @@ public class LRUCache<K, V>
                             
                             entry.setNeverReplace();
                             CacheEntry newEntry = null;
+                            
                             try
                             {
                                 newEntry = this.findNewEntry( key, hashIndex >> LOG_BUCKET_PER_LATCH );
@@ -526,11 +532,15 @@ public class LRUCache<K, V>
         {
             
             boolean resetNeverReplace = true;
+            
             if ( entry.isNeverReplace() )
+            {  
                 resetNeverReplace = false;
+            }
             
             entry.setNeverReplace();
             CacheEntry newEntry = null;
+            
             try
             {
                 newEntry = this.findNewEntry( key, hashIndex >> LOG_BUCKET_PER_LATCH );
@@ -538,10 +548,10 @@ public class LRUCache<K, V>
             finally
             {
                 if ( resetNeverReplace )
+                {
                     entry.clearNeverReplace();
+                }
             }
-            
-            
             
             // Set to new version 
             newEntry.setAsCurrentVersion( value, newVersion );
