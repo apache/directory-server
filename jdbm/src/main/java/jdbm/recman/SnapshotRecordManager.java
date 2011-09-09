@@ -625,6 +625,17 @@ public class SnapshotRecordManager implements ActionRecordManager
             bigLock.unlock();
         }
     }
+    
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "SnapshotRecordManager: " );
+        sb.append( "(lruCache:" ).append( this.versionedCache );
+        sb.append( ")\n" );
+        
+        return sb.toString();
+    }
 
 
     /**

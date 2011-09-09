@@ -45,7 +45,7 @@ public class ActionContext
     
     public void endAction()
     {
-        assert( version != null );
+        assert( version != null ) : "Unexpected action state during endAction: " + this;
         version = null;
     }
     
@@ -77,5 +77,18 @@ public class ActionContext
     public String getWhoStarted()
     {
         return whoStarted;
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "ActionContext: " );
+        sb.append( "(readOnly: " ).append( readOnly );
+        sb.append( ", version: " ).append( version );
+        sb.append( ", whoStarted: " ).append( whoStarted );
+        sb.append( ")\n" );
+        
+        return sb.toString();
     }
 }

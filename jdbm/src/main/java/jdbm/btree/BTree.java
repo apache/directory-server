@@ -949,6 +949,12 @@ public class BTree<K, V> implements Externalizable
         byte[] array;
         V valueCopy = null;
         
+        
+        if ( value == null )
+        {
+            return null;
+        }
+        
         if ( this.valueSerializer != null )
         {
             array = this.valueSerializer.serialize( value );
@@ -969,7 +975,7 @@ public class BTree<K, V> implements Externalizable
                 out.flush();
                 byte[]  arr = bout.toByteArray();
                 bin = new ByteArrayInputStream( arr );
-                in =new ObjectInputStream( bin );
+                in = new ObjectInputStream( bin );
                 valueCopy = ( V )in.readObject();
             }
             catch ( ClassNotFoundException e )
