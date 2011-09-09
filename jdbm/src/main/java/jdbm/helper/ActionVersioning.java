@@ -153,7 +153,7 @@ public class ActionVersioning
     {
         long numActions = version.getNumActions().decrementAndGet();
         
-        assert( numActions >= 0 );
+        assert( numActions >= 0 ) : "NumActions zero when read action is ended : " + version;
         
         if ( ( numActions > 0 ) || ( version == readReference.get() ) )
         {
@@ -215,6 +215,18 @@ public class ActionVersioning
         public long getVersion()
         {
             return version;
+        }
+        
+        @Override
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append( "Version: ");
+            sb.append( "(vesion: " ).append( version );
+            sb.append( ", numActions: " ).append( numActions );
+            sb.append( ")\n" );
+            
+            return sb.toString();
         }
     }
 }

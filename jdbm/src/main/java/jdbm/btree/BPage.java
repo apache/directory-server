@@ -401,7 +401,7 @@ public class BPage<K, V> implements Serializer
                 
                 if ( replace )
                 {
-                    pageNewCopy.values[index] = value;
+                    pageNewCopy.values[index] = btree.copyValue( value );
                     btree.recordManager.update( recordId, pageNewCopy, this );
                 }
                 
@@ -956,10 +956,10 @@ public class BPage<K, V> implements Serializer
     /**
      * Set the entry at the given index.
      */
-    private void setEntry( BPage<K, V> page, int index, K key, V value )
+    private void setEntry( BPage<K, V> page, int index, K key, V value ) throws IOException
     {
         page.keys[index] = key;
-        page.values[index] = value;
+        page.values[index] = btree.copyValue( value );
     }
 
 
