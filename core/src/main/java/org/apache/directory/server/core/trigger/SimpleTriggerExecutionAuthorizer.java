@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
 {
-    private static Dn adminName;
+    // private static Dn adminName;
     
     static
     {

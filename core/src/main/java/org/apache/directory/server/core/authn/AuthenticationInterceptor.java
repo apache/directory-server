@@ -1385,7 +1385,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
     
-    private class PwdModDetailsHolder
+    private static class PwdModDetailsHolder
     {
         private boolean pwdModPresent = false;
 

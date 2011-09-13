@@ -55,7 +55,7 @@ import javax.naming.Binding;
  */
 public class DeadContext implements LdapContext, EventDirContext
 {
-    private final String EXCEPTION_MSG = "Context operation unavailable when "
+    private static final String EXCEPTION_MSG = "Context operation unavailable when "
         + "invoked after directory service core provider has been shutdown";
 
 

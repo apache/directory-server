@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Ticket;
@@ -38,7 +37,6 @@ public class AuthenticationContext extends KdcContext
 
     private Ticket ticket;
     private EncryptionKey clientKey;
-    private ReplayCache replayCache;
 
     private PrincipalStoreEntry clientEntry;
     private PrincipalStoreEntry serverEntry;

@@ -260,7 +260,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             recid = recordManager.insert( obj, serializer );
             
-            versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
+            versionedCache.put( Long.valueOf( recid ), obj, actionContext.getVersion().getVersion(),
                 serializer, false );
         } 
         catch ( IOException e )
@@ -318,7 +318,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         // Update the cache
         try 
         {
-            versionedCache.put( new Long( recid ), null, actionContext.getVersion().getVersion(),
+            versionedCache.put( Long.valueOf( recid ), null, actionContext.getVersion().getVersion(),
                 null, false );
         }
         catch ( IOException e )
@@ -387,7 +387,7 @@ public class SnapshotRecordManager implements ActionRecordManager
 
         try 
         {
-           versionedCache.put( new Long( recid ), obj, actionContext.getVersion().getVersion(),
+           versionedCache.put( Long.valueOf( recid ), obj, actionContext.getVersion().getVersion(),
                serializer, recid < 0 );       
         }
         catch ( IOException e )
@@ -458,7 +458,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         try 
         {
-           obj = versionedCache.get( new Long( recid ), actionContext.getVersion().getVersion(),
+           obj = versionedCache.get( Long.valueOf( recid ), actionContext.getVersion().getVersion(),
                serializer );
         } 
         catch ( IOException e )

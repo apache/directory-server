@@ -438,7 +438,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
     }
 
-    class ModifySubContext
+    static class ModifySubContext
     {
         private boolean isPrincipal = false;
         private String principalName;

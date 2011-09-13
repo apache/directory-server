@@ -1079,11 +1079,11 @@ public class BPage<K, V> implements Serializer
      */
     private void dump( int height )
     {
-        String prefix = "";
+        StringBuffer prefix = new StringBuffer();
         
         for ( int i = 0; i < height; i++ )
         {
-            prefix += "    ";
+            prefix.append( "    " );
         }
         
         System.out.println( prefix + "-------------------------------------- BPage recordId=" + recordId );

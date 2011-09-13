@@ -503,9 +503,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         int pos = 0;
 
-        for ( String key : filteredAttrs.keySet() )
+        for (Map.Entry<String, String> entry : filteredAttrs.entrySet() )
         {
-            newAttributesList[pos++] = filteredAttrs.get( key );
+            newAttributesList[pos++] = entry.getValue();
         }
 
         searchCtls.setReturningAttributes( newAttributesList );

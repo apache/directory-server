@@ -173,22 +173,22 @@ public class MojoHelperUtils
 
         if ( doSudo )
         {
-            String cmdString = " ";
+            StringBuffer cmdString = new StringBuffer( " " );
             for ( int ii = 0; ii < cmd.length; ii++ )
             {
-                cmdString += cmd[ii] + " ";
+                cmdString.append( cmd[ii] ).append( " " );
             }
 
             String[] temp = new String[2];
             temp[0] = "sudo";
-            temp[1] = cmdString;
+            temp[1] = cmdString.toString();
             cmd = temp;
         }
 
-        String cmdString = " ";
+        StringBuffer cmdString = new StringBuffer( " " );
         for ( int ii = 0; ii < cmd.length; ii++ )
         {
-            cmdString += cmd[ii] + " ";
+            cmdString.append( cmd[ii] ).append( " " );
         }
 
         try

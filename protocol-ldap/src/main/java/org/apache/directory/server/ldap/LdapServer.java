@@ -306,7 +306,7 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
-    private class AdsKeyStore extends KeyStore
+    private static class AdsKeyStore extends KeyStore
     {
         public AdsKeyStore( KeyStoreSpi keyStoreSpi, Provider provider, String type )
         {

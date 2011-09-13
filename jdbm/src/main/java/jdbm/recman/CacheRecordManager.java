@@ -423,7 +423,7 @@ public class CacheRecordManager implements RecordManager
     /**
      * A class to store a cached entry. 
      */
-    private class CacheEntry
+    private static class CacheEntry
     {
         long recid;
         Object obj;

@@ -1136,9 +1136,6 @@ public class LRUCache<K, V>
         /** Number of snaphot versions created */
         private int numSnapshotsCreated;
         
-        /** True if lru needs to be purged of unusable snapshot versions */
-        private boolean snapshotPurgeNeeded;
-        
         public Lock getLock()
         {
             return lock;
@@ -1187,7 +1184,7 @@ public class LRUCache<K, V>
         /**
          * Increases the hotness of the given entry
          *
-         * @param entry cahce entry for which we will increase hotness
+         * @param entry cache entry for which we will increase hotness
          */
         public void touch( CacheEntry entry )
         {
@@ -1206,7 +1203,6 @@ public class LRUCache<K, V>
         public CacheEntry findVictim( int latchIndex )
         {
             CacheEntry victimEntry = null;
-            boolean victimFound = false;
             int victimBucketIndex;
             int victimLatchIndex;
             
