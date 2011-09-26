@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.compare;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
@@ -93,7 +93,7 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompare() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // comparison success
         boolean response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );

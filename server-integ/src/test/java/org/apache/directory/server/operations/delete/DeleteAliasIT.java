@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.delete;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -55,7 +55,7 @@ public class DeleteAliasIT extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        conn = getClientApiConnection( getLdapServer() );
+        conn = getAdminConnection( getLdapServer() );
         
         if ( conn.lookup( "cn=foo,ou=system" ) == null )
         {
@@ -107,7 +107,7 @@ public class DeleteAliasIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteEntryThenAlias() throws Exception
     {
-        conn = getClientApiConnection( getLdapServer() );
+        conn = getAdminConnection( getLdapServer() );
 
         // Delete the entry
         assertNotNull( conn.lookup( "cn=foo,ou=system" ) );

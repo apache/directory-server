@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
@@ -289,7 +289,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( dn );
@@ -329,7 +329,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( dn );
@@ -369,7 +369,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry kate = new DefaultEntry( dn );
@@ -1272,7 +1272,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryUUIDAndCSNAttributes() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         String dn = "cn=Kate Bush," + BASE;
         Entry entry = new DefaultEntry( dn );
@@ -1396,7 +1396,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryNonExistingAT() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Dn dn = new Dn( "cn=Kate Bush," + BASE );
 
@@ -1432,7 +1432,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test( expected = LdapOperationException.class )
     public void testAddEntryNonExistingOC() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Dn dn = new Dn( "cn=Kate Bush," + BASE );
 
@@ -1454,7 +1454,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test( expected = LdapException.class )
     public void testAddEntry100KData() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         int size = 100*1024;
         byte[] dataBytes = new byte[size];

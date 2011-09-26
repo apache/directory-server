@@ -209,20 +209,52 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
 
+    /**
+     * Gets a LDAP connection instance on a server, authenticating a user.
+     * 
+     * @param ldapServer The server we want to connect to
+     * @param principalDn The user's DN
+     * @param password The user's password
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
     public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
-        LDAPConnection conn = new LDAPConnection();
-        conn.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
-        return conn;
+        LDAPConnection connection = new LDAPConnection();
+        connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
+        
+        return connection;
     }
 
 
-    public static LdapConnection getClientApiConnection( LdapServer ldapServer ) throws Exception
+    /**
+     * Gets a LDAP connection instance on a server. We won't bind on the server.
+     * 
+     * @param ldapServer The server we want to connect to
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection conn = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        conn.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-        return conn;
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        
+        return connection;
     }
 
+
+    /**
+     * Gets a LDAP connection instance on a server. We will bind as Admin
+     * 
+     * @param ldapServer The server we want to connect to
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+        
+        return connection;
+    }
 }

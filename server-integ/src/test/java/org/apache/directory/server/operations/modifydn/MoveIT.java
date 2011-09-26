@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.modifydn;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -119,7 +119,7 @@ public class MoveIT extends AbstractLdapTestUnit
     public void testIllegalMove() throws Exception
     {
 
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         //now do something bad: make the parent a child of its own child 
         try
@@ -139,7 +139,7 @@ public class MoveIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalMoveToSameDN() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         //now do something bad: try to move the entry to the same Dn
         try

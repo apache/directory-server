@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.delete;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
@@ -94,7 +94,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete failure on non-leaf entry
         try
@@ -119,7 +119,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDelete() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete success
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
@@ -147,7 +147,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteNonExistent() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete failure non-existent entry
         try
@@ -297,7 +297,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteWithIllegalName() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         try
         {

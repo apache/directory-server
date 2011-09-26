@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.modify;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -82,7 +82,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalModification() throws Exception
     {
-        LdapConnection con = getClientApiConnection( getLdapServer() );
+        LdapConnection con = getAdminConnection( getLdapServer() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new Dn( DN ) );
