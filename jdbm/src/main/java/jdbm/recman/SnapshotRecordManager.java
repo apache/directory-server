@@ -47,16 +47,16 @@ public class SnapshotRecordManager implements ActionRecordManager
     /** Wrapped RecordManager */
     protected RecordManager recordManager;
     
-    
     /** Per thread action context */
     private static final ThreadLocal < ActionContext > actionContextVar = 
-         new ThreadLocal < ActionContext > () {
+         new ThreadLocal < ActionContext > () 
+         {
              @Override 
              protected ActionContext initialValue()
              {
                  return null;
              }
-     };
+        };
      
     /** Used for keeping track of actions versions */
     ActionVersioning versioning = new ActionVersioning();
@@ -107,7 +107,7 @@ public class SnapshotRecordManager implements ActionRecordManager
          }
          
          actionContext.beginAction( readOnly, version, whoStarted );
-         this.setCurrentActionContext( actionContext );
+         setCurrentActionContext( actionContext );
          
          return actionContext;
      }
@@ -158,7 +158,7 @@ public class SnapshotRecordManager implements ActionRecordManager
              assert( false );
          }
          
-         this.unsetCurrentActionContext( actionContext );
+         unsetCurrentActionContext( actionContext );
          
          if ( minVersion != null )
          {
@@ -199,7 +199,7 @@ public class SnapshotRecordManager implements ActionRecordManager
              assert( false );
          }
          
-         this.unsetCurrentActionContext( actionContext );
+         unsetCurrentActionContext( actionContext );
          
          if ( minVersion != null )
          {
@@ -250,7 +250,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         if ( actionContext == null )
         {
-            actionContext = this.beginAction( false, "insert missing action" );
+            actionContext = beginAction( false, "insert missing action" );
             startedAction = true;
         }
         
@@ -267,7 +267,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -277,7 +277,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -287,7 +287,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction && !abortedAction )
             {
-                this.endAction ( actionContext );
+                endAction( actionContext );
             }
         }
         
@@ -311,7 +311,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         if ( actionContext == null )
         {
-            actionContext = this.beginAction( false, "delete missing action" );
+            actionContext = beginAction( false, "delete missing action" );
             startedAction = true;
         }
         
@@ -325,7 +325,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -335,17 +335,17 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
             throw new IOException( except.getLocalizedMessage() );
-        }       
+        }
         finally
         {
             if ( startedAction && !abortedAction )
             {
-                this.endAction ( actionContext );
+                endAction( actionContext );
             }
         }
     }
@@ -381,7 +381,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         if ( actionContext == null )
         {
-            actionContext = this.beginAction( false, "update missing action" );
+            actionContext = beginAction( false, "update missing action" );
             startedAction = true;
         }
 
@@ -394,7 +394,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -404,7 +404,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -414,7 +414,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction && !abortedAction )
             {
-                this.endAction ( actionContext );
+                endAction ( actionContext );
             }
         }
     }
@@ -452,7 +452,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         
         if ( actionContext == null )
         {
-            actionContext = this.beginAction( false, "fetch missing action" );
+            actionContext = beginAction( false, "fetch missing action" );
             startedAction = true;
         }
         
@@ -465,7 +465,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction )
             {
-                this.abortAction( actionContext );
+                abortAction( actionContext );
                 abortedAction = true;
             }
             
@@ -475,7 +475,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         {
             if ( startedAction && !abortedAction )
             {
-                this.endAction ( actionContext );
+                endAction( actionContext );
             }
         }
         
@@ -631,7 +631,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "SnapshotRecordManager: " );
-        sb.append( "(lruCache:" ).append( this.versionedCache );
+        sb.append( "(lruCache:" ).append( versionedCache );
         sb.append( ")\n" );
         
         return sb.toString();

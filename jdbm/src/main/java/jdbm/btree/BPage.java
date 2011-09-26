@@ -67,7 +67,7 @@ import org.apache.directory.server.i18n.I18n;
 /**
  * Page of a Btree.
  * <p>
- * The page contains a number of key-value pairs.  Keys are ordered to allow
+ * The page contains a number of key-value pairs. Keys are ordered to allow
  * dichotomic search.
  * <p>
  * If the page is a leaf page, the keys and values are user-defined and

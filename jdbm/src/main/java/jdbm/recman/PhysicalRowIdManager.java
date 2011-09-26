@@ -55,28 +55,37 @@ import java.io.IOException;
  */
 final class PhysicalRowIdManager
 {
-    // The file we're talking to and the associated page manager.
+    /** The file we're talking to and the associated page manager. */
     private RecordFile file;
+    
+    /** The page manager */
     private PageManager pageManager;
-    private FreePhysicalRowIdPageManager freeman;
+    
+    /** The FreePage manager */
+    private FreePhysicalRowIdPageManager freePageManager;
 
     /**
      *  Creates a new rowid manager using the indicated record file.
      *  and page manager.
+     *  @throws IOException If we had an issue while creating the file
      */
     PhysicalRowIdManager( PageManager pageManager ) throws IOException
     {
         this.pageManager = pageManager;
-        this.file = pageManager.getRecordFile();
-        this.freeman = new FreePhysicalRowIdPageManager( pageManager );
+        file = pageManager.getRecordFile();
+        freePageManager = new FreePhysicalRowIdPageManager( pageManager );
     }
+    
 
     /**
      *  Inserts a new record. Returns the new physical rowid.
      */
     Location insert( byte[] data, int start, int length ) throws IOException
     {
+        // Find the location for the added data
         Location retval = alloc( length );
+        
+        // And write it
         write( retval, data, start, length );
         
         return retval;
@@ -181,7 +190,7 @@ final class PhysicalRowIdManager
      */
     private Location alloc( int size ) throws IOException
     {
-        Location retval = freeman.get( size );
+        Location retval = freePageManager.get( size );
         
         if ( retval == null ) 
         {
@@ -323,7 +332,7 @@ final class PhysicalRowIdManager
         file.release( id.getBlock(), true );
 
         // write the rowid to the free list
-        freeman.put( id, hdr.getAvailableSize() );
+        freePageManager.put( id, hdr.getAvailableSize() );
     }
     
 
@@ -342,6 +351,7 @@ final class PhysicalRowIdManager
         if ( length == 0 ) 
         {
             file.release( curs.getBlockId(), true );
+            
             return;
         }
 
@@ -355,11 +365,12 @@ final class PhysicalRowIdManager
             // copy current page's data to return buffer
             int toCopy = RecordFile.BLOCK_SIZE - dataOffset;
 
-            if ( leftToWrite < toCopy ) {
+            if ( leftToWrite < toCopy ) 
+            {
                 toCopy = leftToWrite;
             }
-            System.arraycopy( data, offsetInBuffer, block.getData(), 
-                              dataOffset, toCopy );
+            
+            System.arraycopy( data, offsetInBuffer, block.getData(), dataOffset, toCopy );
 
             // Go to the next block
             leftToWrite -= toCopy;

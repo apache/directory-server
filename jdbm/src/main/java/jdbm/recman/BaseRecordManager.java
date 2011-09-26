@@ -61,6 +61,8 @@ import jdbm.helper.DefaultSerializer;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  This class manages records, which are uninterpreted blobs of data. The
@@ -86,6 +88,9 @@ import org.apache.directory.server.i18n.I18n;
  */
 public final class BaseRecordManager implements RecordManager
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( BaseRecordManager.class.getSimpleName() );
+    
     /** Underlying record recordFile. */
     private RecordFile recordFile;
 
@@ -230,6 +235,7 @@ public final class BaseRecordManager implements RecordManager
     public TransactionManager getTransactionManager() throws IOException
     {
         checkIfClosed();
+        
         return recordFile.getTxnMgr();
     }
 
@@ -300,10 +306,7 @@ public final class BaseRecordManager implements RecordManager
         physRowId = physMgr.insert( data, 0, data.length );
         recid = logMgr.insert( physRowId ).toLong();
      
-        if ( DEBUG ) 
-        {
-            System.out.println( "BaseRecordManager.insert() recid " + recid + " length " + data.length ) ;
-        }
+        LOG.debug( "BaseRecordManager.insert() recid {} length {}", recid, data.length ) ;
         
         return recid;
     }
@@ -325,13 +328,10 @@ public final class BaseRecordManager implements RecordManager
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
-        if ( DEBUG ) 
-        {
-            System.out.println( "BaseRecordManager.delete() recid " + recid ) ;
-        }
+        LOG.debug( "BaseRecordManager.delete() recid {}", recid ) ;
 
         
-        element = this.beginIO(recid, IOType.WRITE_IO);
+        element = beginIO( recid, IOType.WRITE_IO );
         
         try
         {
@@ -342,7 +342,7 @@ public final class BaseRecordManager implements RecordManager
         }
         finally
         {
-            this.endIO(recid, element, IOType.WRITE_IO);
+            this.endIO( recid, element, IOType.WRITE_IO );
         }
     }
 
@@ -379,7 +379,7 @@ public final class BaseRecordManager implements RecordManager
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
-        element = this.beginIO(recid, IOType.WRITE_IO);
+        element = this.beginIO( recid, IOType.WRITE_IO );
          
         try
         {
@@ -388,10 +388,7 @@ public final class BaseRecordManager implements RecordManager
 
             byte[] data = serializer.serialize( obj );
             
-            if ( DEBUG ) 
-            {
-                System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length ) ;
-            }
+            LOG.debug( "BaseRecordManager.update() recid {} length {}", recid, data.length ) ;
             
             Location newRecid = physMgr.update( physRecid, data, 0, data.length );
             
@@ -402,7 +399,7 @@ public final class BaseRecordManager implements RecordManager
          }
          finally
          {
-             this.endIO(recid, element, IOType.WRITE_IO);
+             endIO( recid, element, IOType.WRITE_IO );
          } 
     }
     
@@ -446,20 +443,17 @@ public final class BaseRecordManager implements RecordManager
         {
             byte[] data; 
             
-            data = physMgr.fetch( logMgr.fetch( new Location( recid ) ) );
+            Location location = logMgr.fetch( new Location( recid ) ) ;
+            data = physMgr.fetch( location );
             
-            if ( DEBUG ) 
-            {
-                System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
-            }
+            LOG.debug( "BaseRecordManager.fetch() recid {} length {}", recid, data.length ) ;
             
             result = serializer.deserialize( data );
         }
         finally
         {
-            this.endIO(recid, element, IOType.READ_IO);
+            endIO(recid, element, IOType.READ_IO);
         }
-        
         
         return result;
     }
