@@ -24,11 +24,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -36,7 +31,11 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
@@ -101,28 +100,26 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalModification2() throws Exception
     {
-        LDAPConnection con = getWiredConnection( getLdapServer() );
+        LdapConnection con = getWiredConnection( getLdapServer() );
 
         // first a valid attribute
-        LDAPAttribute attr = new LDAPAttribute( "description", "The description" );
-        LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
+        Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description", "The description" );
         // then an invalid one without any value
-        attr = new LDAPAttribute( "displayName" );
-        LDAPModification mod2 = new LDAPModification( LDAPModification.ADD, attr );
+        Modification mod2 = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "displayName" );
 
         try
         {
-            con.modify( "cn=Kate Bush,ou=system", new LDAPModification[]
+            con.modify( "cn=Kate Bush,ou=system", new Modification[]
                 { mod, mod2 } );
             fail( "error expected due to empty attribute value" );
         }
-        catch ( LDAPException e )
+        catch ( LdapException e )
         {
             // expected
         }
 
         // Check whether entry is unmodified, i.e. no displayName
-        LDAPEntry entry = con.read( DN );
-        assertEquals( "displayName exists?", null, entry.getAttribute( "displayName" ) );
+        Entry entry = con.lookup( DN );
+        assertEquals( "displayName exists?", null, entry.get( "displayName" ) );
     }
 }

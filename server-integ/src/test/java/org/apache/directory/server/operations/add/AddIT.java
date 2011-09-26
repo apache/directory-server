@@ -51,17 +51,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPResponse;
-import netscape.ldap.LDAPResponseListener;
-import netscape.ldap.LDAPSearchConstraints;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -94,7 +83,13 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.message.AddRequest;
+import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
+import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
@@ -701,39 +696,26 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+
+        AddRequest addRequest = new AddRequestImpl();
+        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+        manageDSAIT.setCritical( true );
+        addRequest.addControl( manageDSAIT );
 
         // add success
-        LDAPAttributeSet attrSet = new LDAPAttributeSet();
-        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
-        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
-        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrSet );
+        Entry entry = new DefaultEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+            "objectClass", "organizationalUnit",
+            "ou", "UnderReferral" );
+        
+        addRequest.setEntry( entry );
 
-        try
-        {
-            conn.add( entry, constraints );
-            fail();
-        }
-        catch ( LDAPException le )
-        {
-            assertEquals( ResultCodeEnum.REFERRAL.getValue(), le.getLDAPResultCode() );
-        }
+        AddResponse addResponse = conn.add( addRequest );
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        try
-        {
-            conn.read( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", ( LDAPSearchConstraints ) constraints );
-            fail();
-        }
-        catch ( LDAPException le )
-        {
+        assertNull( conn.lookup( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", new Control[]{ manageDSAIT } ) );
 
-        }
-
-        conn.disconnect();
+        conn.close();
     }
 
 
@@ -796,28 +778,26 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+
+        AddRequest addRequest = new AddRequestImpl();
 
         // referrals failure
-        LDAPAttributeSet attrSet = new LDAPAttributeSet();
-        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
-        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
-        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,ou=Computers,uid=akarasuluref,ou=users,ou=system", attrSet );
+        Entry entry = new DefaultEntry( 
+            "ou=UnderReferral,ou=Computers,uid=akarasuluref,ou=users,ou=system", 
+            "objectClass", "organizationalUnit",
+            "ou", "UnderReferral" );
+        addRequest.setEntry( entry );
 
-        LDAPResponseListener listener = conn.add( entry, null, constraints );
-        LDAPResponse response = listener.getResponse();
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        AddResponse addResponse = conn.add( addRequest );
 
-        assertEquals( "ldap://localhost:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", response
-            .getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", response
-            .getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", response
-            .getReferrals()[2] );
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        conn.disconnect();
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+
+        conn.close();
     }
 
 
@@ -829,31 +809,30 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        constraints.setReferrals( false );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+
+        AddRequest addRequest = new AddRequestImpl();
+        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+        manageDSAIT.setCritical( true );
+        //addRequest.addControl( manageDSAIT );
 
         // referrals failure
+        Entry entry = new DefaultEntry( 
+            "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+            "objectClass", "organizationalUnit",
+            "ou", "UnderReferral" );
+        
+        addRequest.setEntry( entry );
 
-        LDAPAttributeSet attrSet = new LDAPAttributeSet();
-        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
-        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
-        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrSet );
+        AddResponse addResponse = conn.add( addRequest );
 
-        LDAPResponseListener listener = null;
-        LDAPResponse response = null;
-        listener = conn.add( entry, null, constraints );
-        response = listener.getResponse();
+        assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
 
-        assertEquals( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response
-            .getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
-
-        conn.disconnect();
+        conn.close();
     }
 
 

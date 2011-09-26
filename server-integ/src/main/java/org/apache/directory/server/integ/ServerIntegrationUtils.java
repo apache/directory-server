@@ -25,8 +25,6 @@ import javax.naming.Context;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPConnection;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -84,6 +82,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        
         return new InitialLdapContext( env, null );
     }
 
@@ -180,7 +179,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
 
-    public static LDAPConnection getWiredConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getWiredConnection( LdapServer ldapServer ) throws Exception
     {
         String testServer = System.getProperty( "ldap.test.server", null );
 
@@ -203,8 +202,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
         LOG.debug( testServer + ".port = " + port );
 
-        LDAPConnection conn = new LDAPConnection();
-        conn.connect( 3, host, port, admin, password );
+        LdapConnection conn = new LdapNetworkConnection( host, port );
+        conn.bind( admin, password );
+        
         return conn;
     }
 
@@ -218,11 +218,11 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @return A LdapConnection instance if we got one
      * @throws Exception If the connection cannot be created
      */
-    public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
+    public static LdapConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
-        LDAPConnection connection = new LDAPConnection();
-        connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.bind( principalDn, password );
         
         return connection;
     }
