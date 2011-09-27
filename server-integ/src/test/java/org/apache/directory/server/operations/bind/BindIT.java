@@ -24,9 +24,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
-
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
