@@ -169,8 +169,6 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>app</shadedClassifierName>
               <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
               <filters>
                 <filter>
