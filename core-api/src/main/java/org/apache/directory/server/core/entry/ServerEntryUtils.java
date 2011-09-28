@@ -98,8 +98,9 @@ public class ServerEntryUtils
         
         Attributes attributes = new BasicAttributes( true );
 
-        for ( AttributeType attributeType:entry.getAttributeTypes() )
+        for ( Attribute attribute:entry.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
             Attribute attr = entry.get( attributeType );
             
             // Deal with a special case : an entry without any ObjectClass

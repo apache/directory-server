@@ -1343,9 +1343,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          */
         List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
 
-        for ( AttributeType attributeType : clonedEntry.getAttributeTypes() )
+        for ( Attribute attribute : clonedEntry.getAttributes() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
+            AttributeType attributeType = attribute.getAttributeType();
             Attribute attr = clonedEntry.get( attributeType );
 
             aciContext = new AciContext( schemaManager, opContext );

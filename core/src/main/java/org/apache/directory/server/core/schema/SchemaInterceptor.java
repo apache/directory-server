@@ -1355,8 +1355,10 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, make sure all attributes are valid schema defined attributes
         // ---------------------------------------------------------------
 
-        for ( AttributeType attributeType : entry.getAttributeTypes() )
+        for ( Attribute attribute : entry.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
+
             if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
                 throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_275, attributeType.getName() ) );

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.entry;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -158,9 +159,12 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Set<AttributeType> getAttributeTypes()
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<Attribute> getAttributes()
     {
-        return clonedEntry.getAttributeTypes();
+        return clonedEntry.getAttributes();
     }
 
 

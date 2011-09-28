@@ -566,12 +566,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( dn.size() == 0 )
         {
             Entry retval = new ClonedServerEntry( rootDSE );
-            Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
 
             if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
             {
-                for ( AttributeType attributeType : attributeTypes )
+                for ( Attribute attribute : rootDSE.getAttributes() )
                 {
+                    AttributeType attributeType = attribute.getAttributeType();
                     String oid = attributeType.getOid();
 
                     if ( !lookupContext.getAttrsId().contains( oid ) )
