@@ -42,6 +42,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -75,6 +76,93 @@ public class SchemaIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
+    @CreateDS( name="SchemaAddAT-test" )
+    @ApplyLdifs(
+        {
+            // Inject an AT
+            "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=attributeTypes,cn=other,ou=schema",
+            "m-usage: USER_APPLICATIONS",
+            "m-equality: integerOrderingMatch",
+            "objectClass: metaAttributeType",
+            "objectClass: metaTop",
+            "objectClass: top",
+            "m-name: numberOfGuns",
+            "m-oid: 1.3.6.1.4.1.18060.0.4.1.2.999",
+            "m-singleValue: TRUE",
+            "m-description: Number of guns of a ship",
+            "m-collective: FALSE",
+            "m-obsolete: FALSE",
+            "m-noUserModification: FALSE",
+            "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+            
+            // Inject an OC
+            "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.1.999,ou=objectClasses,cn=other,ou=schema",
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectclass",
+            "m-supObjectClass: top",
+            "m-oid: 1.3.6.1.4.1.18060.0.4.1.2.999",
+            "m-name: ship",
+            "m-must: cn",
+            "m-may: numberOfGuns",
+            "m-may: description",
+            "m-typeObjectClass: STRUCTURAL",
+            "m-obsolete: FALSE",
+            "m-description: A ship"
+        }
+        )
+    public void testAddAttributeTypeObjectClass() throws Exception
+    {
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.999", "other", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.1.999", "other", true );
+        
+        // sync operation happens anyway on shutdowns but just to make sure we can do it again
+        getService().sync();
+
+        getService().shutdown();
+        getService().startup();
+
+        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.999", "other", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.1.999", "other", true );
+    }
+    
+    
+    @Test
+    @CreateDS( name="SchemaAddAT-test" )
+    @ApplyLdifs(
+        {
+            // Inject an AT
+            "dn: cn=schema",
+            "changetype: modify",
+            "add: attributeTypes",
+            "attributeTypes: ( 1.3.6.1.4.1.65536.0.4.3.2.1 NAME 'templateData' DESC 'template data' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE X-SCHEMA 'other' )",
+            "-",
+            
+            // Inject an OC
+            "dn: cn=schema",
+            "changetype: modify",
+            "add: objectClasses",
+            "objectClasses: ( 1.3.6.1.4.1.65536.0.4.3.2.2 NAME 'templateObject' DESC 'test OC' SUP top STRUCTURAL MUST ( templateData $ cn ) X-SCHEMA 'other' )",
+            "-"
+        }
+        )
+    public void testAddAttributeTypeObjectClassSubSchemaSubEntry() throws Exception
+    {
+        checkAttributeTypePresent( "1.3.6.1.4.1.65536.0.4.3.2.1", "other", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.65536.0.4.3.2.2", "other", true );
+        
+        // sync operation happens anyway on shutdowns but just to make sure we can do it again
+        getService().sync();
+
+        getService().shutdown();
+        getService().startup();
+
+        checkAttributeTypePresent( "1.3.6.1.4.1.65536.0.4.3.2.1", "other", true );
+        checkObjectClassPresent( "1.3.6.1.4.1.65536.0.4.3.2.2", "other", true );
+    }
+
+    
+    @Test
     public void testAddBinaryAttributeType() throws Exception
     {
         List<String> descriptions = new ArrayList<String>();
@@ -103,7 +191,7 @@ public class SchemaIT extends AbstractLdapTestUnit
             " MUST ( templateData $ cn ) " +
             " X-SCHEMA 'other' )");
 
-         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
+        modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
         checkAttributeTypePresent( "1.3.6.1.4.1.65536.0.4.3.2.1", "other", true );
         checkObjectClassPresent( "1.3.6.1.4.1.65536.0.4.3.2.2", "other", true );
