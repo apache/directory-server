@@ -147,7 +147,7 @@ public enum I18n
     // ERR_111( "ERR_111" ),
     // ERR_112( "ERR_112" ),
     // ERR_113( "ERR_113" ),
-    // ERR_114( "ERR_ 114" ),
+    ERR_114("ERR_114"),
     ERR_115("ERR_115"),
     ERR_116("ERR_116"),
     ERR_117("ERR_117"),
