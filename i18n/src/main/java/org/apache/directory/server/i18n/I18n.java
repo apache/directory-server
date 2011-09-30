@@ -778,7 +778,12 @@ public enum I18n
     ERR_742_CANNOT_ENCODE_ENC_TICKET_PART("ERR_742_CANNOT_ENCODE_ENC_TICKET_PART"),
     ERR_743_CANNOT_ENCODE_TYPED_DATA("ERR_743_CANNOT_ENCODE_TYPED_DATA"),
     ERR_744_NULL_PDU_LENGTH("ERR_744_NULL_PDU_LENGTH"),
-    ERR_745_NOT_A_KERBEROS_STRING("ERR_745_NOT_A_KERBEROS_STRING");
+    ERR_745_NOT_A_KERBEROS_STRING("ERR_745_NOT_A_KERBEROS_STRING"),
+    ERR_746("ERR_746"),
+    ERR_747("ERR_747"),
+    ERR_748("ERR_748"),
+    ERR_749("ERR_749"),
+    ERR_750("ERR_750");
     
     private static ResourceBundle errBundle = ResourceBundle
                 .getBundle( "org.apache.directory.server.i18n.errors" );
