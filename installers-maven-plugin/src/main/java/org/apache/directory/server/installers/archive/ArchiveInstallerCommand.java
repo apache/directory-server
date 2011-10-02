@@ -21,7 +21,9 @@ package org.apache.directory.server.installers.archive;
 
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -78,7 +80,12 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
         log.info( "  Creating " + archiveType + " archive..." );
 
         // Creating the target directory
-        getTargetDirectory().mkdirs();
+        if ( !getTargetDirectory().mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying archive files" );
 
@@ -100,7 +107,11 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
 
             // Removing unnecessary directories and files
             FileUtils.deleteDirectory( getInstallationLayout().getConfDirectory() );
-            new File( getInstanceLayout().getConfDirectory(), "wrapper.conf" ).delete();
+            File wrapperConf = new File( getInstanceLayout().getConfDirectory(), "wrapper.conf" );
+            if ( !wrapperConf.delete() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, wrapperConf ) );
+            }
             FileUtils.deleteDirectory( getInstanceLayout().getRunDirectory() );
         }
         catch ( Exception e )
@@ -162,7 +173,12 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
             gzipTask.setSrc( tarFile );
             gzipTask.execute();
 
-            tarFile.delete();
+            if ( !tarFile.delete() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
         }
         // TAR.BZ2 Archive
         else if ( archiveType.equalsIgnoreCase( "tar.bz2" ) )
@@ -182,7 +198,12 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
             bzip2Task.setSrc( tarFile );
             bzip2Task.execute();
 
-            tarFile.delete();
+            if ( !tarFile.delete() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
         }
 
         log.info( "=> Archive Installer (" + archiveType + ") archive generated at "

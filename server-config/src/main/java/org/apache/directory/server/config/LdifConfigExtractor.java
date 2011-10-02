@@ -35,6 +35,8 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
+import javax.management.RuntimeErrorException;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
@@ -76,7 +78,10 @@ public class LdifConfigExtractor
         if ( !outputDirectory.exists() )
         {
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
-            outputDirectory.mkdir();
+            if ( !outputDirectory.mkdir() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
+            }
         }
 
         File configDirectory = new File( outputDirectory, CONFIG_SUBDIR );
@@ -84,7 +89,10 @@ public class LdifConfigExtractor
         if ( !configDirectory.exists() )
         {
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
-            configDirectory.mkdir();
+            if ( !configDirectory.mkdir() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
+            }
         }
         else if ( !overwrite )
         {
@@ -124,7 +132,10 @@ public class LdifConfigExtractor
 
         if ( !destination.getParentFile().exists() )
         {
-            destination.getParentFile().mkdirs();
+            if ( !destination.getParentFile().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+            }
         }
 
         if ( !source.getParentFile().exists() )
@@ -172,7 +183,10 @@ public class LdifConfigExtractor
 
             if ( !destination.getParentFile().exists() )
             {
-                destination.getParentFile().mkdirs();
+                if ( !destination.getParentFile().mkdirs() )
+                {
+                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                }
             }
 
             FileOutputStream out = new FileOutputStream( destination );
@@ -274,7 +288,11 @@ public class LdifConfigExtractor
         if ( !configDir.exists() )
         {
             LOG.debug( "creating non existing config directory {}", configDir.getAbsolutePath() );
-            configDir.mkdir();
+            if ( !configDir.mkdir() )
+            {
+                throw new RuntimeException(
+                        new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
+            }
         }
         else
         {

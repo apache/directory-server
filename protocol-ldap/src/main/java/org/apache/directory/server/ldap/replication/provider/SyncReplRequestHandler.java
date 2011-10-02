@@ -26,6 +26,7 @@ import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
 import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -161,7 +162,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             
             if ( !syncReplData.exists() )
             {
-                syncReplData.mkdirs();
+                if ( !syncReplData.mkdirs() )
+                {
+                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, syncReplData ) );
+                }
             }
 
             replicaUtil = new ReplConsumerManager( dirService );

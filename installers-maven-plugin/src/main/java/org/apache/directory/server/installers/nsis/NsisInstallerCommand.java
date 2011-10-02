@@ -23,6 +23,7 @@ package org.apache.directory.server.installers.nsis;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -76,7 +77,12 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
-        targetDirectory.mkdirs();
+        if ( !targetDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, targetDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying NSIS installer files" );
 

@@ -21,6 +21,7 @@ package org.apache.directory.server;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -151,7 +152,10 @@ public class ApacheDsService
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
-            partitionsDir.mkdirs();
+            if ( !partitionsDir.mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
+            }
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );

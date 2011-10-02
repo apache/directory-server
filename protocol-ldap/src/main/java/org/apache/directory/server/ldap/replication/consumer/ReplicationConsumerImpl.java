@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.replication.consumer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
@@ -175,7 +177,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         if ( config.isStoreCookieInFile() )
         {
             File cookieDir = new File( directoryservice.getInstanceLayout().getRunDirectory(), "cookies" );
-            cookieDir.mkdir();
+            if ( !cookieDir.mkdir() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, cookieDir ) );
+            }
 
             cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
         }

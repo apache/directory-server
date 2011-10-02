@@ -23,6 +23,7 @@ package org.apache.directory.server.installers.macosxpkg;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -78,29 +79,87 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
-        targetDirectory.mkdirs();
+        if ( !targetDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, targetDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying PKG installer files" );
 
         // Creating the root directories hierarchy
         File pkgRootDirectory = new File( targetDirectory, "root" );
-        pkgRootDirectory.mkdirs();
+        if ( !pkgRootDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootUsrBinDirectory = new File( pkgRootDirectory, "usr/bin" );
-        pkgRootUsrBinDirectory.mkdirs();
+        if ( !pkgRootUsrBinDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootUsrBinDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootUsrLocalApachedsDirectory = new File( pkgRootDirectory, "usr/local/apacheds-"
             + mojo.getProject().getVersion() );
-        pkgRootUsrLocalApachedsDirectory.mkdirs();
+        if ( !pkgRootUsrLocalApachedsDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootUsrLocalApachedsDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootInstancesDirectory = new File( pkgRootUsrLocalApachedsDirectory, "instances" );
-        pkgRootInstancesDirectory.mkdirs();
+        if ( !pkgRootInstancesDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootInstancesDefaultDirectory = new File( pkgRootInstancesDirectory, "default" );
-        pkgRootInstancesDefaultDirectory.mkdirs();
+        if ( !pkgRootInstancesDefaultDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootInstancesDefaultConfDirectory = new File( pkgRootInstancesDefaultDirectory, "conf" );
-        pkgRootInstancesDefaultConfDirectory.mkdirs();
-        new File( pkgRootInstancesDefaultDirectory, "log" ).mkdirs();
-        new File( pkgRootInstancesDefaultDirectory, "partitions" ).mkdirs();
-        new File( pkgRootInstancesDefaultDirectory, "run" ).mkdirs();
+        if ( !pkgRootInstancesDefaultConfDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultConfDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
+        File pkgRootInstancesDefaultDirectoryLog = new File( pkgRootInstancesDefaultDirectory, "log" );
+        if ( !pkgRootInstancesDefaultDirectoryLog.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryLog ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
+        File pkgRootInstancesDefaultDirectoryPartitions = new File( pkgRootInstancesDefaultDirectory, "partitions" );
+        if ( !pkgRootInstancesDefaultDirectoryPartitions.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryPartitions ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
+        File pkgRootInstancesDefaultDirectoryRun = new File( pkgRootInstancesDefaultDirectory, "run" );
+        if ( !pkgRootInstancesDefaultDirectoryRun.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryRun ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
         File pkgRootLibraryLaunchDaemons = new File( pkgRootDirectory, "Library/LaunchDaemons" );
-        pkgRootLibraryLaunchDaemons.mkdirs();
+        if ( !pkgRootLibraryLaunchDaemons.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootLibraryLaunchDaemons ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         // Copying the apacheds files in the root directory
         try
@@ -121,9 +180,19 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             // Copying the resources files and Info.plist file needed for the 
             // generation of the PKG
             File pkgResourcesEnglishDirectory = new File( targetDirectory, "Resources/en.lproj" );
-            pkgResourcesEnglishDirectory.mkdirs();
+            if ( !pkgResourcesEnglishDirectory.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgResourcesEnglishDirectory ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
             File pkgScriptsDirectory = new File( targetDirectory, "scripts" );
-            pkgScriptsDirectory.mkdirs();
+            if ( !pkgScriptsDirectory.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgScriptsDirectory ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
 
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "pkg-background.tiff" ), new File(
                 pkgResourcesEnglishDirectory, "background.tiff" ) );
@@ -167,13 +236,23 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         // Creating the disc image directory
         File dmgDirectory = new File( mojo.getOutputDirectory(), target.getId() + "-dmg" );
-        dmgDirectory.mkdirs();
+        if ( !dmgDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dmgDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying DMG files" );
 
         // Create dmg directory and its sub-directory
         File dmgDmgBackgroundDirectory = new File( dmgDirectory, "dmg/.background" );
-        dmgDmgBackgroundDirectory.mkdirs();
+        if ( !dmgDmgBackgroundDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dmgDmgBackgroundDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         // Copying the files
         try

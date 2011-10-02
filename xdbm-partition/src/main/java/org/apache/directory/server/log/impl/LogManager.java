@@ -490,8 +490,15 @@ class LogManager
         for ( long logFileNumber = startingLogFileNumber; logFileNumber < endingLogFileNumber; 
                 logFileNumber++ )
         {
+            try
+            {
             // Do a best effort delete
             logFileManager.deleteLogFile( logFileNumber );
+            }
+            catch( IOException e )
+            {
+                // Do a best effort ...
+            }
         }
     }
     

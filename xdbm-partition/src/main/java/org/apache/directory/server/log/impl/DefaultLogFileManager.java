@@ -112,11 +112,14 @@ class DefaultLogFileManager implements LogFileManager
     /**
      * {@inheritDoc}
      */
-    public void deleteLogFile( long logFileNumber )
+    public void deleteLogFile( long logFileNumber ) throws IOException
     {
         File logFile = this.makeLogFileName( logFileNumber );
         
-        logFile.delete();
+        if ( !logFile.delete() )
+        {
+            throw new IOException(I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, logFile ));
+        }
     }
     
    

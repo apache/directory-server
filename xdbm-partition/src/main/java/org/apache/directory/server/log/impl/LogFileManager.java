@@ -89,8 +89,9 @@ interface LogFileManager
      * Deletes the underlying log file.
      *
      * @param logFileNumber identifier of the log file
+     * @throws IOException If the log file could not be deleted
      */
-    public void deleteLogFile( long logFileNumber ); 
+    public void deleteLogFile( long logFileNumber ) throws IOException; 
     
     
     /**
