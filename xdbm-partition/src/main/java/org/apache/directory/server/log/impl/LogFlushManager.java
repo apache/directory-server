@@ -114,91 +114,95 @@ class LogFlushManager
         int recordSize = LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE + length;
         
         appendLock.lock();
-        
-        lsn = logLSN++;
-        
-        if ( currentLogFile == null )
+        try
         {
-            // We are just starting, get the current log file
-            currentLogFile = logManager.switchToNextLogFile( null );
-            appendedSize = currentLogFile.getLength();
-        }
-        
-        if ( appendedSize > this.targetLogFileSize )
-        {
-            // Make sure everything outstanding goes to the current log file
-            this.flush( lsn, null, 0, 0, true);
+            lsn = logLSN++;
             
-            currentLogFile = logManager.switchToNextLogFile( currentLogFile );
-            appendedSize = currentLogFile.getLength();
-        }
-        
-        if ( recordSize <= logBufferSize )
-        {
-            ByteBuffer writeHead = logBuffer.writeHead;
-            
-            while ( !appendedRecord )
+            if ( currentLogFile == null )
             {
-                // First get the rewind count then the position to which the readhead advanced
-                int readHeadRewindCount = logBuffer.readHeadRewindCount.get();
-                int readHeadPosition = logBuffer.readHeadPosition;                
-                
-                if ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount ) || 
-                    ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount + 1 ) && 
-                        ( readHeadPosition < writeHead.position() ) ) )
-                {
-                    if ( writeHead.remaining() >= recordSize )
-                    {
-                        this.writeHeader( writeHead, length, lsn );
-                        writeHead.put( userBuffer, 0, length );
-                        this.writeFooter( writeHead, 0 );
-                        appendedRecord = true;
-                    }
-                    else // ( writeHead.remaining() < recordSize )
-                    {
-                        if ( writeHead.remaining() >= LogFileRecords.RECORD_HEADER_SIZE )
-                        {
-                            // Write a skip record
-                            this.writeHeader( writeHead, -1, -1 );
-                        }
-                        
-                        // rewind buffer now
-                        writeHead.rewind();
-                        logBuffer.writeHeadRewindCount++;
-                    }
-                }
-                else 
-                {
-                    assert( logBuffer.writeHeadRewindCount == ( readHeadRewindCount + 1 ) ) : 
-                            "Unexpected sequence number for read/write heads:" + logBuffer.writeHeadRewindCount +
-                            " " + readHeadRewindCount;
-                    
-                    if ( ( readHeadPosition - writeHead.position() ) > recordSize )
-                    {
-                        this.writeHeader( writeHead, length, lsn );
-                        writeHead.put( userBuffer, 0, length );
-                        this.writeFooter( writeHead, 0 );
-                        appendedRecord = true;
-                    }
-                    else
-                    {
-                        this.flush( lsn, null, 0, 0, true);
-                    }
-                }
+                // We are just starting, get the current log file
+                currentLogFile = logManager.switchToNextLogFile( null );
+                appendedSize = currentLogFile.getLength();
             }
             
+            if ( appendedSize > this.targetLogFileSize )
+            {
+                // Make sure everything outstanding goes to the current log file
+                this.flush( lsn, null, 0, 0, true);
+                
+                currentLogFile = logManager.switchToNextLogFile( currentLogFile );
+                appendedSize = currentLogFile.getLength();
+            }
+            
+            if ( recordSize <= logBufferSize )
+            {
+                ByteBuffer writeHead = logBuffer.writeHead;
+                
+                while ( !appendedRecord )
+                {
+                    // First get the rewind count then the position to which the readhead advanced
+                    int readHeadRewindCount = logBuffer.readHeadRewindCount.get();
+                    int readHeadPosition = logBuffer.readHeadPosition;                
+                    
+                    if ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount ) || 
+                        ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount + 1 ) && 
+                            ( readHeadPosition < writeHead.position() ) ) )
+                    {
+                        if ( writeHead.remaining() >= recordSize )
+                        {
+                            this.writeHeader( writeHead, length, lsn );
+                            writeHead.put( userBuffer, 0, length );
+                            this.writeFooter( writeHead, 0 );
+                            appendedRecord = true;
+                        }
+                        else // ( writeHead.remaining() < recordSize )
+                        {
+                            if ( writeHead.remaining() >= LogFileRecords.RECORD_HEADER_SIZE )
+                            {
+                                // Write a skip record
+                                this.writeHeader( writeHead, -1, -1 );
+                            }
+                            
+                            // rewind buffer now
+                            writeHead.rewind();
+                            logBuffer.writeHeadRewindCount++;
+                        }
+                    }
+                    else 
+                    {
+                        assert( logBuffer.writeHeadRewindCount == ( readHeadRewindCount + 1 ) ) : 
+                                "Unexpected sequence number for read/write heads:" + logBuffer.writeHeadRewindCount +
+                                " " + readHeadRewindCount;
+                        
+                        if ( ( readHeadPosition - writeHead.position() ) > recordSize )
+                        {
+                            this.writeHeader( writeHead, length, lsn );
+                            writeHead.put( userBuffer, 0, length );
+                            this.writeFooter( writeHead, 0 );
+                            appendedRecord = true;
+                        }
+                        else
+                        {
+                            this.flush( lsn, null, 0, 0, true);
+                        }
+                    }
+                }
+                
+            }
+            else
+            {   
+                this.flush( lsn, userBuffer, 0, length, true );
+            }
+            
+            
+            
+            userLogAnchor.resetLogAnchor( currentLogFile.logFileNumber(), appendedSize, lsn );
+            this.appendedSize += recordSize;
         }
-        else
-        {   
-            this.flush( lsn, userBuffer, 0, length, true );
+        finally
+        {
+            appendLock.unlock();
         }
-        
-        
-        
-        userLogAnchor.resetLogAnchor( currentLogFile.logFileNumber(), appendedSize, lsn );
-        this.appendedSize += recordSize;
-    
-        appendLock.unlock();
         
         if ( sync )
             this.flush( lsn, null, 0, 0, false );
