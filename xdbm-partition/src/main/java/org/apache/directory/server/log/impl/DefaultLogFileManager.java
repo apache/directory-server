@@ -24,7 +24,7 @@ class DefaultLogFileManager implements LogFileManager
      * @param logFilepath log file path
      * @param suffix suffix for log file.
      */
-    public void init( String logFilepath, String suffix )
+    public void init( String logFilePath, String suffix )
     {
         this.logFilePath = logFilePath;
         this.suffix = suffix;
@@ -238,6 +238,14 @@ class DefaultLogFileManager implements LogFileManager
         public long getLength() throws IOException
         {
             return raf.length();
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        public void seek( long position ) throws IOException
+        {
+            raf.seek( position );
         }
     }
 }

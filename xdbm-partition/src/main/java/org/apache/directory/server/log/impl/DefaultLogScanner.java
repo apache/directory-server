@@ -12,7 +12,7 @@ import org.apache.directory.server.log.LogAnchor;
 import org.apache.directory.server.log.LogScanner;
 import org.apache.directory.server.log.UserLogRecord;
 
-public class DefaultLogScanner implements LogScanner
+public class DefaultLogScanner implements LogScannerInternal
 {
     /** LSN of the last successfully read log record */
     private long prevLSN = LogAnchor.UNKNOWN_LSN;
@@ -47,9 +47,12 @@ public class DefaultLogScanner implements LogScanner
     /** ByteBuffer wrapper for the marker buffer */
     ByteBuffer markerHead = ByteBuffer.wrap( markerBuffer );
     
-    public DefaultLogScanner( LogAnchor startingLogAnchor, LogFileManager logFileManger )
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LogAnchor startingLogAnchor, LogFileManager logFileManager )
     {
-        startingLogAnchor.resetLogAnchor( startingLogAnchor );
+        this.startingLogAnchor.resetLogAnchor( startingLogAnchor );
         this.logFileManager = logFileManager;
     }
     
@@ -91,7 +94,7 @@ public class DefaultLogScanner implements LogScanner
                     if ( startingOffset < LogFileRecords.LOG_FILE_HEADER_SIZE )
                     {
                         // Offset should be at log file marker boundary
-                        this.markScanInvalid();
+                        this.markScanInvalid( null );
                     }
                     
                     prevLogFileOffset = Math.max( startingOffset, currentLogFile.getLength() );
@@ -107,7 +110,7 @@ public class DefaultLogScanner implements LogScanner
                 
                 if ( fileOffset > fileLength )
                 {
-                    this.markScanInvalid();
+                    this.markScanInvalid( null );
                 }
                 else if ( fileOffset == fileLength )
                 {
@@ -138,12 +141,12 @@ public class DefaultLogScanner implements LogScanner
                 
                 if ( ( startingLSN != LogAnchor.UNKNOWN_LSN ) && ( startingLSN != lastReadLSN ) )
                 {
-                    this.markScanInvalid();
+                    this.markScanInvalid( null );
                 }
             }
             
             // Read and verify user block
-            this.readLogRecord( logRecord, recordLength );
+            this.readLogRecord( logRecord, recordLength - ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ));
             
             // Read and verify footer
             this.readRecordFooter();
@@ -165,8 +168,19 @@ public class DefaultLogScanner implements LogScanner
         {
             // This means either the log record or the log file header was
             // partially written. Treat this as invalid log content
-            this.markScanInvalid();
+            this.markScanInvalid( e );
         }
+        catch( IOException e)
+        {
+            this.close();
+            throw e;
+        }
+        catch( InvalidLogException e)
+        {
+            this.close();
+            throw e;
+        }
+        
         
         return true;
         
@@ -249,7 +263,7 @@ public class DefaultLogScanner implements LogScanner
         
         if ( invalid == true )
         {
-            this.markScanInvalid();
+            this.markScanInvalid( null );
         }
         
         // Everything went fine
@@ -276,7 +290,7 @@ public class DefaultLogScanner implements LogScanner
         
         if ( invalid == true )
         {
-            this.markScanInvalid();
+            this.markScanInvalid( null );
         }
     }
     
@@ -313,7 +327,7 @@ public class DefaultLogScanner implements LogScanner
         this.prevLogFileOffset = 0;
         
         markerHead.rewind();
-        currentLogFile.read( markerBuffer, 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
+        logFile.read( markerBuffer, 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
         long persistedLogFileNumber = markerHead.getLong();
         int magicNumber = markerHead.getInt();
       
@@ -330,7 +344,7 @@ public class DefaultLogScanner implements LogScanner
         
         if ( invalid == true )
         {
-            this.markScanInvalid();
+            this.markScanInvalid( null );
         }
         
         // Everything is fine, advance good file offset and return
@@ -346,9 +360,9 @@ public class DefaultLogScanner implements LogScanner
         }
     }
     
-    private void markScanInvalid() throws InvalidLogException
+    private void markScanInvalid( Exception cause ) throws InvalidLogException
     {
         invalidLog = true;
-        throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
+        throw new InvalidLogException( I18n.err( I18n.ERR_750 ), cause );
     }
 }

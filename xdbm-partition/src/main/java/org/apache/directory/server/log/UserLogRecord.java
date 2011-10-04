@@ -24,7 +24,8 @@ public class UserLogRecord
     
     public void setData( byte[] data, int length )
     {
-        this.recordHolder = recordHolder;
+        this.recordHolder = data;
+        this.length = length;
     }
     
     public byte[] getDataBuffer()

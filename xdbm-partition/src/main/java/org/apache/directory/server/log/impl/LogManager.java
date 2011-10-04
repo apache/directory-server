@@ -21,7 +21,7 @@ class LogManager
 {
    
     /**  Controlfile record size */
-    private final static int CONTROLFILE_RECORD_SIZE = 36;
+    private final static int CONTROLFILE_RECORD_SIZE = 44;
     
     /** Controlfile file magic number */
     private final static int CONTROLFILE_MAGIC_NUMBER = 0xFF11FF11;
@@ -80,7 +80,7 @@ class LogManager
     public void initLogManager() throws IOException, InvalidLogException
     {
         LogAnchor scanPoint = new LogAnchor();
-        LogScanner scanner;
+        LogScannerInternal scanner;
         UserLogRecord logRecord;        
         LogFileManager.LogFileReader reader;
 
@@ -108,7 +108,8 @@ class LogManager
             scanPoint.resetLogAnchor( minLogAnchor );
             
             logRecord = new UserLogRecord();
-            scanner = new DefaultLogScanner( scanPoint, logFileManager );
+            scanner = new DefaultLogScanner();
+            scanner.init( scanPoint, logFileManager );
             
             try
             {
@@ -199,7 +200,7 @@ class LogManager
              */
            reader = null;
            boolean fileExists = false;
-           currentLogFileNumber = LogAnchor.MIN_LOG_NUMBER;
+           currentLogFileNumber = LogAnchor.MIN_LOG_NUMBER - 1;
            try
            {
                reader = logFileManager.getReaderForLogFile( LogAnchor.MIN_LOG_NUMBER );
@@ -209,6 +210,7 @@ class LogManager
                    throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
                }
                fileExists = true;
+               currentLogFileNumber++;
            }
            catch ( FileNotFoundException e )
            {
@@ -253,7 +255,13 @@ class LogManager
             this.createNextLogFile( false );
         }
         
-        return logFileManager.getWriterForLogFile( this.currentLogFileNumber );
+        LogFileManager.LogFileWriter writer =  logFileManager.getWriterForLogFile( this.currentLogFileNumber );
+        long currentOffset = writer.getLength();
+        if ( currentOffset > 0 )
+        {
+            writer.seek( currentOffset );
+        }
+        return writer;    
     }
     
     /**

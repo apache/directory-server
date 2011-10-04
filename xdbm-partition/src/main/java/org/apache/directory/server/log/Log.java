@@ -13,8 +13,10 @@ public interface Log
      * @param suffix suffix for log file.
      * @param logBufferSize size of buffer that will hold unflushed log changes. Specifigy zero if no buffering is desired
      * @param logFileSize A soft limit on the log file size
+     * @throws IOException
+     * @throws InvalidLogException
      */
-   public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize );
+   public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException;
     
     /**
      * Logs the given user record to the log. Position in the log files where the record is logged is returned as part of
@@ -35,6 +37,15 @@ public interface Log
      * @return
      */
     public LogScanner beginScan( LogAnchor startPoint );
+    
+    
+    /**
+     * Advances the min needed position in the logs. Logging subsystem uses this
+     * information to get rid of unneeded
+     *
+     * @param newAnchor
+     */
+    public void advanceMinNeededLogPosition( LogAnchor newAnchor );
 
     
 }

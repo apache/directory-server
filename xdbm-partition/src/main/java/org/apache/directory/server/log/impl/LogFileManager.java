@@ -169,6 +169,13 @@ interface LogFileManager
          * returns the length of the file
          */
         public long getLength() throws IOException;
+        
+        /**
+         * Repositions the reader at the given offset
+         *
+         * @param position
+         */
+        public void seek( long position ) throws IOException;
 
     }
     
