@@ -532,7 +532,19 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     public void start()
     {
-        connect();
+        while ( ! connect() )
+        {
+            try
+            {
+                // try to establish a connection for every 5 seconds
+                Thread.sleep( 5000 );
+            }
+            catch( InterruptedException e )
+            {
+                LOG.warn( "Interrupted while trying to reconnect to the provider {} with user DN", config.getRemoteHost(), config.getReplUserDn() );
+            }
+        }
+        
         startSync();
     }
 
