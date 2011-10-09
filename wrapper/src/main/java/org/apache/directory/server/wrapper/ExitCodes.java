@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.wrapper;
 
 
 /**

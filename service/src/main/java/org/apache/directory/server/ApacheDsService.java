@@ -31,13 +31,13 @@ import java.util.UUID;
 
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
-import org.apache.directory.server.config.ServiceBuilder;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
+import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.InstanceLayout;

@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.directory.server.HttpDirectoryService;
+import org.apache.directory.server.bridge.http.HttpDirectoryService;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;

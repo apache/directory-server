@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server;
+package org.apache.directory.server.bridge.http;
 
 
 import org.apache.directory.ldap.client.api.LdapConnection;

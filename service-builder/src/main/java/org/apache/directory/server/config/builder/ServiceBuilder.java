@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.config;
+package org.apache.directory.server.config.builder;
 
 
 import java.io.File;
@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.directory.server.config.ConfigSchemaConstants;
+import org.apache.directory.server.config.ConfigurationException;
 import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
 import org.apache.directory.server.config.beans.AuthenticatorImplBean;
