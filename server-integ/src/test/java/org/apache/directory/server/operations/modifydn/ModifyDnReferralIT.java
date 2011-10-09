@@ -24,26 +24,29 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPResponse;
-import netscape.ldap.LDAPResponseListener;
-import netscape.ldap.LDAPSearchConstraints;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -110,19 +113,24 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+        
+        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+        manageDSAIT.setCritical( true );
         
         // ModifyDN success
-        conn.rename( "uid=akarasuluref,ou=users,ou=system", "uid=ref", true, constraints );
-        LDAPEntry entry = conn.read( "uid=ref,ou=users,ou=system", ( LDAPSearchConstraints ) constraints );
-        assertNotNull( entry );
-        assertEquals( "uid=ref,ou=users,ou=system", entry.getDN() );
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
+        modifyDnRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        modifyDnRequest.setNewRdn( new Rdn( "uid=ref" ) );
+        modifyDnRequest.setDeleteOldRdn( true );
+        modifyDnRequest.addControl( manageDSAIT );
         
-        conn.disconnect();
+        conn.modifyDn( modifyDnRequest );
+        Entry entry = conn.lookup( "uid=ref,ou=users,ou=system", new Control[]{ manageDSAIT } );
+        assertNotNull( entry );
+        assertEquals( "uid=ref,ou=users,ou=system", entry.getDn().getName() );
+        
+        conn.close();
     }
     
     
@@ -133,24 +141,29 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testNewSuperiorOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+
+        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+        manageDSAIT.setCritical( true );
         
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
+        modifyDnRequest.setName( new Dn( "uid=elecharny,ou=users,ou=system" ) );
+        modifyDnRequest.setNewRdn( new Rdn( "uid=newuser" ) );
+        modifyDnRequest.setNewSuperior( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        modifyDnRequest.setDeleteOldRdn( true );
+        modifyDnRequest.addControl( manageDSAIT );
+
         // ModifyDN success
         try
         {
-            conn.rename( "uid=elecharny,ou=users,ou=system", "uid=newuser", 
-                "uid=akarasuluref,ou=users,ou=system", true, constraints );
+            conn.modifyDn( modifyDnRequest );
         }
-        catch ( LDAPException le )
+        catch ( LdapOperationException le )
         {
-            assertEquals ( LDAPException.AFFECTS_MULTIPLE_DSAS, le.getLDAPResultCode() );
+            assertEquals ( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, le.getResultCode() );
         }
         
-        conn.disconnect();
+        conn.close();
     }
     
     
@@ -162,24 +175,23 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        constraints.setReferrals( false );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
         
         // referrals failure
-        LDAPResponseListener listener = null;
-        LDAPResponse response = null;
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
+        modifyDnRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        modifyDnRequest.setNewRdn( new Rdn( "uid=ref" ) );
+        modifyDnRequest.setDeleteOldRdn( true );
 
-        listener = conn.rename( "uid=akarasuluref,ou=users,ou=system", "uid=ref", true, null, constraints );
-        response = listener.getResponse();
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        ModifyDnResponse modifyDnResponse = conn.modifyDn( modifyDnRequest );
 
-        assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+        assertEquals( ResultCodeEnum.REFERRAL, modifyDnResponse.getLdapResult().getResultCode() );
 
-        conn.disconnect();
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
+
+        conn.close();
     }
     
     
@@ -189,25 +201,21 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
      * non-success result code.
      */
     @Test
-    public void testNewSupierorOnReferral() throws Exception
+    public void testNewSuperiorOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        constraints.setReferrals( false );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
         
         // referrals failure
         try
         {
-            conn.rename( "uid=elecharny,ou=users,ou=system", "uid=ref", 
-                "uid=akarasuluref,ou=users,ou=system", true, constraints );
+            conn.moveAndRename( "uid=elecharny,ou=users,ou=system", "uid=ref,uid=akarasuluref,ou=users,ou=system", true );
         }
-        catch ( LDAPException e )
+        catch ( LdapOperationException e )
         {
-            assertEquals( LDAPException.AFFECTS_MULTIPLE_DSAS, e.getLDAPResultCode() );
+            assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, e.getResultCode() );
         }
 
-        conn.disconnect();
+        conn.close();
     }
     
     
@@ -245,23 +253,23 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
 
         // referrals failure
-        LDAPResponseListener listener = null;
-        LDAPResponse response = null;
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
+        modifyDnRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
+        modifyDnRequest.setNewRdn( new Rdn( "ou=Machines" ) );
+        modifyDnRequest.setDeleteOldRdn( true );
 
-        listener = conn.rename( "ou=Computers,uid=akarasuluref,ou=users,ou=system", "ou=Machines", true, null, constraints );
-        response = listener.getResponse();
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        ModifyDnResponse modifyDnResponse = conn.modifyDn( modifyDnRequest );
 
-        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+        assertEquals( ResultCodeEnum.REFERRAL, modifyDnResponse.getLdapResult().getResultCode() );
 
-        conn.disconnect();
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+
+        conn.close();
     }
     
     
@@ -273,22 +281,19 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
 
         // referrals failure
         try
         {
-            conn.rename( "uid=elecharny,ou=users,ou=system", "ou=Machines", 
-                "ou=Computers,uid=akarasuluref,ou=users,ou=system", true, constraints );
+            conn.moveAndRename( "uid=elecharny,ou=users,ou=system", "ou=Machines,ou=Computers,uid=akarasuluref,ou=users,ou=system", true );
             fail( "Should never get here to affectsMultipleDSA error result code" );
         }
-        catch ( LDAPException e )
+        catch ( LdapOperationException e )
         {
-            assertEquals( LDAPException.AFFECTS_MULTIPLE_DSAS, e.getLDAPResultCode() );
+            assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, e.getResultCode() );
         }
 
-        conn.disconnect();
+        conn.close();
     }
 }

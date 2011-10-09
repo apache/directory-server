@@ -21,6 +21,7 @@ package org.apache.directory.server;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,20 +106,27 @@ public class ApacheDsService
     /** The Kerberos server instance */
     private KdcServer kdcServer;
 
+    /** The started HttpServer */
     private HttpServer httpServer;
 
+    /** The Schema partition */
     private LdifPartition schemaLdifPartition;
 
+    /** The SchemaManager instance */
     private SchemaManager schemaManager;
 
+    /** The configuration partition */
     private SingleFileLdifPartition configPartition;
 
+    /** The configuration reader instance */
     private ConfigPartitionReader cpReader;
 
     // variables used during the initial startup to update the mandatory operational
     // attributes
+    /** The UUID syntax checker instance */
     private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
 
+    /** The CSN syntax checker instance */
     private CsnSyntaxChecker csnChecker = new CsnSyntaxChecker();
 
     private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();
@@ -144,7 +152,10 @@ public class ApacheDsService
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
-            partitionsDir.mkdirs();
+            if ( !partitionsDir.mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
+            }
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );

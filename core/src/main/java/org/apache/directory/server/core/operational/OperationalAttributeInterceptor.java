@@ -444,8 +444,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
         // Build a list of attributeType to remove
-        for ( AttributeType attributeType : attributes.getAttributeTypes() )
+        for ( Attribute attribute : attributes.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
+            
             if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
                 removedAttributes.add( attributeType );
@@ -474,12 +476,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
-
         if ( dn.size() == 0 )
         {
-            for ( AttributeType attributeType : attributeTypes )
+            for ( Attribute attribute : entry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
+
                 if ( !ids.contains( attributeType.getOid() ) )
                 {
                     entry.removeAttributes( attributeType );

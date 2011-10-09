@@ -117,7 +117,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     /**
      * Build the working directory
      */
-    private void buildInstanceDirectory( String name )
+    private void buildInstanceDirectory( String name ) throws IOException
     {
         String instanceDirectory = System.getProperty( "workingDirectory" );
 

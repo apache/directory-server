@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -373,9 +374,10 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isNoAttributes() )
         {
-            for ( AttributeType at : originalEntry.getAttributeTypes() )
+            for ( Attribute attribute : originalEntry.getAttributes() )
             {
-                entry.remove( entry.get( at ) );
+                AttributeType attributeType = attribute.getAttributeType();
+                entry.remove( entry.get( attributeType ) );
             }
             
             return;
@@ -384,28 +386,30 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllUserAttributes() )
         {
-            for ( AttributeType at : originalEntry.getAttributeTypes() )
+            for ( Attribute attribute : originalEntry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
+                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
                 
-                boolean isNotUserAttribute = at.getUsage() != UsageEnum.USER_APPLICATIONS;
+                boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
                 
                 if (  isNotRequested && isNotUserAttribute )
                 {
-                    entry.removeAttributes( at );
+                    entry.removeAttributes( attributeType );
                 }
                 else if( typesOnly )
                 {
-                    entry.get( at ).clear();
+                    entry.get( attributeType ).clear();
                 }
             }
             
@@ -414,28 +418,30 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().isAllOperationalAttributes() )
         {
-            for ( AttributeType at : originalEntry.getAttributeTypes() )
+            for ( Attribute attribute : originalEntry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
+                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
 
-                boolean isUserAttribute = at.getUsage() == UsageEnum.USER_APPLICATIONS;
+                boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
                 
                 if ( isNotRequested && isUserAttribute )
                 {
-                    entry.removeAttributes( at );
+                    entry.removeAttributes( attributeType );
                 }
                 else if( typesOnly )
                 {
-                    entry.get( at ).clear();
+                    entry.get( attributeType ).clear();
                 }
             }
             
@@ -444,13 +450,15 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         
         if ( getOperationContext().getReturningAttributes() != null )
         {
-            for ( AttributeType at : originalEntry.getAttributeTypes() )
+            for ( Attribute attribute : originalEntry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
+                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
@@ -459,11 +467,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     
                 if ( isNotRequested )
                 {
-                    entry.removeAttributes( at );
+                    entry.removeAttributes( attributeType );
                 }
                 else if( typesOnly )
                 {
-                    entry.get( at ).clear();
+                    entry.get( attributeType ).clear();
                 }
             }
         }

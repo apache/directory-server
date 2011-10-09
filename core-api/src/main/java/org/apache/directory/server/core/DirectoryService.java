@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -360,8 +361,9 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Sets the InstanceLayout used by the DirectoryService to store the files
      * @param instanceLayout The InstanceLayout to set
+     * @throws IOException If the layout could not be created
      */
-    void setInstanceLayout( InstanceLayout instanceLayout );
+    void setInstanceLayout( InstanceLayout instanceLayout ) throws IOException;
 
 
     /**

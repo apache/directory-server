@@ -20,6 +20,7 @@ package org.apache.directory.server.core.changelog;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -117,10 +118,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Add );
         forward.setDn( addContext.getDn() );
 
-        Set<AttributeType> list = addEntry.getAttributeTypes();
-        
-        for ( AttributeType attributeType:list )
+        for ( Attribute attribute:addEntry.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
             forward.addAttribute( addEntry.get( attributeType).clone() );
         }
         

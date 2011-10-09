@@ -139,7 +139,6 @@ public class JdbmStoreTest
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        wkdir.mkdirs();
 
         // initialize the store
         store = new JdbmPartition( schemaManager );
@@ -198,7 +197,6 @@ public class JdbmStoreTest
         File wkdir2 = File.createTempFile( getClass().getSimpleName(), "db2" );
         wkdir2.delete();
         wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
-        wkdir2.mkdirs();
 
         // initialize the 2nd store
         JdbmPartition store2 = new JdbmPartition( schemaManager );

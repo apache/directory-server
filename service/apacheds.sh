@@ -18,7 +18,7 @@
 # under the License.
 
 # The final jar
-JAR=target/apacheds-service-2.0.0-M3-SNAPSHOT.jar
+JAR=target/apacheds-service-2.0.0-M4-SNAPSHOT.jar
 
 # Checking if the final jar exists
 if [ -e $JAR ] ; then
@@ -42,7 +42,7 @@ fi
 
 DEF_CTRLS="-Ddefault.controls=org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory"
 
-EXT_CTRLS="-Dextra.controls=org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncModifyDnFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
+EXT_CTRLS="-Dextra.controls=org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
 
 DEF_EXT_OP_REQ="-Ddefault.extendedOperation.requests=org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory,org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory,org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory,org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory"
 

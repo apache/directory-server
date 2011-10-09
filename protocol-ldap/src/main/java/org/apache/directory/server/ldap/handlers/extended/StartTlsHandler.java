@@ -106,7 +106,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         session.getIoSession().write( res );
     }
 
-    class ServerX509TrustManager implements X509TrustManager
+    static class ServerX509TrustManager implements X509TrustManager
     {
         public void checkClientTrusted( X509Certificate[] chain, String authType ) throws CertificateException
         {

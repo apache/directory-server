@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 
 
 /**
@@ -83,7 +84,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithHashRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry personEntry = getPersonEntry( "Bush", "Kate#Bush" );
         String dn = "cn=Kate\\#Bush,ou=system";
@@ -120,7 +121,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithCommaInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getPersonEntry( "Bush", "Bush, Kate" );
         String dn = "cn=Bush\\, Kate,ou=system";
@@ -156,7 +157,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithQuotesInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getPersonEntry( "Messer", "Mackie \"The Knife\" Messer" );
         String dn = "cn=Mackie \\\"The Knife\\\" Messer,ou=system";
@@ -190,7 +191,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithBackslashInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getOrgUnitEntry( "AC\\DC" );
         String dn = "ou=AC\\\\DC,ou=system";
@@ -225,7 +226,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithGreaterSignInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getOrgUnitEntry( "East -> West" );
         String dn = "ou=East -\\> West,ou=system";
@@ -263,7 +264,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithLessSignInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getOrgUnitEntry( "Scissors 8<" );
         String dn = "ou=Scissors 8\\<,ou=system";
@@ -301,7 +302,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithSemicolonInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getOrgUnitEntry( "semicolon group;" );
         String dn = "ou=semicolon group\\;,ou=system";
@@ -339,7 +340,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithEqualsInRdn() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
 
         Entry entry = getOrgUnitEntry( "nomen=omen" );
         String dn = "ou=nomen\\=omen,ou=system";
@@ -371,7 +372,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddRdnWithEscapedSpaces() throws Exception 
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
         connection.setTimeOut( -1 );
 
         Entry entry = new DefaultEntry( 

@@ -478,7 +478,6 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             if ( aps.next() )
             {
-                aps.close();
                 return true;
             }
         }
@@ -486,7 +485,17 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             throw new LdapOperationException( e.getMessage(), e );
         }
-
+        finally
+        {
+            try
+            {
+                aps.close();
+            }
+            catch ( Exception e )
+            {
+                LOG.error( I18n.err( I18n.ERR_168 ), e );
+            }
+        }
 
         return false;
     }

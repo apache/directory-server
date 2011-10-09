@@ -509,34 +509,49 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public void setInstanceLayout( InstanceLayout instanceLayout )
+    public void setInstanceLayout( InstanceLayout instanceLayout ) throws IOException
     {
         this.instanceLayout = instanceLayout;
         
         // Create the directories if they are missing
         if ( !instanceLayout.getInstanceDirectory().exists() )
         {
-            instanceLayout.getInstanceDirectory().mkdirs();
+            if ( !instanceLayout.getInstanceDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getInstanceDirectory() ) );
+            }
         }
 
         if ( !instanceLayout.getLogDirectory().exists() )
         {
-            instanceLayout.getLogDirectory().mkdirs();
+            if ( !instanceLayout.getLogDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getLogDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getRunDirectory().exists() )
         {
-            instanceLayout.getRunDirectory().mkdirs();
+            if ( !instanceLayout.getRunDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getRunDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getPartitionsDirectory().exists() )
         {
-            instanceLayout.getPartitionsDirectory().mkdirs();
+            if ( !instanceLayout.getPartitionsDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getPartitionsDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getConfDirectory().exists() )
         {
-            instanceLayout.getConfDirectory().mkdirs();
+            if ( !instanceLayout.getConfDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getConfDirectory() ) );
+            }
         }
     }
 

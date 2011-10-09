@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +59,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
     {
         try
         {
-            conn = getClientApiConnection( getLdapServer() );
+            conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
             
             conn.add( new DefaultEntry( 
@@ -97,7 +97,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
     {
         try
         {
-            conn = getClientApiConnection( getLdapServer() );
+            conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
             
             conn.add( new DefaultEntry( 
@@ -164,7 +164,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
     {
         try
         {
-            conn = getClientApiConnection( getLdapServer() );
+            conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
             
             conn.add( new DefaultEntry( 

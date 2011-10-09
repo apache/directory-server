@@ -248,10 +248,12 @@ public class DSAnnotationProcessor
         if ( instance != null )
         {
             dsBuilder = (CreateDS)instance;
-        }
 
-        // Ok, we have found a CreateDS annotation. Process it now.
-        return createDS( dsBuilder );
+            // Ok, we have found a CreateDS annotation. Process it now.
+            return createDS( dsBuilder );
+        }
+        
+        throw new LdapException( I18n.err( I18n.ERR_114 ) );
     }
 
 

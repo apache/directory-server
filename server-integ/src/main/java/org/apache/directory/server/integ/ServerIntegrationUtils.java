@@ -84,6 +84,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        
         return new InitialLdapContext( env, null );
     }
 
@@ -180,7 +181,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
 
-    public static LDAPConnection getWiredConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getWiredConnection( LdapServer ldapServer ) throws Exception
     {
         String testServer = System.getProperty( "ldap.test.server", null );
 
@@ -203,26 +204,108 @@ public class ServerIntegrationUtils extends IntegrationUtils
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
         LOG.debug( testServer + ".port = " + port );
 
+        LdapConnection conn = new LdapNetworkConnection( host, port );
+        conn.bind( admin, password );
+        
+        return conn;
+    }
+
+
+    public static LDAPConnection getNsdkWiredConnection( LdapServer ldapServer ) throws Exception
+    {
+        String testServer = System.getProperty( "ldap.test.server", null );
+
+        if ( testServer == null )
+        {
+            return getNsdkWiredConnection( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+        }
+
+        LOG.debug( "ldap.test.server = " + testServer );
+
+        String admin = System.getProperty( testServer + ".admin", DEFAULT_ADMIN );
+        LOG.debug( testServer + ".admin = " + admin );
+
+        String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
+        LOG.debug( testServer + ".password = " + password );
+
+        String host = System.getProperty( testServer + ".host", DEFAULT_HOST );
+        LOG.debug( testServer + ".host = " + host );
+
+        int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
+        LOG.debug( testServer + ".port = " + port );
+
         LDAPConnection conn = new LDAPConnection();
         conn.connect( 3, host, port, admin, password );
+        
         return conn;
     }
 
 
-    public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
+    /**
+     * Gets a LDAP connection instance on a server, authenticating a user.
+     * 
+     * @param ldapServer The server we want to connect to
+     * @param principalDn The user's DN
+     * @param password The user's password
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LdapConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
-        LDAPConnection conn = new LDAPConnection();
-        conn.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
-        return conn;
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.bind( principalDn, password );
+        
+        return connection;
     }
 
 
-    public static LdapConnection getClientApiConnection( LdapServer ldapServer ) throws Exception
+    /**
+     * Gets a LDAP connection instance on a server. We won't bind on the server.
+     * 
+     * @param ldapServer The server we want to connect to
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection conn = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        conn.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-        return conn;
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        
+        return connection;
     }
 
+
+    /**
+     * Gets a LDAP connection instance on a server, authenticating a user.
+     * 
+     * @param ldapServer The server we want to connect to
+     * @param principalDn The user's DN
+     * @param password The user's password
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LDAPConnection getNsdkWiredConnection( LdapServer ldapServer, String principalDn, String password )
+        throws Exception
+    {
+        LDAPConnection connection = new LDAPConnection();
+        connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
+        
+        return connection;
+    }
+
+
+    /**
+     * Gets a LDAP connection instance on a server. We will bind as Admin
+     * 
+     * @param ldapServer The server we want to connect to
+     * @return A LdapConnection instance if we got one
+     * @throws Exception If the connection cannot be created
+     */
+    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+        
+        return connection;
+    }
 }

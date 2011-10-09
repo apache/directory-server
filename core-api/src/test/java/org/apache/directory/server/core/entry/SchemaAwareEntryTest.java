@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1669,7 +1670,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        assertEquals( 0, entry.getAttributeTypes().size() );
+        assertEquals( 0, entry.getAttributes().size() );
 
         Attribute attrOC = new DefaultAttribute( atOC, "top", "person" );
         Attribute attrCN = new DefaultAttribute( atCN, "test1", "test2" );
@@ -1678,14 +1679,22 @@ public class SchemaAwareEntryTest
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
 
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+        Collection<Attribute> attributes = entry.getAttributes();
 
-        assertEquals( 4, attributeTypes.size() );
-        assertTrue( attributeTypes.contains( atOC ) );
-        assertTrue( attributeTypes.contains( atCN ) );
-        assertTrue( attributeTypes.contains( atSN ) );
-        assertTrue( attributeTypes.contains( atPwd ) );
-        assertFalse( attributeTypes.contains( atC ) );
+        assertEquals( 4, attributes.size() );
+        Set<AttributeType> expected = new HashSet<AttributeType>();
+        expected.add( atOC );
+        expected.add( atCN );
+        expected.add( atSN );
+        expected.add( atPwd );
+        expected.add( atC );
+        
+        for ( Attribute attribute : attributes )
+        {
+            AttributeType attributeType = attribute.getAttributeType();
+            
+            assertTrue( expected.contains( attributeType ) );
+        }
     }
 
 

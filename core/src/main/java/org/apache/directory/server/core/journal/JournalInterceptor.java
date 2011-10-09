@@ -31,6 +31,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -114,10 +115,9 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.Add );
             ldif.setDn( addContext.getDn() );
 
-            Set<AttributeType> list = addEntry.getAttributeTypes();
-            
-            for ( AttributeType attributeType:list )
+            for ( Attribute attribute:addEntry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
                 ldif.addAttribute( addEntry.get( attributeType).clone() );
             }
             

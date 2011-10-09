@@ -290,10 +290,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private boolean containsAnyCollectiveAttributes( Entry entry ) throws LdapException
     {
-        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
-
-        for ( AttributeType attributeType : attributeTypes )
+        for ( Attribute attribute : entry.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
+
             if ( attributeType.isCollective() )
             {
                 return true;
@@ -408,8 +408,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-            for ( AttributeType attributeType : subentry.getAttributeTypes() )
+            for ( Attribute attribute : subentry.getAttributes() )
             {
+                AttributeType attributeType = attribute.getAttributeType();
                 String attrId = attributeType.getName();
 
                 if ( !attributeType.isCollective() )

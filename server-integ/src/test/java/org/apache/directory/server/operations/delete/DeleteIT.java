@@ -20,24 +20,17 @@
 package org.apache.directory.server.operations.delete;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
-
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPResponse;
-import netscape.ldap.LDAPResponseListener;
-import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -47,7 +40,15 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.DeleteRequest;
+import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
+import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -94,7 +95,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete failure on non-leaf entry
         try
@@ -119,7 +120,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDelete() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete success
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
@@ -147,7 +148,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteNonExistent() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         // delete failure non-existent entry
         try
@@ -171,26 +172,20 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
+
+        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+        manageDSAIT.setCritical( true );
 
         // delete success
-        conn.delete( "uid=akarasuluref,ou=users,ou=system", constraints );
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        deleteRequest.addControl( manageDSAIT );
+        conn.delete( deleteRequest );
 
-        try
-        {
-            conn.read( "uid=akarasuluref,ou=users,ou=system", ( LDAPSearchConstraints ) constraints );
-            fail( "Should never get here." );
-        }
-        catch ( LDAPException e )
-        {
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
-        }
+        assertNull( conn.lookup( "uid=akarasuluref,ou=users,ou=system", new Control[]{ manageDSAIT } ) );
 
-        conn.disconnect();
+        conn.close();
     }
 
 
@@ -202,24 +197,20 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        constraints.setReferrals( false );
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
 
-        // referrals failure
-        LDAPResponseListener listener = null;
-        LDAPResponse response = null;
+        // delete success
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        DeleteResponse deleteResponse = conn.delete( deleteRequest );
 
-        listener = conn.delete( "uid=akarasuluref,ou=users,ou=system", null, constraints );
-        response = listener.getResponse();
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        assertEquals( ResultCodeEnum.REFERRAL, deleteResponse.getLdapResult().getResultCode() );
 
-        assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
 
-        conn.disconnect();
+        conn.close();
     }
 
 
@@ -269,24 +260,20 @@ public class DeleteIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( getLdapServer() );
-        LDAPConstraints constraints = new LDAPConstraints();
-        conn.setConstraints( constraints );
+        LdapConnection conn = getWiredConnection( getLdapServer() );
 
-        // referrals failure
-        LDAPResponseListener listener = null;
-        LDAPResponse response = null;
+        // delete success
+        DeleteRequest deleteRequest = new DeleteRequestImpl();
+        deleteRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
+        DeleteResponse deleteResponse = conn.delete( deleteRequest );
 
-        listener = conn.delete( "ou=Computers,uid=akarasuluref,ou=users,ou=system", null, constraints );
-        response = listener.getResponse();
-        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+        assertEquals( ResultCodeEnum.REFERRAL, deleteResponse.getLdapResult().getResultCode() );
 
-        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system",
-            response.getReferrals()[0] );
-        assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
-        assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system") );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
 
-        conn.disconnect();
+        conn.close();
     }
 
 
@@ -297,7 +284,7 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteWithIllegalName() throws Exception
     {
-        LdapConnection conn = getClientApiConnection( getLdapServer() );
+        LdapConnection conn = getAdminConnection( getLdapServer() );
 
         try
         {

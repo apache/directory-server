@@ -50,7 +50,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupPerfAPI() throws Exception
     {
-        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( getLdapServer() );
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
 
         Entry entry = connection.lookup( "uid=admin,ou=system", "name" );
         assertNotNull( entry );

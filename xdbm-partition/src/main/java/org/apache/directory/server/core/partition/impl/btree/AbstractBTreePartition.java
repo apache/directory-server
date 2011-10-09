@@ -879,8 +879,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             }
             else
             {
-                for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
+                for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
                 {
+                    AttributeType attributeType = attribute.getAttributeType();
                     String oid = attributeType.getOid();
 
                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
@@ -897,8 +898,10 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             if ( lookupContext.hasAllOperational() )
             {
-                for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
+                for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
                 {
+                    AttributeType attributeType = attribute.getAttributeType();
+
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
                     {
                         entry.removeAttributes( attributeType );
@@ -909,8 +912,10 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 if ( lookupContext.getAttrsId().size() == 0 )
                 {
-                    for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
+                    for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
                     {
+                        AttributeType attributeType = attribute.getAttributeType();
+
                         if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
                         {
                             entry.removeAttributes( attributeType );
@@ -919,8 +924,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 }
                 else
                 {
-                    for ( AttributeType attributeType : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributeTypes() )
+                    for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
                     {
+                        AttributeType attributeType = attribute.getAttributeType();
                         String oid = attributeType.getOid();
                         
                         if ( !lookupContext.getAttrsId().contains( oid ) )

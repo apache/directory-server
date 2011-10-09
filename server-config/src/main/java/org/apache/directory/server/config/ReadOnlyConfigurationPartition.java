@@ -67,7 +67,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
         super( schemaManager );
         this.inputStream = inputStream;
         id = "config";
-        
+
         try
         {
             suffixDn = new Dn( schemaManager, "ou=config" );
@@ -84,11 +84,11 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     protected void doInit() throws InvalidNameException, Exception
     {
-        if ( ! initialized )
+        if ( !initialized )
         {
             // Initializing the wrapped partition
             super.doInit();
-    
+
             // Load LDIF entries
             loadLdifEntries();
         }
@@ -122,9 +122,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             if ( suffixDn.equals( contextEntry.getDn() ) )
             {
                 addMandatoryOpAt( contextEntry );
-                
-                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-                super.add( addContext );
+
+                super.add( new AddOperationContext( null, contextEntry ) );
             }
             else
             {
@@ -136,9 +135,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             {
                 Entry entry = new DefaultEntry( schemaManager, itr.next().getEntry() );
                 addMandatoryOpAt( entry );
-                
-                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-                super.add( addContext );
+
+                super.add( new AddOperationContext( null, entry ) );
             }
 
             // Closing the reader
@@ -175,7 +173,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void add( AddOperationContext arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 
 
@@ -184,7 +182,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void delete( Long arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 
 
@@ -193,7 +191,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void modify( ModifyOperationContext arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 
 
@@ -202,7 +200,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void move( MoveOperationContext arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 
 
@@ -211,7 +209,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void moveAndRename( MoveAndRenameOperationContext arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 
 
@@ -220,6 +218,6 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      */
     public void rename( RenameOperationContext arg0 ) throws LdapException
     {
-        // Not implemented (Read-Only)
+        // Does nothing (Read-Only)
     }
 }

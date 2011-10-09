@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.search;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1671,7 +1671,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchSizeLimit() throws Exception
     {
         long sizeLimit = 7;
-        LdapConnection connection = getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
         SearchRequest req = new org.apache.directory.shared.ldap.model.message.SearchRequestImpl();
         req.setBase( new Dn( "ou=system" ) );
         req.setFilter( "(ou=*)" );
@@ -1696,7 +1696,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Ignore("This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem")
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
-        LdapConnection connection = getClientApiConnection( getLdapServer() );
+        LdapConnection connection = getAdminConnection( getLdapServer() );
         SearchRequest req = new SearchRequestImpl();
         req.setBase( new Dn( "ou=schema" ) );
         req.setFilter( "(objectClass=*)" );

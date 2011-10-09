@@ -511,19 +511,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
-        PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getOriginalEntry() );
+        PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getEntry() );
         
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
         Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
 
         PwdModDetailsHolder pwdModDetails = null;
         
-        if ( policyConfig.isPwdSafeModify() || pwdResetSet.contains( userDn ) || ( policyConfig.getPwdMinAge() > 0 ) )
-        {
-            pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
-        }
+        pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
 
-        if ( ( pwdModDetails != null ) && pwdModDetails.isPwdModPresent() )
+        if ( pwdModDetails.isPwdModPresent() )
         {
             if ( pwdResetSet.contains( userDn ) )
             {
@@ -622,6 +619,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( histSize > 0 )
             {
                 Attribute pwdHistoryAt = entry.get( PWD_HISTORY_AT );
+                if ( pwdHistoryAt == null )
+                {
+                	pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
+                }
+                
                 Set<PasswordHistory> pwdHistSet = new TreeSet<PasswordHistory>();
 
                 for ( Value<?> value : pwdHistoryAt  )
@@ -650,13 +652,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
                 pwdHistSet.add( newPwdHist );
 
-                pwdHistoryAt = new DefaultAttribute( pwdHistoryAt.getAttributeType() );
+                pwdHistoryAt.clear();
                 pwdHistoryAt.add( newPwdHist.getHistoryValue() );
                 pwdAddHistMod = new DefaultModification( ADD_ATTRIBUTE, pwdHistoryAt );
 
                 if ( pwdHistSet.size() > histSize )
                 {
-                    pwdHistoryAt = new DefaultAttribute( pwdHistoryAt.getAttributeType() );
                     PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistSet.toArray()[histSize - 1];
                     pwdHistoryAt.add( remPwdHist.getHistoryValue() );
                     pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdHistoryAt );
@@ -1285,12 +1286,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         Attribute pwdChangedTimeAt = userEntry.get( PWD_CHANGED_TIME_AT );
-        long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
-        changedTime += policyConfig.getPwdMinAge() * 1000;
-
-        if ( changedTime > System.currentTimeMillis() )
+        if ( pwdChangedTimeAt != null )
         {
-            return true;
+        	long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
+        	changedTime += policyConfig.getPwdMinAge() * 1000;
+        	
+        	if ( changedTime > System.currentTimeMillis() )
+        	{
+        		return true;
+        	}
         }
 
         return false;
@@ -1385,7 +1389,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
     
-    private class PwdModDetailsHolder
+    private static class PwdModDetailsHolder
     {
         private boolean pwdModPresent = false;
 

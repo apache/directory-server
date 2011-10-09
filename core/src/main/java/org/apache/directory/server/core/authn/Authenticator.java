@@ -61,7 +61,7 @@ public interface Authenticator
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( DirectoryService directoryService ) throws LdapException;
+    void init( DirectoryService directoryService ) throws LdapException;
 
 
     /**
@@ -84,8 +84,11 @@ public interface Authenticator
     
     /**
      * Performs authentication and returns the principal if succeeded.
+     * 
+     * @param bindContext The Bind context
+     * @exception If the authentication failed
      */
-    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
+    LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
     
     
     /**
@@ -95,4 +98,13 @@ public interface Authenticator
      * @throws PasswordPolicyException
      */
     void checkPwdPolicy( Entry userEntry ) throws LdapException;
+    
+    
+    /**
+     * Performs an unbind on the given context
+     * 
+     * @param unbindContext The Unbind context
+     * @exception If the unbind failed
+     */
+    //void unbind( UnbindOperationContext unbindContext ) throws Exception;
 }

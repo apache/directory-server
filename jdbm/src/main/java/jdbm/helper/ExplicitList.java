@@ -31,8 +31,10 @@ package jdbm.helper;
 public class ExplicitList<T>
 {
 
-    Link<T> head = new Link<T>( null );
+    private Link<T> head = new Link<T>( null );
 
+    private int listSize = 0;
+    
     public static class Link<V>
     {
         private V element;
@@ -73,7 +75,7 @@ public class ExplicitList<T>
 
         public void remove()
         {
-            assert ( isLinked() );
+            assert( isLinked() ) : "Trying to remove from list an unlinked link";
             this.getPrev().setNext( this.getNext() );
             this.getNext().setPrev( this.getPrev() );
             this.reset();
@@ -82,6 +84,7 @@ public class ExplicitList<T>
 
         public void addAfter( Link<V> after )
         {
+            assert( this.isUnLinked() ) : "Trying to add to list already linked link: " + this;
             after.getNext().setPrev( this );
             this.setNext( after.getNext() );
             after.setNext( this );
@@ -91,6 +94,7 @@ public class ExplicitList<T>
 
         public void addBefore( Link<V> before )
         {
+            assert( this.isUnLinked() ) : "Trying to add to list already linked link: " + this;
             before.getPrev().setNext( this );
             this.setPrev( before.getPrev() );
             before.setPrev( this );
@@ -98,6 +102,11 @@ public class ExplicitList<T>
         }
 
 
+        /**
+         * Splices the given list by making this link as the new head.
+         *
+         * @param listHead head of the existing list
+         */
         public void splice( Link<V> listHead )
         {
             Link<V> prevLink = listHead.getPrev();
@@ -110,7 +119,7 @@ public class ExplicitList<T>
 
         public boolean isUnLinked()
         {
-            return ( prev == this && next == this );
+            return ( ( prev == this ) && ( next == this ) );
         }
 
 
@@ -129,7 +138,7 @@ public class ExplicitList<T>
 
         public void uninit()
         {
-            assert ( this.isUnLinked() );
+            assert ( this.isUnLinked() ) :  " Unitializing a still linked entry" + this;
             element = null;
         }
 
@@ -138,23 +147,39 @@ public class ExplicitList<T>
         {
             return this.element;
         }
+        
+        @Override
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append( "Link: " ).append( this ).append( " " );
+            sb.append( "(next: " ).append( next );
+            sb.append( ",prev: " ).append( prev ).append(")");            
+            sb.append( "\n" );
+            
+            return sb.toString();
+        }
     }
 
 
     public void remove( Link<T> link )
     {
+        assert( listSize > 0 ) : "Trying to remove link " + link + " from a list with no elements";
+        listSize--;
         link.remove();
     }
 
 
     public void addFirst( Link<T> link )
     {
+        listSize++;
         link.addAfter( head );
     }
 
 
     public void addLast( Link<T> link )
     {
+        listSize++;
         link.addBefore( head );
     }
 
@@ -168,6 +193,22 @@ public class ExplicitList<T>
     public Link<T> end()
     {
         return head;
+    }
+    
+    public int size()
+    {
+        return listSize;
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "List: " );
+        sb.append( "(size: " ).append( listSize ).append( ")" );
+        sb.append( "\n" );
+        
+        return sb.toString();
     }
 
 }

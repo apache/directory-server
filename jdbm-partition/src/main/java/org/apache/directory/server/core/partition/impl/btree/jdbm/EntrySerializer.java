@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
@@ -105,7 +106,7 @@ public class EntrySerializer implements Serializer
         Entry entry = (Entry) object;
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ObjectOutput out = new ObjectOutputStream( baos );
 
         // First, the Dn
         Dn dn = entry.getDn();
@@ -123,22 +124,21 @@ public class EntrySerializer implements Serializer
         }
 
         // Then the attributes.
-        out.writeInt( entry.getAttributeTypes().size() );
+        out.writeInt( entry.getAttributes().size() );
 
         // Iterate through the keys. We store the Attribute
         // here, to be able to restore it in the readExternal :
         // we need access to the registries, which are not available
         // in the ServerAttribute class.
-        for ( AttributeType attributeType : entry.getAttributeTypes() )
+        for ( Attribute attribute : entry.getAttributes() )
         {
+            AttributeType attributeType = attribute.getAttributeType();
+            
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
             String oid = attributeType.getOid();
 
             out.writeUTF( oid );
-
-            // Get the attribute
-            Attribute attribute = entry.get( attributeType );;
 
             // Write the attribute
             attribute.writeExternal( out );
@@ -206,7 +206,7 @@ public class EntrySerializer implements Serializer
             {
                 // Read the attribute's OID
                 String oid = in.readUTF();
-
+                
                 try
                 {
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );

@@ -21,7 +21,9 @@ package org.apache.directory.server.core;
 
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,13 +112,16 @@ public abstract class AbstractLayout
     /**
      * Creates the required directories (if they don't already exist).
      */
-    public void mkdirs()
+    public void mkdirs() throws IOException
     {
         for ( File requiredDirectory : requiredDirectories )
         {
             if ( !requiredDirectory.exists() )
             {
-                requiredDirectory.mkdirs();
+                if ( !requiredDirectory.mkdirs() )
+                {
+                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, requiredDirectory ) );
+                }
             }
         }
     }

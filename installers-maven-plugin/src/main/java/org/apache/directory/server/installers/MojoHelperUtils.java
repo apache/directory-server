@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.directory.server.InstallationLayout;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -173,22 +174,22 @@ public class MojoHelperUtils
 
         if ( doSudo )
         {
-            String cmdString = " ";
+            StringBuffer cmdString = new StringBuffer( " " );
             for ( int ii = 0; ii < cmd.length; ii++ )
             {
-                cmdString += cmd[ii] + " ";
+                cmdString.append( cmd[ii] ).append( " " );
             }
 
             String[] temp = new String[2];
             temp[0] = "sudo";
-            temp[1] = cmdString;
+            temp[1] = cmdString.toString();
             cmd = temp;
         }
 
-        String cmdString = " ";
+        StringBuffer cmdString = new StringBuffer( " " );
         for ( int ii = 0; ii < cmd.length; ii++ )
         {
-            cmdString += cmd[ii] + " ";
+            cmdString.append( cmd[ii] ).append( " " );
         }
 
         try
@@ -224,7 +225,10 @@ public class MojoHelperUtils
         {
             File[] files = src.listFiles();
 
-            dest.mkdirs();
+            if ( !dest.mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dest ) );
+            }
 
             for ( File file : files )
             {

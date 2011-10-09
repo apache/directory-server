@@ -67,7 +67,7 @@ import org.apache.directory.server.i18n.I18n;
 /**
  * Page of a Btree.
  * <p>
- * The page contains a number of key-value pairs.  Keys are ordered to allow
+ * The page contains a number of key-value pairs. Keys are ordered to allow
  * dichotomic search.
  * <p>
  * If the page is a leaf page, the keys and values are user-defined and
@@ -221,10 +221,14 @@ public class BPage<K, V> implements Serializer
         newPage.recordId = this.recordId;
         
         if ( this.children != null )
+        {
             this.copyChildren( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        }
         
-        if (this.values != null ) 
+        if (this.values != null )
+        {
             this.copyEntries( this, 0, newPage, 0, btree.pageSize ); // this copies keys as well
+        }
         
         return newPage;
     }
@@ -401,7 +405,7 @@ public class BPage<K, V> implements Serializer
                 
                 if ( replace )
                 {
-                    pageNewCopy.values[index] = value;
+                    pageNewCopy.values[index] = btree.copyValue( value );
                     btree.recordManager.update( recordId, pageNewCopy, this );
                 }
                 
@@ -956,10 +960,10 @@ public class BPage<K, V> implements Serializer
     /**
      * Set the entry at the given index.
      */
-    private void setEntry( BPage<K, V> page, int index, K key, V value )
+    private void setEntry( BPage<K, V> page, int index, K key, V value ) throws IOException
     {
         page.keys[index] = key;
-        page.values[index] = value;
+        page.values[index] = btree.copyValue( value );
     }
 
 
@@ -1075,11 +1079,11 @@ public class BPage<K, V> implements Serializer
      */
     private void dump( int height )
     {
-        String prefix = "";
+        StringBuffer prefix = new StringBuffer();
         
         for ( int i = 0; i < height; i++ )
         {
-            prefix += "    ";
+            prefix.append( "    " );
         }
         
         System.out.println( prefix + "-------------------------------------- BPage recordId=" + recordId );
@@ -1494,7 +1498,9 @@ public class BPage<K, V> implements Serializer
             finally
             {
                 if ( context != null )
+                {
                     btree.unsetAsCurrentAction( context );
+                }
             }
           
             return true;
@@ -1502,7 +1508,8 @@ public class BPage<K, V> implements Serializer
 
         public boolean getPrevious( Tuple<K, V> tuple ) throws IOException
         {
-            btree.setAsCurrentAction( context );           
+            btree.setAsCurrentAction( context );
+            
             try
             {
                 if ( index == page.first )
@@ -1514,7 +1521,7 @@ public class BPage<K, V> implements Serializer
                     }
                     else
                     {
-                        // reached beginning of the tree                                                             
+                        // reached beginning of the tree
                         return false;
                     }
                 }
@@ -1533,8 +1540,10 @@ public class BPage<K, V> implements Serializer
             finally
             {
                 if ( context != null )
+                {
                     btree.unsetAsCurrentAction( context );
-            }          
+                }
+            }
 
             return true;
         }
@@ -1552,6 +1561,7 @@ public class BPage<K, V> implements Serializer
             }
             
             int browserCount = outstandingBrowsers.decrementAndGet();
+            
             if ( browserCount > 0 )
             {
                 //System.out.println( "JDBM btree browsers are outstanding after close: " + browserCount );

@@ -20,12 +20,9 @@
 package org.apache.directory.server.operations.bind;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
@@ -39,6 +36,8 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,32 +95,22 @@ public class BindIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test
+    @Test( expected=LdapAuthenticationException.class )
     public void testBadBindDnNotInContext() throws Exception
     {
-        try
-        {
-            getWiredContext( getLdapServer(), "cn=bogus", "blah" );
-            fail( "should never get here due to a " );
-        }
-        catch ( AuthenticationException e )
-        {
-        }
+        getWiredConnection( getLdapServer(), "cn=bogus", "blah" );
+        fail( "should never get here due to a " );
     }
 
 
     /**
      * Test bind with malformed bind Dn.
      */
-    @Test
+    @Test( expected=LdapInvalidDnException.class )
     public void testBadBindDnMalformed() throws Exception
     {
-        try
-        {
-            getWiredContext( getLdapServer(), "system", "blah" );
-            fail( "should never get here due to a " );
-        }
-        catch ( InvalidNameException e ){}
+        getWiredConnection( getLdapServer(), "system", "blah" );
+        fail( "should never get here due to a " );
     }
 
     /**
@@ -129,17 +118,11 @@ public class BindIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test
+    @Test( expected=LdapAuthenticationException.class )
     public void testBadBindDnInContext() throws Exception
     {
-        try
-        {
-            getWiredContext( getLdapServer(), "cn=bogus,ou=system", "blah" );
-            fail( "should never get here due to a " );
-        }
-        catch ( AuthenticationException e )
-        {
-        }
+        getWiredConnection( getLdapServer(), "cn=bogus,ou=system", "blah" );
+        fail( "should never get here due to a " );
     }
 
 
