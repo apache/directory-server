@@ -340,7 +340,7 @@ public class TestSnapshotBTree
             TupleBrowser<Integer, IntWrapper> browser = btree.browse();
             Tuple<Integer, IntWrapper> tuple = new Tuple();
            
-            assert( browser.getNext( tuple ) );
+            assertTrue( browser.getNext( tuple ) );
             int max = tuple.getValue().value;
             count++;
             System.out.println( " TestLongBrowsing read thread min key is"  + tuple.getKey() + "max value is" + max );
