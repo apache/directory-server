@@ -24,8 +24,8 @@ import java.net.SocketAddress;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
-import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Entry;

@@ -21,9 +21,9 @@ package org.apache.directory.server.core.operations.getRootDse;
 
 import static org.junit.Assert.assertNotNull;
 
+import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Test;
 import org.junit.runner.RunWith;

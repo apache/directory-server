@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.model.exception.LdapException;

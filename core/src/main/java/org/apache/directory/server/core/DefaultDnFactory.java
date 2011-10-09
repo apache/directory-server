@@ -24,6 +24,7 @@ package org.apache.directory.server.core;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;

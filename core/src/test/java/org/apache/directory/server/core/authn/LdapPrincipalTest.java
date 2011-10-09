@@ -26,8 +26,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.LdapPrincipalSerializer;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.LdapPrincipalSerializer;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;

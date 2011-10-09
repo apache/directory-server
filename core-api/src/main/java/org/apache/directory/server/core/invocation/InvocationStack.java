@@ -26,7 +26,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 
 
 /**

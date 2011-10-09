@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;

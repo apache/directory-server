@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

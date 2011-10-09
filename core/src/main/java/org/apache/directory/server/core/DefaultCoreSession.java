@@ -28,22 +28,26 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.changelog.LogChange;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationManager;
+import org.apache.directory.server.core.api.changelog.LogChange;
+import org.apache.directory.server.core.api.interceptor.context.AbstractOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AbstractOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
@@ -424,7 +428,7 @@ public class DefaultCoreSession implements CoreSession
      * TODO - perhaps we should just use a flag that is calculated on creation
      * of this session
      *  
-     * @see org.apache.directory.server.core.CoreSession#isAdministrator()
+     * @see org.apache.directory.server.core.api.CoreSession#isAdministrator()
      */
     public boolean isAdministrator()
     {
@@ -442,7 +446,7 @@ public class DefaultCoreSession implements CoreSession
      * TODO - perhaps we should just use a flag that is calculated on creation
      * of this session
      *  
-     * @see org.apache.directory.server.core.CoreSession#isAnAdministrator()
+     * @see org.apache.directory.server.core.api.CoreSession#isAnAdministrator()
      */
     public boolean isAnAdministrator()
     {

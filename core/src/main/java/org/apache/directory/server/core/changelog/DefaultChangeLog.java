@@ -21,9 +21,18 @@ package org.apache.directory.server.core.changelog;
 
 import java.util.List;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.changelog.ChangeLog;
+import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.api.changelog.ChangeLogSearchEngine;
+import org.apache.directory.server.core.api.changelog.ChangeLogStore;
+import org.apache.directory.server.core.api.changelog.SearchableChangeLogStore;
+import org.apache.directory.server.core.api.changelog.Tag;
+import org.apache.directory.server.core.api.changelog.TagSearchEngine;
+import org.apache.directory.server.core.api.changelog.TaggableChangeLogStore;
+import org.apache.directory.server.core.api.changelog.TaggableSearchableChangeLogStore;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;

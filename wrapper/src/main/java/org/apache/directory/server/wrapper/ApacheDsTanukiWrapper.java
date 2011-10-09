@@ -22,7 +22,7 @@ package org.apache.directory.server.wrapper;
 
 
 import org.apache.directory.server.ApacheDsService;
-import org.apache.directory.server.core.InstanceLayout;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tanukisoftware.wrapper.WrapperListener;

@@ -21,7 +21,7 @@ package org.apache.directory.server.dns;
 
 
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.slf4j.Logger;

@@ -22,7 +22,7 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;

@@ -32,22 +32,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.NextInterceptor;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -100,7 +100,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An {@link org.apache.directory.server.core.interceptor.Interceptor} that manages and enforces schemas.
+ * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} that manages and enforces schemas.
  *
  * @todo Better interceptor description required.
 

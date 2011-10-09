@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;

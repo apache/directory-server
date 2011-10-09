@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.message.Request;
 import org.apache.directory.shared.ldap.model.message.Response;

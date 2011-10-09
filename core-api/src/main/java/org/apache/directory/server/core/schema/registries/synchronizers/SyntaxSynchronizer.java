@@ -23,7 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

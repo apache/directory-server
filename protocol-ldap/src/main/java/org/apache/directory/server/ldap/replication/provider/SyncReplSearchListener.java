@@ -20,16 +20,16 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.DirectoryListener;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.event.DirectoryListener;
-import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;

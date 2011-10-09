@@ -28,18 +28,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.DirectoryListener;
+import org.apache.directory.server.core.api.event.Evaluator;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.event.RegistrationEntry;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.NextInterceptor;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -51,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An {@link org.apache.directory.server.core.interceptor.Interceptor} based service for notifying {@link
+ * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} based service for notifying {@link
  * DirectoryListener}s of changes to the DIT.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

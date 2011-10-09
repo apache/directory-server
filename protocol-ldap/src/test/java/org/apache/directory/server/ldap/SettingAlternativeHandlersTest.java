@@ -24,7 +24,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DirectoryService;
+
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
 import org.apache.directory.server.ldap.handlers.BindHandler;

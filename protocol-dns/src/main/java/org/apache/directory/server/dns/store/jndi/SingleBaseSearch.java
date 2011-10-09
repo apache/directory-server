@@ -26,8 +26,8 @@ import java.util.Set;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapName;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;

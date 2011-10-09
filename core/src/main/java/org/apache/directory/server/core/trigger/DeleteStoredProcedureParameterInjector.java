@@ -22,8 +22,8 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;

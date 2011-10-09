@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
+import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;

@@ -31,7 +31,7 @@ import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySch
 
 import java.util.Date;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;

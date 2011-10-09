@@ -34,8 +34,8 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.trigger;
 
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 

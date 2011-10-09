@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.directory.server.core.event.Evaluator;
+import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;

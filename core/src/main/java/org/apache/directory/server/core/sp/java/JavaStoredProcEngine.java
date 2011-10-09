@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

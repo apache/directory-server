@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.event;
 
 
+import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;

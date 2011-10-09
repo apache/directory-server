@@ -28,7 +28,7 @@ import java.util.Calendar;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;

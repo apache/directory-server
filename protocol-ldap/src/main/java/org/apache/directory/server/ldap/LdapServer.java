@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;

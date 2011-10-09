@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.operations.extended;
 
-import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.slf4j.Logger;

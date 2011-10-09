@@ -21,8 +21,8 @@
 package org.apache.directory.server.bridge.http;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapCoreSessionConnection;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.BindResponseImpl;

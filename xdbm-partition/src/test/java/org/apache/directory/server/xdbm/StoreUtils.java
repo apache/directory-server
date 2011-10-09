@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm;
 
 import java.util.UUID;
 
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;

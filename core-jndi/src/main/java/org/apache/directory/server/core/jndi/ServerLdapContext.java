@@ -31,11 +31,11 @@ import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.EncoderException;

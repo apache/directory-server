@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;

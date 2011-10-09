@@ -21,7 +21,7 @@ package org.apache.directory.server.core.integ;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;

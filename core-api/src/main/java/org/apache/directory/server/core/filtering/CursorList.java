@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;

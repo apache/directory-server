@@ -30,12 +30,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DnFactory;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

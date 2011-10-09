@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.filtering;
 
 
-import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
 

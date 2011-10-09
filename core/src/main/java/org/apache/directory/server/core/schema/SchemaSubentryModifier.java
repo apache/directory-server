@@ -25,12 +25,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.DnFactory;
+import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;

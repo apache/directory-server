@@ -26,7 +26,7 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;

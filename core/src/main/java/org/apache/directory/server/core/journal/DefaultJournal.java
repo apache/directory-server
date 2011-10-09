@@ -18,8 +18,10 @@
  */
 package org.apache.directory.server.core.journal;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.journal.Journal;
+import org.apache.directory.server.core.api.journal.JournalStore;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.slf4j.Logger;

@@ -26,8 +26,8 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

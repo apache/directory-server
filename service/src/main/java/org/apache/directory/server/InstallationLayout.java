@@ -23,7 +23,7 @@ package org.apache.directory.server;
 
 import java.io.File;
 
-import org.apache.directory.server.core.AbstractLayout;
+import org.apache.directory.server.core.api.AbstractLayout;
 
 
 /**

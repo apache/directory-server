@@ -26,8 +26,8 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.security.sasl.AuthorizeCallback;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;

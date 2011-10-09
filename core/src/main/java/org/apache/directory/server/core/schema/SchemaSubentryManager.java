@@ -25,8 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.DnFactory;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.schema.DescriptionParsers;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

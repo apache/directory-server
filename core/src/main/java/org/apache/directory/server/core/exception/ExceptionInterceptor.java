@@ -21,25 +21,25 @@ package org.apache.directory.server.core.exception;
 
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.NextInterceptor;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.ByPassConstants;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -57,7 +57,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
- * An {@link org.apache.directory.server.core.interceptor.Interceptor} that detects any operations that breaks integrity
+ * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} that detects any operations that breaks integrity
  * of {@link Partition} and terminates the current invocation chain by
  * throwing a {@link Exception}. Those operations include when an entry
  * already exists at a Dn and is added once again to the same Dn.
