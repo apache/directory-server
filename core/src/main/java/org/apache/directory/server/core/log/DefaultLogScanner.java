@@ -1,5 +1,5 @@
     
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -7,10 +7,6 @@ import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.log.InvalidLogException;
-import org.apache.directory.server.log.LogAnchor;
-import org.apache.directory.server.log.LogScanner;
-import org.apache.directory.server.log.UserLogRecord;
 
 public class DefaultLogScanner implements LogScannerInternal
 {

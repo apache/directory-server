@@ -1,4 +1,4 @@
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.io.IOException;
 import java.io.EOFException;

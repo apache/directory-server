@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.io.EOFException;
 import java.io.File;
@@ -9,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.log.impl.LogFileManager.LogFileReader;
-import org.apache.directory.server.log.impl.LogFileManager.LogFileWriter;
 
 class DefaultLogFileManager implements LogFileManager 
 {

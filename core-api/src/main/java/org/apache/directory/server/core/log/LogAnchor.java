@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log;
+package org.apache.directory.server.core.log;
 
 import org.apache.directory.server.i18n.I18n;
 

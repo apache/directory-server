@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log;
+package org.apache.directory.server.core.log;
 
 /** 
  * An exception used when the log content could be invalid.

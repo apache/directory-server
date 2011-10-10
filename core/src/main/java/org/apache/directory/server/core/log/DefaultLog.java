@@ -1,13 +1,8 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.io.IOException;
 
-import org.apache.directory.server.log.InvalidLogException;
-import org.apache.directory.server.log.Log;
-import org.apache.directory.server.log.LogAnchor;
-import org.apache.directory.server.log.LogScanner;
-import org.apache.directory.server.log.UserLogRecord;
 
 public class DefaultLog implements Log
 {

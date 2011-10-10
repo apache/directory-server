@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.nio.ByteBuffer;
 
@@ -11,11 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.EOFException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.log.InvalidLogException;
-import org.apache.directory.server.log.LogAnchor;
-import org.apache.directory.server.log.LogAnchorComparator;
-import org.apache.directory.server.log.LogScanner;
-import org.apache.directory.server.log.UserLogRecord;
 
 class LogManager
 {

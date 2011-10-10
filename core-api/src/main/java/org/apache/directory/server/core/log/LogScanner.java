@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log;
+package org.apache.directory.server.core.log;
 
 
 import java.io.IOException;

@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 import java.nio.ByteBuffer;
 
@@ -12,9 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.IOException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.log.InvalidLogException;
-import org.apache.directory.server.log.LogAnchor;
-import org.apache.directory.server.log.UserLogRecord;
 
 /**
  * Manages the flushing of log to media and scanning of logs. All appends to the log file go through this class. 
@@ -162,9 +159,11 @@ class LogFlushManager
                     }
                     else 
                     {
-                        assert( logBuffer.writeHeadRewindCount == ( readHeadRewindCount + 1 ) ) : 
-                                "Unexpected sequence number for read/write heads:" + logBuffer.writeHeadRewindCount +
-                                " " + readHeadRewindCount;
+                        if ( logBuffer.writeHeadRewindCount != ( readHeadRewindCount + 1 )  )
+                        {
+                            throw new IllegalStateException( "Unexpected sequence number for read/write heads:" + logBuffer.writeHeadRewindCount +
+                                    " " + readHeadRewindCount );
+                        }
                         
                         if ( ( readHeadPosition - writeHead.position() ) > recordSize )
                         {
@@ -353,7 +352,11 @@ class LogFlushManager
             if ( flushStatus.flushedLSN > flushStatus.uptoLSN )
             {
                 // This should only happen with append lock held
-                assert( appendLockHeld == true ) : "FlushedLSN went ahead of uptoLSN while appendlock is not held: " + flushStatus.flushedLSN + "  " + flushStatus.uptoLSN;
+                if ( appendLockHeld == false )
+                {
+                    throw new IllegalStateException( "FlushedLSN went ahead of uptoLSN while appendlock is not held: " + 
+                        flushStatus.flushedLSN + "  " + flushStatus.uptoLSN);
+                }
                 
                 flushStatus.uptoLSN = flushStatus.flushedLSN;
             }
@@ -413,9 +416,12 @@ class LogFlushManager
                 
                 magicNumber = readHead.getInt();
                 
-                assert( magicNumber == LogFileRecords.RECORD_HEADER_MAGIC_NUMBER ) : " Record header magic " +
-                		"number does not match " + magicNumber + " expected "+ 
-                		LogFileRecords.RECORD_HEADER_MAGIC_NUMBER;
+                if ( magicNumber != LogFileRecords.RECORD_HEADER_MAGIC_NUMBER )
+                {
+                    throw new IllegalStateException( " Record header magic " +
+                        "number does not match " + magicNumber + " expected "+ 
+                        LogFileRecords.RECORD_HEADER_MAGIC_NUMBER );
+                }
                 
                 length = readHead.getInt();
                 
@@ -427,9 +433,12 @@ class LogFlushManager
       
                 
                 // Sanitize length, it includes header and footer overhead
-                assert( length >  ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE) ) :
-                    "Record length doesnt make sense:" + length + " expected:" +
-                    ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER);
+                
+                if ( length <= ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE) )
+                {
+                    throw new IllegalStateException( "Record length doesnt make sense:" + length + " expected:" +
+                        ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER) );
+                }
                 
                 // Add to the total length
                 totalLength += length;

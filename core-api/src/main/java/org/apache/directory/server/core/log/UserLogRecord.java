@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log;
+package org.apache.directory.server.core.log;
 
 /** 
  * A user log record that can be used to pass user record between the clients and the logger

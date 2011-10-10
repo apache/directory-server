@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
 
 public class LogFileRecords

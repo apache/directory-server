@@ -1,8 +1,6 @@
 
-package org.apache.directory.server.log.impl;
+package org.apache.directory.server.core.log;
 
-import org.apache.directory.server.log.LogScanner;
-import org.apache.directory.server.log.LogAnchor;
 
 public interface LogScannerInternal extends LogScanner
 {
