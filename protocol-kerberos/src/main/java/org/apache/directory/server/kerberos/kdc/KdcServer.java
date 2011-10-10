@@ -29,8 +29,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import net.sf.ehcache.Cache;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.kerberos.protocol.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
+import org.apache.directory.server.kerberos.protocol.codec.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;

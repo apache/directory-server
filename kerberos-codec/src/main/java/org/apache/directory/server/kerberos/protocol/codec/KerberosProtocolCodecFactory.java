@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.protocol;
+package org.apache.directory.server.kerberos.protocol.codec;
 
 
 import org.apache.mina.core.session.IoSession;
