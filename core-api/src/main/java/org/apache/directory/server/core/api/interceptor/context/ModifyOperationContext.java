@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
