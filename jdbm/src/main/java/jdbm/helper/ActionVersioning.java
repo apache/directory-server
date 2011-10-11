@@ -153,7 +153,11 @@ public class ActionVersioning
     {
         long numActions = version.getNumActions().decrementAndGet();
         
-        assert( numActions >= 0 ) : "NumActions zero when read action is ended : " + version;
+        if ( numActions < 0 )
+        {
+            throw new IllegalStateException( "NumActions zero when read action is ended : " + version );
+        }
+
         
         if ( ( numActions > 0 ) || ( version == readReference.get() ) )
         {

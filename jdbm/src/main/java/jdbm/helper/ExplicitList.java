@@ -75,7 +75,11 @@ public class ExplicitList<T>
 
         public void remove()
         {
-            assert( isLinked() ) : "Trying to remove from list an unlinked link";
+            if ( isLinked() == false )
+            {
+                throw new IllegalStateException( "Trying to remove from list an unlinked link" );
+            }
+ 
             this.getPrev().setNext( this.getNext() );
             this.getNext().setPrev( this.getPrev() );
             this.reset();
@@ -84,7 +88,11 @@ public class ExplicitList<T>
 
         public void addAfter( Link<V> after )
         {
-            assert( this.isUnLinked() ) : "Trying to add to list already linked link: " + this;
+            if ( this.isUnLinked() == false )
+            {
+                throw new IllegalStateException( "Trying to add to list already linked link: " + this );
+            }
+            
             after.getNext().setPrev( this );
             this.setNext( after.getNext() );
             after.setNext( this );
@@ -94,7 +102,11 @@ public class ExplicitList<T>
 
         public void addBefore( Link<V> before )
         {
-            assert( this.isUnLinked() ) : "Trying to add to list already linked link: " + this;
+            if ( this.isUnLinked() == false )
+            {
+                throw new IllegalStateException( "Trying to add to list already linked link: " + this );
+            }
+  
             before.getPrev().setNext( this );
             this.setPrev( before.getPrev() );
             before.setPrev( this );
@@ -138,7 +150,11 @@ public class ExplicitList<T>
 
         public void uninit()
         {
-            assert ( this.isUnLinked() ) :  " Unitializing a still linked entry" + this;
+            if ( this.isUnLinked() == false )
+            {
+                throw new IllegalStateException( " Unitializing a still linked entry" + this );
+            }
+   
             element = null;
         }
 
@@ -164,7 +180,11 @@ public class ExplicitList<T>
 
     public void remove( Link<T> link )
     {
-        assert( listSize > 0 ) : "Trying to remove link " + link + " from a list with no elements";
+        if ( listSize <= 0 )
+        {
+            throw new IllegalStateException( "Trying to remove link " + link + " from a list with no elements" );
+        }
+
         listSize--;
         link.remove();
     }

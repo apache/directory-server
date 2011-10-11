@@ -743,7 +743,10 @@ public class BTree<K, V> implements Externalizable
      */
     BPage<K, V> getRoot( ) throws IOException
     {        
-        assert( this.rootId == metaRoot.rootID) : "Stale root id " + this.rootId + " "+ metaRoot.rootID;
+        if ( rootId != metaRoot.rootID )
+        {
+            throw new IllegalStateException( "Stale root id " + this.rootId + " "+ metaRoot.rootID );
+        }
         
         if ( this.rootId == 0 )
         {
@@ -864,7 +867,6 @@ public class BTree<K, V> implements Externalizable
     {
         if ( context != null )
         {
-            assert( isActionCapable == true );
             ( ( ActionRecordManager )recordManager ).setCurrentActionContext( context );
         }
     }
@@ -874,7 +876,6 @@ public class BTree<K, V> implements Externalizable
     {
         if ( context != null )
         {
-            assert( isActionCapable == true );
             ( ( ActionRecordManager )recordManager ).unsetCurrentActionContext( context );
         }
     }
@@ -897,7 +898,6 @@ public class BTree<K, V> implements Externalizable
     {
         if ( context != null )
         {
-            assert( isActionCapable );
             ( ( ActionRecordManager )recordManager ).endAction( context );
         }
     }
@@ -907,7 +907,6 @@ public class BTree<K, V> implements Externalizable
     {
         if ( context != null )
         {
-            assert( isActionCapable );
             ( ( ActionRecordManager )recordManager ).abortAction( context );
         }
 
