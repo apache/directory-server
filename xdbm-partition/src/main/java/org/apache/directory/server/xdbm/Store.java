@@ -35,6 +35,11 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
+import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.partition.index.ParentIdAndRdn;
+import org.apache.directory.server.core.partition.index.IndexNotFoundException;
+import org.apache.directory.server.core.partition.index.IndexCursor;
+
 
 /**
  * Represents an entry store based on the Table, Index, and MasterTable

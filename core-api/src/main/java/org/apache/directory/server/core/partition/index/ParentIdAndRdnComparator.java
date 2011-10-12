@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.xdbm;
+package org.apache.directory.server.core.partition.index;
 
 
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;

@@ -20,8 +20,8 @@
 package org.apache.directory.server.xdbm.tools;
 
 
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.partition.index.IndexCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import java.io.OutputStream;

@@ -23,7 +23,7 @@ package org.apache.directory.server.xdbm.impl.avl;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.directory.server.xdbm.MasterTable;
+import org.apache.directory.server.core.partition.index.MasterTable;
 
 
 /**

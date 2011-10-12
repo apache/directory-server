@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.core.partition.index.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.filter.AndNode;

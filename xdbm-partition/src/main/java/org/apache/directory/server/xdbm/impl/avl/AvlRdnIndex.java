@@ -23,8 +23,8 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
+import org.apache.directory.server.core.partition.index.ParentIdAndRdn;
+import org.apache.directory.server.core.partition.index.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;

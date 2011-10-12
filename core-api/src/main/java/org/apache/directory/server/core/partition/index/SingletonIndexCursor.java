@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.xdbm;
+package org.apache.directory.server.core.partition.index;
 
 
 import org.apache.directory.server.i18n.I18n;

@@ -61,6 +61,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.directory.server.core.partition.index.Index;
+
 
 /**
  * Tests the {@link AbstractStore} class.

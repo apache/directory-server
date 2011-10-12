@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;

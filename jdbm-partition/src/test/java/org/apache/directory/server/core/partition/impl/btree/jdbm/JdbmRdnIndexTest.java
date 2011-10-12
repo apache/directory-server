@@ -30,9 +30,9 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.partition.index.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;

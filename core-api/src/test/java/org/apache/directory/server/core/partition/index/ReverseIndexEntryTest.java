@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm;
+package org.apache.directory.server.core.partition.index;
 
 
 import static junit.framework.Assert.assertEquals;
@@ -32,20 +32,20 @@ import org.junit.Test;
 
 
 /**
- * Tests the {@link ForwardIndexEntry} class.
+ * Tests the {@link ReverseIndexEntry} class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ForwardIndexEntryTest
+public class ReverseIndexEntryTest
 {
 
-    private ForwardIndexEntry<String, Long> indexEntry;
+    private ReverseIndexEntry<String, Long> indexEntry;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new ReverseIndexEntry<String, Long>();
     }
 
 
@@ -86,8 +86,8 @@ public class ForwardIndexEntryTest
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getValue() );
 
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
-        assertEquals( new Tuple<String, Long>( "a", 1L ), indexEntry.getTuple() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry.getTuple() );
         assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
@@ -95,7 +95,7 @@ public class ForwardIndexEntryTest
     @Test
     public void testClear()
     {
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
         indexEntry.clear();
 
         assertNull( indexEntry.getId() );
@@ -111,10 +111,10 @@ public class ForwardIndexEntryTest
     public void testCopy()
     {
         // prepare index entry
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
 
         // create empty index entry and assert empty values
-        ForwardIndexEntry<String, Long> indexEntry2 = new ForwardIndexEntry<String, Long>();
+        ReverseIndexEntry<String, Long> indexEntry2 = new ReverseIndexEntry<String, Long>();
         assertNull( indexEntry2.getId() );
         assertNull( indexEntry2.getValue() );
         assertNull( indexEntry2.getEntry() );
@@ -127,14 +127,14 @@ public class ForwardIndexEntryTest
         assertEquals( Long.valueOf( 1L ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getValue() );
         assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
-        assertEquals( new Tuple<String, Long>( "a", 1L ), indexEntry2.getTuple() );
+        assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry2.getTuple() );
     }
 
 
     @Test
     public void testToString()
     {
-        indexEntry.setTuple( new Tuple<String, Long>( "asdfghjkl", 1234567890L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1234567890L, "asdfghjkl" ), new DefaultEntry() );
         assertTrue( indexEntry.toString().contains( "asdfghjkl" ) );
         assertTrue( indexEntry.toString().contains( "1234567890" ) );
     }

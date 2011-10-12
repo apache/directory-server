@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.core.partition.index.Index;
 
 /**
  * An annotation for the Index creation. It's used when we need to inject an

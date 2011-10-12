@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm;
+package org.apache.directory.server.core.partition.index;
 
 
 import static junit.framework.Assert.assertNotNull;

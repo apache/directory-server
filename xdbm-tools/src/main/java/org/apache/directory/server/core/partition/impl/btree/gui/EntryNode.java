@@ -30,9 +30,9 @@ import java.util.Map;
 import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.entry.Entry;

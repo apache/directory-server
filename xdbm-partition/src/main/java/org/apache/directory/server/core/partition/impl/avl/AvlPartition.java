@@ -25,7 +25,7 @@ import java.net.URI;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.core.partition.index.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
 import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;

@@ -21,10 +21,10 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
