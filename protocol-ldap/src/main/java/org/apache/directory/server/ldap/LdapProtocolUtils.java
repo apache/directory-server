@@ -62,7 +62,7 @@ public class LdapProtocolUtils
     {
         if ( request.getControls() != null )
         {
-            request.addAllControls( request.getControls().values().toArray( LdapProtocolConstants.EMPTY_CONTROLS ) );
+            opContext.addRequestControls( request.getControls().values().toArray( LdapProtocolConstants.EMPTY_CONTROLS ) );
         }
     }
 
@@ -76,7 +76,7 @@ public class LdapProtocolUtils
      */
     public static void setResponseControls( OperationContext opContext, Response response ) throws Exception
     {
-        opContext.addRequestControls( opContext.getResponseControls() );
+        response.addAllControls( opContext.getResponseControls() );
     }
     
     
