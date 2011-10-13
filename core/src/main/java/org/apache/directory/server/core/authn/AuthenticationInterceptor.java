@@ -1075,16 +1075,19 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     if ( expired )
                     {
                         Attribute pwdGraceUseAttr = userEntry.get( PWD_GRACE_USE_TIME_AT );
+                        int numGraceAuth = 0;
                         if ( pwdGraceUseAttr != null )
                         {
-                            pwdRespCtrl.getResponse().setGraceAuthNsRemaining( policyConfig.getPwdGraceAuthNLimit()
-                                - ( pwdGraceUseAttr.size() + 1 ) );
+                        	numGraceAuth = policyConfig.getPwdGraceAuthNLimit() - ( pwdGraceUseAttr.size() + 1 );
                         }
                         else
                         {
                             pwdGraceUseAttr = new DefaultAttribute( AT_PWD_GRACE_USE_TIME );
+                            numGraceAuth = policyConfig.getPwdGraceAuthNLimit() - 1;
                         }
 
+                        pwdRespCtrl.getResponse().setGraceAuthNsRemaining( numGraceAuth );
+                        
                         pwdGraceUseAttr.add( DateUtils.getGeneralizedTime() );
                         Modification pwdGraceUseMod = new DefaultModification( ADD_ATTRIBUTE, pwdGraceUseAttr );
                         mods.add( pwdGraceUseMod );
@@ -1107,7 +1110,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 int expiryWarnTime = getPwdTimeBeforeExpiry( userEntry, policyConfig );
                 if ( expiryWarnTime > 0 )
                 {
-                    pwdRespCtrl.getResponse().setTimeBeforeExpiration( expiryWarnTime );
+                	pwdRespCtrl.getResponse().setTimeBeforeExpiration( expiryWarnTime );
                 }
 
                 if ( isPwdMustReset( userEntry ) )
@@ -1244,8 +1247,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return 0;
         }
 
-        Attribute pwdExpireWarningAt = userEntry.get( PWD_EXPIRE_WARNING_AT );
-        if ( pwdExpireWarningAt == null )
+        int warningAge = policyConfig.getPwdExpireWarning();
+        
+        if ( warningAge <= 0 )
         {
             return 0;
         }
@@ -1253,15 +1257,17 @@ public class AuthenticationInterceptor extends BaseInterceptor
         Attribute pwdChangedTimeAt = userEntry.get( PWD_CHANGED_TIME_AT );
         long changedTime = DateUtils.getDate(pwdChangedTimeAt.getString()).getTime();
 
-        int pwdAge = ( int ) ( System.currentTimeMillis() - changedTime ) / 1000;
+        long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+        
+        int pwdAge = ( int ) ( currentTime - changedTime ) / 1000;
 
         if ( pwdAge > policyConfig.getPwdMaxAge() )
         {
             return 0;
         }
 
-        int warningAge = ( int ) ( DateUtils.getDate( pwdExpireWarningAt.getString() ).getTime() ) / 1000;
-
+        warningAge = policyConfig.getPwdMaxAge() - warningAge;
+        
         if ( pwdAge >= warningAge )
         {
             return policyConfig.getPwdMaxAge() - pwdAge;
@@ -1291,7 +1297,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         	long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
         	changedTime += policyConfig.getPwdMinAge() * 1000;
         	
-        	if ( changedTime > System.currentTimeMillis() )
+        	long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+        	
+        	if ( changedTime > currentTime )
         	{
         		return true;
         	}
