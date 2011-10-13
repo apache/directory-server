@@ -432,6 +432,73 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     }
 
     
+    @Test
+    public void testPwdHistory() throws Exception
+    {
+        policyConfig.setPwdInHistory( 2 );
+        
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+
+        Dn userDn = new Dn( "cn=userPwdHist,ou=system" );
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(), 
+            "ObjectClass: top", 
+            "ObjectClass: person", 
+            "cn: userPwdHist",
+            "sn: userPwdHist_sn", 
+            "userPassword: 12345" );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        connection.add( addRequest );
+        
+        Entry entry = connection.lookup( userDn, "*", "+" );
+        
+        Attribute pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
+        assertNotNull( pwdHistAt );
+        assertEquals( 1, pwdHistAt.size() );
+        
+        Thread.sleep( 1000 );// to avoid creating a history value with the same timestamp
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
+        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "67891" );
+
+        connection.modify( modReq );
+        
+        entry = connection.lookup( userDn, "*", "+" );
+        
+        pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
+        assertNotNull( pwdHistAt );
+        assertEquals( 2, pwdHistAt.size() );
+        
+        Thread.sleep( 1000 );// to avoid creating a history value with the same timestamp
+        modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
+        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "abcde" );
+
+        ModifyResponse modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        
+        entry = connection.lookup( userDn, "*", "+" );
+        pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
+        assertNotNull( pwdHistAt );
+        
+        // it should still hold only 2 values
+        assertEquals( 2, pwdHistAt.size() );
+        
+        // try to reuse the password, should fail
+        modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
+        
+        PasswordPolicy respCtrl = getPwdRespCtrl( modResp );
+        assertEquals( PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+    }
+    
+    
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
         Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );

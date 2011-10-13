@@ -624,7 +624,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 	pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
                 }
                 
-                Set<PasswordHistory> pwdHistSet = new TreeSet<PasswordHistory>();
+                List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
 
                 for ( Value<?> value : pwdHistoryAt  )
                 {
@@ -646,22 +646,25 @@ public class AuthenticationInterceptor extends BaseInterceptor
                             "invalid reuse of password present in password history" );
                     }
 
-                    pwdHistSet.add( pwdh );
+                    pwdHistLst.add( pwdh );
                 }
 
-                PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
-                pwdHistSet.add( newPwdHist );
-
+                if ( pwdHistLst.size() >= histSize )
+                {
+                	// see the javadoc of PasswordHistory
+                	Collections.sort( pwdHistLst );
+                	
+                	// remove the oldest value
+                	PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
+                	Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
+                	tempAt.add( remPwdHist.getHistoryValue() );
+                	pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
+                }
+                
                 pwdHistoryAt.clear();
+                PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
                 pwdHistoryAt.add( newPwdHist.getHistoryValue() );
                 pwdAddHistMod = new DefaultModification( ADD_ATTRIBUTE, pwdHistoryAt );
-
-                if ( pwdHistSet.size() > histSize )
-                {
-                    PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistSet.toArray()[histSize - 1];
-                    pwdHistoryAt.add( remPwdHist.getHistoryValue() );
-                    pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdHistoryAt );
-                }
             }
 
             next.modify( modifyContext );

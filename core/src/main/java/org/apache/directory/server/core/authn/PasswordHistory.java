@@ -23,13 +23,15 @@ package org.apache.directory.server.core.authn;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.util.Base64;
-import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 
 
 /**
  * A class to hold the data of historical passwords of a entry.
- *
+ * Note: This class's natural ordering is inconsistent with the equals() method
+ *       hence it is advised not to use this in any implementations of sorted sets
+ *       Instead use Collections.sort() to sort the collection of PasswordHistory objects.
+ *       
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -131,7 +133,8 @@ public class PasswordHistory implements Comparable<PasswordHistory>
 
         PasswordHistory other = ( PasswordHistory ) o;
 
-        return this.getTime().equals( other.getTime() );
+        return this.getTime().equals( other.getTime() ) &&
+               this.data.equals( other.data );
     }
 
 
@@ -153,12 +156,5 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     {
         return "PasswordHistory [time=" + time + ", syntaxOID=" + syntaxOID + ", length=" + length + ", data=" + data
             + "]";
-    }
-    
-    public static void main( String[] args )
-    {
-        byte[] pwdhBytes = new PasswordHistory( DateUtils.getGeneralizedTime(), "secret".getBytes() ).getHistoryValue();
-        PasswordHistory pwdHistory = new PasswordHistory( Strings.utf8ToString(pwdhBytes) );
-        System.out.println( pwdHistory );
     }
 }
