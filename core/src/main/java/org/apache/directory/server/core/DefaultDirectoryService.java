@@ -79,10 +79,11 @@ import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
+import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
@@ -463,13 +464,12 @@ public class DefaultDirectoryService implements DirectoryService
 
         for ( Interceptor interceptor : interceptors )
         {
-            String name = interceptor.getName();
-
-            if ( names.contains( name ) )
+            if ( names.contains( interceptor.getName() ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
             }
-            names.add( name );
+            
+            names.add( interceptor.getName() );
         }
 
         this.interceptors = interceptors;
@@ -1938,7 +1938,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public boolean isPwdPolicyEnabled()
     {
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
         
         if ( authenticationInterceptor == null )
         {
