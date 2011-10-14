@@ -184,7 +184,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     {
         getLdapServer().setMaxTimeLimit( oldMaxTimeLimit );
         getLdapServer().setMaxSizeLimit( oldMaxSizeLimit );
-        getLdapServer().getDirectoryService().getInterceptorChain().remove( DelayInducingInterceptor.class.getName() );
+        getLdapServer().getDirectoryService().getInterceptorChain().remove( DelayInducingInterceptor.class.getSimpleName() );
     }
     
 

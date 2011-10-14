@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -37,18 +36,6 @@ import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
-import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
-import org.apache.directory.server.core.event.EventInterceptor;
-import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.normalization.NormalizationInterceptor;
-import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
@@ -99,19 +86,19 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     static
     {
         Set<String> c = new HashSet<String>();
-        c.add( NormalizationInterceptor.class.getName() );
-        c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
-        c.add( AciAuthorizationInterceptor.class.getName() );
-        c.add( DefaultAuthorizationInterceptor.class.getName() );
-        c.add( AdministrativePointInterceptor.class.getName() );
-        c.add( ExceptionInterceptor.class.getName() );
-        c.add( OperationalAttributeInterceptor.class.getName() );
-        c.add( SchemaInterceptor.class.getName() );
-        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
-        c.add( EventInterceptor.class.getName() );
-        c.add( TriggerInterceptor.class.getName() );
+        c.add( "NormalizationInterceptor" );
+        c.add( "AuthenticationInterceptor" );
+        c.add( "ReferralInterceptor" );
+        c.add( "AciAuthorizationInterceptor" );
+        c.add( "DefaultAuthorizationInterceptor" );
+        c.add( "AdministrativePointInterceptor" );
+        c.add( "ExceptionInterceptor" );
+        c.add( "OperationalAttributeInterceptor" );
+        c.add( "SchemaInterceptor" );
+        c.add( "CollectiveAttributeInterceptor" );
+        c.add( "SubentryInterceptor" );
+        c.add( "EventInterceptor" );
+        c.add( "TriggerInterceptor" );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 
