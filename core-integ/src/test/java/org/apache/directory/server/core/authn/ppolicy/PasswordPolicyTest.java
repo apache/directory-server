@@ -111,11 +111,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
         policyContainer.setDefaultPolicy( policyConfig );
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getService().getInterceptor( AuthenticationInterceptor.class.getName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getService().getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
         authenticationInterceptor.setPwdPolicies( policyContainer );
         
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
-        .getInterceptor( AuthenticationInterceptor.class.getName() );
+        .getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
         
         authInterceptor.loadPwdPolicyStateAtributeTypes();
     }

@@ -61,6 +61,21 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-interceptors-authn</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-interceptors-hash</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
     

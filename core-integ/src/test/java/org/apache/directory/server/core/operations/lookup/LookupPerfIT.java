@@ -53,7 +53,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * A lookup performance test
      */
     @Test
-    @Ignore("Ignore atm, this is a perf test")
+    //@Ignore("Ignore atm, this is a perf test")
     public void testPerfLookup() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );

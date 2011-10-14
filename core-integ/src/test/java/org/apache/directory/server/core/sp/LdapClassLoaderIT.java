@@ -36,6 +36,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.shared.sp.LdapClassLoader;
 import org.apache.directory.shared.util.Base64;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1313,7 +1313,7 @@ public class ServiceBuilder
             directoryService.setJournal( journal );
         }
         
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
 
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );

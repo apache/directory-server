@@ -72,18 +72,34 @@ public class DeletePerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        Dn dn = new Dn( "cn=test,dc=example,dc=com" );
-        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
+        Dn dn1 = new Dn( "cn=test,dc=example,dc=com" );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn1 );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
         entry.add( "cn", "test" );
         
-        connection.add(entry );
+        connection.add( entry );
         
+        Dn dn2 = new Dn( "cn=test1,cn=test,dc=example,dc=com" );
+        Entry entry2 = new DefaultEntry( getService().getSchemaManager(), dn2 );
+        entry2.add( "ObjectClass", "top", "person" );
+        entry2.add( "sn", "TEST1" );
+        entry2.add( "cn", "test1" );
+        
+        connection.add( entry2 );
+
+        Dn dn3 = new Dn( "cn=test2,cn=test,dc=example,dc=com" );
+        Entry entry3 = new DefaultEntry( getService().getSchemaManager(), dn3 );
+        entry3.add( "ObjectClass", "top", "person" );
+        entry3.add( "sn", "TEST2" );
+        entry3.add( "cn", "test2" );
+        
+        connection.add( entry3 );
+
         // Deletion
-        dn = new Dn( "cn=test,dc=example,dc=com" );
-        
-        connection.delete( dn );
+        connection.delete( dn3 );
+        connection.delete( dn2 );
+        connection.delete( dn1 );
 
         connection.close();
     }

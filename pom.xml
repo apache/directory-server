@@ -106,8 +106,10 @@
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>
     <module>xdbm-tools</module>
-    <module>core</module>
+    <module>core-shared</module>
     <module>core-api</module>
+    <module>interceptors</module>
+    <module>core</module>
     <module>core-annotations</module>
     <module>server-annotations</module>
     <module>core-jndi</module>
@@ -543,6 +545,12 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-shared</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+     
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-default-config</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -559,12 +567,110 @@
         <version>${project.version}</version>
       </dependency>
       
+      <!-- Interceptors --> 
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-admin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-authn</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-authz</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-changelog</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-collective</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-event</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-exception</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-hash</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-journal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-interceptor-kerberos</artifactId>
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-logger</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-normalization</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-operational</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-referral</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-subtree</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-trigger</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- Interceptors --> 
+
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-jdbm</artifactId>
