@@ -221,7 +221,8 @@ public class InterceptorChain
                     LOG.debug( "Adding interceptor " + interceptor.getName() );
                 }
 
-                register( interceptor );
+                Interceptor interceptorInstance = directoryService.getInterceptor( interceptor.getName() );
+                register( interceptorInstance );
             }
         }
         catch ( Throwable t )

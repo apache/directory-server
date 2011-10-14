@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.directory.server.core.sp.StoredProcEngine;
-import org.apache.directory.server.core.sp.StoredProcEngineConfig;
-import org.apache.directory.server.core.sp.StoredProcExecutionManager;
-import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
+import org.apache.directory.server.core.shared.sp.StoredProcEngine;
+import org.apache.directory.server.core.shared.sp.StoredProcEngineConfig;
+import org.apache.directory.server.core.shared.sp.StoredProcExecutionManager;
+import org.apache.directory.server.core.shared.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;

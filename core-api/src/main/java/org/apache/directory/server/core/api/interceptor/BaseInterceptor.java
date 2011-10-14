@@ -122,7 +122,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public String getName()
     {
-        return getClass().getName();
+        return getClass().getSimpleName();
     }
 
 
