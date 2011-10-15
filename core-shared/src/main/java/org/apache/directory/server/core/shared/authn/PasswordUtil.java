@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.authn;
+package org.apache.directory.server.core.shared.authn;
 
 
 import java.io.UnsupportedEncodingException;

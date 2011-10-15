@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.authn.ppolicy;
+package org.apache.directory.server.core.shared.authn.ppolicy;
 
 /**
  * An interface for implementing password quality verifiers.

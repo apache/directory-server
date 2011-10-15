@@ -69,7 +69,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.shared.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.journal.DefaultJournal;

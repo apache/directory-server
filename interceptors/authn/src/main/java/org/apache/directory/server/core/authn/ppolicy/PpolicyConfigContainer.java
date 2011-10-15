@@ -24,6 +24,7 @@ package org.apache.directory.server.core.authn.ppolicy;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.server.core.shared.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 

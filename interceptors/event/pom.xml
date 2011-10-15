@@ -61,12 +61,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-interceptors-normalization</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-interceptors-normalization</artifactId>
+      <artifactId>apacheds-core-shared</artifactId>
     </dependency>
     
     <dependency>

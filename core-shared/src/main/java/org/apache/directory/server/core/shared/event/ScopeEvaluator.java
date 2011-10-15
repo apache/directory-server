@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.event;
+package org.apache.directory.server.core.shared.event;
 
 
 import org.apache.directory.server.core.api.event.Evaluator;

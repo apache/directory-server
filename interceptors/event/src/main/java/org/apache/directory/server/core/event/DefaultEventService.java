@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.event.RegistrationEntry;
-import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.shared.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
