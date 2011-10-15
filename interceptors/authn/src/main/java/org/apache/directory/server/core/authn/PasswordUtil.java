@@ -498,12 +498,12 @@ public class PasswordUtil
         long time = pwdMaxAgeSec * 1000;
         time += pwdChangeDate.getTime();
 
-        Date expiryDate = new Date( time );
-        Date now = new Date();
+        Date expiryDate = DateUtils.getDate( DateUtils.getGeneralizedTime( time ) );
+        Date now = DateUtils.getDate( DateUtils.getGeneralizedTime() );
 
         boolean expired = false;
 
-        if ( expiryDate.equals( now ) || expiryDate.after( now ) )
+        if ( expiryDate.equals( now ) || expiryDate.before( now ) )
         {
             expired = true;
         }
@@ -527,7 +527,7 @@ public class PasswordUtil
 
         interval *= 1000;
 
-        long currentTime = System.currentTimeMillis();
+        long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
         List<Value<?>> valList = new ArrayList<Value<?>>();
 
         for ( Value<?> value : pwdFailTimeAt )
