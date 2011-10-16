@@ -27,6 +27,7 @@
   
   <artifactId>apacheds-server-replication</artifactId>
   <name>ApacheDS Server Replication Service</name>
+  <packaging>bundle</packaging>
   
   <description>
     A multi-master replication service for replicating information
@@ -49,4 +50,23 @@
       <artifactId>shared-util</artifactId>
     </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

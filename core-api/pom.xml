@@ -29,7 +29,7 @@
   
   <artifactId>apacheds-core-api</artifactId>
   <name>ApacheDS Core API</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <description>
     Contains interfaces and helper classes that are part of the ApacheDS Core API.
@@ -145,6 +145,21 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
   </build>

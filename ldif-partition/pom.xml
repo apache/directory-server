@@ -27,6 +27,7 @@
   
   <artifactId>apacheds-ldif-partition</artifactId>
   <name>ApacheDS LDIF Partition</name>
+  <packaging>bundle</packaging>
 
   <description>A partition that backs it's entries and indices in AvlTrees within memory.</description>
 
@@ -98,6 +99,21 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
   </build>

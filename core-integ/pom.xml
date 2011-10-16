@@ -29,6 +29,7 @@
   
   <artifactId>apacheds-core-integ</artifactId>
   <name>ApacheDS Core Integration</name>
+  <packaging>bundle</packaging>
 
   <description>Integration testing framework for Apache Directory Server.</description>
 
@@ -164,6 +165,21 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <inherited>true</inherited>
+            <extensions>true</extensions>
+            <configuration>
+              <instructions>
+                <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                <Export-Package>
+                    {local-packages};version=${project.version};-noimport:=true
+                </Export-Package>
+              </instructions>
+            </configuration>
+          </plugin> 
     </plugins>
   </build>
 
@@ -405,7 +421,7 @@ WARNING: Long running integration tests have been disabled!
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin>     
         </plugins>
       </build>
     </profile>

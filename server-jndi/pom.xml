@@ -27,6 +27,7 @@
   
   <artifactId>apacheds-server-jndi</artifactId>
   <name>ApacheDS Server JNDI</name>
+  <packaging>bundle</packaging>
 
   <description>
     The JNDI provider which launches the core and associated network 
@@ -113,6 +114,21 @@
           <systemPropertyVariables>
             <ldifFile>${basedir}/target/test-classes/example.ldif</ldifFile>
           </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>

@@ -29,7 +29,7 @@
   
   <artifactId>apacheds-interceptors-admin</artifactId>
   <name>ApacheDS AdministrativePoint Interceptor</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <description>
     AdministrativePoint interceptor
@@ -166,6 +166,21 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
 

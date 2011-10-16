@@ -25,6 +25,7 @@
   
   <artifactId>apacheds-xdbm-tools</artifactId>
   <name>ApacheDS Generalized (X) DBM Tools</name>
+  <packaging>bundle</packaging>
 
   <description>
     Several kinds of two column key/value data structures, in memory and on  
@@ -66,4 +67,23 @@
       <artifactId>shared-util</artifactId>
     </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

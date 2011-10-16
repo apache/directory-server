@@ -29,7 +29,7 @@
   
   <artifactId>apacheds-core</artifactId>
   <name>ApacheDS Core</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <description>
      Server's core contains the JNDI provider, interceptors, schema, and
@@ -249,6 +249,21 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
 
     <resources>
@@ -262,4 +277,3 @@
     </resources>
   </build>
 </project>
-
