@@ -148,6 +148,8 @@
     -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
+    <module>apache-felix</module>
+    <module>dependencies</module>
   </modules>
 
   <build>
