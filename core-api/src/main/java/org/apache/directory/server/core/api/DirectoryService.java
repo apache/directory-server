@@ -37,6 +37,8 @@ import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.api.subtree.SubentryCache;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -185,6 +187,16 @@ public interface DirectoryService extends ServerEntryFactory
      */
     CoreSession getAdminSession();
     
+    
+    /** 
+     * @return Returns the hash mapping the Dn of a subentry to its SubtreeSpecification/types 
+     **/
+    SubentryCache getSubentryCache();
+
+    /**
+     * @return Returns the subentry evaluator
+     */
+    SubtreeEvaluator getEvaluator();
     
     /**
      * Gets a logical session to perform operations on this DirectoryService

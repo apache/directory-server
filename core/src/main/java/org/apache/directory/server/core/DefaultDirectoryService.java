@@ -66,6 +66,8 @@ import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.api.subtree.SubentryCache;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -272,6 +274,12 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Dn factory */
     private DnFactory dnFactory;
+    
+    /** The Subentry cache */
+    SubentryCache subentryCache = new SubentryCache();
+
+    /** The Subtree evaluator instance */
+    private SubtreeEvaluator evaluator;
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -331,6 +339,7 @@ public class DefaultDirectoryService implements DirectoryService
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
+        evaluator = new SubtreeEvaluator( schemaManager );
     }
 
 
@@ -1960,4 +1969,23 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return dnFactory;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public SubentryCache getSubentryCache()
+    {
+        return subentryCache;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public SubtreeEvaluator getEvaluator()
+    {
+        return evaluator;
+    }
+
 }

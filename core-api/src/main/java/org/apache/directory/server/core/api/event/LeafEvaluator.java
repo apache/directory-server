@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.shared.event;
+package org.apache.directory.server.core.api.event;
 
 
 import java.util.Comparator;

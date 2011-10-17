@@ -33,6 +33,7 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.ExpressionEvaluator;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.event.RegistrationEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -45,7 +46,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.ByPassConstants;
-import org.apache.directory.server.core.shared.event.ExpressionEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;

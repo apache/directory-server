@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.UserClass;

@@ -44,7 +44,7 @@ import org.apache.directory.server.core.shared.sp.StoredProcEngine;
 import org.apache.directory.server.core.shared.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.shared.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.shared.sp.java.JavaStoredProcEngineConfig;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.core.shared.subtree.SubentryUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -96,6 +96,9 @@ public class TriggerInterceptor extends BaseInterceptor
 
     private StoredProcExecutionManager manager;
     
+    /** The SubentryUtils instance */
+    private static SubentryUtils subentryUtils;
+
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
      * TriggerSpeficaitions by accessing the triggerSpecCache.  The trigger
@@ -250,6 +253,9 @@ public class TriggerInterceptor extends BaseInterceptor
         manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
 
         this.enabled = true; // TODO: Get this from the configuration if needed.
+        
+        // Init the SubentryUtils instance
+        subentryUtils = new SubentryUtils( directoryService );
     }
 
 
@@ -442,9 +448,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
-            .getSimpleName() );
-        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes(newDn, importedEntry );
+        Entry fakeImportedEntry = subentryUtils.getSubentryAttributes(newDn, importedEntry );
 
         for ( Attribute attribute : importedEntry )
         {
@@ -516,9 +520,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
-            .getSimpleName() );
-        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
+        Entry fakeImportedEntry = subentryUtils.getSubentryAttributes( newDn, importedEntry );
 
         for ( Attribute attribute : importedEntry )
         {

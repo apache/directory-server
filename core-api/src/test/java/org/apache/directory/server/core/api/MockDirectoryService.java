@@ -47,6 +47,8 @@ import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.api.subtree.SubentryCache;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -558,6 +560,22 @@ public class MockDirectoryService implements DirectoryService
 
     public LdapApiService getLdapCodecService()
     {
+        return null;
+    }
+
+
+    @Override
+    public SubentryCache getSubentryCache()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public SubtreeEvaluator getEvaluator()
+    {
+        // TODO Auto-generated method stub
         return null;
     }
 }

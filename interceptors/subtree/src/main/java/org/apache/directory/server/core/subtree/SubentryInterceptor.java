@@ -30,6 +30,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.directory.server.core.shared.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -50,6 +51,9 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.subtree.Subentry;
+import org.apache.directory.server.core.api.subtree.SubentryCache;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
@@ -103,18 +107,12 @@ public class SubentryInterceptor extends BaseInterceptor
     /** The set of Subentry operational attributes */
     public static AttributeType[] SUBENTRY_OPATTRS;
 
-    /** the hash mapping the Dn of a subentry to its SubtreeSpecification/types */
-    private final SubentryCache subentryCache = new SubentryCache();
-
     /** The SubTree specification parser instance */
     private SubtreeSpecificationParser ssParser;
 
-    /** The Subtree evaluator instance */
-    private SubtreeEvaluator evaluator;
-
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-
+    
     /** An enum used for the entries update */
     private enum OperationEnum
     {
@@ -135,7 +133,7 @@ public class SubentryInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
-            if ( subentryCache.hasSubentry( entry.getDn() ) )
+            if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )
             {
                 return false;
             }
@@ -155,7 +153,7 @@ public class SubentryInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
-            if ( subentryCache.hasSubentry( entry.getDn() ) )
+            if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )
             {
                 return true;
             }
@@ -189,7 +187,6 @@ public class SubentryInterceptor extends BaseInterceptor
             };
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
-        evaluator = new SubtreeEvaluator( schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
@@ -243,7 +240,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     newSubentry.setAdministrativeRoles( getSubentryAdminRoles( subentry ) );
                     newSubentry.setSubtreeSpecification( ss );
 
-                    subentryCache.addSubentry( subentryDn, newSubentry );
+                    directoryService.getSubentryCache().addSubentry( subentryDn, newSubentry );
                 }
             }
             catch ( Exception e )
@@ -355,7 +352,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 Entry candidate = subentries.get();
                 Dn candidateDn = candidate.getDn();
 
-                if ( evaluator.evaluate( ss, apDn, candidateDn, candidate ) )
+                if ( directoryService.getEvaluator().evaluate( ss, apDn, candidateDn, candidate ) )
                 {
                     List<Modification> modifications = null;
 
@@ -518,6 +515,9 @@ public class SubentryInterceptor extends BaseInterceptor
          * would be caused by chop exclusions. In this case we must add subentry
          * operational attribute values with the dn of this subentry.
          */
+        SubentryCache subentryCache = directoryService.getSubentryCache();
+        SubtreeEvaluator evaluator = directoryService.getEvaluator();
+        
         for ( Dn subentryDn : subentryCache )
         {
             Dn apDn = subentryDn.getParent();
@@ -774,12 +774,12 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         List<Modification> modList = new ArrayList<Modification>();
 
-        for ( Dn subentryDn : subentryCache )
+        for ( Dn subentryDn : directoryService.getSubentryCache() )
         {
             Dn apDn = subentryDn.getParent();
-            SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
-            boolean isOldEntrySelected = evaluator.evaluate( ss, apDn, name, oldEntry );
-            boolean isNewEntrySelected = evaluator.evaluate( ss, apDn, name, newEntry );
+            SubtreeSpecification ss = directoryService.getSubentryCache().getSubentry( subentryDn ).getSubtreeSpecification();
+            boolean isOldEntrySelected = directoryService.getEvaluator().evaluate( ss, apDn, name, oldEntry );
+            boolean isNewEntrySelected = directoryService.getEvaluator().evaluate( ss, apDn, name, newEntry );
 
             if ( isOldEntrySelected == isNewEntrySelected )
             {
@@ -890,7 +890,7 @@ public class SubentryInterceptor extends BaseInterceptor
              * ----------------------------------------------------------------
              */
             setSubtreeSpecification( subentry, entry );
-            subentryCache.addSubentry( dn, subentry );
+            directoryService.getSubentryCache().addSubentry( dn, subentry );
 
             // Now inject the subentry into the backend
             next.add( addContext );
@@ -920,19 +920,19 @@ public class SubentryInterceptor extends BaseInterceptor
             // We brutally check *all* the subentries, as we don't hold a hierarchy
             // of AP
             // TODO : add a hierarchy of subentries
-            for ( Dn subentryDn : subentryCache )
+            for ( Dn subentryDn : directoryService.getSubentryCache() )
             {
                 Dn apDn = subentryDn.getParent();
 
                 // No need to evaluate the entry if it's not below an AP.
                 if ( dn.isDescendantOf( apDn ) )
                 {
-                    Subentry subentry = subentryCache.getSubentry( subentryDn );
+                    Subentry subentry = directoryService.getSubentryCache().getSubentry( subentryDn );
                     SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
                     // Now, evaluate the entry wrt the subentry ss
                     // and inject a ref to the subentry if it evaluates to true
-                    if ( evaluator.evaluate( ss, apDn, dn, entry ) )
+                    if ( directoryService.getEvaluator().evaluate( ss, apDn, dn, entry ) )
                     {
 
                         if ( subentry.isAccessControlAdminRole() )
@@ -980,7 +980,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // We first remove the re
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry removedSubentry = subentryCache.getSubentry( dn );
+            Subentry removedSubentry = directoryService.getSubentryCache().getSubentry( dn );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -998,7 +998,7 @@ public class SubentryInterceptor extends BaseInterceptor
             updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn, removedSubentry.getSubtreeSpecification(), baseDn, null );
 
             // Update the cache
-            subentryCache.removeSubentry( dn );
+            directoryService.getSubentryCache().removeSubentry( dn );
 
             // Now delete the subentry itself
             next.delete( deleteContext );
@@ -1064,7 +1064,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // Check if we have a modified subentry attribute in a Subentry entry
         if ( containsSubentryOC && isSubtreeSpecificationModification )
         {
-            Subentry subentry = subentryCache.removeSubentry( dn );
+            Subentry subentry = directoryService.getSubentryCache().removeSubentry( dn );
             SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
@@ -1081,7 +1081,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry.setSubtreeSpecification( ssNew );
             subentry.setAdministrativeRoles( getSubentryTypes( entry, modifications ) );
-            subentryCache.addSubentry( dn, subentry );
+            directoryService.getSubentryCache().addSubentry( dn, subentry );
 
             next.modify( modifyContext );
 
@@ -1109,7 +1109,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     Entry candidate = subentries.get();
                     Dn candidateDn = candidate.getDn();
 
-                    if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
+                    if ( directoryService.getEvaluator().evaluate( ssOld, apName, candidateDn, candidate ) )
                     {
                         nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
                             getOperationalModsForRemove( dn, candidate ) ) );
@@ -1135,7 +1135,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // search for all selected entries by the new SS and add references to subentry
-            subentry = subentryCache.getSubentry( dn );
+            subentry = directoryService.getSubentryCache().getSubentry( dn );
             List<Attribute> operationalAttributes = getSubentryOperationalAttributes( dn, subentry );
             Dn newBaseDn = apName;
             newBaseDn = newBaseDn.add( ssNew.getBase() );
@@ -1152,7 +1152,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     Entry candidate = subentries.get();
                     Dn candidateDn = candidate.getDn();
 
-                    if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
+                    if ( directoryService.getEvaluator().evaluate( ssNew, apName, candidateDn, candidate ) )
                     {
                         nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
                             getOperationalModsForAdd( candidate, operationalAttributes ) ) );
@@ -1241,7 +1241,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // the new parent is an AP
             checkAdministrativeRole( moveContext, newSuperiorDn );
 
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();
             Dn baseDn = apName;
@@ -1250,11 +1250,11 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( oldDn.getRdn() );
             newName.apply( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryCache().addSubentry( newName, subentry );
 
             next.move( moveContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = directoryService.getSubentryCache().getSubentry( newName );
 
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
@@ -1277,7 +1277,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     Dn dn = candidate.getDn();
                     dn.apply( schemaManager );
 
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
                         nexus.modify( new ModifyOperationContext( moveContext.getSession(), dn, getOperationalModsForReplace(
                             oldDn, newName, subentry, candidate ) ) );
@@ -1341,7 +1341,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();
             Dn baseDn = apName;
@@ -1351,11 +1351,11 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( moveAndRenameContext.getNewRdn() );
             newName.apply( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryCache().addSubentry( newName, subentry );
 
             next.moveAndRename( moveAndRenameContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = directoryService.getSubentryCache().getSubentry( newName );
 
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
@@ -1377,7 +1377,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     Dn dn = candidate.getDn();
                     dn.apply( schemaManager );
 
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
                         nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), dn, getOperationalModsForReplace(
                             oldDn, newName, subentry, candidate ) ) );
@@ -1433,7 +1433,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
-            Subentry subentry = subentryCache.removeSubentry( oldDn );
+            Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();
             Dn baseDn = apName;
@@ -1443,10 +1443,10 @@ public class SubentryInterceptor extends BaseInterceptor
             newName = newName.add( renameContext.getNewRdn() );
             newName.apply( schemaManager );
 
-            subentryCache.addSubentry( newName, subentry );
+            directoryService.getSubentryCache().addSubentry( newName, subentry );
             next.rename( renameContext );
 
-            subentry = subentryCache.getSubentry( newName );
+            subentry = directoryService.getSubentryCache().getSubentry( newName );
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -1467,7 +1467,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     Dn dn = candidate.getDn();
                     dn.apply( schemaManager );
 
-                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
                         nexus.modify( new ModifyOperationContext( renameContext.getSession(), dn, getOperationalModsForReplace(
                             oldDn, newName, subentry, candidate ) ) );
@@ -1540,90 +1540,5 @@ public class SubentryInterceptor extends BaseInterceptor
         }
 
         return cursor;
-    }
-
-
-    //-------------------------------------------------------------------------------------------
-    // Shared method
-    //-------------------------------------------------------------------------------------------
-    /**
-     * Evaluates the set of subentry subtrees upon an entry and returns the
-     * operational subentry attributes that will be added to the entry if
-     * added at the dn specified.
-     *
-     * @param dn the normalized distinguished name of the entry
-     * @param entryAttrs the entry attributes are generated for
-     * @return the set of subentry op attrs for an entry
-     * @throws Exception if there are problems accessing entry information
-     */
-    public Entry getSubentryAttributes( Dn dn, Entry entryAttrs ) throws LdapException
-    {
-        Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
-
-        for ( Dn subentryDn : subentryCache )
-        {
-            Dn apDn = subentryDn.getParent();
-            Subentry subentry = subentryCache.getSubentry( subentryDn );
-            SubtreeSpecification ss = subentry.getSubtreeSpecification();
-
-            if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
-            {
-                Attribute operational;
-
-                if ( subentry.isAccessControlAdminRole() )
-                {
-                    operational = subentryAttrs.get( ACCESS_CONTROL_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-
-                if ( subentry.isSchemaAdminRole() )
-                {
-                    operational = subentryAttrs.get( SUBSCHEMA_SUBENTRY_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultAttribute( SUBSCHEMA_SUBENTRY_AT );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-
-                if ( subentry.isCollectiveAdminRole() )
-                {
-                    operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-
-                if ( subentry.isTriggersAdminRole() )
-                {
-                    operational = subentryAttrs.get( TRIGGER_EXECUTION_SUBENTRIES_AT );
-
-                    if ( operational == null )
-                    {
-                        operational = new DefaultAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
-                        subentryAttrs.put( operational );
-                    }
-
-                    operational.add( subentryDn.getNormName() );
-                }
-            }
-        }
-
-        return subentryAttrs;
     }
 }

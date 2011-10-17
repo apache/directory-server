@@ -33,6 +33,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;

@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.api.event.Evaluator;
-import org.apache.directory.server.core.subtree.RefinementEvaluator;
+import org.apache.directory.server.core.shared.subtree.RefinementEvaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;

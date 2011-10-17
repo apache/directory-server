@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.subtree;
+package org.apache.directory.server.core.api.subtree;
 
 
 import java.util.Set;
@@ -47,7 +47,7 @@ public class Subentry
      *
      * @param ss The subtree specification
      */
-    final void setSubtreeSpecification( SubtreeSpecification ss )
+    public final void setSubtreeSpecification( SubtreeSpecification ss )
     {
         this.ss = ss;
     }
@@ -56,7 +56,7 @@ public class Subentry
     /**
      * @return The subtree specification
      */
-    final SubtreeSpecification getSubtreeSpecification()
+    public final SubtreeSpecification getSubtreeSpecification()
     {
         return ss;
     }
@@ -68,13 +68,13 @@ public class Subentry
      *
      * @param administrativeRoles
      */
-    final void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
+    public final void setAdministrativeRoles( Set<AdministrativeRole> administrativeRoles )
     {
         this.administrativeRoles = administrativeRoles;
     }
 
 
-    final Set<AdministrativeRole> getAdministrativeRoles()
+    public final Set<AdministrativeRole> getAdministrativeRoles()
     {
         return administrativeRoles;
     }
@@ -83,7 +83,7 @@ public class Subentry
     /**
      * Tells if the type contains the Collective attribute Administrative Role
      */
-    final boolean isCollectiveAdminRole()
+    public final boolean isCollectiveAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.CollectiveAttributeInnerArea ) ||
         administrativeRoles.contains( AdministrativeRole.CollectiveAttributeSpecificArea );
@@ -93,7 +93,7 @@ public class Subentry
     /**
      * Tells if the type contains the SubSchema Administrative Role
      */
-    final boolean isSchemaAdminRole()
+    public final boolean isSchemaAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.SubSchemaSpecificArea );
     }
@@ -102,7 +102,7 @@ public class Subentry
     /**
      * Tells if the type contains the Access Control Administrative Role
      */
-    final boolean isAccessControlAdminRole()
+    public final boolean isAccessControlAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.AccessControlSpecificArea ) ||
                administrativeRoles.contains( AdministrativeRole.AccessControlInnerArea );
@@ -112,7 +112,7 @@ public class Subentry
     /**
      * Tells if the type contains the Triggers Administrative Role
      */
-    final boolean isTriggersAdminRole()
+    public final boolean isTriggersAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.TriggerExecutionSpecificArea ) ||
                administrativeRoles.contains( AdministrativeRole.TriggerExecutionInnerArea );

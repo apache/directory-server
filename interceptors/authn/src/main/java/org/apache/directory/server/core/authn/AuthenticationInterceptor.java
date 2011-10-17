@@ -24,7 +24,6 @@ import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordP
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_EXPIRE_WARNING_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_HISTORY_AT;
@@ -43,7 +42,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;

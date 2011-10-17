@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.subtree;
+package org.apache.directory.server.core.api.subtree;
 
 
 import java.util.Iterator;
@@ -77,7 +77,7 @@ public class SubentryCache implements Iterable<Dn>
      * @param dn The Dn we want to get the Subentry for
      * @return The found Subentry, or null
      */
-    final Subentry getSubentry( Dn dn )
+    public final Subentry getSubentry( Dn dn )
     {
         return cache.get( dn );
     }
@@ -90,7 +90,7 @@ public class SubentryCache implements Iterable<Dn>
      * associated Subentry
      * @return The removed Subentry, if any
      */
-    final Subentry removeSubentry( Dn dn )
+    public final Subentry removeSubentry( Dn dn )
     {
         Subentry oldSubentry = cache.remove( dn );
         
@@ -111,7 +111,7 @@ public class SubentryCache implements Iterable<Dn>
      * @param adminRoles The administrative roles for this Subentry
      * @return The old Subentry, if any
      */
-    /* No qualifier */ Subentry addSubentry( Dn dn, Subentry subentry )
+    public Subentry addSubentry( Dn dn, Subentry subentry )
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
@@ -134,7 +134,7 @@ public class SubentryCache implements Iterable<Dn>
      * @param dn The Dn
      * @return True if a Subentry is found
      */
-    /* No qualifier */ boolean hasSubentry( Dn dn )
+    public boolean hasSubentry( Dn dn )
     {
         return cache.containsKey( dn );
     }

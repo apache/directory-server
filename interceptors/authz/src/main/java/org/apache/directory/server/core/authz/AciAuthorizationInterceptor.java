@@ -32,6 +32,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.directory.server.core.shared.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -59,7 +60,6 @@ import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -170,6 +170,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private PartitionNexus nexus;
 
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
+    
+    /** The SubentryUtils instance */
+    private static SubentryUtils subentryUtils;
 
 
     /**
@@ -299,6 +302,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Init the caches now
         initTupleCache();
         initGroupCache();
+        
+        // Init the SubentryUtils instance
+        subentryUtils = new SubentryUtils( directoryService );
     }
 
 
@@ -526,9 +532,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
-            .getSimpleName() );
-        Entry subentry = subentryInterceptor.getSubentryAttributes( dn, serverEntry );
+        Entry subentry = subentryUtils.getSubentryAttributes( dn, serverEntry );
 
         for ( Attribute attribute : serverEntry )
         {
@@ -1071,9 +1075,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
-            .getSimpleName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
+        Entry subentryAttrs = subentryUtils.getSubentryAttributes( newDn, importedEntry );
 
         for ( Attribute attribute : importedEntry )
         {
@@ -1165,9 +1167,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
-            .getSimpleName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
+        Entry subentryAttrs = subentryUtils.getSubentryAttributes( newDn, importedEntry );
 
         for ( Attribute attribute : importedEntry )
         {
