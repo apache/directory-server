@@ -150,6 +150,7 @@
     <module>installers</module>
     <module>apache-felix</module>
     <module>dependencies</module>
+    <module>service-osgi</module>
   </modules>
 
   <build>
