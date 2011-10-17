@@ -81,8 +81,10 @@ public class TriggerSpecCache
 
     /** a map of strings to TriggerSpecification collections */
     private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
+    
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
+    
     /** a normalizing TriggerSpecification parser */
     private final TriggerSpecificationParser triggerSpecParser;
 
