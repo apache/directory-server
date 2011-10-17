@@ -106,7 +106,12 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                {local-packages};version=${project.version};-noimport:=true,
+                org.apache.directory.server.core.partition.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.core.partition.impl.btree;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.log.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.xdbm.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.xdbm.search.impl;version="${project.version}";-noimport:=true
             </Export-Package>
           </instructions>
         </configuration>
