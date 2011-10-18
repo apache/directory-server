@@ -1,7 +1,7 @@
 
 package org.apache.directory.server.core.txn;
 
-public interface TxnManagerInternal extends TxnManager
+public interface TxnManagerInternal<ID> extends TxnManager<ID>
 {
-    public Transaction getCurTxn();
+    public Transaction<ID> getCurTxn();
 }

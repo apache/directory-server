@@ -262,6 +262,17 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
+    public ForwardIndexComparator<K,ID> getForwardIndexEntryComparator()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ReverseIndexComparator<K,ID> getReverseIndexEntryComparator()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    
     public void setWkDirPath( URI wkDirPath )
     {
         this.wkDirPath = wkDirPath;

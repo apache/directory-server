@@ -5,10 +5,21 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-public class TxnStateChange extends AbstractLogEdit
+public class TxnStateChange<ID> extends AbstractLogEdit<ID>
 {
+    /** ID of the txn associated with this change */
     long txnID;
+    
+    /** State to record for the txn */
     State txnState;
+    
+    private static final long serialVersionUID = 1;
+    
+    // For deserialization
+    public TxnStateChange()
+    {
+        
+    }
     
     public TxnStateChange( long txnID, State txnState )
     {

@@ -352,5 +352,6 @@ public class LogFlushScanTest
             assertTrue( failed == false );
         }
     }
-
+    
+    
 }

@@ -1,7 +1,7 @@
 
 package org.apache.directory.server.core.txn;
 
-public class ReadOnlyTxn extends AbstractTransaction
+class ReadOnlyTxn<ID> extends AbstractTransaction<ID>
 {
    
 }

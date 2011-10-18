@@ -3,10 +3,13 @@ package org.apache.directory.server.core.txn;
 
 import java.util.List;
 
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
-interface Transaction
+
+interface Transaction<ID>
 {
-    public List<ReadWriteTxn> getTxnsToCheck();
+    public List<ReadWriteTxn<ID>> getTxnsToCheck();
     
     public long getStartTime();
     
@@ -18,8 +21,9 @@ interface Transaction
     
     public void abortTxn();
     
-    public State getState();    
+    public State getState();
     
+    public Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry );
     
     enum State
     {

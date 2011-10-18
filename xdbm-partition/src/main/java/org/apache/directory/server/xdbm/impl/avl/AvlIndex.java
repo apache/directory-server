@@ -27,6 +27,9 @@ import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.partition.index.AbstractIndex;
 import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.partition.index.ForwardIndexComparator;
+import org.apache.directory.server.core.partition.index.ReverseIndexComparator;
+import org.apache.directory.server.core.partition.index.Table;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
@@ -46,7 +49,14 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
 {
     protected Normalizer normalizer;
     protected AvlTable<K, Long> forward;
-    protected AvlTable<Long, K> reverse;
+    protected AvlTable<Long, K> reverse; 
+    
+    /** Forward index entry comparator */
+    protected ForwardIndexComparator<K,Long> fIndexEntryComparator;
+    
+    /** Reverse index entry comparator */
+    protected ReverseIndexComparator<K,Long> rIndexEntryComparator;
+    
 
 
     public AvlIndex()
@@ -107,6 +117,9 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         {
             reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, true );
         }
+        
+        fIndexEntryComparator = new ForwardIndexComparator( comp, LongComparator.INSTANCE );
+        rIndexEntryComparator = new ReverseIndexComparator( comp, LongComparator.INSTANCE );
     }
 
 
@@ -429,7 +442,16 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         return reverse.isDupsEnabled();
     }
     
+    public ForwardIndexComparator<K,Long> getForwardIndexEntryComparator()
+    {
+        return this.fIndexEntryComparator;
+    }
     
+    public ReverseIndexComparator<K,Long> getReverseIndexEntryComparator()
+    {
+        return this.rIndexEntryComparator;
+    }
+   
     /**
      * {@inheritDoc}
      */

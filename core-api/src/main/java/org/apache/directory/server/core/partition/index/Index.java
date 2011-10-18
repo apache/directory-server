@@ -258,6 +258,9 @@ public interface Index<K, O, ID>
 
     boolean reverseLessOrEq( ID id, K attrVal ) throws Exception;
 
+    public ForwardIndexComparator<K,ID> getForwardIndexEntryComparator();
+
+    public ReverseIndexComparator<K,ID> getReverseIndexEntryComparator();
 
     void close() throws Exception;
 

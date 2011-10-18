@@ -9,20 +9,21 @@ import org.apache.directory.server.core.log.UserLogRecord;
 import org.apache.directory.server.core.log.Log;
 import org.apache.directory.server.core.log.InvalidLogException;
 
-
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.txn.logedit.LogEdit;
 
 
-public class DefaultTxnLogManager implements TxnLogManager
+public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
 {
     /** Write ahea log */
     Log wal;
     
     /** Txn Manager */
-    TxnManagerInternal txnManager;
+    TxnManagerInternal<ID> txnManager;
     
-    public void init( Log logger, TxnManagerInternal txnManager )
+    public void init( Log logger, TxnManagerInternal<ID> txnManager )
     {
         this.wal = logger;
         this.txnManager = txnManager;
@@ -30,16 +31,16 @@ public class DefaultTxnLogManager implements TxnLogManager
     /**
      * {@inheritDoc}
      */
-   public void log( LogEdit logEdit, boolean sync ) throws IOException
+   public void log( LogEdit<ID> logEdit, boolean sync ) throws IOException
    {
-       Transaction curTxn = txnManager.getCurTxn();
+       Transaction<ID> curTxn = txnManager.getCurTxn();
        
        if ( ( curTxn == null ) || ( ! ( curTxn instanceof ReadWriteTxn ) ) )
        {
            throw new IllegalStateException( "Trying to log logedit without ReadWriteTxn" );
        }
        
-       ReadWriteTxn txn = (ReadWriteTxn)curTxn;
+       ReadWriteTxn<ID> txn = (ReadWriteTxn<ID>)curTxn;
        UserLogRecord logRecord = txn.getUserLogRecord();
        
        
@@ -73,7 +74,7 @@ public class DefaultTxnLogManager implements TxnLogManager
        this.log( logRecord, sync );
        
        logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
-       txn.getEdits().add( logEdit );
+       txn.addLogEdit( logEdit );
    }
     
    /**
@@ -89,6 +90,22 @@ public class DefaultTxnLogManager implements TxnLogManager
        {
            throw new IOException(e);
        }
+   }
+   
+   
+   /**
+    * {@inheritDoc}
+    */
+   public Entry mergeUpdates(Dn partitionDn, ID entryID,  Entry entry )
+   {
+       Transaction<ID> curTxn = txnManager.getCurTxn();
+       
+       if ( ( curTxn == null ) )
+       {
+           throw new IllegalStateException( "Trying to merge with log wihout txn" );
+       }
+       
+       return curTxn.mergeUpdates( partitionDn, entryID, entry );
    }
    
    

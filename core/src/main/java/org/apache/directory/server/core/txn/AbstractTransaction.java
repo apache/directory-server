@@ -3,8 +3,12 @@ package org.apache.directory.server.core.txn;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-abstract class AbstractTransaction implements Transaction
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Dn;
+
+abstract class AbstractTransaction<ID> implements Transaction<ID>
 {
     /** Logical time(LSN in the wal) when the txn began */ 
     long startTime;
@@ -16,7 +20,7 @@ abstract class AbstractTransaction implements Transaction
     State txnState;
     
     /** List of txns that this txn depends */
-    List<ReadWriteTxn> txnsToCheck = new ArrayList<ReadWriteTxn>();
+    List<ReadWriteTxn<ID>> txnsToCheck = new ArrayList<ReadWriteTxn<ID>>();
  
     
     public AbstractTransaction( )
@@ -70,7 +74,7 @@ abstract class AbstractTransaction implements Transaction
     /**
      * {@inheritDoc}
      */  
-    public List<ReadWriteTxn> getTxnsToCheck()
+    public List<ReadWriteTxn<ID>> getTxnsToCheck()
     {
         return this.txnsToCheck;
     }
@@ -89,6 +93,29 @@ abstract class AbstractTransaction implements Transaction
     public void setState( State newState )
     {
         this.txnState = newState;
+    }
+    
+    public Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry )
+    {
+        Entry prevEntry  = entry;
+        Entry curEntry = entry;
+        ReadWriteTxn<ID> curTxn;
+        boolean cloneOnChange = true;
+        
+        Iterator<ReadWriteTxn<ID>> it = txnsToCheck.iterator();
+        
+        while ( it.hasNext() )
+        {
+            curTxn = it.next();
+            curEntry = curTxn.applyUpdatesToEntry( partitionDn, entryID, curEntry, cloneOnChange );
+            
+            if ( curEntry != prevEntry )
+            {
+                cloneOnChange = false;
+            }
+        }
+        
+        return curEntry;
     }
     
     

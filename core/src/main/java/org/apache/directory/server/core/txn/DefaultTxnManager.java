@@ -1,14 +1,14 @@
 
 package org.apache.directory.server.core.txn;
 
+import org.apache.directory.server.core.partition.index.Serializer;
 import org.apache.directory.server.core.txn.logedit.TxnStateChange;
 import org.apache.directory.server.core.log.LogAnchor;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,33 +21,38 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.log.UserLogRecord;
-import org.apache.directory.server.core.log.LogAnchor;
 
 import java.io.IOException;
 
 
-public class DefaultTxnManager implements TxnManager, TxnManagerInternal
+public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 {
     /** wal log manager */
-    TxnLogManager txnLogManager;
+    private TxnLogManager<ID> txnLogManager;
     
     /** List of committed txns in commit LSN order */
-    ConcurrentLinkedQueue<ReadWriteTxn> committedQueue = new ConcurrentLinkedQueue<ReadWriteTxn>();
+    private ConcurrentLinkedQueue<ReadWriteTxn<ID>> committedQueue = new ConcurrentLinkedQueue<ReadWriteTxn<ID>>();
     
     /** Verify lock under which txn verification is done */
-    Lock verifyLock = new ReentrantLock();
+    private Lock verifyLock = new ReentrantLock();
     
     /** Used to assign start and commit version numbers to writeTxns */
-    Lock writeTxnsLock = new ReentrantLock();
+    private Lock writeTxnsLock = new ReentrantLock();
     
     /** Latest committed txn on which read only txns can depend */
-    AtomicReference<ReadWriteTxn> latestCommittedTxn = new AtomicReference<ReadWriteTxn>();
+    private AtomicReference<ReadWriteTxn<ID>> latestCommittedTxn = new AtomicReference<ReadWriteTxn<ID>>();
     
     /** Latest verified write txn */
-    AtomicReference<ReadWriteTxn> latestVerifiedTxn = new AtomicReference<ReadWriteTxn>();
+    private AtomicReference<ReadWriteTxn<ID>> latestVerifiedTxn = new AtomicReference<ReadWriteTxn<ID>>();
     
     /** Latest flushed txn's logical commit time */
-    AtomicLong latestFlushedTxnLSN = new AtomicLong( 0 );
+    private AtomicLong latestFlushedTxnLSN = new AtomicLong( 0 );
+    
+    /** ID comparator */
+    private Comparator<ID> idComparator;
+    
+    /** ID serializer */
+    private Serializer idSerializer ;
     
     /** Per thread txn context */
     static final ThreadLocal < Transaction > txnVar = 
@@ -60,9 +65,27 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
              }
         };
     
-    public void init( TxnLogManager txnLogManager )
+    public void init( TxnLogManager<ID> txnLogManager, Comparator<ID> idComparator, Serializer idSerializer )
     {
         this.txnLogManager = txnLogManager;
+        this.idComparator = idComparator;
+        this.idSerializer = idSerializer;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Comparator<ID> getIDComparator()
+    {
+        return this.idComparator;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Serializer getIDSerializer()
+    {
+        return this.idSerializer;
     }
     
     /**
@@ -70,7 +93,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
      */  
     public void beginTransaction( boolean readOnly ) throws IOException
     {
-        Transaction curTxn = txnVar.get();
+        Transaction<ID> curTxn = this.getCurTxn();
         
         if ( curTxn != null )
         {
@@ -94,7 +117,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
      */
     public void commitTransaction() throws IOException
     {
-        Transaction txn = txnVar.get();
+        Transaction<ID> txn = this.getCurTxn();
         
         if ( txn == null )
         {
@@ -109,7 +132,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
         }
         else
         {
-            this.commitReadWriteTxn( (ReadWriteTxn)txn );
+            this.commitReadWriteTxn( (ReadWriteTxn<ID>)txn );
         }
         
         txnVar.set( null );
@@ -121,7 +144,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
      */
     public void abortTransaction() throws IOException
     {
-        Transaction txn = txnVar.get();
+        Transaction<ID> txn = this.getCurTxn();
         
         if ( txn == null )
         {
@@ -133,7 +156,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
         
         if ( txn instanceof ReadWriteTxn )
         {
-            this.abortReadWriteTxn( (ReadWriteTxn)txn );
+            this.abortReadWriteTxn( (ReadWriteTxn<ID>)txn );
         }
         
         txn.abortTxn();
@@ -143,15 +166,16 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public Transaction getCurTxn()
+    @SuppressWarnings("unchecked")
+    public Transaction<ID> getCurTxn()
     {
-       return txnVar.get(); 
+       return (Transaction<ID>)txnVar.get(); 
     }
     
     private void beginReadOnlyTxn()
     {
-        ReadOnlyTxn txn = new ReadOnlyTxn();
-        ReadWriteTxn lastTxnToCheck = null;
+        ReadOnlyTxn<ID> txn = new ReadOnlyTxn<ID>();
+        ReadWriteTxn<ID> lastTxnToCheck = null;
         
         do
         {
@@ -176,18 +200,19 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
             startTime = LogAnchor.UNKNOWN_LSN;
         }
         
+        txn.startTxn( startTime );
+        
         this.buildCheckList( txn, lastTxnToCheck );
         txnVar.set( txn );
     }
     
     private void beginReadWriteTxn() throws IOException
     {
-        long txnID;
         
-        ReadWriteTxn txn = new ReadWriteTxn();
+        ReadWriteTxn<ID> txn = new ReadWriteTxn<ID>();
         UserLogRecord logRecord = txn.getUserLogRecord();
         
-        TxnStateChange txnRecord = new TxnStateChange( LogAnchor.UNKNOWN_LSN, 
+        TxnStateChange<ID> txnRecord = new TxnStateChange<ID>( LogAnchor.UNKNOWN_LSN, 
                 TxnStateChange.State.TXN_BEGIN );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
@@ -217,7 +242,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
         
         logRecord.setData(  data, data.length );
         
-        ReadWriteTxn lastTxnToCheck = null; 
+        ReadWriteTxn<ID> lastTxnToCheck = null; 
         writeTxnsLock.lock();
         
         try
@@ -250,15 +275,15 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
     
     
     
-    private void buildCheckList( Transaction txn, ReadWriteTxn lastTxnToCheck )
+    private void buildCheckList( Transaction<ID> txn, ReadWriteTxn<ID> lastTxnToCheck )
     {
         if ( lastTxnToCheck != null )
         {
             long lastLSN = lastTxnToCheck.getCommitTime();
-            ReadWriteTxn toAdd;
+            ReadWriteTxn<ID> toAdd;
 
-            List<ReadWriteTxn> toCheckList = txn.getTxnsToCheck();
-            Iterator<ReadWriteTxn> it = committedQueue.iterator();
+            List<ReadWriteTxn<ID>> toCheckList = txn.getTxnsToCheck();
+            Iterator<ReadWriteTxn<ID>> it = committedQueue.iterator();
             while ( it.hasNext() )
             {
                 toAdd = it.next();
@@ -277,7 +302,7 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
             long flushedLSN = latestFlushedTxnLSN.get();
 
             it = toCheckList.iterator();
-            ReadWriteTxn toCheck;
+            ReadWriteTxn<ID> toCheck;
             while ( it.hasNext() )
             {
                 toCheck = it.next();
@@ -292,13 +317,13 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
     }
     
     
-    private void prepareForEndingTxn( Transaction txn )
+    private void prepareForEndingTxn( Transaction<ID> txn )
     {
-        List<ReadWriteTxn> toCheck = txn.getTxnsToCheck();
+        List<ReadWriteTxn<ID>> toCheck = txn.getTxnsToCheck();
         
         if ( toCheck.size() > 0 )
         {
-            ReadWriteTxn lastTxnToCheck = toCheck.get( toCheck.size() - 1 );
+            ReadWriteTxn<ID> lastTxnToCheck = toCheck.get( toCheck.size() - 1 );
             
             if ( lastTxnToCheck.commitTime != txn.getStartTime() )
             {
@@ -316,11 +341,11 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
         }
     }
     
-    private void commitReadWriteTxn( ReadWriteTxn txn ) throws IOException
+    private void commitReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
+        TxnStateChange<ID> txnRecord = new TxnStateChange<ID>( txn.getStartTime(),
             TxnStateChange.State.TXN_COMMIT );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
@@ -374,11 +399,11 @@ public class DefaultTxnManager implements TxnManager, TxnManagerInternal
     }
     
     
-    private void abortReadWriteTxn( ReadWriteTxn txn ) throws IOException
+    private void abortReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
+        TxnStateChange<ID> txnRecord = new TxnStateChange<ID>( txn.getStartTime(),
             TxnStateChange.State.TXN_ABORT );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;

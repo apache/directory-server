@@ -5,7 +5,7 @@ import org.apache.directory.server.core.log.LogAnchor;
 
 import java.io.Externalizable;
 
-public interface LogEdit extends Externalizable 
+public interface LogEdit<ID> extends Externalizable 
 {
     /**
      * Returns the position the edit is inserted in the wal.
