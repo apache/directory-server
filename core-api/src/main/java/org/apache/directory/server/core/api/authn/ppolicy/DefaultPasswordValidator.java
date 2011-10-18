@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.shared.authn.ppolicy;
+package org.apache.directory.server.core.api.authn.ppolicy;
 
 
 /**

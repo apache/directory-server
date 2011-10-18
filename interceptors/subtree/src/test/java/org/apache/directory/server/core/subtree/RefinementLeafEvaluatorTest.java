@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
-import org.apache.directory.server.core.shared.subtree.RefinementLeafEvaluator;
+import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

@@ -19,10 +19,10 @@
  */
 
 
-package org.apache.directory.server.core.shared.sp.java;
+package org.apache.directory.server.core.api.sp.java;
 
-import org.apache.directory.server.core.shared.sp.StoredProcEngine;
-import org.apache.directory.server.core.shared.sp.StoredProcEngineConfig;
+import org.apache.directory.server.core.api.sp.StoredProcEngine;
+import org.apache.directory.server.core.api.sp.StoredProcEngineConfig;
 
 
 /**

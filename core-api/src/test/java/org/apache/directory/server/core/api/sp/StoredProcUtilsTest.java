@@ -19,7 +19,7 @@
  */
 
 
-package org.apache.directory.server.core.shared.sp;
+package org.apache.directory.server.core.api.sp;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;

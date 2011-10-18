@@ -66,8 +66,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.shared.authn.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.shared.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;

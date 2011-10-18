@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.shared.subtree;
+package org.apache.directory.server.core.api.subtree;
 
 
 import java.util.Iterator;

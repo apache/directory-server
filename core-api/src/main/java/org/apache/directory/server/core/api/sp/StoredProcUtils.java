@@ -19,27 +19,32 @@
  */
 
 
-package org.apache.directory.server.core.shared.sp;
+package org.apache.directory.server.core.api.sp;
 
 
 /**
- * A configuration wrapper for {@link StoredProcEngine}s.
+ * A utility class for working with Stored Procedures.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface StoredProcEngineConfig
+public class StoredProcUtils
 {
-    /**
-     * Returns the type of the associated {@link StoredProcEngine}.
-     * 
-     */
-    public Class<? extends StoredProcEngine> getStoredProcEngineType();
     
-    
-    /**
-     * Returns the unique language identifier of the {@link StoredProcEngine}.
-     * 
-     */
-    public String getStoredProcLangId();
+    /** The delimiter used to tokenize a full SP name into the unit and SP name */
+    public static final String SPUnitDelimiter = ":";
 
+    public static String extractStoredProcName( String fullSPName )
+    {
+        int delimiter = fullSPName.lastIndexOf( SPUnitDelimiter );
+        String spName = fullSPName.substring( delimiter + SPUnitDelimiter.length() );
+        return spName;
+    }
+    
+    public static String extractStoredProcUnitName( String fullSPName )
+    {
+        int delimiter = fullSPName.lastIndexOf( SPUnitDelimiter );
+        String className = fullSPName.substring( 0, delimiter );
+        return className;
+    }
+    
 }

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.shared.normalization;
+package org.apache.directory.server.core.api.normalization;
 
 
 import java.util.ArrayList;

@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.shared.authn;
+package org.apache.directory.server.core.api.authn;
 
 
 import java.io.UnsupportedEncodingException;
@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.directory.server.core.shared.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;

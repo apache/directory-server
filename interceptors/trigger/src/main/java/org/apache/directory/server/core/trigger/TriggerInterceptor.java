@@ -40,11 +40,11 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.ByPassConstants;
-import org.apache.directory.server.core.shared.sp.StoredProcEngine;
-import org.apache.directory.server.core.shared.sp.StoredProcEngineConfig;
-import org.apache.directory.server.core.shared.sp.StoredProcExecutionManager;
-import org.apache.directory.server.core.shared.sp.java.JavaStoredProcEngineConfig;
-import org.apache.directory.server.core.shared.subtree.SubentryUtils;
+import org.apache.directory.server.core.api.sp.StoredProcEngine;
+import org.apache.directory.server.core.api.sp.StoredProcEngineConfig;
+import org.apache.directory.server.core.api.sp.StoredProcExecutionManager;
+import org.apache.directory.server.core.api.sp.java.JavaStoredProcEngineConfig;
+import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;

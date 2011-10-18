@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.core.shared.sp.java;
+package org.apache.directory.server.core.api.sp.java;
 
 
 import org.apache.directory.shared.ldap.model.entry.Attribute;

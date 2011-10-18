@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.shared.sp;
+package org.apache.directory.server.core.api.sp;
 
 
 import java.util.ArrayList;

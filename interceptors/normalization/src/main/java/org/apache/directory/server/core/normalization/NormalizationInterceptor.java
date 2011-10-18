@@ -39,7 +39,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.shared.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;

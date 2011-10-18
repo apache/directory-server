@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.event.ExpressionEvaluator;
-import org.apache.directory.server.core.shared.subtree.RefinementEvaluator;
-import org.apache.directory.server.core.shared.subtree.RefinementLeafEvaluator;
+import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
+import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;

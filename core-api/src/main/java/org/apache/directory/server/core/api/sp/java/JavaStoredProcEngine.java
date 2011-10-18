@@ -19,7 +19,7 @@
  */
 
 
-package org.apache.directory.server.core.shared.sp.java;
+package org.apache.directory.server.core.api.sp.java;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.shared.sp.StoredProcEngine;
-import org.apache.directory.server.core.shared.sp.StoredProcUtils;
+import org.apache.directory.server.core.api.sp.StoredProcEngine;
+import org.apache.directory.server.core.api.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;

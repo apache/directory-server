@@ -84,6 +84,7 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
