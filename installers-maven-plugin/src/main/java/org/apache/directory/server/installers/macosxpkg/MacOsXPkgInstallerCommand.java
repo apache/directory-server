@@ -63,7 +63,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
      * Performs the following:
      * <ol>
      *   <li>Bail if target is not for macosx or the PackageMaker or hdiutil utilities can't be found.</li>
-     *   <li>Creates the Mac OS X PKG Installer for Apache DS</li>
+     *   <li>Creates the Mac OS X PKG Installer for ApacheDS</li>
      *   <li>Package it in a Mac OS X DMG (Disk iMaGe)</li>
      * </ol>
      */

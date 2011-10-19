@@ -38,7 +38,7 @@ done
 #if ( test `id -un` != "root" )
 #then
 #    echo "Only root can install this software."
-#    echo "Apache DS installation has failed."
+#    echo "ApacheDS installation has failed."
 #    exit 1 ;
 #fi
 
