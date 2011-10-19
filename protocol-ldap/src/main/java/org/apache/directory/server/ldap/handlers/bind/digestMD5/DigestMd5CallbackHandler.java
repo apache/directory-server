@@ -115,6 +115,8 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
                 ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
             }
 
+            cursor.close();
+
             return entry.get( passwordAT );
         }
         catch ( Exception e )
