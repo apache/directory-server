@@ -3,7 +3,7 @@ package org.apache.directory.server.core.partition.index;
 
 import java.util.Comparator;
 
-public class ReverseIndexComparator<V, ID> implements Comparator<IndexEntry<V, ID>>
+public class ReverseIndexComparator<V, ID> implements IndexComparator<V,ID>
 {
     Comparator<V> keyComparator;
     Comparator<ID> valueComparator;
@@ -44,5 +44,16 @@ public class ReverseIndexComparator<V, ID> implements Comparator<IndexEntry<V, I
         }
         
         return result;
+    }
+    
+    public Comparator<V> getValueComparator()
+    {
+        return keyComparator;
+    }
+    
+    
+    public Comparator<ID> getIDComparator()
+    {
+        return valueComparator;
     }
 }

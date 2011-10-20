@@ -4,10 +4,13 @@ package org.apache.directory.server.core.txn;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Comparator;
 
 import org.apache.directory.server.core.log.UserLogRecord;
 import org.apache.directory.server.core.log.Log;
 import org.apache.directory.server.core.log.InvalidLogException;
+import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.partition.index.IndexComparator;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -108,5 +111,11 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
        return curTxn.mergeUpdates( partitionDn, entryID, entry );
    }
    
-   
+   /**
+    * {@inheritDoc}
+    */
+   public IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception
+   {
+       return new IndexCursorWrapper<ID>( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+   }
 }

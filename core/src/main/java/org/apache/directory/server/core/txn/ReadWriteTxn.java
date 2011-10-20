@@ -21,9 +21,11 @@ import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.log.UserLogRecord;
 
 import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.partition.index.IndexComparator;
 import org.apache.directory.server.core.partition.index.IndexEntry;
 import org.apache.directory.server.core.partition.index.Index;
 import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.partition.index.IndexCursor;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
@@ -287,6 +289,45 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
         }
         
         return curEntry;
+        
+    }
+    
+    
+    public boolean hasDeletesFor( Dn partitionDn, String attributeOid )
+    {
+        Map<String, TreeSet< IndexEntry<Object,ID>>> deletedIndices = 
+            indexDeletes.get( partitionDn ); 
+
+        
+        if ( deletedIndices != null )
+        {
+            return ( deletedIndices.get( attributeOid ) != null );
+        }
+       
+        return false;
+
+        
+    }
+    
+    
+    public IndexCursor<Object,Entry,ID> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey, IndexComparator<Object,ID> comparator )
+    {
+        TxnIndexCursor<ID> txnIndexCursor = null;
+        
+        Map<String, TreeSet<IndexEntry<Object,ID>>> forwardIndices = 
+            forwardIndexAdds.get( partitionDn );
+        
+        if ( forwardIndices != null )
+        {
+            TreeSet<IndexEntry<Object, ID>> sortedSet = forwardIndices.get( attributeOid );
+            
+            if ( sortedSet != null )
+            {
+                txnIndexCursor = new TxnIndexCursor<ID>( sortedSet, forwardIndex, onlyValueKey, onlyIDKey, comparator );
+            }
+        }
+        
+        return txnIndexCursor;
         
     }
     

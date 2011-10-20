@@ -7,7 +7,7 @@ import org.apache.directory.server.core.partition.index.Serializer;
 
 public class TxnManagerFactory
 {
-    private static TxnManager<?> txnManager;
+    private static TxnManagerInternal<?> txnManager;
     
     private static TxnLogManager<?> txnLogManager;
     
@@ -36,5 +36,10 @@ public class TxnManagerFactory
     public static <ID> TxnLogManager<ID> txnLogManagerInstance()
     {
         return ( (TxnLogManager<ID>) txnLogManager );
+    }
+    
+    static <ID> TxnManagerInternal<ID> txnManagerInternalInstance()
+    {
+        return ( (TxnManagerInternal<ID>) txnManager );
     }
 }

@@ -3,10 +3,10 @@ package org.apache.directory.server.core.partition.index;
 
 import java.util.Comparator;
 
-public class ForwardIndexComparator<V, ID> implements Comparator<IndexEntry<V,ID>>
+public class ForwardIndexComparator<V, ID> implements IndexComparator<V,ID>
 {
-    Comparator<V> keyComparator;
-    Comparator<ID> valueComparator;
+    private Comparator<V> keyComparator;
+    private Comparator<ID> valueComparator;
     
     public ForwardIndexComparator( Comparator<V> keyComparator, Comparator<ID> valueComparator )
     {
@@ -44,5 +44,16 @@ public class ForwardIndexComparator<V, ID> implements Comparator<IndexEntry<V,ID
         }
         
         return result;
+    }
+    
+    public Comparator<V> getValueComparator()
+    {
+        return keyComparator;
+    }
+    
+    
+    public Comparator<ID> getIDComparator()
+    {
+        return valueComparator;
     }
 }
