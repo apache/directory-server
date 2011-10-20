@@ -85,9 +85,6 @@ public class TriggerInterceptor extends BaseInterceptor
     /** a normalizing Trigger Specification parser */
     private TriggerSpecificationParser triggerParser;
 
-    /** */
-    private InterceptorChain chain;
-
     /** whether or not this interceptor is activated */
     private boolean enabled = true;
 
@@ -241,8 +238,6 @@ public class TriggerInterceptor extends BaseInterceptor
                 return schemaManager.getNormalizerMapping();
             }
         } );
-
-        chain = directoryService.getInterceptorChain();
 
         //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
         StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
