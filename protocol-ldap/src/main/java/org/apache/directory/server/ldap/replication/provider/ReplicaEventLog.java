@@ -27,9 +27,9 @@ import java.io.IOException;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;

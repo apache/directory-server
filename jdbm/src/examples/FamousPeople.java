@@ -1,4 +1,3 @@
-
 import java.util.Properties;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;

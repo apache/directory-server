@@ -118,7 +118,12 @@ public class SnapshotRecordManager implements ActionRecordManager
      public void setCurrentActionContext( ActionContext context )
      {
          ActionContext actionContext = actionContextVar.get();
-         assert( actionContext == null ) : "Action Context Not Null: " + actionContext.getWhoStarted();
+         
+         if ( actionContext != null )
+         {
+             throw new IllegalStateException( "Action Context Not Null: " + actionContext.getWhoStarted() );
+         }
+
          actionContextVar.set( context );
      }
      
@@ -129,7 +134,13 @@ public class SnapshotRecordManager implements ActionRecordManager
      public void unsetCurrentActionContext( ActionContext context )
      {
          ActionContext actionContext = actionContextVar.get();
-         assert( actionContext == context );
+         
+         if ( actionContext != context )
+         {
+             throw new IllegalStateException( "Trying to end action context not set in the thread context variable" + context + 
+                     " " + actionContext );
+         }
+
          actionContextVar.set( null );
      }
      
@@ -155,7 +166,7 @@ public class SnapshotRecordManager implements ActionRecordManager
          }
          else
          {
-             assert( false );
+             throw new IllegalStateException( " Wrong action type " + actionContext );
          }
          
          unsetCurrentActionContext( actionContext );
@@ -196,7 +207,7 @@ public class SnapshotRecordManager implements ActionRecordManager
          }
          else
          {
-             assert( false );
+             throw new IllegalStateException( "Wrong action context type " + actionContext );
          }
          
          unsetCurrentActionContext( actionContext );

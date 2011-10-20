@@ -238,8 +238,11 @@ public class LRUCache<K, V>
                             
                             if ( !entry.isCurrentVersion() )
                             {
-                                assert( entry.isNeverReplace() == false ) : " Non current entry should not have neverReplace set " + entry; 
-                                
+                                if ( entry.isNeverReplace() == true )
+                                {
+                                    throw new IllegalStateException( " Non current entry should not have neverReplace set " + entry );
+                                }
+                                                            
                                 entry.setNeverReplace();
                                 CacheEntry newEntry = null;
                                 
@@ -293,7 +296,7 @@ public class LRUCache<K, V>
                             // FALLTHROUGH
                             
                         default:
-                            assert ( false ): "Unknown cache entry state: " + entry ;
+                            throw new IllegalStateException( "Unknown cache entry state: " + entry ) ;
                     }
                 }
                 else
@@ -414,7 +417,10 @@ public class LRUCache<K, V>
                             
                             this.cacheMisses++;
                             
-                            assert( entry.isNeverReplace() == false ) : "Non Current Entry has neverReplace set to true:" + entry;
+                            if ( entry.isNeverReplace() == true )
+                            {
+                                throw new IllegalStateException( "Non Current Entry has neverReplace set to true:" + entry );
+                            }
                             
                             entry.setNeverReplace();
                             CacheEntry newEntry = null;
@@ -466,7 +472,7 @@ public class LRUCache<K, V>
                         break;
 
                     default:
-                        assert ( false ) : "Unknown cache entry state: " + entry;
+                        throw new IllegalStateException( "Unknown cache entry state: " + entry );
                 }
             }
             else
@@ -569,7 +575,10 @@ public class LRUCache<K, V>
         }
         else
         {
-            assert( entry.isCurrentVersion() ) : "Entry not at expected version: " + entry ;
+            if  ( entry.isCurrentVersion() == false )
+            {
+                throw new IllegalStateException( "Entry not at expected version: " + entry );
+            }
             
             // Entry already at current version. Just update the value
             entry.setAsCurrentVersion( value, newVersion );
@@ -650,15 +659,19 @@ public class LRUCache<K, V>
             
             if ( curEntry.getState() != EntryState.ENTRY_READY )
             {
-                assert( curEntry == head ) : "Unexpected state for entry: " + curEntry;
+                if ( curEntry != head )
+                {
+                    throw new IllegalStateException( "Unexpected state for entry: " + curEntry );
+                }
+    
                 curLink = curLink.getNext();
                 continue;
             }
         
             if ( curStartVersion != 0 && ( curEntry.getEndVersion() > curStartVersion ) )
             {
-                assert( false ) : "Unexpected version number for entry. curStartVersion: " 
-                        + curStartVersion + " entry: " + curEntry;
+                throw new IllegalStateException( "Unexpected version number for entry. curStartVersion: " 
+                        + curStartVersion + " entry: " + curEntry );
             }
             
             curStartVersion = curEntry.getStartVersion();
@@ -686,7 +699,7 @@ public class LRUCache<K, V>
         
         if ( value == null && mustFind == true )
         {
-            assert( false ) : "Traversed all versions and could not find cache entry";
+            throw new IllegalStateException( "Traversed all versions and could not find cache entry" );
         }
         
         return value;
@@ -937,14 +950,26 @@ public class LRUCache<K, V>
             endVersion = Long.MAX_VALUE;
 
             stateCondition = null;
-            assert ( numWaiters == 0 ) : "Numwaiters is not zero when entry is newly initialized: " + this;
+            
+            if ( numWaiters != 0 )
+            {
+                throw new IllegalStateException( "Numwaiters is not zero when entry is newly initialized: " + this );
+            }
+   
             state = EntryState.ENTRY_INITIAL;
 
-            assert ( versionsLink.isUnLinked() == true );
+            if ( versionsLink.isUnLinked() == false )
+            {
+                throw new IllegalStateException( "Versions link is still linked when entry is initialized" );
+            }
+           
             
             hashIndex = hash( key ) & ( numBuckets - 1 );
             
-            assert( neverReplace == false ) : "Neverreplace is true when entry is newly intialized:" + this;
+            if ( neverReplace == true )
+            {
+                throw new IllegalStateException( "Neverreplace is true when entry is newly intialized:" + this );
+            }
         }
 
         public void setNeverReplace()
@@ -1006,7 +1031,11 @@ public class LRUCache<K, V>
 
         public void decrementWaiters()
         {
-            assert ( numWaiters > 0 ) : "Unexpected num waiters for entry:" + this;
+            if ( numWaiters <= 0 )
+            {
+                throw new IllegalStateException( "Unexpected num waiters for entry:" + this );
+            }
+            
             numWaiters--;
         }
 
@@ -1223,9 +1252,11 @@ public class LRUCache<K, V>
                 {
                     break;
                 }
-                               
-                assert( victimEntry.getKey() != null ) : 
-                    "Snapshot victimEntry doesnt have key set:" + victimEntry ;
+                      
+                if ( victimEntry.getKey() == null )
+                {
+                    throw new IllegalStateException( "Snapshot victimEntry doesnt have key set:" + victimEntry );
+                }
                 
                 if ( victimEntry.isNeverReplace() )
                 {
@@ -1242,8 +1273,10 @@ public class LRUCache<K, V>
                     continue;
                 }
                 
-                assert( victimEntry.isEntryFreeable() == true ) : 
-                    "Snapshot victimEntry is not freeable:" + victimEntry ;
+                if ( victimEntry.isEntryFreeable() == false )
+                {
+                    throw new IllegalStateException( "Snapshot victimEntry is not freeable:" + victimEntry );
+                }
                 
                 int hashChainIndex = buckets[victimEntry.getHashIndex()].indexOf( victimEntry );
                 

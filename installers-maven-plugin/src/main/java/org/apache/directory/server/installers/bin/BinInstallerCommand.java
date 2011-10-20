@@ -23,6 +23,7 @@ package org.apache.directory.server.installers.bin;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -65,7 +66,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
      * Performs the following:
      * <ol>
      *   <li>Bail if target is not for Linux</li>
-     *   <li>Creates the Mac OS X PKG Installer for Apache DS</li>
+     *   <li>Creates the Mac OS X PKG Installer for ApacheDS</li>
      *   <li>Package it in a Mac OS X DMG (Disk iMaGe)</li>
      * </ol>
      */
@@ -80,7 +81,12 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         log.info( "  Creating Bin installer..." );
 
         // Creating the target directory
-        getTargetDirectory().mkdirs();
+        if ( !getTargetDirectory().mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying Bin installer files" );
 
@@ -91,7 +97,12 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Creating the instance directory
             File instanceDirectory = getInstanceDirectory();
-            instanceDirectory.mkdirs();
+            if ( !instanceDirectory.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceDirectory ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
 
             // Copying configuration files to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
@@ -111,7 +122,12 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Creating the sh directory for the shell scripts
             File binShDirectory = new File( getBinInstallerDirectory(), "sh" );
-            binShDirectory.mkdirs();
+            if ( !binShDirectory.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, binShDirectory ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
 
             // Copying shell script utilities for the installer
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "bootstrap.sh" ),

@@ -20,7 +20,7 @@
 package org.apache.directory.server.protocol.shared;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
 
 
 /**

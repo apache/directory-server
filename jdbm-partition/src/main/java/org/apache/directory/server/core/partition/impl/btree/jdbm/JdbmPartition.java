@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.partition.index.Index;
@@ -119,7 +120,10 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
-            partitionDir.mkdirs();
+            if ( !partitionDir.exists() && !partitionDir.mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ));
+            }
     
             // Initialize the indexes
             super.doInit();

@@ -36,11 +36,12 @@ import org.apache.directory.ldap.client.api.future.BindFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.NextInterceptor;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
@@ -454,7 +455,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             // Inject the interceptor that waits 1 second when binding 
             // in order to be able to send a request before we get the response
-            getService().getInterceptorChain().addFirst( new BaseInterceptor()
+            Interceptor interceptor = new BaseInterceptor()
             {
                 /**
                  * Wait 1 second before going any further
@@ -473,7 +474,9 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
                     next.bind( bindContext );
                 }
-            } );
+            };
+            
+            getService().getInterceptorChain().addFirst( interceptor );
 
             // Send another BindRequest
             BindRequest bindRequest = new BindRequestImpl();
@@ -506,7 +509,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         }
         finally
         {
-            getService().getInterceptorChain().remove( this.getClass().getName() + "$1" );
+            getService().getInterceptorChain().remove( "" );
         }
     }
 

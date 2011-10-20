@@ -39,42 +39,54 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
-import org.apache.directory.server.core.administrative.AccessControlAdministrativePoint;
-import org.apache.directory.server.core.administrative.CollectiveAttributeAdministrativePoint;
-import org.apache.directory.server.core.administrative.SubschemaAdministrativePoint;
-import org.apache.directory.server.core.administrative.TriggerExecutionAdministrativePoint;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationManager;
+import org.apache.directory.server.core.api.ReferralManager;
+import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
+import org.apache.directory.server.core.api.administrative.CollectiveAttributeAdministrativePoint;
+import org.apache.directory.server.core.api.administrative.SubschemaAdministrativePoint;
+import org.apache.directory.server.core.api.administrative.TriggerExecutionAdministrativePoint;
+import org.apache.directory.server.core.api.changelog.ChangeLog;
+import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.api.changelog.Tag;
+import org.apache.directory.server.core.api.changelog.TaggableSearchableChangeLogStore;
+import org.apache.directory.server.core.api.event.EventService;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.InterceptorChain;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.journal.Journal;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.api.subtree.SubentryCache;
+import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
-import org.apache.directory.server.core.changelog.Tag;
-import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.event.EventInterceptor;
-import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.journal.DefaultJournal;
-import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.partition.DefaultPartitionNexus;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
+import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
@@ -263,6 +275,12 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Dn factory */
     private DnFactory dnFactory;
+    
+    /** The Subentry cache */
+    SubentryCache subentryCache = new SubentryCache();
+
+    /** The Subtree evaluator instance */
+    private SubtreeEvaluator evaluator;
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -322,6 +340,7 @@ public class DefaultDirectoryService implements DirectoryService
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
+        evaluator = new SubtreeEvaluator( schemaManager );
     }
 
 
@@ -455,13 +474,12 @@ public class DefaultDirectoryService implements DirectoryService
 
         for ( Interceptor interceptor : interceptors )
         {
-            String name = interceptor.getName();
-
-            if ( names.contains( name ) )
+            if ( names.contains( interceptor.getName() ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
             }
-            names.add( name );
+            
+            names.add( interceptor.getName() );
         }
 
         this.interceptors = interceptors;
@@ -509,34 +527,49 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public void setInstanceLayout( InstanceLayout instanceLayout )
+    public void setInstanceLayout( InstanceLayout instanceLayout ) throws IOException
     {
         this.instanceLayout = instanceLayout;
         
         // Create the directories if they are missing
         if ( !instanceLayout.getInstanceDirectory().exists() )
         {
-            instanceLayout.getInstanceDirectory().mkdirs();
+            if ( !instanceLayout.getInstanceDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getInstanceDirectory() ) );
+            }
         }
 
         if ( !instanceLayout.getLogDirectory().exists() )
         {
-            instanceLayout.getLogDirectory().mkdirs();
+            if ( !instanceLayout.getLogDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getLogDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getRunDirectory().exists() )
         {
-            instanceLayout.getRunDirectory().mkdirs();
+            if ( !instanceLayout.getRunDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getRunDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getPartitionsDirectory().exists() )
         {
-            instanceLayout.getPartitionsDirectory().mkdirs();
+            if ( !instanceLayout.getPartitionsDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getPartitionsDirectory() ) );
+            }
         }
         
         if ( !instanceLayout.getConfDirectory().exists() )
         {
-            instanceLayout.getConfDirectory().mkdirs();
+            if ( !instanceLayout.getConfDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getConfDirectory() ) );
+            }
         }
     }
 
@@ -1915,7 +1948,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public boolean isPwdPolicyEnabled()
     {
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
         
         if ( authenticationInterceptor == null )
         {
@@ -1937,4 +1970,23 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return dnFactory;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public SubentryCache getSubentryCache()
+    {
+        return subentryCache;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public SubtreeEvaluator getEvaluator()
+    {
+        return evaluator;
+    }
+
 }

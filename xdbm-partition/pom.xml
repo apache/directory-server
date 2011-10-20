@@ -26,6 +26,7 @@
   
   <artifactId>apacheds-xdbm-partition</artifactId>
   <name>ApacheDS Generalized (X) DBM Partition</name>
+  <packaging>bundle</packaging>
   
   <description>Partition with search engine implementation generalized for XDBM entry store scheme</description>
   
@@ -94,6 +95,38 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <manifestLocation>META-INF</manifestLocation>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.xdbm.partition</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true,
+                org.apache.directory.server.core.partition.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.core.partition.impl.btree;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.log.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.xdbm.impl.avl;version="${project.version}";-noimport:=true,
+                org.apache.directory.server.xdbm.search.impl;version="${project.version}";-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -36,11 +35,12 @@ import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.i18n.I18n;
@@ -248,10 +248,12 @@ public class DSAnnotationProcessor
         if ( instance != null )
         {
             dsBuilder = (CreateDS)instance;
-        }
 
-        // Ok, we have found a CreateDS annotation. Process it now.
-        return createDS( dsBuilder );
+            // Ok, we have found a CreateDS annotation. Process it now.
+            return createDS( dsBuilder );
+        }
+        
+        throw new LdapException( I18n.err( I18n.ERR_114 ) );
     }
 
 

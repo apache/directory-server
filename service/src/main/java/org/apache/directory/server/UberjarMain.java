@@ -20,7 +20,7 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.InstanceLayout;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

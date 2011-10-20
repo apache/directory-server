@@ -28,6 +28,7 @@
   
   <artifactId>apacheds-test-framework</artifactId>
   <name>ApacheDS Test Framework</name>
+  <packaging>bundle</packaging>
   
   <description>Test framework for integration tests without depending on the InheritableSettings</description>
   
@@ -103,6 +104,21 @@
               ${project.build.directory}/osgi-cache
             </org.osgi.framework.storage>
           </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>

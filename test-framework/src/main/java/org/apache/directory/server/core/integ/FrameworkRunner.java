@@ -26,8 +26,8 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
@@ -99,7 +99,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
 
         System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST, 
-            "org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyFactory," +
+            "org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
             "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +

@@ -26,6 +26,7 @@ import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
 import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +34,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.event.NotificationCriteria;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -161,7 +162,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             
             if ( !syncReplData.exists() )
             {
-                syncReplData.mkdirs();
+                if ( !syncReplData.mkdirs() )
+                {
+                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, syncReplData ) );
+                }
             }
 
             replicaUtil = new ReplConsumerManager( dirService );

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.directory.server.InstallationLayout;
-import org.apache.directory.server.core.InstanceLayout;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;

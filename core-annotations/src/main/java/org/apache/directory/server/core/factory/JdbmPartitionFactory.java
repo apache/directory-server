@@ -22,7 +22,7 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.index.Index;

@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.partition.index.EmptyIndexCursor;
 import org.apache.directory.server.core.partition.index.ForwardIndexEntry;

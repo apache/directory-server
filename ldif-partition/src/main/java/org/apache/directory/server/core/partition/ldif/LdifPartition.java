@@ -28,11 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.partition.index.IndexCursor;
 import org.apache.directory.server.core.partition.index.IndexEntry;
@@ -506,7 +506,10 @@ public class LdifPartition extends AbstractLdifPartition
         if ( !dir.exists() && create )
         {
             // We have to create the entry if it does not have a parent
-            dir.mkdir();
+            if ( !dir.mkdir() )
+            {
+                throw new LdapException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dir ) );
+            }
         }
 
         File ldifFile = new File( parentDir + rdnFileName );

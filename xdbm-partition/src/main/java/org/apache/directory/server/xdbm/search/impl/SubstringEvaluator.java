@@ -203,6 +203,8 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             }
         }
 
+        entries.close();
+        
         // we fell through so a match was not found - assertion was false.
         return false;
     }
@@ -237,6 +239,8 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             }
         }
 
+        entries.close();
+        
         // we fell through so a match was not found - assertion was false.
         return false;
     }

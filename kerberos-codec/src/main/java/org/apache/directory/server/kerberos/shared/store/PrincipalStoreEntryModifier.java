@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.protocol.KerberosDecoder;
+import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;

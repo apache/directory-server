@@ -23,6 +23,7 @@ package org.apache.directory.server.installers.deb;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -58,7 +59,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
      * Performs the following:
      * <ol>
      *   <li>Bail if target is not for linux or the dpkg utility could not be found.</li>
-     *   <li>Creates the Debian DEB package for Apache DS</li>
+     *   <li>Creates the Debian DEB package for ApacheDS</li>
      * </ol>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -72,7 +73,12 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         log.info( "  Creating Deb installer..." );
 
         // Creating the target directory
-        getTargetDirectory().mkdirs();
+        if ( !getTargetDirectory().mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying Deb installer files" );
 
@@ -83,7 +89,12 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
             // Copying the init script in /etc/init.d/
             File debEtcInitdDirectory = new File( getDebDirectory(), "etc/init.d" );
-            debEtcInitdDirectory.mkdirs();
+            if ( !debEtcInitdDirectory.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debEtcInitdDirectory ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
                 getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
                 new File( debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
@@ -96,7 +107,12 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
         // Create DEBIAN directory
         File debDebianDirectory = new File( getDebDirectory(), "DEBIAN" );
-        debDebianDirectory.mkdirs();
+        if ( !debDebianDirectory.mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debDebianDirectory ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         // Copying the 'control' file
         try

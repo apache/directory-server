@@ -24,9 +24,9 @@ import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;

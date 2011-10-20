@@ -45,7 +45,11 @@ public class ActionContext
     
     public void endAction()
     {
-        assert( version != null ) : "Unexpected action state during endAction: " + this;
+        if ( version == null )
+        {
+            throw new IllegalStateException( "Unexpected action state during endAction: " + this );
+        }
+        
         version = null;
     }
     

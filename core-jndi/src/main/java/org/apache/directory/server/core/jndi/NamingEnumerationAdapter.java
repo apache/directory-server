@@ -26,8 +26,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 

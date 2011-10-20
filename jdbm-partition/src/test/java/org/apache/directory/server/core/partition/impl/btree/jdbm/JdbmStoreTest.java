@@ -34,8 +34,8 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.index.GenericIndex;
 import org.apache.directory.server.core.partition.index.Index;
 import org.apache.directory.server.core.partition.index.IndexEntry;
@@ -140,7 +140,6 @@ public class JdbmStoreTest
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        wkdir.mkdirs();
 
         // initialize the store
         store = new JdbmPartition( schemaManager );
@@ -199,7 +198,6 @@ public class JdbmStoreTest
         File wkdir2 = File.createTempFile( getClass().getSimpleName(), "db2" );
         wkdir2.delete();
         wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
-        wkdir2.mkdirs();
 
         // initialize the 2nd store
         JdbmPartition store2 = new JdbmPartition( schemaManager );

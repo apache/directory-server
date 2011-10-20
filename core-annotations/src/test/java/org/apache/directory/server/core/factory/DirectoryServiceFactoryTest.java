@@ -25,7 +25,8 @@ import static org.junit.Assert.assertTrue;
 import org.apache.commons.io.FileUtils;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.server.core.DirectoryService;
+
+import org.apache.directory.server.core.api.DirectoryService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

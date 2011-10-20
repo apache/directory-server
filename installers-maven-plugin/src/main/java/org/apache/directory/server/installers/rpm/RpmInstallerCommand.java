@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
@@ -77,18 +78,53 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         log.info( "  Creating Rpm installer..." );
 
         // Creating the target directory
-        getTargetDirectory().mkdirs();
+        if ( !getTargetDirectory().mkdirs() )
+        {
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            log.error( e.getLocalizedMessage() );
+            throw new MojoFailureException( e.getMessage() );
+        }
 
         log.info( "    Copying Rpm installer files" );
 
         try
         {
             // Create Rpm directories (BUILD, RPMS, SOURCES, SPECS & SRPMS)
-            new File( getTargetDirectory(), "BUILD" ).mkdirs();
-            new File( getTargetDirectory(), "RPMS" ).mkdirs();
-            new File( getTargetDirectory(), "SOURCES" ).mkdirs();
-            new File( getTargetDirectory(), "SPECS" ).mkdirs();
-            new File( getTargetDirectory(), "SRPMS" ).mkdirs();
+            File rpmBuild = new File( getTargetDirectory(), "BUILD" );
+            if ( !rpmBuild.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmBuild ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+            File rpmRpms = new File( getTargetDirectory(), "RPMS" );
+            if ( !rpmRpms.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmRpms ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+            File rpmSources = new File( getTargetDirectory(), "SOURCES" );
+            if ( !rpmSources.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSources ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+            File rpmSpecs = new File( getTargetDirectory(), "SPECS" );
+            if ( !rpmSpecs.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSpecs ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+            File rpmSrpms = new File( getTargetDirectory(), "SRPMS" );
+            if ( !rpmSrpms.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSrpms ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
 
             // Creating the installation and instance layouts
             createLayouts();

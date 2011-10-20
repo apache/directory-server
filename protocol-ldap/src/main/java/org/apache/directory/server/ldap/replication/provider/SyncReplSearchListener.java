@@ -20,16 +20,16 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.event.DirectoryListener;
-import org.apache.directory.server.core.event.EventType;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.event.DirectoryListener;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
@@ -77,8 +77,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     /** The consumer configuration */
     private final ReplicaEventLog consumerMsgLog;
     
-    private DirectoryService directoryService;
-
 
     /**
      * Create a new instance of a consumer listener
@@ -92,10 +90,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         boolean pushInRealTime )
     {
         this.pushInRealTime = pushInRealTime;
-        this.session = session;
+        setSession( session );
         setSearchRequest( searchRequest );
         this.consumerMsgLog = consumerMsgLog;
-        directoryService = session.getLdapServer().getDirectoryService();
     }
 
 
@@ -106,7 +103,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void setSession( LdapSession session )
     {
         this.session = session;
-        directoryService = session.getLdapServer().getDirectoryService();
     }
 
 
@@ -138,7 +134,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             if ( session != null )
             {
                 // We first remove the Listener from the session's chain
-                directoryService.getEventService().removeListener( this );
+                session.getCoreSession().getDirectoryService().getEventService().removeListener( this );
             }
 
             /*
@@ -219,7 +215,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setEntry( entry );
 
                 // Create the control which will be added to the response.
-                SyncStateValue syncAdd = createControl( directoryService, SyncStateTypeEnum.ADD, entry );
+                SyncStateValue syncAdd = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.ADD, entry );
                 
                 sendResult( resultEntry, entry, EventType.ADD, syncAdd );
             }
@@ -262,7 +258,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncDelete = createControl( directoryService, SyncStateTypeEnum.DELETE, entry );
+                SyncStateValue syncDelete = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.DELETE, entry );
 
                 sendResult( resultEntry, entry, EventType.DELETE, syncDelete );
             }
@@ -297,7 +293,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( modifyContext.getDn() );
                 resultEntry.setEntry( alteredEntry );
 
-                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODIFY, alteredEntry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODIFY, alteredEntry );
 
                 sendResult( resultEntry, alteredEntry, EventType.MODIFY, syncModify );
             }
@@ -337,7 +333,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( moveContext.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
 
                 sendResult( resultEntry, entry, null, syncModify );
             }
@@ -378,7 +374,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
 
                 sendResult( resultEntry, entry, null, syncModify );
             }
@@ -413,7 +409,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( directoryService, SyncStateTypeEnum.MODDN, entry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
                 
                 // In this case, the cookie is different
                 syncModify.setCookie( getCookie( entry ) );

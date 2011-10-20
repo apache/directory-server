@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
