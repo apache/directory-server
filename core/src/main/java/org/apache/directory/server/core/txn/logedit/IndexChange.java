@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.apache.directory.server.core.partition.index.Index;
-import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.txn.TxnManagerFactory;
 
 import org.apache.directory.shared.ldap.model.entry.Value;

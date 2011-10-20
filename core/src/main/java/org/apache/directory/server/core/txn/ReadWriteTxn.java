@@ -20,12 +20,12 @@ import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
 
 import org.apache.directory.server.core.log.UserLogRecord;
 
-import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
-import org.apache.directory.server.core.partition.index.IndexComparator;
-import org.apache.directory.server.core.partition.index.IndexEntry;
-import org.apache.directory.server.core.partition.index.Index;
-import org.apache.directory.server.core.partition.index.Serializer;
-import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;

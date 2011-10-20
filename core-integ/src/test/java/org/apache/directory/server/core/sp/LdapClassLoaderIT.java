@@ -32,6 +32,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.sp.LdapClassLoader;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;

@@ -37,8 +37,8 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.core.partition.index.IndexCursor;
-import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;

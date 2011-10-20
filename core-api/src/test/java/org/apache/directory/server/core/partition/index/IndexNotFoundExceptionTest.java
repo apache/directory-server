@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
 import org.junit.Test;
 
 

@@ -27,8 +27,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.index.Index;
-import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;

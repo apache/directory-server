@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 
 
 /**

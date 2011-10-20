@@ -9,8 +9,8 @@ import java.util.Comparator;
 import org.apache.directory.server.core.log.UserLogRecord;
 import org.apache.directory.server.core.log.Log;
 import org.apache.directory.server.core.log.InvalidLogException;
-import org.apache.directory.server.core.partition.index.IndexCursor;
-import org.apache.directory.server.core.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexComparator;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;

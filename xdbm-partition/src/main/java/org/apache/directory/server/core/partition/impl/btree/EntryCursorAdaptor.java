@@ -22,8 +22,8 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.core.partition.index.IndexCursor;
-import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;

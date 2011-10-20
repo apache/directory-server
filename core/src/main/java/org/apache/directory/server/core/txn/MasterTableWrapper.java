@@ -3,7 +3,7 @@ package org.apache.directory.server.core.txn;
 
 import java.util.Comparator;
 
-import org.apache.directory.server.core.partition.index.MasterTable;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 

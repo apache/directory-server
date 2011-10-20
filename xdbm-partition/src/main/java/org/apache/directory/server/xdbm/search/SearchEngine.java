@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.server.core.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
 
 import javax.naming.directory.SearchControls;
 

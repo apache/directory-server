@@ -31,7 +31,7 @@ import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsWrapperCursor;
 import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
 import org.apache.directory.server.core.avltree.LinkedAvlMapNode;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
-import org.apache.directory.server.core.partition.index.AbstractTable;
+import org.apache.directory.server.core.api.partition.index.AbstractTable;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;

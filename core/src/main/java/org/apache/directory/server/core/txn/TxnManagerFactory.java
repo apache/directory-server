@@ -1,9 +1,8 @@
 
 package org.apache.directory.server.core.txn;
 
-import java.io.Serializable;
 import java.util.Comparator;
-import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.Serializer;
 
 public class TxnManagerFactory
 {

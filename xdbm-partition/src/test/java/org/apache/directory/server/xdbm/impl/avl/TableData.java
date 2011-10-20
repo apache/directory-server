@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import org.apache.directory.server.core.partition.index.Table;
+import org.apache.directory.server.core.api.partition.index.Table;
 
 
 /**

@@ -24,11 +24,11 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.core.partition.index.EmptyIndexCursor;
-import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
-import org.apache.directory.server.core.partition.index.IndexCursor;
-import org.apache.directory.server.core.partition.index.IndexEntry;
-import org.apache.directory.server.core.partition.index.SingletonIndexCursor;
+import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;

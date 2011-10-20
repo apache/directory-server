@@ -61,7 +61,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.Index;
 
 
 /**

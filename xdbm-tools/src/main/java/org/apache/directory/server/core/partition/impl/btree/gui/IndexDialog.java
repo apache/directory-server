@@ -46,9 +46,9 @@ import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
-import org.apache.directory.server.core.partition.index.Index;
-import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.slf4j.Logger;

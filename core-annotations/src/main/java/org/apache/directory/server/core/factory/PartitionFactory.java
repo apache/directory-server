@@ -22,7 +22,7 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 

@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.junit.Before;

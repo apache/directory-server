@@ -26,7 +26,7 @@ import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.core.partition.index.MasterTable;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 

@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.index.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;

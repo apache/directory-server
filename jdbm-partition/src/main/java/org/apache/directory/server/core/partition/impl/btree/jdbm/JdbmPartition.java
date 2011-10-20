@@ -35,7 +35,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.core.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;

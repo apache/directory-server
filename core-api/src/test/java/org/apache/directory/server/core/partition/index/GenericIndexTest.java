@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 
+import org.apache.directory.server.core.api.partition.index.GenericIndex;
 import org.junit.Before;
 import org.junit.Test;
 

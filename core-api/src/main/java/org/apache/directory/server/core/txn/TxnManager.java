@@ -2,7 +2,7 @@
 package org.apache.directory.server.core.txn;
 
 import java.io.IOException;
-import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.Serializer;
 import java.util.Comparator;
 
 public interface TxnManager<ID>

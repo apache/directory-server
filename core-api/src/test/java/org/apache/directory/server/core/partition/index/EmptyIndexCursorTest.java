@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.index;
 
 import static junit.framework.Assert.assertFalse;
 
+import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Before;

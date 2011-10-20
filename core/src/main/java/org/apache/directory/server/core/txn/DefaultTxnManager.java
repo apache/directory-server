@@ -1,7 +1,7 @@
 
 package org.apache.directory.server.core.txn;
 
-import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.txn.logedit.TxnStateChange;
 import org.apache.directory.server.core.log.LogAnchor;
 

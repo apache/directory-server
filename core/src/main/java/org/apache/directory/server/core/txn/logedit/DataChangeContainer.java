@@ -9,11 +9,9 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
 
-import org.apache.directory.server.core.log.LogAnchor;
-
 import org.apache.directory.shared.ldap.model.name.Dn;
 
-import org.apache.directory.server.core.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.Serializer;
 
 import org.apache.directory.server.core.txn.TxnManagerFactory;
 

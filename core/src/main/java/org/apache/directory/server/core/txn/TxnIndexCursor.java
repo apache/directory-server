@@ -1,11 +1,11 @@
 
 package org.apache.directory.server.core.txn;
 
-import org.apache.directory.server.core.partition.index.AbstractIndexCursor;
-import org.apache.directory.server.core.partition.index.IndexComparator;
-import org.apache.directory.server.core.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 
-import org.apache.directory.server.core.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
