@@ -23,6 +23,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TxnStateChange<ID> extends AbstractLogEdit<ID>
 {
     /** ID of the txn associated with this change */
@@ -36,8 +40,8 @@ public class TxnStateChange<ID> extends AbstractLogEdit<ID>
     // For deserialization
     public TxnStateChange()
     {
-        
     }
+    
     
     public TxnStateChange( long txnID, State txnState )
     {
@@ -45,15 +49,18 @@ public class TxnStateChange<ID> extends AbstractLogEdit<ID>
         this.txnState = txnState;
     }
     
+    
     public long getTxnID()
     {
-        return this.txnID;
+        return txnID;
     }
+    
     
     public State getTxnState()
     {
-        return this.txnState;
+        return txnState;
     }
+    
     
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -70,11 +77,11 @@ public class TxnStateChange<ID> extends AbstractLogEdit<ID>
         out.writeInt( txnState.ordinal() );
     }
     
+    
     public enum State
     {
         TXN_BEGIN,
         TXN_COMMIT,
         TXN_ABORT
     }
-
 }

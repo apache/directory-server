@@ -33,6 +33,10 @@ import org.apache.directory.server.core.api.partition.index.Serializer;
 
 import org.apache.directory.server.core.txn.TxnManagerFactory;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
 {
     /** Set to the uuid of the entry if the container contains a change for the entry, null otherwise */
@@ -62,35 +66,42 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
         this.txnID = txnID;
     }
     
+    
     public String getUUID()
     {
         return uuid;
     }
+    
     
     public void setUUID( String entryUUID )
     {
         this.uuid = entryUUID;
     }
     
+    
     public long getTxnID()
     {
-        return this.txnID;
+        return txnID;
     }
+    
     
     public Dn getPartitionDn()
     {
         return partitionDn;
     }
     
+    
     public ID getEntryID()
     {
         return entryID;
     }
     
+    
     public List<DataChange<ID>> getChanges()
     {
         return changes;
     }
+    
     
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -104,6 +115,7 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
         }
         
         int len = in.readInt(); 
+        
         if ( len < 0 )
         {
             entryID = null;
@@ -119,7 +131,6 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
         
         partitionDn = new Dn();
         partitionDn.readExternal( in );
-        
         
         DataChange<ID> change;
         int numChanges = in.readInt();
@@ -137,7 +148,6 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     {
         Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
         DataChange<ID> change;
-        
         
         if ( uuid != null )
         {
@@ -174,5 +184,4 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
             change.writeExternal( out );
         }
     }
-
 }

@@ -31,6 +31,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import java.util.Iterator;
 import java.util.NavigableSet;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
 {
     /** list of changed index entries */
@@ -49,7 +53,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
     private Iterator<IndexEntry<Object,ID>> it;
     
     /** currently available value */
-    IndexEntry<Object,ID> availableValue;
+    private IndexEntry<Object,ID> availableValue;
     
     /** unsupported operation message */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
@@ -72,13 +76,6 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         this.changedEntries = changedEntries;
         this.forwardIndex = forwardIndex;
         this.comparator = comparator;
-        
-        if ( onlyValueKey != null )
-        {
-            this.onlyValueKey = onlyValueKey;
-            onlyKey = true;
-        }
-        
         
         if ( onlyValueKey != null )
         {
@@ -121,6 +118,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         }
         
         boolean skipKey = false;
+        
         if  ( forwardIndex )
         {
             if ( element.getId() == null )
@@ -140,9 +138,9 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         { 
             it = changedEntries.tailSet( element, false ).iterator();
             
-            
             boolean useLastEntry = false;
             IndexEntry<Object,ID> indexEntry = null;
+            
             while ( it.hasNext() )
             {
                 indexEntry = it.next();
@@ -180,6 +178,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
             it = changedEntries.tailSet( element, false ).iterator();
         }
     }
+    
     
     /**
      * {@inheritDoc}
@@ -220,7 +219,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         ForwardIndexEntry<Object,ID> indexEntry = new ForwardIndexEntry<Object,ID>();
         indexEntry.setId( id );
         indexEntry.setValue( value );
-        this.after( indexEntry );
+        after( indexEntry );
     }
 
 
@@ -232,9 +231,9 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         ForwardIndexEntry<Object,ID> indexEntry = new ForwardIndexEntry<Object,ID>();
         indexEntry.setId( id );
         indexEntry.setValue( value );
-        this.before( indexEntry );
+        before( indexEntry );
     }
-   
+    
     
     /**
      * {@inheritDoc}
@@ -248,6 +247,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         if ( onlyKey )
         {
             ForwardIndexEntry<Object,ID> indexEntry = new ForwardIndexEntry<Object,ID>();
+            
             if ( forwardIndex )
             {
                 indexEntry.setValue( onlyValueKey );
@@ -263,7 +263,6 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         {
             it = changedEntries.iterator();
         }
-        
     }
 
 
@@ -276,10 +275,10 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         availableValue = null;
         movingNext = false;
         
-        
         if ( onlyKey )
         {
             IndexEntry<Object,ID> indexEntry = new ForwardIndexEntry<Object,ID>();
+            
             if ( forwardIndex )
             {
                 indexEntry.setValue( onlyValueKey );
@@ -293,6 +292,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
             
             
             boolean useLastEntry = false;
+            
             while ( it.hasNext() )
             {
                 indexEntry = it.next();
@@ -329,24 +329,29 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
             it = changedEntries.descendingIterator();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean first() throws Exception
     {
-        this.beforeFirst();
-        return this.next();
+        beforeFirst();
+        
+        return next();
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean last() throws Exception
     {
-        this.afterLast();
-        return this.previous();
+        afterLast();
+        
+        return previous();
     }
+    
     
     /**
      * {@inheritDoc}
@@ -392,6 +397,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
                     if ( comparator.getValueComparator().compare( availableValue.getValue(), onlyValueKey ) != 0 )
                     {
                         availableValue = null;
+                        
                         return false;
                     }
                 }
@@ -400,6 +406,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
                     if ( comparator.getIDComparator().compare( availableValue.getId(), onlyIDKey ) != 0 )
                     {
                         availableValue = null;
+                        
                         return false;
                     }
                 }
@@ -410,9 +417,11 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         else
         {
             availableValue = null;
+            
             return false;
         }
     }
+    
 
     /**
      * {@inheritDoc}
@@ -459,6 +468,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
                     if ( comparator.getValueComparator().compare( availableValue.getValue(), onlyValueKey ) != 0 )
                     {
                         availableValue = null;
+                        
                         return false;
                     }
                 }
@@ -467,6 +477,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
                     if ( comparator.getIDComparator().compare( availableValue.getId(), onlyIDKey ) != 0 )
                     {
                         availableValue = null;
+                        
                         return false;
                     }
                 }
@@ -477,9 +488,11 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         else
         {
             availableValue = null;
+            
             return false;
         }
     }
+    
     
     /**
      * {@inheritDoc}
@@ -494,6 +507,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
         throw new InvalidCursorPositionException();
     }
     
+    
     /**
      * {@inheritDoc}
      */
@@ -501,5 +515,4 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
     {
         return UNSUPPORTED_MSG;
     }
-
 }

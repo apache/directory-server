@@ -22,6 +22,10 @@ package org.apache.directory.server.core.log;
 import java.io.IOException;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DefaultLog implements Log
 {
     /** Log manager */
@@ -30,15 +34,14 @@ public class DefaultLog implements Log
     /** Log File Manager */
     LogFileManager logFileManager;
     
-    
     /** LogFlushManager */
     LogFlushManager logFlushManager;
     
     /**
      * {@inheritDoc}
      */
-   public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException
-   {
+    public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException
+    {
        logFileManager = new DefaultLogFileManager();
        logFileManager.init( logFilepath, suffix );
        
@@ -46,7 +49,8 @@ public class DefaultLog implements Log
        logManager.initLogManager();
        
        logFlushManager = new LogFlushManager( logManager, logBufferSize, logFileSize );
-   }
+    }
+    
     
    /**
     * {@inheritDoc}
@@ -64,8 +68,10 @@ public class DefaultLog implements Log
     {
         LogScannerInternal logScanner = new DefaultLogScanner();
         logScanner.init( startPoint, logFileManager );
+        
         return logScanner;
     }
+    
     
     /**
      * {@inheritDoc}

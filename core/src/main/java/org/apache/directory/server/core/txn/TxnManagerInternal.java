@@ -19,7 +19,11 @@
  */
 package org.apache.directory.server.core.txn;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface TxnManagerInternal<ID> extends TxnManager<ID>
 {
-    public Transaction<ID> getCurTxn();
+    Transaction<ID> getCurTxn();
 }

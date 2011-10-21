@@ -30,9 +30,12 @@ import java.io.EOFException;
 
 import org.apache.directory.server.i18n.I18n;
 
-class LogManager
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+/** Package protected*/ class LogManager
 {
-   
     /**  Controlfile record size */
     private final static int CONTROLFILE_RECORD_SIZE = 44;
     
@@ -81,6 +84,7 @@ class LogManager
         this.logFileManager = logFileManager;
     }
     
+    
     /**
      *Initializes the log management:
      * 1) Checks if control file exists and creates it if necesssary. If it exists, it reads it and loads the latest checkpoint.
@@ -101,9 +105,10 @@ class LogManager
         
         // Read and verify control file
         boolean controlFileExists = true;
+        
         try
         {
-            this.readControlFile();
+            readControlFile();
         }
         catch( FileNotFoundException e )
         {
@@ -171,6 +176,7 @@ class LogManager
             {
                 // Check if next log file exists
                 reader = null;
+                
                 try
                 {
                     reader = logFileManager.getReaderForLogFile( ( lastGoodLogFileNumber + 1 ) );
@@ -200,53 +206,52 @@ class LogManager
                 else
                 {
                     // Reformat the existing log file
-                    this.createNextLogFile( true);
-                }           
+                    createNextLogFile( true);
+                }
             }
-            
         }
+
+        /*
+         * Control file does not exist. Either we are at the very beginning or 
+         * maybe we crashed in the middle of creating the first log file. 
+         * We  should have the min log file at most with the file header formatted. 
+         */
+        reader = null;
+        boolean fileExists = false;
+        currentLogFileNumber = LogAnchor.MIN_LOG_NUMBER - 1;
+       
+        try
         {
-            /*
-             * Control file does not exist. Either we are at the very beginning or 
-             * maybe we crashed in the middle of creating the first log file. 
-             * We  should have the min log file at most with the file header formatted. 
-             */
-           reader = null;
-           boolean fileExists = false;
-           currentLogFileNumber = LogAnchor.MIN_LOG_NUMBER - 1;
-           try
-           {
-               reader = logFileManager.getReaderForLogFile( LogAnchor.MIN_LOG_NUMBER );
-               
-               if ( reader.getLength() > LogFileRecords.LOG_FILE_HEADER_SIZE )
-               {
-                   throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
-               }
-               fileExists = true;
-               currentLogFileNumber++;
-           }
-           catch ( FileNotFoundException e )
-           {
-               // Fine, we will create the file
-           }
-           finally
-           {
-               if ( reader != null )
-               {
-                   reader.close();
-               }
-           }
-            
+            reader = logFileManager.getReaderForLogFile( LogAnchor.MIN_LOG_NUMBER );
            
+            if ( reader.getLength() > LogFileRecords.LOG_FILE_HEADER_SIZE )
+            {
+                throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
+            }
            
-           this.createNextLogFile( fileExists );
-            
-            // Prepare the min log anchor and control file and write the control file
-           minLogAnchor.resetLogAnchor( LogAnchor.MIN_LOG_NUMBER, LogFileRecords.LOG_FILE_HEADER_SIZE, LogAnchor.UNKNOWN_LSN );
-           
-           this.writeControlFile();
+            fileExists = true;
+            currentLogFileNumber++;
         }
+        catch ( FileNotFoundException e )
+        {
+            // Fine, we will create the file
+        }
+        finally
+        {
+            if ( reader != null )
+            {
+                reader.close();
+            }
+        }
+       
+        createNextLogFile( fileExists );
+        
+        // Prepare the min log anchor and control file and write the control file
+        minLogAnchor.resetLogAnchor( LogAnchor.MIN_LOG_NUMBER, LogFileRecords.LOG_FILE_HEADER_SIZE, LogAnchor.UNKNOWN_LSN );
+       
+        writeControlFile();
     }
+    
     
     /**
      * Called by LogFlushManager to switch to the next file.
@@ -264,17 +269,19 @@ class LogManager
         if ( currentWriter != null )
         {
             currentWriter.close();
-            this.writeControlFile();
-            this.createNextLogFile( false );
+            writeControlFile();
+            createNextLogFile( false );
         }
         
-        LogFileManager.LogFileWriter writer =  logFileManager.getWriterForLogFile( this.currentLogFileNumber );
+        LogFileManager.LogFileWriter writer =  logFileManager.getWriterForLogFile( currentLogFileNumber );
         long currentOffset = writer.getLength();
+        
         if ( currentOffset > 0 )
         {
             writer.seek( currentOffset );
         }
-        return writer;    
+        
+        return writer;
     }
     
     /**
@@ -301,6 +308,7 @@ class LogManager
         minLogAnchorLock.unlock();
     }
     
+    
     /**
      * Writes the control file. To make paritally written control files unlikely,
      * data is first written to a shadow file and then moved(renamed) to the controlfile.
@@ -323,13 +331,12 @@ class LogManager
         
         if ( controlFileRecord.minNeededLogFile > controlFileRecord.minExistingLogFile  )
         {
-            this.deleteUnnecessaryLogFiles( controlFileRecord.minExistingLogFile,controlFileRecord.minNeededLogFile );
+            deleteUnnecessaryLogFiles( controlFileRecord.minExistingLogFile,controlFileRecord.minNeededLogFile );
             controlFileRecord.minExistingLogFile = controlFileRecord.minNeededLogFile;
             
         }
         
         // TODO compute checksum for log record here
-        
         
         controlFileMarker.rewind();
         controlFileMarker.putLong( controlFileRecord.minExistingLogFile );
@@ -361,9 +368,8 @@ class LogManager
         
         // Do the move now
         logFileManager.rename( CONTROLFILE_SHADOW_LOG_FILE_NUMBER , CONTROLFILE_LOG_FILE_NUMBER );
-        
-        
     }
+    
     
     /**
      * Read and verifies the control file.
@@ -415,7 +421,7 @@ class LogManager
             invalidControlFile = true;
         }
         
-        if ( magicNumber != this.CONTROLFILE_MAGIC_NUMBER )
+        if ( magicNumber != CONTROLFILE_MAGIC_NUMBER )
         {
             invalidControlFile = true;
         }
@@ -426,8 +432,8 @@ class LogManager
         {
             throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
         }
-        
     }
+    
     
     /**
      * Creates the next log file. If the log file already exists, then it is reformatted, that is,
@@ -440,8 +446,8 @@ class LogManager
     private void createNextLogFile( boolean reformatExistingFile ) throws IOException, InvalidLogException
     {
         LogFileManager.LogFileWriter writer = null;
-            
-        long logFileNumber = this.currentLogFileNumber;
+        
+        long logFileNumber = currentLogFileNumber;
         
         if ( reformatExistingFile == false )
         {
@@ -477,16 +483,16 @@ class LogManager
             markerHead.putLong( logFileNumber );
             markerHead.putInt( LogFileRecords.LOG_FILE_HEADER_MAGIC_NUMBER );
             writer.append( markerBuffer, 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
-            writer.sync();            
+            writer.sync();
         }
         finally
         {
             writer.close();
         }
         
-        this.currentLogFileNumber = logFileNumber;
-        
+        currentLogFileNumber = logFileNumber;
     }
+    
     
     private void deleteUnnecessaryLogFiles( long startingLogFileNumber, long endingLogFileNumber )
     {
@@ -497,6 +503,7 @@ class LogManager
             logFileManager.deleteLogFile( logFileNumber );
         }
     }
+    
     
     /**
      * Checkpoint record
@@ -509,7 +516,4 @@ class LogManager
          long minNeededLSN;
          long checksum;
      }
-     
-    
-      
 }

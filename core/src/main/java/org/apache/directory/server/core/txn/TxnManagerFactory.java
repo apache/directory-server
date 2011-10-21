@@ -22,14 +22,17 @@ package org.apache.directory.server.core.txn;
 import java.util.Comparator;
 import org.apache.directory.server.core.api.partition.index.Serializer;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TxnManagerFactory
 {
     private static TxnManagerInternal<?> txnManager;
     
     private static TxnLogManager<?> txnLogManager;
     
-    public static <ID> void 
-        init(Comparator<ID> idComparator, Serializer idSerializer)
+    public static <ID> void init(Comparator<ID> idComparator, Serializer idSerializer)
     {
         DefaultTxnManager<ID> dTxnManager;
         dTxnManager = new DefaultTxnManager<ID>();
@@ -50,10 +53,12 @@ public class TxnManagerFactory
         return ( (TxnManager<ID>) txnManager );
     }
     
+    
     public static <ID> TxnLogManager<ID> txnLogManagerInstance()
     {
         return ( (TxnLogManager<ID>) txnLogManager );
     }
+    
     
     static <ID> TxnManagerInternal<ID> txnManagerInternalInstance()
     {

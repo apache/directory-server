@@ -43,6 +43,10 @@ import org.apache.directory.server.core.log.UserLogRecord;
 import java.io.IOException;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 {
     /** wal log manager */
@@ -83,6 +87,12 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
              }
         };
     
+    /**
+     * TODO : doco
+     * @param txnLogManager
+     * @param idComparator
+     * @param idSerializer
+     */
     public void init( TxnLogManager<ID> txnLogManager, Comparator<ID> idComparator, Serializer idSerializer )
     {
         this.txnLogManager = txnLogManager;
@@ -90,28 +100,31 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         this.idSerializer = idSerializer;
     }
     
+    
     /**
      * {@inheritDoc}
      */
     public Comparator<ID> getIDComparator()
     {
-        return this.idComparator;
+        return idComparator;
     }
+    
     
     /**
      * {@inheritDoc}
      */
     public Serializer getIDSerializer()
     {
-        return this.idSerializer;
+        return idSerializer;
     }
+    
     
     /**
      * {@inheritDoc}
      */  
     public void beginTransaction( boolean readOnly ) throws IOException
     {
-        Transaction<ID> curTxn = this.getCurTxn();
+        Transaction<ID> curTxn = getCurTxn();
         
         if ( curTxn != null )
         {
@@ -121,28 +134,28 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         
         if ( readOnly )
         {
-            this.beginReadOnlyTxn();
+            beginReadOnlyTxn();
         }
         else
         {
-            this.beginReadWriteTxn();
+            beginReadWriteTxn();
         }
-        
     }
+
     
     /**
      * {@inheritDoc}
      */
     public void commitTransaction() throws IOException
     {
-        Transaction<ID> txn = this.getCurTxn();
+        Transaction<ID> txn = getCurTxn();
         
         if ( txn == null )
         {
             throw new IllegalStateException(" trying to commit non existent txn ");
         }
         
-        this.prepareForEndingTxn( txn );
+        prepareForEndingTxn( txn );
         
         if ( txn instanceof ReadOnlyTxn )
         {
@@ -150,19 +163,19 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         }
         else
         {
-            this.commitReadWriteTxn( (ReadWriteTxn<ID>)txn );
+            commitReadWriteTxn( (ReadWriteTxn<ID>)txn );
         }
         
         txnVar.set( null );
-            
     }
+    
     
     /**
      * {@inheritDoc}
      */
     public void abortTransaction() throws IOException
     {
-        Transaction<ID> txn = this.getCurTxn();
+        Transaction<ID> txn = getCurTxn();
         
         if ( txn == null )
         {
@@ -170,16 +183,17 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
             return;
         }
         
-        this.prepareForEndingTxn( txn );
+        prepareForEndingTxn( txn );
         
         if ( txn instanceof ReadWriteTxn )
         {
-            this.abortReadWriteTxn( (ReadWriteTxn<ID>)txn );
+            abortReadWriteTxn( (ReadWriteTxn<ID>)txn );
         }
         
         txn.abortTxn();
         txnVar.set( null );
     }
+    
     
     /**
      * {@inheritDoc}
@@ -189,6 +203,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     {
        return (Transaction<ID>)txnVar.get(); 
     }
+    
     
     private void beginReadOnlyTxn()
     {
@@ -204,7 +219,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
             
             lastTxnToCheck = latestCommittedTxn.get();
             lastTxnToCheck.getRefCount().getAndIncrement();
-        }while ( lastTxnToCheck != latestCommittedTxn.get()  );
+        } while ( lastTxnToCheck != latestCommittedTxn.get()  );
         
         // Determine start time
         long startTime;
@@ -220,9 +235,10 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         
         txn.startTxn( startTime );
         
-        this.buildCheckList( txn, lastTxnToCheck );
+        buildCheckList( txn, lastTxnToCheck );
         txnVar.set( txn );
     }
+    
     
     private void beginReadWriteTxn() throws IOException
     {
@@ -257,7 +273,6 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
             }
         }
         
-        
         logRecord.setData(  data, data.length );
         
         ReadWriteTxn<ID> lastTxnToCheck = null; 
@@ -286,11 +301,10 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         }
         
         // Finally build the check list
-        this.buildCheckList( txn, lastTxnToCheck );
+        buildCheckList( txn, lastTxnToCheck );
         
         txnVar.set( txn );
     }
-    
     
     
     private void buildCheckList( Transaction<ID> txn, ReadWriteTxn<ID> lastTxnToCheck )
@@ -302,6 +316,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 
             List<ReadWriteTxn<ID>> toCheckList = txn.getTxnsToCheck();
             Iterator<ReadWriteTxn<ID>> it = committedQueue.iterator();
+            
             while ( it.hasNext() )
             {
                 toAdd = it.next();
@@ -321,17 +336,17 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 
             it = toCheckList.iterator();
             ReadWriteTxn<ID> toCheck;
+            
             while ( it.hasNext() )
             {
                 toCheck = it.next();
+                
                 if ( toCheck.commitTime <= flushedLSN )
                 {
                     it.remove();
                 }
             }
-
         }
-
     }
     
     
@@ -358,6 +373,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
             lastTxnToCheck.getRefCount().decrementAndGet();
         }
     }
+    
     
     private void commitReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException
     {
@@ -395,9 +411,9 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         verifyLock.lock();
        
         // TODO verify txn here throw conflict exception if necessary
-
         
         writeTxnsLock.lock();
+        
         try
         {
            // TODO sync of log can be done outside the locks. 
@@ -450,7 +466,5 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 
         logRecord.setData( data, data.length );
         txnLogManager.log( logRecord, false );
-        
     }
-
 }

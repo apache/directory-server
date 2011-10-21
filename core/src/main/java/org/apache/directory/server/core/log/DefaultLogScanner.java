@@ -26,6 +26,10 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.i18n.I18n;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DefaultLogScanner implements LogScannerInternal
 {
     /** LSN of the last successfully read log record */
@@ -70,6 +74,7 @@ public class DefaultLogScanner implements LogScannerInternal
         this.logFileManager = logFileManager;
     }
     
+    
     /**
      * {@inheritDoc}
      */
@@ -87,16 +92,14 @@ public class DefaultLogScanner implements LogScannerInternal
         long fileLength;
         long fileOffset;
         
-        
         try
         {
             if ( currentLogFile == null )
             {
-                
                 long startingOffset = startingLogAnchor.getLogFileOffset();
                 
                 // Read and verify header
-                currentLogFile = this.readFileHeader( startingLogAnchor.getLogFileNumber() );
+                currentLogFile = readFileHeader( startingLogAnchor.getLogFileNumber() );
                 
                 if ( currentLogFile == null )
                 {
@@ -108,12 +111,13 @@ public class DefaultLogScanner implements LogScannerInternal
                     if ( startingOffset < LogFileRecords.LOG_FILE_HEADER_SIZE )
                     {
                         // Offset should be at log file marker boundary
-                        this.markScanInvalid( null );
+                        markScanInvalid( null );
                     }
                     
                     prevLogFileOffset = Math.max( startingOffset, currentLogFile.getLength() );
                     currentLogFile.seek( startingOffset );
                 }
+                
                 startingRead = true;
             }     
             
@@ -124,19 +128,19 @@ public class DefaultLogScanner implements LogScannerInternal
                 
                 if ( fileOffset > fileLength )
                 {
-                    this.markScanInvalid( null );
+                    markScanInvalid( null );
                 }
                 else if ( fileOffset == fileLength )
                 {
                     // Switch to next file.. This reads and verifies the header of the new file
                     long nextLogFileNumber = currentLogFile.logFileNumber() + 1;
                     currentLogFile.close();
-                    currentLogFile = this.readFileHeader( nextLogFileNumber );
+                    currentLogFile = readFileHeader( nextLogFileNumber );
                     
                     if ( currentLogFile == null )
+                    {   
                         return false; // Done.. End of log stream
-                    
-                   
+                    }
                 }
                 else
                 {
@@ -145,7 +149,7 @@ public class DefaultLogScanner implements LogScannerInternal
             }
             
             // Read and verify record header
-            int recordLength = this.readRecordHeader();
+            int recordLength = readRecordHeader();
             
             // If starting read, then check if we have the expected lsn in case
             // expected lsn is known
@@ -155,15 +159,15 @@ public class DefaultLogScanner implements LogScannerInternal
                 
                 if ( ( startingLSN != LogAnchor.UNKNOWN_LSN ) && ( startingLSN != lastReadLSN ) )
                 {
-                    this.markScanInvalid( null );
+                    markScanInvalid( null );
                 }
             }
             
             // Read and verify user block
-            this.readLogRecord( logRecord, recordLength - ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ));
+            readLogRecord( logRecord, recordLength - ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ));
             
             // Read and verify footer
-            this.readRecordFooter();
+            readRecordFooter();
             
             
             // If we are here, then we successfully read the log record. 
@@ -182,30 +186,29 @@ public class DefaultLogScanner implements LogScannerInternal
         {
             // This means either the log record or the log file header was
             // partially written. Treat this as invalid log content
-            this.markScanInvalid( e );
+            markScanInvalid( e );
         }
         catch( IOException e)
         {
-            this.close();
+            close();
             throw e;
         }
         catch( InvalidLogException e)
         {
-            this.close();
+            close();
             throw e;
         }
         
-        
         return true;
-        
     }
+    
     
     /**
      * {@inheritDoc}
      */
     public long getLastGoodFileNumber()
     {
-        return this.prevLogFileNumber;
+        return prevLogFileNumber;
     }
     
     
@@ -214,9 +217,8 @@ public class DefaultLogScanner implements LogScannerInternal
      */
     public long getLastGoodOffset()
     {
-        return this.prevLogFileOffset;
+        return prevLogFileOffset;
     }
-
     
     
     /**
@@ -227,6 +229,7 @@ public class DefaultLogScanner implements LogScannerInternal
         if ( closed == false )
         {
             closed = true;
+            
             if (currentLogFile != null)
             {
                 try
@@ -240,7 +243,6 @@ public class DefaultLogScanner implements LogScannerInternal
                 }
             }
         }
-        
     }
     
     
@@ -277,11 +279,12 @@ public class DefaultLogScanner implements LogScannerInternal
         
         if ( invalid == true )
         {
-            this.markScanInvalid( null );
+            markScanInvalid( null );
         }
         
         // Everything went fine
         lastReadLSN = lsn;
+        
         return length;
     }
     
@@ -304,9 +307,10 @@ public class DefaultLogScanner implements LogScannerInternal
         
         if ( invalid == true )
         {
-            this.markScanInvalid( null );
+            markScanInvalid( null );
         }
     }
+    
     
     private void readLogRecord( UserLogRecord userRecord, int length ) throws IOException, EOFException
     {
@@ -321,6 +325,7 @@ public class DefaultLogScanner implements LogScannerInternal
         currentLogFile.read( dataBuffer, 0, length );
         userRecord.setData( dataBuffer, length );
     }
+    
     
     private LogFileManager.LogFileReader readFileHeader( long logFileNumber ) throws IOException, InvalidLogException, EOFException
     {
@@ -337,8 +342,8 @@ public class DefaultLogScanner implements LogScannerInternal
         }
         
         // File exists
-        this.prevLogFileNumber = logFileNumber;
-        this.prevLogFileOffset = 0;
+        prevLogFileNumber = logFileNumber;
+        prevLogFileOffset = 0;
         
         markerHead.rewind();
         logFile.read( markerBuffer, 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
@@ -358,13 +363,14 @@ public class DefaultLogScanner implements LogScannerInternal
         
         if ( invalid == true )
         {
-            this.markScanInvalid( null );
+            markScanInvalid( null );
         }
         
         // Everything is fine, advance good file offset and return
-        this.prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
+        prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
         return logFile;
     }
+    
     
     private void checkIfClosed()
     {
@@ -373,6 +379,7 @@ public class DefaultLogScanner implements LogScannerInternal
             throw new IllegalStateException( I18n.err( I18n.ERR_749 ) );
         }
     }
+    
     
     private void markScanInvalid( Exception cause ) throws InvalidLogException
     {

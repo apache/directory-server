@@ -32,6 +32,10 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.Entry;;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, ID>
 {
     /** Cursors to merge */
@@ -67,15 +71,12 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /** unsupported operation message */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     
-    
     public IndexCursorWrapper( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey )
     {
-        
         this.partitionDn = partitionDn;
         this.forwardIndex = forwardIndex;
         this.attributeOid = attributeOid;
         this.comparator = comparator;
-        
         
         TxnManagerInternal<ID> txnManager = TxnManagerFactory.<ID>txnManagerInternalInstance();      
         Transaction<ID> curTxn = txnManager.getCurTxn();  
@@ -108,6 +109,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         }
     }
     
+    
     /**
      * {@inheritDoc}
      */
@@ -124,7 +126,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
              cursor.after( element );
             }
@@ -149,7 +152,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
                 cursor.before( element );
             }
@@ -175,7 +179,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
                 cursor.afterValue( id, value );
             }
@@ -201,7 +206,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
                 cursor.beforeValue( id, value );
             }
@@ -227,7 +233,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
                 cursor.beforeFirst();
             }
@@ -253,7 +260,8 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         {
             values.set( idx, null );
             cursor = cursors.get( idx );
-            if( cursor != null )
+            
+            if ( cursor != null )
             {
                 cursor.afterLast( );
             }
@@ -262,24 +270,29 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         
         getIndex = -1;
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean first() throws Exception
     {
-        this.beforeFirst();
-        return this.next();
+        beforeFirst();
+        
+        return next();
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean last() throws Exception
     {
-        this.afterLast();
-        return this.previous();
+        afterLast();
+        
+        return previous();
     }
+    
     
     /**
      * {@inheritDoc}
@@ -293,27 +306,32 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         checkNotClosed( "next()" );
         
         IndexEntry<Object,ID> lastValue = null;
+        
         if ( getIndex >= 0 )
         {
             lastValue = values.get( getIndex );
         }
         
         int idx;
+        
         if ( positioned == false )
         {
             afterLast();
         }
         
-        if ( movingNext == false || ( getIndex < 0 ) )
+        if ((  movingNext == false ) || ( getIndex < 0 ) )
         {
             minValue = null;
             getIndex = -1;
+            
             for ( idx = 0; idx < values.size(); idx++ )
             {
                 cursor = cursors.get( idx );
-                if ( cursor != null && cursor.next() )
+                
+                if ( ( cursor != null ) && cursor.next() )
                 {
                     value = cursor.get();
+                    
                     if ( ( getIndex < 0 ) || ( comparator.compare( value, minValue ) < 0 ) )
                     {
                         minValue = value;
@@ -327,17 +345,17 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
                     values.set( idx, null );
                 }
             }
-            
         }
         else
         {
             // Move the last cursor we did a get from and recompute minimum
-           this.recomputeMinimum();
+           recomputeMinimum();
         }
         
         int txnIdx;
         ReadWriteTxn<ID> curTxn;
         boolean valueDeleted;
+        
         do
         {
             if ( getIndex < 0 )
@@ -348,12 +366,14 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             value = values.get( getIndex );
             
             txnIdx = getIndex;
+            
             if ( txnIdx > 0 )
             {
                 txnIdx--;
             }
             
             valueDeleted = false;
+            
             for ( ; txnIdx < txns.size(); txnIdx++ )
             {
                 curTxn = txns.get( txnIdx );
@@ -366,18 +386,17 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
                 }
             }
             
-            if ( valueDeleted == false && ( lastValue == null || ( comparator.compare( value, lastValue ) > 0 ) ) )
+            if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) > 0 ) ) )
             {
                 break;
             }
             
             // Recompute minimum
-            this.recomputeMinimum();
+            recomputeMinimum();
             
         } while ( true );
         
         return ( getIndex >= 0 );
-
     } 
     
     
@@ -393,27 +412,32 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         checkNotClosed( "previous()" );
         
         IndexEntry<Object,ID> lastValue = null;
+        
         if ( getIndex >= 0 )
         {
             lastValue = values.get( getIndex );
         }
         
         int idx;
+        
         if ( positioned == false )
         {
             afterLast();
         }
         
-        if ( movingNext == false || ( getIndex < 0 ) )
+        if ( ( movingNext == false ) || ( getIndex < 0 ) )
         {
             maxValue = null;
             getIndex = -1;
+            
             for ( idx = 0; idx < values.size(); idx++ )
             {
                 cursor = cursors.get( idx );
-                if ( cursor != null && cursor.next() )
+                
+                if ( ( cursor != null ) && cursor.next() )
                 {
                     value = cursor.get();
+                    
                     if ( ( getIndex < 0 ) || ( comparator.compare( value, maxValue ) > 0 ) )
                     {
                         maxValue = value;
@@ -427,17 +451,17 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
                     values.set( idx, null );
                 }
             }
-            
         }
         else
         {
             // Move the last cursor we did a get from and recompute maximum
-           this.recomputeMaximum();
+           recomputeMaximum();
         }
         
         int txnIdx;
         ReadWriteTxn<ID> curTxn;
         boolean valueDeleted;
+        
         do
         {
             if ( getIndex < 0 )
@@ -448,12 +472,14 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             value = values.get( getIndex );
             
             txnIdx = getIndex;
+            
             if ( txnIdx > 0 )
             {
                 txnIdx--;
             }
             
             valueDeleted = false;
+            
             for ( ; txnIdx < txns.size(); txnIdx++ )
             {
                 curTxn = txns.get( txnIdx );
@@ -466,20 +492,17 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
                 }
             }
             
-            if ( valueDeleted == false && ( lastValue == null || ( comparator.compare( value, lastValue ) < 0 ) ) )
+            if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) < 0 ) ) )
             {
                 break;
             }
             
             // Recompute maximum
-            this.recomputeMaximum();
-            
+            recomputeMaximum();
         } while ( true );
         
         return ( getIndex >= 0 );
-
     }
-    
     
     
     /**
@@ -511,7 +534,6 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     @Override
     public void close() throws Exception
     {
-        
         super.close();
         
         IndexCursor<Object,Entry,ID> cursor;
@@ -520,6 +542,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         for ( idx = 0; idx < cursors.size(); idx++ )
         {
             cursor = cursors.get( idx );
+            
             if ( cursor != null )
             {
                 cursor.close();
@@ -542,12 +565,14 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         for ( idx = 0; idx < cursors.size(); idx++ )
         {
             cursor = cursors.get( idx );
+            
             if ( cursor != null )
             {
                 cursor.close( cause );
             }
         }
     }
+    
     
     /**
      * {@inheritDoc}
@@ -566,6 +591,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         int idx;
         
         cursor = cursors.get( getIndex );
+        
         if ( cursor.next() )
         {
             values.set( getIndex , cursor.get() );
@@ -578,9 +604,11 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         
         minValue = null;
         getIndex = -1;
+        
         for ( idx = 0; idx < values.size(); idx++ )
         {
             value = values.get( idx );
+            
             if ( value != null )
             {
                 if ( ( getIndex < 0 ) || ( comparator.compare( value, minValue ) < 0 ) )
@@ -592,6 +620,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         }
     }
     
+    
     private void recomputeMaximum() throws Exception
     {
         IndexCursor<Object,Entry,ID> cursor;
@@ -600,6 +629,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         int idx;
         
         cursor = cursors.get( getIndex );
+        
         if ( cursor.next() )
         {
             values.set( getIndex , cursor.get() );
@@ -612,9 +642,11 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         
         maxValue = null;
         getIndex = -1;
+        
         for ( idx = 0; idx < values.size(); idx++ )
         {
             value = values.get( idx );
+            
             if ( value != null )
             {
                 if ( ( getIndex < 0 ) || ( comparator.compare( value, maxValue ) > 0 ) )
@@ -625,5 +657,4 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             }
         }
     }
-
 }

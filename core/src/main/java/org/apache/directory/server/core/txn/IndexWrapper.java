@@ -33,6 +33,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class IndexWrapper<ID> implements Index<Object, Entry, ID>
 {
     /** wrapped index */ 
@@ -153,11 +157,12 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
      */
     public ID forwardLookup( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor( attrVal );
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
         
         try
         {
             cursor.beforeValue( null, attrVal );
+            
             if ( cursor.next() )
             {
                 return cursor.get().getId();
@@ -177,11 +182,12 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
      */
     public Object reverseLookup( ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor( id );
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
         
         try
         {
             cursor.beforeValue( id, null );
+            
             if ( cursor.next() )
             {
                 return cursor.get().getValue();
@@ -236,7 +242,8 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         {
             wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, null );
-        } catch (Exception e)
+        } 
+        catch (Exception e)
         {
             cursor.close( e );
             throw e;
@@ -259,7 +266,8 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         {
             wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, null, null );
-        } catch (Exception e)
+        } 
+        catch (Exception e)
         {
             cursor.close( e );
             throw e;
@@ -267,6 +275,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         
         return wrappedCursor;
     }
+    
 
     /**
      * {@inheritDoc}
@@ -281,7 +290,8 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         {
             wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, id );
-        } catch (Exception e)
+        } 
+        catch (Exception e)
         {
             cursor.close( e );
             throw e;
@@ -289,6 +299,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         
         return wrappedCursor;
     }
+    
 
     /**
      * {@inheritDoc}
@@ -303,7 +314,8 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         {
             wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, key, null );
-        } catch (Exception e)
+        } 
+        catch (Exception e)
         {
             cursor.close( e );
             throw e;
@@ -311,6 +323,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         
         return wrappedCursor;
     }
+    
 
     /**
      * {@inheritDoc}
@@ -319,6 +332,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     {
         throw new UnsupportedOperationException();
     }
+    
 
     /**
      * {@inheritDoc}
@@ -327,13 +341,14 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     {
         throw new UnsupportedOperationException();
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forward( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor( attrVal );
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
         
         try
         {
@@ -349,18 +364,20 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forward( Object attrVal, ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor( attrVal );
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
         Comparator<ID> idComp = wrappedIndex.getForwardIndexEntryComparator().getIDComparator();
         
         try
         {
             cursor.beforeValue( id, attrVal );
+            
             if ( cursor.next() && ( idComp.compare( cursor.get().getId(), id ) == 0 ) )
             {
                 return true;
@@ -371,15 +388,16 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         finally
         {
             cursor.close();
-        }   
+        }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean reverse( ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor( id );
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
         
         try
         {
@@ -396,17 +414,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
         }
     }
 
+    
     /**
      * {@inheritDoc}
      */
     public boolean reverse( ID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor( id );
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
         Comparator<Object> valueComp = wrappedIndex.getForwardIndexEntryComparator().getValueComparator();
         
         try
         {
             cursor.beforeValue( id, attrVal );
+            
             if ( cursor.next() && ( valueComp.compare( cursor.get().getValue(), attrVal ) == 0 ))
             {
                 return true;
@@ -419,17 +439,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forwardGreaterOrEq( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor();
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
         
         try
         {
             cursor.beforeValue( null, attrVal );
+            
             if ( cursor.next() )
             {
                 return true;
@@ -442,17 +464,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forwardGreaterOrEq( Object attrVal, ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor();
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
         
         try
         {
             cursor.beforeValue( id, attrVal );
+            
             if ( cursor.next() )
             {
                 return true;
@@ -465,17 +489,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean reverseGreaterOrEq( ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor();
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
         
         try
         {
             cursor.beforeValue( id, null );
+            
             if ( cursor.next() )
             {
                 return true;
@@ -488,17 +514,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean reverseGreaterOrEq( ID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor();
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
         
         try
         {
             cursor.beforeValue( id, attrVal );
+            
             if ( cursor.next() )
             {
                 return true;
@@ -511,18 +539,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forwardLessOrEq( Object attrVal ) throws Exception
     {
-
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor();
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
         
         try
         {
             cursor.afterValue( null, attrVal );
+            
             if ( cursor.previous() )
             {
                 return true;
@@ -535,17 +564,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean forwardLessOrEq( Object attrVal, ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.forwardCursor();
+        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
         
         try
         {
             cursor.afterValue( id, attrVal );
+            
             if ( cursor.previous() )
             {
                 return true;
@@ -558,17 +589,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean reverseLessOrEq( ID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor();
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
         
         try
         {
             cursor.afterValue( id, null );
+            
             if ( cursor.previous() )
             {
                 return true;
@@ -581,17 +614,19 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
 
     /**
      * {@inheritDoc}
      */
     public boolean reverseLessOrEq( ID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = this.reverseCursor();
+        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
         
         try
         {
             cursor.afterValue( id, attrVal );
+            
             if ( cursor.previous() )
             {
                 return true;
@@ -604,6 +639,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
             cursor.close();
         }
     }
+    
     
     /**
      * {@inheritDoc}

@@ -28,6 +28,10 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
 {
     /** Wrapped master table */
@@ -52,6 +56,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     {
         wrappedTable.resetCounter();
     }
+    
     
     /**
      * {@inheritDoc}
@@ -89,13 +94,12 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     }
 
 
-   
     /**
      * {@inheritDoc}
      */
     public boolean has( ID key ) throws Exception
     {
-        return ( this.get( key ) != null );
+        return ( get( key ) != null );
     }
 
 
@@ -104,9 +108,9 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
      */
     public boolean has( ID key, Entry value ) throws Exception
     {
-        Entry stored = this.get( key );
+        Entry stored = get( key );
         
-        return ( stored != null && stored.equals( value ) );
+        return ( ( stored != null ) && stored.equals( value ) );
     }
 
 
@@ -151,7 +155,6 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
      */
     public Entry get( ID key ) throws Exception
     {
-        
         if ( key == null )
         {
             return null;
@@ -160,6 +163,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
         TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
         Entry entry = wrappedTable.get( key );
         entry = logManager.mergeUpdates( partitionDn, key, entry );
+        
         return entry;
     }
 
@@ -169,7 +173,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
      */
     public void put( ID key, Entry value ) throws Exception
     {
-      wrappedTable.put( key, value ); 
+        wrappedTable.put( key, value ); 
     }
 
 
@@ -178,7 +182,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
      */
     public void remove( ID key ) throws Exception
     {
-       wrappedTable.remove( key ); 
+        wrappedTable.remove( key ); 
     }
 
 
@@ -198,6 +202,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     {
         return wrappedTable.cursor();
     }
+    
 
     /**
      * {@inheritDoc}
@@ -233,6 +238,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     {
         return wrappedTable.count( key );
     }
+    
 
     /**
      * {@inheritDoc}
@@ -259,5 +265,4 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     {
         wrappedTable.close();
     }
-    
 }

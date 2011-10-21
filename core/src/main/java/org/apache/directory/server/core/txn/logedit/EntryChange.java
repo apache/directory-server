@@ -26,6 +26,10 @@ import java.io.ObjectOutput;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class EntryChange<ID> extends AbstractDataChange<ID>
 {
     /** redo change */
@@ -37,7 +41,6 @@ public class EntryChange<ID> extends AbstractDataChange<ID>
     //For externalizable
     public EntryChange()
     {
-        
     }
     
     public EntryChange( Modification redo, Modification undo )
@@ -46,15 +49,18 @@ public class EntryChange<ID> extends AbstractDataChange<ID>
         undoChange = undo;
     }
     
+    
     public Modification getRedoChange()
     {
         return redoChange;
     }
     
+    
     public Modification getUndoChange()
     {
         return undoChange;
     }
+    
     
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -76,5 +82,4 @@ public class EntryChange<ID> extends AbstractDataChange<ID>
         redoChange.writeExternal( out );
         undoChange.writeExternal( out );
     }
-    
 }

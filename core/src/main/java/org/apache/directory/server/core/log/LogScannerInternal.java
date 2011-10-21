@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.log;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface LogScannerInternal extends LogScanner
 {
     /**
@@ -28,5 +32,5 @@ public interface LogScannerInternal extends LogScanner
      * @param startingPoint
      * @param logFileManager log file manager to use 
      */
-    public void init( LogAnchor startingPoint, LogFileManager logFileManager );
+    void init( LogAnchor startingPoint, LogFileManager logFileManager );
 }

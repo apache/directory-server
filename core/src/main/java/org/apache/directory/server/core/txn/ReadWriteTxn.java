@@ -52,6 +52,10 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 class ReadWriteTxn<ID> extends AbstractTransaction<ID>
 {  
     /** list of log edits by the txn */
@@ -80,18 +84,21 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
       
     public AtomicInteger getRefCount()
     {
-        return this.txnRefCount;
+        return txnRefCount;
     }
+    
     
     public UserLogRecord getUserLogRecord()
     {
         return logRecord;
     }
     
+    
     public List<LogEdit<ID>> getEdits()
     {
         return logEdits;
     }
+    
     
     @SuppressWarnings("unchecked")
     public void addLogEdit( LogEdit<ID> edit )
@@ -108,7 +115,7 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
             Iterator<DataChange<ID>> it = dataChanges.iterator();
             Dn partitionDn = dEdit.getPartitionDn();
             
-            DataChange<ID> nextChange;            
+            DataChange<ID> nextChange;
             IndexChange<ID> indexChange;
             IndexChange.Type indexChangeType;
             ForwardIndexEntry<Object,ID> indexEntry;
@@ -139,9 +146,10 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                 indexDeletes.put( partitionDn, deletedIndices );
             }
             
-            while( it.hasNext() )
+            while ( it.hasNext() )
             {
                 nextChange = it.next();
+                
                 if ( nextChange instanceof IndexChange )
                 {
                     indexChange = (IndexChange<ID>) nextChange;
@@ -166,12 +174,12 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                     }
                     
                     TreeSet<IndexEntry<Object,ID>> deletes = deletedIndices.get( indexChange.getOID() );
+                    
                     if ( deletes == null )
                     {
                         deletes = new TreeSet<IndexEntry<Object,ID>>( index.getForwardIndexEntryComparator() );
                         deletedIndices.put( indexChange.getOID(), deletes );
                     }
-                    
                     
                     indexEntry = new ForwardIndexEntry<Object,ID>();
                     indexEntry.setValue( indexChange.getKey() );
@@ -191,9 +199,9 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                     }
                 }
             }
-            
         } 
     }
+    
     
     public Entry applyUpdatesToEntry( Dn partitionDn, ID entryID, Entry curEntry, boolean cloneOnChange )
     {
@@ -231,6 +239,7 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                     if ( curEntry!= null )
                     {
                         String curUuid = null;  
+                        
                         try
                         {
                             curUuid = curEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
@@ -247,12 +256,12 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                     else
                     {
                         Comparator<ID> idComp = TxnManagerFactory.<ID>txnManagerInstance().getIDComparator();
+                        
                         if ( partitionDn.equals( container.getPartitionDn() ) &&  ( idComp.compare( entryID, container.getEntryID() ) == 0 ))
                         {
                             applyChanges = true;
                         }
                     }
-                    
                 }
                 
                 if ( applyChanges )
@@ -264,7 +273,8 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                     while ( dit.hasNext() )
                     {
                         nextChange = dit.next();
-                        if ( nextChange instanceof EntryChange && ( curEntry != null ) )
+                        
+                        if ( ( nextChange instanceof EntryChange ) && ( curEntry != null ) )
                         {
                             EntryChange<ID> entryChange = (EntryChange<ID>)nextChange;
                            
@@ -273,7 +283,6 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
                                 curEntry = curEntry.clone();
                                 needToCloneOnChange = false;
                             }
-                            
                             
                             try
                             {
@@ -305,7 +314,6 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
         }
         
         return curEntry;
-        
     }
     
     
@@ -313,7 +321,6 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
     {
         Map<String, TreeSet< IndexEntry<Object,ID>>> deletedIndices = 
             indexDeletes.get( partitionDn ); 
-
         
         if ( deletedIndices != null )
         {
@@ -321,8 +328,6 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
         }
        
         return false;
-
-        
     }
     
     
@@ -344,7 +349,5 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
         }
         
         return txnIndexCursor;
-        
     }
-    
 }

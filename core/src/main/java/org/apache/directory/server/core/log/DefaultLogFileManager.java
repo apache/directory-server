@@ -26,9 +26,16 @@ import java.io.FileNotFoundException;
 
 import java.io.RandomAccessFile;
 
-class DefaultLogFileManager implements LogFileManager 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+/** Package protected */ class DefaultLogFileManager implements LogFileManager 
 {
+    /** TODO: doco */
     private String logFilePath;
+    
+    /** TODO: doco */
     private String suffix;
     
     /**
@@ -49,8 +56,8 @@ class DefaultLogFileManager implements LogFileManager
      * {@inheritDoc}
      */
     public LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
-    {      
-        File logFile = this.makeLogFileName( logFileNumber );
+    {
+        File logFile = makeLogFileName( logFileNumber );
         
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "r" );
@@ -58,12 +65,13 @@ class DefaultLogFileManager implements LogFileManager
         return new LogFileReader( raf, logFileNumber );
     }
     
+    
     /**
      * {@inheritDoc}
      */
     public LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
     {
-        File logFile = this.makeLogFileName( logFileNumber );
+        File logFile = makeLogFileName( logFileNumber );
         
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
@@ -77,7 +85,7 @@ class DefaultLogFileManager implements LogFileManager
      */
     public boolean createLogFile( long logFileNumber ) throws IOException
     {
-        File logFile = this.makeLogFileName( logFileNumber );
+        File logFile = makeLogFileName( logFileNumber );
         
         boolean fileAlreadyExists = !logFile.createNewFile();
         
@@ -95,7 +103,7 @@ class DefaultLogFileManager implements LogFileManager
             throw new IllegalArgumentException( "Invalid file size is specified for the log file: " + logFileNumber + " " + size );
         }
         
-        File logFile = this.makeLogFileName( logFileNumber );
+        File logFile = makeLogFileName( logFileNumber );
         
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
@@ -110,7 +118,7 @@ class DefaultLogFileManager implements LogFileManager
      */
     public void deleteLogFile( long logFileNumber )
     {
-        File logFile = this.makeLogFileName( logFileNumber );
+        File logFile = makeLogFileName( logFileNumber );
         
         logFile.delete();
     }
@@ -121,8 +129,8 @@ class DefaultLogFileManager implements LogFileManager
      */
     public boolean rename(long originalLogFileNumber, long newLongFileNumber)
     {
-        File oldLogFile = this.makeLogFileName( originalLogFileNumber );  
-        boolean result = oldLogFile.renameTo( this.makeLogFileName( newLongFileNumber ) );
+        File oldLogFile = makeLogFileName( originalLogFileNumber );  
+        boolean result = oldLogFile.renameTo( makeLogFileName( newLongFileNumber ) );
         return result;
     }
     

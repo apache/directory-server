@@ -26,6 +26,10 @@ import java.io.ObjectOutput;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class EntryAddDelete<ID> extends AbstractDataChange<ID>
 {
     /** Added or deleted entry */
@@ -46,15 +50,18 @@ public class EntryAddDelete<ID> extends AbstractDataChange<ID>
         this.type = type;
     }
     
+    
     public Entry getChangedEntry()
     {
         return entry;
     }
     
+    
     public Type getType()
     {
         return type;
     }
+    
     
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -77,5 +84,4 @@ public class EntryAddDelete<ID> extends AbstractDataChange<ID>
         ADD,
         DELETE
     }
-    
 }

@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.core.txn;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 class ReadOnlyTxn<ID> extends AbstractTransaction<ID>
 {
    

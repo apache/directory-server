@@ -26,6 +26,10 @@ import java.util.Iterator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 abstract class AbstractTransaction<ID> implements Transaction<ID>
 {
     /** Logical time(LSN in the wal) when the txn began */ 
@@ -41,10 +45,14 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     List<ReadWriteTxn<ID>> txnsToCheck = new ArrayList<ReadWriteTxn<ID>>();
  
     
+    /**
+     * TODO : doco
+     */
     public AbstractTransaction( )
     {
         txnState = State.INITIAL;
     }
+    
     
     /**
      * {@inheritDoc}
@@ -52,16 +60,18 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     public void startTxn( long startTime )
     {
         this.startTime = startTime;
-        this.setState( State.READ );
+        setState( State.READ );
     }
+    
     
     /**
      * {@inheritDoc}
      */  
     public long getStartTime()
     {
-        return this.startTime;
+        return startTime;
     }
+    
     
     /**
      * {@inheritDoc}
@@ -69,8 +79,9 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     public void commitTxn( long commitTime )
     {
         this.commitTime = commitTime;
-        this.setState( State.COMMIT );
+        setState( State.COMMIT );
     }
+    
     
     /**
      * {@inheritDoc}
@@ -80,12 +91,13 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
         return commitTime;
     }
     
+    
     /**
      * {@inheritDoc}
      */
     public void abortTxn()
     {
-       this.setState( State.ABORT ); 
+       setState( State.ABORT ); 
     }
 
     
@@ -94,24 +106,27 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
      */  
     public List<ReadWriteTxn<ID>> getTxnsToCheck()
     {
-        return this.txnsToCheck;
+        return txnsToCheck;
     }
+    
     
     /**
      * {@inheritDoc}
      */  
     public State getState()
     {
-        return this.txnState;
+        return txnState;
     }
+    
     
     /**
      * {@inheritDoc}
      */  
     public void setState( State newState )
     {
-        this.txnState = newState;
+        txnState = newState;
     }
+    
     
     public Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry )
     {
@@ -135,6 +150,4 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
         
         return curEntry;
     }
-    
-    
 }

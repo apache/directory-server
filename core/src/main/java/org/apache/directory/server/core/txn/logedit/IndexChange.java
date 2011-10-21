@@ -29,6 +29,10 @@ import org.apache.directory.server.core.txn.TxnManagerFactory;
 
 import org.apache.directory.shared.ldap.model.entry.Value;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class IndexChange<ID> extends AbstractDataChange<ID>
 {
     /** Index this change is done on */
@@ -49,7 +53,6 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     // For externalizable
     public IndexChange()
     {
-        
     }
     
     public IndexChange( Index<?, ?, ID> index, String oid, Value<?> key, ID id, Type type )
@@ -64,8 +67,9 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     
     public String getOID()
     {
-        return this.oid;
+        return oid;
     }
+    
     
     public Index<?, ?, ID> getIndex()
     {
@@ -78,15 +82,18 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
         return key;
     }
     
+    
     public ID getID()
     {
         return id;
     }
     
+    
     public Type getType()
     {
         return type;
     }
+    
     
     @Override
     @SuppressWarnings("unchecked")
@@ -122,12 +129,9 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     }
     
     
-    
     public enum Type
     {
         ADD,
         DELETE
     }
-    
-    
 }

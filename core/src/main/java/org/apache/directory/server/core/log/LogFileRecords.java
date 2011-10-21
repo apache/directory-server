@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.log;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class LogFileRecords
 {
     /** 
@@ -28,7 +32,7 @@ public class LogFileRecords
      * into the log. Header and footer information makes
      * it easier to scan the log, detect the end of 
      * log during log scan and verify the integrity of log.  
-     */  
+     */
     
     /**
      * Record Header marker
@@ -76,5 +80,4 @@ public class LogFileRecords
         int markerSize = Math.max( RECORD_HEADER_SIZE, RECORD_FOOTER_SIZE );
         MAX_MARKER_SIZE = Math.max( markerSize, LOG_FILE_HEADER_SIZE );
     }
-    
 }

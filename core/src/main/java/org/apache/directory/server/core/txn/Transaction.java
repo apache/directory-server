@@ -25,23 +25,27 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
-interface Transaction<ID>
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+/** Package protected */ interface Transaction<ID>
 {
-    public List<ReadWriteTxn<ID>> getTxnsToCheck();
+    List<ReadWriteTxn<ID>> getTxnsToCheck();
     
-    public long getStartTime();
+    long getStartTime();
     
-    public void startTxn( long startTime );
+    void startTxn( long startTime );
     
-    public void commitTxn( long commitTime );
+    void commitTxn( long commitTime );
     
-    public long getCommitTime();
+    long getCommitTime();
     
-    public void abortTxn();
+    void abortTxn();
     
-    public State getState();
+    State getState();
     
-    public Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry );
+    Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry );
     
     enum State
     {
@@ -50,5 +54,4 @@ interface Transaction<ID>
         COMMIT,
         ABORT   
     }
-
 }
