@@ -48,7 +48,6 @@ public class LogAnchor
     
     public LogAnchor()
     {
-        
     }
     
     

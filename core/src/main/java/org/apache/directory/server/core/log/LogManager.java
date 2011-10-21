@@ -49,34 +49,34 @@ import org.apache.directory.server.i18n.I18n;
     private final static long CONTROLFILE_SHADOW_LOG_FILE_NUMBER = -2;
     
     /** buffer used to do IO on controlfile */
-    byte controlFileBuffer[] = new byte[CONTROLFILE_RECORD_SIZE];
+    private byte controlFileBuffer[] = new byte[CONTROLFILE_RECORD_SIZE];
     
     /** ByteBuffer used to to IO on checkpoint file */
-    ByteBuffer controlFileMarker = ByteBuffer.wrap( controlFileBuffer );
+    private ByteBuffer controlFileMarker = ByteBuffer.wrap( controlFileBuffer );
     
     /** Current checkpoint record in memory */
-    ControlFileRecord controlFileRecord = new ControlFileRecord();
+    private ControlFileRecord controlFileRecord = new ControlFileRecord();
     
     /** Min neeeded point in the log */
-    LogAnchor minLogAnchor = new LogAnchor();
+    private LogAnchor minLogAnchor = new LogAnchor();
     
     /** Protects minLogAchor */
-    Lock minLogAnchorLock = new ReentrantLock();
+    private Lock minLogAnchorLock = new ReentrantLock();
     
     /** Log file manager */
-    LogFileManager logFileManager;
+    private LogFileManager logFileManager;
         
     /** Log Anchor comparator */
-    LogAnchorComparator anchorComparator = new LogAnchorComparator();
+    private LogAnchorComparator anchorComparator = new LogAnchorComparator();
     
     /** Current log file */
     private long currentLogFileNumber;
     
     /** Buffer used to read log file markers */
-    byte markerBuffer[] = new byte[LogFileRecords.LOG_FILE_HEADER_SIZE];
+    private byte markerBuffer[] = new byte[LogFileRecords.LOG_FILE_HEADER_SIZE];
     
     /** ByteBuffer wrapper for the marker buffer */
-    ByteBuffer markerHead = ByteBuffer.wrap( markerBuffer );
+    private ByteBuffer markerHead = ByteBuffer.wrap( markerBuffer );
     
     
     public LogManager( LogFileManager logFileManager )
@@ -98,10 +98,8 @@ import org.apache.directory.server.i18n.I18n;
     {
         LogAnchor scanPoint = new LogAnchor();
         LogScannerInternal scanner;
-        UserLogRecord logRecord;        
+        UserLogRecord logRecord;
         LogFileManager.LogFileReader reader;
-
-        
         
         // Read and verify control file
         boolean controlFileExists = true;

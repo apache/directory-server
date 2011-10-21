@@ -137,8 +137,7 @@ import java.io.RandomAccessFile;
     
     private File makeLogFileName( long logFileNumber )
     {
-        
-        return new File( logFilePath + "/" + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "." + suffix );
+        return new File( logFilePath + File.separatorChar + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "." + suffix );
     }
     
     static class LogFileReader implements LogFileManager.LogFileReader

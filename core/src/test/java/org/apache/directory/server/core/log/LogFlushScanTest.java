@@ -38,22 +38,26 @@ public class LogFlushScanTest
     /** Logger */
     private Log log;
     
-    /** Log buffer size */
+    /** Log buffer size : 4096 bytes */
     private int logBufferSize = 1 << 12;
     
-    /** Log File Size */
+    /** Log File Size : 8192 bytes */
     private long logFileSize = 1 << 13;
     
     /** log suffix */
-    private String logSuffix = "log";
+    private static String LOG_SUFFIX = "log";
     
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
 
+    /**
+     * Get the Log folder
+     */
     private String getLogFoler( ) throws IOException
     {
-        String file = folder.newFolder( "log" ).getAbsolutePath();
+        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        
         return file;
     }
 
@@ -62,7 +66,7 @@ public class LogFlushScanTest
     public void setup() throws IOException, InvalidLogException
     {
         log = new DefaultLog();
-        log.init( this.getLogFoler(), logSuffix, logBufferSize, logFileSize );
+        log.init( getLogFoler(), LOG_SUFFIX, logBufferSize, logFileSize );
     }
 
 
