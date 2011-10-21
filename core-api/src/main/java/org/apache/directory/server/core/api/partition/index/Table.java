@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
-
 import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
