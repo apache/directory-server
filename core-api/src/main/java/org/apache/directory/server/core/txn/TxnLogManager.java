@@ -29,13 +29,17 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 import java.io.IOException;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface TxnLogManager<ID>
 {
-    public void log( LogEdit<ID> logEdit, boolean sync ) throws IOException;
+    void log( LogEdit<ID> logEdit, boolean sync ) throws IOException;
     
-    public void log( UserLogRecord logRecord, boolean sync ) throws IOException;
+    void log( UserLogRecord logRecord, boolean sync ) throws IOException;
     
-    public Entry mergeUpdates(Dn partitionDN, ID entryID,  Entry entry );
+    Entry mergeUpdates(Dn partitionDN, ID entryID,  Entry entry );
     
-    public IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception;
+    IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception;
 }

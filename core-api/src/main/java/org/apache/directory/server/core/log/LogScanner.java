@@ -21,6 +21,10 @@ package org.apache.directory.server.core.log;
 
 import java.io.IOException;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface LogScanner
 {
     /**
@@ -33,7 +37,7 @@ public interface LogScanner
      * throws IOException
      * throws InvalidLogException thrown if the log content is invalid 
      */
-    public boolean getNextRecord(UserLogRecord logRecord) throws IOException, InvalidLogException;
+    boolean getNextRecord(UserLogRecord logRecord) throws IOException, InvalidLogException;
     
     
     /**
@@ -41,19 +45,19 @@ public interface LogScanner
      *
      * @return last successfully read log file number
      */
-    public long getLastGoodFileNumber();
+    long getLastGoodFileNumber();
     
     /**
      * Returns the last successfully read log file number
      *
      * @return last successfully read log file number
      */
-    public long getLastGoodOffset();
+    long getLastGoodOffset();
     
     /**
      * Closes the scanner and releases any
      * resources. 
      *
      */
-    public void close();
+    void close();
 }

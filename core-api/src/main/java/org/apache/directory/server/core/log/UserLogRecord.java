@@ -32,10 +32,10 @@ public class UserLogRecord
     private byte[] recordHolder;
     
     /** offset int the  byte array where user record starts */
-    int offset;
+    private int offset;
     
     /** length of the user record in the byte array */
-    int length;
+    private int length;
     
     /** Position of the log record in the log */
     private LogAnchor logAnchor = new LogAnchor();
@@ -46,12 +46,13 @@ public class UserLogRecord
         this.length = length;
     }
     
+    
     public byte[] getDataBuffer()
     {
         return recordHolder;
     }
     
-   
+    
     public int getDataLength()
     {
         return length;
@@ -62,5 +63,4 @@ public class UserLogRecord
     {
         return logAnchor;
     }
-    
 }

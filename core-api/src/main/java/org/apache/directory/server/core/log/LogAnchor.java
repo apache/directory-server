@@ -37,7 +37,6 @@ public class LogAnchor
     /** Min log file offset */
     public final static long MIN_LOG_OFFSET = 0;
     
-    
     /** log file identifier of the anchor */
     private long logFileNumber = 0 ;
     
@@ -51,6 +50,7 @@ public class LogAnchor
     {
         
     }
+    
     
     public LogAnchor( long logFileNumber, long logFileOffset, long logLSN )
     {
@@ -75,6 +75,7 @@ public class LogAnchor
         this.logFileOffset = logFileOffset;
         this.logLSN = logLSN;
     }
+    
     
     public void resetLogAnchor( LogAnchor logAnchor )
     {

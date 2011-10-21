@@ -21,6 +21,10 @@ package org.apache.directory.server.core.log;
 
 import java.io.IOException;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface Log
 {
     
@@ -34,7 +38,7 @@ public interface Log
      * @throws IOException
      * @throws InvalidLogException
      */
-   public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException;
+    void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException;
     
     /**
      * Logs the given user record to the log. Position in the log files where the record is logged is returned as part of
@@ -45,16 +49,16 @@ public interface Log
      * @throws IOException
      * @throws InvalidLogException
      */
-    public void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException;
+    void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException;
     
     
     /**
-     * Starts a san in the logs starting from the given log position
+     * Starts a scan in the logs starting from the given log position
      *
      * @param startPoint starting position of the scan.
      * @return
      */
-    public LogScanner beginScan( LogAnchor startPoint );
+    LogScanner beginScan( LogAnchor startPoint );
     
     
     /**
@@ -63,7 +67,5 @@ public interface Log
      *
      * @param newAnchor
      */
-    public void advanceMinNeededLogPosition( LogAnchor newAnchor );
-
-    
+    void advanceMinNeededLogPosition( LogAnchor newAnchor );
 }

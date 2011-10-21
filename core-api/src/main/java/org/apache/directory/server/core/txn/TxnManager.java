@@ -23,15 +23,19 @@ import java.io.IOException;
 import org.apache.directory.server.core.api.partition.index.Serializer;
 import java.util.Comparator;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface TxnManager<ID>
 {
-    public void beginTransaction( boolean readOnly ) throws IOException;
+    void beginTransaction( boolean readOnly ) throws IOException;
    
-    public void commitTransaction() throws IOException;
+    void commitTransaction() throws IOException;
     
-    public void abortTransaction() throws IOException;
+    void abortTransaction() throws IOException;
     
-    public Comparator<ID> getIDComparator();
+    Comparator<ID> getIDComparator();
     
-    public Serializer getIDSerializer();
+    Serializer getIDSerializer();
 }

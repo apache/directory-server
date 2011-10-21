@@ -29,6 +29,10 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.junit.Assert.assertTrue;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class LogFlushScanTest
 {
     /** Logger */
@@ -65,8 +69,8 @@ public class LogFlushScanTest
     @After
     public void teardown() throws IOException
     {
-  
     }
+    
     
     @Test
     public void testAppendScan()
@@ -108,6 +112,7 @@ public class LogFlushScanTest
        
             
             LogScanner logScanner = log.beginScan( startingPoint );
+            
             while ( logScanner.getNextRecord( logRecord ) )
             {
                 userRecord = logRecord.getDataBuffer();
@@ -138,6 +143,7 @@ public class LogFlushScanTest
         assertTrue( failed == false );
     }
     
+    
     @Test
     public void testLogSwitchScan()
     {
@@ -156,8 +162,8 @@ public class LogFlushScanTest
         LogAnchor startingPoint = new LogAnchor();
         LogAnchor endPoint = new LogAnchor();
         
-       try
-       {
+        try
+        {
             while ( writtenCounter < maxCounter )
             {
                 for ( idx = 0; idx < dataLength; idx++ )
@@ -187,6 +193,7 @@ public class LogFlushScanTest
             assertTrue( endPoint.getLogFileNumber() > startingPoint.getLogFileNumber() ); 
             
             LogScanner logScanner = log.beginScan( startingPoint );
+            
             while ( logScanner.getNextRecord( logRecord ) )
             {
                 userRecord = logRecord.getDataBuffer();
@@ -201,8 +208,6 @@ public class LogFlushScanTest
             }
             
             assertTrue( writtenCounter == readCounter );
-            
-        
        }
        catch( IOException e )
        {
@@ -214,8 +219,8 @@ public class LogFlushScanTest
            e.printStackTrace();
            failed = true;
        }
-        
     }
+
     
     @Test
     public void testMultiThreadedAppend() throws InterruptedException
@@ -226,8 +231,6 @@ public class LogFlushScanTest
         byte recordData[] = new byte[dataLength];
         byte userRecord[];
         boolean failed = false;
-        
-        
         
         LogAnchor startingPoint = new LogAnchor();
         
@@ -257,7 +260,6 @@ public class LogFlushScanTest
         
         startingPoint.resetLogAnchor( logRecord.getLogAnchor() );
         
-        
         byte key = 1;
         int numThreads = 4;
         int numAppends = 64;
@@ -280,7 +282,6 @@ public class LogFlushScanTest
         {
             threads[idx].join();
         }
-        
         
         LogScanner logScanner = log.beginScan( startingPoint );
         
@@ -311,9 +312,9 @@ public class LogFlushScanTest
             failed = true;
         }
         
-        
         assertTrue( sum == expectedSum );
     }
+    
     
     class MultiThreadedAppend extends Thread
     {
@@ -369,6 +370,4 @@ public class LogFlushScanTest
             assertTrue( failed == false );
         }
     }
-    
-    
 }

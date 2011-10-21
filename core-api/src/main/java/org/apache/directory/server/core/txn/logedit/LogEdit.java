@@ -23,6 +23,10 @@ import org.apache.directory.server.core.log.LogAnchor;
 
 import java.io.Externalizable;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface LogEdit<ID> extends Externalizable 
 {
     /**
@@ -32,5 +36,5 @@ public interface LogEdit<ID> extends Externalizable
      *
      * @return position of the log edit in the wal
      */
-    public LogAnchor getLogAnchor();
+    LogAnchor getLogAnchor();
 }

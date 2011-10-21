@@ -21,6 +21,10 @@ package org.apache.directory.server.core.txn.logedit;
 
 import org.apache.directory.server.core.log.LogAnchor;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public abstract class AbstractLogEdit<ID> implements LogEdit<ID>
 {
     /** position in the wal */

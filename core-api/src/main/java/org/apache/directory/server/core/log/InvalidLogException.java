@@ -32,15 +32,16 @@ public class InvalidLogException extends Exception
     {
         super(s);
     }
+    
 
     public InvalidLogException(Throwable cause) 
     {
         super(cause);
     }
+    
 
     public InvalidLogException(String s, Throwable cause) 
     {
         super(s, cause);
     }
-
 }

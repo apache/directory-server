@@ -21,6 +21,10 @@ package org.apache.directory.server.core.txn.logedit;
 
 import java.io.Externalizable;
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface DataChange<ID> extends Externalizable
 {
 
