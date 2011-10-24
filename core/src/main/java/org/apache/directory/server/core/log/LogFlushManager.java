@@ -154,7 +154,7 @@ import org.apache.directory.server.i18n.I18n;
                 {
                     // First get the rewind count then the position to which the readhead advanced
                     int readHeadRewindCount = logBuffer.readHeadRewindCount.get();
-                    int readHeadPosition = logBuffer.readHeadPosition;                
+                    int readHeadPosition = logBuffer.readHeadPosition;
                     
                     if ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount ) || 
                         ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount + 1 ) && 
@@ -483,7 +483,7 @@ import org.apache.directory.server.i18n.I18n;
                 int offset;
                 offset = logBuffer.readHeadPosition;
                 
-                currentLogFile.append( logBuffer.buffer, offset, totalLength );            
+                currentLogFile.append( logBuffer.buffer, offset, totalLength );
                        
                 //move the position to the next record
                 logBuffer.readHeadPosition = readHead.position();

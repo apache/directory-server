@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.log;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * 
@@ -84,18 +86,11 @@ public class LogFlushScanTest
         UserLogRecord logRecord = new UserLogRecord();
         byte recordData[] = new byte[dataLength];
         byte userRecord[];
-        boolean failed = false;
         
-        byte writtenCounter = 0;
+        byte writtenCounter = 1;
         byte readCounter = 0;
         
         LogAnchor startingPoint = new LogAnchor();
-        
-        for ( idx = 0; idx < dataLength; idx++ )
-        {
-            recordData[idx] = writtenCounter;
-        }
-        writtenCounter++;
         
         try
         {
@@ -105,15 +100,12 @@ public class LogFlushScanTest
             // Record the starting point
             startingPoint.resetLogAnchor( logRecord.getLogAnchor() );
             
-            for ( idx = 0; idx < dataLength; idx++ )
-            {
-                recordData[idx] = writtenCounter;
-            }
+            Arrays.fill( recordData, (byte)writtenCounter );
+            
             writtenCounter++;
             
             logRecord.setData( recordData, dataLength );
             log.log( logRecord, true ); //Sync what we logged so far
-       
             
             LogScanner logScanner = log.beginScan( startingPoint );
             
@@ -131,20 +123,17 @@ public class LogFlushScanTest
             }
             
             assertTrue( writtenCounter == readCounter );
-        
         }
         catch( IOException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
         catch( InvalidLogException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
-        
-        assertTrue( failed == false );
     }
     
     
@@ -156,7 +145,6 @@ public class LogFlushScanTest
         UserLogRecord logRecord = new UserLogRecord();
         byte recordData[] = new byte[dataLength];
         byte userRecord[];
-        boolean failed = false;
         
         byte writtenCounter = 1;
         byte readCounter = 1;
@@ -170,10 +158,7 @@ public class LogFlushScanTest
         {
             while ( writtenCounter < maxCounter )
             {
-                for ( idx = 0; idx < dataLength; idx++ )
-                {
-                    recordData[idx] = writtenCounter;
-                }
+                Arrays.fill( recordData, (byte)writtenCounter );
                 
                 logRecord.setData( recordData, dataLength );
                 boolean sync = ( ( writtenCounter % 11 ) == 0 ) || ( writtenCounter == ( maxCounter - 1 ) );
@@ -216,12 +201,12 @@ public class LogFlushScanTest
        catch( IOException e )
        {
            e.printStackTrace();
-           failed = true;
-       }
+            fail();
+        }
        catch( InvalidLogException e )
        {
            e.printStackTrace();
-           failed = true;
+           fail();
        }
     }
 
@@ -234,14 +219,8 @@ public class LogFlushScanTest
         UserLogRecord logRecord = new UserLogRecord();
         byte recordData[] = new byte[dataLength];
         byte userRecord[];
-        boolean failed = false;
         
         LogAnchor startingPoint = new LogAnchor();
-        
-        for ( idx = 0; idx < dataLength; idx++ )
-        {
-            recordData[idx] = 0;
-        }
         
         logRecord.setData( recordData, dataLength );
         
@@ -252,15 +231,13 @@ public class LogFlushScanTest
         catch( IOException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
         catch( InvalidLogException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
-        
-        assertTrue( failed == false );
         
         startingPoint.resetLogAnchor( logRecord.getLogAnchor() );
         
@@ -308,12 +285,12 @@ public class LogFlushScanTest
         catch( IOException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
         catch( InvalidLogException e )
         {
             e.printStackTrace();
-            failed = true;
+            fail();
         }
         
         assertTrue( sum == expectedSum );
@@ -338,12 +315,8 @@ public class LogFlushScanTest
             UserLogRecord logRecord = new UserLogRecord();
             byte recordData[] = new byte[dataLength];
             int idx;
-            boolean failed = false;
             
-            for ( idx = 0; idx < dataLength; idx++ )
-            {
-                recordData[idx] = key;
-            }
+            Arrays.fill( recordData, (byte)key );
             
             logRecord.setData( recordData, dataLength );
             
@@ -352,6 +325,7 @@ public class LogFlushScanTest
                 for ( idx = 0; idx < numAppends; idx++ )
                 {
                     boolean sync = false;
+                    
                     if ( ( ( idx % 3 )  == 0 ) || ( idx == numAppends - 1 ) )
                     {
                         sync = true;
@@ -363,15 +337,13 @@ public class LogFlushScanTest
             catch( IOException e )
             {
                 e.printStackTrace();
-                failed = true;
+                fail();
             }
             catch( InvalidLogException e )
             {
                 e.printStackTrace();
-                failed = true;
+                fail();
             }
-            
-            assertTrue( failed == false );
         }
     }
 }

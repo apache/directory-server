@@ -63,4 +63,13 @@ public class UserLogRecord
     {
         return logAnchor;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Length: " + length + ", offset: " + offset + ", anchor: " + logAnchor;
+    }
 }

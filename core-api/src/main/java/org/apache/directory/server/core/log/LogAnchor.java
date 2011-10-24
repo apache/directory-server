@@ -78,7 +78,7 @@ public class LogAnchor
     
     public void resetLogAnchor( LogAnchor logAnchor )
     {
-        this.resetLogAnchor( logAnchor.getLogFileNumber(), logAnchor.getLogFileOffset(), logAnchor.getLogLSN() );
+        resetLogAnchor( logAnchor.getLogFileNumber(), logAnchor.getLogFileOffset(), logAnchor.getLogLSN() );
     }
     
      
@@ -98,4 +98,13 @@ public class LogAnchor
     {
         return this.logLSN;
     }  
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "File number: " + logFileNumber + ", offset: " + logFileOffset + ", LSN: " + Long.toHexString( logLSN );
+    }
 }

@@ -269,4 +269,13 @@ import java.io.RandomAccessFile;
             raf.seek( position );
         }
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "log path: " + logFilePath + ", suffix: " + suffix;
+    }
 }
