@@ -27,7 +27,6 @@ import java.io.IOException;
  */
 public interface Log
 {
-    
     /**
      * Initializes the logging subsystem
      *

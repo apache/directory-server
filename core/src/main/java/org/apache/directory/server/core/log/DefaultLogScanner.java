@@ -78,7 +78,7 @@ public class DefaultLogScanner implements LogScannerInternal
     /**
      * {@inheritDoc}
      */
-    public boolean getNextRecord(UserLogRecord logRecord) throws IOException, InvalidLogException
+    public boolean getNextRecord( UserLogRecord logRecord ) throws IOException, InvalidLogException
     {
         boolean startingRead = false;
         
@@ -119,7 +119,7 @@ public class DefaultLogScanner implements LogScannerInternal
                 }
                 
                 startingRead = true;
-            }     
+            }
             
             while ( true )
             {
@@ -168,7 +168,6 @@ public class DefaultLogScanner implements LogScannerInternal
             
             // Read and verify footer
             readRecordFooter();
-            
             
             // If we are here, then we successfully read the log record. 
             // Set the read record's position, uptate last read good location

@@ -27,25 +27,28 @@ import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
 /**
- * 
+ * Creates and manages a LogFile on disk. The file name is the concatenation of a 
+ * path on disk, and of a suffix.<br/>
+ * Each log file has a name like <b>logFileName/log_&lt;logFileNumber&gt;.suffix</b>
+ *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ class DefaultLogFileManager implements LogFileManager 
+class DefaultLogFileManager implements LogFileManager 
 {
-    /** TODO: doco */
+    /** The Log file path */
     private String logFilePath;
     
-    /** TODO: doco */
+    /** The Log file suffix */
     private String suffix;
     
     /**
-     * Inits the log file manager to use the given logfile path and the suffix. Each log file
+     * Creates a log file manager to use the given logfile path and the suffix. Each log file
      * has name logFileName_<logFileNumber>.suffix 
      *
      * @param logFilepath log file path
      * @param suffix suffix for log file.
      */
-    public void init( String logFilePath, String suffix )
+    public DefaultLogFileManager( String logFilePath, String suffix )
     {
         this.logFilePath = logFilePath;
         this.suffix = suffix;
@@ -59,10 +62,7 @@ import java.io.RandomAccessFile;
     {
         File logFile = makeLogFileName( logFileNumber );
         
-        // This will throw a file not found exception if file does not exist
-        RandomAccessFile raf = new RandomAccessFile( logFile, "r" );
-        
-        return new LogFileReader( raf, logFileNumber );
+        return new LogFileReader( logFile, logFileNumber );
     }
     
     
@@ -73,10 +73,7 @@ import java.io.RandomAccessFile;
     {
         File logFile = makeLogFileName( logFileNumber );
         
-        // This will throw a file not found exception if file does not exist
-        RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
-        
-        return new LogFileWriter( raf, logFileNumber );
+        return new LogFileWriter( logFile, logFileNumber );
     }
     
     
@@ -87,6 +84,7 @@ import java.io.RandomAccessFile;
     {
         File logFile = makeLogFileName( logFileNumber );
         
+        // Create the files, unless it already exists.
         boolean fileAlreadyExists = !logFile.createNewFile();
         
         return fileAlreadyExists;
@@ -108,8 +106,10 @@ import java.io.RandomAccessFile;
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
         
+        // Now, truncate the file for real
         raf.setLength( size );
         raf.getFD().sync();
+        raf.close();
     }
     
    
@@ -131,16 +131,23 @@ import java.io.RandomAccessFile;
     {
         File oldLogFile = makeLogFileName( originalLogFileNumber );  
         boolean result = oldLogFile.renameTo( makeLogFileName( newLongFileNumber ) );
+        
         return result;
     }
     
-    
+    /**
+     * Creates a log file name using the path, the prefix and the suffix
+     */
     private File makeLogFileName( long logFileNumber )
     {
         return new File( logFilePath + File.separatorChar + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "." + suffix );
     }
     
-    static class LogFileReader implements LogFileManager.LogFileReader
+    
+    /**
+     * An implementation of the {@link LogFileManager.LogFileReader} interface.
+     */
+    private class LogFileReader implements LogFileManager.LogFileReader
     {
         /** Underlying log file */
         RandomAccessFile raf;
@@ -149,20 +156,27 @@ import java.io.RandomAccessFile;
         long logFileNumber;
         
   
-        public LogFileReader( RandomAccessFile raf, long logFileNumber )
+        public LogFileReader( File logFile, long logFileNumber ) throws FileNotFoundException
         {
-            this.raf = raf;
+            // This will throw a file not found exception if file does not exist
+            raf = new RandomAccessFile( logFile, "r" );
+            
             this.logFileNumber = logFileNumber;
         }
+        
         
         /**
          * {@inheritDoc}
          */
         public int read( byte[] buffer, int offset, int length ) throws IOException, EOFException
         {
+            // carefully read all the bytes from disk. Don't use read(), as 
+            // it does not span across blocks of data
             raf.readFully( buffer, offset, length );
+            
             return length;
         }
+        
         
         /**
          * {@inheritDoc}
@@ -171,6 +185,7 @@ import java.io.RandomAccessFile;
         {
             raf.seek( position );
         }
+        
         
         /**
          * {@inheritDoc}
@@ -189,6 +204,7 @@ import java.io.RandomAccessFile;
             return logFileNumber;
         }
         
+        
         /**
          * {@inheritDoc}
          */
@@ -197,6 +213,7 @@ import java.io.RandomAccessFile;
             return raf.length();
         }
         
+        
         /**
          * {@inheritDoc}
          */
@@ -204,10 +221,22 @@ import java.io.RandomAccessFile;
         {
             return raf.getFilePointer();
         }
+        
+        
+        /**
+         * @see Object#toString()
+         */
+        public String toString()
+        {
+            return "FileReader(" + raf + ", " + logFileNumber + ")";
+        }
     }
     
     
-    static class LogFileWriter implements LogFileManager.LogFileWriter
+    /**
+     * An implementation of the {@link LogFileManager.LogFileWriter} interface.
+     */
+    private class LogFileWriter implements LogFileManager.LogFileWriter
     {
         /** Underlying log file */
         RandomAccessFile raf;
@@ -216,11 +245,23 @@ import java.io.RandomAccessFile;
         long logFileNumber;
         
   
-        public LogFileWriter( RandomAccessFile raf, long logFileNumber )
+        /**
+         * Creates an instance of a LogFileWriter
+         * 
+         * @param raf The file
+         * @param logFileNumber The file's number
+         * 
+         * @throws FileNotFoundException If the file can't be found
+         */
+        public LogFileWriter( File logFile, long logFileNumber ) throws FileNotFoundException
         {
-            this.raf = raf;
+            // This will throw a file not found exception if file does not exist
+            raf = new RandomAccessFile( logFile, "rw" );
+            
             this.logFileNumber = logFileNumber;
         }
+        
+        
         /**
          * {@inheritDoc}
          */
@@ -228,6 +269,7 @@ import java.io.RandomAccessFile;
         {
             raf.write( buffer, offset, length );
         }
+        
         
         /**
          * {@inheritDoc}
@@ -237,6 +279,7 @@ import java.io.RandomAccessFile;
              raf.getFD().sync();
         }
         
+        
         /**
          * {@inheritDoc}
          */
@@ -244,6 +287,7 @@ import java.io.RandomAccessFile;
         {
             raf.close();
         }
+        
         
          /**
           * {@inheritDoc}
@@ -253,6 +297,7 @@ import java.io.RandomAccessFile;
             return logFileNumber;
         }
         
+        
         /**
          * {@inheritDoc}
          */
@@ -261,12 +306,22 @@ import java.io.RandomAccessFile;
             return raf.length();
         }
         
+        
         /**
          * {@inheritDoc}
          */
         public void seek( long position ) throws IOException
         {
             raf.seek( position );
+        }
+        
+        
+        /**
+         * @see Object#toString()
+         */
+        public String toString()
+        {
+            return "FileWriter(" + raf + ", " + logFileNumber + ")";
         }
     }
 

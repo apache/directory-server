@@ -51,7 +51,7 @@ import org.apache.directory.server.i18n.I18n;
     /** buffer used to do IO on controlfile */
     private byte controlFileBuffer[] = new byte[CONTROLFILE_RECORD_SIZE];
     
-    /** ByteBuffer used to to IO on checkpoint file */
+    /** ByteBuffer used to IO on checkpoint file */
     private ByteBuffer controlFileMarker = ByteBuffer.wrap( controlFileBuffer );
     
     /** Current checkpoint record in memory */

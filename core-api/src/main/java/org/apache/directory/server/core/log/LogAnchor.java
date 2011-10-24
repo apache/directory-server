@@ -84,19 +84,19 @@ public class LogAnchor
      
     public long getLogFileNumber()
     {
-        return this.logFileNumber;
+        return logFileNumber;
     }
     
     
     public long getLogFileOffset()
     {
-        return this.logFileOffset;
+        return logFileOffset;
     }
     
     
     public long getLogLSN()
     {
-        return this.logLSN;
+        return logLSN;
     }  
     
     

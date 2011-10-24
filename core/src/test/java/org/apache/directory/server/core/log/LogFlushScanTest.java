@@ -56,7 +56,7 @@ public class LogFlushScanTest
     /**
      * Get the Log folder
      */
-    private String getLogFoler( ) throws IOException
+    private String getLogFolder( ) throws IOException
     {
         String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
         
@@ -68,7 +68,7 @@ public class LogFlushScanTest
     public void setup() throws IOException, InvalidLogException
     {
         log = new DefaultLog();
-        log.init( getLogFoler(), LOG_SUFFIX, logBufferSize, logFileSize );
+        log.init( getLogFolder(), LOG_SUFFIX, logBufferSize, logFileSize );
     }
 
 

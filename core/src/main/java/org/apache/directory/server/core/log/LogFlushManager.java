@@ -36,7 +36,7 @@ import org.apache.directory.server.i18n.I18n;
  *
  * Internally it manages a circular  buffer where appends initially go. Appends are first 
  * appended to this in memory circular log. As the in memory circular log fills up or as the user requests
- *  memory buffer is flushed to the underlying media.  
+ * memory buffer is flushed to the underlying media.  
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

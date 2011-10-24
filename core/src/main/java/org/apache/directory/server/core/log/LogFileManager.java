@@ -34,16 +34,6 @@ import java.io.FileNotFoundException;
     final static String LOG_NAME_PREFIX = "log_"; 
   
     /**
-     * Inits the log file manager to use the given logfile path and the suffix. Each log file
-     * has name logFileName_<logFileNumber>.suffix 
-     *
-     * @param logFilepath log file path
-     * @param suffix suffix for log file.
-     */
-    void init( String logFilepath, String suffix );
-    
-    
-    /**
      * Returns a reader for the given log file number
      *
      * @param logFileNumber identifier of the log file to read
@@ -104,17 +94,20 @@ import java.io.FileNotFoundException;
     boolean rename(long orignalLogFileNumber, long newLongFileNumber);
     
     
+    /**
+     * An interface defining all the operations a reader can do on a File
+     */
     interface LogFileReader
     {
         /**
-         *     
          * Reads from the file at the current position 
          *
          * @param buffer data destination
          * @param offset destination offset
          * @param length size of read
          * @return number of bytes actually read.
-         * @throws IOException
+         * @throws IOException If the read failed
+         * @throws EOFException If the file does not contain enough data
          */
         int read( byte[] buffer, int offset, int length ) throws IOException, EOFException;
         
@@ -122,13 +115,16 @@ import java.io.FileNotFoundException;
         /**
          * Repositions the reader at the given offset
          *
-         * @param position
+         * @param position The offset to seek
+         * @throws IOException If the seek operation failed
          */
         void seek( long position ) throws IOException;
+        
         
         /**
          * Close the log file reader and releases the resources 
          *
+         * @throws IOException If the close failed
          */
         void close() throws IOException;
         
@@ -143,39 +139,48 @@ import java.io.FileNotFoundException;
         
         
         /**
-         * returns the length of the file
+         * @return the length of the file
+         * @throws IOException If the operation failed
          */
         long getLength() throws IOException;
         
         
         /**
-         * returns the offset of the next read
+         * @return the offset of the next read
+         * @throws IOException If the operation failed
          */
         long getOffset() throws IOException;
     }
     
+    
+    /**
+     * An interface defining all the operations a writer can do on a File
+     */
     interface LogFileWriter
     {
         /**
-         * Append the given data to the log file 
+         * Append the given data to the log file at the given position
          *
          * @param buffer source of data
          * @param offset offset into buffer
          * @param length number of bytes to be appended
+         * @throws IOException If we cannot append data to the file
          */
         void append( byte[] buffer, int offset, int length ) throws IOException;
         
         
         /**
-         * Sync the file contents to media  
-         *
+         * Sync the file contents to media
+         * 
+         * @throws IOException If we cannot sync on disk
          */
         void sync() throws IOException;
         
         
         /**
          * Close the log file reader and releases the resources 
-         *
+         * 
+         * @throws IOException If we cannot close the file
          */
         void close() throws IOException;
         
@@ -190,15 +195,18 @@ import java.io.FileNotFoundException;
         
         
         /**
-         * returns the length of the file
+         * @return the length of the file
+         * 
+         * @throws IOException If we cannot return the length
          */
         long getLength() throws IOException;
         
         
         /**
-         * Repositions the reader at the given offset
+         * Repositions the reader at the given offset.
          *
-         * @param position
+         * @param position The new position to set
+         * @throws IOException If we cannot set the position
          */
         void seek( long position ) throws IOException;
     }

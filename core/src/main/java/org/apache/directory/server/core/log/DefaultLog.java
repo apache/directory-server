@@ -42,8 +42,7 @@ public class DefaultLog implements Log
      */
     public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException
     {
-       logFileManager = new DefaultLogFileManager();
-       logFileManager.init( logFilepath, suffix );
+       logFileManager = new DefaultLogFileManager( logFilepath, suffix );
        
        logManager = new LogManager( logFileManager );
        logManager.initLogManager();

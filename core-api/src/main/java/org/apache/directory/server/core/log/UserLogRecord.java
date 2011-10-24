@@ -70,6 +70,6 @@ public class UserLogRecord
      */
     public String toString()
     {
-        return "Length: " + length + ", offset: " + offset + ", anchor: " + logAnchor;
+        return "Length: " + length + ", offset: " + offset + ", anchor: {" + logAnchor + "}";
     }
 }
