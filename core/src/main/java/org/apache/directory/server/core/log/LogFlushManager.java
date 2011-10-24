@@ -40,7 +40,7 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ class LogFlushManager
+/* Package protected */ class LogFlushManager
 {
     /** Ever increasing logical log sequence number assigned to user log records. Bumped up under append lock */
     private long logLSN = Long.MIN_VALUE + 1;

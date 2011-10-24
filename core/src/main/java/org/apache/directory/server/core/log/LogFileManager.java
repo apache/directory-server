@@ -29,7 +29,7 @@ import java.io.FileNotFoundException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface LogFileManager
+/* Package protected */ interface LogFileManager
 {
     final static String LOG_NAME_PREFIX = "log_"; 
   

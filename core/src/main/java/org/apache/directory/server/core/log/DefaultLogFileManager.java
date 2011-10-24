@@ -33,7 +33,7 @@ import java.io.RandomAccessFile;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class DefaultLogFileManager implements LogFileManager 
+/* Package protected */ class DefaultLogFileManager implements LogFileManager 
 {
     /** The Log file path */
     private String logFilePath;

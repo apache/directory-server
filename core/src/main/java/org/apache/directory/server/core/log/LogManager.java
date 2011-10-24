@@ -34,7 +34,7 @@ import org.apache.directory.server.i18n.I18n;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected*/ class LogManager
+/* Package protected */ class LogManager
 {
     /**  Controlfile record size */
     private final static int CONTROLFILE_RECORD_SIZE = 44;
