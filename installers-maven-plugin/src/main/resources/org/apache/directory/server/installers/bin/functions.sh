@@ -120,8 +120,8 @@ verifyExitCode()
 {
     if [ $? -ne 0 ]
     then    
-		echo "An error occurred when installing Apache DS."
-		echo "Apache DS installation failed."
+		echo "An error occurred when installing ApacheDS."
+		echo "ApacheDS installation failed."
 		exit 1
     fi
 }

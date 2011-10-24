@@ -23,10 +23,10 @@
 chmod 644 /Library/LaunchDaemons/org.apache.directory.server.plist
 
 #
-# Launching the Apache DS daemon
+# Launching the ApacheDS daemon
 #
 #RUNNING=`launchctl list | grep "org.apache.directory.server" | tail -1`
-# Testing if the Apache DS daemon is already running
+# Testing if the ApacheDS daemon is already running
 #if [ "X$RUNNING" = "X" ]
 #then
 #	# If it is not running, we load it

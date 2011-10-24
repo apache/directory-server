@@ -66,7 +66,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
      * Performs the following:
      * <ol>
      *   <li>Bail if target is not for Linux</li>
-     *   <li>Creates the Mac OS X PKG Installer for Apache DS</li>
+     *   <li>Creates the Mac OS X PKG Installer for ApacheDS</li>
      *   <li>Package it in a Mac OS X DMG (Disk iMaGe)</li>
      * </ol>
      */

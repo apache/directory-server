@@ -63,7 +63,7 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
      * Performs the following:
      * <ol>
      *   <li>Bail if the archive type is unknown</li>
-     *   <li>Creates the Archive Installer for Apache DS</li>
+     *   <li>Creates the Archive Installer for ApacheDS</li>
      * </ol>
      */
     public void execute() throws MojoExecutionException, MojoFailureException

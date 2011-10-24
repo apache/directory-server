@@ -59,7 +59,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
      * Performs the following:
      * <ol>
      *   <li>Bail if target is not for linux or the dpkg utility could not be found.</li>
-     *   <li>Creates the Debian DEB package for Apache DS</li>
+     *   <li>Creates the Debian DEB package for ApacheDS</li>
      * </ol>
      */
     public void execute() throws MojoExecutionException, MojoFailureException
