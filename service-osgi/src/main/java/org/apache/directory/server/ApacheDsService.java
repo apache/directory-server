@@ -75,6 +75,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schemamanager.impl.OSGISchemaManager;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.slf4j.Logger;
@@ -101,7 +102,6 @@ public class ApacheDsService
     //    private DnsServer dnsServer;
 
     /** The Change Password server instance *
-    private ChangePasswordServer changePwdServer;/
 
     /** The Kerberos server instance */
     private KdcServer kdcServer;
@@ -220,7 +220,7 @@ public class ApacheDsService
         }
 
         SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
-        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager = new OSGISchemaManager( loader );
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 

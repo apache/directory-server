@@ -22,6 +22,9 @@ package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Property;
 
 
 /**
@@ -29,17 +32,27 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Component
+@Provides
 public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {
+    /**
+     * Property to specify factory type.
+     * TODO:This is temporary. Will be vanished after introducing custom annotations
+     */
+    @Property(name = "ads.comp.type", value = "comparator")
+    public String compType;
+
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
+
 
     /**
      * Creates a new instance of ParentIdAndRdnComparator.
      *
      * @param matchingRuleOid The associated MatchingRule
      */
-    public ParentIdAndRdnComparator( String matchingRuleOid )
+    public ParentIdAndRdnComparator( @Property(name = "ads.comp.comparator.oid") String matchingRuleOid )
     {
         super( matchingRuleOid );
     }
