@@ -75,7 +75,6 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schemamanager.impl.OSGISchemaManager;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.slf4j.Logger;
@@ -154,7 +153,7 @@ public class ApacheDsService
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
             if ( !partitionsDir.mkdirs() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
             }
         }
 
@@ -220,7 +219,7 @@ public class ApacheDsService
         }
 
         SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
-        schemaManager = new OSGISchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 

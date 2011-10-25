@@ -101,7 +101,6 @@ public class ApacheDsService
     //    private DnsServer dnsServer;
 
     /** The Change Password server instance *
-    private ChangePasswordServer changePwdServer;/
 
     /** The Kerberos server instance */
     private KdcServer kdcServer;

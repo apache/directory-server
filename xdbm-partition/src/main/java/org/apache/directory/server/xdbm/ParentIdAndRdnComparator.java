@@ -36,13 +36,6 @@ import org.apache.felix.ipojo.annotations.Property;
 @Provides
 public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {
-    /**
-     * Property to specify factory type.
-     * TODO:This is temporary. Will be vanished after introducing custom annotations
-     */
-    @Property(name = "ads.comp.type", value = "comparator")
-    public String compType;
-
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
 
