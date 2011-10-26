@@ -37,6 +37,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Tests for the LogFileManager class
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LogFileManagerTest

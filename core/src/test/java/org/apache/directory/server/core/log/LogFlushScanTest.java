@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
+ * Test the LogFlushScan implementation
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
