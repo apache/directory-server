@@ -32,7 +32,7 @@ public interface Log
      *
      * @param logFilepath log file path
      * @param suffix suffix for log file.
-     * @param logBufferSize size of buffer that will hold unflushed log changes. Specifigy zero if no buffering is desired
+     * @param logBufferSize size of buffer that will hold unflushed log changes. Specify zero if no buffering is desired
      * @param logFileSize A soft limit on the log file size
      * @throws IOException
      * @throws InvalidLogException
@@ -55,9 +55,17 @@ public interface Log
      * Starts a scan in the logs starting from the given log position
      *
      * @param startPoint starting position of the scan.
-     * @return
+     * @return A scanner to read the logs one by one
      */
     LogScanner beginScan( LogAnchor startPoint );
+    
+    
+    /**
+     * Starts a scan in the logs starting from the beginning of the log file
+     *
+     * @return A scanner to read the logs one by one
+     */
+    LogScanner beginScan();
     
     
     /**

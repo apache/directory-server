@@ -25,10 +25,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
 
 import java.io.IOException;
 
+import org.apache.directory.server.core.log.LogFileManager.LogFileWriter;
 import org.apache.directory.server.i18n.I18n;
 
 /**
@@ -67,24 +70,27 @@ import org.apache.directory.server.i18n.I18n;
     private LogFileManager.LogFileWriter currentLogFile;
 
     /** Log manager */
-    LogManager logManager;
+    private LogManager logManager;
 
     /** Size of data appended to the currentLogFile so far */
-    long appendedSize;
+    private long appendedSize;
     
     /** Sof limit on the log file size */
-    long targetLogFileSize;
+    private long targetLogFileSize;
     
     /** If logging cannot succeed, then loggingFailed is set to true and further logging is prevented */
-    boolean logFailed;
-    
+    private boolean logFailed;
+
+    /** The Checksum used */
+    private Checksum checksum = new Adler32();
+
     /**
      * TODO : doco
      * @param logManager
      * @param logMemoryBufferSize
      * @param logFileSize
      */
-    public LogFlushManager(LogManager logManager, int logMemoryBufferSize, long logFileSize )
+    public LogFlushManager( LogManager logManager, int logMemoryBufferSize, long logFileSize )
     {
         if ( ( logMemoryBufferSize < 0 ) || ( logFileSize < 0 ) )
         {
@@ -108,7 +114,7 @@ import org.apache.directory.server.i18n.I18n;
      * @throws IOException
      * @throws InvalidLogException
      */
-    public void append(UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
+    public void append( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
     {
         long lsn = LogAnchor.UNKNOWN_LSN;
         boolean appendedRecord = false;
@@ -118,6 +124,7 @@ import org.apache.directory.server.i18n.I18n;
         
         int recordSize = LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE + length;
         
+        // The addition of a record is done in a protected section
         appendLock.lock();
         
         if ( logFailed )
@@ -136,7 +143,9 @@ import org.apache.directory.server.i18n.I18n;
                 currentLogFile = logManager.switchToNextLogFile( null );
                 appendedSize = currentLogFile.getLength();
             }
-            
+
+            // If we try to store more data that what can be hold by the current file,
+            // we have to switch to the next file
             if ( appendedSize > targetLogFileSize )
             {
                 // Make sure everything outstanding goes to the current log file
@@ -162,9 +171,16 @@ import org.apache.directory.server.i18n.I18n;
                     {
                         if ( writeHead.remaining() >= recordSize )
                         {
+                            // Write the header
                             writeHeader( writeHead, recordSize, lsn );
+                            
+                            // Write the data
                             writeHead.put( userBuffer, 0, length );
-                            writeFooter( writeHead, 0 );
+                            
+                            // Compute the checksum and write the footer
+                            checksum.update( userBuffer, 0, length );
+                            writeFooter( writeHead, (int)checksum.getValue() );
+                            
                             appendedRecord = true;
                         }
                         else // ( writeHead.remaining() < recordSize )
@@ -190,9 +206,16 @@ import org.apache.directory.server.i18n.I18n;
                         
                         if ( ( readHeadPosition - writeHead.position() ) > recordSize )
                         {
+                            // Write the header
                             writeHeader( writeHead, recordSize, lsn );
+                            
+                            // Write the data
                             writeHead.put( userBuffer, 0, length );
-                            writeFooter( writeHead, 0 );
+
+                            // Compute the checksum and write the footer
+                            checksum.update( userBuffer, 0, length );
+                            writeFooter( writeHead, (int)checksum.getValue() );
+
                             appendedRecord = true;
                         }
                         else
@@ -203,7 +226,7 @@ import org.apache.directory.server.i18n.I18n;
                 }
             }
             else
-            {   
+            {
                 flush( lsn, userBuffer, 0, length, true );
             }
             
@@ -293,7 +316,7 @@ import org.apache.directory.server.i18n.I18n;
             {
                 flushLock.unlock();
                 return;
-            }      
+            }
             
             if ( flushStatus.flushInProgress == false )
             {
@@ -522,35 +545,40 @@ import org.apache.directory.server.i18n.I18n;
      * Used to group the memory buffer data together 
      */
     private static class LogBuffer
-    {        
+    {
         /** In memory buffer */
-        byte buffer[];
-                
+        private byte buffer[];
+        
         /** Used to scan the buffer while reading it to flush */
-        ByteBuffer readHead;
+        private ByteBuffer readHead;
         
         /** Advanced as readHead flushes data */
-        int readHeadPosition;
+        private int readHeadPosition;
         
-        /** Rewind count of readHead..used to avoid overwriting nonflushed data */
-        AtomicInteger readHeadRewindCount;
+        /** Rewind count of readHead. Used to avoid overwriting non flushed data */
+        private AtomicInteger readHeadRewindCount;
         
         /** Used to scan the buffer while appending records into it */
-        ByteBuffer writeHead;
+        private ByteBuffer writeHead;
         
-        /** Rewind count of writeHead..used to avoid overwriting nonflushed data */
-        int writeHeadRewindCount;
+        /** Rewind count of writeHead. used to avoid overwriting non flushed data */
+        private int writeHeadRewindCount;
         
         /** Used to mark records that should be skipped at the end of the log buffer */
-        final static int SKIP_RECORD_LENGTH = -1;
+        private final static int SKIP_RECORD_LENGTH = -1;
         
         /** Header footer buffer used when writing user buffers directly */
-        byte headerFooterBuffer[];
+        private byte headerFooterBuffer[];
         
         /** Used to format header footer buffer */
-        ByteBuffer headerFooterHead;
+        private ByteBuffer headerFooterHead;
         
-        public LogBuffer( int bufferSize, LogFileManager.LogFileWriter currentLogFile )
+        /**
+         * Create a new instance of a LogBuffer
+         * @param bufferSize
+         * @param currentLogFile
+         */
+        private LogBuffer( int bufferSize, LogFileWriter currentLogFile )
         {
             buffer = new byte[bufferSize];
             readHead = ByteBuffer.wrap( buffer );

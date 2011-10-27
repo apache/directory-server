@@ -26,8 +26,6 @@ package org.apache.directory.server.core.log;
  */
 public class UserLogRecord
 {
-    private final static int INITIAL_SIZE =  1024;
-    
     /** array used to hold user log records */
     private byte[] recordHolder;
     
@@ -37,6 +35,14 @@ public class UserLogRecord
     /** Position of the log record in the log */
     private LogAnchor logAnchor = new LogAnchor();
     
+    
+    /**
+     * Store some data into the record. The buffer may be bigger than the 
+     * data it contains, the length gives the real size of the stored data.
+     * 
+     * @param data The buffer containing the data
+     * @param length The length of valid data in the buffer
+     */
     public void setData( byte[] data, int length )
     {
         this.recordHolder = data;
@@ -44,18 +50,27 @@ public class UserLogRecord
     }
     
     
+    /**
+     * @return The stored buffer, containing the data
+     */
     public byte[] getDataBuffer()
     {
         return recordHolder;
     }
     
     
+    /**
+     * @return The data length
+     */
     public int getDataLength()
     {
         return length;
     }
     
     
+    /**
+     * @return The position in the buffer
+     */
     public LogAnchor getLogAnchor()
     {
         return logAnchor;

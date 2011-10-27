@@ -65,8 +65,19 @@ public class DefaultLog implements Log
      */
     public LogScanner beginScan( LogAnchor startPoint )
     {
-        LogScannerInternal logScanner = new DefaultLogScanner();
-        logScanner.init( startPoint, logFileManager );
+        LogScanner logScanner = new DefaultLogScanner( startPoint, logFileManager );
+        
+        return logScanner;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public LogScanner beginScan()
+    {
+        LogAnchor startPoint = new LogAnchor();
+        LogScanner logScanner = new DefaultLogScanner( startPoint, logFileManager );
         
         return logScanner;
     }

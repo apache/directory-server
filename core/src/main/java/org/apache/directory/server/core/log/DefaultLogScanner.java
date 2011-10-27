@@ -23,14 +23,18 @@ import java.io.IOException;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
+import org.apache.directory.server.core.log.LogFileManager.LogFileReader;
 import org.apache.directory.server.i18n.I18n;
 
 /**
+ * An implementation of a LogScanner.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultLogScanner implements LogScannerInternal
+public class DefaultLogScanner implements LogScanner
 {
     /** LSN of the last successfully read log record */
     private long prevLSN = LogAnchor.UNKNOWN_LSN;
@@ -48,27 +52,30 @@ public class DefaultLogScanner implements LogScannerInternal
     private long lastReadLSN = LogAnchor.UNKNOWN_LSN;
     
     /** Current log file pointer to read from */
-    LogFileManager.LogFileReader currentLogFile;
+    private LogFileManager.LogFileReader currentLogFile;
     
     /** True if scanner is closed */
-    boolean closed = false;
+    private boolean closed = false;
     
     /** True if scanner hit invalid content. No more reads will be done after invalid log content is hit */
-    boolean invalidLog = false;
+    private boolean invalidLog = false;
     
     /** log file manager used to open files for reading */
-    LogFileManager logFileManager;
-    
-    /** Buffer used to read log file markers */
-    byte markerBuffer[] = new byte[LogFileRecords.MAX_MARKER_SIZE];
+    private LogFileManager logFileManager;
     
     /** ByteBuffer wrapper for the marker buffer */
-    ByteBuffer markerHead = ByteBuffer.wrap( markerBuffer );
-    
+    private ByteBuffer markerHead = ByteBuffer.allocate( LogFileRecords.MAX_MARKER_SIZE );
+
+    /** The Checksum used */
+    private Checksum checksum = new Adler32();
+
     /**
-     * {@inheritDoc}
+     * Creates a new instance of a LogScanner.
+     * 
+     * @param startingLogAnchor The starting position in the Log files
+     * @param logFileManager The underlying log file manager
      */
-    public void init( LogAnchor startingLogAnchor, LogFileManager logFileManager )
+    public DefaultLogScanner( LogAnchor startingLogAnchor, LogFileManager logFileManager )
     {
         this.startingLogAnchor.resetLogAnchor( startingLogAnchor );
         this.logFileManager = logFileManager;
@@ -96,6 +103,7 @@ public class DefaultLogScanner implements LogScannerInternal
         {
             if ( currentLogFile == null )
             {
+                // We haven't yet opened a LogFile. Let's do it right away
                 long startingOffset = startingLogAnchor.getLogFileOffset();
                 
                 // Read and verify header
@@ -115,6 +123,8 @@ public class DefaultLogScanner implements LogScannerInternal
                     }
                     
                     prevLogFileOffset = Math.max( startingOffset, currentLogFile.getLength() );
+                    
+                    // Move to the beginning of the data we want to read.
                     currentLogFile.seek( startingOffset );
                 }
                 
@@ -132,14 +142,14 @@ public class DefaultLogScanner implements LogScannerInternal
                 }
                 else if ( fileOffset == fileLength )
                 {
-                    // Switch to next file.. This reads and verifies the header of the new file
+                    // Switch to next file. This reads and verifies the header of the new file
                     long nextLogFileNumber = currentLogFile.logFileNumber() + 1;
                     currentLogFile.close();
                     currentLogFile = readFileHeader( nextLogFileNumber );
                     
                     if ( currentLogFile == null )
                     {   
-                        return false; // Done.. End of log stream
+                        return false; // Done. End of log stream
                     }
                 }
                 else
@@ -163,11 +173,12 @@ public class DefaultLogScanner implements LogScannerInternal
                 }
             }
             
-            // Read and verify user block
+            // Read and verify the user block
             readLogRecord( logRecord, recordLength - ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ));
             
             // Read and verify footer
-            readRecordFooter();
+            checksum.update( logRecord.getDataBuffer(), 0, logRecord.getDataLength() );
+            readRecordFooter( (int)checksum.getValue() );
             
             // If we are here, then we successfully read the log record. 
             // Set the read record's position, uptate last read good location
@@ -247,36 +258,17 @@ public class DefaultLogScanner implements LogScannerInternal
     
     private int readRecordHeader() throws IOException, InvalidLogException, EOFException
     {
-        boolean invalid = false; 
-        
         markerHead.rewind();
-        currentLogFile.read( markerBuffer, 0, LogFileRecords.RECORD_HEADER_SIZE );
+        currentLogFile.read( markerHead.array(), 0, LogFileRecords.RECORD_HEADER_SIZE );
         int magicNumber = markerHead.getInt();
         int length = markerHead.getInt();
         long lsn = markerHead.getLong();
         long checksum = markerHead.getLong();
         
-        if ( magicNumber != LogFileRecords.RECORD_HEADER_MAGIC_NUMBER )
-        {
-            invalid = true;
-        }
-        
-        if ( length <= ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ) )
-        {
-            invalid = true;
-        }
-        
-        if ( lsn < prevLSN )
-        {
-            invalid = true;
-        }
-        
-        if ( checksum != ( lsn ^ length ) )
-        {
-            invalid = true;
-        }
-        
-        if ( invalid == true )
+        if ( ( magicNumber != LogFileRecords.RECORD_HEADER_MAGIC_NUMBER ) ||
+             ( length <= ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ) ) ||
+             ( lsn < prevLSN ) || 
+             ( checksum != ( lsn ^ length ) ) )
         {
             markScanInvalid( null );
         }
@@ -288,52 +280,60 @@ public class DefaultLogScanner implements LogScannerInternal
     }
     
     
-    private void readRecordFooter() throws IOException, InvalidLogException, EOFException 
+    private void readRecordFooter( int expectedChecksum ) throws IOException, InvalidLogException, EOFException 
     {
-        boolean invalid = false; 
-        
         markerHead.rewind();
-        currentLogFile.read( markerBuffer, 0, LogFileRecords.RECORD_FOOTER_SIZE );
+        currentLogFile.read( markerHead.array(), 0, LogFileRecords.RECORD_FOOTER_SIZE );
+        
+        // The checksum
         int checksum = markerHead.getInt();
+        
+        // The magicNumber
         int magicNumber = markerHead.getInt();
+        
       
-        if ( magicNumber != LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER )
-        {
-            invalid = true;
-        }
-        
-        // TODO compute checksum
-        
-        if ( invalid == true )
+        if ( ( magicNumber != LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER ) || 
+             ( expectedChecksum != checksum ) )
         {
             markScanInvalid( null );
         }
     }
     
     
+    /**
+     * Read the data from the LogFile, excludinhg the header and footer. 
+     */
     private void readLogRecord( UserLogRecord userRecord, int length ) throws IOException, EOFException
     {
         byte dataBuffer[] = userRecord.getDataBuffer();
         
-        if ( dataBuffer == null || dataBuffer.length < length )
+        if ( ( dataBuffer == null ) || ( dataBuffer.length < length ) )
         {
             // Allocate a larger buffer
             dataBuffer = new byte[length];
         }
         
         currentLogFile.read( dataBuffer, 0, length );
+        
+        // The size we read can be different from the bufer size, if we reused the 
+        // buffer from a previous read.
         userRecord.setData( dataBuffer, length );
     }
     
     
-    private LogFileManager.LogFileReader readFileHeader( long logFileNumber ) throws IOException, InvalidLogException, EOFException
+    /**
+     * Read the file header. It's a 12 bytes array, containing the file number (a long, on 8 bytes)
+     * and the magic number (on 4 bytes).
+     */
+    private LogFileReader readFileHeader( long logFileNumber ) throws IOException, InvalidLogException, EOFException
     {
-        boolean invalid = false;
-        LogFileManager.LogFileReader logFile;      
-          
+        LogFileReader logFileReader;
+        
+        
+        // Get a reader on the logFile
         try
         {
-            logFile = logFileManager.getReaderForLogFile( logFileNumber );
+            logFileReader = logFileManager.getReaderForLogFile( logFileNumber );
         }
         catch ( FileNotFoundException e )
         {
@@ -342,32 +342,28 @@ public class DefaultLogScanner implements LogScannerInternal
         
         // File exists
         prevLogFileNumber = logFileNumber;
-        prevLogFileOffset = 0;
         
         markerHead.rewind();
-        logFile.read( markerBuffer, 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
+        
+        // Read the Header
+        logFileReader.read( markerHead.array(), 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
+        prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
+        
+        // The file number
         long persistedLogFileNumber = markerHead.getLong();
+        
+        // The magic number
         int magicNumber = markerHead.getInt();
       
-        if ( persistedLogFileNumber != logFileNumber )
-        {
-            invalid = true;
-        }
-        
-        if ( magicNumber != LogFileRecords.LOG_FILE_HEADER_MAGIC_NUMBER )
-        {
-            invalid = true;
-        }
-       
-        
-        if ( invalid == true )
+        // Check both values
+        if ( ( persistedLogFileNumber != logFileNumber ) || 
+             ( magicNumber != LogFileRecords.LOG_FILE_HEADER_MAGIC_NUMBER ) )
         {
             markScanInvalid( null );
         }
         
-        // Everything is fine, advance good file offset and return
-        prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
-        return logFile;
+        // Everything is fine, return
+        return logFileReader;
     }
     
     

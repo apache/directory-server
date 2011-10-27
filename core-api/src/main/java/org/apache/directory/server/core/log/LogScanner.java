@@ -22,6 +22,10 @@ package org.apache.directory.server.core.log;
 import java.io.IOException;
 
 /**
+ * A utility class used to scan a Log file. We can only rea records forward,
+ * there is no way we can go backward. In order to start to read logs from
+ * a given position, the user must have set this position when requesting
+ * for a LogScanner (@see Log#beginScan(LogAnchor))
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -32,12 +36,12 @@ public interface LogScanner
      * and returns a reference to it. Returned array can be overwritten 
      * after the next call to getNextRecord()
      *
-     * @param  log record to be filled in by
+     * @param logRecord record to be filled in by
      * @return true if there is a next record
-     * throws IOException
-     * throws InvalidLogException thrown if the log content is invalid 
+     * @throws IOException If we had some I/O issue
+     * @throws InvalidLogException thrown if the log content is invalid 
      */
-    boolean getNextRecord(UserLogRecord logRecord) throws IOException, InvalidLogException;
+    boolean getNextRecord( UserLogRecord logRecord ) throws IOException, InvalidLogException;
     
     
     /**
@@ -47,12 +51,14 @@ public interface LogScanner
      */
     long getLastGoodFileNumber();
     
+    
     /**
      * Returns the last successfully read log file number
      *
      * @return last successfully read log file number
      */
     long getLastGoodOffset();
+    
     
     /**
      * Closes the scanner and releases any

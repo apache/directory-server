@@ -97,7 +97,7 @@ import org.apache.directory.server.i18n.I18n;
     public void initLogManager() throws IOException, InvalidLogException
     {
         LogAnchor scanPoint = new LogAnchor();
-        LogScannerInternal scanner;
+        LogScanner scanner;
         UserLogRecord logRecord;
         LogFileManager.LogFileReader reader;
         
@@ -124,8 +124,7 @@ import org.apache.directory.server.i18n.I18n;
             scanPoint.resetLogAnchor( minLogAnchor );
             
             logRecord = new UserLogRecord();
-            scanner = new DefaultLogScanner();
-            scanner.init( scanPoint, logFileManager );
+            scanner = new DefaultLogScanner( scanPoint, logFileManager );
             
             try
             {
@@ -435,7 +434,7 @@ import org.apache.directory.server.i18n.I18n;
     
     /**
      * Creates the next log file. If the log file already exists, then it is reformatted, that is,
-     * its size is truncated to zero and file header is writtten again.
+     * its size is truncated to zero and file header is written again.
      *
      * @param reformatExistingFile log file already exists and should be formatted. If false, log file should not exist.
      * @throws IOException
@@ -455,13 +454,7 @@ import org.apache.directory.server.i18n.I18n;
         // Try to create the file.
         boolean fileAlreadyExists = logFileManager.createLogFile( logFileNumber );
         
-        if ( ( reformatExistingFile == false ) && ( fileAlreadyExists == true ) )
-        {
-            // Didnt expect the file to be around
-            throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
-        }
-        
-        if ( ( reformatExistingFile == true ) && ( fileAlreadyExists == false ) )
+        if ( reformatExistingFile != fileAlreadyExists )
         {
             // Didnt expect the file to be around
             throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
