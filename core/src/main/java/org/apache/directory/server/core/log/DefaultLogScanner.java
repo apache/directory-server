@@ -347,7 +347,6 @@ public class DefaultLogScanner implements LogScanner
         
         // Read the Header
         logFileReader.read( markerHead.array(), 0, LogFileRecords.LOG_FILE_HEADER_SIZE );
-        prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
         
         // The file number
         long persistedLogFileNumber = markerHead.getLong();
@@ -362,7 +361,11 @@ public class DefaultLogScanner implements LogScanner
             markScanInvalid( null );
         }
         
-        // Everything is fine, return
+        
+        
+        // Everything is fine advance last good offset and return
+        prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
+        
         return logFileReader;
     }
     
