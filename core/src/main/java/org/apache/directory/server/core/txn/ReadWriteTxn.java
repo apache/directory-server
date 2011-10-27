@@ -52,6 +52,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
+import org.apache.directory.shared.ldap.model.message.SearchScope;
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -73,14 +75,25 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
     /** User record used to communicate data with log manager */
     private UserLogRecord logRecord = new UserLogRecord();
     
+    /** A summary of forward index adds */
     private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> forwardIndexAdds  = 
         new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
     
+    /** A summary of reverse index adds */
     private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> reverseIndexAdds  = 
         new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
     
+    /** A summary of index deletes */
     private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> indexDeletes  = 
         new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
+    
+    
+    /** List of Dn sets this txn depends */
+    private List<DnSet> readDns = new LinkedList<DnSet>();
+    
+    /** List of Dn sets affected by the write operations of this txn */
+    private List<DnSet> writeDns = new LinkedList<DnSet>();
+    
       
     public AtomicInteger getRefCount()
     {
@@ -349,5 +362,94 @@ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
         }
         
         return txnIndexCursor;
+    }
+    
+    public void addRead( DnSet readSet )
+    {
+        readDns.add( readSet );
+    }
+    
+    public void addWrite( DnSet writeSet )
+    {
+        writeDns.add( writeSet );
+        
+        // Changing a dn means also read dependency
+        readDns.add( writeSet );
+    }
+    
+    public List<DnSet> getWriteSet()
+    {
+        return writeDns;
+    }
+    
+    public boolean hasConflict( ReadWriteTxn txn )
+    {
+        boolean result = false;
+        
+        
+        List<DnSet> txnWriteDns = txn.getWriteSet();
+        Iterator<DnSet> writeIt = txnWriteDns.iterator();
+        Iterator<DnSet> readIt = readDns.iterator();
+        
+        DnSet readDnSet;
+        SearchScope readScope;
+        DnSet writeDnSet;
+        SearchScope writeScope;
+        
+        while ( readIt.hasNext() )
+        {
+            readDnSet =  readIt.next();
+            readScope = readDnSet.getScope();
+            
+            while ( writeIt.hasNext() )
+            {
+                writeDnSet = writeIt.next();
+                writeScope = writeDnSet.getScope();
+                
+                if ( readScope.equals( SearchScope.OBJECT ) )
+                {
+                    if ( writeScope.equals( SearchScope.OBJECT ) )
+                    {
+                        if ( readDnSet.getBaseDn().equals( writeDnSet.getBaseDn() ) )
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
+                    else //one level or subtree scope for the write.
+                    {
+                        // Even if one level scope, conservatively check the whole subtree
+                        if ( readDnSet.getBaseDn().isDescendantOf( writeDnSet.getBaseDn() ) )
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+                else //one level or subtree scope for the read.
+                {
+                    if ( writeScope.equals( SearchScope.OBJECT ) )
+                    {
+                        if ( readDnSet.getBaseDn().isAncestorOf( writeDnSet.getBaseDn() ) )
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
+                    else //one level or subtree scope for the write.
+                    {
+                        // Even if one level scope, conservatively check if any basedn is descendent of the other
+                        if ( ( readDnSet.getBaseDn().isDescendantOf( writeDnSet.getBaseDn() ) ) || 
+                              ( readDnSet.getBaseDn().isAncestorOf( writeDnSet.getBaseDn() ) )  )
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+            } // end of inner while loop
+        } // end of outer while loop
+        
+        return result;
     }
 }

@@ -19,23 +19,33 @@
  */
 package org.apache.directory.server.core.txn;
 
-import java.io.IOException;
-import org.apache.directory.server.core.api.partition.index.Serializer;
-import java.util.Comparator;
-
-/**
- * 
+/** 
+ * An exception used when the txn conflict is detected.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface TxnManager<ID>
+public class TxnConflictException extends Exception
 {
-    void beginTransaction( boolean readOnly ) throws IOException;
-   
-    void commitTransaction() throws IOException, TxnConflictException;
-    
-    void abortTransaction() throws IOException;
-    
-    Comparator<ID> getIDComparator();
-    
-    Serializer getIDSerializer();
+    public TxnConflictException()
+    {
+    }
+
+
+    public TxnConflictException( String s )
+    {
+        super( s );
+    }
+
+
+    public TxnConflictException( Throwable cause )
+    {
+        super( cause );
+    }
+
+
+    public TxnConflictException( String s, Throwable cause )
+    {
+        super( s, cause );
+    }
+
 }

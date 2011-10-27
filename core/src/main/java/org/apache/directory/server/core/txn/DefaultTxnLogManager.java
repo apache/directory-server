@@ -30,6 +30,7 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.txn.logedit.LogEdit;
@@ -147,5 +148,54 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
     public IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception
     {
         return new IndexCursorWrapper<ID>( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addRead( Dn baseDn, SearchScope scope )
+    {
+        addDnSet( baseDn, scope, true );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addWrite( Dn baseDn, SearchScope scope )
+    {
+        addDnSet( baseDn, scope, true );
+    }
+
+
+    private void addDnSet( Dn baseDn, SearchScope scope, boolean read )
+    {
+        Transaction<ID> curTxn = txnManager.getCurTxn();
+
+        if ( ( curTxn == null ) )
+        {
+            throw new IllegalStateException( "Trying to add dn set wihout txn" );
+        }
+
+        // No need to do anything for read only txns
+        if ( !( curTxn instanceof ReadWriteTxn ) )
+        {
+
+            return;
+
+        }
+
+        DnSet dnSet = new DnSet( baseDn, scope );
+        ReadWriteTxn txn = ( ReadWriteTxn ) curTxn;
+
+        if ( read )
+        {
+            txn.addRead( dnSet );
+        }
+        else
+        {
+            txn.addWrite( dnSet );
+        }
     }
 }

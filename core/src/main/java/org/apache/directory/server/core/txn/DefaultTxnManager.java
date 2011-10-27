@@ -146,7 +146,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     /**
      * {@inheritDoc}
      */
-    public void commitTransaction() throws IOException
+    public void commitTransaction() throws IOException, TxnConflictException
     {
         Transaction<ID> txn = getCurTxn();
         
@@ -375,7 +375,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     }
     
     
-    private void commitReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException
+    private void commitReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException, TxnConflictException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
@@ -410,7 +410,27 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         
         verifyLock.lock();
        
-        // TODO verify txn here throw conflict exception if necessary
+        //Verify txn and throw conflict exception if necessary
+        Iterator<ReadWriteTxn<ID>> it = committedQueue.iterator();
+        ReadWriteTxn toCheckTxn;
+        long startTime = txn.getStartTime();
+        
+        while ( it.hasNext() )
+        {
+            toCheckTxn = it.next();
+
+            // Check txns that committed after we started 
+            if ( toCheckTxn.getCommitTime() < startTime )
+            {
+                continue;
+            }
+
+            if ( txn.hasConflict( toCheckTxn ) )
+            {
+                verifyLock.unlock();
+                throw new TxnConflictException();
+            }
+        }
         
         writeTxnsLock.lock();
         
@@ -421,6 +441,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
            txn.commitTxn( logRecord.getLogAnchor().getLogLSN() );
            
            latestVerifiedTxn.set( txn );
+           committedQueue.offer( txn );
            
            // TODO when sync is done outside the locks, advance latest commit outside the locks
            latestCommittedTxn.set( txn );

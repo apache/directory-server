@@ -1,3 +1,4 @@
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -17,35 +18,42 @@
  *  under the License.
  *
  */
+
 package org.apache.directory.server.core.txn;
 
-import org.apache.directory.server.core.api.partition.index.IndexCursor;
-import org.apache.directory.server.core.api.partition.index.IndexComparator;
-import org.apache.directory.server.core.txn.logedit.LogEdit;
-
-import org.apache.directory.server.core.log.UserLogRecord;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
-import java.io.IOException;
-
 /**
- * 
+ * A class representing the set of Dns a read operation depends or the set of Dns a write 
+ * operation affects.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface TxnLogManager<ID>
+public class DnSet
 {
-    void log( LogEdit<ID> logEdit, boolean sync ) throws IOException;
-    
-    void log( UserLogRecord logRecord, boolean sync ) throws IOException;
-    
-    Entry mergeUpdates(Dn partitionDN, ID entryID,  Entry entry );
-    
-    IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception;
-    
-    void addRead( Dn baseDn, SearchScope scope );
-    
-    void addWrite( Dn baseDn, SearchScope scope );
+    /** Base Dn */
+    private Dn baseDn;
+
+    /** Scope of the set */
+    SearchScope dnScope;
+
+
+    public DnSet( Dn base, SearchScope scope )
+    {
+        baseDn = base;
+        dnScope = scope;
+    }
+
+
+    public Dn getBaseDn()
+    {
+        return baseDn;
+    }
+
+
+    public SearchScope getScope()
+    {
+        return dnScope;
+    }
 }
