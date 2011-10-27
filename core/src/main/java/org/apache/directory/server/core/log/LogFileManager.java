@@ -105,11 +105,10 @@ import java.io.FileNotFoundException;
          * @param buffer data destination
          * @param offset destination offset
          * @param length size of read
-         * @return number of bytes actually read.
          * @throws IOException If the read failed
          * @throws EOFException If the file does not contain enough data
          */
-        int read( byte[] buffer, int offset, int length ) throws IOException, EOFException;
+        void read( byte[] buffer, int offset, int length ) throws IOException, EOFException;
         
 
         /**

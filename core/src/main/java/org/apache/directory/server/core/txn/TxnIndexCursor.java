@@ -165,7 +165,7 @@ public class TxnIndexCursor <ID> extends AbstractIndexCursor<Object, Entry, ID>
             
             if ( useLastEntry )
             {
-                it = changedEntries.tailSet( indexEntry, true ).descendingIterator();
+                it = changedEntries.tailSet( indexEntry, true ).iterator();
             }
             else
             {

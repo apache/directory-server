@@ -80,6 +80,7 @@ public class LogTest
         int dataLength = 1024;
         UserLogRecord userLogRecord = new UserLogRecord();
         byte recordData[] = new byte[dataLength];
+        LogAnchor startingLogAnchor = new LogAnchor();
         
         try
         {
@@ -92,7 +93,7 @@ public class LogTest
                 log.log( userLogRecord, false );
             }
             
-            LogScanner logScanner = log.beginScan();
+            LogScanner logScanner = log.beginScan( startingLogAnchor );
             int recordNumber = 0;
             
             while ( logScanner.getNextRecord( userLogRecord ) )

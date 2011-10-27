@@ -168,13 +168,11 @@ import java.io.RandomAccessFile;
         /**
          * {@inheritDoc}
          */
-        public int read( byte[] buffer, int offset, int length ) throws IOException, EOFException
+        public void read( byte[] buffer, int offset, int length ) throws IOException, EOFException
         {
             // carefully read all the bytes from disk. Don't use read(), as 
             // it does not span across blocks of data
             raf.readFully( buffer, offset, length );
-            
-            return length;
         }
         
         
