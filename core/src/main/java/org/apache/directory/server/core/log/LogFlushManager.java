@@ -609,15 +609,4 @@ import org.apache.directory.server.i18n.I18n;
         /** Keeps track of the number of waiters */
         int numWaiters;
     }
-    
-    
-    /**
-     * Flush the pending data on disk.
-     * @throws IOException If there is an IO issue
-     * @throws InvalidLogException If the log is invalid
-     */
-    public void sync() throws IOException, InvalidLogException
-    {
-        flush( flushStatus.uptoLSN, null, 0, 0, false );
-    }
 }
