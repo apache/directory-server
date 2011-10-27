@@ -90,7 +90,7 @@ public class LogTest
                 Arrays.fill( recordData, (byte )i );
             
                 userLogRecord.setData( recordData, dataLength );
-                log.log( userLogRecord, false );
+                log.log( userLogRecord, true );
             }
             
             LogScanner logScanner = log.beginScan( startingLogAnchor );
@@ -111,7 +111,7 @@ public class LogTest
             
             // Here, the expected number of record read should be 10, not 8...
             // assertEquals( 10, recordNumber );
-            assertEquals( 8, recordNumber );
+            assertEquals( 10, recordNumber );
         }
         catch( IOException e )
         {

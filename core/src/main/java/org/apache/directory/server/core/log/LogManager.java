@@ -23,6 +23,8 @@ import java.nio.ByteBuffer;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -38,6 +40,9 @@ import org.apache.directory.server.i18n.I18n;
 {
     /**  Controlfile record size */
     private final static int CONTROLFILE_RECORD_SIZE = 44;
+    
+    /**  Controlfile checksum size */
+    private final static int CONTROLFILE_CHECKSUM_SIZE = CONTROLFILE_RECORD_SIZE - 8 - 4;
     
     /** Controlfile file magic number */
     private final static int CONTROLFILE_MAGIC_NUMBER = 0xFF11FF11;
@@ -78,6 +83,9 @@ import org.apache.directory.server.i18n.I18n;
     /** ByteBuffer wrapper for the marker buffer */
     private ByteBuffer markerHead = ByteBuffer.wrap( markerBuffer );
     
+    /** The Checksum used */
+    private Checksum checksum = new Adler32();
+
     
     public LogManager( LogFileManager logFileManager )
     {
@@ -87,8 +95,10 @@ import org.apache.directory.server.i18n.I18n;
     
     /**
      *Initializes the log management:
-     * 1) Checks if control file exists and creates it if necesssary. If it exists, it reads it and loads the latest checkpoint.
-     * 2) Starts from the lates checkpoint ans scans forwards the logs to check for corrupted logs and determine the end of the log.
+     * 1) Checks if control file exists and creates it if necessary. If it exists, it reads it and loads 
+     * the latest checkpoint.
+     * 2) Starts from the latest checkpoint and scans forwards the logs to check for corrupted logs and 
+     * determine the end of the log.
      * This scan ends either when a properly ended log file is found or a partially written log record is found. 
      *
      * @throws IOException
@@ -307,11 +317,21 @@ import org.apache.directory.server.i18n.I18n;
     
     
     /**
-     * Writes the control file. To make paritally written control files unlikely,
+     * Writes the control file. To make partially written control files unlikely,
      * data is first written to a shadow file and then moved(renamed) to the controlfile.
      * Move of a file is atomic in POSIX systems, in GFS like file systems(in HDFS for example).
      * On windows, it is not always atomic but atomic versions of rename operations started to
-     * appear in their recent file systems. 
+     * appear in their recent file systems. <br/>
+     * The controlFile contains the following data :<br/>
+     * <ul>
+     * <li>minExistingLogFile : 8 bytes, the smallest file number in the Log</li>
+     * <li>minNeededLogFile : 8 bytes, the first valid file number in the Log</li>
+     * <li>minNeededLogFileOffset : the offset of the neededLogFile</li>
+     * <li>minNeededLSN : the LSN of the neededLogFile</li>
+     * <li>checksum : the header checksum, computed on the four previous values</li>
+     * <li>magicNumber : 4 bytes, the ControlFile magic number : 0xFF11FF11</li>
+     * </ul>
+     * 
      *
      * @throws IOException
      */
@@ -333,17 +353,21 @@ import org.apache.directory.server.i18n.I18n;
             
         }
         
-        // TODO compute checksum for log record here
-        
+        // Create the control file record
         controlFileMarker.rewind();
         controlFileMarker.putLong( controlFileRecord.minExistingLogFile );
         controlFileMarker.putLong( controlFileRecord.minNeededLogFile );
         controlFileMarker.putLong( controlFileRecord.minNeededLogFileOffset );
         controlFileMarker.putLong( controlFileRecord.minNeededLSN );
+        
+        // Compute the checksum
+        checksum.update( controlFileMarker.array(), 0, CONTROLFILE_CHECKSUM_SIZE );
+        controlFileRecord.checksum = checksum.getValue();
+        
         controlFileMarker.putLong( controlFileRecord.checksum );
         controlFileMarker.putInt( CONTROLFILE_MAGIC_NUMBER );
         
-        
+        // Create the shadow file, and write the header into it
         boolean shadowFileExists = logFileManager.createLogFile( CONTROLFILE_SHADOW_LOG_FILE_NUMBER  );
         
         if ( shadowFileExists )
@@ -377,7 +401,6 @@ import org.apache.directory.server.i18n.I18n;
      */
     private void readControlFile() throws IOException, InvalidLogException, FileNotFoundException
     {
-        boolean invalidControlFile = false;
         LogFileManager.LogFileReader controlFileReader = logFileManager.getReaderForLogFile( CONTROLFILE_LOG_FILE_NUMBER );
         
         try
@@ -401,31 +424,14 @@ import org.apache.directory.server.i18n.I18n;
         controlFileRecord.checksum = controlFileMarker.getLong();
         int magicNumber = controlFileMarker.getInt();
         
+        checksum.update( controlFileMarker.array(), 0, CONTROLFILE_CHECKSUM_SIZE );
         
-        if ( controlFileRecord.minExistingLogFile < LogAnchor.MIN_LOG_NUMBER )
-        {
-            invalidControlFile = true;
-        }
-        
-        if ( (controlFileRecord.minNeededLogFile < LogAnchor.MIN_LOG_NUMBER ) ||
-              ( controlFileRecord.minNeededLogFileOffset < LogAnchor.MIN_LOG_OFFSET ) )
-        {
-            invalidControlFile = true;
-        }
-        
-        if ( controlFileRecord.minExistingLogFile > controlFileRecord.minNeededLogFile )
-        {
-            invalidControlFile = true;
-        }
-        
-        if ( magicNumber != CONTROLFILE_MAGIC_NUMBER )
-        {
-            invalidControlFile = true;
-        }
-        
-        // TODO compute and compare checksum
-        
-        if ( invalidControlFile == true )
+        if ( ( controlFileRecord.minExistingLogFile < LogAnchor.MIN_LOG_NUMBER ) ||
+             ( controlFileRecord.minNeededLogFile < LogAnchor.MIN_LOG_NUMBER ) ||
+             ( controlFileRecord.minNeededLogFileOffset < LogAnchor.MIN_LOG_OFFSET ) ||
+             ( controlFileRecord.minExistingLogFile > controlFileRecord.minNeededLogFile ) ||
+             ( magicNumber != CONTROLFILE_MAGIC_NUMBER ) || 
+             ( controlFileRecord.checksum != checksum.getValue() ) )
         {
             throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
         }
