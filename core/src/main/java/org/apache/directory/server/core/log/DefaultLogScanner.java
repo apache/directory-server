@@ -361,8 +361,6 @@ public class DefaultLogScanner implements LogScanner
             markScanInvalid( null );
         }
         
-        
-        
         // Everything is fine advance last good offset and return
         prevLogFileOffset = LogFileRecords.LOG_FILE_HEADER_SIZE;
         

@@ -349,7 +349,7 @@ import org.apache.directory.server.i18n.I18n;
         {
             flushedLSN = doFlush( uptoLSN, appendLockHeld );
             
-            // Now if there is a user buffer, flush from that        
+            // Now if there is a user buffer, flush from that
             if ( userBuffer != null )
             {
                 ByteBuffer headerFooterHead = logBuffer.headerFooterHead;
@@ -357,7 +357,7 @@ import org.apache.directory.server.i18n.I18n;
                 
                 headerFooterHead.rewind();
                 writeHeader( headerFooterHead, recordSize, flushLSN );
-                currentLogFile.append( logBuffer.headerFooterBuffer, 0, LogFileRecords.RECORD_HEADER_MAGIC_NUMBER );
+                currentLogFile.append( logBuffer.headerFooterBuffer, 0, LogFileRecords.RECORD_HEADER_SIZE );
                 
                 currentLogFile.append( userBuffer, offset, length );   
                 
@@ -608,5 +608,16 @@ import org.apache.directory.server.i18n.I18n;
         
         /** Keeps track of the number of waiters */
         int numWaiters;
+    }
+    
+    
+    /**
+     * Flush the pending data on disk.
+     * @throws IOException If there is an IO issue
+     * @throws InvalidLogException If the log is invalid
+     */
+    public void sync() throws IOException, InvalidLogException
+    {
+        flush( flushStatus.uptoLSN, null, 0, 0, false );
     }
 }
