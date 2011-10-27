@@ -31,9 +31,6 @@ public class UserLogRecord
     /** array used to hold user log records */
     private byte[] recordHolder;
     
-    /** offset int the  byte array where user record starts */
-    private int offset;
-    
     /** length of the user record in the byte array */
     private int length;
     
@@ -70,6 +67,6 @@ public class UserLogRecord
      */
     public String toString()
     {
-        return "Length: " + length + ", offset: " + offset + ", anchor: {" + logAnchor + "}";
+        return "Length: " + length + ", anchor: {" + logAnchor + "}";
     }
 }
