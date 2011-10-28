@@ -122,10 +122,10 @@ public class DefaultLogScanner implements LogScanner
                         markScanInvalid( null );
                     }
                     
-                    prevLogFileOffset = Math.max( startingOffset, currentLogFile.getLength() );
+                    prevLogFileOffset = Math.min( startingOffset, currentLogFile.getLength() );
                     
                     // Move to the beginning of the data we want to read.
-                    currentLogFile.seek( startingOffset );
+                    currentLogFile.seek( prevLogFileOffset );
                 }
                 
                 startingRead = true;
@@ -342,6 +342,7 @@ public class DefaultLogScanner implements LogScanner
         
         // File exists
         prevLogFileNumber = logFileNumber;
+        prevLogFileOffset = 0;
         
         markerHead.rewind();
         
