@@ -254,6 +254,30 @@ import org.apache.directory.server.i18n.I18n;
         }
     }
     
+    /**
+     * Syncs the log upto the given lsn. If lsn is equal to unknow lsn, then the log is 
+     * flushed upto the latest logged lsn.
+     *
+     * @param uptoLSN lsn to flush upto. Unkown lsn if caller just wants to sync the log upto the latest logged lsn.
+     */
+    void sync( long uptoLSN ) throws IOException, InvalidLogException
+    {
+       if ( uptoLSN == LogAnchor.UNKNOWN_LSN )
+       {
+           appendLock.lock();
+           uptoLSN = logLSN - 1;
+           appendLock.unlock();
+       }
+       
+       // If nothing to flush, then just return
+       if ( uptoLSN == LogAnchor.UNKNOWN_LSN )
+       {
+           
+           return;
+       }
+       
+       flush( uptoLSN, null, 0, 0, false );
+    }
     
     /**
      * Flushes the changes in the log buffer upto the given point. The given point is determined as follows:

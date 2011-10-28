@@ -75,4 +75,12 @@ public interface Log
      * @param newAnchor
      */
     void advanceMinNeededLogPosition( LogAnchor newAnchor );
+    
+    /**
+     * Syncs the log upto the given lsn. If lsn is equal to unknow lsn, then the log is 
+     * flushed upto the latest logged lsn.
+     *
+     * @param uptoLSN lsn to flush upto. Unkown lsn if caller just wants to sync the log upto the latest logged lsn.
+     */
+    void sync( long uptoLSN ) throws IOException, InvalidLogException;
 }

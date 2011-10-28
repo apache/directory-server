@@ -90,4 +90,12 @@ public class DefaultLog implements Log
     {
        logManager.advanceMinLogAnchor( newAnchor ); 
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void sync( long uptoLSN ) throws IOException, InvalidLogException
+    {
+       logFlushManager.sync( uptoLSN ); 
+    }
 }
