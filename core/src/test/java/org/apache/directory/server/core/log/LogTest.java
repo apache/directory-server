@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -40,12 +39,6 @@ public class LogTest
 {
     /** Logger */
     private Log log;
-    
-    /** Log buffer size : 4096 bytes */
-    private int logBufferSize = 1 << 12;
-    
-    /** Log File Size : 8192 bytes */
-    private long logFileSize = 1 << 13;
     
     /** log suffix */
     private static String LOG_SUFFIX = "log";
@@ -65,18 +58,67 @@ public class LogTest
     }
 
 
-    @Before
-    public void setup() throws IOException, InvalidLogException
+    @Test
+    public void testLog() throws IOException, InvalidLogException
     {
         log = new DefaultLog();
-        log.init( getLogFolder(), LOG_SUFFIX, logBufferSize, logFileSize );
+        log.init( getLogFolder(), LOG_SUFFIX, 4096, 8192 );
+
+        int dataLength = 1024;
+        UserLogRecord userLogRecord = new UserLogRecord();
+        byte recordData[] = new byte[dataLength];
+        LogAnchor startingLogAnchor = new LogAnchor();
+        
+        try
+        {
+            // Log 10 buffers
+            for ( int i = 0; i < 10; i++ )
+            {
+                Arrays.fill( recordData, (byte )i );
+            
+                userLogRecord.setData( recordData, dataLength );
+                log.log( userLogRecord, true );
+            }
+            
+            LogScanner logScanner = log.beginScan( startingLogAnchor );
+            int recordNumber = 0;
+            
+            while ( logScanner.getNextRecord( userLogRecord ) )
+            {
+                recordData = userLogRecord.getDataBuffer();
+                assertTrue( userLogRecord.getDataLength() == dataLength );
+                
+                for ( int idx = 0; idx < dataLength; idx++ )
+                {
+                    assertTrue( recordData[idx] == recordNumber );
+                }
+                
+                recordNumber++;
+            }
+            
+            // Here, the expected number of record read should be 10, not 8...
+            // assertEquals( 10, recordNumber );
+            assertEquals( 10, recordNumber );
+        }
+        catch( IOException e )
+        {
+            e.printStackTrace();
+            fail();
+        }
+        catch( InvalidLogException e )
+        {
+            e.printStackTrace();
+            fail();
+        }
     }
     
     
     @Test
-    public void testLog()
+    public void testLogSmallBuffer() throws IOException, InvalidLogException
     {
-        int idx;
+        log = new DefaultLog();
+        log.init( getLogFolder(), LOG_SUFFIX, 512, 8192 );
+
         int dataLength = 1024;
         UserLogRecord userLogRecord = new UserLogRecord();
         byte recordData[] = new byte[dataLength];
@@ -104,7 +146,7 @@ public class LogTest
                 recordData = userLogRecord.getDataBuffer();
                 assertTrue( userLogRecord.getDataLength() == dataLength );
                 
-                for ( idx = 0; idx < dataLength; idx++ )
+                for ( int idx = 0; idx < dataLength; idx++ )
                 {
                     assertTrue( recordData[idx] == recordNumber );
                 }
