@@ -77,8 +77,11 @@ public class LogTest
                 Arrays.fill( recordData, (byte )i );
             
                 userLogRecord.setData( recordData, dataLength );
-                log.log( userLogRecord, true );
+                log.log( userLogRecord, false );
             }
+            
+            // Sync everything
+            log.sync( LogAnchor.UNKNOWN_LSN );
             
             LogScanner logScanner = log.beginScan( startingLogAnchor );
             int recordNumber = 0;
@@ -96,8 +99,7 @@ public class LogTest
                 recordNumber++;
             }
             
-            // Here, the expected number of record read should be 10, not 8...
-            // assertEquals( 10, recordNumber );
+            // Here, the expected number of record read should be 10
             assertEquals( 10, recordNumber );
         }
         catch( IOException e )
