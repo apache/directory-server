@@ -137,6 +137,11 @@ import org.apache.directory.server.i18n.I18n;
         {
             lsn = logLSN++;
             
+            
+            // Compute the checksum for the user record
+            checksum.reset();
+            checksum.update( userBuffer, 0, length );
+            
             if ( currentLogFile == null )
             {
                 // We are just starting, get the current log file
@@ -177,8 +182,7 @@ import org.apache.directory.server.i18n.I18n;
                             // Write the data
                             writeHead.put( userBuffer, 0, length );
                             
-                            // Compute the checksum and write the footer
-                            checksum.update( userBuffer, 0, length );
+                            // Write the footeer
                             writeFooter( writeHead, (int)checksum.getValue() );
                             
                             appendedRecord = true;
@@ -212,8 +216,7 @@ import org.apache.directory.server.i18n.I18n;
                             // Write the data
                             writeHead.put( userBuffer, 0, length );
 
-                            // Compute the checksum and write the footer
-                            checksum.update( userBuffer, 0, length );
+                            // Write the footer
                             writeFooter( writeHead, (int)checksum.getValue() );
 
                             appendedRecord = true;
@@ -386,7 +389,7 @@ import org.apache.directory.server.i18n.I18n;
                 currentLogFile.append( userBuffer, offset, length );   
                 
                 headerFooterHead.rewind();
-                writeFooter( headerFooterHead, 0 );
+                writeFooter( headerFooterHead, (int)checksum.getValue() );
                 currentLogFile.append( logBuffer.headerFooterBuffer, 0, LogFileRecords.RECORD_FOOTER_SIZE );
     
                 flushedLSN = flushLSN;

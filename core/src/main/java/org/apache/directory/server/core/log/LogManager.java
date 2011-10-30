@@ -361,6 +361,7 @@ import org.apache.directory.server.i18n.I18n;
         controlFileMarker.putLong( controlFileRecord.minNeededLSN );
         
         // Compute the checksum
+        checksum.reset();
         checksum.update( controlFileMarker.array(), 0, CONTROLFILE_CHECKSUM_SIZE );
         controlFileRecord.checksum = checksum.getValue();
         
@@ -424,6 +425,7 @@ import org.apache.directory.server.i18n.I18n;
         controlFileRecord.checksum = controlFileMarker.getLong();
         int magicNumber = controlFileMarker.getInt();
         
+        checksum.reset();
         checksum.update( controlFileMarker.array(), 0, CONTROLFILE_CHECKSUM_SIZE );
         
         if ( ( controlFileRecord.minExistingLogFile < LogAnchor.MIN_LOG_NUMBER ) ||

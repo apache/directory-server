@@ -177,6 +177,7 @@ public class DefaultLogScanner implements LogScanner
             readLogRecord( logRecord, recordLength - ( LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE ));
             
             // Read and verify footer
+            checksum.reset();
             checksum.update( logRecord.getDataBuffer(), 0, logRecord.getDataLength() );
             readRecordFooter( (int)checksum.getValue() );
             
