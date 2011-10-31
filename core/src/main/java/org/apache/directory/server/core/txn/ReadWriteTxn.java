@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class ReadWriteTxn<ID> extends AbstractTransaction<ID>
+/** Package protected */ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
 {  
     /** list of log edits by the txn */
     private List<LogEdit<ID>> logEdits = new LinkedList<LogEdit<ID>>();

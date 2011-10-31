@@ -58,7 +58,7 @@ public class TxnManagerFactory
      */
     @SuppressWarnings("unchecked")
     public static <ID> void init( Comparator<ID> idComparator, Serializer idSerializer, String logFolderPath,
-        int logBufferSize, int logFileSize ) throws IOException
+        int logBufferSize, long logFileSize ) throws IOException
     {
         Log log = new DefaultLog();
 

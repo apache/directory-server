@@ -23,7 +23,12 @@ package org.apache.directory.server.core.txn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface TxnManagerInternal<ID> extends TxnManager<ID>
+/** Package protected */ interface TxnManagerInternal<ID> extends TxnManager<ID>
 {
+    /**
+     * Returns the current txn associated with the current thread.
+     *
+     * @return current txn
+     */
     Transaction<ID> getCurTxn();
 }

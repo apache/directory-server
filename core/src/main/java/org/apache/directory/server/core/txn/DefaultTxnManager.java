@@ -47,7 +47,7 @@ import java.io.IOException;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
+/** Package protected */ class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 {
     /** wal log manager */
     private TxnLogManager<ID> txnLogManager;
@@ -68,7 +68,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     private AtomicReference<ReadWriteTxn<ID>> latestVerifiedTxn = new AtomicReference<ReadWriteTxn<ID>>();
     
     /** Latest flushed txn's logical commit time */
-    private AtomicLong latestFlushedTxnLSN = new AtomicLong( 0 );
+    private AtomicLong latestFlushedTxnLSN = new AtomicLong( LogAnchor.UNKNOWN_LSN );
     
     /** ID comparator */
     private Comparator<ID> idComparator;
@@ -205,25 +205,44 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     }
     
     
+    /**
+     * Begins a read only txn. A read only txn does not put any log edits
+     * to the txn log.Its start time is the latest committed txn's commit time. 
+     */
     private void beginReadOnlyTxn()
     {
         ReadOnlyTxn<ID> txn = new ReadOnlyTxn<ID>();
         ReadWriteTxn<ID> lastTxnToCheck = null;
-        
+
+        /*
+         * Set the start time as the latest committed txn's commit time. We need to make sure that
+         * any change after our start time is not flushed to the partitions. Say we have txn1 as the
+         * lastest committed txn. There is a small window where we get ref to txn1, txn2 commits and
+         * becomes the latest committed txn, txn1's ref count becomes zero before we bump its ref
+         * count and changes to txn2 are flushed to partitions. Below we loop until we make sure
+         * that the txn for which we bumped up the ref count is indeed the latest committed txn.
+         */
+
         do
         {
             if ( lastTxnToCheck != null )
             {
                 lastTxnToCheck.getRefCount().decrementAndGet();
             }
-            
+
             lastTxnToCheck = latestCommittedTxn.get();
-            lastTxnToCheck.getRefCount().getAndIncrement();
-        } while ( lastTxnToCheck != latestCommittedTxn.get()  );
-        
+
+            if ( lastTxnToCheck != null )
+            {
+                lastTxnToCheck.getRefCount().getAndIncrement();
+            }
+
+        }
+        while ( lastTxnToCheck != latestCommittedTxn.get() );
+
         // Determine start time
         long startTime;
-        
+
         if ( lastTxnToCheck != null )
         {
             startTime = lastTxnToCheck.getCommitTime();
@@ -232,22 +251,27 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         {
             startTime = LogAnchor.UNKNOWN_LSN;
         }
-        
+
         txn.startTxn( startTime );
-        
+
         buildCheckList( txn, lastTxnToCheck );
         txnVar.set( txn );
     }
     
-    
+
+    /**
+     * Begins a read write txn. A start txn marker is inserted
+     * into the txn log and the lsn of that log record is the
+     * start time.
+     */
     private void beginReadWriteTxn() throws IOException
     {
-        
+
         ReadWriteTxn<ID> txn = new ReadWriteTxn<ID>();
         UserLogRecord logRecord = txn.getUserLogRecord();
-        
-        TxnStateChange<ID> txnRecord = new TxnStateChange<ID>( LogAnchor.UNKNOWN_LSN, 
-                TxnStateChange.State.TXN_BEGIN );
+
+        TxnStateChange<ID> txnRecord = new TxnStateChange<ID>( LogAnchor.UNKNOWN_LSN,
+            TxnStateChange.State.TXN_BEGIN );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
         byte[] data;
@@ -266,47 +290,67 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
             {
                 bout.close();
             }
-            
+
             if ( out != null )
             {
                 out.close();
             }
         }
-        
-        logRecord.setData(  data, data.length );
-        
-        ReadWriteTxn<ID> lastTxnToCheck = null; 
+
+        logRecord.setData( data, data.length );
+
+        /*
+         * Get the start time and last txn to depend on
+         * when mergin data under te writeTxnLock.
+         */
+
+        ReadWriteTxn<ID> lastTxnToCheck = null;
         writeTxnsLock.lock();
-        
+
         try
         {
             txnLogManager.log( logRecord, false );
             txn.startTxn( logRecord.getLogAnchor().getLogLSN() );
-            
+
             do
             {
                 if ( lastTxnToCheck != null )
                 {
                     lastTxnToCheck.getRefCount().decrementAndGet();
                 }
-                
+
                 lastTxnToCheck = latestVerifiedTxn.get();
-                lastTxnToCheck.getRefCount().incrementAndGet();
-            } while ( lastTxnToCheck != latestVerifiedTxn.get() );
-            
+
+                if ( lastTxnToCheck != null )
+                {
+                    lastTxnToCheck.getRefCount().incrementAndGet();
+                }
+
+            }
+            while ( lastTxnToCheck != latestVerifiedTxn.get() );
+
         }
         finally
         {
             writeTxnsLock.unlock();
         }
-        
+
         // Finally build the check list
         buildCheckList( txn, lastTxnToCheck );
-        
+
         txnVar.set( txn );
     }
     
-    
+
+    /**
+     * Builds the list of txns which the given txn should check while mergin what it read from
+     * the partitions with the changes in the txn log. These are the txns that committed before
+     * the start of the give txn and for which the changes are not flushed to the partitions yet.
+     * Note that, for some of these txns, flush to partitions could go on in parallel.
+     *
+     * @param txn txn for which we will build the check list
+     * @param lastTxnToCheck latest txn to check
+     */
     private void buildCheckList( Transaction<ID> txn, ReadWriteTxn<ID> lastTxnToCheck )
     {
         if ( lastTxnToCheck != null )
@@ -316,7 +360,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 
             List<ReadWriteTxn<ID>> toCheckList = txn.getTxnsToCheck();
             Iterator<ReadWriteTxn<ID>> it = committedQueue.iterator();
-            
+
             while ( it.hasNext() )
             {
                 toAdd = it.next();
@@ -336,29 +380,54 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
 
             it = toCheckList.iterator();
             ReadWriteTxn<ID> toCheck;
-            
+
             while ( it.hasNext() )
             {
                 toCheck = it.next();
-                
+
                 if ( toCheck.commitTime <= flushedLSN )
                 {
                     it.remove();
                 }
             }
         }
+
+        // A read write txn, always has to check its changes
+        if ( txn instanceof ReadWriteTxn )
+        {
+            txn.getTxnsToCheck().add( ( ReadWriteTxn<ID> ) txn );
+        }
     }
     
     
+    /**
+     * Called before ending a txn. Txn for which this txn bumped 
+     * up the ref count is gotten and its ref count is decreased.
+     *
+     * @param txn txn which is about to commit or abort
+     */
     private void prepareForEndingTxn( Transaction<ID> txn )
     {
         List<ReadWriteTxn<ID>> toCheck = txn.getTxnsToCheck();
+        
+        // A read write txn, always has to check its changes
+        if ( txn instanceof ReadWriteTxn )
+        {
+
+            if ( toCheck.size() <= 0 )
+            {
+                throw new IllegalStateException(
+                    " prepareForEndingTxn: a read write txn should at least depend on itself:" + txn );
+            }
+
+            txn.getTxnsToCheck().remove( ( ReadWriteTxn<ID> ) txn );
+        }
         
         if ( toCheck.size() > 0 )
         {
             ReadWriteTxn<ID> lastTxnToCheck = toCheck.get( toCheck.size() - 1 );
             
-            if ( lastTxnToCheck.commitTime != txn.getStartTime() )
+            if ( lastTxnToCheck.commitTime > txn.getStartTime() )
             {
                 throw new IllegalStateException( " prepareForEndingTxn: txn has unpexptected start time " + 
                     txn + " expected: " + lastTxnToCheck );
@@ -375,6 +444,30 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
     }
     
     
+    /**
+     * Tries to commit the given read write txn. Before a read write txn can commit, it is
+     * verified against the txns that committed after this txn started. If a conflicting change is
+     * found, a conflict exception is thrown. 
+     * 
+     * If a txn can commit, a commit record is inserted into the txn log. The lsn of the commit record
+     * is the commit time of the txn.
+     * 
+     * Note that, a txn is not committed until its commit record is synced to the underlying media. Say we haveread write txns rw1 and 
+     * rw2 and that rw1 and rw2 is verified and their commit record are in the log but not synced to underlying media yet. A new read 
+     * write txn rw3 and a read only txn r1 comes along. Since rw1 and rw2 wont be acked until they commit, r1 should not depend on rw1 and rw2 and can have a view 
+     * as of a commit time before rw1 and rw2's commit time. If r1 depended rw1 or rw2 and we crashed before sycning rw1 and rw2's to the underlying media, 
+     * r1 would have depended on a change that actually doesnt exist in the database. However, rw3 either has to depend on rw1 and rw2) or has to verify 
+     * its changeset against rw1 and rw2 when it tries to commit. Whether the first thing(depending on rw1, rw2 and merging its changeset) or the second
+     * thing ( verifiying its change set against rw1 and rw2) is determined by the order of the lsns of the commit record of rw1 and rw2  and start record of rw3.
+     * Lets say we have this order in the txn log:
+     *              commit record rw1, start record rw3, commit record rw2
+     * then rw3 will merge its changes with that of rw1 and will verify its changes against rw2. When rw3 is merging its changeset with that of rw1, rw1 might not have
+     * committed yet as its commit record might not have made it to the underlying media but this is OK as rw3 cannot commit before rw1 because of the log.
+     *
+     * @param txn txn to commit.
+     * @throws IOException
+     * @throws TxnConflictException
+     */
     private void commitReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException, TxnConflictException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
@@ -412,7 +505,7 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
        
         //Verify txn and throw conflict exception if necessary
         Iterator<ReadWriteTxn<ID>> it = committedQueue.iterator();
-        ReadWriteTxn toCheckTxn;
+        ReadWriteTxn<ID> toCheckTxn;
         long startTime = txn.getStartTime();
         
         while ( it.hasNext() )
@@ -453,7 +546,13 @@ public class DefaultTxnManager<ID> implements  TxnManagerInternal<ID>
         }
     }
     
-    
+
+    /**
+     * Aborts a read write txn. An abort record is inserted into the txn log.
+     *
+     * @param txn txn to abort
+     * @throws IOException
+     */
     private void abortReadWriteTxn( ReadWriteTxn<ID> txn ) throws IOException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
