@@ -19,8 +19,15 @@
  */
 package org.apache.directory.server.core.txn;
 
+
 import java.util.Comparator;
 import org.apache.directory.server.core.api.partition.index.Serializer;
+import org.apache.directory.server.core.log.DefaultLog;
+import org.apache.directory.server.core.log.Log;
+import org.apache.directory.server.core.log.InvalidLogException;
+
+import java.io.IOException;
+
 
 /**
  * 
@@ -28,40 +35,73 @@ import org.apache.directory.server.core.api.partition.index.Serializer;
  */
 public class TxnManagerFactory
 {
+    /** The only txn manager */
     private static TxnManagerInternal<?> txnManager;
-    
+
+    /** The only txn log manager */
     private static TxnLogManager<?> txnLogManager;
-    
-    public static <ID> void init(Comparator<ID> idComparator, Serializer idSerializer)
+
+    /** log suffix */
+    private static String LOG_SUFFIX = "log";
+
+
+    /**
+     * 
+     * Initializes the txn managemenet layer. It creates the only instances of txn manager and txn log manager. 
+     *
+     * @param idComparator comparator for the ID type.
+     * @param idSerializer seriazlier for the ID type.
+     * @param logFolderPath log folder path for the log manager.
+     * @param logBufferSize in memory buffer size for the log manager.
+     * @param logFileSize max targer log file size for the log manager.
+     * @throws IOException thrown if initialization fails.
+     */
+    @SuppressWarnings("unchecked")
+    public static <ID> void init( Comparator<ID> idComparator, Serializer idSerializer, String logFolderPath,
+        int logBufferSize, int logFileSize ) throws IOException
     {
+        Log log = new DefaultLog();
+
+        try
+        {
+            log.init( logFolderPath, LOG_SUFFIX, logBufferSize, logFileSize );
+        }
+        catch ( InvalidLogException e )
+        {
+            throw new IOException( e );
+        }
+
         DefaultTxnManager<ID> dTxnManager;
         dTxnManager = new DefaultTxnManager<ID>();
         txnManager = dTxnManager;
-        
+
         DefaultTxnLogManager<ID> dTxnLogManager;
         dTxnLogManager = new DefaultTxnLogManager<ID>();
         txnLogManager = dTxnLogManager;
-        
-        // TODO init txn manager and log manager
-        
+        dTxnLogManager.init( log, ( TxnManagerInternal<ID> ) txnManager );
+
         dTxnManager.init( dTxnLogManager, idComparator, idSerializer );
+
     }
-    
-    
+
+
+    @SuppressWarnings("unchecked")
     public static <ID> TxnManager<ID> txnManagerInstance()
     {
-        return ( (TxnManager<ID>) txnManager );
+        return ( ( TxnManager<ID> ) txnManager );
     }
-    
-    
+
+
+    @SuppressWarnings("unchecked")
     public static <ID> TxnLogManager<ID> txnLogManagerInstance()
     {
-        return ( (TxnLogManager<ID>) txnLogManager );
+        return ( ( TxnLogManager<ID> ) txnLogManager );
     }
-    
-    
+
+
+    @SuppressWarnings("unchecked")
     static <ID> TxnManagerInternal<ID> txnManagerInternalInstance()
     {
-        return ( (TxnManagerInternal<ID>) txnManager );
+        return ( ( TxnManagerInternal<ID> ) txnManager );
     }
 }

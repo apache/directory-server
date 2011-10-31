@@ -50,13 +50,14 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
     
     
     /**
-     * TODO : doco
-     * @param logger
-     * @param txnManager
+     * Inits the the txn log manager
+     * 
+     * @param logger write ahead logger
+     * @param txnManager txn Manager
      */
     public void init( Log logger, TxnManagerInternal<ID> txnManager )
     {
-        this.wal = logger;
+        wal = logger;
         this.txnManager = txnManager;
     }
     

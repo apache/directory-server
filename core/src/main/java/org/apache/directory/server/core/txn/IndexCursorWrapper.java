@@ -316,7 +316,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         
         if ( positioned == false )
         {
-            afterLast();
+            beforeFirst();
         }
         
         if ((  movingNext == false ) || ( getIndex < 0 ) )
