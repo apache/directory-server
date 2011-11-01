@@ -134,11 +134,8 @@ public class LogTest
                 Arrays.fill( recordData, (byte )i );
             
                 userLogRecord.setData( recordData, dataLength );
-                log.log( userLogRecord, false );
+                log.log( userLogRecord, true );
             }
-            
-            // Sync everything
-            log.sync( LogAnchor.UNKNOWN_LSN );
             
             LogScanner logScanner = log.beginScan( startingLogAnchor );
             int recordNumber = 0;
