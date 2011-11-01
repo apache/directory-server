@@ -29,13 +29,43 @@ import java.util.Comparator;
  */
 public interface TxnManager<ID>
 {
+    /**
+     * Starts a new txn and associates it with the current thread.
+     *
+     * @param readOnly whether the txn is read only
+     * @throws IOException
+     */
     void beginTransaction( boolean readOnly ) throws IOException;
    
+    /**
+     * Tries to commit the current txn associated with the current thread. ReadWrite txns have to be verified against txns
+     * that committed after they started for any conflicting change and conflicting
+     * exception is thrown if verificatin fails.
+     *
+     * @throws IOException
+     * @throws TxnConflictException
+     */
     void commitTransaction() throws IOException, TxnConflictException;
     
+    /**
+     * Aborts the current txn associated with the current thread.
+     *
+     * @throws IOException
+     */
     void abortTransaction() throws IOException;
     
+    /**
+     * Returns the id comparator used by the txn manager. 
+     *
+     * @return id comparator
+     */
     Comparator<ID> getIDComparator();
     
+    
+    /**
+     * Returns the id serializer used by the txn manager.
+     *
+     * @return id serializer 
+     */
     Serializer getIDSerializer();
 }

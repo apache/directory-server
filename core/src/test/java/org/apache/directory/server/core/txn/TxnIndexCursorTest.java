@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
 public class TxnIndexCursorTest
 {
     /** index entry comparator */
-    ForwardIndexComparator<?, Long> comparator = new ForwardIndexComparator<Long, Long>( LongComparator.INSTANCE,
+    private ForwardIndexComparator<?, Long> comparator = new ForwardIndexComparator<Long, Long>( LongComparator.INSTANCE,
         LongComparator.INSTANCE );
 
     /** sorted change set for the cursor */
@@ -85,7 +85,10 @@ public class TxnIndexCursorTest
     {
         try
         {
-            cursor.close();
+            if ( cursor != null )
+            {
+                cursor.close();
+            }
         }
         catch ( Exception e )
         {

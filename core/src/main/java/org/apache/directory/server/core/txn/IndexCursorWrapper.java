@@ -33,6 +33,19 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.Entry;;
 
 /**
+ * Wraps an index's cursor and provides a transactionally consistent view.
+ * 
+ * Each transaction that this txn depends exposes a TxnIndexCursor if it
+ * has adds for the wrapped cursor's index. This cursor wraps them as well. 
+ * Whenever the cursor is positioned, all wrapped cursors are positioned and
+ * available values for each cursor is reset to null. Whenever a next or 
+ * previous call is made:
+ *  *If the call is after a positioning call, we do a next or prev on all wrapped
+ *  cursors
+ *  * Otherwise we do a next or prev on the last cursor we go the value from.
+ *  
+ *  After the above step, we recompute the minimum. The new index is the value 
+ *  we will get the value from.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -83,7 +96,9 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         List<ReadWriteTxn<ID>> toCheck = curTxn.getTxnsToCheck(); 
         
         cursors = new ArrayList<IndexCursor<Object, Entry, ID>>( toCheck.size() + 1 );
+        values = new ArrayList<IndexEntry<Object,ID>>( toCheck.size() + 1 );
         cursors.add( ( IndexCursor<Object, Entry, ID> )wrappedCursor );
+        values.add( null );
         
         if ( toCheck.size() > 0 )
         {
@@ -104,6 +119,9 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
                     txns.add( null );
                 }
                 
+                values.add( null );
+                
+                // This adds a null to the array if the txn does not have any changes for the index
                 cursors.add( dependentTxn.getCursorFor( partitionDn, attributeOid, forwardIndex, onlyValueKey, onlyIDKey, comparator ) );
             }
         }
@@ -129,7 +147,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             
             if ( cursor != null )
             {
-             cursor.after( element );
+                cursor.after( element );
             }
         }
         
@@ -319,10 +337,15 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             beforeFirst();
         }
         
+        /*
+         *  If called right after positioning the cursor or changing direction, then do a next call
+         *  on every wrapped cursor and recompute the min value.
+         */
         if ((  movingNext == false ) || ( getIndex < 0 ) )
         {
             minValue = null;
             getIndex = -1;
+            movingNext = true;
             
             for ( idx = 0; idx < values.size(); idx++ )
             {
@@ -378,14 +401,14 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             {
                 curTxn = txns.get( txnIdx );
                 
-                // TODO check for index entry delete here
-                if ( curTxn!= null)
+                if ( ( curTxn != null ) && ( curTxn.isIndexEntryDeleted( partitionDn, attributeOid, value ) ) )
                 {
                     valueDeleted = true;
                     break;
                 }
             }
             
+            // If the value we get is not deleted and greater than the last value we returned, then we are done
             if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) > 0 ) ) )
             {
                 break;
@@ -425,16 +448,22 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             afterLast();
         }
         
-        if ( ( movingNext == false ) || ( getIndex < 0 ) )
+        
+        /*
+         *  If called right after positioning the cursor or changing direction, then do a previous call
+         *  on every wrapped cursor and recompute the max value.
+         */
+        if ( ( movingNext == true ) || ( getIndex < 0 ) )
         {
             maxValue = null;
             getIndex = -1;
+            movingNext = false;
             
             for ( idx = 0; idx < values.size(); idx++ )
             {
                 cursor = cursors.get( idx );
                 
-                if ( ( cursor != null ) && cursor.next() )
+                if ( ( cursor != null ) && cursor.previous() )
                 {
                     value = cursor.get();
                     
@@ -484,14 +513,14 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             {
                 curTxn = txns.get( txnIdx );
                 
-                // TODO check for index entry delete here
-                if ( curTxn!= null)
+                if ( curTxn!= null && curTxn.isIndexEntryDeleted( partitionDn, attributeOid, value ) )
                 {
                     valueDeleted = true;
                     break;
                 }
             }
             
+            // If the value we get is not deleted and less than the last value we returned, then we are done
             if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) < 0 ) ) )
             {
                 break;
@@ -499,6 +528,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
             
             // Recompute maximum
             recomputeMaximum();
+            
         } while ( true );
         
         return ( getIndex >= 0 );
@@ -583,6 +613,11 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     }
 
     
+    /**
+     * Do a get on the last cursor we got the value from and recompute the minimum
+     *
+     * @throws Exception
+     */
     private void recomputeMinimum() throws Exception
     {
         IndexCursor<Object,Entry,ID> cursor;
@@ -620,7 +655,11 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         }
     }
     
-    
+    /**
+     * Do a previous we got the value from and recompute the maximum.
+     *
+     * @throws Exception
+     */
     private void recomputeMaximum() throws Exception
     {
         IndexCursor<Object,Entry,ID> cursor;
@@ -630,7 +669,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         
         cursor = cursors.get( getIndex );
         
-        if ( cursor.next() )
+        if ( cursor.previous() )
         {
             values.set( getIndex , cursor.get() );
         }

@@ -1,7 +1,9 @@
 
 package org.apache.directory.server.core.txn;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import org.apache.directory.server.core.log.InvalidLogException;
 import org.junit.After;
@@ -46,11 +48,19 @@ public class DefaultTxnManagerTest
 
 
     @Before
-    public void setup() throws IOException, InvalidLogException
+    public void setup()
     {
-        TxnManagerFactory.<Long> init( LongComparator.INSTANCE, LongSerializer.INSTANCE, getLogFolder(), logBufferSize,
-            logFileSize );
-        txnManager = TxnManagerFactory.<Long> txnManagerInternalInstance();
+        try
+        {
+            TxnManagerFactory.<Long> init( LongComparator.INSTANCE, LongSerializer.INSTANCE, getLogFolder(),
+                logBufferSize, logFileSize );
+            txnManager = TxnManagerFactory.<Long> txnManagerInternalInstance();
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+            fail();
+        }
     }
 
 
@@ -61,7 +71,7 @@ public class DefaultTxnManagerTest
 
 
     @Test
-    public void testBeginCommitReadOnlyTxn()
+    public void testBeginCommitReadOnlyTxn() throws IOException
     {
         try
         {

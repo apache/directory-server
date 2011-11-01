@@ -39,6 +39,7 @@ import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.log.UserLogRecord;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
@@ -113,109 +114,138 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
     }
     
     
+    
+    /**
+     * Logs the given log edit for this txn. If the edit contains index changes, it updates the summary
+     * of changes for the changed index so that it is easier to provide a cursor view over the set of 
+     * index changes.
+     *
+     * @param edit txn log edit to be logged
+     */
     @SuppressWarnings("unchecked")
     public void addLogEdit( LogEdit<ID> edit )
     {
         logEdits.add( edit );
-        
+
         /*
          * Update the in memory summary of the index changes
          */
         if ( edit instanceof DataChangeContainer )
         {
-            DataChangeContainer<ID> dEdit = (DataChangeContainer<ID>)edit; 
-            List<DataChange<ID>> dataChanges =  dEdit.getChanges();
+            DataChangeContainer<ID> dEdit = ( DataChangeContainer<ID> ) edit;
+            List<DataChange<ID>> dataChanges = dEdit.getChanges();
             Iterator<DataChange<ID>> it = dataChanges.iterator();
             Dn partitionDn = dEdit.getPartitionDn();
-            
+
             DataChange<ID> nextChange;
             IndexChange<ID> indexChange;
             IndexChange.Type indexChangeType;
-            ForwardIndexEntry<Object,ID> indexEntry;
-            
-            Map<String, TreeSet<IndexEntry<Object,ID>>> forwardIndices = 
+            ForwardIndexEntry<Object, ID> indexEntry;
+            ReverseIndexEntry<Object, ID> reverseIndexEntry;
+
+            Map<String, TreeSet<IndexEntry<Object, ID>>> forwardIndices =
                 forwardIndexAdds.get( partitionDn );
-            
-            Map<String, TreeSet<IndexEntry<Object,ID>>> reverseIndices = 
+
+            Map<String, TreeSet<IndexEntry<Object, ID>>> reverseIndices =
                 reverseIndexAdds.get( partitionDn );
-            
+
             if ( forwardIndices == null )
             {
-                forwardIndices = new HashMap<String, TreeSet<IndexEntry<Object,ID>>>();
-                
+                forwardIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
+
                 // Reverse index changes should be null too
-                reverseIndices = new HashMap<String, TreeSet<IndexEntry<Object,ID>>>();
-                
+                if ( reverseIndices != null )
+                {
+                    throw new IllegalStateException(
+                        "Reverse Index changes for partition are not null while forward index changes are null"
+                            + partitionDn );
+                }
+
+                reverseIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
+
                 forwardIndexAdds.put( partitionDn, forwardIndices );
                 reverseIndexAdds.put( partitionDn, reverseIndices );
             }
-            
-            Map<String, TreeSet< IndexEntry<Object,ID>>> deletedIndices = 
-                    indexDeletes.get( partitionDn ); 
-            
+
+            Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+                indexDeletes.get( partitionDn );
+
             if ( deletedIndices == null )
             {
-                deletedIndices = new HashMap<String, TreeSet< IndexEntry<Object,ID>>>();
+                deletedIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
                 indexDeletes.put( partitionDn, deletedIndices );
             }
-            
+
             while ( it.hasNext() )
             {
                 nextChange = it.next();
-                
+
                 if ( nextChange instanceof IndexChange )
                 {
-                    indexChange = (IndexChange<ID>) nextChange;
+                    indexChange = ( IndexChange<ID> ) nextChange;
                     indexChangeType = indexChange.getType();
-                    Index<Object,?,ID> index = (Index<Object,?,ID>)indexChange.getIndex();
-                    
-                    TreeSet<IndexEntry<Object,ID>> forwardAdds = 
+                    Index<Object, ?, ID> index = ( Index<Object, ?, ID> ) indexChange.getIndex();
+
+                    TreeSet<IndexEntry<Object, ID>> forwardAdds =
                         forwardIndices.get( indexChange.getOID() );
-                    
-                    TreeSet<IndexEntry<Object,ID>> reverseAdds = 
+
+                    TreeSet<IndexEntry<Object, ID>> reverseAdds =
                         reverseIndices.get( indexChange.getOID() );
-                    
+
                     if ( forwardAdds == null )
                     {
-                        forwardAdds = 
+                        forwardAdds =
                             new TreeSet<IndexEntry<Object, ID>>( index.getForwardIndexEntryComparator() );
-                        reverseAdds = 
+
+                        // Reverse index changes should be null too
+                        if ( reverseAdds != null )
+                        {
+                            throw new IllegalStateException(
+                                "Reverse Index changes for partition are not null while forward index changes are null"
+                                    + partitionDn + indexChange.getOID() );
+                        }
+
+                        reverseAdds =
                             new TreeSet<IndexEntry<Object, ID>>( index.getReverseIndexEntryComparator() );
-                        
+
                         forwardIndices.put( indexChange.getOID(), forwardAdds );
                         reverseIndices.put( indexChange.getOID(), forwardAdds );
                     }
-                    
-                    TreeSet<IndexEntry<Object,ID>> deletes = deletedIndices.get( indexChange.getOID() );
-                    
+
+                    TreeSet<IndexEntry<Object, ID>> deletes = deletedIndices.get( indexChange.getOID() );
+
                     if ( deletes == null )
                     {
-                        deletes = new TreeSet<IndexEntry<Object,ID>>( index.getForwardIndexEntryComparator() );
+                        deletes = new TreeSet<IndexEntry<Object, ID>>( index.getForwardIndexEntryComparator() );
                         deletedIndices.put( indexChange.getOID(), deletes );
                     }
-                    
-                    indexEntry = new ForwardIndexEntry<Object,ID>();
+
+                    indexEntry = new ForwardIndexEntry<Object, ID>();
                     indexEntry.setValue( indexChange.getKey() );
                     indexEntry.setId( indexChange.getID() );
-                    
+
+                    reverseIndexEntry = new ReverseIndexEntry<Object, ID>();
+                    reverseIndexEntry.setValue( indexChange.getKey() );
+                    reverseIndexEntry.setId( indexChange.getID() );
+
                     if ( indexChangeType == IndexChange.Type.ADD )
                     {
                         deletes.remove( indexEntry );
                         forwardAdds.add( indexEntry );
-                        reverseAdds.add( indexEntry );
+                        reverseAdds.add( reverseIndexEntry );
                     }
                     else
                     {
                         deletes.add( indexEntry );
                         forwardAdds.remove( indexEntry );
-                        reverseAdds.remove( indexEntry );
+                        reverseAdds.remove( reverseIndexEntry );
                     }
                 }
             }
-        } 
+        }
     }
-    
-    
+
+
     public Entry applyUpdatesToEntry( Dn partitionDn, ID entryID, Entry curEntry, boolean cloneOnChange )
     {
         boolean needToCloneOnChange = cloneOnChange;
@@ -329,83 +359,137 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
         return curEntry;
     }
     
-    
+
+    /**
+     * Returns true if this txn has deletes for the index identified by partitionDn + attributeOid
+     *
+     * @param partitionDn dn of the partition
+     * @param attributeOid oid of the indexed attribute
+     * @return
+     */
     public boolean hasDeletesFor( Dn partitionDn, String attributeOid )
     {
-        Map<String, TreeSet< IndexEntry<Object,ID>>> deletedIndices = 
-            indexDeletes.get( partitionDn ); 
-        
+        Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+            indexDeletes.get( partitionDn );
+
         if ( deletedIndices != null )
         {
             return ( deletedIndices.get( attributeOid ) != null );
         }
-       
+
         return false;
     }
-    
-    
-    public IndexCursor<Object,Entry,ID> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey, IndexComparator<Object,ID> comparator )
+
+
+    /**
+     * Returns a cursor over the changes made by this txn on the index identified by partitionDn+attributeOid. 
+     *
+     * @param partitionDn dn of the partition
+     * @param attributeOid oid of the indexed attribute
+     * @param forwardIndex true if forward index and reverse if reverse index
+     * @param onlyValueKey set if the cursor should be locked down by a key ( should be non null only for forward indices )
+     * @param onlyIDKey  set if the cursor should be locked down by a key ( should be non null only for reverse indices )
+     * @param comparator comparator that will be used to order index entries.
+     * @return
+     */
+    public IndexCursor<Object, Entry, ID> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex,
+        Object onlyValueKey, ID onlyIDKey, IndexComparator<Object, ID> comparator )
     {
         TxnIndexCursor<ID> txnIndexCursor = null;
-        
-        Map<String, TreeSet<IndexEntry<Object,ID>>> forwardIndices = 
+
+        Map<String, TreeSet<IndexEntry<Object, ID>>> forwardIndices =
             forwardIndexAdds.get( partitionDn );
-        
+
         if ( forwardIndices != null )
         {
             TreeSet<IndexEntry<Object, ID>> sortedSet = forwardIndices.get( attributeOid );
-            
+
             if ( sortedSet != null )
             {
                 txnIndexCursor = new TxnIndexCursor<ID>( sortedSet, forwardIndex, onlyValueKey, onlyIDKey, comparator );
             }
         }
-        
+
         return txnIndexCursor;
     }
-    
+
+
+    /**
+     * Returns true if the given index entry is deleted by this txn. partitionDn + attributeOid 
+     * identifies the index. 
+     *
+     * @param partitionDn dn of the partition index belongs to 
+     * @param attributeOid oid of the indexed attribute.
+     * @param indexEntry value to be checked
+     * @return true if the given value is deleted.
+     */
+    public boolean isIndexEntryDeleted( Dn partitionDn, String attributeOid, IndexEntry<Object, ID> indexEntry )
+    {
+        Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+            indexDeletes.get( partitionDn );
+
+        if ( deletedIndices == null )
+        {
+            return false;
+        }
+
+        TreeSet<IndexEntry<Object, ID>> deletedEntries = deletedIndices.get( attributeOid );
+
+        if ( deletedEntries == null )
+        {
+            return false;
+        }
+
+        boolean result = deletedEntries.contains( indexEntry );
+
+        return result;
+    }
+
+
     public void addRead( DnSet readSet )
     {
         readDns.add( readSet );
     }
-    
+
+
     public void addWrite( DnSet writeSet )
     {
         writeDns.add( writeSet );
-        
+
         // Changing a dn means also read dependency
         readDns.add( writeSet );
     }
-    
+
+
     public List<DnSet> getWriteSet()
     {
         return writeDns;
     }
-    
+
+
     public boolean hasConflict( ReadWriteTxn txn )
     {
         boolean result = false;
-        
-        
+
         List<DnSet> txnWriteDns = txn.getWriteSet();
         Iterator<DnSet> writeIt = txnWriteDns.iterator();
         Iterator<DnSet> readIt = readDns.iterator();
-        
+
         DnSet readDnSet;
         SearchScope readScope;
         DnSet writeDnSet;
         SearchScope writeScope;
-        
+
         while ( readIt.hasNext() )
         {
-            readDnSet =  readIt.next();
+            readDnSet = readIt.next();
             readScope = readDnSet.getScope();
-            
+
             while ( writeIt.hasNext() )
             {
                 writeDnSet = writeIt.next();
                 writeScope = writeDnSet.getScope();
-                
+
                 if ( readScope.equals( SearchScope.OBJECT ) )
                 {
                     if ( writeScope.equals( SearchScope.OBJECT ) )
@@ -416,7 +500,8 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                             break;
                         }
                     }
-                    else //one level or subtree scope for the write.
+                    else
+                    //one level or subtree scope for the write.
                     {
                         // Even if one level scope, conservatively check the whole subtree
                         if ( readDnSet.getBaseDn().isDescendantOf( writeDnSet.getBaseDn() ) )
@@ -426,7 +511,8 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                         }
                     }
                 }
-                else //one level or subtree scope for the read.
+                else
+                //one level or subtree scope for the read.
                 {
                     if ( writeScope.equals( SearchScope.OBJECT ) )
                     {
@@ -436,11 +522,12 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                             break;
                         }
                     }
-                    else //one level or subtree scope for the write.
+                    else
+                    //one level or subtree scope for the write.
                     {
                         // Even if one level scope, conservatively check if any basedn is descendent of the other
-                        if ( ( readDnSet.getBaseDn().isDescendantOf( writeDnSet.getBaseDn() ) ) || 
-                              ( readDnSet.getBaseDn().isAncestorOf( writeDnSet.getBaseDn() ) )  )
+                        if ( ( readDnSet.getBaseDn().isDescendantOf( writeDnSet.getBaseDn() ) ) ||
+                            ( readDnSet.getBaseDn().isAncestorOf( writeDnSet.getBaseDn() ) ) )
                         {
                             result = true;
                             break;
@@ -449,7 +536,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                 }
             } // end of inner while loop
         } // end of outer while loop
-        
+
         return result;
     }
 }
