@@ -26,22 +26,45 @@ package org.apache.directory.server.core.log;
  */
 public class InvalidLogException extends Exception
 {
+    /** The serial version UID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new instance of InvalidLogException 
+     */
     public InvalidLogException() {}
 
-    public InvalidLogException(String s) 
+    /**
+     * Creates a new instance of InvalidLogException with a message
+     * 
+     *  @param message The associated error message
+     */
+    public InvalidLogException( String message ) 
     {
-        super(s);
+        super( message );
     }
     
 
-    public InvalidLogException(Throwable cause) 
+    /**
+     * Creates a new instance of InvalidLogException with an original cause
+     * 
+     *  @param cause The associated error cause
+     */
+    public InvalidLogException( Throwable cause ) 
     {
-        super(cause);
+        super( cause );
     }
     
 
-    public InvalidLogException(String s, Throwable cause) 
+    /**
+     * Creates a new instance of InvalidLogException with a message
+     * and an original cause
+     * 
+     *  @param message The associated error message
+     *  @param cause The associated error cause
+     */
+    public InvalidLogException( String message, Throwable cause ) 
     {
-        super(s, cause);
+        super( message, cause );
     }
 }

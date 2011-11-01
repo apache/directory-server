@@ -22,6 +22,9 @@ package org.apache.directory.server.core.log;
 import java.io.IOException;
 
 /**
+ * An interface for the Log sub-system.<br/>
+ * The log subsystem is used to log some records on disk, allowing the users to read back them
+ * if needed.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -34,8 +37,8 @@ public interface Log
      * @param suffix suffix for log file.
      * @param logBufferSize size of buffer that will hold unflushed log changes. Specify zero if no buffering is desired
      * @param logFileSize A soft limit on the log file size
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we can't initialize the Log
+     * @throws InvalidLogException If the log contains some bad records
      */
     void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException;
     
@@ -45,8 +48,8 @@ public interface Log
      *
      * @param userLogRecord provides the user data to be logged
      * @param sync if true, this calls returns after making sure that the appended data is reflected to the underlying media
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we can't store the record
+     * @throws InvalidLogException If the record is not valid
      */
     void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException;
     
@@ -61,7 +64,7 @@ public interface Log
     
     
     /**
-     * Starts a scan in the logs starting from the beginning of the log file
+     * Starts a scan in the logs starting from the last checkpoint.
      *
      * @return A scanner to read the logs one by one
      */
@@ -72,15 +75,18 @@ public interface Log
      * Advances the min needed position in the logs. Logging subsystem uses this
      * information to get rid of unneeded
      *
-     * @param newAnchor
+     * @param newAnchor The new position
      */
     void advanceMinNeededLogPosition( LogAnchor newAnchor );
+    
     
     /**
      * Syncs the log upto the given lsn. If lsn is equal to unknow lsn, then the log is 
      * flushed upto the latest logged lsn.
      *
      * @param uptoLSN lsn to flush upto. Unkown lsn if caller just wants to sync the log upto the latest logged lsn.
+     * @throws IOException If we can't flush the data on disk
+     * @throws InvalidLogException If the log contains some bad records
      */
     void sync( long uptoLSN ) throws IOException, InvalidLogException;
 }
