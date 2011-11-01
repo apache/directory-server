@@ -166,7 +166,7 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
      */
     public void addWrite( Dn baseDn, SearchScope scope )
     {
-        addDnSet( baseDn, scope, true );
+        addDnSet( baseDn, scope, false );
     }
 
 
@@ -197,6 +197,9 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
         else
         {
             txn.addWrite( dnSet );
+            
+            // Every written dn set is also read
+            txn.addRead( dnSet );
         }
     }
 }

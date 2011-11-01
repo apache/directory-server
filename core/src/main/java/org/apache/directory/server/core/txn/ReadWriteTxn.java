@@ -245,102 +245,90 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
         }
     }
 
-
+    /**
+     * Applies the updates made by this txn to the entry identified by the entryID and partition dn. 
+     *
+     * @param partitionDn dn of the partition of the entry
+     * @param entryID id of the entry
+     * @param curEntry entry to be merged
+     * @param cloneOnChange true if entry should be cloned while applying a change.
+     * @return entry after it is merged with the updates in the txn.
+     */
     public Entry applyUpdatesToEntry( Dn partitionDn, ID entryID, Entry curEntry, boolean cloneOnChange )
     {
         boolean needToCloneOnChange = cloneOnChange;
         LogEdit<ID> edit;
         DataChangeContainer<ID> container;
-        
+
         Iterator<LogEdit<ID>> it = logEdits.iterator();
-        
+
         while ( it.hasNext() )
         {
             edit = it.next();
-            
+
             if ( edit instanceof DataChangeContainer )
             {
-                container = (DataChangeContainer<ID>)edit;
-                
+                container = ( DataChangeContainer<ID> ) edit;
+
                 /**
                  * Check if the container has changes for the entry
                  * and the version says we need to apply this change
                  */
-                //TODO check version and id here. If uuid is not available,
-                // then match partitionDn as well.
-                String uuid = container.getUUID();
-                boolean applyChanges = false; 
-                
-                if ( uuid != null )
+                //TODO check version and id here. 
+                ID entryId = container.getEntryID();
+                boolean applyChanges = false;
+
+                if ( entryId != null )
                 {
                     /*
                      * Container has changes for entry. Check if the entry change
-                     * affects out entry by comparing uuid if entry is available.
-                     * Otherwise compare partition dn and Id.
+                     * affects out entry by comparing id and partitionDn.
                      */
-                    
-                    if ( curEntry!= null )
+
+                    Comparator<ID> idComp = TxnManagerFactory.<ID> txnManagerInstance().getIDComparator();
+
+                    if ( partitionDn.equals( container.getPartitionDn() )
+                        && ( idComp.compare( entryID, container.getEntryID() ) == 0 ) )
                     {
-                        String curUuid = null;  
-                        
-                        try
-                        {
-                            curUuid = curEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
-                            if ( curUuid.equals( uuid ) )
-                            {
-                                //TODO check the version here to see if the change should be applied
-                            }
-                        }
-                        catch( LdapException e )
-                        {
-                            //TODO decide whether to throw IOException or an internal exception here
-                        }
+                        applyChanges = true;
                     }
-                    else
-                    {
-                        Comparator<ID> idComp = TxnManagerFactory.<ID>txnManagerInstance().getIDComparator();
-                        
-                        if ( partitionDn.equals( container.getPartitionDn() ) &&  ( idComp.compare( entryID, container.getEntryID() ) == 0 ))
-                        {
-                            applyChanges = true;
-                        }
-                    }
+
                 }
-                
+
                 if ( applyChanges )
                 {
-                    List<DataChange<ID>> dataChanges =  container.getChanges();
+                    List<DataChange<ID>> dataChanges = container.getChanges();
                     Iterator<DataChange<ID>> dit = dataChanges.iterator();
                     DataChange<ID> nextChange;
-                    
+
                     while ( dit.hasNext() )
                     {
                         nextChange = dit.next();
-                        
+
                         if ( ( nextChange instanceof EntryChange ) && ( curEntry != null ) )
                         {
-                            EntryChange<ID> entryChange = (EntryChange<ID>)nextChange;
-                           
+                            EntryChange<ID> entryChange = ( EntryChange<ID> ) nextChange;
+
                             if ( needToCloneOnChange )
                             {
                                 curEntry = curEntry.clone();
                                 needToCloneOnChange = false;
                             }
-                            
+
                             try
                             {
-                                AttributeUtils.applyModification(curEntry, entryChange.getRedoChange());
+                                AttributeUtils.applyModification( curEntry, entryChange.getRedoChange() );
                             }
-                            catch( LdapException e )
+                            catch ( LdapException e )
                             {
                                 //TODO decide whether to throw IOException or an internal exception here
                             }
                         }
                         else if ( nextChange instanceof EntryAddDelete )
                         {
-                            EntryAddDelete<ID> addDelete = (EntryAddDelete<ID>)nextChange;
+                            EntryAddDelete<ID> addDelete = ( EntryAddDelete<ID> ) nextChange;
                             needToCloneOnChange = false;
-                            
+
                             if ( addDelete.getType() == EntryAddDelete.Type.ADD )
                             {
                                 curEntry = addDelete.getChangedEntry();
@@ -351,11 +339,11 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                             }
                         }
                     }
-                    
+
                 }
             }
         }
-        
+
         return curEntry;
     }
     
@@ -446,12 +434,22 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
     }
 
 
+    /**
+     * Adds the given Dn to the read set of the current txn
+     *
+     * @param readSet dn to add
+     */
     public void addRead( DnSet readSet )
     {
         readDns.add( readSet );
     }
 
 
+    /**
+     * Adds the given Dn to the write and read set of the current txn.
+     *
+     * @param writeSet dn to add
+     */
     public void addWrite( DnSet writeSet )
     {
         writeDns.add( writeSet );
@@ -467,6 +465,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
     }
 
 
+    /**
+     * Checks if this txn's read set conflicts with the write set
+     * of the given txn.
+     *
+     * @param txn txn to verify this txn against
+     * @return true if a conflict is detected.
+     */
     public boolean hasConflict( ReadWriteTxn txn )
     {
         boolean result = false;

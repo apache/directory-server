@@ -43,9 +43,6 @@ import org.apache.directory.server.core.txn.TxnManagerFactory;
  */
 public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
 {
-    /** Set to the uuid of the entry if the container contains a change for the entry, null otherwise */
-    private String uuid;
-
     /** id of the entry if the container contains a change for an entry */
     private ID entryID;
 
@@ -69,18 +66,6 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     public DataChangeContainer( Dn partitionDn )
     {
         this.partitionDn = partitionDn;
-    }
-
-
-    public String getUUID()
-    {
-        return uuid;
-    }
-
-
-    public void setUUID( String entryUUID )
-    {
-        this.uuid = entryUUID;
     }
 
 
@@ -124,13 +109,6 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
-        boolean uuidNotNull = in.readBoolean();
-
-        if ( uuidNotNull )
-        {
-            uuid = in.readUTF();
-        }
-
         int len = in.readInt();
 
         if ( len < 0 )
@@ -165,17 +143,7 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     {
         Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
         DataChange<ID> change;
-
-        if ( uuid != null )
-        {
-            out.writeBoolean( true );
-            out.writeUTF( uuid );
-        }
-        else
-        {
-            out.writeBoolean( false );
-        }
-
+        
         if ( entryID == null )
         {
             out.writeInt( -1 );
