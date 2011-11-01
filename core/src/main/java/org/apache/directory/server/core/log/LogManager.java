@@ -87,6 +87,11 @@ import org.apache.directory.server.i18n.I18n;
     private Checksum checksum = new Adler32();
 
     
+    /**
+     * Creates a new instance of LogManager. It manages the control file and 
+     * 
+     * @param logFileManager The associated LogFileManager
+     */
     public LogManager( LogFileManager logFileManager )
     {
         this.logFileManager = logFileManager;
@@ -101,8 +106,8 @@ import org.apache.directory.server.i18n.I18n;
      * determine the end of the log.
      * This scan ends either when a properly ended log file is found or a partially written log record is found. 
      *
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we had an issue accessing the log files
+     * @throws InvalidLogException If any of the user record is invalid
      */
     public void initLogManager() throws IOException, InvalidLogException
     {
@@ -136,11 +141,13 @@ import org.apache.directory.server.i18n.I18n;
             logRecord = new UserLogRecord();
             scanner = new DefaultLogScanner( scanPoint, logFileManager );
             
+            // Now, scan all the logged user records to check if they are all valid
             try
             {
                 while ( scanner.getNextRecord( logRecord ) )
                 {
-                    // No need to do anything with the log record
+                    // No need to do anything with the log record, just
+                    // read all of them to check that they are all valid.
                 }
             }
             catch( InvalidLogException e )
@@ -187,7 +194,6 @@ import org.apache.directory.server.i18n.I18n;
                 try
                 {
                     reader = logFileManager.getReaderForLogFile( ( lastGoodLogFileNumber + 1 ) );
-                    
                 }
                 catch ( FileNotFoundException e )
                 {
@@ -267,9 +273,9 @@ import org.apache.directory.server.i18n.I18n;
      * of this tasks can be delegated to a background thread later. 
      *
      * @param currentWriter current log file used by the flush manager. Null if the flush manager is just starting up.
-     * @return new lgo file to be used.
-     * @throws IOException
-     * @throws InvalidLogException
+     * @return new log file to be used.
+     * @throws IOException If we had an issue accessing the log files
+     * @throws InvalidLogException If any of the user record is invalid
      */
     public LogFileManager.LogFileWriter switchToNextLogFile( LogFileManager.LogFileWriter currentWriter ) throws IOException, InvalidLogException
     {
@@ -290,6 +296,21 @@ import org.apache.directory.server.i18n.I18n;
         
         return writer;
     }
+    
+    
+    /**
+     * @return The anchor associated with the last valid checkpoint.
+     */
+    /* Package protected */ LogAnchor getMinLogAnchor()
+    {
+        minLogAnchorLock.lock();
+        LogAnchor anchor = new LogAnchor();
+        anchor.resetLogAnchor( minLogAnchor );
+        minLogAnchorLock.unlock();
+        
+        return anchor;
+    }
+    
     
     /**
      * Called when the logging subsystem is notified about the minimum position 
@@ -333,7 +354,7 @@ import org.apache.directory.server.i18n.I18n;
      * </ul>
      * 
      *
-     * @throws IOException
+     * @throws IOException If we can't write the control file
      */
     private void writeControlFile() throws IOException
     {
@@ -396,9 +417,9 @@ import org.apache.directory.server.i18n.I18n;
     /**
      * Read and verifies the control file.
      *
-     * @throws IOException
-     * @throws InvalidLogException
-     * @throws FileNotFoundException
+     * @throws IOException If we can't read the control file
+     * @throws InvalidLogException If the control file is invalid
+     * @throws FileNotFoundException If the control file can't be found
      */
     private void readControlFile() throws IOException, InvalidLogException, FileNotFoundException
     {
@@ -445,8 +466,8 @@ import org.apache.directory.server.i18n.I18n;
      * its size is truncated to zero and file header is written again.
      *
      * @param reformatExistingFile log file already exists and should be formatted. If false, log file should not exist.
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we can't create the new log file
+     * @throws InvalidLogException If we already have a log file with the same number
      */
     private void createNextLogFile( boolean reformatExistingFile ) throws IOException, InvalidLogException
     {
@@ -493,6 +514,9 @@ import org.apache.directory.server.i18n.I18n;
     }
     
     
+    /**
+     * Purge the useless log files
+     */
     private void deleteUnnecessaryLogFiles( long startingLogFileNumber, long endingLogFileNumber )
     {
         for ( long logFileNumber = startingLogFileNumber; logFileNumber < endingLogFileNumber; 
@@ -509,10 +533,19 @@ import org.apache.directory.server.i18n.I18n;
      */
      private class ControlFileRecord
      {
-         long minExistingLogFile;
-         long minNeededLogFile;
-         long minNeededLogFileOffset;
-         long minNeededLSN;
-         long checksum;
+         /** The smallest existing log file number */
+         private long minExistingLogFile;
+         
+         /** The log file number associated with a checkpoint */
+         private long minNeededLogFile;
+         
+         /** The offset in the min needed log file */
+         private long minNeededLogFileOffset;
+         
+         /** The LSN of the first user record in the min needed log file at the offset position */
+         private long minNeededLSN;
+         
+         /** The control file checksum */
+         private long checksum;
      }
 }

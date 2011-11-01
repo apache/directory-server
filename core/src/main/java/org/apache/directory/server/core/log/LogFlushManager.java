@@ -85,10 +85,13 @@ import org.apache.directory.server.i18n.I18n;
     private Checksum checksum = new Adler32();
 
     /**
-     * TODO : doco
-     * @param logManager
-     * @param logMemoryBufferSize
-     * @param logFileSize
+     * Creates a LogFlushManager instance. We define the memory buffer size, and the default maximum
+     * size for each Log file (this maximul size may be exceeded, if one user record is bigger than 
+     * this maximum size. Log file may be smaller too.
+     * 
+     * @param logManager The associated LogManager
+     * @param logMemoryBufferSize The buffer size
+     * @param logFileSize The default max size for each Log file.
      */
     public LogFlushManager( LogManager logManager, int logMemoryBufferSize, long logFileSize )
     {
@@ -111,33 +114,33 @@ import org.apache.directory.server.i18n.I18n;
      *
      * @param userLogRecord provides the user data to be appended to the log
      * @param sync if true, this calls returns after making sure that the appended data is reflected to the underlying file
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we had an issue while appending some record in the file
+     * @throws InvalidLogException If the log system is is declared as invalid, due to a previous error
      */
     public void append( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
     {
-        long lsn = LogAnchor.UNKNOWN_LSN;
         boolean appendedRecord = false;
         byte[] userBuffer = userRecord.getDataBuffer();
         int length  = userRecord.getDataLength();
         LogAnchor userLogAnchor = userRecord.getLogAnchor(); 
         
-        int recordSize = LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE + length;
+        int recordSize = LogFileRecords.RECORD_HEADER_SIZE + length + LogFileRecords.RECORD_FOOTER_SIZE;
         
         // The addition of a record is done in a protected section
         appendLock.lock();
         
+        // Get out immediately if the log system is invalid
         if ( logFailed )
         {
             appendLock.unlock();
             throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
         }
         
+        // Get a new sequence number for the logged data
+        long lsn = logLSN++;
+
         try
         {
-            lsn = logLSN++;
-            
-            
             // Compute the checksum for the user record
             checksum.reset();
             checksum.update( userBuffer, 0, length );
@@ -257,11 +260,14 @@ import org.apache.directory.server.i18n.I18n;
         }
     }
     
+    
     /**
      * Syncs the log upto the given lsn. If lsn is equal to unknow lsn, then the log is 
      * flushed upto the latest logged lsn.
      *
      * @param uptoLSN lsn to flush upto. Unkown lsn if caller just wants to sync the log upto the latest logged lsn.
+     * @throws IOException If we had an issue while flushing some record in the file
+     * @throws InvalidLogException If the log system is is declared as invalid, due to a previous error
      */
     void sync( long uptoLSN ) throws IOException, InvalidLogException
     {
@@ -299,15 +305,13 @@ import org.apache.directory.server.i18n.I18n;
      * complete, the thread that wakes up and does the sync will take it for the team and sync upto flushStatus.uptoLSN so 
      * that logging is more efficient.
      * 
-     *  
-     *
      * @param flushLSN max LSN the calling thread wants to sync upto
      * @param userBuffer if not null, user buffer is appended to the log without any buffering
      * @param offset offset of data in user buffer
      * @param length length of user data
      * @param appendLockHeld true if append lock is held
-     * @throws IOException
-     * @throws InvalidLogException
+     * @throws IOException If we had an issue while flushing some record in the file
+     * @throws InvalidLogException If the log system is is declared as invalid, due to a previous error
      */
     private void flush( long flushLSN, byte[] userBuffer, int offset, int length, 
                         boolean appendLockHeld ) throws IOException, InvalidLogException
@@ -552,6 +556,9 @@ import org.apache.directory.server.i18n.I18n;
     }
     
     
+    /**
+     * Write the log file header 
+     */
     private void writeHeader( ByteBuffer buffer, int length, long lsn )
     {
         buffer.putInt( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER );
@@ -561,6 +568,9 @@ import org.apache.directory.server.i18n.I18n;
     }
     
     
+    /**
+     * Write the log file footer 
+     */
     private void writeFooter( ByteBuffer buffer, int checksum )
     {
         buffer.putInt( checksum );
@@ -602,8 +612,6 @@ import org.apache.directory.server.i18n.I18n;
         
         /**
          * Create a new instance of a LogBuffer
-         * @param bufferSize
-         * @param currentLogFile
          */
         private LogBuffer( int bufferSize, LogFileWriter currentLogFile )
         {

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.log;
 
 
 /**
+ * A helper class defining the various magic numbers, headers and footers constants.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

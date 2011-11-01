@@ -23,6 +23,7 @@ import java.io.IOException;
 
 
 /**
+ * Log interface default Implementation. 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -91,11 +92,21 @@ public class DefaultLog implements Log
        logManager.advanceMinLogAnchor( newAnchor ); 
     }
     
+    
     /**
      * {@inheritDoc}
      */
     public void sync( long uptoLSN ) throws IOException, InvalidLogException
     {
        logFlushManager.sync( uptoLSN ); 
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Log{" + logFileManager + "}";
     }
 }

@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
  */
 /* Package protected */ interface LogFileManager
 {
+    /** The log file prefix */
     final static String LOG_NAME_PREFIX = "log_"; 
   
     /**
@@ -38,8 +39,8 @@ import java.io.FileNotFoundException;
      *
      * @param logFileNumber identifier of the log file to read
      * @return reader for the given logfile
-     * @throws IOException
-     * @throws FileNotFoundException
+     * @throws IOException If there is an issue accessing the LogFile
+     * @throws FileNotFoundException If the log file can't be found
      */
     LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
     
@@ -49,8 +50,8 @@ import java.io.FileNotFoundException;
      *
      * @param logFileNumber identifier of the log file to read
      * @return writer for the given logfile
-     * @throws IOException
-     * @throws FileNotFoundException
+     * @throws IOException If there is an issue accessing the LogFile
+     * @throws FileNotFoundException If the log file can't be found
      */
     LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
     
@@ -60,7 +61,7 @@ import java.io.FileNotFoundException;
      * 
      * @param logFileNumber identifier of the log file to write to.
      * @return true if file already existed
-     * @throws IOException
+     * @throws IOException If there is an issue creating the LogFile
      */
     boolean createLogFile( long logFileNumber ) throws IOException;
     
@@ -71,7 +72,7 @@ import java.io.FileNotFoundException;
      *
      * @param logFileNumber identifier of the log file
      * @param size new size of the file
-     * @throws IOException
+     * @throws IOException If there is an issue truncating the LogFile
      */
     void truncateLogFile( long logFileNumber, long size ) throws IOException;
     
@@ -91,7 +92,7 @@ import java.io.FileNotFoundException;
      * @param newLongFileNumber identifier of the new file
      * @return true if the rename succeeded
      */
-    boolean rename(long orignalLogFileNumber, long newLongFileNumber);
+    boolean rename( long orignalLogFileNumber, long newLongFileNumber );
     
     
     /**

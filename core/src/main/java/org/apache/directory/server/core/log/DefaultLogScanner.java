@@ -257,6 +257,9 @@ public class DefaultLogScanner implements LogScanner
     }
     
     
+    /**
+     * Read the user record header
+     */
     private int readRecordHeader() throws IOException, InvalidLogException, EOFException
     {
         markerHead.rewind();
@@ -281,6 +284,9 @@ public class DefaultLogScanner implements LogScanner
     }
     
     
+    /**
+     * Read the user record footer.
+     */
     private void readRecordFooter( int expectedChecksum ) throws IOException, InvalidLogException, EOFException 
     {
         markerHead.rewind();
@@ -302,7 +308,7 @@ public class DefaultLogScanner implements LogScanner
     
     
     /**
-     * Read the data from the LogFile, excludinhg the header and footer. 
+     * Read the data from the LogFile, excluding the header and footer. 
      */
     private void readLogRecord( UserLogRecord userRecord, int length ) throws IOException, EOFException
     {
@@ -369,7 +375,9 @@ public class DefaultLogScanner implements LogScanner
         return logFileReader;
     }
     
-    
+    /**
+     * Verify that the Log is not closed.
+     */
     private void checkIfClosed()
     {
         if ( closed == true )
@@ -379,6 +387,9 @@ public class DefaultLogScanner implements LogScanner
     }
     
     
+    /**
+     * Mark the file as invalid and throw an InvalidLogException
+     */
     private void markScanInvalid( Exception cause ) throws InvalidLogException
     {
         invalidLog = true;
