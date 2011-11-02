@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn.logedit;
+package org.apache.directory.server.core.txn.shared.logedit;
 
 import java.io.IOException;
 import java.io.ObjectInput;

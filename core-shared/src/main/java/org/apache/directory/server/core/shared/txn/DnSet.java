@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.message.SearchScope;

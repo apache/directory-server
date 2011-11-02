@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.txn.logedit.TxnStateChange;
