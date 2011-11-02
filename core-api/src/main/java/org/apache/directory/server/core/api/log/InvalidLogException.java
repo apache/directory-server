@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.api.log;
 
 /** 
  * An exception used when the log content could be invalid.

@@ -30,6 +30,12 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.EOFException;
 
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.LogAnchorComparator;
+import org.apache.directory.server.core.api.log.LogScanner;
+
 import org.apache.directory.server.i18n.I18n;
 
 /**

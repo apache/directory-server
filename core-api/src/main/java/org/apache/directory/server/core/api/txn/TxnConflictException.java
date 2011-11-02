@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.api.txn;
 
 /** 
  * An exception used when the txn conflict is detected.

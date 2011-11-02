@@ -23,9 +23,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import org.apache.directory.server.core.log.UserLogRecord;
-import org.apache.directory.server.core.log.Log;
-import org.apache.directory.server.core.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
 
@@ -33,7 +33,8 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
-import org.apache.directory.server.core.txn.logedit.LogEdit;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 
 
 /**

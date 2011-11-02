@@ -20,8 +20,10 @@
 package org.apache.directory.server.core.shared.txn;
 
 import org.apache.directory.server.core.api.partition.index.Serializer;
-import org.apache.directory.server.core.txn.logedit.TxnStateChange;
-import org.apache.directory.server.core.log.LogAnchor;
+import org.apache.directory.server.core.api.txn.TxnConflictException;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
+import org.apache.directory.server.core.api.log.LogAnchor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -38,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.directory.server.core.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 
 import java.io.IOException;
 

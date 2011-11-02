@@ -26,8 +26,12 @@ import java.nio.ByteBuffer;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
-import org.apache.directory.server.core.log.LogFileManager.LogFileReader;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.log.LogScanner;
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.shared.log.LogFileManager.LogFileReader;
 
 /**
  * An implementation of a LogScanner.

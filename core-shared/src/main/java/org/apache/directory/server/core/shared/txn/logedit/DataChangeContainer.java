@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn.shared.logedit;
+package org.apache.directory.server.core.shared.txn.logedit;
 
 
 import java.io.IOException;
@@ -31,8 +31,11 @@ import java.util.Iterator;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.api.partition.index.Serializer;
+import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
+import org.apache.directory.server.core.api.txn.logedit.DataChange;
 
-import org.apache.directory.server.core.txn.TxnManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.server.core.api.txn.TxnManager;
 
 
 /**

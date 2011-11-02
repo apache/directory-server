@@ -27,6 +27,7 @@ import org.apache.directory.server.core.api.partition.index.ForwardIndexComparat
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;

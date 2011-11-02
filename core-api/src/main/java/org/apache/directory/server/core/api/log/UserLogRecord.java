@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.api.log;
 
 /** 
  * A user log record that can be used to pass user record between the clients and the logger

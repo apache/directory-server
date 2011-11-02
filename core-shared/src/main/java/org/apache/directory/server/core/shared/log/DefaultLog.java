@@ -20,7 +20,12 @@
 package org.apache.directory.server.core.shared.log;
 
 import java.io.IOException;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.LogScanner;
+import org.apache.directory.server.core.api.log.LogAnchor;
 
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.InvalidLogException;
 
 /**
  * Log interface default Implementation. 

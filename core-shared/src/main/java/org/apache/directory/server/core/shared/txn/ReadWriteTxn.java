@@ -29,14 +29,14 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Comparator;
 
-import org.apache.directory.server.core.txn.logedit.LogEdit;
-import org.apache.directory.server.core.txn.logedit.IndexChange;
-import org.apache.directory.server.core.txn.logedit.DataChange;
-import org.apache.directory.server.core.txn.logedit.EntryAddDelete;
-import org.apache.directory.server.core.txn.logedit.EntryChange;
-import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit;
+import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
+import org.apache.directory.server.core.api.txn.logedit.DataChange;
+import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
+import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
-import org.apache.directory.server.core.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
@@ -50,8 +50,6 @@ import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 

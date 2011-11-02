@@ -28,10 +28,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+
 
 import java.io.IOException;
 
-import org.apache.directory.server.core.log.LogFileManager.LogFileWriter;
+import org.apache.directory.server.core.shared.log.LogFileManager.LogFileWriter;
 import org.apache.directory.server.i18n.I18n;
 
 /**

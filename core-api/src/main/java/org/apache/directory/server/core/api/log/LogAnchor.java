@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.api.log;
 
 import org.apache.directory.server.i18n.I18n;
 

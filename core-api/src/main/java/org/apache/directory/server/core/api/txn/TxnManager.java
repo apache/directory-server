@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.api.txn;
 
 import java.io.IOException;
 import org.apache.directory.server.core.api.partition.index.Serializer;

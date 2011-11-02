@@ -17,11 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn.shared.logedit;
+package org.apache.directory.server.core.shared.txn.logedit;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+
+import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 
 /**
  * 

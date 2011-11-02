@@ -17,9 +17,9 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn.logedit;
+package org.apache.directory.server.core.api.txn.logedit;
 
-import org.apache.directory.server.core.log.LogAnchor;
+import org.apache.directory.server.core.api.log.LogAnchor;
 
 /**
  * 
