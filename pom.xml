@@ -74,6 +74,7 @@
     <maven.artifact.version>3.0.3</maven.artifact.version>
     <maven.plugin.api.version>3.0.3</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
+    <maven.ipojo.version>1.8.0</maven.ipojo.version>
     <mina.core.version>2.0.4</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
@@ -83,6 +84,8 @@
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.10.0</xercesImpl.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
+    <ipojo.version>1.8.0</ipojo.version>
+    <ipojo.annotations.version>1.8.0</ipojo.annotations.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -151,6 +154,8 @@
     <module>apache-felix</module>
     <module>dependencies</module>
     <module>service-osgi</module>
+    <module>component-annotations</module>
+    <module>component-ipojo-handlers</module>
   </modules>
 
   <build>
@@ -1189,6 +1194,18 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
         <version>${ehcache.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo</artifactId>
+        <version>${ipojo.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+        <version>${ipojo.annotations.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
