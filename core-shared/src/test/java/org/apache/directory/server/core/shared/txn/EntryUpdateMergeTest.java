@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 
 import java.io.IOException;
@@ -41,17 +41,17 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
 
-import org.apache.directory.server.core.log.InvalidLogException;
-import org.apache.directory.server.core.txn.IndexCursorWrapperTest.MockIndex;
-import org.apache.directory.server.core.txn.logedit.EntryChange;
-import org.apache.directory.server.core.txn.logedit.EntryAddDelete;
-import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
+import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.AbstractTable;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
 
 
 public class EntryUpdateMergeTest

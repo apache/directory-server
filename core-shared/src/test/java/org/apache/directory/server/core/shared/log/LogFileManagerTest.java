@@ -17,15 +17,15 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.shared.log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.directory.server.core.log.LogFileManager.LogFileReader;
-import org.apache.directory.server.core.log.LogFileManager.LogFileWriter;
+import org.apache.directory.server.core.shared.log.LogFileManager.LogFileReader;
+import org.apache.directory.server.core.shared.log.LogFileManager.LogFileWriter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

@@ -17,11 +17,16 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.shared.log;
 
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.LogScanner;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

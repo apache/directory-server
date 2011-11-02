@@ -17,12 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 
 import java.io.IOException;
 
-import org.apache.directory.server.core.log.InvalidLogException;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Before;

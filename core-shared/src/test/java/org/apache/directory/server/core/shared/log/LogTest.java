@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.log;
+package org.apache.directory.server.core.shared.log;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -26,6 +26,11 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.LogScanner;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

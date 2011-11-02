@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 
 import java.io.IOException;
@@ -29,8 +29,9 @@ import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.GenericIndex;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
 
-import org.apache.directory.server.core.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.InvalidLogException;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -41,8 +42,8 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
 
-import org.apache.directory.server.core.txn.logedit.IndexChange;
-import org.apache.directory.server.core.txn.logedit.DataChangeContainer;
+import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

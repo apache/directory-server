@@ -17,13 +17,14 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.txn;
+package org.apache.directory.server.core.shared.txn;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import org.apache.directory.server.core.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

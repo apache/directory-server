@@ -37,15 +37,67 @@ import java.io.IOException;
  */
 public interface TxnLogManager<ID>
 {
+    /**
+     * Logs the given log edit for the txn associated with the current thread
+     *
+     * @param logEdit edit to be logged
+     * @param sync log edit will be flushed to media if set to true
+     * @throws IOException 
+     */
     void log( LogEdit<ID> logEdit, boolean sync ) throws IOException;
     
+    
+    /**
+     * Logs the given log record for the txn associated with the current thread
+     *
+     * @param logRecord log record to be logged
+     * @param sync log edit will be flushed to media if set to true
+     * @throws IOException 
+     */
     void log( UserLogRecord logRecord, boolean sync ) throws IOException;
     
+    /**
+     * Provide a transactionally consistent view on the entry identified
+     * by the partitionDn+entryID by applying the necessary updates from the txn log
+     * to the entry. 
+     *
+     * @param partitionDN dn of the partition the entry lives in
+     * @param entryID id of the entry
+     * @param entry current version of the entry the txn has
+     * @return
+     */
     Entry mergeUpdates(Dn partitionDN, ID entryID,  Entry entry );
     
+    /**
+     * Returns a cursor which provides a transactionally consistent view of the wrapped cursor.
+     *
+     * @param partitionDn dn of the partition the index lives in
+     * @param wrappedCursor cursor to be wrapped
+     * @param comparator comparator that should be used to order index entries
+     * @param attributeOid oid of the indexed attribute
+     * @param forwardIndex true if the cursor is for the forward index and false if for reverse index
+     * @param onlyValueKey If cursor is forward index cursor and locked down by a value, this parameter is set to that value
+     * @param onlyIDKey If cursor is forward index cursor and locked down by a ID, this parameter is set to that ID
+     * @return a cursor which provides a transactionally consistent view of the wrapped cursor 
+     * @throws Exception
+     */
     IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception;
     
+    /**
+     * Adds a dn and a scope on which the current txn depens
+     *
+     * @param baseDn base dn
+     * @param scope scope of the dependency
+     */
     void addRead( Dn baseDn, SearchScope scope );
     
+    
+    /**
+     * Adds a dn and a scope which the current txn affected through
+     * a modification
+     *
+     * @param baseDn base dn
+     * @param scope scope of the dn set affected by the change.
+     */
     void addWrite( Dn baseDn, SearchScope scope );
 }
