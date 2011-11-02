@@ -156,7 +156,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         c.add( "NormalizationInterceptor" );
         c.add( "AuthenticationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
         c.add( "DefaultAuthorizationInterceptor" );
         c.add( "AdministrativePointInterceptor" );
         c.add( "ExceptionInterceptor" );

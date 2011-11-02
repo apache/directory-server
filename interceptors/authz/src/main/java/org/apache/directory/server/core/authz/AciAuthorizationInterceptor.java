@@ -953,7 +953,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         checkLookupAccess( lookupContext, entry );
 
-        return next.lookup( lookupContext );
+        return entry;
     }
 
 

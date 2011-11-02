@@ -20,9 +20,7 @@ package org.apache.directory.server.core.changelog;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -110,7 +108,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry addEntry = addContext.getEntry();
 
         // we don't want to record addition of a tag as a change
-        if( addEntry.get( REV_AT_OID ) != null )
+        if ( addEntry.get( REV_AT_OID ) != null )
         {
            return; 
         }
