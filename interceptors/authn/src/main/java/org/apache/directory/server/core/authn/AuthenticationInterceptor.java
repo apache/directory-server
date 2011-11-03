@@ -43,10 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -66,9 +67,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
@@ -156,7 +156,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         c.add( "NormalizationInterceptor" );
         c.add( "AuthenticationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
         c.add( "DefaultAuthorizationInterceptor" );
         c.add( "AdministrativePointInterceptor" );
         c.add( "ExceptionInterceptor" );

@@ -31,8 +31,6 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
-import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -58,8 +56,10 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -953,7 +953,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         checkLookupAccess( lookupContext, entry );
 
-        return next.lookup( lookupContext );
+        return entry;
     }
 
 
