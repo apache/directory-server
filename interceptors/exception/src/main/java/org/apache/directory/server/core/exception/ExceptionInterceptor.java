@@ -21,7 +21,7 @@ package org.apache.directory.server.core.exception;
 
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.shared.SchemaService;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
@@ -38,9 +38,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -154,7 +154,11 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             try
             {
-                attrs = addContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                CoreSession session = addContext.getSession();
+                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
+                lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                
+                attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
             catch ( Exception e )
             {

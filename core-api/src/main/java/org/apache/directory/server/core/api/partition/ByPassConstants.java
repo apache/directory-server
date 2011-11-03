@@ -36,11 +36,6 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 public class ByPassConstants
 {
     /**
-     * safe to use set of bypass instructions to lookup raw entries
-     */
-    public final static Collection<String> LOOKUP_BYPASS;
-
-    /**
      * safe to use set of bypass instructions to lookup raw entries while
      * also avoiding hit on collective attributes {@link Interceptor}: used 
      * by collective attributes interceptor.
@@ -80,21 +75,6 @@ public class ByPassConstants
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ReferralInterceptor" );
-        c.add( "ChangeLogInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
         c.add( "NormalizationInterceptor" );
         c.add( "AuthenticationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );

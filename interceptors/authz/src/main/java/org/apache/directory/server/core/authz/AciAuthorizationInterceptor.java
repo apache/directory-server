@@ -41,7 +41,6 @@ import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -159,9 +158,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
-
-    /** interceptor chain */
-    private InterceptorChain chain;
 
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
@@ -283,7 +279,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
-        chain = directoryService.getInterceptorChain();
 
         // Create the caches
         tupleCache = new TupleCache( adminSession );
@@ -370,7 +365,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( oc.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             Dn parentDn = dn.getParent();
-            originalEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            CoreSession session = opContext.getSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
+            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            
+            originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
         Attribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRIES_AT );
@@ -448,7 +447,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
         Dn parentDn = dn.getParent();
-        Entry administrativeEntry = ( ( ClonedServerEntry ) opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY ) )
+        CoreSession session = opContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        
+        Entry administrativeEntry = (( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
 
         Attribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
@@ -679,7 +682,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            CoreSession session = modifyContext.getSession();
+            LookupOperationContext lookupCntext = new LookupOperationContext( session, dn );
+            lookupCntext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupCntext );
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
             return;
@@ -801,7 +807,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        Entry modifiedEntry = modifyContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = modifyContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         tupleCache.subentryModified( dn, mods, modifiedEntry );
         groupCache.groupModified( dn, mods, entry, schemaManager );
     }
@@ -948,12 +958,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return next.lookup( lookupContext );
         }
 
-        lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
-        Entry entry = directoryService.getOperationManager().lookup( lookupContext );
+        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         checkLookupAccess( lookupContext, entry );
 
-        return next.lookup( lookupContext );
+        return entry;
     }
 
 
