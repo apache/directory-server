@@ -43,11 +43,6 @@ public class ByPassConstants
     public static final Collection<String> LOOKUP_COLLECTIVE_BYPASS;
 
     /**
-     * bypass instructions used by ExceptionInterceptor
-     */
-    public final static Collection<String> HAS_ENTRY_BYPASS;
-
-    /**
      * safe to use set of bypass instructions to getMatchedDn
      */
     public static final Collection<String> GETMATCHEDDN_BYPASS;
@@ -70,19 +65,6 @@ public class ByPassConstants
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "JournalInterceptor" );
-        HAS_ENTRY_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
         c.add( "NormalizationInterceptor" );
         c.add( "AuthenticationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );

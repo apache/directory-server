@@ -844,7 +844,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return answer;
         }
 
-        Entry entry = hasEntryContext.lookup( dn, ByPassConstants.HAS_ENTRY_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = hasEntryContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( hasEntryContext, tuples, dn, entry );
