@@ -57,9 +57,6 @@ public class ByPassConstants
      */
     public static final Collection<String> BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
 
-    /** Bypass for when we modify schema attributes */
-    public static final Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
-    
     static
     {
         Collection<String> c = new HashSet<String>();
@@ -85,15 +82,5 @@ public class ByPassConstants
         c.add( "EventInterceptor" );
         c.add( "JournalInterceptor" );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "JournalInterceptor" );
-        SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS = Collections.unmodifiableCollection( c );
     }
 }

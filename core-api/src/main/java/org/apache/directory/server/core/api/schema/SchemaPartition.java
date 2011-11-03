@@ -336,6 +336,7 @@ public final class SchemaPartition extends AbstractPartition
         {
             LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(), modifyContext.getDn() );
             entry = wrapped.lookup( lookupCtx );
+            modifyContext.setEntry( entry );
         }
 
         Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( modifyContext.getModItems(), entry );
@@ -458,7 +459,12 @@ public final class SchemaPartition extends AbstractPartition
             ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 
-        opContext.modify( SCHEMA_MODIFICATION_DN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        // operation reached this level means all the necessary ACI and other checks should
+        // have been done, so we can perform the below modification directly on the partition nexus
+        // without using a a bypass list
+        CoreSession session = opContext.getSession();
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, SCHEMA_MODIFICATION_DN, mods );
+        session.getDirectoryService().getPartitionNexus().modify( modifyContext );
     }
 
 
