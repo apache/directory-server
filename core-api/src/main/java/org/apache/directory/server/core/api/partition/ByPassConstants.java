@@ -52,11 +52,6 @@ public class ByPassConstants
      */
     public static final Collection<String> GETMATCHEDDN_BYPASS;
 
-    /**
-     * safe to use set of bypass instructions to lookup raw entries excluding operational attributes
-     */
-    public static final Collection<String> LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
-    
     public static final Collection<String> GET_ROOT_DSE_BYPASS;
 
     /**
@@ -111,18 +106,6 @@ public class ByPassConstants
         c.add( "JournalInterceptor" );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
 
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
-                
         c = new HashSet<String>();
         c.add( "NormalizationInterceptor" );
         c.add( "ChangeLogInterceptor" );

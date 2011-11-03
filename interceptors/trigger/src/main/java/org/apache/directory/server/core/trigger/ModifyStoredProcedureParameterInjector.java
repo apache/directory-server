@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.partition.ByPassConstants;
@@ -104,9 +106,12 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     private Entry getEntry( OperationContext opContext ) throws LdapException
     {
         /**
-         * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
+         * Exclude operational attributes while doing lookup
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return opContext.lookup( modifiedEntryName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = opContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, modifiedEntryName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+
+        return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }
 }
