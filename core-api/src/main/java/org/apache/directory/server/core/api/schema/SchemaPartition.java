@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -361,7 +362,10 @@ public final class SchemaPartition extends AbstractPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         boolean cascade = moveContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveContext.lookup( moveContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        
+        CoreSession session = moveContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.move( moveContext, entry, cascade );
         wrapped.move( moveContext );
         updateSchemaModificationAttributes( moveContext );
@@ -374,7 +378,9 @@ public final class SchemaPartition extends AbstractPartition
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         boolean cascade = moveAndRenameContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = moveAndRenameContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         wrapped.moveAndRename( moveAndRenameContext );
         updateSchemaModificationAttributes( moveAndRenameContext );
