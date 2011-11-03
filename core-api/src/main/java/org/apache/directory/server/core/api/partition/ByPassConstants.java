@@ -47,8 +47,6 @@ public class ByPassConstants
      */
     public static final Collection<String> GETMATCHEDDN_BYPASS;
 
-    public static final Collection<String> GET_ROOT_DSE_BYPASS;
-
     /**
      * Bypass String to use when ALL interceptors should be skipped
      */
@@ -88,22 +86,6 @@ public class ByPassConstants
         c.add( "JournalInterceptor" );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
 
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "ChangeLogInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        GET_ROOT_DSE_BYPASS = Collections.unmodifiableCollection( c );
-        
-        
         c = new HashSet<String>();
         c.add( "NormalizationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );
