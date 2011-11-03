@@ -43,11 +43,6 @@ public class ByPassConstants
     public static final Collection<String> LOOKUP_COLLECTIVE_BYPASS;
 
     /**
-     * safe to use set of bypass instructions to getMatchedDn
-     */
-    public static final Collection<String> GETMATCHEDDN_BYPASS;
-
-    /**
      * Bypass String to use when ALL interceptors should be skipped
      */
     public static final String BYPASS_ALL = "*";
@@ -71,16 +66,5 @@ public class ByPassConstants
         c.add( "EventInterceptor" );
         c.add( "JournalInterceptor" );
         LOOKUP_COLLECTIVE_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "JournalInterceptor" );
-        GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
     }
 }
