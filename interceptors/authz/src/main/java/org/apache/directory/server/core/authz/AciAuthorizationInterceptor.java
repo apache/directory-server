@@ -447,9 +447,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
         Dn parentDn = dn.getParent();
+        
         CoreSession session = opContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         
         Entry administrativeEntry = (( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
@@ -683,11 +683,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
             CoreSession session = modifyContext.getSession();
-            LookupOperationContext lookupCntext = new LookupOperationContext( session, dn );
-            lookupCntext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupCntext );
+            LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
+            
             return;
         }
 
@@ -808,8 +808,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
         CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         tupleCache.subentryModified( dn, mods, modifiedEntry );
@@ -1050,6 +1049,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             next.moveAndRename( moveAndRenameContext );
             tupleCache.subentryRenamed( oldDn, newDn );
             groupCache.groupRenamed( oldDn, newDn );
+            
             return;
         }
 
