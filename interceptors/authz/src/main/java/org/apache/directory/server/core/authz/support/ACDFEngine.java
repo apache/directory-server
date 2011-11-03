@@ -25,8 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.event.ExpressionEvaluator;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
@@ -107,27 +109,6 @@ public class ACDFEngine
         }
     }
 
-    public static final Collection<String> USER_LOOKUP_BYPASS;
-    static
-    {
-        Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-//        c.add( ReferralInterceptor.class.getName() );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-//        c.add( ExceptionInterceptor.class.getName() );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-//        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        USER_LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
-
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException}
@@ -143,7 +124,9 @@ public class ACDFEngine
             throw new IllegalArgumentException( "entryName" );
         }
 
-        Entry userEntry = aciContext.getOperationContext().lookup( aciContext.getUserDn(), USER_LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = aciContext.getOperationContext().getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, aciContext.getUserDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry userEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
