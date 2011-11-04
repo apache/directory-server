@@ -43,11 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -67,8 +66,9 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
@@ -143,30 +143,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     /** the pwdPolicySubentry AT */
     private AttributeType pwdPolicySubentryAT;
-
-
-    /**
-     * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
-     */
-    private static final Collection<String> BYPASS_INTERCEPTORS;
-
-    static
-    {
-        Set<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        BYPASS_INTERCEPTORS = Collections.unmodifiableCollection( c );
-    }
 
 
     /**
@@ -1020,10 +996,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 //adminSession.modify( dn, Collections.singletonList( pwdFailTimeMod ) );
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                bindModCtx.setByPassed( BYPASS_INTERCEPTORS );
                 bindModCtx.setDn( dn );
                 bindModCtx.setModItems( mods );
-                directoryService.getOperationManager().modify( bindModCtx );
+                directoryService.getPartitionNexus().modify( bindModCtx );
             }
 
             String upDn = ( dn == null ? "" : dn.getName() );
@@ -1093,10 +1068,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 //adminSession.modify( dn, mods );
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                bindModCtx.setByPassed( BYPASS_INTERCEPTORS );
                 bindModCtx.setDn( dn );
                 bindModCtx.setModItems( mods );
-                directoryService.getOperationManager().modify( bindModCtx );
+                directoryService.getPartitionNexus().modify( bindModCtx );
             }
 
             if ( isPPolicyReqCtrlPresent )

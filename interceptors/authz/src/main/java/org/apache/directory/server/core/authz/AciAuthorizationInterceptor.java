@@ -31,6 +31,8 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -54,10 +56,8 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -1029,10 +1029,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
+        CoreSession session = moveAndRenameContext.getSession();
 
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
-        LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
+        LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
         Dn newDn = moveAndRenameContext.getNewDn();
 
@@ -1078,7 +1079,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
 
-        CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
