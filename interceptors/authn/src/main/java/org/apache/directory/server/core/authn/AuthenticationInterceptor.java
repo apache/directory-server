@@ -146,31 +146,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     /**
-     * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
-     */
-    private static final Collection<String> BYPASS_INTERCEPTORS;
-
-    static
-    {
-        Set<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        BYPASS_INTERCEPTORS = Collections.unmodifiableCollection( c );
-    }
-
-
-    /**
      * Creates an authentication service interceptor.
      */
     public AuthenticationInterceptor()
@@ -1021,10 +996,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 //adminSession.modify( dn, Collections.singletonList( pwdFailTimeMod ) );
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                bindModCtx.setByPassed( BYPASS_INTERCEPTORS );
                 bindModCtx.setDn( dn );
                 bindModCtx.setModItems( mods );
-                directoryService.getOperationManager().modify( bindModCtx );
+                directoryService.getPartitionNexus().modify( bindModCtx );
             }
 
             String upDn = ( dn == null ? "" : dn.getName() );
@@ -1094,10 +1068,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 //adminSession.modify( dn, mods );
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                bindModCtx.setByPassed( BYPASS_INTERCEPTORS );
                 bindModCtx.setDn( dn );
                 bindModCtx.setModItems( mods );
-                directoryService.getOperationManager().modify( bindModCtx );
+                directoryService.getPartitionNexus().modify( bindModCtx );
             }
 
             if ( isPPolicyReqCtrlPresent )
