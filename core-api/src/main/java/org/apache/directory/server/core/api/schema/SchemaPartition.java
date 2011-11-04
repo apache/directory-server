@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;

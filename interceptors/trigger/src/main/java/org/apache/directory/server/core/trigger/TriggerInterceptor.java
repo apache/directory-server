@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.sp.StoredProcEngine;
 import org.apache.directory.server.core.api.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.api.sp.StoredProcExecutionManager;
@@ -444,7 +443,7 @@ public class TriggerInterceptor extends BaseInterceptor
         CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
-        Entry importedEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -519,7 +518,7 @@ public class TriggerInterceptor extends BaseInterceptor
         CoreSession session = moveContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
-        Entry importedEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,

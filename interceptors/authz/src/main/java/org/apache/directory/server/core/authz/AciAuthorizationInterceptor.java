@@ -55,7 +55,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
@@ -506,7 +505,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         // bypass authz code if it was disabled
-        if ( !addContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             ACI_LOG.debug( "ACI interceptor disabled" );
             next.add( addContext );
@@ -604,7 +603,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         CoreSession session = deleteContext.getSession();
 
         // bypass authz code if we are disabled
-        if ( !session.getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             next.delete( deleteContext );
             return;
@@ -666,7 +665,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn principalDn = principal.getDn();
 
         // bypass authz code if we are disabled
-        if ( !modifyContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             next.modify( modifyContext );
             return;
@@ -820,7 +819,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         Dn dn = hasEntryContext.getDn();
 
-        if ( !hasEntryContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             return ( dn.isRootDSE() || next.hasEntry( hasEntryContext ) );
         }
@@ -834,9 +833,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             // It's the rootDSE, and it exists !
             return answer;
         }
+        
+        CoreSession session = hasEntryContext.getSession();
 
         // TODO - eventually replace this with a check on session.isAnAdministrator()
-        LdapPrincipal principal = hasEntryContext.getSession().getEffectivePrincipal();
+        LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -844,9 +845,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return answer;
         }
 
-        CoreSession session = hasEntryContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
+        
         Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( hasEntryContext, tuples, dn, entry );
@@ -943,7 +944,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
-        DirectoryService directoryService = session.getDirectoryService();
 
         LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
@@ -982,7 +982,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn newName = renameContext.getNewDn();
 
         // bypass authz code if we are disabled
-        if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             next.rename( renameContext );
             return;
@@ -1037,7 +1037,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn newDn = moveAndRenameContext.getNewDn();
 
         // bypass authz code if we are disabled
-        if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             next.moveAndRename( moveAndRenameContext );
             return;
@@ -1080,7 +1080,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        Entry importedEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -1126,14 +1126,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Entry entry = moveContext.getOriginalEntry();
+        CoreSession session = moveContext.getSession();
 
         Dn newDn = moveContext.getNewDn();
 
-        LdapPrincipal principal = moveContext.getSession().getEffectivePrincipal();
+        LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
         // bypass authz code if we are disabled
-        if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( !directoryService.isAccessControlEnabled() )
         {
             next.move( moveContext );
             return;
@@ -1172,9 +1173,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        CoreSession session = moveContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, oriChildName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        Entry importedEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -1217,7 +1217,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next.list( listContext );
 
         if ( isPrincipalAnAdministrator( user.getDn() )
-            || !listContext.getSession().getDirectoryService().isAccessControlEnabled() )
+            || !directoryService.isAccessControlEnabled() )
         {
             return cursor;
         }
@@ -1240,7 +1240,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
         if ( isPrincipalAnAdministrator( principalDn )
-            || !searchContext.getSession().getDirectoryService().isAccessControlEnabled() || isRootDSELookup
+            || !directoryService.isAccessControlEnabled() || isRootDSELookup
             || isSubschemaSubentryLookup )
         {
             return cursor;
@@ -1265,14 +1265,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         CoreSession session = compareContext.getSession();
         Dn dn = compareContext.getDn();
         String oid = compareContext.getOid();
-        Value<?> value = compareContext.getValue();
 
         Entry entry = compareContext.getOriginalEntry();
 
         LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !session.getDirectoryService().isAccessControlEnabled() )
+        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
             return next.compare( compareContext );
         }

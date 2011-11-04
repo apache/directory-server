@@ -28,7 +28,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
