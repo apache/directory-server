@@ -22,12 +22,8 @@ package org.apache.directory.server.core.kerberos;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -78,30 +74,6 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
     /** The service name. */
     public static final String NAME = "keyDerivationService";
-
-    /**
-     * Define the interceptors to bypass upon user lookup.
-     */
-    private static final Collection<String> USERLOOKUP_BYPASS;
-    static
-    {
-        Set<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "ReferralInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
 
     /**
      * Intercept the addition of the 'userPassword' and 'krb5PrincipalName' attributes.  Use the 'userPassword'
@@ -272,7 +244,6 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
-        lookupContext.setByPassed( USERLOOKUP_BYPASS );
         lookupContext.setAttrsId( new String[]
         {
             SchemaConstants.OBJECT_CLASS_AT,
@@ -280,7 +251,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT
         } );
 
-        Entry userEntry = modContext.lookup( lookupContext );
+        Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         if ( userEntry == null )
         {

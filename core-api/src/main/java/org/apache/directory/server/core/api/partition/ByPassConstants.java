@@ -36,33 +36,11 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 public class ByPassConstants
 {
     /**
-     * safe to use set of bypass instructions to lookup raw entries
-     */
-    public final static Collection<String> LOOKUP_BYPASS;
-
-    /**
      * safe to use set of bypass instructions to lookup raw entries while
      * also avoiding hit on collective attributes {@link Interceptor}: used 
      * by collective attributes interceptor.
      */
     public static final Collection<String> LOOKUP_COLLECTIVE_BYPASS;
-
-    /**
-     * bypass instructions used by ExceptionInterceptor
-     */
-    public final static Collection<String> HAS_ENTRY_BYPASS;
-
-    /**
-     * safe to use set of bypass instructions to getMatchedDn
-     */
-    public static final Collection<String> GETMATCHEDDN_BYPASS;
-
-    /**
-     * safe to use set of bypass instructions to lookup raw entries excluding operational attributes
-     */
-    public static final Collection<String> LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
-    
-    public static final Collection<String> GET_ROOT_DSE_BYPASS;
 
     /**
      * Bypass String to use when ALL interceptors should be skipped
@@ -74,40 +52,9 @@ public class ByPassConstants
      */
     public static final Collection<String> BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
 
-    /** Bypass for when we modify schema attributes */
-    public static final Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
-    
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ReferralInterceptor" );
-        c.add( "ChangeLogInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "JournalInterceptor" );
-        HAS_ENTRY_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
         c.add( "NormalizationInterceptor" );
         c.add( "AuthenticationInterceptor" );
         c.add( "AciAuthorizationInterceptor" );
@@ -119,54 +66,5 @@ public class ByPassConstants
         c.add( "EventInterceptor" );
         c.add( "JournalInterceptor" );
         LOOKUP_COLLECTIVE_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "JournalInterceptor" );
-        GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
-                
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "ChangeLogInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        c.add( "JournalInterceptor" );
-        GET_ROOT_DSE_BYPASS = Collections.unmodifiableCollection( c );
-        
-        
-        c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "JournalInterceptor" );
-        SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS = Collections.unmodifiableCollection( c );
     }
 }

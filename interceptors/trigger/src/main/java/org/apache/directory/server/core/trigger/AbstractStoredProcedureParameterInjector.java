@@ -27,8 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -111,7 +112,12 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             Dn ldapCtxName = ldapCtxParam.getCtxName();
-            return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            
+            CoreSession session = opContext.getSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( session, ldapCtxName );
+            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            
+            return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         }
     };
 }
