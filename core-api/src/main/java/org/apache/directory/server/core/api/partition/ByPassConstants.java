@@ -22,7 +22,6 @@ package org.apache.directory.server.core.api.partition;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 
@@ -36,13 +35,6 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 public class ByPassConstants
 {
     /**
-     * safe to use set of bypass instructions to lookup raw entries while
-     * also avoiding hit on collective attributes {@link Interceptor}: used 
-     * by collective attributes interceptor.
-     */
-    public static final Collection<String> LOOKUP_COLLECTIVE_BYPASS;
-
-    /**
      * Bypass String to use when ALL interceptors should be skipped
      */
     public static final String BYPASS_ALL = "*";
@@ -51,20 +43,4 @@ public class ByPassConstants
      * Bypass String to use when ALL interceptors should be skipped
      */
     public static final Collection<String> BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
-
-    static
-    {
-        Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "JournalInterceptor" );
-        LOOKUP_COLLECTIVE_BYPASS = Collections.unmodifiableCollection( c );
-    }
 }

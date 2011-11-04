@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
@@ -406,7 +407,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
              * time looking up this sub-entry. 
              */
 
-            Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            CoreSession session = opContext.getSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            Entry subentry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             for ( Attribute attribute : subentry.getAttributes() )
             {
