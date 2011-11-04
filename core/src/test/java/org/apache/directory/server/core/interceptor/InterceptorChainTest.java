@@ -35,7 +35,6 @@ import org.apache.directory.server.core.api.MockInterceptor;
 import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.invocation.InvocationStack;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -227,28 +226,5 @@ public class InterceptorChainTest
         assertEquals( "0", interceptors.get( 0 ).getName() );
         assertEquals( "2", interceptors.get( 1 ).getName() );
         assertEquals( "4", interceptors.get( 2 ).getName() );
-    }
-
-
-    @Test
-    public void testCompleteBypass() throws Exception
-    {
-        Dn dn = new Dn( schemaManager, "ou=system" );
-        DirectoryService ds = new MockDirectoryService( 0 );
-        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
-            ds );
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
-        lookupContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
-        InvocationStack.getInstance().push( lookupContext );
-
-        try
-        {
-            chain.lookup( lookupContext );
-        }
-        catch ( Exception e )
-        {
-        }
-
-        assertEquals( 0, interceptors.size() );
     }
 }
