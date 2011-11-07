@@ -125,7 +125,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         
         LdifEntry reverse = LdifRevertor.reverseAdd( addContext.getDn() );
-        addContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        addContext.setChangeLogEvent( changeLog.log( getPrincipal( addContext ), forward, reverse ) );
     }
 
 
@@ -177,7 +177,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         LdifEntry reverse = LdifRevertor.reverseDel( deleteContext.getDn(), reverseEntry );
-        deleteContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        deleteContext.setChangeLogEvent( changeLog.log( getPrincipal( deleteContext ), forward, reverse ) );
     }
 
 
@@ -282,7 +282,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             mods, 
             clientEntry );
         
-        modifyContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        modifyContext.setChangeLogEvent( changeLog.log( getPrincipal( modifyContext ), forward, reverse ) );
     }
 
 
@@ -319,7 +319,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         List<LdifEntry> reverses = LdifRevertor.reverseRename( 
             serverEntry, renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
         
-        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal( renameContext ), forward, reverses ) );
     }
 
 
@@ -358,7 +358,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             reversedEntry.addControl( new ManageDsaITImpl() );
         }
         
-        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
+        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal( moveAndRenameContext ), forward, reverses ) );
     }
 
 
@@ -380,6 +380,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
         LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
-        moveContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        moveContext.setChangeLogEvent( changeLog.log( getPrincipal( moveContext ), forward, reverse ) );
     }
 }

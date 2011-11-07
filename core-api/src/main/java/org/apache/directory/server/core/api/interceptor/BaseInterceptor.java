@@ -129,22 +129,12 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * TODO delete this since it uses static access
      * Returns {@link LdapPrincipal} of current context.
+     * @param opContext TODO
      * @return the authenticated principal
      */
-    public static LdapPrincipal getPrincipal()
+    public static LdapPrincipal getPrincipal( OperationContext opContext )
     {
-        return getContext().getSession().getEffectivePrincipal();
-    }
-
-
-    /**
-     * TODO delete this since it uses static access
-     * Returns the current JNDI {@link Context}.
-     * @return the context on the invocation stack
-     */
-    public static OperationContext getContext()
-    {
-        return InvocationStack.getInstance().peek();
+        return opContext.getSession().getEffectivePrincipal();
     }
 
 
