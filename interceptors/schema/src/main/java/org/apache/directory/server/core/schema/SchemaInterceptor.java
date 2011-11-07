@@ -1216,7 +1216,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
 
-                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) )
+                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) && !ENTRY_CSN_AT.equals( at ) )
                 {
                     cleanMods.add( mod );
                 }
