@@ -249,6 +249,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         boolean modifierAtPresent = false;
         boolean modifiedTimeAtPresent = false;
         boolean entryCsnAtPresent = false;
+        Dn dn = modifyContext.getDn();
         
         for ( Modification modification : mods )
         {
@@ -304,34 +305,38 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
         }
 
-        if ( !modifierAtPresent )
+        // Add the modification AT only if we are not trying to modify the SubentrySubschema
+        if ( !dn.equals( subschemaSubentryDn ) )
         {
-            // Inject the ModifiersName AT if it's not present
-            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal()
-                .getName() );
-
-            Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-
-            mods.add( modifiersName );
-        }
-
-        if ( !modifiedTimeAtPresent )
-        {
-            // Inject the ModifyTimestamp AT if it's not present
-            Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
-                .getGeneralizedTime() );
-
-            Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-
-            mods.add( timestamp );
-        }
-
-        if ( !entryCsnAtPresent )
-        {
-            String csn = directoryService.getCSN().toString();
-            Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
-            Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-            mods.add( updatedCsn );
+	        if ( !modifierAtPresent )
+	        {
+	            // Inject the ModifiersName AT if it's not present
+	            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal()
+	                .getName() );
+	
+	            Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+	
+	            mods.add( modifiersName );
+	        }
+	
+	        if ( !modifiedTimeAtPresent )
+	        {
+	            // Inject the ModifyTimestamp AT if it's not present
+	            Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
+	                .getGeneralizedTime() );
+	
+	            Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+	
+	            mods.add( timestamp );
+	        }
+	
+	        if ( !entryCsnAtPresent )
+	        {
+	            String csn = directoryService.getCSN().toString();
+	            Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
+	            Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+	            mods.add( updatedCsn );
+	        }
         }
         
         // Go down in the chain
