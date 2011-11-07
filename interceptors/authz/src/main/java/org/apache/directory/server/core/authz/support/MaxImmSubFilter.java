@@ -132,22 +132,6 @@ public class MaxImmSubFilter implements ACITupleFilter
         return aciContext.getAciTuples();
     }
 
-    public static final Collection<String> SEARCH_BYPASS;
-    static
-    {
-        Collection<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        SEARCH_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
 
     private int getImmSubCount( OperationContext opContext, Dn entryName ) throws LdapException
     {
@@ -159,10 +143,9 @@ public class MaxImmSubFilter implements ACITupleFilter
             Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(), entryName.getRdn( entryName.size() - 1 ) );
             SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(),
                 baseDn, childrenFilter, childrenSearchControls );
-            searchContext.setByPassed( SEARCH_BYPASS );
             searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
 
-            results = opContext.getSession().getDirectoryService().getOperationManager().search( searchContext );
+            results = opContext.getSession().getDirectoryService().getPartitionNexus().search( searchContext );
 
             try
             {
