@@ -248,8 +248,8 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * TODO delete this since it uses static access
      * Returns {@link LdapPrincipal} of current context.
+     * 
      * @param opContext TODO
      * @return the authenticated principal
      */
