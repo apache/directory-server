@@ -1241,7 +1241,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * </ul> 
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, delRequest" );
         Entry entry = deleteContext.getEntry();
@@ -1253,7 +1253,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.delete( deleteContext );
+            next( deleteContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 
@@ -1278,7 +1278,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Ok, we can remove the AP
-        next.delete( deleteContext );
+        next( deleteContext );
 
         // Now, update the AdminPoint cache
         deleteAdminPointCache( adminPoint, deleteContext );

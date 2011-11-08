@@ -974,7 +974,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
         Entry entry = deleteContext.getEntry();
@@ -1004,12 +1004,12 @@ public class SubentryInterceptor extends BaseInterceptor
             directoryService.getSubentryCache().removeSubentry( dn );
 
             // Now delete the subentry itself
-            next.delete( deleteContext );
+            next( deleteContext );
         }
         else
         {
             // TODO : deal with AP removal.
-            next.delete( deleteContext );
+            next( deleteContext );
         }
     }
 

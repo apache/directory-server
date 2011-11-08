@@ -152,11 +152,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            nextInterceptor.delete( deleteContext );
+            next( deleteContext );
             return;
         }
 
@@ -202,7 +202,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
     }
 
 

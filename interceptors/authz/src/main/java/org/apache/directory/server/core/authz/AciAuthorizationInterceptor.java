@@ -598,14 +598,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         CoreSession session = deleteContext.getSession();
 
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.delete( deleteContext );
+            next( deleteContext );
             return;
         }
 
@@ -620,7 +620,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.delete( deleteContext );
+            next( deleteContext );
 
             tupleCache.subentryDeleted( dn, entry );
             groupCache.groupDeleted( dn, entry );
@@ -645,7 +645,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.delete( deleteContext );
+        next( deleteContext );
 
         tupleCache.subentryDeleted( dn, entry );
         groupCache.groupDeleted( dn, entry );

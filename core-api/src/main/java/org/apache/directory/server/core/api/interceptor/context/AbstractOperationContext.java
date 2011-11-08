@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -64,7 +65,13 @@ public abstract class AbstractOperationContext implements OperationContext
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
     
-    protected LdapPrincipal authorizedPrincipal;
+    /** The interceptors to call for this operation */
+    protected List<String> interceptors;
+    
+    /** The current interceptor position */
+    protected int currentInterceptor;
+    
+	protected LdapPrincipal authorizedPrincipal;
     
     /** The core session */
     protected CoreSession session;
@@ -83,6 +90,7 @@ public abstract class AbstractOperationContext implements OperationContext
     public AbstractOperationContext( CoreSession session )
     {
         this.session = session;
+        currentInterceptor = 0;
     }
     
     
@@ -261,6 +269,32 @@ public abstract class AbstractOperationContext implements OperationContext
     
     
     /**
+     * {@inheritDoc}
+     */
+    public final void setInterceptors( List<String> interceptors )
+    {
+    	this.interceptors = interceptors;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final String getNextInterceptor() 
+    {
+    	if ( currentInterceptor == interceptors.size() )
+    	{
+    		return "FINAL";
+    	}
+    	
+		String interceptor = interceptors.get( currentInterceptor );
+		currentInterceptor++;
+		
+		return interceptor;
+	}
+
+
+    /**
      * Sets the set of bypassed Interceptors.
      * 
      * @param byPassed the set of bypassed Interceptors
@@ -298,7 +332,6 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         opContext.setPreviousOperation( this );
         next = opContext;
-        opContext.setByPassed( byPassed );
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
     
@@ -321,11 +354,11 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void delete( Dn dn, Collection<String> byPassed ) throws LdapException
+    public void delete( Dn dn ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
         setup( deleteContext );
-        deleteContext.setByPassed( byPassed );
+        deleteContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
         session.getDirectoryService().getOperationManager().delete( deleteContext );
     }
     

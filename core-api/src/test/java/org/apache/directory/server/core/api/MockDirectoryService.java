@@ -578,4 +578,11 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
         return null;
     }
+
+
+	@Override
+	public List<String> getInterceptors(OperationEnum operation) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

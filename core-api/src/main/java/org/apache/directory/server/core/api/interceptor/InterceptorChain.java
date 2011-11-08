@@ -97,16 +97,21 @@ public class InterceptorChain
         }
 
 
-        public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext )
-            throws LdapException
+        /**
+         * {@inheritDoc}
+         */
+        public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
         {
-            return nexus.getRootDSE( getRootDseContext );
+            return null;
         }
 
 
-        public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+        /**
+         * {@inheritDoc}
+         */
+        public void delete( DeleteOperationContext deleteContext ) throws LdapException
         {
-            nexus.delete( deleteContext );
+            // Do nothing
         }
 
 
@@ -173,9 +178,9 @@ public class InterceptorChain
         }
 
 
-        public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
+        public void unbind( UnbindOperationContext unbindContext ) throws LdapException
         {
-            nexus.unbind( unbindContext );
+            // Do nothing
         }
     };
 
@@ -499,28 +504,6 @@ public class InterceptorChain
     }
 
 
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            return head.getRootDSE( next, getRootDseContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -605,6 +588,7 @@ public class InterceptorChain
     }
 
 
+    /*
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -625,6 +609,7 @@ public class InterceptorChain
             throwInterceptorException( head, e );
         }
     }
+    */
 
 
     public void add( AddOperationContext addContext ) throws LdapException
@@ -657,27 +642,6 @@ public class InterceptorChain
         try
         {
             head.bind( next, bindContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
-    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
-    {
-        Element node = getStartingEntry();
-        Interceptor head = node.interceptor;
-        NextInterceptor next = node.nextInterceptor;
-
-        try
-        {
-            head.unbind( next, unbindContext );
         }
         catch ( LdapException le )
         {
@@ -964,53 +928,6 @@ public class InterceptorChain
                 }
 
 
-                public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", getRootDSERequest" );
-                        Entry rootDSE = interceptor.getRootDSE( next.nextInterceptor, getRootDseContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", getRootDSERequest" );
-                        
-                        return rootDSE;
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public void delete( DeleteOperationContext deleteContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", deleteRequest" );
-                        interceptor.delete( next.nextInterceptor, deleteContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", deleteRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
                 public void add( AddOperationContext addContext ) throws LdapException
                 {
                     Element next = getNextEntry();
@@ -1231,28 +1148,6 @@ public class InterceptorChain
                         //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", bindRequest" );
                         interceptor.bind( next.nextInterceptor, bindContext );
                         //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", bindRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void unbind( UnbindOperationContext unbindContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", unbindRequest" );
-                        interceptor.unbind( next.nextInterceptor, unbindContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", unbindRequest" );
                     }
                     catch ( LdapException le )
                     {

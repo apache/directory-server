@@ -119,7 +119,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
 
@@ -128,7 +128,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             dn.apply( schemaManager );
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
     }
 
 

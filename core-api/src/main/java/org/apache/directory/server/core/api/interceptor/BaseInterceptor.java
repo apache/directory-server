@@ -44,6 +44,7 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.invocation.InvocationStack;
+import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -116,6 +117,129 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
+     * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
+     */
+    private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
+    {
+        private PartitionNexus nexus;
+
+
+        public String getName()
+        {
+            return "FINAL";
+        }
+
+
+        public void init( DirectoryService directoryService )
+        {
+            this.nexus = directoryService.getPartitionNexus();
+        }
+
+
+        public void destroy()
+        {
+            // unused
+        }
+
+
+        public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+        {
+            return nexus.compare( compareContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+        {
+            return nexus.getRootDSE( getRootDseContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public void delete( DeleteOperationContext deleteContext ) throws LdapException
+        {
+            nexus.delete( deleteContext );
+        }
+
+
+        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+        {
+            nexus.add( addContext );
+        }
+
+
+        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+        {
+            nexus.modify( modifyContext );
+        }
+
+
+        public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+        {
+            return nexus.list( listContext );
+        }
+
+
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
+            throws LdapException
+        {
+            return nexus.search( searchContext );
+        }
+
+
+        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
+            throws LdapException
+        {
+            return nexus.lookup( lookupContext );
+        }
+
+
+        public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+        {
+            return nexus.hasEntry( hasEntryContext );
+        }
+
+
+        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+        {
+            nexus.rename( renameContext );
+        }
+
+
+        public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+        {
+            nexus.move( moveContext );
+        }
+
+
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
+            throws LdapException
+        {
+            nexus.moveAndRename( moveAndRenameContext );
+        }
+
+
+        public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+        {
+            nexus.bind( bindContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public void unbind( UnbindOperationContext unbindContext ) throws LdapException
+        {
+            nexus.unbind( unbindContext );
+        }
+    };
+
+
+    /**
      * default interceptor name is its class, preventing accidental duplication of interceptors by naming
      * instances differently
      * @return (default, class name) interceptor name
@@ -183,6 +307,8 @@ public abstract class BaseInterceptor implements Interceptor
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        
+        FINAL_INTERCEPTOR.init( directoryService );
     }
 
 
@@ -193,6 +319,28 @@ public abstract class BaseInterceptor implements Interceptor
     {
     }
 
+
+    /**
+     * Computes the next interceptor to call for a given operation. If we find none, 
+     * we return the proxy to the nexus.
+     * 
+     * @param operationContext The operation context
+     * @return The next interceptor in the list for this operation
+     */
+    private Interceptor getNextInterceptor( OperationContext operationContext )
+    {
+    	String currentInterceptor = operationContext.getNextInterceptor();
+    	
+    	if ( currentInterceptor.equals( "FINAL" ) )
+    	{
+    		return FINAL_INTERCEPTOR;
+    	}
+
+    	Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );
+    	
+    	return interceptor;
+    }
+    
 
     // ------------------------------------------------------------------------
     // Interceptor's Invoke Method
@@ -206,18 +354,53 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        next.delete( deleteContext );
+    	// Do nothing
+    }
+    
+
+    /**
+     * Calls the next interceptor for the delete operation.
+     * 
+     * @param deleteContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( DeleteOperationContext deleteContext ) throws LdapException
+    {
+    	Interceptor interceptor = getNextInterceptor( deleteContext );
+    	
+    	interceptor.delete( deleteContext );
     }
 
-
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
-        return next.getRootDSE( getRootDseContext );
+    	// Nothing to do
+        return null;
+    }
+    
+    
+    /**
+     * Calls the next interceptor for the getRootDse operation.
+     * 
+     * @param deleteContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final Entry next( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    {
+    	Interceptor interceptor = getNextInterceptor( getRootDseContext );
+
+        return interceptor.getRootDSE( getRootDseContext );
     }
 
-
+    
     public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
     {
         return next.hasEntry( hasEntryContext );
@@ -283,8 +466,25 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        next.unbind( unbindContext );
+        // Nothing to do
+    }
+    
+    
+    /**
+     * Compute the next interceptor for the unbind operation.
+     * 
+     * @param deleteContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( UnbindOperationContext unbindContext ) throws LdapException
+    {
+    	Interceptor interceptor = getNextInterceptor( unbindContext );
+
+        interceptor.unbind( unbindContext );
     }
 }

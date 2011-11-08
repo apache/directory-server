@@ -127,9 +127,19 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
+     * Filters {@link Partition#add( AddOperationContext )} call.
+     * 
+     * @param next The next {@link Interceptor} in the chain
+     * @param addContext The {@link AddOperationContext} instance
+     * @throws LdapException If we had some error while processing the Add operation
      */
-    Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException;
+    void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
+
+
+    /**
+     * Filters {@link Partition#bind( BindOperationContext )} call.
+     */
+    void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException;
 
 
     /**
@@ -141,41 +151,17 @@ public interface Interceptor
     /**
      * Filters {@link Partition#delete( DeleteOperationContext )} call.
      */
-    void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException;
+    void delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
-     * Filters {@link Partition#add( AddOperationContext )} call.
+     * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      * 
-     * @param next The next {@link Interceptor} in the chain
-     * @param addContext The {@link AddOperationContext} instance
-     * @throws LdapException If we had some error while processing the Add operation
+     * @param getRootDseContext The getRoot() operation context
+     * @return The RootDSE entry, if found
+     * @throws LdapException If we can't get back the RootDSE entry
      */
-    void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link Partition#modify( ModifyOperationContext )} call.
-     */
-    void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link Partition#list( ListOperationContext )} call.
-     */
-    EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link Partition#search( SearchOperationContext )} call.
-     */
-    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link Partition#lookup( LookupOperationContext )} call.
-     */
-    Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException;
+    Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException;
 
 
     /**
@@ -185,9 +171,21 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#rename( RenameOperationContext )} call.
+     * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException;
+    EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException;
+
+
+    /**
+     * Filters {@link Partition#lookup( LookupOperationContext )} call.
+     */
+    Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException;
+
+
+    /**
+     * Filters {@link Partition#modify( ModifyOperationContext )} call.
+     */
+    void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**
@@ -203,13 +201,19 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#bind( BindOperationContext )} call.
+     * Filters {@link Partition#rename( RenameOperationContext )} call.
      */
-    void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException;
+    void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException;
+
+
+    /**
+     * Filters {@link Partition#search( SearchOperationContext )} call.
+     */
+    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#unbind( UnbindOperationContext )} call.
      */
-    void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException;
+    void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 }

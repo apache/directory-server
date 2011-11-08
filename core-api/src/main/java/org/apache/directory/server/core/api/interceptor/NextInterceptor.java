@@ -24,9 +24,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -34,7 +32,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -52,18 +49,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
      */
     boolean compare( CompareOperationContext compareContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
-     */
-    Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, DeleteOperationContext )}.
-     */
-    void delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
@@ -123,9 +108,4 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, BindOperationContext )}
      */
     void bind( BindOperationContext bindContext ) throws LdapException;
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, UnbindOperationContext )}
-     */
-    void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 }

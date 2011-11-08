@@ -346,6 +346,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             String pwdChangedTime = DateUtils.getGeneralizedTime();
+            
             if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
             {
                 Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
@@ -373,7 +374,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -382,12 +383,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( deleteContext );
         checkPwdReset( deleteContext );
-        next.delete( deleteContext );
+        next( deleteContext );
         invalidateAuthenticatorCaches( deleteContext.getDn() );
     }
 
 
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -396,7 +400,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( getRootDseContext );
         checkPwdReset( getRootDseContext );
-        return next.getRootDSE( getRootDseContext );
+        
+        return next( getRootDseContext );
     }
 
 
@@ -409,6 +414,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( hasEntryContext );
         checkPwdReset( hasEntryContext );
+        
         return next.hasEntry( hasEntryContext );
     }
 
@@ -422,6 +428,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( listContext );
         checkPwdReset( listContext );
+        
         return next.list( listContext );
     }
 
@@ -780,6 +787,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( searchContext );
         checkPwdReset( searchContext );
+        
         return next.search( searchContext );
     }
 
@@ -936,6 +944,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( ( policyConfig != null ) && ( userEntry != null ) )
             {
                 Attribute pwdFailTimeAt = userEntry.get( PWD_FAILURE_TIME_AT );
+                
                 if ( pwdFailTimeAt == null )
                 {
                     pwdFailTimeAt = new DefaultAttribute( AT_PWD_FAILURE_TIME );
@@ -1017,6 +1026,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             Attribute pwdFailTimeAt = userEntry.get( AT_PWD_FAILURE_TIME );
+            
             if ( pwdFailTimeAt != null )
             {
                 Modification pwdFailTimeMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdFailTimeAt );
@@ -1024,6 +1034,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             Attribute pwdAccLockedTimeAt = userEntry.get( AT_PWD_ACCOUNT_LOCKED_TIME );
+            
             if ( pwdAccLockedTimeAt != null )
             {
                 Modification pwdAccLockedTimeMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdAccLockedTimeAt );
@@ -1095,9 +1106,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     @Override
-    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        super.unbind( next, unbindContext );
+        next( unbindContext );
 
         // remove the Dn from the password reset Set
         // we do not perform a check to see if the reset flag in the associated ppolicy is enabled
@@ -1290,6 +1301,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         boolean mustChange = false;
 
         Attribute pwdResetAt = userEntry.get( PWD_RESET_AT );
+        
         if ( pwdResetAt != null )
         {
             mustChange = Boolean.parseBoolean( pwdResetAt.getString() );
@@ -1304,6 +1316,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         PwdModDetailsHolder pwdModDetails = new PwdModDetailsHolder();
 
         List<Modification> mods = modifyContext.getModItems();
+        
         for ( Modification m : mods )
         {
             Attribute at = m.getAttribute();

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TimerInterceptor implements Interceptor
+public class TimerInterceptor extends BaseInterceptor
 {
     /** A aggregating logger */
     private static final Logger OPERATION_STATS = LoggerFactory.getLogger( "OPERATION_STATS" );
@@ -229,10 +229,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.delete( deleteContext );
+        next( deleteContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -274,11 +274,11 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext )
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
         throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry rootDSE = next.getRootDSE( getRootDseContext );
+        Entry rootDSE = next( getRootDseContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -545,10 +545,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.unbind( unbindContext );
+        next( unbindContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

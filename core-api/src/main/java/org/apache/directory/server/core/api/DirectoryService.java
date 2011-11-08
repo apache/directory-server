@@ -319,13 +319,20 @@ public interface DirectoryService extends ServerEntryFactory
     void setAllowAnonymousAccess( boolean enableAnonymousAccess );
 
 
-
     /**
      * Returns interceptors in the server.
      *
      * @return the interceptors in the server.
      */
     List<Interceptor> getInterceptors();
+
+
+    /**
+     * Returns interceptors in the server.
+     *
+     * @return the interceptors in the server.
+     */
+    List<String> getInterceptors( OperationEnum operation );
 
 
     /**

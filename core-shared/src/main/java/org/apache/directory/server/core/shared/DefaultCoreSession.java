@@ -31,6 +31,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.changelog.LogChange;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -87,17 +88,29 @@ import org.apache.directory.shared.util.Strings;
  */
 public class DefaultCoreSession implements CoreSession
 {
+	/** The DirectoryService we are connected to */
     private final DirectoryService directoryService;
+    
+    /** The Principal used to process operations */
     private final LdapPrincipal authenticatedPrincipal;
+    
+    /** The anonymous principal, if we have to process operation as anonymous */
     private final LdapPrincipal anonymousPrincipal;
+    
+    /** The authorized principal, which will be used when a user has been authorized */
     private LdapPrincipal authorizedPrincipal;
 
 
+    /**
+     * Creates a new instance of a DefaultCoreSession
+     * @param principal The principal to use to process operation for this session
+     * @param directoryService The DirectoryService to which we will send requests
+     */
     public DefaultCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
-        this.authenticatedPrincipal = principal;
-        this.anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+        authenticatedPrincipal = principal;
+        anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
     }
 
 
@@ -285,6 +298,9 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
 
+        // Gets the list of interceptors from the DS
+        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
     }
@@ -308,6 +324,9 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
         setReferralHandling( deleteContext, ignoreReferral );
+
+        // Gets the list of interceptors from the DS
+        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
@@ -876,7 +895,11 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
 
+        // Gets the list of interceptors from the DS
+        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
+
         OperationManager operationManager = directoryService.getOperationManager();
+        
         try
         {
             operationManager.delete( deleteContext );
@@ -1070,15 +1093,32 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unbind() throws LdapException
     {
+    	UnbindOperationContext unbindContext = new UnbindOperationContext( this );
+    	
+        // Gets the list of interceptors from the DS
+        unbindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.UNBIND ) );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.unbind( new UnbindOperationContext( this ) );
+        operationManager.unbind( unbindContext );
     }
 
 
-    public void unbind( UnbindRequest unbindRequest )
+    /**
+     * {@inheritDoc}
+     */
+    public void unbind( UnbindRequest unbindRequest ) throws LdapException
     {
-        // TODO Auto-generated method stub
+    	UnbindOperationContext unbindContext = new UnbindOperationContext( this, unbindRequest );
+    	
+        // Gets the list of interceptors from the DS
+        unbindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.UNBIND ) );
+
+        OperationManager operationManager = directoryService.getOperationManager();
+        operationManager.unbind( unbindContext );
     }
 }

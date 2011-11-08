@@ -23,10 +23,12 @@ package org.apache.directory.server.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -51,6 +53,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.model.exception.LdapReferralException;
@@ -84,6 +87,44 @@ public class DefaultOperationManager implements OperationManager
     public DefaultOperationManager( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
+    }
+
+
+    /**
+     * Eagerly populates fields of operation contexts so multiple Interceptors
+     * in the processing pathway can reuse this value without performing a
+     * redundant lookup operation.
+     *
+     * @param opContext the operation context to populate with cached fields
+     */
+    private void eagerlyPopulateFields( OperationContext opContext ) throws LdapException
+    {
+        // If the entry field is not set for ops other than add for example
+        // then we set the entry but don't freak if we fail to do so since it
+        // may not exist in the first place
+
+        if ( opContext.getEntry() == null )
+        {
+            // We have to use the admin session here, otherwise we may have
+            // trouble reading the entry due to insufficient access rights
+            CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+            
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
+
+            if ( foundEntry != null )
+            {
+                opContext.setEntry( foundEntry );
+            }
+            else
+            {
+                // This is an error : we *must* have an entry if we want to be able to rename.
+                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+                    opContext.getDn() ) );
+
+                throw ldnfe;
+            }
+        }
     }
 
 
@@ -443,9 +484,13 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.delete( deleteContext );
+            // populate the context with the old entry
+            eagerlyPopulateFields( deleteContext );
+
+            // Call the Delete method
+            Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
+
+            head.delete( deleteContext );
         }
         finally
         {
@@ -469,8 +514,9 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            InterceptorChain chain = directoryService.getInterceptorChain();
-            return chain.getRootDSE( getRootDseContext );
+            Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
+
+            return head.getRootDSE( getRootDseContext );
         }
         finally
         {
@@ -1035,7 +1081,10 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            directoryService.getInterceptorChain().unbind( unbindContext );
+            // Call the Unbind method
+            Interceptor head = directoryService.getInterceptor( unbindContext.getNextInterceptor() );
+
+            head.unbind( unbindContext );
         }
         finally
         {

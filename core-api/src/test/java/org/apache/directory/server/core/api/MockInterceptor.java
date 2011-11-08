@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
-public class MockInterceptor implements Interceptor
+public class MockInterceptor extends BaseInterceptor
 {
     final String name;
     final List<MockInterceptor> interceptors;
@@ -79,11 +79,14 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext )
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
         throws LdapException
     {
         interceptors.add( this );
-        return next.getRootDSE( getRootDseContext );
+        return next( getRootDseContext );
     }
 
 
@@ -94,10 +97,13 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         interceptors.add( this );
-        next.delete( deleteContext );
+        next( deleteContext );
     }
 
 
@@ -171,10 +177,13 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+   public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         interceptors.add( this );
-        next.unbind( unbindContext );
+        next( unbindContext );
     }
 
 

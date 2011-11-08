@@ -293,14 +293,14 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn name = deleteContext.getDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.delete( deleteContext );
+            next( deleteContext );
             return;
         }
 
@@ -317,7 +317,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.DELETE );
 
-        next.delete( deleteContext );
+        next( deleteContext );
 
         triggerSpecCache.subentryDeleted( name, deletedEntry );
 

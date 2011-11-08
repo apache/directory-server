@@ -133,7 +133,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
@@ -144,7 +144,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             serverEntry = getAttributes( deleteContext );
         }
 
-        next.delete( deleteContext );
+        next( deleteContext );
 
         if ( !changeLog.isEnabled() )
         {

@@ -182,10 +182,10 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, final DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( final DeleteOperationContext deleteContext ) throws LdapException
     {
         List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
-        next.delete( deleteContext );
+        next( deleteContext );
 
         if ( selecting.isEmpty() )
         {

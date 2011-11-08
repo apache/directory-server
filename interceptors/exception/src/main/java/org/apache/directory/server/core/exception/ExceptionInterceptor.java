@@ -194,7 +194,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
 
@@ -204,7 +204,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn ) );
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
 
         // Update the alias cache
         synchronized ( notAliasCache )

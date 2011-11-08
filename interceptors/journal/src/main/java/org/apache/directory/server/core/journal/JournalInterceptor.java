@@ -151,7 +151,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -169,7 +169,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.delete( deleteContext );
+            next( deleteContext );
 
             if ( journalEnabled )
             {

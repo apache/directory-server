@@ -49,6 +49,7 @@ import javax.naming.spi.DirectoryManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
@@ -352,21 +353,24 @@ public abstract class ServerContext implements EventContext
     protected void doDeleteOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
-        DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( session, target );
 
-        opCtx.addRequestControls( convertControls( true, requestControls ) );
+        deleteContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( deleteContext );
+
+        // We should get this list from the DS
+        deleteContext.setInterceptors( service.getInterceptors( OperationEnum.DELETE ) );
 
         // execute delete operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.delete( opCtx );
+        operationManager.delete( deleteContext );
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
-            opCtx.getResponseControls() );
+            deleteContext.getResponseControls() );
     }
 
 
@@ -597,10 +601,14 @@ public abstract class ServerContext implements EventContext
     {
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
+        
+        // We should get this list from the DS
+        getRootDseContext.setInterceptors( service.getInterceptors( OperationEnum.GET_ROOT_DSE ) );
 
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
+        
         return operationManager.getRootDSE( getRootDseContext );
     }
 

@@ -26,14 +26,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.directory.Attributes;
 
@@ -45,6 +48,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
@@ -234,6 +238,9 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The list of declared interceptors */
     private List<Interceptor> interceptors;
+    
+    /** A map associating a list of interceptor to each operation */
+    private Map<OperationEnum, List<String>> operationInterceptors;
 
     /** The System partition */
     private Partition systemPartition;
@@ -459,7 +466,52 @@ public class DefaultDirectoryService implements DirectoryService
     {
         List<Interceptor> cloned = new ArrayList<Interceptor>();
         cloned.addAll( interceptors );
+        
         return cloned;
+    }
+
+
+    /**
+     * Returns interceptors in the server for a given operation.
+     *
+     * @return the interceptors in the server for the given operation.
+     */
+    public List<String> getInterceptors( OperationEnum operation )
+    {
+        List<String> cloned = new ArrayList<String>();
+        cloned.addAll( operationInterceptors.get( operation ) );
+        
+        return cloned;
+    }
+    
+    
+    /**
+     * Compute the list of interceptors to call for each operation
+     */
+    private void initOperationsList( OperationEnum... operations)
+    {
+    	operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
+    	
+    	for ( OperationEnum operation : operations )
+    	{
+	    	List<String> operationList = new ArrayList<String>();
+	    	
+	        for ( Interceptor interceptor : interceptors )
+	        {
+		    	Method[] methods = interceptor.getClass().getDeclaredMethods();
+		    	
+		    	for ( Method method : methods )
+		    	{
+		    		if ( method.getName().equals( operation.getMethodName() ) )
+		    		{
+		    			operationList.add( interceptor.getName() );
+		    			break;
+		    		}
+		    	}
+	        }
+	        
+	        operationInterceptors.put( operation, operationList );
+    	}
     }
 
 
@@ -472,17 +524,37 @@ public class DefaultDirectoryService implements DirectoryService
     {
         Set<String> names = new HashSet<String>();
 
+        // Check if we don't have duplicate names in the interceptors list
         for ( Interceptor interceptor : interceptors )
         {
             if ( names.contains( interceptor.getName() ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
+                continue;
             }
             
             names.add( interceptor.getName() );
         }
-
+        
         this.interceptors = interceptors;
+
+        // Now update the Map that connect each operation with the list of interceptors.
+    	initOperationsList( 
+    			OperationEnum.ADD, 
+    			OperationEnum.BIND,
+    			OperationEnum.COMPARE,
+    			OperationEnum.DELETE,
+    			OperationEnum.GET_ROOT_DSE,
+    			OperationEnum.HAS_ENTRY,
+    			OperationEnum.LIST,
+    			OperationEnum.LOOKUP,
+    			OperationEnum.MODIFY,
+    			OperationEnum.MOVE,
+    			OperationEnum.MOVE_AND_RENAME,
+    			OperationEnum.RENAME,
+    			OperationEnum.SEARCH,
+    			OperationEnum.UNBIND
+    			);
     }
 
 
