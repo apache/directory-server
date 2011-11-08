@@ -23,8 +23,6 @@ package org.apache.directory.server.core.api.interceptor;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.Context;
-
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -43,7 +41,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.api.invocation.InvocationStack;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -253,22 +250,12 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * TODO delete this since it uses static access
      * Returns {@link LdapPrincipal} of current context.
+     * @param opContext TODO
      * @return the authenticated principal
      */
-    public static LdapPrincipal getPrincipal()
+    public static LdapPrincipal getPrincipal( OperationContext opContext )
     {
-        return getContext().getSession().getEffectivePrincipal();
-    }
-
-
-    /**
-     * TODO delete this since it uses static access
-     * Returns the current JNDI {@link Context}.
-     * @return the context on the invocation stack
-     */
-    public static OperationContext getContext()
-    {
-        return InvocationStack.getInstance().peek();
+        return opContext.getSession().getEffectivePrincipal();
     }
 
 

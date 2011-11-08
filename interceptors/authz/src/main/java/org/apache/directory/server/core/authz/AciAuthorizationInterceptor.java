@@ -302,9 +302,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectCriticalEntries( Dn dn ) throws LdapException
+    private void protectCriticalEntries( OperationContext opCtx, Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( opCtx ).getDn();
 
         if ( dn.isEmpty() )
         {
@@ -615,7 +615,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Entry entry = deleteContext.getEntry();
 
-        protectCriticalEntries( dn );
+        protectCriticalEntries( deleteContext, dn );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -988,7 +988,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( oldName );
+        protectCriticalEntries( renameContext, oldName );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -1044,7 +1044,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( oldDn );
+        protectCriticalEntries( moveAndRenameContext, oldDn );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -1140,7 +1140,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( oriChildName );
+        protectCriticalEntries( moveContext, oriChildName );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )

@@ -182,7 +182,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
-        String principal = getPrincipal().getName();
+        String principal = getPrincipal( addContext ).getName();
 
         Entry entry = addContext.getEntry();
 
@@ -311,7 +311,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 	        if ( !modifierAtPresent )
 	        {
 	            // Inject the ModifiersName AT if it's not present
-	            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal()
+	            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
 	                .getName() );
 	
 	            Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -347,11 +347,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
-        entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         //modifiedEntry.setDn( renameContext.getNewDn() );
         renameContext.setModifiedEntry( modifiedEntry );
@@ -366,7 +366,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveContext.getNewDn() );
         moveContext.setModifiedEntry( modifiedEntry );
@@ -379,7 +379,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         throws LdapException
     {
         Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );

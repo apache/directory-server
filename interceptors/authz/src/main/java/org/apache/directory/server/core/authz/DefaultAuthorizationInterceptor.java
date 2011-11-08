@@ -176,7 +176,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( deleteContext ).getDn();
 
         if ( dn.equals( ADMIN_SYSTEM_DN ) )
         {
@@ -234,7 +234,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             Dn dn = modifyContext.getDn();
 
-            protectModifyAlterations( dn );
+            protectModifyAlterations( modifyContext, dn );
             nextInterceptor.modify( modifyContext );
 
             // update administrators if we change administrators group
@@ -250,9 +250,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( Dn dn ) throws LdapException
+    private void protectModifyAlterations( OperationContext opCtx, Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( opCtx ).getDn();
 
         if ( dn.isEmpty() )
         {
@@ -264,7 +264,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         if ( !isAnAdministrator( principalDn ) )
         {
             // allow self modifications
-            if ( dn.equals( getPrincipal() ) )
+            if ( dn.equals( getPrincipal( opCtx ) ) )
             {
                 return;
             }
@@ -309,7 +309,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( renameContext.getDn() );
+            protectDnAlterations( renameContext, renameContext.getDn() );
         }
 
         nextInterceptor.rename( renameContext );
@@ -323,7 +323,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( moveContext.getDn() );
+            protectDnAlterations( moveContext, moveContext.getDn() );
         }
 
         nextInterceptor.move( moveContext );
@@ -335,16 +335,16 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( moveAndRenameContext.getDn() );
+            protectDnAlterations( moveAndRenameContext, moveAndRenameContext.getDn() );
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 
-    private void protectDnAlterations( Dn dn ) throws LdapException
+    private void protectDnAlterations( OperationContext opCtx, Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( opCtx ).getDn();
 
         if ( dn.isEmpty() )
         {

@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.journal;
 
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.DirectoryService;
@@ -30,6 +29,7 @@ import org.apache.directory.server.core.api.interceptor.context.DeleteOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -89,9 +89,9 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * Log the operation, manage the logs rotations.
      */
-    private void log( long revision, LdifEntry ldif ) throws LdapException
+    private void log( OperationContext opCtx, long revision, LdifEntry ldif ) throws LdapException
     {
-        journal.log( getPrincipal(), revision, ldif );
+        journal.log( getPrincipal( opCtx ), revision, ldif );
     }
     
     
@@ -122,7 +122,7 @@ public class JournalInterceptor extends BaseInterceptor
                 ldif.addAttribute( addEntry.get( attributeType).clone() );
             }
             
-            log( opRevision, ldif );
+            log( addContext, opRevision, ldif );
         }
 
         try
@@ -164,7 +164,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.Delete );
             ldif.setDn( deleteContext.getDn() );
             
-            journal.log( getPrincipal(), opRevision, ldif );
+            journal.log( getPrincipal( deleteContext ), opRevision, ldif );
         }
 
         try
@@ -212,7 +212,7 @@ public class JournalInterceptor extends BaseInterceptor
                 ldif.addModification( modification );
             }
             
-            journal.log( getPrincipal(), opRevision, ldif );
+            journal.log( getPrincipal( modifyContext ), opRevision, ldif );
         }
         
         try
@@ -255,7 +255,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
             ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
             
-            journal.log( getPrincipal(), opRevision, ldif );
+            journal.log( getPrincipal( renameContext ), opRevision, ldif );
         }
         
         try
@@ -301,7 +301,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
             ldif.setNewSuperior( moveAndRenameContext.getNewDn().getNormName() );
             
-            journal.log( getPrincipal(), opRevision, ldif );
+            journal.log( getPrincipal( moveAndRenameContext ), opRevision, ldif );
         }
         
         try
@@ -344,7 +344,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setDn( moveContext.getDn() );
             ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
             
-            journal.log( getPrincipal(), opRevision, ldif );
+            journal.log( getPrincipal( moveContext ), opRevision, ldif );
         }
         
         try
