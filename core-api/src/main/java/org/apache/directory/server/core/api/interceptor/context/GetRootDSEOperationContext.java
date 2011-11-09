@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
@@ -38,7 +39,9 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
     public GetRootDSEOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
     }
+    
     
     /**
      * Creates a new instance of GetRootDSEOperationContext.
@@ -48,7 +51,9 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
     public GetRootDSEOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
     }
+    
     
     /**
      * @return the operation name

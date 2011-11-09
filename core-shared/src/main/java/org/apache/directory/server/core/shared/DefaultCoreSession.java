@@ -298,9 +298,6 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
 
-        // Gets the list of interceptors from the DS
-        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
-
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
     }
@@ -324,9 +321,6 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
         setReferralHandling( deleteContext, ignoreReferral );
-
-        // Gets the list of interceptors from the DS
-        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( deleteContext );
@@ -895,9 +889,6 @@ public class DefaultCoreSession implements CoreSession
 
         deleteContext.setLogChange( log );
 
-        // Gets the list of interceptors from the DS
-        deleteContext.setInterceptors( directoryService.getInterceptors( OperationEnum.DELETE ) );
-
         OperationManager operationManager = directoryService.getOperationManager();
         
         try
@@ -1101,9 +1092,6 @@ public class DefaultCoreSession implements CoreSession
     {
     	UnbindOperationContext unbindContext = new UnbindOperationContext( this );
     	
-        // Gets the list of interceptors from the DS
-        unbindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.UNBIND ) );
-
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.unbind( unbindContext );
     }
@@ -1116,9 +1104,6 @@ public class DefaultCoreSession implements CoreSession
     {
     	UnbindOperationContext unbindContext = new UnbindOperationContext( this, unbindRequest );
     	
-        // Gets the list of interceptors from the DS
-        unbindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.UNBIND ) );
-
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.unbind( unbindContext );
     }

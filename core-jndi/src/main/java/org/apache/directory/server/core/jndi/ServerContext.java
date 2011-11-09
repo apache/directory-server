@@ -366,9 +366,6 @@ public abstract class ServerContext implements EventContext
         // Inject the referral handling into the operation context
         injectReferralControl( deleteContext );
 
-        // We should get this list from the DS
-        deleteContext.setInterceptors( service.getInterceptors( OperationEnum.DELETE ) );
-
         // execute delete operation
         OperationManager operationManager = service.getOperationManager();
         operationManager.delete( deleteContext );
@@ -608,9 +605,6 @@ public abstract class ServerContext implements EventContext
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
         
-        // We should get this list from the DS
-        getRootDseContext.setInterceptors( service.getInterceptors( OperationEnum.GET_ROOT_DSE ) );
-
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
@@ -682,6 +676,7 @@ public abstract class ServerContext implements EventContext
         bindContext.setSaslMechanism( saslMechanism );
         bindContext.setSaslAuthId( saslAuthId );
         bindContext.addRequestControls( convertControls( true, requestControls ) );
+        bindContext.setInterceptors( getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
         // execute bind operation
         OperationManager operationManager = service.getOperationManager();

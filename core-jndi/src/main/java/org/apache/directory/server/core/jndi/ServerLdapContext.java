@@ -285,6 +285,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         UnbindOperationContext opCtx = new UnbindOperationContext( getSession() );
+        
         try
         {
             opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 

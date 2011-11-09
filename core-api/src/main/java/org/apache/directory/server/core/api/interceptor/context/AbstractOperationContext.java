@@ -355,7 +355,6 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
         setup( deleteContext );
-        deleteContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
         session.getDirectoryService().getOperationManager().delete( deleteContext );
     }
     

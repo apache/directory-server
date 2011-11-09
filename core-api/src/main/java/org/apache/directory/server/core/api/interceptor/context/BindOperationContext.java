@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.ReferralHandlingMode;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
@@ -68,6 +69,11 @@ public class BindOperationContext extends AbstractOperationContext
     public BindOperationContext( CoreSession session )
     {
         super( session );
+        
+        if ( session != null )
+        {
+        	setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
+        }
     }
 
     

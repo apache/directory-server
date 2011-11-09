@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
@@ -42,6 +43,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     public DeleteOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
     }
     
 
@@ -53,12 +55,14 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     public DeleteOperationContext( CoreSession session, Dn deleteDn )
     {
         super( session, deleteDn );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
     }
 
 
     public DeleteOperationContext( CoreSession session, DeleteRequest deleteRequest )
     {
         super( session, deleteRequest.getName() );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
         requestControls = deleteRequest.getControls();
         
         if ( requestControls.containsKey( ManageDsaIT.OID ) )

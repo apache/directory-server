@@ -112,6 +112,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );
+        bindContext.setInterceptors( ldapServer.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
