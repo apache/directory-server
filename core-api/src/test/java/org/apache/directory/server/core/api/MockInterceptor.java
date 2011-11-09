@@ -102,10 +102,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         interceptors.add( this );
-        return next.compare( compareContext );
+        return next( compareContext );
     }
 
 
@@ -124,10 +124,10 @@ public class MockInterceptor extends BaseInterceptor
      */
     public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
         throws LdapException
-    {
+        {
         interceptors.add( this );
         return next( getRootDseContext );
-    }
+        }
 
 
     /**
@@ -213,7 +213,7 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-   public void unbind( UnbindOperationContext unbindContext ) throws LdapException
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         interceptors.add( this );
         next( unbindContext );

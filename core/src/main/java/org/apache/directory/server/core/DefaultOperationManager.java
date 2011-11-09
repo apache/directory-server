@@ -108,7 +108,7 @@ public class DefaultOperationManager implements OperationManager
             // We have to use the admin session here, otherwise we may have
             // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
-            
+
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
@@ -128,8 +128,30 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private LdapReferralException buildReferralException( Entry parentEntry, Dn childDn )
-        throws LdapException //, LdapURLEncodingException
+    private Entry getOriginalEntry( OperationContext opContext ) throws LdapException
+    {
+        // We have to use the admin session here, otherwise we may have
+        // trouble reading the entry due to insufficient access rights
+        CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+
+        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
+
+        if ( foundEntry != null )
+        {
+            return foundEntry;
+        }
+        else
+        {
+            // This is an error : we *must* have an entry if we want to be able to rename.
+            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+                opContext.getDn() ) );
+
+            throw ldnfe;
+        }
+    }
+
+
+    private LdapReferralException buildReferralException( Entry parentEntry, Dn childDn ) throws LdapException
     {
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -143,14 +165,14 @@ public class DefaultOperationManager implements OperationManager
             {
                 // we have to replace the parent by the referral
                 LdapUrl ldapUrl = new LdapUrl( url.getString() );
-    
+
                 // We have a problem with the Dn : we can't use the UpName,
                 // as we may have some spaces around the ',' and '+'.
                 // So we have to take the Rdn one by one, and create a
                 // new Dn with the type and value UP form
-    
+
                 Dn urlDn = ldapUrl.getDn().add( childDn );
-    
+
                 ldapUrl.setDn( urlDn );
                 urls.add( ldapUrl.toString() );
             }
@@ -170,8 +192,7 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private LdapReferralException buildReferralExceptionForSearch( Entry parentEntry, Dn childDn, SearchScope scope )
-        throws LdapException
+    private LdapReferralException buildReferralExceptionForSearch( Entry parentEntry, Dn childDn, SearchScope scope ) throws LdapException
     {
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -406,9 +427,13 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            return interceptorChain.compare( compareContext );
+            // populate the context with the old entry
+            compareContext.setOriginalEntry( getOriginalEntry( compareContext ) );
+
+            // Call the Compare method
+            Interceptor head = directoryService.getInterceptor( compareContext.getNextInterceptor() );
+
+            return head.compare( compareContext );
         }
         finally
         {

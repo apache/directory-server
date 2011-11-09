@@ -103,9 +103,9 @@ public class InterceptorChain
         }
         
 
-        public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+        public boolean compare( CompareOperationContext compareContext ) throws LdapException
         {
-            return nexus.compare( compareContext );
+            return false;
         }
 
 
@@ -504,29 +504,6 @@ public class InterceptorChain
     }
 
 
-    public boolean compare( CompareOperationContext compareContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        compareContext.setOriginalEntry( getOriginalEntry( compareContext ) );
-
-        try
-        {
-            return head.compare( next, compareContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
     /**
      * Eagerly populates fields of operation contexts so multiple Interceptors
      * in the processing pathway can reuse this value without performing a
@@ -857,31 +834,6 @@ public class InterceptorChain
                     }
 
                     return next;
-                }
-
-
-                public boolean compare( CompareOperationContext compareContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", compareRequest" );
-                        boolean result = interceptor.compare( next.nextInterceptor, compareContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", compareRequest" );
-                        
-                        return result;
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
                 }
 
 

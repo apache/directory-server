@@ -145,7 +145,7 @@ public interface Interceptor
     /**
      * Filters {@link DefaultPartitionNexus#compare( CompareOperationContext )} call.
      */
-    boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException;
+    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**

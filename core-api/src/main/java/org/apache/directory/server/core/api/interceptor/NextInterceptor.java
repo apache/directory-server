@@ -22,8 +22,6 @@ package org.apache.directory.server.core.api.interceptor;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -48,11 +46,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
      */
     void add( AddOperationContext addContext ) throws LdapException;
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
-     */
-    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**

@@ -150,7 +150,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 modification.apply( attributeType );
             }
         }
-        
+
         nextInterceptor.modify( modifyContext );
     }
 
@@ -218,7 +218,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
-    {
+        {
 
         if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
         {
@@ -241,7 +241,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
-    }
+        }
 
 
     /**
@@ -249,7 +249,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
-    {
+        {
         Dn dn = searchContext.getDn();
 
         if ( !dn.isSchemaAware() )
@@ -280,7 +280,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( searchContext );
         }
-    }
+        }
 
 
     /**
@@ -289,7 +289,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         hasEntryContext.getDn().apply( schemaManager );
-        
+
         return next( hasEntryContext );
     }
 
@@ -299,10 +299,10 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
-    {
+        {
         listContext.getDn().apply( schemaManager );
         return nextInterceptor.list( listContext );
-    }
+        }
 
 
     /**
@@ -353,7 +353,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         if ( !compareContext.getDn().isSchemaAware() )
         {
@@ -379,7 +379,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
         }
 
-        return next.compare( compareContext );
+        return next( compareContext );
     }
 
 

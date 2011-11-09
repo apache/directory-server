@@ -300,8 +300,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
      * superiors.
      */
-    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
-        throws LdapException
+    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen ) throws LdapException
     {
         List<ObjectClass> parents = objectClass.getSuperiors();
 
@@ -371,8 +370,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext ) throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( listContext );
         cursor.addEntryFilter( binaryAttributeFilter );
@@ -383,7 +381,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -397,7 +395,7 @@ public class SchemaInterceptor extends BaseInterceptor
             throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
         }
 
-        boolean result = next.compare( compareContext );
+        boolean result = next( compareContext );
 
         return result;
     }
@@ -572,9 +570,9 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
             else if ( ( filter instanceof SubstringNode ) ||
-                      ( filter instanceof PresenceNode ) ||
-                      ( filter instanceof AssertionNode ) ||
-                      ( filter instanceof ScopeNode ) )
+                ( filter instanceof PresenceNode ) ||
+                ( filter instanceof AssertionNode ) ||
+                ( filter instanceof ScopeNode ) )
             {
                 // Nothing to do
             }
@@ -631,8 +629,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         Dn base = searchContext.getDn();
         SearchControls searchCtls = searchContext.getSearchControls();
@@ -1026,7 +1023,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 && ( !attributeType.equals( MODIFIERS_NAME_AT )
                     && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
                     && ( !attributeType.equals( ENTRY_CSN_AT ) )
-                && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
+                    && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
                 LOG.error( msg );
@@ -1065,7 +1062,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // point, as one of the following modification can change the
                         // ObjectClasses.
                         Attribute newAttribute = attribute.clone();
-                        
+
                         // Check that the attribute allows null values if we don'y have any value
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
@@ -1325,7 +1322,7 @@ public class SchemaInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterBinaryAttributes( entry );
-            
+
             return true;
         }
     }
@@ -1339,7 +1336,7 @@ public class SchemaInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterAttributeTypes( operation, entry );
-            
+
             return true;
         }
     }
@@ -1516,9 +1513,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( ( schema != null ) && schema.isEnabled() )
                 {
-                    Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
+                    Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );
                     String ocOid = oidAT.getString();
-                    
+
                     ObjectClass addedOC = schemaManager.lookupObjectClassRegistry( ocOid );
                     computeSuperior( addedOC );
                 }
@@ -1544,14 +1541,14 @@ public class SchemaInterceptor extends BaseInterceptor
     private String getSchemaName( Dn dn ) throws LdapException
     {
         int size = dn.size();
-        
+
         if ( size < 2 )
         {
             throw new LdapException( I18n.err( I18n.ERR_276 ) );
         }
 
         Rdn rdn = dn.getRdn( size - 2 );
-        
+
         return rdn.getNormValue().getString();
     }
 
@@ -1605,8 +1602,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see numbers of values of attributes conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Attribute attribute )
-        throws LdapInvalidAttributeValueException
+    private void assertNumberOfAttributeValuesValid( Attribute attribute ) throws LdapInvalidAttributeValueException
     {
         if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValued() )
         {
@@ -1631,25 +1627,25 @@ public class SchemaInterceptor extends BaseInterceptor
             // include AT names for better error reporting
             StringBuilder sb = new StringBuilder();
             sb.append( '[' );
-            
+
             for( String oid: must )
             {
                 String name = schemaManager.getAttributeType( oid ).getName();
                 sb.append( name )
-                  .append( '(' )
-                  .append( oid )
-                  .append( "), " );
+                .append( '(' )
+                .append( oid )
+                .append( "), " );
             }
-            
+
             int end = sb.length();
             sb.replace( end - 2, end, "" ); // remove the trailing ', '
             sb.append( ']' );
-            
+
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_279,
                 sb, dn.getName() ) );
         }
     }
-    
+
 
     /**
      * Checck that OC does not conflict :

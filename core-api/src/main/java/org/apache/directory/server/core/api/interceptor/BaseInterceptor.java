@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor;
 
@@ -58,9 +58,9 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public abstract class BaseInterceptor implements Interceptor
 {
-	/** The interceptor's name. Default to the class name */
-	private String name;
-	
+    /** The interceptor's name. Default to the class name */
+    private String name;
+
     /** A reference to the DirectoryService instance */
     protected DirectoryService directoryService;
 
@@ -163,7 +163,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+        public boolean compare( CompareOperationContext compareContext ) throws LdapException
         {
             return nexus.compare( compareContext );
         }
@@ -210,9 +210,9 @@ public abstract class BaseInterceptor implements Interceptor
          */
         public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
             throws LdapException
-        {
+            {
             return nexus.lookup( lookupContext );
-        }
+            }
 
 
         /**
@@ -238,9 +238,9 @@ public abstract class BaseInterceptor implements Interceptor
          */
         public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
             throws LdapException
-        {
+            {
             nexus.moveAndRename( moveAndRenameContext );
-        }
+            }
 
 
         /**
@@ -257,9 +257,9 @@ public abstract class BaseInterceptor implements Interceptor
          */
         public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
             throws LdapException
-        {
+            {
             return nexus.search( searchContext );
-        }
+            }
 
 
         /**
@@ -300,7 +300,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected BaseInterceptor()
     {
-    	name = getClass().getSimpleName();
+        name = getClass().getSimpleName();
     }
 
 
@@ -309,13 +309,13 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected BaseInterceptor( String name )
     {
-    	this.name = name;
+        this.name = name;
     }
 
 
     /**
      * This method does nothing by default.
-     * @throws Exception 
+     * @throws Exception
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
@@ -340,7 +340,7 @@ public abstract class BaseInterceptor implements Interceptor
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
-        
+
         FINAL_INTERCEPTOR.init( directoryService );
     }
 
@@ -354,7 +354,7 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * Computes the next interceptor to call for a given operation. If we find none, 
+     * Computes the next interceptor to call for a given operation. If we find none,
      * we return the proxy to the nexus.
      * 
      * @param operationContext The operation context
@@ -362,18 +362,18 @@ public abstract class BaseInterceptor implements Interceptor
      */
     private Interceptor getNextInterceptor( OperationContext operationContext )
     {
-    	String currentInterceptor = operationContext.getNextInterceptor();
-    	
-    	if ( currentInterceptor.equals( "FINAL" ) )
-    	{
-    		return FINAL_INTERCEPTOR;
-    	}
+        String currentInterceptor = operationContext.getNextInterceptor();
 
-    	Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );
-    	
-    	return interceptor;
+        if ( currentInterceptor.equals( "FINAL" ) )
+        {
+            return FINAL_INTERCEPTOR;
+        }
+
+        Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );
+
+        return interceptor;
     }
-    
+
 
     // ------------------------------------------------------------------------
     // Interceptor's Invoke Method
@@ -390,11 +390,56 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
+    public void bind( BindOperationContext bindContext ) throws LdapException
+    {
+        // Do nothing
+    }
+
+
+    /**
+     * Calls the next interceptor for the bind operation.
+     * 
+     * @param bindContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( BindOperationContext bindContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( bindContext );
+
+        interceptor.bind( bindContext );
+    }
+
+
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
+    {
+        // Return false in any case
+        return false;
+    }
+
+
+    /**
+     * Calls the next interceptor for the compare operation.
+     * 
+     * @param compareContext The context in which we are executing this operation
+     * @return a boolean indicating if the comparison is successfull
+     * @throws LdapException If something went wrong
+     */
+    protected final boolean next( CompareOperationContext compareContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( compareContext );
+
+        return interceptor.compare( compareContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-    	// Do nothing
+        // Do nothing
     }
-    
+
 
     /**
      * Calls the next interceptor for the delete operation.
@@ -404,43 +449,44 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected final void next( DeleteOperationContext deleteContext ) throws LdapException
     {
-    	Interceptor interceptor = getNextInterceptor( deleteContext );
-    	
-    	interceptor.delete( deleteContext );
+        Interceptor interceptor = getNextInterceptor( deleteContext );
+
+        interceptor.delete( deleteContext );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
-    	// Nothing to do
+        // Nothing to do
         return null;
     }
-    
-    
+
+
     /**
      * Calls the next interceptor for the getRootDse operation.
      * 
      * @param getRootDseContext The context in which we are executing this operation
+     * @return the rootDSE
      * @throws LdapException If something went wrong
      */
     protected final Entry next( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
-    	Interceptor interceptor = getNextInterceptor( getRootDseContext );
+        Interceptor interceptor = getNextInterceptor( getRootDseContext );
 
         return interceptor.getRootDSE( getRootDseContext );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-    	// Return false in any case
-    	return false;
+        // Return false in any case
+        return false;
     }
 
 
@@ -453,12 +499,12 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected final boolean next( EntryOperationContext hasEntryContext ) throws LdapException
     {
-    	Interceptor interceptor = getNextInterceptor( hasEntryContext );
+        Interceptor interceptor = getNextInterceptor( hasEntryContext );
 
         return interceptor.hasEntry( hasEntryContext );
     }
 
-    
+
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
         return next.list( listContext );
@@ -477,19 +523,6 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-    {
-        next.moveAndRename( moveAndRenameContext );
-    }
-
-
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        next.rename( renameContext );
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -499,40 +532,24 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
+        throws LdapException
+        {
+        next.moveAndRename( moveAndRenameContext );
+        }
+
+
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    {
+        next.rename( renameContext );
+    }
+
+
     public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
         throws LdapException
-    {
+        {
         return next.search( searchContext );
-    }
-
-
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
-    {
-        return next.compare( compareContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        // Do nothing
-    }
-    
-
-    /**
-     * Calls the next interceptor for the bind operation.
-     * 
-     * @param bindContext The context in which we are executing this operation
-     * @throws LdapException If something went wrong
-     */
-    protected final void next( BindOperationContext bindContext ) throws LdapException
-    {
-    	Interceptor interceptor = getNextInterceptor( bindContext );
-    	
-    	interceptor.bind( bindContext );
-    }
+        }
 
 
     /**
@@ -542,8 +559,8 @@ public abstract class BaseInterceptor implements Interceptor
     {
         // Nothing to do
     }
-    
-    
+
+
     /**
      * Compute the next interceptor for the unbind operation.
      * 
@@ -552,7 +569,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected final void next( UnbindOperationContext unbindContext ) throws LdapException
     {
-    	Interceptor interceptor = getNextInterceptor( unbindContext );
+        Interceptor interceptor = getNextInterceptor( unbindContext );
 
         interceptor.unbind( unbindContext );
     }
