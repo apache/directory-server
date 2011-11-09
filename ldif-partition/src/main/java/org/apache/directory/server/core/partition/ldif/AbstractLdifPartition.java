@@ -50,16 +50,7 @@ public abstract class AbstractLdifPartition extends AvlPartition
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Long getDefaultId()
-    {
-        return 1L;
-    }
-
+    
     
     /**
      * {@inheritDoc}

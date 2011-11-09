@@ -221,7 +221,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( Long id ) throws LdapException
+    public void delete( UUID id ) throws LdapException
     {
         Entry entry = lookup( id );
 
@@ -253,7 +253,7 @@ public class LdifPartition extends AbstractLdifPartition
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        Long id = getEntryId( modifyContext.getDn() );
+        UUID id = getEntryId( modifyContext.getDn() );
 
         try
         {
@@ -291,7 +291,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
-        Long id = getEntryId( oldDn );
+        UUID id = getEntryId( oldDn );
 
         super.move( moveContext );
 
@@ -308,7 +308,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
-        Long id = getEntryId( oldDn );
+        UUID id = getEntryId( oldDn );
 
         super.moveAndRename( moveAndRenameContext );
 
@@ -326,7 +326,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
-        Long id = getEntryId( oldDn );
+        UUID id = getEntryId( oldDn );
 
         // Create the new entry
         super.rename( renameContext );
@@ -351,7 +351,7 @@ public class LdifPartition extends AbstractLdifPartition
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
+    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, UUID entryIdOld ) throws LdapException
     {
         // First, add the new entry
         addEntry( modifiedEntry );
@@ -359,14 +359,14 @@ public class LdifPartition extends AbstractLdifPartition
         // Then, if there are some children, move then to the new place
         try
         {
-            IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
+            IndexCursor<UUID> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
 
             while ( cursor.next() )
             {
-                IndexEntry<Long, Long> entry = cursor.get();
+                IndexEntry<UUID> entry = cursor.get();
 
                 // except the parent entry add the rest of entries
-                if ( entry.getId() != entryIdOld )
+                if ( entry.getId().compareTo( entryIdOld ) != 0 )
                 {
                     addEntry( lookup( entry.getId() ) );
                 }
@@ -506,7 +506,7 @@ public class LdifPartition extends AbstractLdifPartition
         if ( !dir.exists() && create )
         {
             // We have to create the entry if it does not have a parent
-            if ( !dir.mkdir() )
+            if ( !dir.mkdirs() )
             {
                 throw new LdapException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dir ) );
             }

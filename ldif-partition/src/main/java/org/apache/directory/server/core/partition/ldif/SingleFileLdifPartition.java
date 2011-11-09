@@ -259,7 +259,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( Long id ) throws LdapException
+    public void delete( UUID id ) throws LdapException
     {
         synchronized ( lock )
         {
@@ -289,21 +289,21 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                Long suffixId = getEntryId( suffixDn );
+                UUID suffixId = getEntryId( suffixDn );
 
                 if( suffixId == null )
                 {
                     return;
                 }
                 
-                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
+                IndexCursor<UUID> cursor = getOneLevelIndex().forwardCursor( suffixId );
 
 
                 appendLdif( lookup( suffixId ) );
 
                 while ( cursor.next() )
                 {
-                    Long childId = cursor.get().getId();
+                    UUID childId = cursor.get().getId();
 
                     Entry entry = lookup( childId );
 
@@ -334,15 +334,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param cursorMap the open cursor map
      * @throws Exception
      */
-    private void appendRecursive( Long entryId, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap ) throws Exception
+    private void appendRecursive( UUID entryId, Map<UUID, IndexCursor<UUID>> cursorMap ) throws Exception
     {
         synchronized ( lock )
         {
 
-            IndexCursor<Long, Entry, Long> cursor = null;
+            IndexCursor<UUID> cursor = null;
             if ( cursorMap == null )
             {
-                cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
+                cursorMap = new HashMap<UUID, IndexCursor<UUID>>();
             }
 
             cursor = cursorMap.get( entryId );
@@ -363,10 +363,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 do
                 {
-                    IndexEntry<Long, Long> idxEntry = cursor.get();
+                    IndexEntry<UUID> idxEntry = cursor.get();
                     Entry entry = lookup( idxEntry.getId() );
 
-                    Long childId = getEntryId( entry.getDn() );
+                    UUID childId = getEntryId( entry.getDn() );
 
                     appendLdif( entry );
 
