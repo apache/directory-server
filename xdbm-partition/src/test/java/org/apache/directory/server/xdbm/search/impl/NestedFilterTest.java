@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -70,7 +71,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -174,21 +175,21 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 7 ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -203,11 +204,11 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse(schemaManager, filter);
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -224,9 +225,9 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
 
-        Set<Long> set = new HashSet<Long>();
+        Set<UUID> set = new HashSet<UUID>();
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
@@ -234,8 +235,8 @@ public class NestedFilterTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 2, set.size() );
-        assertTrue( set.contains( 7L ) );
-        assertTrue( set.contains( 8L ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 8 ) ) );
 
         assertFalse( cursor.next() );
     }
@@ -249,6 +250,6 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
     }
 }

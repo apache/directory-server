@@ -21,10 +21,13 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdnComparator;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -35,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
+public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
 {
 
     public AvlRdnIndex()
@@ -72,41 +75,41 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
             throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
-        ParentIdAndRdnComparator<Long> comp = new ParentIdAndRdnComparator<Long>( mr.getOid() );
+        ParentIdAndRdnComparator comp = new ParentIdAndRdnComparator( mr.getOid() );
 
-        LongComparator.INSTANCE.setSchemaManager( schemaManager );
+        //UUIDComparator.INSTANCE.setSchemaManager( schemaManager );
 
         /*
          * The forward key/value map stores attribute values to master table 
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<ParentIdAndRdn<Long>, Long>( attributeType.getName(), comp, LongComparator.INSTANCE,
+        forward = new AvlTable<ParentIdAndRdn, UUID>( attributeType.getName(), comp, UUIDComparator.INSTANCE,
             false );
-        reverse = new AvlTable<Long, ParentIdAndRdn<Long>>( attributeType.getName(), LongComparator.INSTANCE, comp,
+        reverse = new AvlTable<UUID, ParentIdAndRdn>( attributeType.getName(), UUIDComparator.INSTANCE, comp,
             false );
     }
 
 
-    public void add( ParentIdAndRdn<Long> rdn, Long entryId ) throws Exception
+    public void add( ParentIdAndRdn rdn, UUID entryId ) throws Exception
     {
         forward.put( rdn, entryId );
         reverse.put( entryId, rdn );
     }
 
 
-    public void drop( Long entryId ) throws Exception
+    public void drop( UUID entryId ) throws Exception
     {
-        ParentIdAndRdn<Long> rdn = reverse.get( entryId );
+        ParentIdAndRdn rdn = reverse.get( entryId );
         forward.remove( rdn );
         reverse.remove( entryId );
     }
 
 
-    public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
+    public void drop( ParentIdAndRdn rdn, UUID id ) throws Exception
     {
-        long val = forward.get( rdn );
-        if ( val == id )
+        UUID val = forward.get( rdn );
+        if ( val.compareTo( id ) == 0 )
         {
             forward.remove( rdn );
             reverse.remove( val );
@@ -114,7 +117,7 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
     }
 
 
-    public ParentIdAndRdn<Long> getNormalized( ParentIdAndRdn<Long> rdn ) throws Exception
+    public ParentIdAndRdn getNormalized( ParentIdAndRdn rdn ) throws Exception
     {
         return rdn;
     }

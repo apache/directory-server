@@ -21,11 +21,13 @@ package org.apache.directory.server.core.partition.impl.avl;
 
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
 import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;
@@ -45,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlPartition extends AbstractBTreePartition<Long>
+public class AvlPartition extends AbstractBTreePartition
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartition.class );
@@ -67,8 +69,8 @@ public class AvlPartition extends AbstractBTreePartition<Long>
     {
         if ( !initialized )
         {
-            EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( this, schemaManager );
-            CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( this, evaluatorBuilder );
+            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
+            CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
     
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
@@ -77,41 +79,22 @@ public class AvlPartition extends AbstractBTreePartition<Long>
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry, Long>( this );
+                optimizer = new DefaultOptimizer( this );
             }
     
-            searchEngine = new DefaultSearchEngine<Long>( this, cursorBuilder, evaluatorBuilder, optimizer );
+            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
     
             if ( isInitialized() )
             {
                 return;
             }
-    
+            
             // Create the master table (the table containing all the entries)
-            master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
+            master = new AvlMasterTable( id, UUIDComparator.INSTANCE, null, false );
     
             super.doInit();
         }
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Long getDefaultId()
-    {
-        return 1L;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Long getRootId()
-    {
-        return 0L;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -143,17 +126,17 @@ public class AvlPartition extends AbstractBTreePartition<Long>
 
 
     @Override
-    protected Index<?, Entry, Long> convertAndInit( Index<?, Entry, Long> index ) throws Exception
+    protected Index<?> convertAndInit( Index<?> index ) throws Exception
     {
-        AvlIndex<?, Entry> avlIndex;
+        AvlIndex<?> avlIndex;
 
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
-            avlIndex = new AvlRdnIndex<Entry>( index.getAttributeId() );
+            avlIndex = new AvlRdnIndex( index.getAttributeId() );
         }
-        else if ( index instanceof AvlIndex<?, ?> )
+        else if ( index instanceof AvlIndex<?> )
         {
-            avlIndex = (AvlIndex<?, Entry> ) index;
+            avlIndex = (AvlIndex<?> ) index;
         }
         else
         {

@@ -72,7 +72,7 @@ public class AndCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store store;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     private static SchemaManager schemaManager;
@@ -175,23 +175,23 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse(schemaManager, filter);
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -207,12 +207,12 @@ public class AndCursorTest
     {
         AndNode andNode = new AndNode();
 
-        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
-        Evaluator<? extends ExprNode, Entry, Long> eval;
+        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
+        Evaluator<? extends ExprNode> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( (SubstringNode) exprNode, store, schemaManager );
-        IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        IndexCursor<?> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -226,25 +226,25 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        IndexCursor<?> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
 
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -254,19 +254,19 @@ public class AndCursorTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );

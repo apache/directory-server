@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -74,7 +75,7 @@ public class NotCursorTest
     UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -173,13 +174,13 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?> cursor = cursorBuilder.build( exprNode );
 
         assertFalse( cursor.available() );
 
         cursor.beforeFirst();
 
-        Set<Long> set = new HashSet<Long>();
+        Set<UUID> set = new HashSet<UUID>();
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
@@ -187,11 +188,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -207,14 +208,14 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( (SubstringNode) exprNode, store,
+        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( (SubstringNode) exprNode, store,
             schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor<String, Long> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
-        Set<Long> set = new HashSet<Long>();
+        Set<UUID> set = new HashSet<UUID>();
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
@@ -222,11 +223,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -241,11 +242,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -261,7 +262,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry<String, Long>() );
+            cursor.after( new ForwardIndexEntry<String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -270,7 +271,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry<String, Long>() );
+            cursor.before( new ForwardIndexEntry<String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

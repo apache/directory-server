@@ -42,7 +42,8 @@ public class StoreUtils
     /** CSN factory instance */
     private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
-
+    
+    
     /**
      * Initializes and loads a store with the example data shown in
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
@@ -57,8 +58,9 @@ public class StoreUtils
      */
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Store store, SchemaManager schemaManager ) throws Exception
     {
+        int idx = 1;
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
 
         // Entry #1
@@ -67,7 +69,7 @@ public class StoreUtils
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #2
         Dn dn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
@@ -76,7 +78,7 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #3
         dn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
@@ -85,7 +87,7 @@ public class StoreUtils
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #4
         dn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
@@ -94,7 +96,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #5
         dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -105,7 +107,7 @@ public class StoreUtils
         entry.add( "sn", "WAlkeR" );
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #6
         dn = new Dn( schemaManager, "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -116,7 +118,7 @@ public class StoreUtils
         entry.add( "surName", "BEAN" );
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #7
         dn = new Dn( schemaManager, "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -125,7 +127,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #8
         dn = new Dn( schemaManager, "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -136,7 +138,7 @@ public class StoreUtils
         entry.add( "SN", "Daniels" );
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // aliases -------------
 
@@ -147,7 +149,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #10
         dn = new Dn( schemaManager, "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -155,7 +157,7 @@ public class StoreUtils
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
 
         // Entry #11
         dn = new Dn( schemaManager, "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -164,7 +166,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3", "Johnny Walker" );
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, idx++ );
     }
     
     
@@ -176,14 +178,27 @@ public class StoreUtils
      * @param store the store
      * @param dn the normalized Dn
      * @param entry the server entry
+     * @param idx index used to build the entry uuid
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store<Entry, Long> store, Entry entry ) throws Exception
+    public static void injectEntryInStore( Store store, Entry entry, int idx ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, getUUIDString( idx ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         ((Partition)store).add( addContext );
+    }
+    
+    public static UUID getUUIDString( int idx )
+    {
+        /** UUID string */
+        UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
+        
+        long low = baseUUID.getLeastSignificantBits();
+        long high = baseUUID.getMostSignificantBits();
+        low = low + idx;
+        
+        return new UUID( high, low );
     }
 }

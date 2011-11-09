@@ -21,9 +21,12 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.partition.index.MasterTable;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -32,12 +35,12 @@ import org.apache.directory.server.core.api.partition.index.MasterTable;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<Long, E>
+public class AvlMasterTable extends AvlTable<UUID, Entry> implements MasterTable
 {
     private AtomicLong counter = new AtomicLong( 0 );
     
     
-    public AvlMasterTable( String name, Comparator<Long> keyComparator, Comparator<E> valComparator, 
+    public AvlMasterTable( String name, Comparator<UUID> keyComparator, Comparator<Entry> valComparator, 
         boolean dupsEnabled )
     {
         super( name, keyComparator, valComparator, dupsEnabled );
@@ -47,9 +50,11 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
     /**
      * {@inheritDoc}
      */
-    public Long getNextId( E entry ) throws Exception
+    public UUID getNextId( Entry entry ) throws Exception
     {
-        return counter.incrementAndGet();
+        String name = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+        UUID uuid = UUID.fromString( name );
+        return uuid; 
     }
     
     
@@ -58,6 +63,6 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
      */
     public void resetCounter() throws Exception
     {
-        counter.set( 0L );
+        
     }
 }

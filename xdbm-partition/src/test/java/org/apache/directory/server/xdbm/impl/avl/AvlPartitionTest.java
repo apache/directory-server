@@ -164,21 +164,21 @@ public class AvlPartitionTest
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getAliasIndex() );
 
         assertEquals( 0, avlPartition.getCacheSize() );
 
         assertNull( avlPartition.getPresenceIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( avlPartition.getPresenceIndex() );
 
         assertNull( avlPartition.getOneLevelIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
         assertNotNull( avlPartition.getOneLevelIndex() );
 
         assertNull( avlPartition.getSubLevelIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         assertNotNull( avlPartition.getSubLevelIndex() );
 
         assertNull( avlPartition.getId() );
@@ -190,11 +190,11 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getRdnIndex() );
 
         assertNull( avlPartition.getOneAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getOneAliasIndex() );
 
         assertNull( avlPartition.getSubAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getSubAliasIndex() );
 
         assertNull( avlPartition.getSuffixDn() );
@@ -204,7 +204,7 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getSuffixDn() );
 
         assertFalse( avlPartition.getUserIndices().hasNext() );
-        avlPartition.addIndex( new AvlIndex<Object, Entry>( "2.5.4.3" ) );
+        avlPartition.addIndex( new AvlIndex<Object>( "2.5.4.3" ) );
         assertTrue( avlPartition.getUserIndices().hasNext() );
 
         assertNull( avlPartition.getPartitionPath() );
@@ -228,7 +228,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -240,7 +240,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+            partition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -251,7 +251,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+            partition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -262,7 +262,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+            partition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -296,7 +296,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -307,7 +307,7 @@ public class AvlPartitionTest
         
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<UUID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -398,34 +398,34 @@ public class AvlPartitionTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( 1L, ( long ) partition.getEntryId( dn ) );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ),  partition.getEntryId( dn ) );
         assertEquals( 11, partition.count() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) partition.getParentId( partition.getEntryId( dn ) ) );
-        assertNull( partition.getParentId( 0L ) );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000000" ), partition.getParentId( partition.getEntryId( dn ) ) );
+        assertNull( partition.getParentId( UUID.fromString( "00000000-0000-0000-0000-000000000000" ) ) );
 
         // should be allowed
-        partition.delete( 1L );
+        partition.delete( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 3, partition.getChildCount( 1L ) );
+        assertEquals( 3, partition.getChildCount( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) ) );
 
-        Cursor<IndexEntry<Long, Long>> cursor = partition.list( 1L );
+        Cursor<IndexEntry<UUID>> cursor = partition.list( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 2 ),  cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 3, partition.getChildCount( 1L ) );
+        assertEquals( 3, partition.getChildCount( StoreUtils.getUUIDString( 1 ) ) );
 
-        partition.delete( 2L );
+        partition.delete( StoreUtils.getUUIDString( 2 ) );
 
-        assertEquals( 2, partition.getChildCount( 1L ) );
+        assertEquals( 2, partition.getChildCount( StoreUtils.getUUIDString( 1 ) ) );
         assertEquals( 10, partition.count() );
 
         // add an alias and delete to test dropAliasIndices method
@@ -436,12 +436,12 @@ public class AvlPartitionTest
         entry.add( "commonName", "Jack Daniels" );
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
-        partition.delete( 12L );
+        partition.delete( StoreUtils.getUUIDString( 12 ) );
     }
 
 
@@ -452,28 +452,28 @@ public class AvlPartitionTest
 
         assertEquals( 19, idx.count() );
 
-        Cursor<IndexEntry<Long, Long>> cursor = idx.forwardCursor( 2L );
+        Cursor<IndexEntry<UUID>> cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
 
         assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
 
         assertTrue( cursor.next() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
 
         assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
 
         assertFalse( cursor.next() );
 
-        idx.drop( 5L );
+        idx.drop( StoreUtils.getUUIDString( 5 ) );
 
-        cursor = idx.forwardCursor( 2L );
-
-        assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
+        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
 
         assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+
+        assertTrue( cursor.next() );
+        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
 
         assertFalse( cursor.next() );
 
@@ -484,25 +484,25 @@ public class AvlPartitionTest
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
-        cursor = idx.forwardCursor( 2L );
+        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
         cursor.afterLast();
         assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
 
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
         Dn newDn = newParentDn.add( martinDn.getRdn() );
         partition.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
 
-        cursor = idx.forwardCursor( 3L );
+        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 3 ) );
         cursor.afterLast();
         assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
 
         // dn id 13
         Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
@@ -510,7 +510,7 @@ public class AvlPartitionTest
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Marketing" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 13 ).toString() );
 
         addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -522,7 +522,7 @@ public class AvlPartitionTest
         entry.add( "ou", "Marketing" );
         entry.add( "cn", "Jimmy Wales" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 14 ).toString() );
 
         addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -530,29 +530,29 @@ public class AvlPartitionTest
         newDn = newParentDn.add( marketingDn.getRdn() );
         partition.move( marketingDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
 
-        cursor = idx.forwardCursor( 3L );
+        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 3 ) );
         cursor.afterLast();
 
         assertTrue( cursor.previous() );
-        assertEquals( 14, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 14 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 13, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 13 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 10 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 7 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
+        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
 
         assertFalse( cursor.previous() );
     }
@@ -580,6 +580,7 @@ public class AvlPartitionTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn", "Martin King" );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 15 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -593,6 +594,7 @@ public class AvlPartitionTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 16 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -622,7 +624,7 @@ public class AvlPartitionTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 17 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -642,7 +644,7 @@ public class AvlPartitionTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 18 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -652,7 +654,7 @@ public class AvlPartitionTest
         partition.rename( dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        Long id = partition.getEntryId( dn2 );
+        UUID id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.lookup( id );
         assertEquals( "ja+es", entry2.get( "sn" ).getString() );
@@ -668,7 +670,7 @@ public class AvlPartitionTest
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn", "Private Ryan" );
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", UUID.randomUUID().toString() );
+        childEntry.add( "entryUUID", StoreUtils.getUUIDString( 19 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
         partition.add( addContext );
@@ -777,7 +779,7 @@ public class AvlPartitionTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry.add( "entryUUID", StoreUtils.getUUIDString( 20 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );

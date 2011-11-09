@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -47,7 +48,7 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface Store<E, ID extends Comparable<ID>>
+public interface Store
 {
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
@@ -133,7 +134,7 @@ public interface Store<E, ID extends Comparable<ID>>
      *
      * @return the root ID
      */
-    ID getRootId();
+    UUID getRootId();
 
     /**
      * Sets the flag telling the server to flush on disk when some
@@ -172,7 +173,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, E, ID> index ) throws Exception;
+    void addIndex( Index<?> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -181,61 +182,61 @@ public interface Store<E, ID extends Comparable<ID>>
     /**
      * @return The Presence system index
      */
-    Index<String, E, ID> getPresenceIndex();
+    Index<String> getPresenceIndex();
 
 
     /**
      * @return The OneLevel system index
      */
-    Index<ID, E, ID> getOneLevelIndex();
+    Index<UUID> getOneLevelIndex();
 
 
     /**
      * @return The SubLevel system index
      */
-    Index<ID, E, ID> getSubLevelIndex();
+    Index<UUID> getSubLevelIndex();
 
 
     /**
      * @return The Alias system index
      */
-    Index<String, E, ID> getAliasIndex();
+    Index<String> getAliasIndex();
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<ID, E, ID> getOneAliasIndex();
+    Index<UUID> getOneAliasIndex();
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<ID, E, ID> getSubAliasIndex();
+    Index<UUID> getSubAliasIndex();
 
 
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn<ID>, E, ID> getRdnIndex();
+    Index<ParentIdAndRdn> getRdnIndex();
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, E, ID> getObjectClassIndex();
+    Index<String> getObjectClassIndex();
 
 
     /**
      * @return The EntryUUID system index
      */
-    Index<String, E, ID> getEntryUuidIndex();
+    Index<String> getEntryUuidIndex();
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, E, ID> getEntryCsnIndex();
+    Index<String> getEntryCsnIndex();
 
 
     /**
@@ -287,7 +288,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -296,7 +297,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -305,7 +306,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -314,7 +315,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param dn the normalized entry Dn
      * @return the entry's id, or <code>null</code> if the Dn doesn't exists
      */
-    ID getEntryId( Dn dn ) throws Exception;
+    UUID getEntryId( Dn dn ) throws Exception;
 
 
     /**
@@ -323,7 +324,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id the entry's id
      * @return the entry's Dn
      */
-    Dn getEntryDn( ID id ) throws Exception;
+    Dn getEntryDn( UUID id ) throws Exception;
 
 
     /**
@@ -334,7 +335,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the id of the parent entry or zero if the suffix entry ID is used
      * @throws Exception on failures to access the underlying store
      */
-    ID getParentId( ID childId ) throws Exception;
+    UUID getParentId( UUID childId ) throws Exception;
 
 
     /**
@@ -352,7 +353,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id The Entry ID we want to delete
      * @throws Exception If the deletion failed for any reason
      */
-    void delete( ID id ) throws Exception;
+    void delete( UUID id ) throws Exception;
 
 
     /**
@@ -362,7 +363,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    IndexCursor<ID, E, ID> list( ID id ) throws Exception;
+    IndexCursor<UUID> list( UUID id ) throws Exception;
 
 
     /**
@@ -372,7 +373,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( ID id ) throws Exception;
+    Entry lookup( UUID id ) throws Exception;
 
     
     /**
@@ -382,7 +383,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the child count 
      * @throws Exception on failures to access the underlying store
      */
-    int getChildCount( ID id ) throws Exception;
+    int getChildCount( UUID id ) throws Exception;
 
 
     /**
@@ -457,5 +458,5 @@ public interface Store<E, ID extends Comparable<ID>>
      *
      * @return the default ID.
      */
-    ID getDefaultId() throws Exception;
+    UUID getDefaultId() throws Exception;
 }

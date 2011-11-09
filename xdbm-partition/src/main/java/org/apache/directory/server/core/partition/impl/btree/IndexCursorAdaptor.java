@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -40,12 +41,12 @@ import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
+public class IndexCursorAdaptor<K> implements IndexCursor<K>
 {
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
-    final ForwardIndexEntry<K, ID> forwardEntry;
-    final ReverseIndexEntry<K, ID> reverseEntry;
+    final ForwardIndexEntry<K> forwardEntry;
+    final ReverseIndexEntry<K> reverseEntry;
 
 
     /**
@@ -63,13 +64,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
         
         if ( forwardIndex )
         {
-            forwardEntry = new ForwardIndexEntry<K, ID>();
+            forwardEntry = new ForwardIndexEntry<K>();
             reverseEntry = null;
         }
         else
         {
             forwardEntry = null;
-            reverseEntry = new ReverseIndexEntry<K, ID>();
+            reverseEntry = new ReverseIndexEntry<K>();
         }
     }
 
@@ -81,7 +82,7 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 
 
     @SuppressWarnings("unchecked")
-    public void beforeValue( ID id, K key ) throws Exception
+    public void beforeValue( UUID id, K key ) throws Exception
     {
         if ( wrappedCursor instanceof TupleCursor )
         {
@@ -91,7 +92,7 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 
 
     @SuppressWarnings("unchecked")
-    public void afterValue( ID id, K key ) throws Exception
+    public void afterValue( UUID id, K key ) throws Exception
     {
         if ( wrappedCursor instanceof TupleCursor )
         {
@@ -100,13 +101,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     }
 
 
-    public void before( IndexEntry<K, ID> element ) throws Exception
+    public void before( IndexEntry<K> element ) throws Exception
     {
         wrappedCursor.before( element.getTuple() );
     }
 
 
-    public void after( IndexEntry<K, ID> element ) throws Exception
+    public void after( IndexEntry<K> element ) throws Exception
     {
         wrappedCursor.after( element.getTuple() );
     }
@@ -155,17 +156,17 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<K, ID> get() throws Exception
+    public IndexEntry<K> get() throws Exception
     {
         if ( forwardEntry != null )
         {
-            Tuple<K, ID> tuple = wrappedCursor.get();
+            Tuple<K, UUID> tuple = wrappedCursor.get();
             forwardEntry.setTuple( tuple, null );
             return forwardEntry;
         }
         else
         {
-            Tuple<ID, K> tuple = wrappedCursor.get();
+            Tuple<UUID, K> tuple = wrappedCursor.get();
             reverseEntry.setTuple( tuple, null );
             return reverseEntry;
         }
@@ -190,9 +191,9 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     }
 
 
-    public Iterator<IndexEntry<K, ID>> iterator()
+    public Iterator<IndexEntry<K>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, ID>>( this );
+        return new CursorIterator<IndexEntry<K>>( this );
     }
 
 

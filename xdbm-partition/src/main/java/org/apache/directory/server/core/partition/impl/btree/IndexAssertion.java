@@ -30,7 +30,7 @@ import org.apache.directory.server.core.api.partition.index.IndexEntry;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface IndexAssertion<K, E, ID>
+public interface IndexAssertion<K>
 {
     /**
      * Tests to see if a perspective candidate should be returned based on 
@@ -44,5 +44,5 @@ public interface IndexAssertion<K, E, ID>
      * @throws Exception if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexEntry<K, ID> entry ) throws Exception;
+    boolean assertCandidate( IndexEntry<K> entry ) throws Exception;
 }
