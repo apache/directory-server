@@ -311,7 +311,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check to see if target entry exists
         Dn newDn = renameContext.getNewDn();
 
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
+        if ( nexus.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );

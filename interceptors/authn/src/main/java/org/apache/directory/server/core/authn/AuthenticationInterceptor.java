@@ -405,7 +405,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -415,7 +418,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( hasEntryContext );
         checkPwdReset( hasEntryContext );
         
-        return next.hasEntry( hasEntryContext );
+        return next( hasEntryContext );
     }
 
 

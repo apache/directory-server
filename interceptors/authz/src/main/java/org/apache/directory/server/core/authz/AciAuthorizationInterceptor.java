@@ -815,16 +815,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         Dn dn = hasEntryContext.getDn();
 
         if ( !directoryService.isAccessControlEnabled() )
         {
-            return ( dn.isRootDSE() || next.hasEntry( hasEntryContext ) );
+            return ( dn.isRootDSE() || next( hasEntryContext ) );
         }
 
-        boolean answer = next.hasEntry( hasEntryContext );
+        boolean answer = next( hasEntryContext );
 
         // no checks on the RootDSE
         if ( dn.isRootDSE() )
@@ -866,7 +869,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        return next.hasEntry( hasEntryContext );
+        return next( hasEntryContext );
     }
 
 

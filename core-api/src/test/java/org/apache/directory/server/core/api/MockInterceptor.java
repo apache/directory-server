@@ -82,14 +82,26 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
-        throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         interceptors.add( this );
-        return next( getRootDseContext );
+        next.add( addContext );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public void bind( BindOperationContext bindContext ) throws LdapException
+    {
+        interceptors.add( this );
+        next( bindContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
         interceptors.add( this );
@@ -107,20 +119,30 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
+        throws LdapException
     {
         interceptors.add( this );
-        next.add( addContext );
+        return next( getRootDseContext );
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         interceptors.add( this );
-        next.modify( modifyContext );
+        return next( hasEntryContext );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
         interceptors.add( this );
@@ -128,13 +150,9 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
-    {
-        interceptors.add( this );
-        return next.search( searchContext );
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         interceptors.add( this );
@@ -142,20 +160,19 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         interceptors.add( this );
-        return next.hasEntry( hasEntryContext );
+        next.modify( modifyContext );
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        interceptors.add( this );
-        next.rename( renameContext );
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         interceptors.add( this );
@@ -163,6 +180,9 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         interceptors.add( this );
@@ -170,10 +190,23 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( BindOperationContext bindContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         interceptors.add( this );
-        next( bindContext );
+        next.rename( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    {
+        interceptors.add( this );
+        return next.search( searchContext );
     }
 
 

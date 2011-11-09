@@ -142,9 +142,39 @@ public abstract class BaseInterceptor implements Interceptor
         }
 
 
+        /**
+         * {@inheritDoc}
+         */
+        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+        {
+            nexus.add( addContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public void bind( BindOperationContext bindContext ) throws LdapException
+        {
+            nexus.bind( bindContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
         public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
         {
             return nexus.compare( compareContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public void delete( DeleteOperationContext deleteContext ) throws LdapException
+        {
+            nexus.delete( deleteContext );
         }
 
 
@@ -160,37 +190,24 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void delete( DeleteOperationContext deleteContext ) throws LdapException
+        public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
         {
-            nexus.delete( deleteContext );
+            return nexus.hasEntry( hasEntryContext );
         }
 
 
-        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
-        {
-            nexus.add( addContext );
-        }
-
-
-        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
-        {
-            nexus.modify( modifyContext );
-        }
-
-
+        /**
+         * {@inheritDoc}
+         */
         public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
         {
             return nexus.list( listContext );
         }
 
 
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
-            throws LdapException
-        {
-            return nexus.search( searchContext );
-        }
-
-
+        /**
+         * {@inheritDoc}
+         */
         public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
             throws LdapException
         {
@@ -198,24 +215,27 @@ public abstract class BaseInterceptor implements Interceptor
         }
 
 
-        public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+        /**
+         * {@inheritDoc}
+         */
+        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
         {
-            return nexus.hasEntry( hasEntryContext );
+            nexus.modify( modifyContext );
         }
 
 
-        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-        {
-            nexus.rename( renameContext );
-        }
-
-
+        /**
+         * {@inheritDoc}
+         */
         public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
         {
             nexus.move( moveContext );
         }
 
 
+        /**
+         * {@inheritDoc}
+         */
         public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
             throws LdapException
         {
@@ -223,9 +243,22 @@ public abstract class BaseInterceptor implements Interceptor
         }
 
 
-        public void bind( BindOperationContext bindContext ) throws LdapException
+        /**
+         * {@inheritDoc}
+         */
+        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
         {
-            nexus.bind( bindContext );
+            nexus.rename( renameContext );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
+            throws LdapException
+        {
+            return nexus.search( searchContext );
         }
 
 
@@ -401,12 +434,31 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
     
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-        return next.hasEntry( hasEntryContext );
+    	// Return false in any case
+    	return false;
     }
 
 
+    /**
+     * Calls the next interceptor for the hasEntry operation.
+     * 
+     * @param hasEntryContext The context in which we are executing this operation
+     * @return a boolean indicating if the entry exists on the server
+     * @throws LdapException If something went wrong
+     */
+    protected final boolean next( EntryOperationContext hasEntryContext ) throws LdapException
+    {
+    	Interceptor interceptor = getNextInterceptor( hasEntryContext );
+
+        return interceptor.hasEntry( hasEntryContext );
+    }
+
+    
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
         return next.list( listContext );

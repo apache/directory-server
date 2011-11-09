@@ -223,7 +223,9 @@ public abstract class ServerContext implements EventContext
         session = bindContext.getSession();
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -256,7 +258,9 @@ public abstract class ServerContext implements EventContext
         session = new DefaultCoreSession( principal, service );
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -278,7 +282,9 @@ public abstract class ServerContext implements EventContext
         this.session = session;
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -1313,7 +1319,9 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            if ( operationManager.hasEntry( new EntryOperationContext( session, target ) ) )
+            EntryOperationContext hasEntryContext = new EntryOperationContext( session, target );
+            
+            if ( operationManager.hasEntry( hasEntryContext ) )
             {
                 doDeleteOperation( target );
             }

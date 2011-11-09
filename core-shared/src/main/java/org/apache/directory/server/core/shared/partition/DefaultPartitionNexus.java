@@ -796,7 +796,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 for ( Partition partition : partitions.values() )
                 {
                     Dn contextDn = partition.getSuffixDn();
-                    EntryOperationContext hasEntryContext = new EntryOperationContext( null, contextDn );
+                    EntryOperationContext hasEntryContext = new EntryOperationContext( searchContext.getSession(), contextDn );
+                    
                     // search only if the context entry exists
                     if( partition.hasEntry( hasEntryContext ) )
                     {

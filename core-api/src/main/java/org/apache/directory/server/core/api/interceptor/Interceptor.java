@@ -167,7 +167,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#hasEntry( EntryOperationContext )} call.
      */
-    boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException;
+    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**

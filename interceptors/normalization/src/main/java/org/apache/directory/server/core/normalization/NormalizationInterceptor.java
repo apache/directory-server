@@ -286,10 +286,11 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         hasEntryContext.getDn().apply( schemaManager );
-        return nextInterceptor.hasEntry( hasEntryContext );
+        
+        return next( hasEntryContext );
     }
 
 

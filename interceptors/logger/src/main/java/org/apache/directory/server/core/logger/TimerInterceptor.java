@@ -305,10 +305,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        boolean hasEntry = next.hasEntry( hasEntryContext );
+        boolean hasEntry = next( hasEntryContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

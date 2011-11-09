@@ -45,32 +45,20 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 public interface NextInterceptor
 {
     /**
+     * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
+     */
+    void add( AddOperationContext addContext ) throws LdapException;
+
+    /**
      * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
      */
     boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
-     */
-    void add( AddOperationContext addContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
-     */
-    void modify( ModifyOperationContext modifyContext ) throws LdapException;
-
-    /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
     EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext searchContext )}.
-     */
-    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
@@ -80,15 +68,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#hasEntry( NextInterceptor, EntryOperationContext )}.
+     * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
      */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
-     */
-    void rename( RenameOperationContext renameContext ) throws LdapException;
+    void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**
@@ -101,4 +83,16 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, MoveAndRenameOperationContext )}.
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
+
+
+    /**
+     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
+     */
+    void rename( RenameOperationContext renameContext ) throws LdapException;
+
+
+    /**
+     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext searchContext )}.
+     */
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 }
