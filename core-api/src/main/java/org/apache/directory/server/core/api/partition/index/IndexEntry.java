@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+import java.util.UUID;
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -30,9 +32,8 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
- * @param <ID> The ID of the object
  */
-public interface IndexEntry<V, ID>
+public interface IndexEntry<V>
 {
     /**
      * Gets the value referred to by this IndexEntry.
@@ -55,7 +56,7 @@ public interface IndexEntry<V, ID>
      *
      * @return the id of the indexed Entry
      */
-    ID getId();
+    UUID getId();
 
 
     /**
@@ -63,7 +64,7 @@ public interface IndexEntry<V, ID>
      *
      * @param id the id of the indexed Entry
      */
-    void setId( ID id );
+    void setId( UUID id );
 
 
     /**
@@ -101,5 +102,5 @@ public interface IndexEntry<V, ID>
      *
      * @param entry the entry to copy fields of
      */
-    void copy( IndexEntry<V, ID> entry );
+    void copy( IndexEntry<V> entry );
 }

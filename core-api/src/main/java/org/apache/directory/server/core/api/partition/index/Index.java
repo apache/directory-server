@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.partition.index;
 
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -35,10 +36,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <K> The Indexed value type, used to retrieve an element
- * @param <O> The indexed element type, when retrieved
- * @param <ID> The unique identifier type in the master table
  */
-public interface Index<K, O, ID>
+public interface Index<K>
 {
     /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;
@@ -148,10 +147,10 @@ public interface Index<K, O, ID>
     int lessThanCount( K attrVal ) throws Exception;
 
 
-    ID forwardLookup( K attrVal ) throws Exception;
+    UUID forwardLookup( K attrVal ) throws Exception;
 
 
-    K reverseLookup( ID id ) throws Exception;
+    K reverseLookup( UUID id ) throws Exception;
 
 
     /**
@@ -162,7 +161,7 @@ public interface Index<K, O, ID>
      * @param id The element ID pointed by the added value
      * @throws Exception If the addition can't be done
      */
-    void add( K attrVal, ID id ) throws Exception;
+    void add( K attrVal, UUID id ) throws Exception;
 
 
     /**
@@ -192,7 +191,7 @@ public interface Index<K, O, ID>
      * @param entryId The master table entry ID to remove
      * @throws Exception
      */
-    void drop( ID entryId ) throws Exception;
+    void drop( UUID entryId ) throws Exception;
 
 
     /**
@@ -202,65 +201,65 @@ public interface Index<K, O, ID>
      * @param id The associated ID
      * @throws Exception If the removal can't be done
      */
-    void drop( K attrVal, ID id ) throws Exception;
+    void drop( K attrVal, UUID id ) throws Exception;
 
 
-    IndexCursor<K, O, ID> reverseCursor() throws Exception;
+    IndexCursor<K> reverseCursor() throws Exception;
 
 
-    IndexCursor<K, O, ID> forwardCursor() throws Exception;
+    IndexCursor<K> forwardCursor() throws Exception;
 
 
-    IndexCursor<K, O, ID> reverseCursor( ID id ) throws Exception;
+    IndexCursor<K> reverseCursor( UUID id ) throws Exception;
 
 
-    IndexCursor<K, O, ID> forwardCursor( K key ) throws Exception;
+    IndexCursor<K> forwardCursor( K key ) throws Exception;
 
 
-    Cursor<K> reverseValueCursor( ID id ) throws Exception;
+    Cursor<K> reverseValueCursor( UUID id ) throws Exception;
 
 
-    Cursor<ID> forwardValueCursor( K key ) throws Exception;
+    Cursor<UUID> forwardValueCursor( K key ) throws Exception;
 
 
     boolean forward( K attrVal ) throws Exception;
 
 
-    boolean forward( K attrVal, ID id ) throws Exception;
+    boolean forward( K attrVal, UUID id ) throws Exception;
 
 
-    boolean reverse( ID id ) throws Exception;
+    boolean reverse( UUID id ) throws Exception;
 
 
-    boolean reverse( ID id, K attrVal ) throws Exception;
+    boolean reverse( UUID id, K attrVal ) throws Exception;
 
 
     boolean forwardGreaterOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardGreaterOrEq( K attrVal, ID id ) throws Exception;
+    boolean forwardGreaterOrEq( K attrVal, UUID id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( ID id ) throws Exception;
+    boolean reverseGreaterOrEq( UUID id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( ID id, K attrVal ) throws Exception;
+    boolean reverseGreaterOrEq( UUID id, K attrVal ) throws Exception;
 
 
     boolean forwardLessOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardLessOrEq( K attrVal, ID id ) throws Exception;
+    boolean forwardLessOrEq( K attrVal, UUID id ) throws Exception;
 
 
-    boolean reverseLessOrEq( ID id ) throws Exception;
+    boolean reverseLessOrEq( UUID id ) throws Exception;
 
 
-    boolean reverseLessOrEq( ID id, K attrVal ) throws Exception;
+    boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception;
 
-    public ForwardIndexComparator<K,ID> getForwardIndexEntryComparator();
+    public ForwardIndexComparator<K> getForwardIndexEntryComparator();
 
-    public ReverseIndexComparator<K,ID> getReverseIndexEntryComparator();
+    public ReverseIndexComparator<K> getReverseIndexEntryComparator();
 
     void close() throws Exception;
 

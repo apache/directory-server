@@ -53,19 +53,5 @@ public interface TxnManager<ID>
      * @throws IOException
      */
     void abortTransaction() throws IOException;
-    
-    /**
-     * Returns the id comparator used by the txn manager. 
-     *
-     * @return id comparator
-     */
-    Comparator<ID> getIDComparator();
-    
-    
-    /**
-     * Returns the id serializer used by the txn manager.
-     *
-     * @return id serializer 
-     */
-    Serializer getIDSerializer();
+  
 }

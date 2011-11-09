@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.api.partition.index;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 
@@ -28,12 +30,12 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
+public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
 {
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, ID> element ) throws Exception
+    public void before( IndexEntry<K> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -51,7 +53,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, ID> element ) throws Exception
+    public void after( IndexEntry<K> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -97,7 +99,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
-    public IndexEntry<K, ID> get() throws Exception
+    public IndexEntry<K> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -107,7 +109,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, K indexValue ) throws Exception
+    public void afterValue( UUID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -116,7 +118,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, K indexValue ) throws Exception
+    public void beforeValue( UUID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }

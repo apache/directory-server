@@ -25,7 +25,7 @@ import org.apache.directory.server.core.api.log.LogAnchor;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractLogEdit<ID> implements LogEdit<ID>
+public abstract class AbstractLogEdit implements LogEdit
 {
     /** position in the wal */
     private transient LogAnchor logAnchor = new LogAnchor();

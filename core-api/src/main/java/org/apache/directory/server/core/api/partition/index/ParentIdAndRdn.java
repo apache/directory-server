@@ -26,6 +26,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
@@ -37,10 +38,10 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable, Comparable<ParentIdAndRdn<ID>>
+public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn>
 {
     /** The entry ID */
-    protected ID parentId;
+    protected UUID parentId;
     
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
@@ -60,7 +61,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, Rdn... rdns )
+    public ParentIdAndRdn( UUID parentId, Rdn... rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns;
@@ -73,7 +74,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, List<Rdn> rdns )
+    public ParentIdAndRdn( UUID parentId, List<Rdn> rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns.toArray( new Rdn[rdns.size()] );
@@ -85,7 +86,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @return the parent ID
      */
-    public ID getParentId()
+    public UUID getParentId()
     {
         return parentId;
     }
@@ -96,7 +97,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @param parentId the new parent ID
      */
-    public void setParentId( ID parentId )
+    public void setParentId( UUID parentId )
     {
         this.parentId = parentId;
     }
@@ -145,12 +146,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             return true;
         }
         
-        if ( !( obj instanceof ParentIdAndRdn<?> ) )
+        if ( !( obj instanceof ParentIdAndRdn ) )
         {
             return false;
         }
 
-        ParentIdAndRdn<ID> that = (ParentIdAndRdn<ID>) obj;
+        ParentIdAndRdn that = (ParentIdAndRdn) obj;
         
         if ( rdns == null )
         {
@@ -181,7 +182,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     /**
      * {@inheritDoc}
      */
-    public int compareTo( ParentIdAndRdn<ID> that )
+    public int compareTo( ParentIdAndRdn that )
     {
         int val = this.rdns.length - that.rdns.length;
         
@@ -221,7 +222,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        parentId = ( ID ) in.readObject();
+        parentId = ( UUID ) in.readObject();
         int size = in.readInt();
         rdns = new Rdn[size];
         

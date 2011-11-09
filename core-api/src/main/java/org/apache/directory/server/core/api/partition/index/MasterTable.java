@@ -19,13 +19,17 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+import java.util.UUID;
+
+import org.apache.directory.shared.ldap.model.entry.Entry;
+
 
 /**
  * A master table used to store indexable entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface MasterTable<ID, E> extends Table<ID, E>
+public interface MasterTable extends Table<UUID, Entry>
 {
     /** the base name for the db file for this table */
     String DBF = "master";
@@ -39,10 +43,10 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * the side-effect of incrementing the sequence values permanently.
      *
      * @param entry the entry in case the id is derived from the entry.
-     * @return the current value of this MasterTable's sequence incremented by one
-     * @throws Exception on failure to update the id sequence
+     * @return ID for the entry
+     * @throws Exception on any failure
      */
-    ID getNextId( E entry ) throws Exception;
+    UUID getNextId( Entry entry ) throws Exception;
     
     
     /**

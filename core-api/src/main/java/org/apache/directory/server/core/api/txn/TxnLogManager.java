@@ -30,12 +30,13 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface TxnLogManager<ID>
+public interface TxnLogManager
 {
     /**
      * Logs the given log edit for the txn associated with the current thread
@@ -44,7 +45,7 @@ public interface TxnLogManager<ID>
      * @param sync log edit will be flushed to media if set to true
      * @throws IOException 
      */
-    void log( LogEdit<ID> logEdit, boolean sync ) throws IOException;
+    void log( LogEdit logEdit, boolean sync ) throws IOException;
     
     
     /**
@@ -66,7 +67,7 @@ public interface TxnLogManager<ID>
      * @param entry current version of the entry the txn has
      * @return
      */
-    Entry mergeUpdates(Dn partitionDN, ID entryID,  Entry entry );
+    Entry mergeUpdates(Dn partitionDN, UUID entryID,  Entry entry );
     
     /**
      * Returns a cursor which provides a transactionally consistent view of the wrapped cursor.
@@ -81,7 +82,7 @@ public interface TxnLogManager<ID>
      * @return a cursor which provides a transactionally consistent view of the wrapped cursor 
      * @throws Exception
      */
-    IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception;
+    IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
     
     /**
      * Adds a dn and a scope on which the current txn depens

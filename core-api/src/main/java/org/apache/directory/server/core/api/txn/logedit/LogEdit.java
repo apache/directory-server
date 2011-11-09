@@ -27,7 +27,7 @@ import java.io.Externalizable;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface LogEdit<ID> extends Externalizable 
+public interface LogEdit extends Externalizable 
 {
     /**
      * Returns the position the edit is inserted in the wal.

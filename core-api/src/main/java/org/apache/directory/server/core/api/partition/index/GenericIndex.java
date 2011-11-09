@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.partition.index;
 
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -32,7 +33,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
+public class GenericIndex<K> extends AbstractIndex<K>
 {
     /** Index working directory */
     protected URI wkDirPath;
@@ -76,7 +77,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public void add( K attrVal, ID id ) throws Exception
+    public void add( K attrVal, UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -100,37 +101,37 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public void drop( ID id ) throws Exception
+    public void drop( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public void drop( K attrVal, ID id ) throws Exception
+    public void drop( K attrVal, UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public IndexCursor<K, O, ID> forwardCursor() throws Exception
+    public IndexCursor<K> forwardCursor() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public IndexCursor<K, O, ID> forwardCursor( K key ) throws Exception
+    public IndexCursor<K> forwardCursor( K key ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public ID forwardLookup( K attrVal ) throws Exception
+    public UUID forwardLookup( K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public Cursor<ID> forwardValueCursor( K key ) throws Exception
+    public Cursor<UUID> forwardValueCursor( K key ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -142,19 +143,19 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean forward( K attrVal, ID id ) throws Exception
+    public boolean forward( K attrVal, UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverse( ID id ) throws Exception
+    public boolean reverse( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverse( ID id, K attrVal ) throws Exception
+    public boolean reverse( UUID id, K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -166,19 +167,19 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean forwardGreaterOrEq( K attrVal, ID id ) throws Exception
+    public boolean forwardGreaterOrEq( K attrVal, UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverseGreaterOrEq( ID id ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverseGreaterOrEq( ID id, K attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id, K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -190,19 +191,19 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public boolean forwardLessOrEq( K attrVal, ID id ) throws Exception
+    public boolean forwardLessOrEq( K attrVal, UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverseLessOrEq( ID id ) throws Exception
+    public boolean reverseLessOrEq( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public boolean reverseLessOrEq( ID id, K attrVal ) throws Exception
+    public boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -238,36 +239,36 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
     }
 
 
-    public IndexCursor<K, O, ID> reverseCursor() throws Exception
+    public IndexCursor<K> reverseCursor() throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public IndexCursor<K, O, ID> reverseCursor( ID id ) throws Exception
+    public IndexCursor<K> reverseCursor( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public K reverseLookup( ID id ) throws Exception
+    public K reverseLookup( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public Cursor<K> reverseValueCursor( ID id ) throws Exception
+    public Cursor<K> reverseValueCursor( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public ForwardIndexComparator<K,ID> getForwardIndexEntryComparator()
+    public ForwardIndexComparator<K> getForwardIndexEntryComparator()
     {
         throw new UnsupportedOperationException();
     }
 
-    public ReverseIndexComparator<K,ID> getReverseIndexEntryComparator()
+    public ReverseIndexComparator<K> getReverseIndexEntryComparator()
     {
         throw new UnsupportedOperationException();
     }

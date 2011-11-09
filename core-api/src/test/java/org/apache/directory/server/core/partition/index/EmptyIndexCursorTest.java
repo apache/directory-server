@@ -22,6 +22,8 @@ package org.apache.directory.server.core.partition.index;
 
 import static junit.framework.Assert.assertFalse;
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -37,20 +39,20 @@ import org.junit.Test;
 public class EmptyIndexCursorTest
 {
 
-    private EmptyIndexCursor<String, Entry, Long> indexCursor;
+    private EmptyIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String, Entry, Long>();
+        indexCursor = new EmptyIndexCursor<String>();
     }
 
 
     @Test
     public void testConstructor()
     {
-        new EmptyIndexCursor<String, Entry, Long>();
+        new EmptyIndexCursor<String>();
     }
 
 
@@ -170,7 +172,7 @@ public class EmptyIndexCursorTest
     @Test
     public void testBeforeValue() throws Exception
     {
-        indexCursor.beforeValue( 1L, "test" );
+        indexCursor.beforeValue( UUID.fromString( "00000000-0000-0000-0000-000000000000" ), "test" );
     }
 
 
@@ -184,7 +186,7 @@ public class EmptyIndexCursorTest
     @Test
     public void testAfterValue() throws Exception
     {
-        indexCursor.afterValue( 1L, "test" );
+        indexCursor.afterValue( UUID.fromString( "00000000-0000-0000-0000-000000000000" ), "test" );
     }
 
 

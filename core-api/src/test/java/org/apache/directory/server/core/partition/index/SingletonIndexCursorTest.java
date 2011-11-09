@@ -24,6 +24,8 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.SingletonIndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -40,25 +42,25 @@ import org.junit.Test;
 public class SingletonIndexCursorTest
 {
 
-    private ForwardIndexEntry<String, Long> indexEntry;
-    private SingletonIndexCursor<String, Long> indexCursor;
+    private ForwardIndexEntry<String> indexEntry;
+    private SingletonIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 1L );
+        indexEntry = new ForwardIndexEntry<String>();
+        indexEntry.setId( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
         indexEntry.setEntry( new DefaultEntry() );
         indexEntry.setValue( "test" );
-        indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
+        indexCursor = new SingletonIndexCursor<String>( indexEntry );
     }
 
 
     @Test
     public void testConstructor()
     {
-        new SingletonIndexCursor<String, Long>( indexEntry );
+        new SingletonIndexCursor<String>( indexEntry );
     }
 
 
@@ -234,7 +236,7 @@ public class SingletonIndexCursorTest
     @Test(expected = UnsupportedOperationException.class)
     public void testBeforeValue() throws Exception
     {
-        indexCursor.beforeValue( 1L, "test" );
+        indexCursor.beforeValue( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "test" );
     }
 
 
@@ -248,7 +250,7 @@ public class SingletonIndexCursorTest
     @Test(expected = UnsupportedOperationException.class)
     public void testAfterValue() throws Exception
     {
-        indexCursor.afterValue( 1L, "test" );
+        indexCursor.afterValue( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "test" );
     }
 
 }

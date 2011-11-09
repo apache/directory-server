@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.api.partition.index;
 
 
+import java.util.UUID;
+
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 
 
@@ -29,7 +31,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface IndexCursor<V, E, ID> extends Cursor<IndexEntry<V, ID>>
+public interface IndexCursor<V> extends Cursor<IndexEntry<V>>
 {
     /**
      * An alternative to calling before(IndexEntry) which often may require
@@ -41,7 +43,7 @@ public interface IndexCursor<V, E, ID> extends Cursor<IndexEntry<V, ID>>
      * @param indexValue the value to advance just before
      * @throws Exception if there are faults performing this operation
      */
-    void beforeValue( ID id, V indexValue ) throws Exception;
+    void beforeValue( UUID id, V indexValue ) throws Exception;
 
 
     /**
@@ -54,5 +56,5 @@ public interface IndexCursor<V, E, ID> extends Cursor<IndexEntry<V, ID>>
      * @param indexValue the value to advance just after the last value
      * @throws Exception if there are faults performing this operation
      */
-    void afterValue( ID id, V indexValue ) throws Exception;
+    void afterValue( UUID id, V indexValue ) throws Exception;
 }

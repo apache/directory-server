@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.GenericIndex;
 import org.junit.Before;
@@ -40,21 +41,21 @@ import org.junit.Test;
 public class GenericIndexTest
 {
 
-    GenericIndex<String, Long, Long> index;
+    GenericIndex<String> index;
 
 
     @Before
     public void setUp()
     {
         String tmpDir = System.getProperty( "java.io.tmpdir" );
-        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( tmpDir ).toURI() );
+        index = new GenericIndex<String>( "cn", 42, new File( tmpDir ).toURI() );
     }
 
 
     @Test
     public void testConstructor1()
     {
-        index = new GenericIndex<String, Long, Long>( "cn" );
+        index = new GenericIndex<String>( "cn" );
         assertEquals( "cn", index.getAttributeId() );
         assertEquals( GenericIndex.DEFAULT_INDEX_CACHE_SIZE, index.getCacheSize() );
         assertNull( index.getWkDirPath() );
@@ -64,7 +65,7 @@ public class GenericIndexTest
     @Test
     public void testConstructor2()
     {
-        index = new GenericIndex<String, Long, Long>( "cn", 42 );
+        index = new GenericIndex<String>( "cn", 42 );
         assertEquals( "cn", index.getAttributeId() );
         assertEquals( 42, index.getCacheSize() );
         assertNull( index.getWkDirPath() );
@@ -76,7 +77,7 @@ public class GenericIndexTest
     {
         File tmpDir = new File(System.getProperty( "java.io.tmpdir" ));
 
-        index = new GenericIndex<String, Long, Long>( "cn", 42, tmpDir.toURI() );
+        index = new GenericIndex<String>( "cn", 42, tmpDir.toURI() );
         assertEquals( "cn", index.getAttributeId() );
         assertEquals( 42, index.getCacheSize() );
         assertNotNull( index.getWkDirPath() );
@@ -123,7 +124,7 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testAdd() throws Exception
     {
-        index.add( "test", 5L );
+        index.add( "test", UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
@@ -151,14 +152,14 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testDropID() throws Exception
     {
-        index.drop( 5L );
+        index.drop( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testDropKID() throws Exception
     {
-        index.drop( "test", 5L );
+        index.drop( "test", UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
@@ -200,21 +201,21 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testForwardKID() throws Exception
     {
-        index.forward( "test", 5L );
+        index.forward( "test", UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseID() throws Exception
     {
-        index.reverse( 5L );
+        index.reverse( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseIDK() throws Exception
     {
-        index.reverse( 5L, "test" );
+        index.reverse( UUID.fromString( "00000000-0000-0000-0000-000000000005" ), "test" );
     }
 
 
@@ -228,21 +229,21 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testForwardGreaterOrEqKID() throws Exception
     {
-        index.forwardGreaterOrEq( "test", 5L );
+        index.forwardGreaterOrEq( "test", UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseGreaterOrEqID() throws Exception
     {
-        index.reverseGreaterOrEq( 5L );
+        index.reverseGreaterOrEq( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseGreaterOrEqIDK() throws Exception
     {
-        index.reverseGreaterOrEq( 5L, "test" );
+        index.reverseGreaterOrEq( UUID.fromString( "00000000-0000-0000-0000-000000000005" ), "test" );
     }
 
 
@@ -256,21 +257,21 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testForwardLessOrEqKID() throws Exception
     {
-        index.forwardLessOrEq( "test", 5L );
+        index.forwardLessOrEq( "test", UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseLessOrEqID() throws Exception
     {
-        index.reverseLessOrEq( 5L );
+        index.reverseLessOrEq( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseLessOrEqIDK() throws Exception
     {
-        index.reverseLessOrEq( 5L, "test" );
+        index.reverseLessOrEq( UUID.fromString( "00000000-0000-0000-0000-000000000005" ), "test" );
     }
 
 
@@ -312,21 +313,21 @@ public class GenericIndexTest
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseCursorID() throws Exception
     {
-        index.reverseCursor( 5L );
+        index.reverseCursor( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseLookup() throws Exception
     {
-        index.reverseLookup( 5L );
+        index.reverseLookup( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testReverseValueCursor() throws Exception
     {
-        index.reverseValueCursor( 5L );
+        index.reverseValueCursor( UUID.fromString( "00000000-0000-0000-0000-000000000005" ) );
     }
 
 

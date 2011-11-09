@@ -23,7 +23,7 @@ package org.apache.directory.server.core.api.txn.logedit;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractDataChange<ID> implements DataChange<ID>
+public abstract class AbstractDataChange implements DataChange
 {
 
 }

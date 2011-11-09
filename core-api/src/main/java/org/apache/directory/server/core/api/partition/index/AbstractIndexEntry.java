@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+import java.util.UUID;
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -30,7 +32,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * @param <V> The value stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
+public abstract class AbstractIndexEntry<V> implements IndexEntry<V>
 {
     /** The referenced Entry if loaded from the store */
     private Entry entry;
@@ -61,13 +63,13 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public abstract ID getId();
+    public abstract UUID getId();
 
     
     /**
      * {@inheritDoc}
      */
-    public abstract void setId( ID id );
+    public abstract void setId( UUID id );
 
     
     /**
@@ -106,7 +108,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<V> entry )
     {
         this.entry = entry.getEntry();
     }

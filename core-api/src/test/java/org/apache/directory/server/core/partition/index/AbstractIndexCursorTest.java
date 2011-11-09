@@ -44,13 +44,13 @@ import org.junit.Test;
 public class AbstractIndexCursorTest
 {
 
-    private AbstractIndexCursor<String, Entry, Long> indexCursor;
+    private AbstractIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String, Entry, Long>();
+        indexCursor = new EmptyIndexCursor<String>();
     }
 
 
@@ -117,7 +117,7 @@ public class AbstractIndexCursorTest
     @Test
     public void testIterator()
     {
-        Iterator<IndexEntry<String, Long>> iterator = indexCursor.iterator();
+        Iterator<IndexEntry<String>> iterator = indexCursor.iterator();
         assertNotNull( iterator );
     }
 

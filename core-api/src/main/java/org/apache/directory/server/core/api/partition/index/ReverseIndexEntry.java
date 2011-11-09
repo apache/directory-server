@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+import java.util.UUID;
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -31,10 +33,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * @param <V> The value stored in the Tuple, associated key for the Entry
  * @param <ID> The ID of the Entry
  */
-public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
+public class ReverseIndexEntry<V> extends AbstractIndexEntry<V>
 {
     /** The underlying Tuple */
-    private final Tuple<ID, V> tuple = new Tuple<ID, V>();
+    private final Tuple<UUID, V> tuple = new Tuple<UUID, V>();
 
 
     /**
@@ -55,7 +57,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
      * @param tuple the tuple for the ReverseIndexEntry
      * @param obj the resusitated Entry that is indexed if any
      */
-    public void setTuple( Tuple<ID, V> tuple, Entry entry )
+    public void setTuple( Tuple<UUID, V> tuple, Entry entry )
     {
         setEntry( entry );
         this.tuple.setKey( tuple.getKey() );
@@ -66,7 +68,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public ID getId()
+    public UUID getId()
     {
         return tuple.getKey();
     }
@@ -84,7 +86,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void setId( ID id )
+    public void setId( UUID id )
     {
         tuple.setKey( id );
     }
@@ -122,7 +124,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<V> entry )
     {
         setEntry( entry.getEntry() );
         tuple.setKey( entry.getId() );

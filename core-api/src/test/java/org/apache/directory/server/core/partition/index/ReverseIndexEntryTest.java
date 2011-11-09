@@ -25,6 +25,8 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -40,13 +42,13 @@ import org.junit.Test;
 public class ReverseIndexEntryTest
 {
 
-    private ReverseIndexEntry<String, Long> indexEntry;
+    private ReverseIndexEntry<String> indexEntry;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ReverseIndexEntry<String, Long>();
+        indexEntry = new ReverseIndexEntry<String>();
     }
 
 
@@ -55,8 +57,8 @@ public class ReverseIndexEntryTest
     {
         assertNull( indexEntry.getId() );
 
-        indexEntry.setId( 1L );
-        assertEquals( Long.valueOf( 1L ), indexEntry.getId() );
+        indexEntry.setId( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), indexEntry.getId() );
     }
 
 
@@ -87,8 +89,8 @@ public class ReverseIndexEntryTest
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getValue() );
 
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
-        assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry.getTuple() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
+        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), indexEntry.getTuple() );
         assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
@@ -96,7 +98,7 @@ public class ReverseIndexEntryTest
     @Test
     public void testClear()
     {
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
         indexEntry.clear();
 
         assertNull( indexEntry.getId() );
@@ -112,10 +114,10 @@ public class ReverseIndexEntryTest
     public void testCopy()
     {
         // prepare index entry
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
 
         // create empty index entry and assert empty values
-        ReverseIndexEntry<String, Long> indexEntry2 = new ReverseIndexEntry<String, Long>();
+        ReverseIndexEntry<String> indexEntry2 = new ReverseIndexEntry<String>();
         assertNull( indexEntry2.getId() );
         assertNull( indexEntry2.getValue() );
         assertNull( indexEntry2.getEntry() );
@@ -125,19 +127,19 @@ public class ReverseIndexEntryTest
 
         // copy values and assert non-empty values
         indexEntry2.copy( indexEntry );
-        assertEquals( Long.valueOf( 1L ), indexEntry2.getId() );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getValue() );
         assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
-        assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry2.getTuple() );
+        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), indexEntry2.getTuple() );
     }
 
 
     @Test
     public void testToString()
     {
-        indexEntry.setTuple( new Tuple<Long, String>( 1234567890L, "asdfghjkl" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000054321" ), "asdfghjkl" ), new DefaultEntry() );
         assertTrue( indexEntry.toString().contains( "asdfghjkl" ) );
-        assertTrue( indexEntry.toString().contains( "1234567890" ) );
+        assertTrue( indexEntry.toString().contains( "54321" ) );
     }
 
 }

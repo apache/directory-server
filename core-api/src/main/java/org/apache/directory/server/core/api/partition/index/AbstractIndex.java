@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
+public abstract class AbstractIndex<K> implements Index<K>
 {
     /** The attribute identifier for this index */ 
     protected String attributeId;

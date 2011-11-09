@@ -29,15 +29,15 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 {
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
-    private final IndexEntry<V, ID> singleton;
+    private final IndexEntry<V> singleton;
 
 
-    public SingletonIndexCursor( IndexEntry<V, ID> singleton )
+    public SingletonIndexCursor( IndexEntry<V> singleton )
     {
         this.singleton = singleton;
     }
@@ -172,7 +172,7 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     }
 
 
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "()" );
         

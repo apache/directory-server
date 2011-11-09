@@ -25,7 +25,7 @@ import java.io.Externalizable;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface DataChange<ID> extends Externalizable
+public interface DataChange extends Externalizable
 {
 
 }

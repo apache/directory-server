@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+import java.util.UUID;
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -29,12 +31,11 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
- * @param <ID> The ID of the object
  */
-public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
+public class ForwardIndexEntry<V> extends AbstractIndexEntry<V>
 {
     /** The underlying Tuple */
-    private final Tuple<V, ID> tuple = new Tuple<V, ID>();
+    private final Tuple<V, UUID> tuple = new Tuple<V, UUID>();
 
     
     /**
@@ -54,7 +55,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
      * @param tuple the tuple for the ForwardIndexEntry
      * @param entry the resuscitated Entry if any
      */
-    public void setTuple( Tuple<V, ID> tuple, Entry entry )
+    public void setTuple( Tuple<V, UUID> tuple, Entry entry )
     {
         setEntry( entry );
         this.tuple.setKey( tuple.getKey() );
@@ -65,7 +66,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public ID getId()
+    public UUID getId()
     {
         return tuple.getValue();
     }
@@ -83,7 +84,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void setId( ID id )
+    public void setId( UUID id )
     {
         tuple.setValue( id );
     }
@@ -101,7 +102,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public Tuple<V, ID> getTuple()
+    public Tuple<V, UUID> getTuple()
     {
         return tuple;
     }
@@ -121,7 +122,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<V> entry )
     {
         super.copy( entry );
         tuple.setKey( entry.getValue() );

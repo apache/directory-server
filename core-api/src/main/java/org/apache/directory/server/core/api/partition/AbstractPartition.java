@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.partition;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import javax.naming.InvalidNameException;
 
@@ -55,6 +56,12 @@ public abstract class AbstractPartition implements Partition
     /** The root Dn for this partition */
     protected Dn suffixDn;
 
+    /** root ID */
+    UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
+    
+    /** Default ID */
+    UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
+    
     /**
      * {@inheritDoc}
      */
@@ -200,6 +207,24 @@ public abstract class AbstractPartition implements Partition
     public void dumpIndex( OutputStream stream, String name ) throws IOException
     {
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public UUID getDefaultId()
+    {
+        return defaultID;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public UUID getRootId()
+    {
+        return rootID;
     }
 
     
