@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -239,15 +240,27 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     /**
      * Check that we got the correct result set
      */
-    private void checkResults( List<SearchResult> results, int expectedSize ) throws NamingException
+    private void checkResults( List<SearchResult> results, int expectedSize, boolean hitSizeLimitException ) throws NamingException
     {
+        TreeSet<String> cnSet = new TreeSet<String>();      
         assertEquals( expectedSize, results.size() );
+        
+        if ( hitSizeLimitException )
+        {
+            return;
+        }
+        
+        for ( int i = 0; i < expectedSize; i++ )
+        {
+
+            SearchResult entry = results.get( i );
+            cnSet.add( (String) ( entry.getAttributes().get( "cn" ).get() ) );
+        }
         
         // check that we have correctly read all the entries
         for ( int i = 0; i < expectedSize; i++ )
         {
-            SearchResult entry = results.get( i );
-            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+            assertTrue( cnSet.contains( "user" + i ) );
         }
     }
     
@@ -316,7 +329,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         
         assertEquals( expectedException, hasSizeLimitException );
         assertEquals( expectedLoop, loop );
-        checkResults( results, expectedNbEntries );
+        checkResults( results, expectedNbEntries, hasSizeLimitException );
         
         // And close the connection
         closeConnection( ctx );
@@ -1125,6 +1138,6 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         }
         
         assertEquals( 4, loop );
-        checkResults( results, 10 );
+        checkResults( results, 10, false );
     }
 }

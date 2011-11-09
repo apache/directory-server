@@ -25,10 +25,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -51,8 +53,8 @@ public class IndexTest
     private static File dbFileDir;
     private static SchemaManager schemaManager;
     
-    private JdbmIndex<String, Entry> jdbmIndex;
-    private AvlIndex<String, Entry> avlIndex;
+    private JdbmIndex<String> jdbmIndex;
+    private AvlIndex<String> avlIndex;
 
 
     @BeforeClass
@@ -93,11 +95,11 @@ public class IndexTest
         
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
-        jdbmIndex = new JdbmIndex<String, Entry>();
+        jdbmIndex = new JdbmIndex<String>();
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, attributeType );
         
-        avlIndex = new AvlIndex<String, Entry>();
+        avlIndex = new AvlIndex<String>();
         avlIndex.init( schemaManager, attributeType );
     }
 
@@ -113,38 +115,48 @@ public class IndexTest
         doTest( jdbmIndex );
     }
     
-    private void doTest(Index<String, Entry, Long> idx) throws Exception
+    private void doTest(Index<String> idx) throws Exception
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
-        for ( long i = 0L; i < 26L; i++ )
+        for ( int i = 0; i < 26; i++ )
         {
-            String val = alphabet.substring( (int)i, (int)(i+1) );
-            idx.add( val, i + 1 );
+            String val = alphabet.substring( i, (i+1) );
+            idx.add( val, StoreUtils.getUUIDString( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
         
-        IndexCursor<String, Entry, Long> cursor1 = idx.forwardCursor();
+        IndexCursor<String> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
-        assertHasNext(cursor1, 1L);
-        assertHasNext(cursor1, 2L);
+        assertHasNext( cursor1, StoreUtils.getUUIDString( 1 ) );
+        assertHasNext( cursor1, StoreUtils.getUUIDString( 2 ) );
         
-        idx.drop( "c", 3L );
+        idx.drop( "c", StoreUtils.getUUIDString( 3 ) );
 
-        for ( long i = 4L; i < 27L; i++ )
+        int id;
+        if ( idx instanceof JdbmIndex )
         {
-            assertHasNext(cursor1, i);
+            id = 3;
+        }
+        else
+        {
+            id = 4;
+        }
+        
+        for ( ; id < 27; id++ )
+        {
+            assertHasNext( cursor1, StoreUtils.getUUIDString( id ) );
         }
         
         assertFalse(cursor1.next());
     }
 
-    private void assertHasNext( IndexCursor<String, Entry, Long> cursor1, long expectedId ) throws Exception
+    private void assertHasNext( IndexCursor<String> cursor1, UUID expectedId ) throws Exception
     {
-        assertTrue(cursor1.next());
+        assertTrue( cursor1.next() );
         //System.out.println(cursor1.get());
-        assertEquals(expectedId, cursor1.get().getId().longValue());
+        assertEquals( expectedId, cursor1.get().getId() );
     }
 }
