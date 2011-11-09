@@ -216,9 +216,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
 
         if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
         {
@@ -241,15 +240,14 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
-        }
+    }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
-        {
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    {
         Dn dn = searchContext.getDn();
 
         if ( !dn.isSchemaAware() )
@@ -280,7 +278,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( searchContext );
         }
-        }
+    }
 
 
     /**
@@ -297,12 +295,12 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
-        {
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
         listContext.getDn().apply( schemaManager );
-        return nextInterceptor.list( listContext );
-        }
+
+        return next( listContext );
+    }
 
 
     /**

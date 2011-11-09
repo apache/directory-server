@@ -433,9 +433,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry )
-        throws LdapException
-        {
+    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry ) throws LdapException
+    {
         // only perform this for subentries
         if ( !entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
@@ -477,7 +476,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
             tuples.addAll( item.toTuples() );
         }
-        }
+    }
 
 
     /* -------------------------------------------------------------------------------
@@ -1027,9 +1026,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         Dn oldDn = moveAndRenameContext.getDn();
         CoreSession session = moveAndRenameContext.getSession();
 
@@ -1116,7 +1114,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         next.moveAndRename( moveAndRenameContext );
         tupleCache.subentryRenamed( oldDn, newDn );
         groupCache.groupRenamed( oldDn, newDn );
-        }
+    }
 
 
     /**
@@ -1213,10 +1211,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         LdapPrincipal user = listContext.getSession().getEffectivePrincipal();
-        EntryFilteringCursor cursor = next.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
 
         if ( isPrincipalAnAdministrator( user.getDn() )
             || !directoryService.isAccessControlEnabled() )
@@ -1226,6 +1227,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         AuthorizationFilter authzFilter = new AuthorizationFilter();
         cursor.addEntryFilter( authzFilter );
+
         return cursor;
     }
 

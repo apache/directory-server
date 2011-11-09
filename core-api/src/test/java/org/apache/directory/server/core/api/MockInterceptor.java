@@ -122,12 +122,11 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
-        throws LdapException
-        {
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    {
         interceptors.add( this );
         return next( getRootDseContext );
-        }
+    }
 
 
     /**
@@ -143,10 +142,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         interceptors.add( this );
-        return next.list( listContext );
+        return next( listContext );
     }
 
 

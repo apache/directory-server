@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor;
 
@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  * 
  * Interceptors should usually pass the control
  * of current invocation to the next interceptor by calling an appropriate method
- * on {@link NextInterceptor}.  The flow control is returned when the next 
+ * on {@link NextInterceptor}.  The flow control is returned when the next
  * interceptor's filter method returns. You can therefore implement pre-, post-,
  * around- invocation handler by how you place the statement.  Otherwise, you
  * can transform the invocation into other(s).
@@ -114,7 +114,7 @@ public interface Interceptor
     /**
      * Intializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is loaded into interceptor chain.
-     * @throws Exception 
+     * @throws Exception
      */
     void init( DirectoryService directoryService ) throws LdapException;
 
@@ -173,7 +173,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException;
+    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**

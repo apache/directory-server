@@ -157,7 +157,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 CoreSession session = addContext.getSession();
                 LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
                 lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-                
+
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
             catch ( Exception e )
@@ -218,10 +218,9 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         if ( listContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
@@ -233,7 +232,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         //String msg = "Attempt to search under non-existant entry: ";
         //assertHasEntry( listContext, msg, listContext.getDn() );
 
-        return nextInterceptor.list( listContext );
+        return next( listContext );
     }
 
 
@@ -362,8 +361,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
 

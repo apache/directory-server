@@ -422,7 +422,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -432,7 +435,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( listContext );
         checkPwdReset( listContext );
 
-        return next.list( listContext );
+        return next( listContext );
     }
 
 

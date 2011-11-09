@@ -274,9 +274,8 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext )
-        throws LdapException
-        {
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    {
         long t0 = System.nanoTime();
         Entry rootDSE = next( getRootDseContext );
         long delta = System.nanoTime() - t0;
@@ -299,7 +298,7 @@ public class TimerInterceptor extends BaseInterceptor
         }
 
         return rootDSE;
-        }
+    }
 
 
     /**
@@ -343,10 +342,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )

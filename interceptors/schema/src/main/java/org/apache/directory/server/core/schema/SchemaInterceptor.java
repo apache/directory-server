@@ -370,10 +370,11 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
         cursor.addEntryFilter( binaryAttributeFilter );
+
         return cursor;
     }
 

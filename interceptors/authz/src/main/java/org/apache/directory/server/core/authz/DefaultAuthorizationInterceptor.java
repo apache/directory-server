@@ -95,7 +95,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Creates a new instance.
      */
@@ -330,8 +330,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -448,8 +447,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
@@ -464,10 +462,12 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
 
         if ( listContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -475,6 +475,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
 
         cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
+
         return cursor;
     }
 

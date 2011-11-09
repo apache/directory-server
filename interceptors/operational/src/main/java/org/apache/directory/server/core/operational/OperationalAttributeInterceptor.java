@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.operational;
 
@@ -106,10 +106,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             return operation.getSearchControls().getReturningAttributes() != null
-            || filterOperationalAttributes( entry );
+                || filterOperationalAttributes( entry );
         }
     }
-    
+
     private final EntryFilter SEARCH_FILTER = new OperationalAttributeSearchFilter();
 
     /** The subschemasubentry Dn */
@@ -178,7 +178,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - creatorsName
      * - createTimestamp
      * - entryCSN
-     * - entryUUID 
+     * - entryUUID
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
@@ -250,7 +250,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         boolean modifiedTimeAtPresent = false;
         boolean entryCsnAtPresent = false;
         Dn dn = modifyContext.getDn();
-        
+
         for ( Modification modification : mods )
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
@@ -308,37 +308,37 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Add the modification AT only if we are not trying to modify the SubentrySubschema
         if ( !dn.equals( subschemaSubentryDn ) )
         {
-	        if ( !modifierAtPresent )
-	        {
-	            // Inject the ModifiersName AT if it's not present
-	            Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
-	                .getName() );
-	
-	            Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-	
-	            mods.add( modifiersName );
-	        }
-	
-	        if ( !modifiedTimeAtPresent )
-	        {
-	            // Inject the ModifyTimestamp AT if it's not present
-	            Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
-	                .getGeneralizedTime() );
-	
-	            Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-	
-	            mods.add( timestamp );
-	        }
-	
-	        if ( !entryCsnAtPresent )
-	        {
-	            String csn = directoryService.getCSN().toString();
-	            Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
-	            Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-	            mods.add( updatedCsn );
-	        }
+            if ( !modifierAtPresent )
+            {
+                // Inject the ModifiersName AT if it's not present
+                Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
+                    .getName() );
+
+                Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+
+                mods.add( modifiersName );
+            }
+
+            if ( !modifiedTimeAtPresent )
+            {
+                // Inject the ModifyTimestamp AT if it's not present
+                Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
+                    .getGeneralizedTime() );
+
+                Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+
+                mods.add( timestamp );
+            }
+
+            if ( !entryCsnAtPresent )
+            {
+                String csn = directoryService.getCSN().toString();
+                Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
+                Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+                mods.add( updatedCsn );
+            }
         }
-        
+
         // Go down in the chain
         nextInterceptor.modify( modifyContext );
     }
@@ -375,8 +375,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
@@ -406,17 +405,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
         cursor.addEntryFilter( SEARCH_FILTER );
+
         return cursor;
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
@@ -452,7 +450,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         for ( Attribute attribute : attributes.getAttributes() )
         {
             AttributeType attributeType = attribute.getAttributeType();
-            
+
             if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
                 removedAttributes.add( attributeType );
@@ -555,7 +553,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         for ( int pos = 0; pos < size; pos++ )
         {
             Rdn rdn = dn.getRdn( size - 1 - pos );
-            
+
             if ( rdn.size() == 0 )
             {
                 newDn = newDn.add( new Rdn() );

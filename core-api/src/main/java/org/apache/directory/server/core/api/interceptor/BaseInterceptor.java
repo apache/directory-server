@@ -199,7 +199,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+        public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
         {
             return nexus.list( listContext );
         }
@@ -208,11 +208,10 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
-            throws LdapException
-            {
+        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+        {
             return nexus.lookup( lookupContext );
-            }
+        }
 
 
         /**
@@ -236,11 +235,10 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-            throws LdapException
-            {
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        {
             nexus.moveAndRename( moveAndRenameContext );
-            }
+        }
 
 
         /**
@@ -255,11 +253,10 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
-            throws LdapException
-            {
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+        {
             return nexus.search( searchContext );
-            }
+        }
 
 
         /**
@@ -505,9 +502,27 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        return next.list( listContext );
+        return null;
+    }
+
+
+    /**
+     * Calls the next interceptor for the list operation.
+     * 
+     * @param listContext The context in which we are executing this operation
+     * @return the cursor containing the listed entries
+     * @throws LdapException If something went wrong
+     */
+    protected final EntryFilteringCursor next( ListOperationContext listContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( listContext );
+
+        return interceptor.list( listContext );
     }
 
 
@@ -532,11 +547,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         next.moveAndRename( moveAndRenameContext );
-        }
+    }
 
 
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
@@ -545,11 +559,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
-        throws LdapException
-        {
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    {
         return next.search( searchContext );
-        }
+    }
 
 
     /**

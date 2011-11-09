@@ -111,7 +111,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
-    
+
     /** An enum used for the entries update */
     private enum OperationEnum
     {
@@ -179,10 +179,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
         SUBENTRY_OPATTRS = new AttributeType[]
             {
-                ACCESS_CONTROL_SUBENTRIES_AT,
-                SUBSCHEMA_SUBENTRY_AT,
-                COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                TRIGGER_EXECUTION_SUBENTRIES_AT
+            ACCESS_CONTROL_SUBENTRIES_AT,
+            SUBSCHEMA_SUBENTRY_AT,
+            COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
+            TRIGGER_EXECUTION_SUBENTRIES_AT
             };
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
@@ -321,7 +321,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
             SubentriesDecorator subentriesDecorator = ( SubentriesDecorator ) opContext.getRequestControl( SUBENTRY_CONTROL );
-            return ( ( Subentries ) subentriesDecorator.getDecorated() ).isVisible();
+            return subentriesDecorator.getDecorated().isVisible();
         }
 
         return false;
@@ -369,7 +369,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         case REPLACE :
                             modifications = getOperationalModsForReplace( subentryDn, candidate );
                             break;
-                            */
+                             */
                     }
 
                     LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
@@ -415,7 +415,7 @@ public class SubentryInterceptor extends BaseInterceptor
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, apDn );
         lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        
+
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // The administrativeRole AT must exist and not be null
@@ -520,7 +520,7 @@ public class SubentryInterceptor extends BaseInterceptor
          */
         SubentryCache subentryCache = directoryService.getSubentryCache();
         SubtreeEvaluator evaluator = directoryService.getEvaluator();
-        
+
         for ( Dn subentryDn : subentryCache )
         {
             Dn apDn = subentryDn.getParent();
@@ -583,7 +583,7 @@ public class SubentryInterceptor extends BaseInterceptor
         for ( Modification mod : mods )
         {
             if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
-                 mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+                mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 switch ( mod.getOperation() )
                 {
@@ -620,8 +620,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * Update the list of modifications with a modification associated with a specific
      * role, if it's requested.
      */
-    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications ) 
-        throws LdapInvalidAttributeValueException
+    private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn, Dn newDn, List<Modification> modifications ) throws LdapInvalidAttributeValueException
     {
         String oldDnStr = oldDn.getNormName();
         String newDnStr = newDn.getNormName();
@@ -649,8 +648,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * Get the list of modifications to be applied on an entry to inject the operational attributes
      * associated with the administrative roles.
      */
-    private List<Modification> getOperationalModsForReplace( Dn oldDn, Dn newDn, Subentry subentry, Entry entry )
-        throws Exception
+    private List<Modification> getOperationalModsForReplace( Dn oldDn, Dn newDn, Subentry subentry, Entry entry ) throws Exception
     {
         List<Modification> modifications = new ArrayList<Modification>();
 
@@ -1017,10 +1015,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
 
         if ( !isSubentryVisible( listContext ) )
         {
@@ -1118,7 +1115,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             getOperationalModsForRemove( dn, candidate ) ) );
                     }
                 }
-                
+
                 subentries.close();
             }
             catch ( Exception e )
@@ -1521,8 +1518,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 

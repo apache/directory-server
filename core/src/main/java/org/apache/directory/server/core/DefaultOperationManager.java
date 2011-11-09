@@ -592,7 +592,9 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            return directoryService.getInterceptorChain().list( listContext );
+            Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
+
+            return head.list( listContext );
         }
         finally
         {
