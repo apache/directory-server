@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -30,7 +31,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-abstract class AbstractTransaction<ID> implements Transaction<ID>
+abstract class AbstractTransaction implements Transaction
 {
     /** Logical time(LSN in the wal) when the txn began */ 
     long startTime;
@@ -42,7 +43,7 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     State txnState;
     
     /** List of txns that this txn depends */
-    List<ReadWriteTxn<ID>> txnsToCheck = new ArrayList<ReadWriteTxn<ID>>();
+    List<ReadWriteTxn> txnsToCheck = new ArrayList<ReadWriteTxn>();
  
     
     /**
@@ -104,7 +105,7 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     /**
      * {@inheritDoc}
      */  
-    public List<ReadWriteTxn<ID>> getTxnsToCheck()
+    public List<ReadWriteTxn> getTxnsToCheck()
     {
         return txnsToCheck;
     }
@@ -128,14 +129,14 @@ abstract class AbstractTransaction<ID> implements Transaction<ID>
     }
     
     
-    public Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry )
+    public Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry )
     {
         Entry prevEntry  = entry;
         Entry curEntry = entry;
-        ReadWriteTxn<ID> curTxn;
+        ReadWriteTxn curTxn;
         boolean cloneOnChange = true;
         
-        Iterator<ReadWriteTxn<ID>> it = txnsToCheck.iterator();
+        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
         
         while ( it.hasNext() )
         {

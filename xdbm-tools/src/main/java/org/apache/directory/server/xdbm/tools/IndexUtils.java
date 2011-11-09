@@ -35,13 +35,13 @@ import java.io.PrintStream;
  */
 public class IndexUtils
 {
-    public static void printContents( Index<?, Entry, Long> idx ) throws Exception
+    public static void printContents( Index<?> idx ) throws Exception
     {
         printContents( idx, System.out );
     }
 
 
-    public static void printContents( Index<?, Entry, Long> idx, OutputStream outputStream ) throws Exception
+    public static void printContents( Index<?> idx, OutputStream outputStream ) throws Exception
     {
         PrintStream out;
 
@@ -58,7 +58,7 @@ public class IndexUtils
             out = new PrintStream( outputStream );
         }
 
-        IndexCursor<?, Entry, Long> cursor = idx.forwardCursor();
+        IndexCursor<?> cursor = idx.forwardCursor();
         cursor.first();
         for ( Object entry : cursor )
         {

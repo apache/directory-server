@@ -22,11 +22,13 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.net.URI;
 import java.util.Comparator;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -38,10 +40,10 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexWrapper<ID> implements Index<Object, Entry, ID>
+public class IndexWrapper implements Index<Object>
 {
     /** wrapped index */ 
-    Index<Object,Entry,ID> wrappedIndex;
+    Index<Object> wrappedIndex;
     
     /** partition the table belongs to */
     private Dn partitionDn;
@@ -156,9 +158,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public ID forwardLookup( Object attrVal ) throws Exception
+    public UUID forwardLookup( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
+        IndexCursor<Object> cursor = forwardCursor( attrVal );
         
         try
         {
@@ -181,9 +183,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public Object reverseLookup( ID id ) throws Exception
+    public Object reverseLookup( UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
+        IndexCursor<Object> cursor = reverseCursor( id );
         
         try
         {
@@ -206,7 +208,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void add( Object attrVal, ID id ) throws Exception
+    public void add( Object attrVal, UUID id ) throws Exception
     {
         wrappedIndex.add( attrVal, id );
     }
@@ -215,7 +217,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void drop( ID entryId ) throws Exception
+    public void drop( UUID entryId ) throws Exception
     {
         wrappedIndex.drop( entryId );
     }
@@ -224,7 +226,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void drop( Object attrVal, ID id ) throws Exception
+    public void drop( Object attrVal, UUID id ) throws Exception
     {
         wrappedIndex.drop( attrVal, id );
     }
@@ -233,11 +235,11 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object, Entry, ID> reverseCursor() throws Exception
+    public IndexCursor<Object> reverseCursor() throws Exception
     {
-        IndexCursor<Object, Entry, ID> wrappedCursor;
-        IndexCursor<Object, Entry, ID> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
+        IndexCursor<Object> wrappedCursor;
+        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
+        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         
         try
         {
@@ -257,11 +259,11 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object, Entry, ID> forwardCursor() throws Exception
+    public IndexCursor<Object> forwardCursor() throws Exception
     {
-        IndexCursor<Object, Entry, ID> wrappedCursor;
-        IndexCursor<Object, Entry, ID> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
+        IndexCursor<Object> wrappedCursor;
+        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
+        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         
         try
         {
@@ -281,11 +283,11 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object, Entry, ID> reverseCursor( ID id ) throws Exception
+    public IndexCursor<Object> reverseCursor( UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> wrappedCursor;
-        IndexCursor<Object, Entry, ID> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
+        IndexCursor<Object> wrappedCursor;
+        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
+        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         
         try
         {
@@ -305,11 +307,11 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object, Entry, ID> forwardCursor( Object key ) throws Exception
+    public IndexCursor<Object> forwardCursor( Object key ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> wrappedCursor;
-        IndexCursor<Object, Entry, ID> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
+        IndexCursor<Object> wrappedCursor;
+        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
+        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         
         try
         {
@@ -329,7 +331,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Object> reverseValueCursor( ID id ) throws Exception
+    public Cursor<Object> reverseValueCursor( UUID id ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -338,7 +340,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public Cursor<ID> forwardValueCursor( Object key ) throws Exception
+    public Cursor<UUID> forwardValueCursor( Object key ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -349,7 +351,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
      */
     public boolean forward( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
+        IndexCursor<Object> cursor = forwardCursor( attrVal );
         
         try
         {
@@ -370,10 +372,10 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( Object attrVal, ID id ) throws Exception
+    public boolean forward( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor( attrVal );
-        Comparator<ID> idComp = wrappedIndex.getForwardIndexEntryComparator().getIDComparator();
+        IndexCursor<Object> cursor = forwardCursor( attrVal );
+        Comparator<UUID> idComp = UUIDComparator.INSTANCE;
         
         try
         {
@@ -396,9 +398,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( ID id ) throws Exception
+    public boolean reverse( UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
+        IndexCursor<Object> cursor = reverseCursor( id );
         
         try
         {
@@ -419,9 +421,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( ID id, Object attrVal ) throws Exception
+    public boolean reverse( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor( id );
+        IndexCursor<Object> cursor = reverseCursor( id );
         Comparator<Object> valueComp = wrappedIndex.getForwardIndexEntryComparator().getValueComparator();
         
         try
@@ -447,7 +449,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
      */
     public boolean forwardGreaterOrEq( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
+        IndexCursor<Object> cursor = forwardCursor();
         
         try
         {
@@ -470,9 +472,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardGreaterOrEq( Object attrVal, ID id ) throws Exception
+    public boolean forwardGreaterOrEq( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
+        IndexCursor<Object> cursor = forwardCursor();
         
         try
         {
@@ -495,9 +497,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( ID id ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
+        IndexCursor<Object> cursor = reverseCursor();
         
         try
         {
@@ -520,9 +522,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( ID id, Object attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
+        IndexCursor<Object> cursor = reverseCursor();
         
         try
         {
@@ -547,7 +549,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
      */
     public boolean forwardLessOrEq( Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
+        IndexCursor<Object> cursor = forwardCursor();
         
         try
         {
@@ -570,9 +572,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardLessOrEq( Object attrVal, ID id ) throws Exception
+    public boolean forwardLessOrEq( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = forwardCursor();
+        IndexCursor<Object> cursor = forwardCursor();
         
         try
         {
@@ -595,9 +597,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( ID id ) throws Exception
+    public boolean reverseLessOrEq( UUID id ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
+        IndexCursor<Object> cursor = reverseCursor();
         
         try
         {
@@ -620,9 +622,9 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( ID id, Object attrVal ) throws Exception
+    public boolean reverseLessOrEq( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object, Entry, ID> cursor = reverseCursor();
+        IndexCursor<Object> cursor = reverseCursor();
         
         try
         {
@@ -645,7 +647,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public ForwardIndexComparator<Object,ID> getForwardIndexEntryComparator()
+    public ForwardIndexComparator<Object> getForwardIndexEntryComparator()
     {
         return wrappedIndex.getForwardIndexEntryComparator();
     }
@@ -654,7 +656,7 @@ public class IndexWrapper<ID> implements Index<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public ReverseIndexComparator<Object,ID> getReverseIndexEntryComparator()
+    public ReverseIndexComparator<Object> getReverseIndexEntryComparator()
     {
         return wrappedIndex.getReverseIndexEntryComparator();
     }

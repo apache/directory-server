@@ -38,10 +38,10 @@ import java.io.IOException;
 public class TxnManagerFactory
 {
     /** The only txn manager */
-    private static TxnManagerInternal<?> txnManager;
+    private static TxnManagerInternal txnManager;
 
     /** The only txn log manager */
-    private static TxnLogManager<?> txnLogManager;
+    private static TxnLogManager txnLogManager;
 
     /** log suffix */
     private static String LOG_SUFFIX = "log";
@@ -51,15 +51,12 @@ public class TxnManagerFactory
      * 
      * Initializes the txn managemenet layer. It creates the only instances of txn manager and txn log manager. 
      *
-     * @param idComparator comparator for the ID type.
-     * @param idSerializer seriazlier for the ID type.
      * @param logFolderPath log folder path for the log manager.
      * @param logBufferSize in memory buffer size for the log manager.
      * @param logFileSize max targer log file size for the log manager.
      * @throws IOException thrown if initialization fails.
      */
-    @SuppressWarnings("unchecked")
-    public static <ID> void init( Comparator<ID> idComparator, Serializer idSerializer, String logFolderPath,
+    public static void init( String logFolderPath,
         int logBufferSize, long logFileSize ) throws IOException
     {
         Log log = new DefaultLog();
@@ -73,37 +70,30 @@ public class TxnManagerFactory
             throw new IOException( e );
         }
 
-        DefaultTxnManager<ID> dTxnManager;
-        dTxnManager = new DefaultTxnManager<ID>();
-        txnManager = dTxnManager;
+        txnManager = new DefaultTxnManager();
 
-        DefaultTxnLogManager<ID> dTxnLogManager;
-        dTxnLogManager = new DefaultTxnLogManager<ID>();
-        txnLogManager = dTxnLogManager;
-        dTxnLogManager.init( log, ( TxnManagerInternal<ID> ) txnManager );
+        txnLogManager = new DefaultTxnLogManager();
+        ( ( DefaultTxnLogManager )txnLogManager ).init( log, ( TxnManagerInternal ) txnManager );
 
-        dTxnManager.init( dTxnLogManager, idComparator, idSerializer );
+        ( ( DefaultTxnManager ) txnManager ).init( txnLogManager );
 
+    }
+    
+    
+    public static TxnManager txnManagerInstance()
+    {
+        return txnManager;
     }
 
 
-    @SuppressWarnings("unchecked")
-    public static <ID> TxnManager<ID> txnManagerInstance()
+    public static TxnLogManager txnLogManagerInstance()
     {
-        return ( ( TxnManager<ID> ) txnManager );
+        return txnLogManager;
     }
 
 
-    @SuppressWarnings("unchecked")
-    public static <ID> TxnLogManager<ID> txnLogManagerInstance()
+    static TxnManagerInternal txnManagerInternalInstance()
     {
-        return ( ( TxnLogManager<ID> ) txnLogManager );
-    }
-
-
-    @SuppressWarnings("unchecked")
-    static <ID> TxnManagerInternal<ID> txnManagerInternalInstance()
-    {
-        return ( ( TxnManagerInternal<ID> ) txnManager );
+        return txnManager;
     }
 }

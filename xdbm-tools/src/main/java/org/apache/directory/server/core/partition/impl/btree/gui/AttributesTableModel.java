@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.gui;
 
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -52,7 +53,7 @@ public class AttributesTableModel extends AbstractTableModel
     private final ArrayList<Object> valList;
 
     /** the unique id of the entry  */
-    private final Long id;
+    private final UUID id;
     
     /** the distinguished name of the entry */
     private final String dn;
@@ -69,7 +70,7 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel( Entry entry, Long id, String dn, boolean isMutable)
+    public AttributesTableModel( Entry entry, UUID id, String dn, boolean isMutable)
     {
         this.dn = dn;
         this.id = id;
@@ -224,7 +225,7 @@ public class AttributesTableModel extends AbstractTableModel
      *
      * @return the unique id for the entry
      */
-    public Long getEntryId()
+    public UUID getEntryId()
     {
         return id;
     }

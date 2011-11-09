@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryAddDelete<ID> extends AbstractDataChange<ID>
+public class EntryAddDelete extends AbstractDataChange
 {
     /** Added or deleted entry */
     private Entry entry;

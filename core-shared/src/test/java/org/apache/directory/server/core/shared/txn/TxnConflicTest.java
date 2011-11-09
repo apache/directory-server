@@ -47,10 +47,10 @@ public class TxnConflicTest
     private static String LOG_SUFFIX = "log";
 
     /** Txn manager */
-    private TxnManagerInternal<Long> txnManager;
+    private TxnManagerInternal txnManager;
 
     /** Txn log manager */
-    private TxnLogManager<Long> txnLogManager;
+    private TxnLogManager txnLogManager;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -74,10 +74,9 @@ public class TxnConflicTest
         try
         {
             // Init the txn manager
-            TxnManagerFactory.<Long> init( LongComparator.INSTANCE, LongSerializer.INSTANCE, getLogFolder(),
-                logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.<Long> txnManagerInternalInstance();
-            txnLogManager = TxnManagerFactory.<Long> txnLogManagerInstance();
+            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = TxnManagerFactory.txnManagerInternalInstance();
+            txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         }
         catch ( Exception e )
         {
@@ -97,17 +96,17 @@ public class TxnConflicTest
             Dn dn1 = new Dn( "cn=Test", "ou=department", "dc=example,dc=com" );
             Dn dn2 = new Dn( "gn=Test1", "cn=Test", "ou=department", "dc=example,dc=com" );
 
-            ReadWriteTxn<Long> firstTxn;
-            ReadWriteTxn<Long> checkedTxn;
+            ReadWriteTxn firstTxn;
+            ReadWriteTxn checkedTxn;
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn1, SearchScope.OBJECT );
-            firstTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            firstTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
             txnManager.commitTransaction();
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn1, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == true );
@@ -115,7 +114,7 @@ public class TxnConflicTest
 
             txnManager.beginTransaction( false );
             txnLogManager.addRead( dn1, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == true );
@@ -123,7 +122,7 @@ public class TxnConflicTest
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn2, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == false );
@@ -148,17 +147,17 @@ public class TxnConflicTest
             Dn dn2 = new Dn( "gn=Test1", "cn=Test", "ou=department", "dc=example,dc=com" );
             Dn dn3 = new Dn( "ou=department", "dc=example,dc=com" );
 
-            ReadWriteTxn<Long> firstTxn;
-            ReadWriteTxn<Long> checkedTxn;
+            ReadWriteTxn firstTxn;
+            ReadWriteTxn checkedTxn;
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn1, SearchScope.SUBTREE );
-            firstTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            firstTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
             txnManager.commitTransaction();
 
             txnManager.beginTransaction( false );
             txnLogManager.addRead( dn1, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == true );
@@ -166,7 +165,7 @@ public class TxnConflicTest
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn2, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == true );
@@ -174,7 +173,7 @@ public class TxnConflicTest
 
             txnManager.beginTransaction( false );
             txnLogManager.addRead( dn1, SearchScope.SUBTREE );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == true );
@@ -182,7 +181,7 @@ public class TxnConflicTest
 
             txnManager.beginTransaction( false );
             txnLogManager.addWrite( dn3, SearchScope.OBJECT );
-            checkedTxn = ( ReadWriteTxn<Long> ) txnManager.getCurTxn();
+            checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
             assertTrue( conflicted == false );

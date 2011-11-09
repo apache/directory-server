@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
+import java.util.UUID;
 
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -111,9 +112,9 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private AbstractBTreePartition<Long> partition;
+    private AbstractBTreePartition partition;
     private boolean doCleanUp;
-    private Map<Long, EntryNode> nodes;
+    private Map<UUID, EntryNode> nodes;
     private EntryNode root;
 
     /** A handle on the global schemaManager */
@@ -126,7 +127,7 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( AbstractBTreePartition<Long> db, SchemaManager schemaManager ) throws Exception
+    public PartitionFrame( AbstractBTreePartition db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
         this.schemaManager = schemaManager;
@@ -654,7 +655,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
+        IndexCursor<UUID> cursor = partition.getSearchEngine().cursor( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
@@ -666,7 +667,7 @@ public class PartitionFrame extends JFrame
         {
             IndexEntry rec = ( IndexEntry ) cursor.get();
             row[0] = rec.getId();
-            row[1] = partition.getEntryDn( ( Long ) row[0] ).getNormName();
+            row[1] = partition.getEntryDn( (UUID)row[0] ).getNormName();
             tableModel.addRow( row );
             count++;
         }
@@ -860,7 +861,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( Long id, Entry entry ) throws Exception
+    void displayEntry( UUID id, Entry entry ) throws Exception
     {
         String dn = partition.getEntryDn( id ).getName();
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -877,10 +878,10 @@ public class PartitionFrame extends JFrame
     private void load() throws Exception
     {
         // boolean doFiltered = false;
-        nodes = new HashMap<Long, EntryNode>();
+        nodes = new HashMap<UUID, EntryNode>();
 
         Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn() );
+        UUID id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

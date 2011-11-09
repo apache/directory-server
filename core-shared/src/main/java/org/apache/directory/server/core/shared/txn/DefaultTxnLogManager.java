@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.log.Log;
@@ -41,13 +42,13 @@ import org.apache.directory.server.core.api.txn.logedit.LogEdit;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
+public class DefaultTxnLogManager implements TxnLogManager
 {
     /** Write ahead log */
     private Log wal;
     
     /** Txn Manager */
-    private TxnManagerInternal<ID> txnManager;
+    private TxnManagerInternal txnManager;
     
     
     /**
@@ -56,7 +57,7 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
      * @param logger write ahead logger
      * @param txnManager txn Manager
      */
-    public void init( Log logger, TxnManagerInternal<ID> txnManager )
+    public void init( Log logger, TxnManagerInternal txnManager )
     {
         wal = logger;
         this.txnManager = txnManager;
@@ -66,16 +67,16 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
     /**
      * {@inheritDoc}
      */
-    public void log( LogEdit<ID> logEdit, boolean sync ) throws IOException
+    public void log( LogEdit logEdit, boolean sync ) throws IOException
     {
-        Transaction<ID> curTxn = txnManager.getCurTxn();
+        Transaction curTxn = txnManager.getCurTxn();
        
         if ( ( curTxn == null ) || ( ! ( curTxn instanceof ReadWriteTxn ) ) )
         {
             throw new IllegalStateException( "Trying to log logedit without ReadWriteTxn" );
         }
        
-        ReadWriteTxn<ID> txn = (ReadWriteTxn<ID>)curTxn;
+        ReadWriteTxn txn = (ReadWriteTxn)curTxn;
         UserLogRecord logRecord = txn.getUserLogRecord();
        
         ObjectOutputStream out = null;
@@ -131,9 +132,9 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
     /**
      * {@inheritDoc}
      */
-    public Entry mergeUpdates(Dn partitionDn, ID entryID,  Entry entry )
+    public Entry mergeUpdates(Dn partitionDn, UUID entryID,  Entry entry )
     {
-         Transaction<ID> curTxn = txnManager.getCurTxn();
+         Transaction curTxn = txnManager.getCurTxn();
          
          if ( ( curTxn == null ) )
          {
@@ -147,9 +148,9 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object, Entry, ID> wrap( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey ) throws Exception
+    public IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception
     {
-        return new IndexCursorWrapper<ID>( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+        return new IndexCursorWrapper( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
     }
     
 
@@ -173,7 +174,7 @@ public class DefaultTxnLogManager<ID> implements TxnLogManager<ID>
 
     private void addDnSet( Dn baseDn, SearchScope scope, boolean read )
     {
-        Transaction<ID> curTxn = txnManager.getCurTxn();
+        Transaction curTxn = txnManager.getCurTxn();
 
         if ( ( curTxn == null ) )
         {

@@ -27,6 +27,7 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -44,10 +45,10 @@ import org.apache.directory.server.core.api.txn.TxnManager;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
+public class DataChangeContainer extends AbstractLogEdit
 {
     /** id of the entry if the container contains a change for an entry */
-    private ID entryID;
+    private UUID entryID;
 
     /** Transaction under which the change is done */
     private long txnID;
@@ -56,7 +57,7 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     private Dn partitionDn;
 
     /** List of data changes */
-    private List<DataChange<ID>> changes = new LinkedList<DataChange<ID>>();
+    private List<DataChange> changes = new LinkedList<DataChange>();
 
 
     //For externalizable
@@ -90,19 +91,19 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     }
 
 
-    public ID getEntryID()
+    public UUID getEntryID()
     {
         return entryID;
     }
 
 
-    public void setEntryID( ID id )
+    public void setEntryID( UUID id )
     {
         entryID = id;
     }
 
 
-    public List<DataChange<ID>> getChanges()
+    public List<DataChange> getChanges()
     {
         return changes;
     }
@@ -111,31 +112,29 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
-        int len = in.readInt();
-
-        if ( len < 0 )
+        
+        boolean hasID = in.readBoolean();
+        
+        if ( hasID )
         {
-            entryID = null;
+            entryID = UUID.fromString( in.readUTF() );
         }
         else
         {
-            byte[] buf = new byte[len];
-            in.readFully( buf );
-            entryID = ( ID ) idSerializer.deserialize( buf );
+            entryID = null;
         }
-
+        
         txnID = in.readLong();
 
         partitionDn = new Dn();
         partitionDn.readExternal( in );
 
-        DataChange<ID> change;
+        DataChange change;
         int numChanges = in.readInt();
 
         for ( int idx = 0; idx < numChanges; idx++ )
         {
-            change = ( DataChange<ID> ) in.readObject();
+            change = ( DataChange ) in.readObject();
             changes.add( change );
         }
     }
@@ -144,27 +143,25 @@ public class DataChangeContainer<ID> extends AbstractLogEdit<ID>
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
-        DataChange<ID> change;
+        DataChange change;
         
-        if ( entryID == null )
+        if ( entryID != null )
         {
-            out.writeInt( -1 );
+            out.writeBoolean( true );
+            out.writeUTF( entryID.toString() );
         }
         else
         {
-            byte[] buf = idSerializer.serialize( entryID );
-            out.writeInt( buf.length );
-            out.write( buf );
+            out.writeBoolean( false );
         }
-
+        
         out.writeLong( txnID );
 
         partitionDn.writeExternal( out );
 
         out.writeInt( changes.size() );
 
-        Iterator<DataChange<ID>> it = changes.iterator();
+        Iterator<DataChange> it = changes.iterator();
 
         while ( it.hasNext() )
         {

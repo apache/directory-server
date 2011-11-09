@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -29,29 +30,82 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface Transaction<ID>
+/** Package protected */ interface Transaction
 {
-    List<ReadWriteTxn<ID>> getTxnsToCheck();
-    
+
+    /**
+     * Get the list of txns that this txn should check when mergin
+     * its view from the partitions with the data in txn logs.
+     *
+     * @return list of txns this txn depends.
+     */
+    List<ReadWriteTxn> getTxnsToCheck();
+
+
+    /**
+     * Returns the start time of the txn
+     *
+     * @return start time of the txn
+     */
     long getStartTime();
-    
+
+
+    /**
+     * Called to notify the txn of the txn start. Txn state
+     * is updated accordingly.
+     *
+     * @param startTime start time of the txn
+     */
     void startTxn( long startTime );
-    
+
+
+    /**
+     * Called when txn commits. Txn state is updated
+     * accordingly.
+     *
+     * @param commitTime commit time of the txn.
+     */
     void commitTxn( long commitTime );
-    
+
+
+    /**
+     * Gets the commit time of the txn
+     *
+     * @return commit time of the txn
+     */
     long getCommitTime();
-    
+
+
+    /**
+     * Called when txn aborts. Txn state is updated accordingly.
+     *
+     */
     void abortTxn();
-    
+
+
+    /**
+     * Returns the current state of the txn
+     *
+     * @return
+     */
     State getState();
-    
-    Entry mergeUpdates( Dn partitionDn, ID entryID, Entry entry );
-    
+
+
+    /**
+     * Provides a transactionally consistent view of the entry.
+     *
+     * @param partitionDn dn of the partition the entry lives in.
+     * @param entryID id of the entry
+     * @param entry version of the entry the caller has.
+     * @return
+     */
+    Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry );
+
     enum State
     {
         INITIAL,
         READ,
         COMMIT,
-        ABORT   
+        ABORT
     }
 }

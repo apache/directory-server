@@ -21,6 +21,7 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -49,13 +50,13 @@ import org.apache.directory.shared.ldap.model.entry.Entry;;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, ID>
+public class IndexCursorWrapper extends AbstractIndexCursor<Object>
 {
     /** Cursors to merge */
-    private ArrayList<IndexCursor<Object, Entry, ID>> cursors;
+    private ArrayList<IndexCursor<Object>> cursors;
     
     /** list of values available per cursor */
-    private ArrayList<IndexEntry<Object,ID>> values;
+    private ArrayList<IndexEntry<Object>> values;
     
     /** index get should get the value from */
     private int getIndex = -1;
@@ -70,7 +71,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     private boolean forwardIndex;
     
     /** List of txns that this cursor depends on */
-    private ArrayList<ReadWriteTxn<ID>> txns;
+    private ArrayList<ReadWriteTxn> txns;
     
     /** True if cursor is positioned */
     private boolean positioned;
@@ -79,32 +80,32 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     boolean movingNext = true;
     
     /** Comparator used to order the index entries */
-    private IndexComparator<Object,ID> comparator;
+    private IndexComparator<Object> comparator;
     
     /** unsupported operation message */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     
-    public IndexCursorWrapper( Dn partitionDn, IndexCursor<Object, Entry, ID> wrappedCursor, IndexComparator<Object,ID> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, ID onlyIDKey )
+    public IndexCursorWrapper( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey )
     {
         this.partitionDn = partitionDn;
         this.forwardIndex = forwardIndex;
         this.attributeOid = attributeOid;
         this.comparator = comparator;
         
-        TxnManagerInternal<ID> txnManager = TxnManagerFactory.<ID>txnManagerInternalInstance();      
-        Transaction<ID> curTxn = txnManager.getCurTxn();  
-        List<ReadWriteTxn<ID>> toCheck = curTxn.getTxnsToCheck(); 
+        TxnManagerInternal txnManager = TxnManagerFactory.txnManagerInternalInstance();      
+        Transaction curTxn = txnManager.getCurTxn();  
+        List<ReadWriteTxn> toCheck = curTxn.getTxnsToCheck(); 
         
-        cursors = new ArrayList<IndexCursor<Object, Entry, ID>>( toCheck.size() + 1 );
-        values = new ArrayList<IndexEntry<Object,ID>>( toCheck.size() + 1 );
-        cursors.add( ( IndexCursor<Object, Entry, ID> )wrappedCursor );
+        cursors = new ArrayList<IndexCursor<Object>>( toCheck.size() + 1 );
+        values = new ArrayList<IndexEntry<Object>>( toCheck.size() + 1 );
+        cursors.add( ( IndexCursor<Object> )wrappedCursor );
         values.add( null );
         
         if ( toCheck.size() > 0 )
         {
-            txns = new ArrayList<ReadWriteTxn<ID>>( toCheck.size() );
+            txns = new ArrayList<ReadWriteTxn>( toCheck.size() );
             
-            ReadWriteTxn<ID> dependentTxn;
+            ReadWriteTxn dependentTxn;
             
             for ( int idx = 0; idx < toCheck.size(); idx++ )
             {
@@ -131,12 +132,12 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<Object, ID> element ) throws Exception
+    public void after( IndexEntry<Object> element ) throws Exception
     {
         int idx;
         positioned = true;
         movingNext = true;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "after()" );
         
@@ -157,12 +158,12 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<Object, ID> element ) throws Exception
+    public void before( IndexEntry<Object> element ) throws Exception
     {
         int idx;
         positioned = true;
         movingNext = true;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "before()" );
         
@@ -184,12 +185,12 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, Object value ) throws Exception
+    public void afterValue( UUID id, Object value ) throws Exception
     {
         int idx;
         positioned = true;
         movingNext = true;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "afterValue()" );
         
@@ -211,12 +212,12 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, Object value ) throws Exception
+    public void beforeValue( UUID id, Object value ) throws Exception
     {
         int idx;
         positioned = true;
         movingNext = true;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "beforeValue()" );
         
@@ -243,7 +244,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         int idx;
         positioned = true;
         movingNext = true;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "beforeFirst()" );
         
@@ -270,7 +271,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         int idx;
         positioned = true;
         movingNext = false;
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         
         checkNotClosed( "afterLast()" );
         
@@ -317,13 +318,13 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
      */
     public boolean next() throws Exception
     {
-        IndexCursor<Object,Entry,ID> cursor;
-        IndexEntry<Object,ID> minValue;
-        IndexEntry<Object,ID> value;
+        IndexCursor<Object> cursor;
+        IndexEntry<Object> minValue;
+        IndexEntry<Object> value;
         
         checkNotClosed( "next()" );
         
-        IndexEntry<Object,ID> lastValue = null;
+        IndexEntry<Object> lastValue = null;
         
         if ( getIndex >= 0 )
         {
@@ -376,7 +377,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         }
         
         int txnIdx;
-        ReadWriteTxn<ID> curTxn;
+        ReadWriteTxn curTxn;
         boolean valueDeleted;
         
         do
@@ -428,13 +429,13 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
      */
     public boolean previous() throws Exception
     {
-        IndexCursor<Object,Entry,ID> cursor;
-        IndexEntry<Object,ID> maxValue;
-        IndexEntry<Object,ID> value;
+        IndexCursor<Object> cursor;
+        IndexEntry<Object> maxValue;
+        IndexEntry<Object> value;
         
         checkNotClosed( "previous()" );
         
-        IndexEntry<Object,ID> lastValue = null;
+        IndexEntry<Object> lastValue = null;
         
         if ( getIndex >= 0 )
         {
@@ -488,7 +489,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
         }
         
         int txnIdx;
-        ReadWriteTxn<ID> curTxn;
+        ReadWriteTxn curTxn;
         boolean valueDeleted;
         
         do
@@ -538,13 +539,13 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<Object, ID> get() throws Exception
+    public IndexEntry<Object> get() throws Exception
     {
         checkNotClosed( "get()" );
         
         if ( getIndex >= 0 )
         {
-            IndexEntry<Object,ID> value = values.get( getIndex );
+            IndexEntry<Object> value = values.get( getIndex );
             
             if ( value == null )
             {
@@ -566,7 +567,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     {
         super.close();
         
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         int idx;
         
         for ( idx = 0; idx < cursors.size(); idx++ )
@@ -589,7 +590,7 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
     {
         super.close( cause );
         
-        IndexCursor<Object,Entry,ID> cursor;
+        IndexCursor<Object> cursor;
         int idx;
         
         for ( idx = 0; idx < cursors.size(); idx++ )
@@ -620,9 +621,9 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
      */
     private void recomputeMinimum() throws Exception
     {
-        IndexCursor<Object,Entry,ID> cursor;
-        IndexEntry<Object,ID> minValue;
-        IndexEntry<Object,ID> value;
+        IndexCursor<Object> cursor;
+        IndexEntry<Object> minValue;
+        IndexEntry<Object> value;
         int idx;
         
         cursor = cursors.get( getIndex );
@@ -662,9 +663,9 @@ public class IndexCursorWrapper<ID> extends AbstractIndexCursor<Object, Entry, I
      */
     private void recomputeMaximum() throws Exception
     {
-        IndexCursor<Object,Entry,ID> cursor;
-        IndexEntry<Object,ID> maxValue;
-        IndexEntry<Object,ID> value;
+        IndexCursor<Object> cursor;
+        IndexEntry<Object> maxValue;
+        IndexEntry<Object> value;
         int idx;
         
         cursor = cursors.get( getIndex );

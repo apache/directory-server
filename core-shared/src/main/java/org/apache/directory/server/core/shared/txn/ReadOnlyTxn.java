@@ -23,7 +23,7 @@ package org.apache.directory.server.core.shared.txn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ class ReadOnlyTxn<ID> extends AbstractTransaction<ID>
+/** Package protected */ class ReadOnlyTxn extends AbstractTransaction
 {
 
 }

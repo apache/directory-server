@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.directory.SearchControls;
 
@@ -74,10 +75,10 @@ public class ConfigPartitionReader
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
     /** the partition which holds the configuration data */
-    private AbstractBTreePartition<Long> configPartition;
+    private AbstractBTreePartition configPartition;
 
     /** the search engine of the partition */
-    private SearchEngine<Entry, Long> se;
+    private SearchEngine se;
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
@@ -99,7 +100,7 @@ public class ConfigPartitionReader
      *
      * @param configPartition the non null config partition
      */
-    public ConfigPartitionReader( AbstractBTreePartition<Long> configPartition )
+    public ConfigPartitionReader( AbstractBTreePartition configPartition )
     {
         if ( configPartition == null )
         {
@@ -729,7 +730,7 @@ public class ConfigPartitionReader
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope.ordinal() );
-        IndexCursor<Long, Entry, Long> cursor = null;
+        IndexCursor<UUID> cursor = null;
 
         // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
@@ -761,7 +762,7 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
+                ForwardIndexEntry<UUID> forwardEntry = ( ForwardIndexEntry<UUID> ) cursor
                     .get();
 
                 // Now, get the entry

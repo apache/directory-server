@@ -87,10 +87,10 @@ public class IndexDialog<K, O, ID> extends JDialog
     private JLabel jLabel2 = new JLabel();
     private JButton scanBut = new JButton();
 
-    private Index<K, O, ID> index = null;
+    private Index<K> index = null;
 
 
-    public IndexDialog( Frame parent, boolean modal, Index<K, O, ID> index )
+    public IndexDialog( Frame parent, boolean modal, Index<K> index )
     {
         super( parent, modal );
         this.index = index;
@@ -98,7 +98,7 @@ public class IndexDialog<K, O, ID> extends JDialog
     }
 
 
-    public IndexDialog( Index<K, O, ID> index )
+    public IndexDialog( Index<K> index )
     {
         super();
         this.index = index;
@@ -289,7 +289,7 @@ public class IndexDialog<K, O, ID> extends JDialog
 
         try
         {
-            Cursor<IndexEntry<K, ID>> list;
+            Cursor<IndexEntry<K>> list;
 
             if ( scanType.equals( EQUALITY_CURSOR ) )
             {
@@ -297,7 +297,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 list.beforeFirst();
                 while ( list.next() )
                 {
-                    IndexEntry<K, ID> rec = list.get();
+                    IndexEntry<K> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -308,12 +308,12 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( GREATER_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
+                ForwardIndexEntry<K> entry = new ForwardIndexEntry<K>();
                 entry.setValue( key );
                 list.before( entry );
                 while ( list.next() )
                 {
-                    IndexEntry<K, ID> rec = list.get();
+                    IndexEntry<K> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -324,12 +324,12 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( LESS_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
+                ForwardIndexEntry<K> entry = new ForwardIndexEntry<K>();
                 entry.setValue( key );
                 list.after( entry );
                 while ( list.previous() )
                 {
-                    IndexEntry<K, ID> rec = list.get();
+                    IndexEntry<K> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -362,7 +362,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 list = index.forwardCursor();
                 while ( list.next() )
                 {
-                    IndexEntry<K, ID> rec = list.get();
+                    IndexEntry<K> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -404,7 +404,7 @@ public class IndexDialog<K, O, ID> extends JDialog
 
 
     @SuppressWarnings("unchecked")
-    public static void show( Index<?, Entry, Long> index )
+    public static void show( Index<?> index )
     {
         IndexDialog<?, Entry, Long> dialog = new IndexDialog( index );
         dialog.setVisible( true );

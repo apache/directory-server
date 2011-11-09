@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 import java.util.Comparator;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
@@ -33,10 +34,10 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
+public class MasterTableWrapper implements MasterTable
 {
     /** Wrapped master table */
-    private MasterTable<ID, Entry> wrappedTable;
+    private MasterTable wrappedTable;
     
     /** partition the table belongs to */
     private Dn partitionDn;
@@ -44,7 +45,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public ID getNextId( Entry entry ) throws Exception
+    public UUID getNextId( Entry entry ) throws Exception
     {
         return wrappedTable.getNextId( entry );
     }
@@ -62,7 +63,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public Comparator<ID> getKeyComparator()
+    public Comparator<UUID> getKeyComparator()
     {
         return wrappedTable.getKeyComparator();
     }
@@ -98,7 +99,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean has( ID key ) throws Exception
+    public boolean has( UUID key ) throws Exception
     {
         return ( get( key ) != null );
     }
@@ -107,7 +108,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean has( ID key, Entry value ) throws Exception
+    public boolean has( UUID key, Entry value ) throws Exception
     {
         Entry stored = get( key );
         
@@ -118,7 +119,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( ID key ) throws Exception
+    public boolean hasGreaterOrEqual( UUID key ) throws Exception
     {
         return wrappedTable.hasGreaterOrEqual( key );
     }
@@ -127,7 +128,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean hasLessOrEqual( ID key ) throws Exception
+    public boolean hasLessOrEqual( UUID key ) throws Exception
     {
         return wrappedTable.hasLessOrEqual( key );
     }
@@ -136,7 +137,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( ID key, Entry val ) throws Exception
+    public boolean hasGreaterOrEqual( UUID key, Entry val ) throws Exception
     {
         return wrappedTable.hasGreaterOrEqual( key, val );
     }
@@ -145,7 +146,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean hasLessOrEqual( ID key, Entry val ) throws Exception
+    public boolean hasLessOrEqual( UUID key, Entry val ) throws Exception
     {
         return wrappedTable.hasLessOrEqual( key, val );
     }
@@ -154,14 +155,14 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public Entry get( ID key ) throws Exception
+    public Entry get( UUID key ) throws Exception
     {
         if ( key == null )
         {
             return null;
         }
         
-        TxnLogManager<ID> logManager = TxnManagerFactory.<ID>txnLogManagerInstance();
+        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         Entry entry = wrappedTable.get( key );
         entry = logManager.mergeUpdates( partitionDn, key, entry );
         
@@ -172,7 +173,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public void put( ID key, Entry value ) throws Exception
+    public void put( UUID key, Entry value ) throws Exception
     {
         wrappedTable.put( key, value ); 
     }
@@ -181,7 +182,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public void remove( ID key ) throws Exception
+    public void remove( UUID key ) throws Exception
     {
         wrappedTable.remove( key ); 
     }
@@ -190,7 +191,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public void remove( ID key, Entry value ) throws Exception
+    public void remove( UUID key, Entry value ) throws Exception
     {
         wrappedTable.remove( key, value );
     }
@@ -199,7 +200,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Tuple<ID, Entry>> cursor() throws Exception
+    public Cursor<Tuple<UUID, Entry>> cursor() throws Exception
     {
         return wrappedTable.cursor();
     }
@@ -208,7 +209,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Tuple<ID, Entry>> cursor( ID key ) throws Exception
+    public Cursor<Tuple<UUID, Entry>> cursor( UUID key ) throws Exception
     {
         return wrappedTable.cursor( key );
     }
@@ -217,7 +218,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Entry> valueCursor( ID key ) throws Exception
+    public Cursor<Entry> valueCursor( UUID key ) throws Exception
     {
         return wrappedTable.valueCursor( key );
     }
@@ -235,7 +236,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public int count( ID key ) throws Exception
+    public int count( UUID key ) throws Exception
     {
         return wrappedTable.count( key );
     }
@@ -244,7 +245,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public int greaterThanCount( ID key ) throws Exception
+    public int greaterThanCount( UUID key ) throws Exception
     {
         return wrappedTable.greaterThanCount( key );
     }
@@ -253,7 +254,7 @@ public class MasterTableWrapper<ID> implements MasterTable<ID, Entry>
     /**
      * {@inheritDoc}
      */
-    public int lessThanCount( ID key ) throws Exception
+    public int lessThanCount( UUID key ) throws Exception
     {
         return wrappedTable.lessThanCount( key );
     }

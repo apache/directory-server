@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Comparator;
@@ -44,6 +45,7 @@ import org.apache.directory.server.core.api.partition.index.IndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
@@ -57,10 +59,10 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ class ReadWriteTxn<ID> extends AbstractTransaction<ID>
+/** Package protected */ class ReadWriteTxn extends AbstractTransaction
 {  
     /** list of log edits by the txn */
-    private List<LogEdit<ID>> logEdits = new LinkedList<LogEdit<ID>>();
+    private List<LogEdit> logEdits = new LinkedList<LogEdit>();
     
     /*
      * Number of txns that depend on this txn and previous committed
@@ -75,16 +77,16 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
     private UserLogRecord logRecord = new UserLogRecord();
     
     /** A summary of forward index adds */
-    private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> forwardIndexAdds  = 
-        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
+    private Map<Dn, Map<String, TreeSet< IndexEntry<Object> >>> forwardIndexAdds  = 
+        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object> >>>();
     
     /** A summary of reverse index adds */
-    private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> reverseIndexAdds  = 
-        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
+    private Map<Dn, Map<String, TreeSet< IndexEntry<Object> >>> reverseIndexAdds  = 
+        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object> >>>();
     
     /** A summary of index deletes */
-    private Map<Dn, Map<String, TreeSet< IndexEntry<Object,ID> >>> indexDeletes  = 
-        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object,ID> >>>();
+    private Map<Dn, Map<String, TreeSet< IndexEntry<Object> >>> indexDeletes  = 
+        new HashMap<Dn,  Map<String, TreeSet< IndexEntry<Object> >>>();
     
     
     /** List of Dn sets this txn depends */
@@ -106,7 +108,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
     }
     
     
-    public List<LogEdit<ID>> getEdits()
+    public List<LogEdit> getEdits()
     {
         return logEdits;
     }
@@ -121,7 +123,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
      * @param edit txn log edit to be logged
      */
     @SuppressWarnings("unchecked")
-    public void addLogEdit( LogEdit<ID> edit )
+    public void addLogEdit( LogEdit edit )
     {
         logEdits.add( edit );
 
@@ -130,26 +132,26 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
          */
         if ( edit instanceof DataChangeContainer )
         {
-            DataChangeContainer<ID> dEdit = ( DataChangeContainer<ID> ) edit;
-            List<DataChange<ID>> dataChanges = dEdit.getChanges();
-            Iterator<DataChange<ID>> it = dataChanges.iterator();
+            DataChangeContainer dEdit = ( DataChangeContainer ) edit;
+            List<DataChange> dataChanges = dEdit.getChanges();
+            Iterator<DataChange> it = dataChanges.iterator();
             Dn partitionDn = dEdit.getPartitionDn();
 
-            DataChange<ID> nextChange;
-            IndexChange<ID> indexChange;
+            DataChange nextChange;
+            IndexChange indexChange;
             IndexChange.Type indexChangeType;
-            ForwardIndexEntry<Object, ID> indexEntry;
-            ReverseIndexEntry<Object, ID> reverseIndexEntry;
+            ForwardIndexEntry<Object> indexEntry;
+            ReverseIndexEntry<Object> reverseIndexEntry;
 
-            Map<String, TreeSet<IndexEntry<Object, ID>>> forwardIndices =
+            Map<String, TreeSet<IndexEntry<Object>>> forwardIndices =
                 forwardIndexAdds.get( partitionDn );
 
-            Map<String, TreeSet<IndexEntry<Object, ID>>> reverseIndices =
+            Map<String, TreeSet<IndexEntry<Object>>> reverseIndices =
                 reverseIndexAdds.get( partitionDn );
 
             if ( forwardIndices == null )
             {
-                forwardIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
+                forwardIndices = new HashMap<String, TreeSet<IndexEntry<Object>>>();
 
                 // Reverse index changes should be null too
                 if ( reverseIndices != null )
@@ -159,18 +161,18 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                             + partitionDn );
                 }
 
-                reverseIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
+                reverseIndices = new HashMap<String, TreeSet<IndexEntry<Object>>>();
 
                 forwardIndexAdds.put( partitionDn, forwardIndices );
                 reverseIndexAdds.put( partitionDn, reverseIndices );
             }
 
-            Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+            Map<String, TreeSet<IndexEntry<Object>>> deletedIndices =
                 indexDeletes.get( partitionDn );
 
             if ( deletedIndices == null )
             {
-                deletedIndices = new HashMap<String, TreeSet<IndexEntry<Object, ID>>>();
+                deletedIndices = new HashMap<String, TreeSet<IndexEntry<Object>>>();
                 indexDeletes.put( partitionDn, deletedIndices );
             }
 
@@ -180,20 +182,20 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 
                 if ( nextChange instanceof IndexChange )
                 {
-                    indexChange = ( IndexChange<ID> ) nextChange;
+                    indexChange = ( IndexChange ) nextChange;
                     indexChangeType = indexChange.getType();
-                    Index<Object, ?, ID> index = ( Index<Object, ?, ID> ) indexChange.getIndex();
+                    Index<Object> index = ( Index<Object> ) indexChange.getIndex();
 
-                    TreeSet<IndexEntry<Object, ID>> forwardAdds =
+                    TreeSet<IndexEntry<Object>> forwardAdds =
                         forwardIndices.get( indexChange.getOID() );
 
-                    TreeSet<IndexEntry<Object, ID>> reverseAdds =
+                    TreeSet<IndexEntry<Object>> reverseAdds =
                         reverseIndices.get( indexChange.getOID() );
 
                     if ( forwardAdds == null )
                     {
                         forwardAdds =
-                            new TreeSet<IndexEntry<Object, ID>>( index.getForwardIndexEntryComparator() );
+                            new TreeSet<IndexEntry<Object>>( index.getForwardIndexEntryComparator() );
 
                         // Reverse index changes should be null too
                         if ( reverseAdds != null )
@@ -204,25 +206,25 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                         }
 
                         reverseAdds =
-                            new TreeSet<IndexEntry<Object, ID>>( index.getReverseIndexEntryComparator() );
+                            new TreeSet<IndexEntry<Object>>( index.getReverseIndexEntryComparator() );
 
                         forwardIndices.put( indexChange.getOID(), forwardAdds );
                         reverseIndices.put( indexChange.getOID(), forwardAdds );
                     }
 
-                    TreeSet<IndexEntry<Object, ID>> deletes = deletedIndices.get( indexChange.getOID() );
+                    TreeSet<IndexEntry<Object>> deletes = deletedIndices.get( indexChange.getOID() );
 
                     if ( deletes == null )
                     {
-                        deletes = new TreeSet<IndexEntry<Object, ID>>( index.getForwardIndexEntryComparator() );
+                        deletes = new TreeSet<IndexEntry<Object>>( index.getForwardIndexEntryComparator() );
                         deletedIndices.put( indexChange.getOID(), deletes );
                     }
 
-                    indexEntry = new ForwardIndexEntry<Object, ID>();
+                    indexEntry = new ForwardIndexEntry<Object>();
                     indexEntry.setValue( indexChange.getKey() );
                     indexEntry.setId( indexChange.getID() );
 
-                    reverseIndexEntry = new ReverseIndexEntry<Object, ID>();
+                    reverseIndexEntry = new ReverseIndexEntry<Object>();
                     reverseIndexEntry.setValue( indexChange.getKey() );
                     reverseIndexEntry.setId( indexChange.getID() );
 
@@ -252,13 +254,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
      * @param cloneOnChange true if entry should be cloned while applying a change.
      * @return entry after it is merged with the updates in the txn.
      */
-    public Entry applyUpdatesToEntry( Dn partitionDn, ID entryID, Entry curEntry, boolean cloneOnChange )
+    public Entry applyUpdatesToEntry( Dn partitionDn, UUID entryID, Entry curEntry, boolean cloneOnChange )
     {
         boolean needToCloneOnChange = cloneOnChange;
-        LogEdit<ID> edit;
-        DataChangeContainer<ID> container;
+        LogEdit edit;
+        DataChangeContainer container;
 
-        Iterator<LogEdit<ID>> it = logEdits.iterator();
+        Iterator<LogEdit> it = logEdits.iterator();
 
         while ( it.hasNext() )
         {
@@ -266,14 +268,14 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 
             if ( edit instanceof DataChangeContainer )
             {
-                container = ( DataChangeContainer<ID> ) edit;
+                container = ( DataChangeContainer ) edit;
 
                 /**
                  * Check if the container has changes for the entry
                  * and the version says we need to apply this change
                  */
                 //TODO check version and id here. 
-                ID entryId = container.getEntryID();
+                UUID entryId = container.getEntryID();
                 boolean applyChanges = false;
 
                 if ( entryId != null )
@@ -283,7 +285,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                      * affects out entry by comparing id and partitionDn.
                      */
 
-                    Comparator<ID> idComp = TxnManagerFactory.<ID> txnManagerInstance().getIDComparator();
+                    Comparator<UUID> idComp = UUIDComparator.INSTANCE;
 
                     if ( partitionDn.equals( container.getPartitionDn() )
                         && ( idComp.compare( entryID, container.getEntryID() ) == 0 ) )
@@ -295,9 +297,9 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 
                 if ( applyChanges )
                 {
-                    List<DataChange<ID>> dataChanges = container.getChanges();
-                    Iterator<DataChange<ID>> dit = dataChanges.iterator();
-                    DataChange<ID> nextChange;
+                    List<DataChange> dataChanges = container.getChanges();
+                    Iterator<DataChange> dit = dataChanges.iterator();
+                    DataChange nextChange;
 
                     while ( dit.hasNext() )
                     {
@@ -305,7 +307,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 
                         if ( ( nextChange instanceof EntryChange ) && ( curEntry != null ) )
                         {
-                            EntryChange<ID> entryChange = ( EntryChange<ID> ) nextChange;
+                            EntryChange entryChange = ( EntryChange ) nextChange;
 
                             if ( needToCloneOnChange )
                             {
@@ -324,7 +326,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                         }
                         else if ( nextChange instanceof EntryAddDelete )
                         {
-                            EntryAddDelete<ID> addDelete = ( EntryAddDelete<ID> ) nextChange;
+                            EntryAddDelete addDelete = ( EntryAddDelete ) nextChange;
                             needToCloneOnChange = false;
 
                             if ( addDelete.getType() == EntryAddDelete.Type.ADD )
@@ -355,7 +357,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
      */
     public boolean hasDeletesFor( Dn partitionDn, String attributeOid )
     {
-        Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+        Map<String, TreeSet<IndexEntry<Object>>> deletedIndices =
             indexDeletes.get( partitionDn );
 
         if ( deletedIndices != null )
@@ -378,21 +380,21 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
      * @param comparator comparator that will be used to order index entries.
      * @return
      */
-    public IndexCursor<Object, Entry, ID> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex,
-        Object onlyValueKey, ID onlyIDKey, IndexComparator<Object, ID> comparator )
+    public IndexCursor<Object> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex,
+        Object onlyValueKey, UUID onlyIDKey, IndexComparator<Object> comparator )
     {
-        TxnIndexCursor<ID> txnIndexCursor = null;
+        TxnIndexCursor txnIndexCursor = null;
 
-        Map<String, TreeSet<IndexEntry<Object, ID>>> forwardIndices =
+        Map<String, TreeSet<IndexEntry<Object>>> forwardIndices =
             forwardIndexAdds.get( partitionDn );
 
         if ( forwardIndices != null )
         {
-            TreeSet<IndexEntry<Object, ID>> sortedSet = forwardIndices.get( attributeOid );
+            TreeSet<IndexEntry<Object>> sortedSet = forwardIndices.get( attributeOid );
 
             if ( sortedSet != null )
             {
-                txnIndexCursor = new TxnIndexCursor<ID>( sortedSet, forwardIndex, onlyValueKey, onlyIDKey, comparator );
+                txnIndexCursor = new TxnIndexCursor( sortedSet, forwardIndex, onlyValueKey, onlyIDKey, comparator );
             }
         }
 
@@ -409,9 +411,9 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
      * @param indexEntry value to be checked
      * @return true if the given value is deleted.
      */
-    public boolean isIndexEntryDeleted( Dn partitionDn, String attributeOid, IndexEntry<Object, ID> indexEntry )
+    public boolean isIndexEntryDeleted( Dn partitionDn, String attributeOid, IndexEntry<Object> indexEntry )
     {
-        Map<String, TreeSet<IndexEntry<Object, ID>>> deletedIndices =
+        Map<String, TreeSet<IndexEntry<Object>>> deletedIndices =
             indexDeletes.get( partitionDn );
 
         if ( deletedIndices == null )
@@ -419,7 +421,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
             return false;
         }
 
-        TreeSet<IndexEntry<Object, ID>> deletedEntries = deletedIndices.get( attributeOid );
+        TreeSet<IndexEntry<Object>> deletedEntries = deletedIndices.get( attributeOid );
 
         if ( deletedEntries == null )
         {

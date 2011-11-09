@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.tree.TreeNode;
 
@@ -51,16 +52,16 @@ public class EntryNode implements TreeNode
     private final EntryNode parent;
     private final Entry entry;
     private final ArrayList<TreeNode> children;
-    private final Long id;
+    private final UUID id;
 
 
-    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition partition, Entry entry, Map<Long, EntryNode> map )
+    public EntryNode( UUID id, EntryNode parent, AbstractBTreePartition partition, Entry entry, Map<UUID, EntryNode> map )
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition db, Entry entry, Map<Long, EntryNode> map,
+    public EntryNode( UUID id, EntryNode parent, AbstractBTreePartition db, Entry entry, Map<UUID, EntryNode> map,
         ExprNode exprNode, SearchEngine engine )
     {
         this.partition = db;
@@ -80,7 +81,7 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long, Entry, Long> childList = db.list( id );
+            IndexCursor<UUID> childList = db.list( id );
 
             while ( childList.next() )
             {
@@ -100,14 +101,14 @@ public class EntryNode implements TreeNode
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( (Long)rec.getId() ) == 0 )
+                    if ( db.getChildCount( rec.getId() ) == 0 )
                     {
                         Evaluator evaluator = engine.evaluator( exprNode );
                         
                         if ( evaluator.evaluate( rec ) )
                         {
-                            Entry newEntry = db.lookup( (Long)rec.getId() );
-                            EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                            Entry newEntry = db.lookup( rec.getId() );
+                            EntryNode child = new EntryNode( rec.getId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
                         }
@@ -118,16 +119,16 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Entry newEntry = db.lookup( (Long)rec.getId() );
-                        EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                        Entry newEntry = db.lookup( rec.getId() );
+                        EntryNode child = new EntryNode( rec.getId(), this, db, newEntry, map, exprNode,
                             engine );
                         children.add( child );
                     }
                 }
                 else
                 {
-                    Entry newEntry = db.lookup( ( Long ) rec.getId() );
-                    EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map );
+                    Entry newEntry = db.lookup( rec.getId() );
+                    EntryNode child = new EntryNode( rec.getId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }
@@ -219,7 +220,7 @@ public class EntryNode implements TreeNode
     }
 
 
-    public Long getEntryId()
+    public UUID getEntryId()
     {
         return id;
     }

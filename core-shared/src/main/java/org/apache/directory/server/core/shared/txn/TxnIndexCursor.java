@@ -23,6 +23,7 @@ package org.apache.directory.server.core.shared.txn;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.i18n.I18n;
@@ -31,6 +32,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.UUID;
 
 
 /**
@@ -38,10 +40,10 @@ import java.util.NavigableSet;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
+public class TxnIndexCursor extends AbstractIndexCursor<Object>
 {
     /** list of changed index entries */
-    private NavigableSet<IndexEntry<Object, ID>> changedEntries;
+    private NavigableSet<IndexEntry<Object>> changedEntries;
 
     /** forward or reverse index */
     private boolean forwardIndex;
@@ -53,10 +55,10 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     private boolean movingNext = true;
 
     /** Iterator to move over the set */
-    private Iterator<IndexEntry<Object, ID>> it;
+    private Iterator<IndexEntry<Object>> it;
 
     /** currently available value */
-    private IndexEntry<Object, ID> availableValue;
+    private IndexEntry<Object> availableValue;
 
     /** unsupported operation message */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
@@ -71,18 +73,18 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     private Object onlyValueKey;
 
     /** Lock down key in case of reverse index */
-    private ID onlyIDKey;
+    private UUID onlyIDKey;
 
     /** index entry comparator */
-    private IndexComparator<Object, ID> comparator;
+    private IndexComparator<Object> comparator;
 
 
-    public TxnIndexCursor( NavigableSet<IndexEntry<Object, ID>> changedEntries, boolean forwardIndex,
-        Object onlyValueKey, ID onlyIDKey, IndexComparator<?, ID> comparator )
+    public TxnIndexCursor( NavigableSet<IndexEntry<Object>> changedEntries, boolean forwardIndex,
+        Object onlyValueKey, UUID onlyIDKey, IndexComparator<Object> comparator )
     {
         this.changedEntries = changedEntries;
         this.forwardIndex = forwardIndex;
-        this.comparator = ( IndexComparator<Object, ID> ) comparator;
+        this.comparator = comparator;
 
         if ( onlyValueKey != null )
         {
@@ -100,7 +102,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<Object, ID> element ) throws Exception
+    public void after( IndexEntry<Object> element ) throws Exception
     {
         availableValue = null;
 
@@ -116,7 +118,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
             }
             else
             {
-                if ( comparator.getIDComparator().compare( element.getId(), onlyIDKey ) != 0 )
+                if ( UUIDComparator.INSTANCE.compare( element.getId(), onlyIDKey ) != 0 )
                 {
                     throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
                 }
@@ -157,7 +159,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
             it = changedEntries.tailSet( element, false ).iterator();
 
             boolean useLastEntry = false;
-            IndexEntry<Object, ID> indexEntry = null;
+            IndexEntry<Object> indexEntry = null;
 
             while ( it.hasNext() )
             {
@@ -173,7 +175,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
                 }
                 else
                 {
-                    if ( comparator.getIDComparator().compare( indexEntry.getId(), element.getId() ) != 0 )
+                    if ( UUIDComparator.INSTANCE.compare( indexEntry.getId(), element.getId() ) != 0 )
                     {
                         useLastEntry = true;
                         break;
@@ -204,7 +206,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<Object, ID> element ) throws Exception
+    public void before( IndexEntry<Object> element ) throws Exception
     {
         availableValue = null;
 
@@ -220,7 +222,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
             }
             else
             {
-                if ( comparator.getIDComparator().compare( element.getId(), onlyIDKey ) != 0 )
+                if ( UUIDComparator.INSTANCE.compare( element.getId(), onlyIDKey ) != 0 )
                 {
                     throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
                 }
@@ -243,9 +245,9 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, Object value ) throws Exception
+    public void afterValue( UUID id, Object value ) throws Exception
     {
-        ForwardIndexEntry<Object, ID> indexEntry = new ForwardIndexEntry<Object, ID>();
+        ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
         indexEntry.setId( id );
         indexEntry.setValue( value );
         after( indexEntry );
@@ -255,9 +257,9 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, Object value ) throws Exception
+    public void beforeValue( UUID id, Object value ) throws Exception
     {
-        ForwardIndexEntry<Object, ID> indexEntry = new ForwardIndexEntry<Object, ID>();
+        ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
         indexEntry.setId( id );
         indexEntry.setValue( value );
         before( indexEntry );
@@ -277,7 +279,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
         if ( onlyKey )
         {
             // If locked down by a key, position the iterator on the first value for the given key. 
-            ForwardIndexEntry<Object, ID> indexEntry = new ForwardIndexEntry<Object, ID>();
+            ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
 
             if ( forwardIndex )
             {
@@ -314,7 +316,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
              * If we are locked down by only key, then position the iterator right past the key.
              */
 
-            IndexEntry<Object, ID> indexEntry = new ForwardIndexEntry<Object, ID>();
+            IndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
 
             if ( forwardIndex )
             {
@@ -343,7 +345,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
                 }
                 else
                 {
-                    if ( comparator.getIDComparator().compare( indexEntry.getId(), onlyIDKey ) != 0 )
+                    if ( UUIDComparator.INSTANCE.compare( indexEntry.getId(), onlyIDKey ) != 0 )
                     {
                         useLastEntry = true;
                         break;
@@ -452,7 +454,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
                 }
                 else
                 {
-                    if ( comparator.getIDComparator().compare( availableValue.getId(), onlyIDKey ) != 0 )
+                    if ( UUIDComparator.INSTANCE.compare( availableValue.getId(), onlyIDKey ) != 0 )
                     {
                         pastOnlyKey = true;
 
@@ -535,7 +537,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
                 }
                 else
                 {
-                    if ( comparator.getIDComparator().compare( availableValue.getId(), onlyIDKey ) != 0 )
+                    if ( UUIDComparator.INSTANCE.compare( availableValue.getId(), onlyIDKey ) != 0 )
                     {
                         pastOnlyKey = true;
 
@@ -558,7 +560,7 @@ public class TxnIndexCursor<ID> extends AbstractIndexCursor<Object, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<Object, ID> get() throws Exception
+    public IndexEntry<Object> get() throws Exception
     {
         if ( availableValue != null && !pastOnlyKey )
         {

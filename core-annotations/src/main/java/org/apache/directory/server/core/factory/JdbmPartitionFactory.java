@@ -67,9 +67,9 @@ public class JdbmPartitionFactory implements PartitionFactory
         }
 
         JdbmPartition jdbmPartition = ( JdbmPartition ) partition;
-        Set<Index<?, Entry, Long>> indexedAttributes = jdbmPartition.getIndexedAttributes();
+        Set<Index<?>> indexedAttributes = jdbmPartition.getIndexedAttributes();
 
-        JdbmIndex<Object, Entry> index = new JdbmIndex<Object, Entry>( attributeId );
+        JdbmIndex<Object> index = new JdbmIndex<Object>( attributeId );
         index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

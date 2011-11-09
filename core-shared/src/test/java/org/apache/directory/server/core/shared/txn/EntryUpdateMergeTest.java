@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.io.IOException;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -69,28 +70,28 @@ public class EntryUpdateMergeTest
     private static String LOG_SUFFIX = "log";
 
     /** Txn manager */
-    private TxnManagerInternal<Long> txnManager;
+    private TxnManagerInternal txnManager;
 
     /** Txn log manager */
-    private TxnLogManager<Long> txnLogManager;
+    private TxnLogManager txnLogManager;
 
     /** Entry to be merged */
     private Entry toUpdate;
 
     /** Entry Id */
-    private Long updatedEntryId = new Long( 0 );
+    private UUID updatedEntryId = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
 
     /** Entry to be added by a txn */
     private Entry toAdd;
 
     /** Entry Id */
-    private Long addedEntryId = new Long( 1 );
+    private UUID addedEntryId = UUID.fromString( "00000000-0000-0000-0000-000000000002" );
 
     /** Entry to be added by a txn */
     private Entry toDelete;
 
     /** Entry Id */
-    private Long deletedEntryId = new Long( 2 );
+    private UUID deletedEntryId = UUID.fromString( "00000000-0000-0000-0000-000000000003" );
 
     /** Schema manager */
     private SchemaManager schemaManager;
@@ -130,17 +131,16 @@ public class EntryUpdateMergeTest
             GN_AT = schemaManager.getAttributeType( "gn" );
 
             // Init the txn manager
-            TxnManagerFactory.<Long> init( LongComparator.INSTANCE, LongSerializer.INSTANCE, getLogFolder(),
-                logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.<Long> txnManagerInternalInstance();
-            txnLogManager = TxnManagerFactory.<Long> txnLogManagerInstance();
+            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = TxnManagerFactory.txnManagerInternalInstance();
+            txnLogManager = TxnManagerFactory.txnLogManagerInstance();
 
             toUpdate = createEntry( updatedEntryId );
             toAdd = createEntry( addedEntryId );
             toDelete = createEntry( deletedEntryId );
 
             // Begin a txn and do some entry changes.
-            DataChangeContainer<Long> changeContainer = new DataChangeContainer<Long>( dn );
+            DataChangeContainer changeContainer = new DataChangeContainer( dn );
             changeContainer.setEntryID( updatedEntryId );
             txnManager.beginTransaction( false );
 
@@ -149,7 +149,7 @@ public class EntryUpdateMergeTest
 
             Modification redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
             Modification undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
-            EntryChange<Long> eChange = new EntryChange<Long>( redo, undo );
+            EntryChange eChange = new EntryChange( redo, undo );
 
             changeContainer.getChanges().add( eChange );
 
@@ -158,21 +158,21 @@ public class EntryUpdateMergeTest
 
             txnManager.beginTransaction( false );
 
-            changeContainer = new DataChangeContainer<Long>( dn );
+            changeContainer = new DataChangeContainer( dn );
             changeContainer.setEntryID( updatedEntryId );
             attribute = new DefaultAttribute( "gn", GN_AT );
             attribute.add( "test3" );
 
             redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
             undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
-            eChange = new EntryChange<Long>( redo, undo );
+            eChange = new EntryChange( redo, undo );
 
             changeContainer.getChanges().add( eChange );
             txnLogManager.log( changeContainer, false );
 
-            changeContainer = new DataChangeContainer<Long>( dn );
+            changeContainer = new DataChangeContainer( dn );
             changeContainer.setEntryID( addedEntryId );
-            EntryAddDelete<Long> eAdd = new EntryAddDelete<Long>( toAdd, EntryAddDelete.Type.ADD );
+            EntryAddDelete eAdd = new EntryAddDelete( toAdd, EntryAddDelete.Type.ADD );
 
             changeContainer.getChanges().add( eAdd );
             txnLogManager.log( changeContainer, false );
@@ -181,9 +181,9 @@ public class EntryUpdateMergeTest
 
             txnManager.beginTransaction( false );
 
-            changeContainer = new DataChangeContainer<Long>( dn );
+            changeContainer = new DataChangeContainer( dn );
             changeContainer.setEntryID( deletedEntryId );
-            EntryAddDelete<Long> eDelete = new EntryAddDelete<Long>( toDelete, EntryAddDelete.Type.DELETE );
+            EntryAddDelete eDelete = new EntryAddDelete( toDelete, EntryAddDelete.Type.DELETE );
 
             changeContainer.getChanges().add( eDelete );
             txnLogManager.log( changeContainer, false );
@@ -270,7 +270,7 @@ public class EntryUpdateMergeTest
     }
 
 
-    private Entry createEntry( Long id ) throws Exception
+    private Entry createEntry( UUID id ) throws Exception
     {
         String user = id.toString();
 

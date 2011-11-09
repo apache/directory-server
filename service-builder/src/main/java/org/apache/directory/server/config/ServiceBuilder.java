@@ -1056,14 +1056,14 @@ public class ServiceBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
+    public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
         {
             return null;
         }
         
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        JdbmIndex<String> index = new JdbmIndex<String>();
         
         index.setAttributeId( jdbmIndexBean.getIndexAttributeId() );
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
@@ -1106,9 +1106,9 @@ public class ServiceBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, Entry, Long>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans, DirectoryService directoryService ) //throws Exception
+    private static Set<Index<?>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans, DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
+        Set<Index<?>> indexes = new HashSet<Index<?>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {

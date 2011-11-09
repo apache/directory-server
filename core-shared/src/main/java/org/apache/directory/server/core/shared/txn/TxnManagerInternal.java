@@ -25,12 +25,12 @@ import org.apache.directory.server.core.api.txn.TxnManager;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface TxnManagerInternal<ID> extends TxnManager<ID>
+/** Package protected */ interface TxnManagerInternal extends TxnManager
 {
     /**
      * Returns the current txn associated with the current thread.
      *
      * @return current txn
      */
-    Transaction<ID> getCurTxn();
+    Transaction getCurTxn();
 }

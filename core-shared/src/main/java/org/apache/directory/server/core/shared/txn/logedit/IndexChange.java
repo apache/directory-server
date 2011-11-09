@@ -23,6 +23,7 @@ package org.apache.directory.server.core.shared.txn.logedit;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.Serializer;
@@ -36,10 +37,10 @@ import org.apache.directory.shared.ldap.model.entry.Value;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexChange<ID> extends AbstractDataChange<ID>
+public class IndexChange extends AbstractDataChange
 {
     /** Index this change is done on */
-    private transient Index<?, ?, ID> index;
+    private transient Index<?> index;
 
     /** oid of the attribute the index is on */
     private String oid;
@@ -47,8 +48,8 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     /** key of the forward index */
     private Object key;
 
-    /** if for the index */
-    private ID id;
+    /** id for the index */
+    private UUID id;
 
     /** Change type */
     Type type;
@@ -60,7 +61,7 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     }
 
 
-    public IndexChange( Index<?, ?, ID> index, String oid, Object key, ID id, Type type )
+    public IndexChange( Index<?> index, String oid, Object key, UUID id, Type type )
     {
         this.index = index;
         this.oid = oid;
@@ -76,7 +77,7 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     }
 
 
-    public Index<?, ?, ID> getIndex()
+    public Index<?> getIndex()
     {
         return index;
     }
@@ -88,7 +89,7 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     }
 
 
-    public ID getID()
+    public UUID getID()
     {
         return id;
     }
@@ -104,16 +105,9 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
-
         oid = in.readUTF();
-        key = ( Value<?> ) in.readObject();
-
-        int len = in.readInt();
-        byte[] buf = new byte[len];
-        in.readFully( buf );
-        id = ( ID ) idSerializer.deserialize( buf );
-
+        key = in.readObject();
+        id = UUID.fromString( in.readUTF() );
         type = Type.values()[in.readInt()];
     }
 
@@ -121,15 +115,9 @@ public class IndexChange<ID> extends AbstractDataChange<ID>
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        Serializer idSerializer = TxnManagerFactory.txnManagerInstance().getIDSerializer();
-
         out.writeUTF( oid );
         out.writeObject( key );
-
-        byte[] buf = idSerializer.serialize( id );
-        out.writeInt( buf.length );
-        out.write( buf );
-
+        out.writeUTF( id.toString() );
         out.writeInt( type.ordinal() );
     }
 

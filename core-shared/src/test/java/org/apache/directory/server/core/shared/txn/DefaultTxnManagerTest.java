@@ -49,7 +49,7 @@ public class DefaultTxnManagerTest
     private static String LOG_SUFFIX = "log";
 
     /** Txn manager */
-    private TxnManagerInternal<Long> txnManager;
+    private TxnManagerInternal txnManager;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -71,9 +71,8 @@ public class DefaultTxnManagerTest
     {
         try
         {
-            TxnManagerFactory.<Long> init( LongComparator.INSTANCE, LongSerializer.INSTANCE, getLogFolder(),
-                logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.<Long> txnManagerInternalInstance();
+            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = TxnManagerFactory.txnManagerInternalInstance();
         }
         catch ( IOException e )
         {
@@ -182,20 +181,20 @@ public class DefaultTxnManagerTest
     @Test
     public void testDependencyList()
     {
-        List<ReadWriteTxn<Long>> dependentTxns;
+        List<ReadWriteTxn> dependentTxns;
         try
         {
-            Transaction<Long> txn1 = null;
+            Transaction txn1 = null;
             txnManager.beginTransaction( false );
             txn1 = txnManager.getCurTxn();
             txnManager.commitTransaction();
 
-            Transaction<Long> txn2 = null;
+            Transaction txn2 = null;
             txnManager.beginTransaction( false );
             txn2 = txnManager.getCurTxn();
             txnManager.commitTransaction();
 
-            Transaction<Long> txn3 = null;
+            Transaction txn3 = null;
             txnManager.beginTransaction( true );
             txn3 = txnManager.getCurTxn();
 
@@ -206,7 +205,7 @@ public class DefaultTxnManagerTest
 
             txnManager.commitTransaction();
 
-            Transaction<Long> txn4 = null;
+            Transaction txn4 = null;
             txnManager.beginTransaction( false );
             txn4 = txnManager.getCurTxn();;
             dependentTxns = txn4.getTxnsToCheck();

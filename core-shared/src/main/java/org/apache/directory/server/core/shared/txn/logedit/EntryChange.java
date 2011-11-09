@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChange<ID> extends AbstractDataChange<ID>
+public class EntryChange extends AbstractDataChange
 {
     /** redo change */
     private Modification redoChange;
@@ -67,11 +67,9 @@ public class EntryChange<ID> extends AbstractDataChange<ID>
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         redoChange = new DefaultModification();
-        
         redoChange.readExternal( in );
         
         undoChange = new DefaultModification();
-        
         undoChange.readExternal( in );
         
     }

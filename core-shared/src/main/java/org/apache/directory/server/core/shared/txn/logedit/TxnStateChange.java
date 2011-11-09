@@ -29,7 +29,7 @@ import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TxnStateChange<ID> extends AbstractLogEdit<ID>
+public class TxnStateChange extends AbstractLogEdit
 {
     /** ID of the txn associated with this change */
     long txnID;
