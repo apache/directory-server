@@ -172,9 +172,9 @@ public class InterceptorChain
         }
 
 
-        public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+        public void bind( BindOperationContext bindContext ) throws LdapException
         {
-            nexus.bind( bindContext );
+            // Do nothing
         }
 
 
@@ -621,27 +621,6 @@ public class InterceptorChain
         try
         {
             head.add( next, addContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        Element node = getStartingEntry();
-        Interceptor head = node.interceptor;
-        NextInterceptor next = node.nextInterceptor;
-
-        try
-        {
-            head.bind( next, bindContext );
         }
         catch ( LdapException le )
         {
@@ -1126,28 +1105,6 @@ public class InterceptorChain
                         //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
                         interceptor.moveAndRename( next.nextInterceptor, moveAndRenameContext );
                         //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void bind( BindOperationContext bindContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", bindRequest" );
-                        interceptor.bind( next.nextInterceptor, bindContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", bindRequest" );
                     }
                     catch ( LdapException le )
                     {

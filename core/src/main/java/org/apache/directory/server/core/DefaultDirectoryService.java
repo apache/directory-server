@@ -31,12 +31,16 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.directory.Attributes;
 
@@ -238,6 +242,14 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The list of declared interceptors */
     private List<Interceptor> interceptors;
+    private Map<String, Interceptor> interceptorNames;
+    
+    /** A lock to protect the interceptors List */
+    private ReadWriteLock interceptorsLock = new ReentrantReadWriteLock();
+    
+    /** The read and write locks */
+    private Lock readLock  = interceptorsLock.readLock();
+    private Lock writeLock  = interceptorsLock.writeLock();
     
     /** A map associating a list of interceptor to each operation */
     private Map<OperationEnum, List<String>> operationInterceptors;
@@ -465,9 +477,19 @@ public class DefaultDirectoryService implements DirectoryService
     public List<Interceptor> getInterceptors()
     {
         List<Interceptor> cloned = new ArrayList<Interceptor>();
-        cloned.addAll( interceptors );
+    	
+        try
+        {
+            readLock.lock();
+            
+        	cloned.addAll( interceptors );
         
-        return cloned;
+        	return cloned;
+        }
+        finally
+        {
+            readLock.unlock();
+        }
     }
 
 
@@ -479,38 +501,149 @@ public class DefaultDirectoryService implements DirectoryService
     public List<String> getInterceptors( OperationEnum operation )
     {
         List<String> cloned = new ArrayList<String>();
-        cloned.addAll( operationInterceptors.get( operation ) );
         
-        return cloned;
+        try
+        {
+	        readLock.lock();
+	        cloned.addAll( operationInterceptors.get( operation ) );
+	        
+	        return cloned;
+        }
+        finally
+        {
+            readLock.unlock();
+        }
+
     }
     
     
     /**
-     * Compute the list of interceptors to call for each operation
+     * Compute the list of  to call for each operation
      */
-    private void initOperationsList( OperationEnum... operations)
+    private void initOperationsList()
     {
-    	operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
-    	
-    	for ( OperationEnum operation : operations )
+    	try
     	{
-	    	List<String> operationList = new ArrayList<String>();
+	        writeLock.lock();
+	    	operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
 	    	
-	        for ( Interceptor interceptor : interceptors )
-	        {
+	    	for ( OperationEnum operation : OperationEnum.getOperations() )
+	    	{
+		    	List<String> operationList = new ArrayList<String>();
+		    	
+		        for ( Interceptor interceptor : interceptors )
+		        {
+			    	Method[] methods = interceptor.getClass().getDeclaredMethods();
+			    	
+			    	for ( Method method : methods )
+			    	{
+			    		if ( method.getName().equals( operation.getMethodName() ) )
+			    		{
+			    			operationList.add( interceptor.getName() );
+			    			break;
+			    		}
+			    	}
+		        }
+		        
+		        operationInterceptors.put( operation, operationList );
+	    	}
+    	}
+    	finally
+    	{
+    		writeLock.unlock();
+    	}
+    }
+    
+    
+    /**
+     * Add an interceptor to the list of interceptors to call for each operation
+     * @throws LdapException 
+     */
+    private void addInterceptor( Interceptor interceptor, int position ) throws LdapException
+    {
+    	// First, init the interceptor
+    	interceptor.init( this );
+    	
+    	try
+    	{
+	        writeLock.lock();
+	    	
+	    	for ( OperationEnum operation : OperationEnum.getOperations() )
+	    	{
+		    	List<String> operationList = operationInterceptors.get( operation );
+		    		    	
 		    	Method[] methods = interceptor.getClass().getDeclaredMethods();
 		    	
 		    	for ( Method method : methods )
 		    	{
 		    		if ( method.getName().equals( operation.getMethodName() ) )
 		    		{
-		    			operationList.add( interceptor.getName() );
+		    	    	if ( position == -1 )
+		    	    	{
+		    	    		operationList.add( interceptor.getName() );
+		    	    	}
+		    	    	else
+		    	    	{
+		    	    		operationList.add( position, interceptor.getName() );
+		    	    	}
+		    	    	
 		    			break;
 		    		}
 		    	}
-	        }
-	        
-	        operationInterceptors.put( operation, operationList );
+	    	}
+	    	
+	    	interceptorNames.put( interceptor.getName(), interceptor );
+	    	
+	    	if ( position == -1 )
+	    	{
+	    		interceptors.add( interceptor );
+	    	}
+	    	else
+	    	{
+	    		interceptors.add( position, interceptor );
+	    	}
+    	}
+    	finally
+    	{
+    		writeLock.unlock();
+    	}
+    }
+
+    
+    /**
+     * Remove an interceptor to the list of interceptors to call for each operation
+     */
+    private void removeOperationsList( String interceptorName )
+    {
+    	Interceptor interceptor = interceptorNames.get( interceptorName );
+    	
+    	try
+    	{
+	        writeLock.lock();
+	    	
+	    	for ( OperationEnum operation : OperationEnum.getOperations() )
+	    	{
+		    	List<String> operationList = operationInterceptors.get( operation );
+		    		    	
+		    	Method[] methods = interceptor.getClass().getDeclaredMethods();
+		    	
+		    	for ( Method method : methods )
+		    	{
+		    		if ( method.getName().equals( operation.getMethodName() ) )
+		    		{
+	    	    		operationList.remove( interceptor.getName() );
+		    	    	
+		    			break;
+		    		}
+		    	}
+	    	}
+	    	
+	    	interceptorNames.remove( interceptorName );
+	    	interceptors.remove( interceptor );
+    	}
+    	finally
+    	{
+    		writeLock.unlock();
     	}
     }
 
@@ -522,39 +655,25 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void setInterceptors( List<Interceptor> interceptors )
     {
-        Set<String> names = new HashSet<String>();
+        Map<String, Interceptor> interceptorNames = new HashMap<String, Interceptor>();
 
         // Check if we don't have duplicate names in the interceptors list
         for ( Interceptor interceptor : interceptors )
         {
-            if ( names.contains( interceptor.getName() ) )
+            if ( interceptorNames.containsKey( interceptor.getName() ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
                 continue;
             }
             
-            names.add( interceptor.getName() );
+            interceptorNames.put( interceptor.getName(), interceptor );
         }
-        
+
         this.interceptors = interceptors;
+        this.interceptorNames = interceptorNames;
 
         // Now update the Map that connect each operation with the list of interceptors.
-    	initOperationsList( 
-    			OperationEnum.ADD, 
-    			OperationEnum.BIND,
-    			OperationEnum.COMPARE,
-    			OperationEnum.DELETE,
-    			OperationEnum.GET_ROOT_DSE,
-    			OperationEnum.HAS_ENTRY,
-    			OperationEnum.LIST,
-    			OperationEnum.LOOKUP,
-    			OperationEnum.MODIFY,
-    			OperationEnum.MOVE,
-    			OperationEnum.MOVE_AND_RENAME,
-    			OperationEnum.RENAME,
-    			OperationEnum.SEARCH,
-    			OperationEnum.UNBIND
-    			);
+    	initOperationsList();
     }
 
 
@@ -568,6 +687,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
+        
         return cloned;
     }
 
@@ -840,6 +960,8 @@ public class DefaultDirectoryService implements DirectoryService
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn );
+        bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
+        
         operationManager.bind( bindContext );
 
         return bindContext.getSession();
@@ -858,6 +980,8 @@ public class DefaultDirectoryService implements DirectoryService
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn );
         bindContext.setSaslMechanism( saslMechanism );
+        bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
+
         operationManager.bind( bindContext );
 
         return bindContext.getSession();
@@ -1846,16 +1970,62 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Interceptor getInterceptor( String interceptorName )
     {
-        for ( Interceptor interceptor:interceptors )
-        {
-            if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
-            {
-                return interceptor;
-            }
+    	try
+    	{
+	        readLock.lock();
+	
+	        for ( Interceptor interceptor:interceptors )
+	        {
+	            if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
+	            {
+	                return interceptor;
+	            }
+	        }
+	        
+	        return null;
         }
-
-        return null;
+        finally
+        {
+            readLock.unlock();
+        }
     }
+
+
+    /**
+     * {@inheritDoc}
+     * @throws LdapException 
+     */
+	public void addFirst( Interceptor interceptor ) throws LdapException 
+	{
+		addInterceptor( interceptor, 0 );
+	}
+
+
+    /**
+     * {@inheritDoc}
+     * @throws LdapException 
+     */
+	public void addLast( Interceptor interceptor ) throws LdapException 
+	{
+		addInterceptor( interceptor, -1 );
+	}
+
+
+    /**
+     * {@inheritDoc}
+     */
+	public void addAfter( String interceptorName, Interceptor interceptor ) 
+	{
+	}
+
+
+    /**
+     * {@inheritDoc}
+     */
+	public void remove( String interceptorName ) 
+	{
+		removeOperationsList( interceptorName );
+	}
 
 
     /**
@@ -2060,5 +2230,4 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return evaluator;
     }
-
 }

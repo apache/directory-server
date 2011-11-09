@@ -326,7 +326,10 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            directoryService.getInterceptorChain().bind( bindContext );
+            // Call the Delete method
+            Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
+
+            head.bind( bindContext );
         }
         finally
         {

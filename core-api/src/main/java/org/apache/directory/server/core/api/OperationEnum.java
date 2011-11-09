@@ -43,6 +43,25 @@ public enum OperationEnum {
 	/** The associated method name */
 	private String methodName;
 	
+	/** A list of all the operations */
+	private static OperationEnum[] operations = new OperationEnum[] 
+			{
+				ADD,
+				BIND,
+				COMPARE,
+				DELETE,
+				GET_ROOT_DSE,
+				HAS_ENTRY,
+				LIST,
+				LOOKUP,
+				MODIFY,
+				MOVE,
+				MOVE_AND_RENAME,
+				RENAME,
+				SEARCH,
+				UNBIND
+			};
+	
 	/**
 	 * The private constructor 
 	 * @param methodName The associated method name
@@ -59,5 +78,14 @@ public enum OperationEnum {
 	public String getMethodName()
 	{
 		return methodName;
+	}
+	
+	
+	/**
+	 * @return The list of all the operations
+	 */
+	public static OperationEnum[] getOperations()
+	{
+		return operations;
 	}
 }

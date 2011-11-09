@@ -385,10 +385,10 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         bindContext.getDn().apply( schemaManager );
-        next.bind( bindContext );
+        next( bindContext );
     }
 
 

@@ -170,10 +170,10 @@ public class MockInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         interceptors.add( this );
-        next.bind( bindContext );
+        next( bindContext );
     }
 
 

@@ -174,7 +174,7 @@ public class TimerInterceptor extends BaseInterceptor
     public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.bind( bindContext );
+        next( bindContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

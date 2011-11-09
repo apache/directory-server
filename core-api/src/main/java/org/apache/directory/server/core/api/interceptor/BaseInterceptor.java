@@ -58,6 +58,9 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public abstract class BaseInterceptor implements Interceptor
 {
+	/** The interceptor's name. Default to the class name */
+	private String name;
+	
     /** A reference to the DirectoryService instance */
     protected DirectoryService directoryService;
 
@@ -220,7 +223,7 @@ public abstract class BaseInterceptor implements Interceptor
         }
 
 
-        public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+        public void bind( BindOperationContext bindContext ) throws LdapException
         {
             nexus.bind( bindContext );
         }
@@ -243,7 +246,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public String getName()
     {
-        return getClass().getSimpleName();
+        return name;
     }
 
 
@@ -264,6 +267,16 @@ public abstract class BaseInterceptor implements Interceptor
      */
     protected BaseInterceptor()
     {
+    	name = getClass().getSimpleName();
+    }
+
+
+    /**
+     * Creates a new instance.
+     */
+    protected BaseInterceptor( String name )
+    {
+    	this.name = name;
     }
 
 
@@ -377,7 +390,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * Calls the next interceptor for the getRootDse operation.
      * 
-     * @param deleteContext The context in which we are executing this operation
+     * @param getRootDseContext The context in which we are executing this operation
      * @throws LdapException If something went wrong
      */
     protected final Entry next( GetRootDSEOperationContext getRootDseContext ) throws LdapException
@@ -447,9 +460,26 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
-        next.bind( bindContext );
+        // Do nothing
+    }
+    
+
+    /**
+     * Calls the next interceptor for the bind operation.
+     * 
+     * @param bindContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( BindOperationContext bindContext ) throws LdapException
+    {
+    	Interceptor interceptor = getNextInterceptor( bindContext );
+    	
+    	interceptor.bind( bindContext );
     }
 
 
@@ -465,7 +495,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * Compute the next interceptor for the unbind operation.
      * 
-     * @param deleteContext The context in which we are executing this operation
+     * @param unbindContext The context in which we are executing this operation
      * @throws LdapException If something went wrong
      */
     protected final void next( UnbindOperationContext unbindContext ) throws LdapException

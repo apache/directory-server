@@ -29,6 +29,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -168,6 +169,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             // opContext.setEntry( principalEntry );
 
             // And call the OperationManager bind operation.
+            bindContext.setInterceptors( getLdapServer().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
             getLdapServer().getDirectoryService().getOperationManager().bind( bindContext );
 
             // As a result, store the created session in the Core Session

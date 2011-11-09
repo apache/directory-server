@@ -810,7 +810,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -842,7 +842,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "No authenticators found, delegating bind to the nexus." );
 
             // as a last resort try binding via the nexus
-            next.bind( bindContext );
+            next( bindContext );
 
             LOG.debug( "Nexus succeeded on bind operation." );
 

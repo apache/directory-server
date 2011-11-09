@@ -341,6 +341,34 @@ public interface DirectoryService extends ServerEntryFactory
      * @param interceptors the interceptors to be used in the server.
      */
     void setInterceptors( List<Interceptor> interceptors );
+    
+    
+    /**
+     * Add an interceptor in the first position in the interceptor list.
+     * @param interceptor The added interceptor
+     */
+    void addFirst( Interceptor interceptor ) throws LdapException;
+    
+    
+    /**
+     * Add an interceptor in the last position in the interceptor list.
+     * @param interceptor The added interceptor
+     */
+    void addLast( Interceptor interceptor ) throws LdapException;
+    
+    /**
+     * Add an interceptor after a given interceptor in the interceptor list.
+     * @param interceptorName The interceptor name to find
+     * @param interceptor The added interceptor
+     */
+    void addAfter( String interceptorName, Interceptor interceptor );
+    
+    
+    /**
+     * Remove an interceptor from the list of interceptors
+     * @param interceptorName The interceptor to remove
+     */
+    void remove( String interceptorName );
 
 
     /**

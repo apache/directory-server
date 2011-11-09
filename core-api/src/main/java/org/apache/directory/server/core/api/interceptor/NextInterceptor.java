@@ -22,7 +22,6 @@ package org.apache.directory.server.core.api.interceptor;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -102,10 +101,4 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, MoveAndRenameOperationContext )}.
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, BindOperationContext )}
-     */
-    void bind( BindOperationContext bindContext ) throws LdapException;
 }

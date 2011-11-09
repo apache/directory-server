@@ -139,7 +139,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#bind( BindOperationContext )} call.
      */
-    void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException;
+    void bind( BindOperationContext bindContext ) throws LdapException;
 
 
     /**
