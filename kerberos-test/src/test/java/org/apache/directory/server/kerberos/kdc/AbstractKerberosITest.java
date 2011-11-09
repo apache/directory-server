@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collections;
 
 import javax.security.auth.Subject;
@@ -210,7 +211,19 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     {
         String clazz = "sun.security.krb5.KrbKdcReq";
         Class<?> krbKdcReqClass = Class.forName( clazz );
-        Field udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        
+        // Absolutely ugly fix to get this method working with the latest JVM on Mac (1.6.0_29)
+        Field udpPrefLimitField = null;
+        
+        try
+        { 
+        	udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        }
+        catch ( NoSuchFieldException nsfe )
+        {
+        	udpPrefLimitField = krbKdcReqClass.getDeclaredField( "defaultUdpPrefLimit" );
+        }
+        
         udpPrefLimitField.setAccessible( true );
         return udpPrefLimitField;
     }
