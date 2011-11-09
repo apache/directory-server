@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -35,15 +37,15 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
+public class PresenceCursor extends AbstractIndexCursor<String>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, Entry, ID> uuidCursor;
-    private final IndexCursor<String, Entry, ID> presenceCursor;
-    private final PresenceEvaluator<ID> presenceEvaluator;
+    private final IndexCursor<String> uuidCursor;
+    private final IndexCursor<String> presenceCursor;
+    private final PresenceEvaluator presenceEvaluator;
 
 
-    public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
+    public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
@@ -87,7 +89,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, String value ) throws Exception
+    public void beforeValue( UUID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
         
@@ -105,7 +107,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<String, ID> element ) throws Exception
+    public void before( IndexEntry<String> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -123,7 +125,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, String value ) throws Exception
+    public void afterValue( UUID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
@@ -141,7 +143,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<String, ID> element ) throws Exception
+    public void after( IndexEntry<String> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -227,7 +229,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?> candidate = uuidCursor.get();
             
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -250,7 +252,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?> candidate = uuidCursor.get();
             
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -262,7 +264,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
-    public IndexEntry<String, ID> get() throws Exception
+    public IndexEntry<String> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -283,7 +285,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
              * value to be the value of the attribute in question.  So we will
              * set that accordingly here.
              */
-            IndexEntry<String, ID> indexEntry = uuidCursor.get();
+            IndexEntry<String> indexEntry = uuidCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
             
             return indexEntry;

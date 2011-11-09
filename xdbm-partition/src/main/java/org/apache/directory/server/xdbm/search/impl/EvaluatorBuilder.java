@@ -48,9 +48,9 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EvaluatorBuilder<ID extends Comparable<ID>>
+public class EvaluatorBuilder
 {
-    private final Store<Entry, ID> db;
+    private final Store db;
     private final SchemaManager schemaManager;
 
 
@@ -62,46 +62,46 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
      * @param schemaManager the schema manager
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<Entry, ID> db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Store db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
     }
 
 
-    public <T> Evaluator<? extends ExprNode, Entry, ID> build( ExprNode node ) throws Exception
+    public <T> Evaluator<? extends ExprNode> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateEvaluator<T, ID>( ( ApproximateNode<T> ) node, db, schemaManager );
+                return new ApproximateEvaluator<T>( ( ApproximateNode<T> ) node, db, schemaManager );
 
             case EQUALITY:
-                return new EqualityEvaluator<T, ID>( ( EqualityNode<T> ) node, db, schemaManager );
+                return new EqualityEvaluator<T>( ( EqualityNode<T> ) node, db, schemaManager );
 
             case GREATEREQ:
-                return new GreaterEqEvaluator<T, ID>( ( GreaterEqNode<T> ) node, db, schemaManager );
+                return new GreaterEqEvaluator<T>( ( GreaterEqNode<T> ) node, db, schemaManager );
 
             case LESSEQ:
-                return new LessEqEvaluator<T, ID>( ( LessEqNode<T> ) node, db, schemaManager );
+                return new LessEqEvaluator<T>( ( LessEqNode<T> ) node, db, schemaManager );
 
             case PRESENCE:
-                return new PresenceEvaluator<ID>( ( PresenceNode ) node, db, schemaManager );
+                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator( db, ( ScopeNode ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node );
                 }
 
             case SUBSTRING:
-                return new SubstringEvaluator<ID>( ( SubstringNode ) node, db, schemaManager );
+                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
@@ -109,7 +109,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
                 return buildAndEvaluator( ( AndNode ) node );
 
             case NOT:
-                return new NotEvaluator<ID>( (NotNode) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotEvaluator( (NotNode) node, build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
@@ -126,28 +126,28 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     }
 
 
-    AndEvaluator<ID> buildAndEvaluator( AndNode node ) throws Exception
+    AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
         }
-        return new AndEvaluator<ID>( node, evaluators );
+        return new AndEvaluator( node, evaluators );
     }
 
 
-    OrEvaluator<ID> buildOrEvaluator( OrNode node ) throws Exception
+    OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
         }
-        return new OrEvaluator<ID>( node, evaluators );
+        return new OrEvaluator( node, evaluators );
     }
 }

@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
@@ -50,11 +51,11 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
+public class DefaultOptimizer implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store<E, ID> db;
-    private ID contextEntryId;
+    private final Store db;
+    private UUID contextEntryId;
 
 
     /**
@@ -62,7 +63,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E, ID> db ) throws Exception
+    public DefaultOptimizer( Store db ) throws Exception
     {
         this.db = db;
     }
@@ -70,7 +71,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private ID getContextEntryId() throws Exception
+    private UUID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -277,7 +278,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V> idx = ( Index<V> ) db.getIndex( node.getAttributeType() );
             return idx.count( node.getValue().getValue() );
         }
 
@@ -300,7 +301,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V> idx = ( Index<V> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -329,7 +330,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<?, ?, ?> idx = db.getIndex( node.getAttributeType() );
+            Index<?> idx = db.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -339,7 +340,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
     /**
      * Gets the number of entries that would be returned by a presence node
-     * assertion.  Leverages the presence system index for scan counts.
+     * assertion.  Leverages the presence system index for scan counts.     
      *
      * @param node the presence node
      * @return the number of entries matched for the presence of an attribute
@@ -349,7 +350,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, ID> idx = db.getPresenceIndex();
+            Index<String> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
@@ -372,7 +373,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {
-        ID id = db.getEntryId( node.getBaseDn() );
+        UUID id = db.getEntryId( node.getBaseDn() );
         switch ( node.getScope() )
         {
             case OBJECT:
@@ -382,7 +383,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
                 return db.getChildCount( id );
 
             case SUBTREE:
-                if ( id == getContextEntryId() )
+                if ( id.compareTo( getContextEntryId() ) == 0 )
                 {
                     return db.count();
                 }

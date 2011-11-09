@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.i18n.I18n;
@@ -45,10 +46,10 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<SubstringNode, Entry, ID>
+public class SubstringEvaluator implements Evaluator<SubstringNode>
 {
     /** Database used while evaluating candidates */
-    private final Store<Entry, ID> db;
+    private final Store db;
 
     /** Reference to the SchemaManager */
     private final SchemaManager schemaManager;
@@ -66,7 +67,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     private final Normalizer normalizer;
 
     /** The index to use if any */
-    private final Index<String, Entry, ID> idx;
+    private final Index<String> idx;
 
 
     /**
@@ -78,7 +79,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -115,7 +116,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<String, Entry, ID> ) db.getIndex( attributeType );
+            idx = ( Index<String> ) db.getIndex( attributeType );
         }
         else
         {
@@ -125,12 +126,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?> indexEntry ) throws Exception
     {
 
         if ( idx == null )
         {
-            return evaluateWithoutIndex( ( IndexEntry<String, ID> ) indexEntry );
+            return evaluateWithoutIndex( ( IndexEntry<String> ) indexEntry );
         }
         else
         {
@@ -139,7 +140,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
+    public boolean evaluateId( UUID id ) throws Exception
     {
 
         if ( idx == null )
@@ -180,7 +181,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    private boolean evaluateWithIndex( IndexEntry<?, ID> indexEntry ) throws Exception
+    private boolean evaluateWithIndex( IndexEntry<?> indexEntry ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -188,12 +189,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, ID>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, ID> rec = entries.get();
+            IndexEntry<String> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -216,7 +217,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    private boolean evaluateWithIndex( ID id ) throws Exception
+    private boolean evaluateWithIndex( UUID id ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -224,12 +225,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, ID>> entries = idx.reverseCursor( id );
+        Cursor<IndexEntry<String>> entries = idx.reverseCursor( id );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, ID> rec = entries.get();
+            IndexEntry<String> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -248,7 +249,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( ID id ) throws Exception
+    private boolean evaluateWithoutIndex( UUID id ) throws Exception
     {
         return evaluateWithoutIndex( db.lookup( id ) );
     }
@@ -330,7 +331,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( IndexEntry<String, ID> indexEntry ) throws Exception
+    private boolean evaluateWithoutIndex( IndexEntry<String> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

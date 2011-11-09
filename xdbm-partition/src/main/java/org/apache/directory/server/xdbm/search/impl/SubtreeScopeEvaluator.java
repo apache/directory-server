@@ -20,11 +20,14 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -35,13 +38,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, E, ID>
+public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
 
     /** The entry identifier of the scope base */
-    private final ID baseId;
+    private final UUID baseId;
 
     /** 
      * Whether or not to accept all candidates.  If this evaluator's baseId is
@@ -59,7 +62,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     private final boolean dereferencing;
 
     /** The entry database/store */
-    private final Store<E, ID> db;
+    private final Store db;
 
 
     /**
@@ -69,7 +72,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( Store db, ScopeNode node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -80,16 +83,16 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         }
 
         baseId = db.getEntryId( node.getBaseDn() );
-        baseIsContextEntry = getContextEntryId() == baseId;
+        baseIsContextEntry = ( getContextEntryId().compareTo( baseId ) == 0 );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 
-    private ID contextEntryId;
+    private UUID contextEntryId;
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private ID getContextEntryId() throws Exception
+    private UUID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -123,9 +126,9 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?> candidate ) throws Exception
     {
-        ID id = candidate.getId();
+        UUID id = candidate.getId();
         
         /*
          * This condition catches situations where the candidate is equal to 
@@ -192,7 +195,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluateEntry( E candidate ) throws Exception
+    public boolean evaluateEntry( Entry candidate ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -204,7 +207,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     }
 
 
-    public ID getBaseId()
+    public UUID getBaseId()
     {
         return baseId;
     }

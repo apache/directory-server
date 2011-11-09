@@ -36,13 +36,13 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Evaluator<SimpleNode<T>, Entry, ID>
+public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
 {
     /** The ExprNode to evaluate */
     protected final SimpleNode<T> node;
 
     /** The backend */
-    protected final Store<Entry, ID> db;
+    protected final Store db;
     
     /** The SchemaManager instance */
     protected final SchemaManager schemaManager;
@@ -57,10 +57,10 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
     protected LdapComparator<? super Object> ldapComparator;
     
     /** The index to use if any */
-    protected Index<T, Entry, ID> idx;
+    protected Index<T> idx;
 
     @SuppressWarnings("unchecked")
-    public LeafEvaluator( SimpleNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public LeafEvaluator( SimpleNode<T> node, Store db, SchemaManager schemaManager )
     throws Exception
     {
         this.db = db;

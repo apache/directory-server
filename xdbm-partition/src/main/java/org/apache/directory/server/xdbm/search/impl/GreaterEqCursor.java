@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
@@ -41,25 +43,25 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 {
     private static final String UNSUPPORTED_MSG = "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An greater eq evaluator for candidates */
-    private final GreaterEqEvaluator<V, ID> greaterEqEvaluator;
+    private final GreaterEqEvaluator<V> greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, Entry, ID> ndnIdxCursor;
+    private final IndexCursor<String> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<String, ID> ndnCandidate;
+    IndexEntry<String> ndnCandidate;
 
 
     /**
@@ -69,7 +71,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store<Entry, ID> db, GreaterEqEvaluator<V, ID> greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store db, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
     {
         this.greaterEqEvaluator = greaterEqEvaluator;
 
@@ -77,7 +79,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         
         if ( db.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V> ) db.getIndex( attributeType ) ).forwardCursor();
             ndnIdxCursor = null;
         }
         else
@@ -100,7 +102,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, V value ) throws Exception
+    public void beforeValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
         
@@ -134,7 +136,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, V value ) throws Exception
+    public void afterValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
@@ -179,7 +181,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, ID> element ) throws Exception
+    public void before( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -213,7 +215,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, ID> element ) throws Exception
+    public void after( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -266,7 +268,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
+            IndexEntry<V> advanceTo = new ForwardIndexEntry<V>();
             advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.before( advanceTo );
         }
@@ -339,7 +341,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
             while ( userIdxCursor.previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, ID> candidate = userIdxCursor.get();
+                IndexEntry<?> candidate = userIdxCursor.get();
                 
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(),
                     greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
@@ -401,7 +403,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -417,7 +419,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
 
         if ( available() )
         {
-            return ( IndexEntry<V, ID> ) ndnCandidate;
+            return ( IndexEntry<V> ) ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

@@ -39,16 +39,16 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class AndCursor<V> extends AbstractIndexCursor<V>
 {
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
     
     /** */
-    private final IndexCursor<V, Entry, ID> wrapped;
+    private final IndexCursor<V> wrapped;
     
     /** The evaluators used for the members of the And filter */
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode>> evaluators;
 
 
     /**
@@ -58,8 +58,8 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
      * @param wrapped The encapsulated IndexCursor
      * @param evaluators The list of evaluators associated wth the elements
      */
-    public AndCursor( IndexCursor<V, Entry, ID> wrapped,
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+    public AndCursor( IndexCursor<V> wrapped,
+        List<Evaluator<? extends ExprNode>> evaluators )
     {
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
@@ -128,7 +128,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<V, ID> candidate = wrapped.get();
+            IndexEntry<V> candidate = wrapped.get();
             
             if ( matches( candidate ) )
             {
@@ -148,7 +148,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<V, ID> candidate = wrapped.get();
+            IndexEntry<V> candidate = wrapped.get();
             
             if ( matches( candidate ) )
             {
@@ -163,7 +163,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
         
@@ -197,14 +197,14 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode>> optimize(
+        List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new ScanCountComparator<ID>() );
+        Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;
     }
@@ -213,9 +213,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     /**
      * Checks if the entry is a valid candidate by using the evaluators.
      */
-    private boolean matches( IndexEntry<V, ID> indexEntry ) throws Exception
+    private boolean matches( IndexEntry<V> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

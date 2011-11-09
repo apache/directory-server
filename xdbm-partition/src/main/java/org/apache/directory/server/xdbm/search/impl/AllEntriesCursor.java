@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -33,13 +35,13 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class AllEntriesCursor extends AbstractIndexCursor<UUID>
 {
     /** The index entry we use to return entries one by one.  */
-    private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
+    private IndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
     
     /** The cursor on the EntryUUID index */
-    private final IndexCursor<String, Entry, ID> wrapped;
+    private final IndexCursor<String> wrapped;
 
 
     /**
@@ -56,7 +58,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param db
      * @throws Exception
      */
-    public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
+    public AllEntriesCursor( Store db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
         wrapped = db.getEntryUuidIndex().reverseCursor();
@@ -66,7 +68,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID key, ID value ) throws Exception
+    public void afterValue( UUID key, UUID value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
@@ -77,7 +79,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, ID value ) throws Exception
+    public void beforeValue( UUID id, UUID value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
         
@@ -88,7 +90,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<ID, ID> indexEntry ) throws Exception
+    public void after( IndexEntry<UUID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -119,7 +121,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<ID, ID> indexEntry ) throws Exception
+    public void before( IndexEntry<UUID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -152,12 +154,12 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
         
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
-        IndexEntry<String, ID> wrappedEntry = wrapped.get();
+        IndexEntry<String> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
         indexEntry.setEntry( wrappedEntry.getEntry() );

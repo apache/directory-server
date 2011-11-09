@@ -36,19 +36,19 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class NotCursor<V> extends AbstractIndexCursor<V>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final IndexCursor<V, Entry, ID> uuidCursor;
-    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
+    private final IndexCursor<V> uuidCursor;
+    private final Evaluator<? extends ExprNode> childEvaluator;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<Entry, ID> store, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
+    public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
         this.childEvaluator = childEvaluator;
-        this.uuidCursor = ( IndexCursor<V, Entry, ID> ) store.getEntryUuidIndex().forwardCursor();
+        this.uuidCursor = ( IndexCursor<V> ) store.getEntryUuidIndex().forwardCursor();
     }
 
 
@@ -98,7 +98,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?> candidate = uuidCursor.get();
             
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -115,7 +115,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?> candidate = uuidCursor.get();
             
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -127,7 +127,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     }
 
 
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
         

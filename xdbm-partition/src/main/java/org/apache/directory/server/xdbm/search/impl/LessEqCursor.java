@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
@@ -41,29 +43,29 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class LessEqCursor<V> extends AbstractIndexCursor<V>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_716 );
 
     /** An less eq evaluator for candidates */
-    private final LessEqEvaluator<V, ID> lessEqEvaluator;
+    private final LessEqEvaluator<V> lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V, Entry, ID> uuidIdxCursor;
+    private final IndexCursor<V> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<V, ID> ndnCandidate;
+    IndexEntry<V> ndnCandidate;
 
 
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store<Entry, ID> db, LessEqEvaluator<V, ID> lessEqEvaluator ) throws Exception
+    public LessEqCursor( Store db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
         this.lessEqEvaluator = lessEqEvaluator;
 
@@ -71,12 +73,12 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         
         if ( db.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V> ) db.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = ( IndexCursor<V, Entry, ID> ) db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = ( IndexCursor<V> ) db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -94,7 +96,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, V value ) throws Exception
+    public void beforeValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
         
@@ -145,7 +147,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, ID> element ) throws Exception
+    public void before( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "before()" );
         
@@ -193,7 +195,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, V value ) throws Exception
+    public void afterValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         
@@ -234,7 +236,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, ID> element ) throws Exception
+    public void after( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "after()" );
         
@@ -293,7 +295,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
+            IndexEntry<V> advanceTo = new ForwardIndexEntry<V>();
             //noinspection unchecked
             advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
@@ -369,7 +371,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             while ( userIdxCursor.next() )
             {
                 checkNotClosed( "next()" );
-                IndexEntry<?, ID> candidate = userIdxCursor.get();
+                IndexEntry<?> candidate = userIdxCursor.get();
                 
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
@@ -400,7 +402,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
         

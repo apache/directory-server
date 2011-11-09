@@ -36,17 +36,17 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
+public class SubstringCursor extends AbstractIndexCursor<String>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final IndexCursor<String, Entry, ID> wrapped;
-    private final SubstringEvaluator<ID> evaluator;
-    private final ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
+    private final IndexCursor<String> wrapped;
+    private final SubstringEvaluator evaluator;
+    private final ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<Entry, ID> store, final SubstringEvaluator<ID> substringEvaluator )
+    public SubstringCursor( Store store, final SubstringEvaluator substringEvaluator )
         throws Exception
     {
         evaluator = substringEvaluator;
@@ -54,7 +54,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, ID> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
@@ -89,7 +89,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
+            ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
             indexEntry.setValue( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -130,7 +130,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String, ID> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -155,7 +155,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<String, ID> entry = wrapped.get();
+            IndexEntry<String> entry = wrapped.get();
             
             if ( evaluateCandidate( entry ) )
             {
@@ -177,7 +177,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, ID> entry = wrapped.get();
+            IndexEntry<String> entry = wrapped.get();
             
             if ( evaluateCandidate( entry ) )
             {
@@ -194,7 +194,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public IndexEntry<String, ID> get() throws Exception
+    public IndexEntry<String> get() throws Exception
     {
         checkNotClosed( "get()" );
         

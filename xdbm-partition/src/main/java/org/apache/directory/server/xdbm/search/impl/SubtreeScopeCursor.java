@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
@@ -36,26 +38,26 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store<Entry, ID> db;
+    private final Store db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator<Entry, ID> evaluator;
+    private final SubtreeScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, Entry, ID> scopeCursor;
+    private final IndexCursor<UUID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<ID, Entry, ID> dereferencedCursor;
+    private final IndexCursor<UUID> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<ID, Entry, ID> cursor;
+    private IndexCursor<UUID> cursor;
 
-    private ID contextEntryId;
+    private UUID contextEntryId;
 
 
     /**
@@ -65,15 +67,15 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<Entry, ID> db, SubtreeScopeEvaluator<Entry, ID> evaluator )
+    public SubtreeScopeCursor( Store db, SubtreeScopeEvaluator evaluator )
         throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
 
-        if ( evaluator.getBaseId() == getContextEntryId() )
+        if ( evaluator.getBaseId().compareTo( getContextEntryId() ) == 0 )
         {
-            scopeCursor = new AllEntriesCursor<ID>( db );
+            scopeCursor = new AllEntriesCursor( db );
         }
         else
         {
@@ -101,7 +103,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
 
     
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    private ID getContextEntryId() throws Exception
+    private UUID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -299,7 +301,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

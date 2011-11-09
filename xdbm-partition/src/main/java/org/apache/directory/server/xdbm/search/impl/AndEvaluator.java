@@ -36,10 +36,10 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
+public class AndEvaluator implements Evaluator<AndNode>
 {
     /** The list of evaluators associated with each of the children */
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode>> evaluators;
 
     /** The AndNode */
     private final AndNode node;
@@ -50,7 +50,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      * @param node The And Node
      * @param evaluators The list of evaluators for all the contaned nodes
      */
-    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode>> evaluators )
     {
         this.node = node;
         this.evaluators = optimize( evaluators );
@@ -68,14 +68,14 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
+    List<Evaluator<? extends ExprNode>> optimize(
+        List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
         
-        Collections.sort( optimized, new ScanCountComparator<ID>() );
+        Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;
     }
@@ -86,7 +86,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      */
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluateEntry( entry ) )
             {
@@ -101,9 +101,9 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

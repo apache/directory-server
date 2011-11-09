@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -36,26 +38,26 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
 {
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<Entry, ID> db;
+    private final Store db;
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, Entry, ID> scopeCursor;
+    private final IndexCursor<UUID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
+    private final Cursor<IndexEntry<UUID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<ID, ID>> cursor;
+    private Cursor<IndexEntry<UUID>> cursor;
 
 
     /**
@@ -66,7 +68,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
      * @throws Exception on db access failures
      */
     //@SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Store<Entry, ID> db, OneLevelScopeEvaluator<Entry, ID> evaluator )
+    public OneLevelScopeCursor( Store db, OneLevelScopeEvaluator evaluator )
         throws Exception
     {
         this.db = db;
@@ -266,7 +268,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
         

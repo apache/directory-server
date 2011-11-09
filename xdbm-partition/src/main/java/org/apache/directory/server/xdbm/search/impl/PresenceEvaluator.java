@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
@@ -39,13 +40,13 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, Entry, ID>
+public class PresenceEvaluator implements Evaluator<PresenceNode>
 {
     /** The ExprNode to evaluate */
     private final PresenceNode node;
 
     /** The backend */
-    private final Store<Entry, ID> db;
+    private final Store db;
 
     /** The AttributeType we will use for the evaluation */
     private final AttributeType attributeType;
@@ -54,10 +55,10 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     private final SchemaManager schemaManager;
 
     /** The index to use if any */
-    private final Index<String, Entry, ID> idx;
+    private final Index<String> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public PresenceEvaluator( PresenceNode node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -90,7 +91,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -112,7 +113,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluateId( ID id ) throws Exception
+    public boolean evaluateId( UUID id ) throws Exception
     {
         if ( idx != null )
         {

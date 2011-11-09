@@ -31,12 +31,12 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @param <ID> The type of element
  */
-public class ScanCountComparator<ID> implements Comparator<Evaluator<?, Entry, ID>>
+public class ScanCountComparator implements Comparator<Evaluator<?>>
 {
     /**
      * Compare two scan counts frpm two evaluators 
      */
-    public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
+    public int compare( Evaluator<?> e1, Evaluator<?> e2 )
     {
         long scanCount1 = ( Long ) e1.getExpression().get( "count" );
         long scanCount2 = ( Long ) e2.getExpression().get( "count" );
