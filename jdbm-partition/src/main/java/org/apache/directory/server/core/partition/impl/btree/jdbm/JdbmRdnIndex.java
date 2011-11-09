@@ -24,6 +24,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.naming.NamingException;
 
@@ -34,6 +35,7 @@ import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdnComparator;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
+public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
 {
 
     /** A logger for this class */
@@ -134,36 +136,34 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        ParentIdAndRdnComparator<Long> comp = new ParentIdAndRdnComparator<Long>( mr.getOid() );
+        ParentIdAndRdnComparator comp = new ParentIdAndRdnComparator( mr.getOid() );
 
-        LongComparator.INSTANCE.setSchemaManager( schemaManager );
-
-        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
-            recMan, comp, null, LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
-            recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+        forward = new JdbmTable<ParentIdAndRdn, UUID>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
+            recMan, comp, null, UUIDSerializer.INSTANCE );
+        reverse = new JdbmTable<UUID, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
+            recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, null );
     }
 
 
-    public void add( ParentIdAndRdn<Long> rdn, Long entryId ) throws Exception
+    public void add( ParentIdAndRdn rdn, UUID entryId ) throws Exception
     {
         forward.put( rdn, entryId );
         reverse.put( entryId, rdn );
     }
 
 
-    public void drop( Long entryId ) throws Exception
+    public void drop( UUID entryId ) throws Exception
     {
-        ParentIdAndRdn<Long> rdn = reverse.get( entryId );
+        ParentIdAndRdn rdn = reverse.get( entryId );
         forward.remove( rdn );
         reverse.remove( entryId );
     }
 
 
-    public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
+    public void drop( ParentIdAndRdn rdn, UUID id ) throws Exception
     {
-        long val = forward.get( rdn );
-        if ( val == id )
+        UUID val = forward.get( rdn );
+        if ( val.compareTo( id ) == 0 )
         {
             forward.remove( rdn );
             reverse.remove( val );
@@ -171,7 +171,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     }
 
 
-    public ParentIdAndRdn<Long> getNormalized( ParentIdAndRdn<Long> rdn ) throws Exception
+    public ParentIdAndRdn getNormalized( ParentIdAndRdn rdn ) throws Exception
     {
         return rdn;
     }

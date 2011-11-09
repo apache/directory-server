@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -55,7 +56,7 @@ import org.junit.Test;
 public class JdbmRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn<Long>, Long, Long> idx;
+    Index<ParentIdAndRdn> idx;
     private static SchemaManager schemaManager;
 
 
@@ -240,23 +241,23 @@ public class JdbmRdnIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
-        idx.add( key, 0l );
+        idx.add( key, getUUIDString( 0 ) );
         assertEquals( 1, idx.count() );
 
         // setting a different parentId should make this key a different key
-        key = new ParentIdAndRdn<Long>( 1L, new Rdn( "cn=key" ) );
+        key = new ParentIdAndRdn( getUUIDString( 1 ), new Rdn( "cn=key" ) );
         
-        idx.add( key, 1l );
+        idx.add( key, getUUIDString( 1 ) );
         assertEquals( 2, idx.count() );
 
         //count shouldn't get affected cause of inserting the same key
-        idx.add( key, 2l );
+        idx.add( key, getUUIDString( 2 ) );
         assertEquals( 2, idx.count() );
         
-        key = new ParentIdAndRdn<Long>( 2L, new Rdn( "cn=key" ) );
-        idx.add( key, 3l );
+        key = new ParentIdAndRdn( getUUIDString( 2 ), new Rdn( "cn=key" ) );
+        idx.add( key, getUUIDString( 3 ) );
         assertEquals( 3, idx.count() );
     }
 
@@ -266,11 +267,11 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( "cn=key" ) );
         
         assertEquals( 0, idx.count( key ) );
 
-        idx.add( key, 0l );
+        idx.add( key, getUUIDString( 0 ) );
         assertEquals( 1, idx.count( key ) );
     }
 
@@ -284,19 +285,19 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( schemaManager, "cn=key" ) );
         
         assertNull( idx.forwardLookup( key ) );
 
-        idx.add( key, 0l );
-        assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( 0l ) );
+        idx.add( key, getUUIDString( 0 ) );
+        assertEquals( getUUIDString( 0 ), idx.forwardLookup( key ) );
+        assertEquals( key, idx.reverseLookup( getUUIDString( 0 ) ) );
         
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
-        key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=KEY" ) );
-        assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( 0l ) );
+        key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( schemaManager, "cn=KEY" ) );
+        assertEquals( getUUIDString( 0 ), idx.forwardLookup( key ) );
+        assertEquals( key, idx.reverseLookup( getUUIDString( 0 ) ) );
     }
 
 
@@ -305,17 +306,17 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( "cn=key" ) );
         
         assertNull( idx.forwardLookup( key ) );
 
         // test add/drop without adding any duplicates
-        idx.add( key, 0l );
-        assertEquals( 0, ( long ) idx.forwardLookup( key ) );
+        idx.add( key, getUUIDString( 0 ) );
+        assertEquals( getUUIDString( 0 ), idx.forwardLookup( key ) );
         
-        idx.drop( key, 0l );
+        idx.drop( key, getUUIDString( 0 ) );
         assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( 0l ) );
+        assertNull( idx.reverseLookup( getUUIDString( 0 ) ) );
     }
 
 
@@ -328,43 +329,43 @@ public class JdbmRdnIndexTest
     {
         initIndex();
         
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( getUUIDString( 0 ), new Rdn( "cn=key" ) );
         
         assertEquals( 0, idx.count() );
 
-        idx.add( key, 0l );
+        idx.add( key, getUUIDString( 0 ) );
         assertEquals( 1, idx.count() );
         
         for( long i=1; i< 5; i++ )
         {
-            key = new ParentIdAndRdn<Long>( i, new Rdn( "cn=key" + i ) );
+            key = new ParentIdAndRdn( getUUIDString( ( int )i ), new Rdn( "cn=key" + i ) );
             
-            idx.add( key, ( long ) i );
+            idx.add( key, getUUIDString( ( int )i ) );
         }
 
         assertEquals( 5, idx.count() );
         
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn<Long>, Long>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn<Long>, Long> e1 = cursor.get();
-        assertEquals( 0, ( long ) e1.getId() );
+        IndexEntry<ParentIdAndRdn> e1 = cursor.get();
+        assertEquals( getUUIDString( 0 ), e1.getId() );
         assertEquals( "cn=key", e1.getValue().getRdns()[0].getName() );
-        assertEquals( 0, e1.getValue().getParentId().longValue() );
+        assertEquals( getUUIDString( 0 ), e1.getValue().getParentId() );
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn<Long>, Long> e2 = cursor.get();
-        assertEquals( 1, ( long ) e2.getId() );
+        IndexEntry<ParentIdAndRdn> e2 = cursor.get();
+        assertEquals( getUUIDString( 1 ), e2.getId() );
         assertEquals( "cn=key1", e2.getValue().getRdns()[0].getName() );
-        assertEquals( 1, e2.getValue().getParentId().longValue() );
+        assertEquals( getUUIDString( 1 ), e2.getValue().getParentId() );
         
         cursor.next();
-        IndexEntry<ParentIdAndRdn<Long>, Long> e3 = cursor.get();
-        assertEquals( 2, ( long ) e3.getId() );
+        IndexEntry<ParentIdAndRdn> e3 = cursor.get();
+        assertEquals( getUUIDString( 2 ), e3.getId() );
         assertEquals( "cn=key2", e3.getValue().getRdns()[0].getName() );
-        assertEquals( 2, e3.getValue().getParentId().longValue() );
+        assertEquals( getUUIDString( 2 ), e3.getValue().getParentId() );
     }
 
 
@@ -385,4 +386,16 @@ public class JdbmRdnIndexTest
 //        InternalRdnComparator rdnCom = new InternalRdnComparator( "" );
 //        assertEquals( 0, rdnCom.compare( rdn, rdn2 ) );
 //    }
+    
+    public static UUID getUUIDString( int idx )
+    {
+        /** UUID string */
+        UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
+        
+        long low = baseUUID.getLeastSignificantBits();
+        long high = baseUUID.getMostSignificantBits();
+        low = low + idx;
+        
+        return new UUID( high, low );
+    }
 }

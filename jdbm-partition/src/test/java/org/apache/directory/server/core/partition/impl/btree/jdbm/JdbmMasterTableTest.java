@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.UUID;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
@@ -52,7 +53,7 @@ public class JdbmMasterTableTest
     private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    JdbmMasterTable<Integer> table;
+    JdbmMasterTable table;
     File dbFile;
     RecordManager recman;
     SchemaManager schemaManager = null;
@@ -98,10 +99,10 @@ public class JdbmMasterTableTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        table = new JdbmMasterTable<Integer>( recman, schemaManager );
+        table = new JdbmMasterTable( recman, schemaManager );
         LOG.debug( "Created new table and populated it with data" );
 
-        JdbmMasterTable<Integer> t2 = new JdbmMasterTable<Integer>( recman, schemaManager );
+        JdbmMasterTable t2 = new JdbmMasterTable( recman, schemaManager );
         t2.close();
     }
 
@@ -139,12 +140,7 @@ public class JdbmMasterTableTest
     @Test
     public void testAll() throws Exception
     {
-        assertNull( table.get( 0L ) );
+        assertNull( table.get( UUID.fromString( "00000000-0000-0000-0000-000000000000" ) ) );
         assertEquals( 0, table.count() );
-
-        assertEquals( 1, ( long ) table.getNextId( null ) );
-        assertEquals( 0, table.count() );
-
-        assertEquals( 2, ( long ) table.getNextId( null ) );
     }
 }
