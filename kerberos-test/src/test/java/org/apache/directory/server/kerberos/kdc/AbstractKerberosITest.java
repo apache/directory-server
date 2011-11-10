@@ -210,7 +210,19 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     {
         String clazz = "sun.security.krb5.KrbKdcReq";
         Class<?> krbKdcReqClass = Class.forName( clazz );
-        Field udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        
+        // Absolutely ugly fix to get this method working with the latest JVM on Mac (1.6.0_29)
+        Field udpPrefLimitField = null;
+        
+        try
+        { 
+        	udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        }
+        catch ( NoSuchFieldException nsfe )
+        {
+        	udpPrefLimitField = krbKdcReqClass.getDeclaredField( "defaultUdpPrefLimit" );
+        }
+        
         udpPrefLimitField.setAccessible( true );
         return udpPrefLimitField;
     }
