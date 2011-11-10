@@ -134,7 +134,7 @@ public class PartitionTest
 
         partition.initialize();
         
-        StoreUtils.loadExampleData( partition, schemaManager );
+        XdbmStoreUtils.loadExampleData( partition, schemaManager );
         LOG.debug( "Created new partition" );
     }
 
@@ -383,7 +383,7 @@ public class PartitionTest
         entry.add( "sn", "user sn" );
         
         // add
-        StoreUtils.injectEntryInStore( partition, entry, 12 );
+        XdbmStoreUtils.injectEntryInStore( partition, entry, 12 );
         verifyParentId( dn );
         
         // move

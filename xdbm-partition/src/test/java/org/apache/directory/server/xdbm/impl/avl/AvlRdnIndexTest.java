@@ -32,7 +32,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -187,23 +188,23 @@ public class AvlRdnIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        ParentIdAndRdn key = new ParentIdAndRdn( StoreUtils.getUUIDString( 0 ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
-        idx.add( key, StoreUtils.getUUIDString( 0 ) );
+        idx.add( key, Strings.getUUIDString( 0 ) );
         assertEquals( 1, idx.count() );
 
         // setting a different parentId should make this key a different key
-        key = new ParentIdAndRdn( StoreUtils.getUUIDString( 1 ), new Rdn( "cn=key" ) );
+        key = new ParentIdAndRdn( Strings.getUUIDString( 1 ), new Rdn( "cn=key" ) );
 
-        idx.add( key, StoreUtils.getUUIDString( 1 ) );
+        idx.add( key, Strings.getUUIDString( 1 ) );
         assertEquals( 2, idx.count() );
 
         //count shouldn't get affected cause of inserting the same key
-        idx.add( key, StoreUtils.getUUIDString( 2 ) );
+        idx.add( key, Strings.getUUIDString( 2 ) );
         assertEquals( 2, idx.count() );
 
-        key = new ParentIdAndRdn( StoreUtils.getUUIDString( 2 ), new Rdn( "cn=key" ) );
-        idx.add( key, StoreUtils.getUUIDString( 3 ) );
+        key = new ParentIdAndRdn( Strings.getUUIDString( 2 ), new Rdn( "cn=key" ) );
+        idx.add( key, Strings.getUUIDString( 3 ) );
         assertEquals( 3, idx.count() );
     }
 
@@ -213,11 +214,11 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn key = new ParentIdAndRdn( StoreUtils.getUUIDString( 0 ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count( key ) );
 
-        idx.add( key, StoreUtils.getUUIDString( 0 ) );
+        idx.add( key, Strings.getUUIDString( 0 ) );
         assertEquals( 1, idx.count( key ) );
     }
 
@@ -231,13 +232,13 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn key = new ParentIdAndRdn( StoreUtils.getUUIDString( 0 ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
-        idx.add( key, StoreUtils.getUUIDString( 1 ) );
-        assertEquals( StoreUtils.getUUIDString( 1 ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( StoreUtils.getUUIDString( 1 ) ) );
+        idx.add( key, Strings.getUUIDString( 1 ) );
+        assertEquals( Strings.getUUIDString( 1 ), idx.forwardLookup( key ) );
+        assertEquals( key, idx.reverseLookup( Strings.getUUIDString( 1 ) ) );
     }
 
 
@@ -246,17 +247,17 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn key = new ParentIdAndRdn( StoreUtils.getUUIDString( 0 ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
         // test add/drop without adding any duplicates
-        idx.add( key, StoreUtils.getUUIDString( 1 ) );
-        assertEquals( StoreUtils.getUUIDString( 1 ), idx.forwardLookup( key ) );
+        idx.add( key, Strings.getUUIDString( 1 ) );
+        assertEquals( Strings.getUUIDString( 1 ), idx.forwardLookup( key ) );
 
-        idx.drop( key, StoreUtils.getUUIDString( 1 ) );
+        idx.drop( key, Strings.getUUIDString( 1 ) );
         assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( StoreUtils.getUUIDString( 1 ) ) );
+        assertNull( idx.reverseLookup( Strings.getUUIDString( 1 ) ) );
     }
 
 
@@ -269,18 +270,18 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn key = new ParentIdAndRdn( StoreUtils.getUUIDString( 0 ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUIDString( 0 ), new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count() );
 
-        idx.add( key, StoreUtils.getUUIDString( 0 ) );
+        idx.add( key, Strings.getUUIDString( 0 ) );
         assertEquals( 1, idx.count() );
 
         for ( long i = 1; i < 5; i++ )
         {
-            key = new ParentIdAndRdn( StoreUtils.getUUIDString( ( int )i ), new Rdn( "cn=key" + i ) );
+            key = new ParentIdAndRdn( Strings.getUUIDString( ( int )i ), new Rdn( "cn=key" + i ) );
 
-            idx.add( key, StoreUtils.getUUIDString( ( int ) i ) );
+            idx.add( key, Strings.getUUIDString( ( int ) i ) );
         }
 
         assertEquals( 5, idx.count() );
@@ -291,21 +292,21 @@ public class AvlRdnIndexTest
 
         cursor.next();
         IndexEntry<ParentIdAndRdn> e1 = cursor.get();
-        assertEquals( StoreUtils.getUUIDString( 0 ), e1.getId() );
+        assertEquals( Strings.getUUIDString( 0 ), e1.getId() );
         assertEquals( "cn=key", e1.getValue().getRdns()[0].getName() );
-        assertEquals( StoreUtils.getUUIDString( 0 ), e1.getValue().getParentId() );
+        assertEquals( Strings.getUUIDString( 0 ), e1.getValue().getParentId() );
 
         cursor.next();
         IndexEntry<ParentIdAndRdn> e2 = cursor.get();
-        assertEquals( StoreUtils.getUUIDString( 1 ), e2.getId() );
+        assertEquals( Strings.getUUIDString( 1 ), e2.getId() );
         assertEquals( "cn=key1", e2.getValue().getRdns()[0].getName() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), e2.getValue().getParentId() );
+        assertEquals( Strings.getUUIDString( 1 ), e2.getValue().getParentId() );
 
         cursor.next();
         IndexEntry<ParentIdAndRdn> e3 = cursor.get();
-        assertEquals( StoreUtils.getUUIDString( 2 ), e3.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), e3.getId() );
         assertEquals( "cn=key2", e3.getValue().getRdns()[0].getName() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), e3.getValue().getParentId() );
+        assertEquals( Strings.getUUIDString( 2 ), e3.getValue().getParentId() );
     }
 
     //    @Test

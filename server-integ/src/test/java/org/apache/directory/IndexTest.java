@@ -30,16 +30,15 @@ import java.util.UUID;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
-import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -122,7 +121,7 @@ public class IndexTest
         for ( int i = 0; i < 26; i++ )
         {
             String val = alphabet.substring( i, (i+1) );
-            idx.add( val, StoreUtils.getUUIDString( i + 1 ) );
+            idx.add( val, Strings.getUUIDString( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
@@ -130,10 +129,10 @@ public class IndexTest
         IndexCursor<String> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
-        assertHasNext( cursor1, StoreUtils.getUUIDString( 1 ) );
-        assertHasNext( cursor1, StoreUtils.getUUIDString( 2 ) );
+        assertHasNext( cursor1, Strings.getUUIDString( 1 ) );
+        assertHasNext( cursor1, Strings.getUUIDString( 2 ) );
         
-        idx.drop( "c", StoreUtils.getUUIDString( 3 ) );
+        idx.drop( "c", Strings.getUUIDString( 3 ) );
 
         int id;
         if ( idx instanceof JdbmIndex )
@@ -147,7 +146,7 @@ public class IndexTest
         
         for ( ; id < 27; id++ )
         {
-            assertHasNext( cursor1, StoreUtils.getUUIDString( id ) );
+            assertHasNext( cursor1, Strings.getUUIDString( id ) );
         }
         
         assertFalse(cursor1.next());

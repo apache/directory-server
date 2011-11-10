@@ -21,7 +21,6 @@ package org.apache.directory.server.core.api.partition.index;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**

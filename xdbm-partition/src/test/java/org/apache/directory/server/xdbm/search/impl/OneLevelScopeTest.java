@@ -36,7 +36,7 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -133,7 +134,7 @@ public class OneLevelScopeTest
 
         ((Partition)store).initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -174,15 +175,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         IndexEntry<UUID> indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -196,15 +197,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
 
         assertFalse( cursor.next() );
@@ -220,16 +221,16 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -243,15 +244,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -265,15 +266,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -287,15 +288,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 5 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 5 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -319,15 +320,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         IndexEntry<UUID> indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -341,15 +342,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -364,15 +365,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
         
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -386,15 +387,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -408,15 +409,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -430,15 +431,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 11 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 11 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -463,15 +464,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         IndexEntry<UUID> indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -485,15 +486,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -508,15 +509,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -530,15 +531,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -552,15 +553,15 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -586,8 +587,8 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         IndexEntry<UUID> indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -601,8 +602,8 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -617,8 +618,8 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -632,8 +633,8 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -647,8 +648,8 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -666,7 +667,7 @@ public class OneLevelScopeTest
         entry.add( "cn", "jd" );
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         ((Partition)store).add( addContext );
@@ -679,7 +680,7 @@ public class OneLevelScopeTest
         entry.add( "cn", "jdoe" );
         entry.add( "sn", "doe" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 13 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
         
         addContext = new AddOperationContext( null, entry );
         ((Partition)store).add( addContext );
@@ -699,29 +700,29 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         IndexEntry<UUID> indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -735,28 +736,28 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -770,29 +771,29 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -806,29 +807,29 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -842,29 +843,29 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
         
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -878,29 +879,29 @@ public class OneLevelScopeTest
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 7 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 13 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 13 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 6 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
-        assertEquals( StoreUtils.getUUIDString( 8 ), indexEntry.getId() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), indexEntry.getValue() );
+        assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
+        assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -916,7 +917,7 @@ public class OneLevelScopeTest
             node );
 
         ForwardIndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( StoreUtils.getUUIDString( 6 ) );
+        indexEntry.setId( Strings.getUUIDString( 6 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -936,19 +937,19 @@ public class OneLevelScopeTest
          * when alias dereferencing while searching is enabled.
          */
         ForwardIndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( StoreUtils.getUUIDString( 11 ));
+        indexEntry.setId( Strings.getUUIDString( 11 ));
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( StoreUtils.getUUIDString( 8 ) );
+        indexEntry.setId( Strings.getUUIDString( 8 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( StoreUtils.getUUIDString( 5 ) );
+        indexEntry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( StoreUtils.getUUIDString( 6 ) );
+        indexEntry.setId( Strings.getUUIDString( 6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
@@ -976,7 +977,7 @@ public class OneLevelScopeTest
 
         // test before()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();
-        entry.setValue( StoreUtils.getUUIDString( 3 ) );
+        entry.setValue( Strings.getUUIDString( 3 ) );
         cursor.before( entry );
     }
 
@@ -992,7 +993,7 @@ public class OneLevelScopeTest
 
         // test after()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();
-        entry.setValue( StoreUtils.getUUIDString( 3 ) );
+        entry.setValue( Strings.getUUIDString( 3 ) );
         cursor.after( entry );
     }
 

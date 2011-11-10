@@ -37,7 +37,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -129,7 +130,7 @@ public class PresenceTest
 
         ((Partition)store).initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         
         LOG.debug( "Created new store" );
     }
@@ -165,22 +166,22 @@ public class PresenceTest
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 8 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 9 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 10 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 10 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 11 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 11 ), cursor.get().getId() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -230,31 +231,31 @@ public class PresenceTest
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 7 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 8 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 9 ), cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 11 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 11 ), cursor.get().getId() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -313,9 +314,9 @@ public class PresenceTest
             set.add( cursor.get().getId() );
         }
         assertEquals( 3, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 5 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 6 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 8 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 5 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 6 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 8 ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -349,9 +350,9 @@ public class PresenceTest
             set.add( cursor.get().getId() );
         }
         assertEquals( 3, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 5 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 6 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 8 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 5 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 6 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 8 ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -365,7 +366,7 @@ public class PresenceTest
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 1 ), cursor.get().getId() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -382,11 +383,11 @@ public class PresenceTest
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String> entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.CN_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 3 ) );
+        entry.setId( Strings.getUUIDString( 3 ) );
         assertFalse( evaluator.evaluate( entry ) );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.CN_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 5 ) );
+        entry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
     }
 
@@ -412,7 +413,7 @@ public class PresenceTest
 
         entry = new ForwardIndexEntry<String>();
         entry.setValue( oid );
-        entry.setId( StoreUtils.getUUIDString( 5 ) );
+        entry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
     }
 
@@ -424,35 +425,35 @@ public class PresenceTest
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String> entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.NAME_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 3 ) );
+        entry.setId( Strings.getUUIDString( 3 ) );
         assertTrue( evaluator.evaluate( entry ) );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.NAME_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 5 ) );
+        entry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "searchGuide" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 3 ) );
+        entry.setId( Strings.getUUIDString( 3 ) );
         assertFalse( evaluator.evaluate( entry ) );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 5 ) );
-        entry.setEntry( store.lookup( StoreUtils.getUUIDString( 5 ) ) );
+        entry.setId( Strings.getUUIDString( 5 ) );
+        entry.setEntry( store.lookup( Strings.getUUIDString( 5 ) ) );
         assertFalse( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "st" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.ST_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 3 ) );
+        entry.setId( Strings.getUUIDString( 3 ) );
         assertFalse( evaluator.evaluate( entry ) );
         entry = new ForwardIndexEntry<String>();
         entry.setValue( SchemaConstants.ST_AT_OID );
-        entry.setId( StoreUtils.getUUIDString( 5 ) );
-        entry.setEntry( store.lookup( StoreUtils.getUUIDString(53 ) ) );
+        entry.setId( Strings.getUUIDString( 5 ) );
+        entry.setEntry( store.lookup( Strings.getUUIDString(53 ) ) );
         assertFalse( evaluator.evaluate( entry ) );
     }
 

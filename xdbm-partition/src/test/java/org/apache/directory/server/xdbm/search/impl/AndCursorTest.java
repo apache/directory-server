@@ -35,7 +35,7 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -141,7 +142,7 @@ public class AndCursorTest
 
         ((Partition)store).initialize();
         
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
@@ -181,17 +182,17 @@ public class AndCursorTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -232,19 +233,19 @@ public class AndCursorTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -254,19 +255,19 @@ public class AndCursorTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 8 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );

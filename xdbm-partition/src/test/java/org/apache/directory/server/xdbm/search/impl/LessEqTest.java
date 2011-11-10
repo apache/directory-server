@@ -39,7 +39,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -142,7 +143,7 @@ public class LessEqTest
 
         ((Partition)store).initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -194,27 +195,27 @@ public class LessEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 1 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -229,27 +230,27 @@ public class LessEqTest
         cursor.first();
 
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 1 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -266,27 +267,27 @@ public class LessEqTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 1 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );
@@ -301,27 +302,27 @@ public class LessEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 1 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 1 ), cursor.get().getId() );
         assertEquals( "1", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );
@@ -341,12 +342,12 @@ public class LessEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -360,7 +361,7 @@ public class LessEqTest
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
 
@@ -370,7 +371,7 @@ public class LessEqTest
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
 
@@ -386,12 +387,12 @@ public class LessEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 4 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 4 ), cursor.get().getId() );
         assertEquals( "2", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -405,7 +406,7 @@ public class LessEqTest
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
 
@@ -415,7 +416,7 @@ public class LessEqTest
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
     }
@@ -455,11 +456,11 @@ public class LessEqTest
             set.add( new Tuple<String, UUID>( cursor.get().getValue(), cursor.get().getId() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 1 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 2 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 3 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "2", StoreUtils.getUUIDString( 4 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "3", StoreUtils.getUUIDString( 5 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 1 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 2 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 3 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "2", Strings.getUUIDString( 4 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "3", Strings.getUUIDString( 5 ) ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -482,11 +483,11 @@ public class LessEqTest
             set.add( new Tuple<String, UUID>( cursor.get().getValue(), cursor.get().getId() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 1 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 2 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 3 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "2", StoreUtils.getUUIDString( 4 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "3", StoreUtils.getUUIDString( 5 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 1 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 2 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 3 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "2", Strings.getUUIDString( 4 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "3", Strings.getUUIDString( 5 ) ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -507,11 +508,11 @@ public class LessEqTest
             set.add( new Tuple<String, UUID>( cursor.get().getValue(), cursor.get().getId() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 1 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 2 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 3 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "2", StoreUtils.getUUIDString( 4 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "3", StoreUtils.getUUIDString( 5 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 1 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 2 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 3 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "2", Strings.getUUIDString( 4 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "3", Strings.getUUIDString( 5 ) ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -531,11 +532,11 @@ public class LessEqTest
             set.add( new Tuple<String, UUID>( cursor.get().getValue(), cursor.get().getId() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 1 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 2 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "1", StoreUtils.getUUIDString( 3 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "2", StoreUtils.getUUIDString( 4 ) ) ) );
-        assertTrue( set.contains( new Tuple<String, UUID>( "3", StoreUtils.getUUIDString( 5 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 1 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 2 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "1", Strings.getUUIDString( 3 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "2", Strings.getUUIDString( 4 ) ) ) );
+        assertTrue( set.contains( new Tuple<String, UUID>( "3", Strings.getUUIDString( 5 ) ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -587,35 +588,35 @@ public class LessEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( StoreUtils.getUUIDString( 1 ) );
+        indexEntry.setId( Strings.getUUIDString( 1 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 4 ) );
+        indexEntry.setId( Strings.getUUIDString( 4 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 5 ) );
+        indexEntry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 6 ) );
+        indexEntry.setId( Strings.getUUIDString( 6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 7 ) );
+        indexEntry.setId( Strings.getUUIDString( 7 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 8 ) );
+        indexEntry.setId( Strings.getUUIDString( 8 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 9 ) );
+        indexEntry.setId( Strings.getUUIDString( 9 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 10 ) );
+        indexEntry.setId( Strings.getUUIDString( 10 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
@@ -640,12 +641,12 @@ public class LessEqTest
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        attrs.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, attrs );
         ((Partition)store).add( addContext );
 
-        indexEntry.setId( StoreUtils.getUUIDString( 12 ) );
+        indexEntry.setId( Strings.getUUIDString( 12 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -663,7 +664,7 @@ public class LessEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( StoreUtils.getUUIDString( 1 ) );
+        indexEntry.setId( Strings.getUUIDString( 1 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
@@ -681,35 +682,35 @@ public class LessEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( StoreUtils.getUUIDString( 1 ) );
+        indexEntry.setId( Strings.getUUIDString( 1 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 4 ) );
+        indexEntry.setId( Strings.getUUIDString( 4 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 5 ) );
+        indexEntry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 6 ) );
+        indexEntry.setId( Strings.getUUIDString( 6 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 7 ) );
+        indexEntry.setId( Strings.getUUIDString( 7 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 8 ) );
+        indexEntry.setId( Strings.getUUIDString( 8 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 9 ) );
+        indexEntry.setId( Strings.getUUIDString( 9 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<String>();
-        indexEntry.setId( StoreUtils.getUUIDString( 10 ) );
+        indexEntry.setId( Strings.getUUIDString( 10 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 

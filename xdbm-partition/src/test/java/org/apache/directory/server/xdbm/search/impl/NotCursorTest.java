@@ -36,7 +36,7 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -139,7 +140,7 @@ public class NotCursorTest
 
         ((Partition)store).initialize();
         
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
@@ -188,11 +189,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -223,11 +224,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -242,11 +243,11 @@ public class NotCursorTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 1 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 2 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 3 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 4 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 1 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 2 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 3 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 4 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 7 ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

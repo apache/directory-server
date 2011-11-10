@@ -41,7 +41,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -62,6 +62,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -161,7 +162,7 @@ public class JdbmStoreTest
 
         store.initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -216,7 +217,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "domain" );
         entry.add( "dc", "example" );
         entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, StoreUtils.getUUIDString( 1 ).toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( 1 ).toString() );
         store2.add( new AddOperationContext( null, entry ) );
 
         // lookup the context entry
@@ -489,36 +490,36 @@ public class JdbmStoreTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( StoreUtils.getUUIDString( 1 ), store.getEntryId( dn ) );
+        assertEquals( Strings.getUUIDString( 1 ), store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryDn( StoreUtils.getUUIDString( 1 ) ).getName() );
-        assertEquals( dn.getNormName(), store.getEntryDn( StoreUtils.getUUIDString( 1 ) ).getNormName() );
-        assertEquals( dn.getName(), store.getEntryDn( StoreUtils.getUUIDString( 1 ) ).getName() );
+        assertEquals( "o=Good Times Co.", store.getEntryDn( Strings.getUUIDString( 1 ) ).getName() );
+        assertEquals( dn.getNormName(), store.getEntryDn( Strings.getUUIDString( 1 ) ).getNormName() );
+        assertEquals( dn.getName(), store.getEntryDn( Strings.getUUIDString( 1 ) ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( StoreUtils.getUUIDString( 0 ), store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( StoreUtils.getUUIDString( 0 ) ) );
+        assertEquals( Strings.getUUIDString( 0 ), store.getParentId( store.getEntryId( dn ) ) );
+        assertNull( store.getParentId( Strings.getUUIDString( 0 ) ) );
 
         // should NOW be allowed
-        store.delete( StoreUtils.getUUIDString( 1 ) );
+        store.delete( Strings.getUUIDString( 1 ) );
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 3, store.getChildCount( StoreUtils.getUUIDString( 1 ) ) );
+        assertEquals( 3, store.getChildCount( Strings.getUUIDString( 1 ) ) );
 
-        Cursor<IndexEntry<UUID>> cursor = store.list( StoreUtils.getUUIDString( 1 ) );
+        Cursor<IndexEntry<UUID>> cursor = store.list( Strings.getUUIDString( 1 ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 3, store.getChildCount( StoreUtils.getUUIDString( 1 ) ) );
+        assertEquals( 3, store.getChildCount( Strings.getUUIDString( 1 ) ) );
 
-        store.delete( StoreUtils.getUUIDString( 2 ) );
-        assertEquals( 2, store.getChildCount( StoreUtils.getUUIDString( 1 ) ) );
+        store.delete( Strings.getUUIDString( 2 ) );
+        assertEquals( 2, store.getChildCount( Strings.getUUIDString( 1 ) ) );
         assertEquals( 10, store.count() );
 
         // add an alias and delete to test dropAliasIndices method
@@ -529,12 +530,12 @@ public class JdbmStoreTest
         entry.add( "commonName", "Jack Daniels" );
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
-        store.delete( StoreUtils.getUUIDString( 12 ) ); // drops the alias indices
+        store.delete( Strings.getUUIDString( 12 ) ); // drops the alias indices
 
     }
 
@@ -546,28 +547,28 @@ public class JdbmStoreTest
 
         assertEquals( 19, idx.count() );
 
-        Cursor<IndexEntry<UUID>> cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
+        Cursor<IndexEntry<UUID>> cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
 
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
 
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
 
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
 
         assertFalse( cursor.next() );
 
-        idx.drop( StoreUtils.getUUIDString( 5 ) );
+        idx.drop( Strings.getUUIDString( 5 ) );
 
-        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
-
-        assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 2 ), cursor.get().getId() );
+        cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
 
         assertTrue( cursor.next() );
-        assertEquals( StoreUtils.getUUIDString( 6 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 2 ), cursor.get().getId() );
+
+        assertTrue( cursor.next() );
+        assertEquals( Strings.getUUIDString( 6 ), cursor.get().getId() );
 
         assertFalse( cursor.next() );
 
@@ -578,24 +579,24 @@ public class JdbmStoreTest
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
-        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 2 ) );
+        cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
         cursor.afterLast();
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 12 ), cursor.get().getId() );
 
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
         Dn newDn = newParentDn.add( martinDn.getRdn() );
 
         store.move( martinDn, newParentDn, newDn, entry );
-        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 3 ) );
+        cursor = idx.forwardCursor( Strings.getUUIDString( 3 ) );
         cursor.afterLast();
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 12 ), cursor.get().getId() );
 
         // dn id 13
         Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
@@ -603,7 +604,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Marketing" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 13 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
         addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
@@ -614,7 +615,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Marketing" );
         entry.add( "cn", "Jimmy Wales" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 14 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 14 ).toString() );
         addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
@@ -622,29 +623,29 @@ public class JdbmStoreTest
 
         store.move( marketingDn, newParentDn, newDn, entry );
 
-        cursor = idx.forwardCursor( StoreUtils.getUUIDString( 3 ) );
+        cursor = idx.forwardCursor( Strings.getUUIDString( 3 ) );
         cursor.afterLast();
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 14 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 14 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 13 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 13 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 12 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 12 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 10 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 10 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 9 ), cursor.get().getId() );
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), cursor.get().getId() );;
+        assertEquals( Strings.getUUIDString( 7 ), cursor.get().getId() );;
 
         assertTrue( cursor.previous() );
-        assertEquals( StoreUtils.getUUIDString( 3 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 3 ), cursor.get().getId() );
 
         assertFalse( cursor.previous() );
     }
@@ -679,7 +680,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn", "Martin King" );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
     }
@@ -692,7 +693,7 @@ public class JdbmStoreTest
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
     }
@@ -721,7 +722,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
@@ -746,7 +747,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
@@ -772,7 +773,7 @@ public class JdbmStoreTest
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn", "Private Ryan" );
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        childEntry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
         store.add( addContext );
@@ -880,7 +881,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", StoreUtils.getUUIDString( 12 ).toString() );
+        entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );

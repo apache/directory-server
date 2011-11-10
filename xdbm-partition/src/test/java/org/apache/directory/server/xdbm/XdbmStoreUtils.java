@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -37,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreUtils
+public class XdbmStoreUtils
 {
     /** CSN factory instance */
     private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
@@ -184,21 +185,9 @@ public class StoreUtils
     public static void injectEntryInStore( Store store, Entry entry, int idx ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, getUUIDString( idx ).toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( idx ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         ((Partition)store).add( addContext );
-    }
-    
-    public static UUID getUUIDString( int idx )
-    {
-        /** UUID string */
-        UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
-        
-        long low = baseUUID.getLeastSignificantBits();
-        long high = baseUUID.getMostSignificantBits();
-        low = low + idx;
-        
-        return new UUID( high, low );
     }
 }

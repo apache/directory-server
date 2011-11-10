@@ -35,7 +35,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.XdbmStoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -138,7 +139,7 @@ public class NestedFilterTest
         ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ((Partition)store).initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
@@ -179,17 +180,17 @@ public class NestedFilterTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 7 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 7 ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 9 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 9 ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -208,7 +209,7 @@ public class NestedFilterTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( StoreUtils.getUUIDString( 5 ), cursor.get().getId() );
+        assertEquals( Strings.getUUIDString( 5 ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
@@ -235,8 +236,8 @@ public class NestedFilterTest
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
         assertEquals( 2, set.size() );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 7 ) ) );
-        assertTrue( set.contains( StoreUtils.getUUIDString( 8 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 7 ) ) );
+        assertTrue( set.contains( Strings.getUUIDString( 8 ) ) );
 
         assertFalse( cursor.next() );
     }

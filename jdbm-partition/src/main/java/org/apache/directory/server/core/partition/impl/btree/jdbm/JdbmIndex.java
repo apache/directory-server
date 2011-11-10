@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Comparator;
 import java.util.UUID;
 
 import jdbm.RecordManager;
@@ -33,7 +32,6 @@ import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndex;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;

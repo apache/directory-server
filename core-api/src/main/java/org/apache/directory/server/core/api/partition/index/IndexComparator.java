@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.api.partition.index;
 
 import java.util.Comparator;
-import java.util.UUID;
 
 public interface IndexComparator<V> extends Comparator<IndexEntry<V>>
 {
