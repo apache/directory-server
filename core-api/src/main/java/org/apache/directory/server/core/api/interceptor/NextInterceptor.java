@@ -22,13 +22,11 @@ package org.apache.directory.server.core.api.interceptor;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
@@ -45,12 +43,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
      */
     void add( AddOperationContext addContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
-     */
-    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**

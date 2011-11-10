@@ -152,10 +152,11 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         interceptors.add( this );
-        return next.lookup( lookupContext );
+
+        return next( lookupContext );
     }
 
 

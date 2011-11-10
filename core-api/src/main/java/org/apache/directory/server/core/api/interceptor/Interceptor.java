@@ -179,7 +179,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException;
+    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**

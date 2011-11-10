@@ -387,9 +387,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( lookupContext );
+        Entry result = next( lookupContext );
 
         if ( lookupContext.getAttrsId() == null )
         {
@@ -401,6 +401,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         denormalizeEntryOpAttrs( result );
+
         return result;
     }
 

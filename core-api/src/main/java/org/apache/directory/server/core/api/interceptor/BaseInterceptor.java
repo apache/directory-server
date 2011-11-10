@@ -208,7 +208,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+        public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
         {
             return nexus.lookup( lookupContext );
         }
@@ -526,9 +526,27 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        return next.lookup( lookupContext );
+        return next( lookupContext );
+    }
+
+
+    /**
+     * Calls the next interceptor for the lookup operation.
+     * 
+     * @param lookupContext The context in which we are executing this operation
+     * @return the Entry containing the found entry
+     * @throws LdapException If something went wrong
+     */
+    protected final Entry next( LookupOperationContext lookupContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( lookupContext );
+
+        return interceptor.lookup( lookupContext );
     }
 
 

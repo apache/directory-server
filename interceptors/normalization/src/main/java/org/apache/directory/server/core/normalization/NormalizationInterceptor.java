@@ -329,7 +329,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         lookupContext.getDn().apply( schemaManager );
 
@@ -341,7 +341,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
         }
 
-        return nextInterceptor.lookup( lookupContext );
+        return next( lookupContext );
     }
 
 

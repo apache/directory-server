@@ -154,11 +154,10 @@ public class InterceptorChain
         }
 
 
-        public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext )
-            throws LdapException
-            {
+        public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+        {
             return nexus.lookup( lookupContext );
-            }
+        }
 
 
         public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
@@ -173,11 +172,10 @@ public class InterceptorChain
         }
 
 
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-            throws LdapException
-            {
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        {
             nexus.moveAndRename( moveAndRenameContext );
-            }
+        }
 
 
         public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
@@ -186,11 +184,10 @@ public class InterceptorChain
         }
 
 
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
-            throws LdapException
-            {
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+        {
             return nexus.search( searchContext );
-            }
+        }
 
 
         public void unbind( UnbindOperationContext unbindContext ) throws LdapException
@@ -580,30 +577,6 @@ public class InterceptorChain
     }
 
 
-    /*
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( deleteContext );
-
-        try
-        {
-            head.delete( next, deleteContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-     */
-
-
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Element node = getStartingEntry();
@@ -656,28 +629,6 @@ public class InterceptorChain
         try
         {
             return head.search( next, searchContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            return head.lookup( next, lookupContext );
         }
         catch ( LdapException le )
         {
@@ -886,31 +837,6 @@ public class InterceptorChain
                         //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", searchRequest" );
 
                         return cursor;
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", lookupRequest" );
-                        Entry entry = interceptor.lookup( next.nextInterceptor, lookupContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", lookupRequest" );
-
-                        return entry;
                     }
                     catch ( LdapException le )
                     {

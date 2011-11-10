@@ -736,9 +736,9 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Search for an entry, using its Dn. Binary attributes and ObjectClass attribute are removed.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( lookupContext );
+        Entry result = next( lookupContext );
 
         filterBinaryAttributes( result );
 

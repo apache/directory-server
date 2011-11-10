@@ -239,7 +239,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
 
@@ -251,7 +251,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        Entry result = nextInterceptor.lookup( lookupContext );
+        Entry result = next( lookupContext );
 
         return result;
     }

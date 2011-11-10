@@ -382,10 +382,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
-        Entry entry = nextInterceptor.lookup( lookupContext );
+        Entry entry = next( lookupContext );
 
         if ( session.getDirectoryService().isAccessControlEnabled() )
         {

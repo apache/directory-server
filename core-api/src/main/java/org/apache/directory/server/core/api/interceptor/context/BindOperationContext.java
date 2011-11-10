@@ -6,19 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
- 
+
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.api.CoreSession;
@@ -50,33 +50,33 @@ public class BindOperationContext extends AbstractOperationContext
 
     /** The SASL mechanism */
     private String saslMechanism;
-    
+
     /** The SASL identifier */
     private String saslAuthId;
-    
+
     /** A flag to tell that this is a collateral operation */
     private boolean collateralOperation;
-    
+
     private ReferralHandlingMode referralHandlingMode;
-    
+
     /** The IoSession if any */
     private IoSession ioSession;
 
-    
+
     /**
      * Creates a new instance of BindOperationContext.
      */
     public BindOperationContext( CoreSession session )
     {
         super( session );
-        
+
         if ( session != null )
         {
-        	setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
         }
     }
 
-    
+
     /**
      * @return The authentication level. One of :
      * <li>ANONYMOUS</li>
@@ -91,7 +91,7 @@ public class BindOperationContext extends AbstractOperationContext
         if ( ( saslMechanism == null ) )
         {
             // No, it's either a SIMPLE, ANONYMOUS, UNAUTHENT or an error
-            // 
+            //
             if ( dn.isEmpty() )
             {
                 if ( Strings.isEmpty(credentials) )
@@ -120,8 +120,8 @@ public class BindOperationContext extends AbstractOperationContext
             return AuthenticationLevel.STRONG;
         }
     }
-    
-    
+
+
     /**
      * @return the SASL mechanisms
      */
@@ -130,13 +130,13 @@ public class BindOperationContext extends AbstractOperationContext
         return saslMechanism;
     }
 
-    
+
     public void setSaslMechanism( String saslMechanism )
     {
         this.saslMechanism = saslMechanism;
     }
 
-    
+
     /**
      * @return The principal password
      */
@@ -145,13 +145,13 @@ public class BindOperationContext extends AbstractOperationContext
         return credentials;
     }
 
-    
+
     public void setCredentials( byte[] credentials )
     {
         this.credentials = credentials;
     }
 
-    
+
     /**
      * @return The SASL authentication ID
      */
@@ -165,14 +165,14 @@ public class BindOperationContext extends AbstractOperationContext
     {
         this.saslAuthId = saslAuthId;
     }
-    
-    
+
+
     public boolean isSaslBind()
     {
         return saslMechanism != null;
     }
-    
-    
+
+
     /**
      * @return the operation name
      */
@@ -229,8 +229,8 @@ public class BindOperationContext extends AbstractOperationContext
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_320 ) );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

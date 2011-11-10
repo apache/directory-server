@@ -372,10 +372,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry entry = next.lookup( lookupContext );
+        Entry entry = next( lookupContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )

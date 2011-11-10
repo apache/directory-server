@@ -439,7 +439,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -449,7 +449,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( lookupContext );
         checkPwdReset( lookupContext );
 
-        return next.lookup( lookupContext );
+        return next( lookupContext );
     }
 
 

@@ -942,7 +942,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
 
@@ -957,7 +957,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
         if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
-            return next.lookup( lookupContext );
+            return next( lookupContext );
         }
 
         Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );

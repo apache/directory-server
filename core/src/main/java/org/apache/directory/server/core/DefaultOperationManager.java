@@ -617,8 +617,9 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            InterceptorChain chain = directoryService.getInterceptorChain();
-            return chain.lookup( lookupContext );
+            Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
+
+            return head.lookup( lookupContext );
         }
         finally
         {
