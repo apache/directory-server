@@ -87,17 +87,29 @@ import org.apache.directory.shared.util.Strings;
  */
 public class DefaultCoreSession implements CoreSession
 {
+	/** The DirectoryService we are connected to */
     private final DirectoryService directoryService;
+    
+    /** The Principal used to process operations */
     private final LdapPrincipal authenticatedPrincipal;
+    
+    /** The anonymous principal, if we have to process operation as anonymous */
     private final LdapPrincipal anonymousPrincipal;
+    
+    /** The authorized principal, which will be used when a user has been authorized */
     private LdapPrincipal authorizedPrincipal;
 
 
+    /**
+     * Creates a new instance of a DefaultCoreSession
+     * @param principal The principal to use to process operation for this session
+     * @param directoryService The DirectoryService to which we will send requests
+     */
     public DefaultCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
-        this.authenticatedPrincipal = principal;
-        this.anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+        authenticatedPrincipal = principal;
+        anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
     }
 
 
@@ -877,6 +889,7 @@ public class DefaultCoreSession implements CoreSession
         deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         try
         {
             operationManager.delete( deleteContext );
@@ -907,6 +920,7 @@ public class DefaultCoreSession implements CoreSession
     {
         EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
+        
         return operationManager.hasEntry( hasEntryContext );
     }
 
@@ -1070,15 +1084,26 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unbind() throws LdapException
     {
+    	UnbindOperationContext unbindContext = new UnbindOperationContext( this );
+    	
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.unbind( new UnbindOperationContext( this ) );
+        operationManager.unbind( unbindContext );
     }
 
 
-    public void unbind( UnbindRequest unbindRequest )
+    /**
+     * {@inheritDoc}
+     */
+    public void unbind( UnbindRequest unbindRequest ) throws LdapException
     {
-        // TODO Auto-generated method stub
+    	UnbindOperationContext unbindContext = new UnbindOperationContext( this, unbindRequest );
+    	
+        OperationManager operationManager = directoryService.getOperationManager();
+        operationManager.unbind( unbindContext );
     }
 }
