@@ -285,14 +285,14 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn newDn = moveContext.getNewDn();
 
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( moveContext.getOriginalEntry() );
 
-        next.move( moveContext );
+        next( moveContext );
 
         if ( isReferral )
         {

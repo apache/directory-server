@@ -302,12 +302,12 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Entry oriEntry = moveContext.getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
-        next.move( moveContext );
+        next( moveContext );
 
         if ( selecting.isEmpty() )
         {

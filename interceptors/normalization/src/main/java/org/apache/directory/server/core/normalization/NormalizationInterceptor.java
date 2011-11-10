@@ -182,7 +182,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( !moveContext.getDn().isSchemaAware() )
         {
@@ -209,7 +209,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             moveContext.getRdn().apply( schemaManager );
         }
 
-        nextInterceptor.move( moveContext );
+        next( moveContext );
     }
 
 

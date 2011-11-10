@@ -191,7 +191,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#move( MoveOperationContext )} call.
      */
-    void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException;
+    void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     /**

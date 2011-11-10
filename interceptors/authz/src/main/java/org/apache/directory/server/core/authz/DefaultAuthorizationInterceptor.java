@@ -319,14 +319,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( moveContext, moveContext.getDn() );
         }
 
-        nextInterceptor.move( moveContext );
+        next( moveContext );
     }
 
 

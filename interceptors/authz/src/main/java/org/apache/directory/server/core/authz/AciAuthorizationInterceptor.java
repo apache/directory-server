@@ -1120,7 +1120,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oriChildName = moveContext.getDn();
 
@@ -1136,7 +1136,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.move( moveContext );
+            next( moveContext );
             return;
         }
 
@@ -1145,7 +1145,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.move( moveContext );
+            next( moveContext );
             tupleCache.subentryRenamed( oriChildName, newDn );
             groupCache.groupRenamed( oriChildName, newDn );
             return;
@@ -1205,7 +1205,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.move( moveContext );
+        next( moveContext );
         tupleCache.subentryRenamed( oriChildName, newDn );
         groupCache.groupRenamed( oriChildName, newDn );
     }

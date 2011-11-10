@@ -482,12 +482,12 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.move( moveContext );
+            next( moveContext );
             return;
         }
 
@@ -543,7 +543,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> importTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
             importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
 
-        next.move( moveContext );
+        next( moveContext );
         triggerSpecCache.subentryRenamed( dn, newDn );
 
         // Fire AFTER Triggers.

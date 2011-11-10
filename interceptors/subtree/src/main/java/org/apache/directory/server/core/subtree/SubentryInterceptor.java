@@ -1223,7 +1223,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
         Dn newSuperiorDn = moveContext.getNewSuperior();
@@ -1252,7 +1252,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
-            next.move( moveContext );
+            next( moveContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
@@ -1316,7 +1316,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // Move the entry
-            next.move( moveContext );
+            next( moveContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

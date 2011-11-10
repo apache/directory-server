@@ -365,9 +365,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( moveContext );
+        next( moveContext );
 
         if ( !changeLog.isEnabled() )
         {

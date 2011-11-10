@@ -334,7 +334,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oriChildName = moveContext.getDn();
 
@@ -344,7 +344,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
-        nextInterceptor.move( moveContext );
+        next( moveContext );
 
         // Remove the original entry from the NotAlias cache, if needed
         synchronized ( notAliasCache )

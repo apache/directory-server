@@ -1432,7 +1432,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveRequest" );
         Entry entry = moveContext.getOriginalEntry();
@@ -1443,7 +1443,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.move( moveContext );
+            next( moveContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 

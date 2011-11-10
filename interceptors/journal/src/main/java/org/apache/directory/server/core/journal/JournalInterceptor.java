@@ -330,7 +330,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         long opRevision = 0;
 
@@ -349,7 +349,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.move( moveContext );
+            next( moveContext );
 
             if ( journalEnabled )
             {

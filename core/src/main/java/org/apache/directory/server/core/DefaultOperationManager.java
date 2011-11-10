@@ -809,9 +809,14 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.move( moveContext );
+            Entry originalEntry = getOriginalEntry( moveContext );
+
+            moveContext.setOriginalEntry( originalEntry );
+
+            // Call the Move method
+            Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
+
+            head.move( moveContext );
         }
         finally
         {
@@ -1012,7 +1017,7 @@ public class DefaultOperationManager implements OperationManager
             renameContext.setOriginalEntry( originalEntry );
             renameContext.setModifiedEntry( originalEntry.clone() );
 
-            // Call the Delete method
+            // Call the Rename method
             Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
 
             head.rename( renameContext );

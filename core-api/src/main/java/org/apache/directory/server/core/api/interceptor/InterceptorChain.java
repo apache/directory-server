@@ -166,7 +166,7 @@ public class InterceptorChain
         }
 
 
-        public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+        public void move( MoveOperationContext moveContext ) throws LdapException
         {
             nexus.move( moveContext );
         }
@@ -642,30 +642,6 @@ public class InterceptorChain
     }
 
 
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        Entry originalEntry = getOriginalEntry( moveContext );
-
-        moveContext.setOriginalEntry( originalEntry );
-
-        try
-        {
-            head.move( next, moveContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -821,28 +797,6 @@ public class InterceptorChain
                     {
                         throwInterceptorException( interceptor, e );
                         throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public void move( MoveOperationContext moveContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", moveRequest" );
-                        interceptor.move( next.nextInterceptor, moveContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", moveRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
                     }
                 }
 

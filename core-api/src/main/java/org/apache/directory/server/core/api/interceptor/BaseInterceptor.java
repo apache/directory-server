@@ -226,7 +226,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+        public void move( MoveOperationContext moveContext ) throws LdapException
         {
             nexus.move( moveContext );
         }
@@ -559,9 +559,23 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( moveContext );
+        // Nothing to do
+    }
+
+
+    /**
+     * Calls the next interceptor for the move operation.
+     * 
+     * @param moveContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( MoveOperationContext moveContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( moveContext );
+
+        interceptor.move( moveContext );
     }
 
 

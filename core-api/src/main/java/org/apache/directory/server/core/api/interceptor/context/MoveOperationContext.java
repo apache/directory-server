@@ -6,21 +6,22 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
@@ -43,13 +44,13 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
     /** The entry Rdn */
     private Rdn rdn;
-    
+
     /** The newSuperior Dn */
     private Dn newSuperior;
-    
+
     /** The New target Dn */
     private Dn newDn;
-    
+
 
     /**
      * Creates a new instance of MoveOperationContext.
@@ -57,8 +58,9 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     public MoveOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
     }
-    
+
 
     /**
      * Creates a new instance of MoveOperationContext.
@@ -68,8 +70,9 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         super( session, oldDn );
         this.newSuperior = newSuperior;
         oldSuperior = oldDn.getParent();
-        rdn = (Rdn)( oldDn.getRdn().clone() );
-        
+        rdn = ( oldDn.getRdn().clone() );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+
         try
         {
             newDn = newSuperior.add( rdn );
@@ -80,24 +83,25 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
     }
 
-    
+
     public MoveOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );
         this.newSuperior = modifyDnRequest.getNewSuperior();
-        
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+
         if ( newSuperior == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_326_NEW_SUPERIROR_CANNOT_BE_NULL, modifyDnRequest ) );
         }
-        
+
         this.requestControls = modifyDnRequest.getControls();
-        
+
         if ( modifyDnRequest.getNewRdn() != null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_327_MOVE_AND_RENAME_OPERATION, modifyDnRequest ) );
         }
-        
+
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
@@ -108,10 +112,10 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
 
         oldSuperior = modifyDnRequest.getName().getParent();
-        rdn = (Rdn)(modifyDnRequest.getName().getRdn().clone());
-        
+        rdn = (modifyDnRequest.getName().getRdn().clone());
+
         try
-        { 
+        {
             newDn = newSuperior.add( rdn );
         }
         catch ( LdapInvalidDnException lide )
@@ -137,7 +141,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     {
         return newSuperior;
     }
-    
+
 
     /**
      *  @return The Rdn
@@ -146,8 +150,8 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     {
         return rdn;
     }
-    
-    
+
+
     /**
      *  @return The new Dn
      */
@@ -155,7 +159,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     {
         return newDn;
     }
-    
+
 
     /**
      * @return the operation name
@@ -165,13 +169,13 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         return MessageTypeEnum.MODIFYDN_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         return "ReplaceContext for old Dn '" + getDn().getName() + "'" +
-        ", newSuperior '" + newSuperior + "'";
+            ", newSuperior '" + newSuperior + "'";
     }
 }

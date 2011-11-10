@@ -769,7 +769,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -778,7 +778,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( moveContext );
         checkPwdReset( moveContext );
-        next.move( moveContext );
+        next( moveContext );
         invalidateAuthenticatorCaches( moveContext.getDn() );
     }
 
