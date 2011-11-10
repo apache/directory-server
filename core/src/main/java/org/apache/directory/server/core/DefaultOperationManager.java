@@ -708,9 +708,13 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             referralManager.unlock();
 
+            // populate the context with the old entry
+            eagerlyPopulateFields( modifyContext );
+            
             // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.modify( modifyContext );
+            Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
+
+            head.modify( modifyContext );
         }
         finally
         {

@@ -652,7 +652,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     // False positive, we want to keep the comment
     @SuppressWarnings("PMD.CollapsibleIfStatements")
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
 
@@ -665,7 +665,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -674,7 +674,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
 
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
@@ -800,7 +800,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
         }
 
-        next.modify( modifyContext );
+        next( modifyContext );
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */

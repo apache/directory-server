@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
@@ -93,11 +92,11 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
 
     @Override
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( algorithm == null )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -115,7 +114,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
             }
         }
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

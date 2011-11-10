@@ -205,13 +205,13 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, final ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( final ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry oriEntry = modifyContext.getEntry();
 
         List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
 
-        next.modify( modifyContext );
+        next( modifyContext );
 
         if ( selecting.isEmpty() )
         {

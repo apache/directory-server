@@ -228,14 +228,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( !modifyContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             Dn dn = modifyContext.getDn();
 
             protectModifyAlterations( modifyContext, dn );
-            nextInterceptor.modify( modifyContext );
+            next( modifyContext );
 
             // update administrators if we change administrators group
             if ( dn.equals( ADMIN_GROUP_DN ) )
@@ -245,7 +245,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
         else
         {
-            nextInterceptor.modify( modifyContext );
+            next( modifyContext );
         }
     }
 

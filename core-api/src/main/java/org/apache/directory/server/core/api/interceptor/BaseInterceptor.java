@@ -217,7 +217,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+        public void modify( ModifyOperationContext modifyContext ) throws LdapException
         {
             nexus.modify( modifyContext );
         }
@@ -564,9 +564,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        next.modify( modifyContext );
+       // Nothing to do
     }
 
 
@@ -649,4 +649,19 @@ public abstract class BaseInterceptor implements Interceptor
 
         interceptor.unbind( unbindContext );
     }
+    
+    
+    /**
+     * Calls the next interceptor for the modify operation.
+     * 
+     * @param modifyContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( modifyContext );
+        
+        interceptor.modify( modifyContext );
+    }
+
 }

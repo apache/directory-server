@@ -364,12 +364,12 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * Modify an entry in the server.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
 
         // handle a normal modify without following referrals
-        next.modify( modifyContext );
+        next( modifyContext );
 
         // Check if we are trying to modify the schema or the rootDSE,
         // if so, we don't modify the referralManager

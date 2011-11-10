@@ -1182,7 +1182,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // A modification on a simple entry will be done in three steps :
         // - get the original entry (it should already been in the context)
@@ -1233,7 +1233,7 @@ public class SchemaInterceptor extends BaseInterceptor
         List<Modification> modifications = modifyContext.getModItems();
         checkModifyEntry( dn, entry, modifications );
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

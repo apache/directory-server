@@ -327,12 +327,12 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -351,7 +351,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.MODIFY );
 
-        next.modify( modifyContext );
+        next( modifyContext );
 
         triggerSpecCache.subentryModified( modifyContext, originalEntry );
 

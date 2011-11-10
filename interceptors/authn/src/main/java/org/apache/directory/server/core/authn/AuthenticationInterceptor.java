@@ -468,7 +468,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -480,7 +480,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( ! directoryService.isPwdPolicyEnabled() )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             invalidateAuthenticatorCaches( modifyContext.getDn() );
             return;
         }
@@ -644,7 +644,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 pwdAddHistMod = new DefaultModification( ADD_ATTRIBUTE, pwdHistoryAt );
             }
 
-            next.modify( modifyContext );
+            next( modifyContext );
 
             invalidateAuthenticatorCaches( modifyContext.getDn() );
 
@@ -712,7 +712,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         else
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             invalidateAuthenticatorCaches( modifyContext.getDn() );
         }
     }

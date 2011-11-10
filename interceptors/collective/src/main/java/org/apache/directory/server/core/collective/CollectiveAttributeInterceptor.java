@@ -154,11 +154,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         checkModify( modifyContext );
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

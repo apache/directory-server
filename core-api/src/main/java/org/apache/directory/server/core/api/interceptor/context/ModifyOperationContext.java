@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -60,6 +61,10 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session )
     {
         super( session );
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
     }
 
 
@@ -72,7 +77,12 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session, Dn dn, List<Modification> modItems )
     {
         super( session, dn );
-
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
+        
         this.modItems = modItems;
     }
 
@@ -80,7 +90,12 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws LdapException
     {
         super( session, modifyRequest.getName() );
-
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
+        
         modItems = ServerEntryUtils.toServerModification( modifyRequest.getModifications().toArray(
             new DefaultModification[0] ), session.getDirectoryService().getSchemaManager() );
 

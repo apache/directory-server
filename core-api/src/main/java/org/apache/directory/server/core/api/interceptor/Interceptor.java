@@ -184,7 +184,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#modify( ModifyOperationContext )} call.
      */
-    void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException;
+    void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**

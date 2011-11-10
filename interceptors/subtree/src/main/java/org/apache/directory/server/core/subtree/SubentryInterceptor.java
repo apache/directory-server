@@ -1031,7 +1031,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
         List<Modification> modifications = modifyContext.getModItems();
@@ -1083,7 +1083,7 @@ public class SubentryInterceptor extends BaseInterceptor
             subentry.setAdministrativeRoles( getSubentryTypes( entry, modifications ) );
             directoryService.getSubentryCache().addSubentry( dn, subentry );
 
-            next.modify( modifyContext );
+            next( modifyContext );
 
             // search for all entries selected by the old SS and remove references to subentry
             Dn apName = dn.getParent();
@@ -1178,7 +1178,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            next.modify( modifyContext );
+            next( modifyContext );
 
             if ( !containsSubentryOC )
             {

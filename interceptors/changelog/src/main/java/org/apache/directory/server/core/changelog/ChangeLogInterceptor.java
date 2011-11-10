@@ -213,7 +213,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * 
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( modifyContext.getModItems(), entryDeleted );
@@ -234,7 +234,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         // Call the next interceptor
-        next.modify( modifyContext );
+        next( modifyContext );
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?

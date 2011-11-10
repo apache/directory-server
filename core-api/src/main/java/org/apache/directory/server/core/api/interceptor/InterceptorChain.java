@@ -160,7 +160,7 @@ public class InterceptorChain
         }
 
 
-        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+        public void modify( ModifyOperationContext modifyContext ) throws LdapException
         {
             nexus.modify( modifyContext );
         }
@@ -607,7 +607,7 @@ public class InterceptorChain
 
         try
         {
-            head.modify( next, modifyContext );
+            head.modify( modifyContext );
         }
         catch ( LdapException le )
         {
@@ -762,7 +762,7 @@ public class InterceptorChain
                     try
                     {
                         //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
-                        interceptor.modify( next.nextInterceptor, modifyContext );
+                        interceptor.modify( modifyContext );
                         //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
                     }
                     catch ( LdapException le )

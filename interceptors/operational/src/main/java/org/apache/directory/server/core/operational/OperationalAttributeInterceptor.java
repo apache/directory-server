@@ -235,7 +235,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
@@ -340,7 +340,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         // Go down in the chain
-        nextInterceptor.modify( modifyContext );
+        next( modifyContext );
     }
 
 

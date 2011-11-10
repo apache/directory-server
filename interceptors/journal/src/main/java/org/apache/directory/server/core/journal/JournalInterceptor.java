@@ -193,7 +193,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         long opRevision = 0;
 
@@ -217,7 +217,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.modify( modifyContext );
+            next( modifyContext );
 
             if ( journalEnabled )
             {

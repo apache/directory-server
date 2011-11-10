@@ -1301,7 +1301,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * 
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, modifyRequest" );
         // We have to check that the modification is acceptable
@@ -1423,7 +1423,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // At this point, we have a new AdministrativeRole AT, and we need to get the lists of
         // added roles and removed roles, in order to process them
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

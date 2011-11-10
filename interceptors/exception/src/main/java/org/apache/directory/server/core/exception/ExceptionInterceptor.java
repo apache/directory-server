@@ -260,7 +260,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
@@ -269,7 +269,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // and never try to look it up in the nexus below
         if ( modifyContext.getDn().equals( subschemSubentryDn ) )
         {
-            nextInterceptor.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -290,7 +290,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.modify( modifyContext );
+        next( modifyContext );
     }
 
 

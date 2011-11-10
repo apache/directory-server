@@ -44,7 +44,7 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
+     * Calls the next interceptor's {@link Interceptor#modify( ModifyOperationContext )}.
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
 

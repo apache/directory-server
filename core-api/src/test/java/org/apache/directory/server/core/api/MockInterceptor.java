@@ -162,10 +162,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         interceptors.add( this );
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

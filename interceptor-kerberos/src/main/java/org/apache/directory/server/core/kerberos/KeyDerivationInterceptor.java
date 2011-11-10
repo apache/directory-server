@@ -28,7 +28,6 @@ import java.util.Map;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -136,7 +135,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws LdapException
+    public void modify( ModifyOperationContext modContext ) throws LdapException
     {
         ModifySubContext subContext = new ModifySubContext();
 
@@ -152,7 +151,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             deriveKeys( modContext, subContext );
         }
 
-        next.modify( modContext );
+        next( modContext );
     }
 
 

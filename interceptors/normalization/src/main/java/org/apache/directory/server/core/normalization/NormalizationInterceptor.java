@@ -135,7 +135,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( !modifyContext.getDn().isSchemaAware() )
         {
@@ -151,7 +151,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.modify( modifyContext );
+        next( modifyContext );
     }
 
 
