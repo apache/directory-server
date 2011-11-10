@@ -48,7 +48,20 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 public interface OperationManager
 {
     /**
-     * TODO document after determining if this method should be here.
+     * Add an entry into the backend, going through the interceptor chain
+     * 
+     * @param addContext The context containing the information to process the addition
+     * @throws LdapException If the addition can't be processed successfully
+     */
+    void add( AddOperationContext addContext ) throws LdapException;
+    
+    
+    /**
+     * Get the RooDSE entry.
+     * 
+     * @param getRootDseContext The getRootDSE() context
+     * @return The rootDSE if found
+     * @throws LdapException If we can't get back the rootDSE entry
      */
     Entry getRootDSE( GetRootDSEOperationContext  getRootDseContext ) throws LdapException;
 
@@ -63,12 +76,6 @@ public interface OperationManager
      * TODO document after determining if this method should be here.
      */
     void delete( DeleteOperationContext deleteContext ) throws LdapException;
-
-
-    /**
-     * TODO document after determining if this method should be here.
-     */
-    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**

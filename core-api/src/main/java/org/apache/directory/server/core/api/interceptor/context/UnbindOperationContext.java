@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 
@@ -39,13 +40,15 @@ public class UnbindOperationContext extends AbstractOperationContext
     public UnbindOperationContext( CoreSession session )
     {
         super( session, session.getEffectivePrincipal().getDn() );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
     }
     
 
     public UnbindOperationContext( CoreSession session, UnbindRequest unbindRequest )
     {
         super( session, session.getEffectivePrincipal().getDn() );
-        this.setRequestControls( unbindRequest.getControls() );
+        setRequestControls( unbindRequest.getControls() );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
     }
 
     

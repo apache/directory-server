@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -32,12 +33,12 @@ import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -124,7 +125,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         
         LdifEntry reverse = LdifRevertor.reverseAdd( addContext.getDn() );
-        addContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        addContext.setChangeLogEvent( changeLog.log( getPrincipal( addContext ), forward, reverse ) );
     }
 
 
@@ -132,7 +133,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
@@ -143,7 +144,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             serverEntry = getAttributes( deleteContext );
         }
 
-        next.delete( deleteContext );
+        next( deleteContext );
 
         if ( !changeLog.isEnabled() )
         {
@@ -176,7 +177,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         LdifEntry reverse = LdifRevertor.reverseDel( deleteContext.getDn(), reverseEntry );
-        deleteContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        deleteContext.setChangeLogEvent( changeLog.log( getPrincipal( deleteContext ), forward, reverse ) );
     }
 
 
@@ -199,7 +200,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         else
         {
-            serverEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            CoreSession session = opContext.getSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            serverEntry = directoryService.getPartitionNexus().lookup( lookupContext  );
         }
 
         return serverEntry;
@@ -278,7 +282,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             mods, 
             clientEntry );
         
-        modifyContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        modifyContext.setChangeLogEvent( changeLog.log( getPrincipal( modifyContext ), forward, reverse ) );
     }
 
 
@@ -315,7 +319,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         List<LdifEntry> reverses = LdifRevertor.reverseRename( 
             serverEntry, renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
         
-        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal( renameContext ), forward, reverses ) );
     }
 
 
@@ -354,7 +358,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             reversedEntry.addControl( new ManageDsaITImpl() );
         }
         
-        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
+        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal( moveAndRenameContext ), forward, reverses ) );
     }
 
 
@@ -376,6 +380,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
         LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
-        moveContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        moveContext.setChangeLogEvent( changeLog.log( getPrincipal( moveContext ), forward, reverse ) );
     }
 }

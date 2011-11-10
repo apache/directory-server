@@ -91,31 +91,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     private static final int DEFAULT_CACHE_SIZE = 100;
 
     /**
-     * Define the interceptors we should *not* go through when we will have to request the backend
-     * about a userPassword.
-     */
-    private static final Collection<String> USERLOOKUP_BYPASS;
-
-    static
-    {
-        Set<String> c = new HashSet<String>();
-        c.add( "NormalizationInterceptor" );
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "AdministrativePointInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "OperationalAttributeInterceptor" );
-        c.add( "SchemaInterceptor" );
-        c.add( "CollectiveAttributeInterceptor" );
-        c.add( "SubentryInterceptor" );
-        c.add( "EventInterceptor" );
-        c.add( "TriggerInterceptor" );
-        USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
-
-    /**
      * Creates a new instance.
      * @see AbstractAuthenticator
      */
@@ -265,12 +240,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
              */
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
                 bindContext.getDn() );
-            lookupContext.setByPassed( USERLOOKUP_BYPASS );
             lookupContext.addAttrsId( SchemaConstants.ALL_USER_ATTRIBUTES );
             // OP attributes required for ppolicy
             lookupContext.addAttrsId( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
             
-            userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
+            userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( userEntry == null )
             {

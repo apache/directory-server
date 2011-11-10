@@ -1183,6 +1183,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setDn( bindRequest.getName() );
+        bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
 

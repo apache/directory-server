@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -39,6 +40,7 @@ public class EntryOperationContext extends AbstractOperationContext
     public EntryOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
     }
     
     /**
@@ -49,6 +51,7 @@ public class EntryOperationContext extends AbstractOperationContext
     public EntryOperationContext( CoreSession session, Dn entryDn )
     {
         super( session, entryDn );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
     }
     
 

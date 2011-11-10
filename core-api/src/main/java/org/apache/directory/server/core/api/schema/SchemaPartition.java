@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -39,7 +40,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -335,6 +335,7 @@ public final class SchemaPartition extends AbstractPartition
         {
             LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(), modifyContext.getDn() );
             entry = wrapped.lookup( lookupCtx );
+            modifyContext.setEntry( entry );
         }
 
         Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( modifyContext.getModItems(), entry );
@@ -361,7 +362,10 @@ public final class SchemaPartition extends AbstractPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         boolean cascade = moveContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveContext.lookup( moveContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        
+        CoreSession session = moveContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.move( moveContext, entry, cascade );
         wrapped.move( moveContext );
         updateSchemaModificationAttributes( moveContext );
@@ -374,7 +378,9 @@ public final class SchemaPartition extends AbstractPartition
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         boolean cascade = moveAndRenameContext.hasRequestControl( Cascade.OID );
-        Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = moveAndRenameContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         wrapped.moveAndRename( moveAndRenameContext );
         updateSchemaModificationAttributes( moveAndRenameContext );
@@ -452,7 +458,12 @@ public final class SchemaPartition extends AbstractPartition
             ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 
-        opContext.modify( SCHEMA_MODIFICATION_DN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        // operation reached this level means all the necessary ACI and other checks should
+        // have been done, so we can perform the below modification directly on the partition nexus
+        // without using a a bypass list
+        CoreSession session = opContext.getSession();
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, SCHEMA_MODIFICATION_DN, mods );
+        session.getDirectoryService().getPartitionNexus().modify( modifyContext );
     }
 
 

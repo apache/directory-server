@@ -261,10 +261,10 @@ public class ReferralInterceptor extends BaseInterceptor
      * 
      * If the entry does not exist in the server, we will get a NoSuchObject error
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // First delete the entry into the server
-        next.delete( deleteContext );
+        next( deleteContext );
 
         Entry entry = deleteContext.getEntry();
 

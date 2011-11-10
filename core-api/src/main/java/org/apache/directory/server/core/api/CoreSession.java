@@ -325,9 +325,24 @@ public interface CoreSession
     void delete( Dn dn, LogChange log ) throws LdapException;
     
     
+    /**
+     * Deletes an entry in the server.
+     *
+     * @param deleteRequest the delete request containing all the informations 
+     * necessary to delete the entry
+     * @throws Exception if there are failures while deleting the entry
+     */
     void delete( DeleteRequest deleteRequest ) throws LdapException;
     
     
+    /**
+     * Deletes an entry in the server. The operation can be logged if requested
+     *
+     * @param deleteRequest the delete request containing all the informations 
+     * necessary to delete the entry
+     * @param log Tells if we should log the deletion in the ChangeLog interceptor
+     * @throws Exception if there are failures while deleting the entry
+     */
     void delete( DeleteRequest deleteRequest, LogChange log ) throws LdapException;
 
     
@@ -796,8 +811,19 @@ public interface CoreSession
     EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException;
 
 
+    /**
+     * Unbind from the current LdapSession.
+     * 
+     * @throws LdapException If the operation failed
+     */
     void unbind() throws LdapException;
     
     
+    /**
+     * Unbind from the current LdapSession.
+     * 
+     * @param unbindRequest The Unbind requst, potentially containing some controls
+     * @throws LdapException If the operation failed
+     */
     void unbind( UnbindRequest unbindRequest ) throws LdapException;
 }

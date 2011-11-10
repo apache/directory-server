@@ -21,7 +21,7 @@ package org.apache.directory.server.core.exception;
 
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.shared.SchemaService;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
@@ -38,9 +38,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -154,7 +154,11 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             try
             {
-                attrs = addContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                CoreSession session = addContext.getSession();
+                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
+                lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+                attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
             catch ( Exception e )
             {
@@ -190,7 +194,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
 
@@ -200,7 +204,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn ) );
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
 
         // Update the alias cache
         synchronized ( notAliasCache )
@@ -214,10 +218,9 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         if ( listContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
@@ -229,14 +232,14 @@ public class ExceptionInterceptor extends BaseInterceptor
         //String msg = "Attempt to search under non-existant entry: ";
         //assertHasEntry( listContext, msg, listContext.getDn() );
 
-        return nextInterceptor.list( listContext );
+        return next( listContext );
     }
 
 
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
 
@@ -248,7 +251,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        Entry result = nextInterceptor.lookup( lookupContext );
+        Entry result = next( lookupContext );
 
         return result;
     }
@@ -307,7 +310,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check to see if target entry exists
         Dn newDn = renameContext.getNewDn();
 
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
+        if ( nexus.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
@@ -358,8 +361,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
 

@@ -49,6 +49,7 @@ import javax.naming.spi.DirectoryManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
@@ -222,7 +223,9 @@ public abstract class ServerContext implements EventContext
         session = bindContext.getSession();
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -255,7 +258,9 @@ public abstract class ServerContext implements EventContext
         session = new DefaultCoreSession( principal, service );
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -277,7 +282,9 @@ public abstract class ServerContext implements EventContext
         this.session = session;
         OperationManager operationManager = service.getOperationManager();
 
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        
+        if ( ! operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -352,21 +359,21 @@ public abstract class ServerContext implements EventContext
     protected void doDeleteOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
-        DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( session, target );
 
-        opCtx.addRequestControls( convertControls( true, requestControls ) );
+        deleteContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( deleteContext );
 
         // execute delete operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.delete( opCtx );
+        operationManager.delete( deleteContext );
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
-            opCtx.getResponseControls() );
+            deleteContext.getResponseControls() );
     }
 
 
@@ -597,10 +604,11 @@ public abstract class ServerContext implements EventContext
     {
         GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
-
+        
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
+        
         return operationManager.getRootDSE( getRootDseContext );
     }
 
@@ -668,6 +676,7 @@ public abstract class ServerContext implements EventContext
         bindContext.setSaslMechanism( saslMechanism );
         bindContext.setSaslAuthId( saslAuthId );
         bindContext.addRequestControls( convertControls( true, requestControls ) );
+        bindContext.setInterceptors( getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
         // execute bind operation
         OperationManager operationManager = service.getOperationManager();
@@ -1305,7 +1314,9 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            if ( operationManager.hasEntry( new EntryOperationContext( session, target ) ) )
+            EntryOperationContext hasEntryContext = new EntryOperationContext( session, target );
+            
+            if ( operationManager.hasEntry( hasEntryContext ) )
             {
                 doDeleteOperation( target );
             }

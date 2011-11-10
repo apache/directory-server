@@ -22,8 +22,9 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.server.core.api.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -72,6 +73,9 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return opContext.lookup( deletedEntryName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        CoreSession session = opContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, deletedEntryName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+
+        return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }
 }

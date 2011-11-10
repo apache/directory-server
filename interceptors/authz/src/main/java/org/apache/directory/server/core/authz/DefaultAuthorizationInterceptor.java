@@ -95,7 +95,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Creates a new instance.
      */
@@ -152,11 +152,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            nextInterceptor.delete( deleteContext );
+            next( deleteContext );
             return;
         }
 
@@ -176,7 +176,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( deleteContext ).getDn();
 
         if ( dn.equals( ADMIN_SYSTEM_DN ) )
         {
@@ -202,7 +202,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
     }
 
 
@@ -234,7 +234,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             Dn dn = modifyContext.getDn();
 
-            protectModifyAlterations( dn );
+            protectModifyAlterations( modifyContext, dn );
             nextInterceptor.modify( modifyContext );
 
             // update administrators if we change administrators group
@@ -250,9 +250,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( Dn dn ) throws LdapException
+    private void protectModifyAlterations( OperationContext opCtx, Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( opCtx ).getDn();
 
         if ( dn.isEmpty() )
         {
@@ -264,7 +264,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         if ( !isAnAdministrator( principalDn ) )
         {
             // allow self modifications
-            if ( dn.equals( getPrincipal() ) )
+            if ( dn.equals( getPrincipal( opCtx ) ) )
             {
                 return;
             }
@@ -309,7 +309,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( renameContext.getDn() );
+            protectDnAlterations( renameContext, renameContext.getDn() );
         }
 
         nextInterceptor.rename( renameContext );
@@ -323,28 +323,27 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( moveContext.getDn() );
+            protectDnAlterations( moveContext, moveContext.getDn() );
         }
 
         nextInterceptor.move( moveContext );
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            protectDnAlterations( moveAndRenameContext.getDn() );
+            protectDnAlterations( moveAndRenameContext, moveAndRenameContext.getDn() );
         }
 
         nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 
-    private void protectDnAlterations( Dn dn ) throws LdapException
+    private void protectDnAlterations( OperationContext opCtx, Dn dn ) throws LdapException
     {
-        Dn principalDn = getPrincipal().getDn();
+        Dn principalDn = getPrincipal( opCtx ).getDn();
 
         if ( dn.isEmpty() )
         {
@@ -383,10 +382,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
-        Entry entry = nextInterceptor.lookup( lookupContext );
+        Entry entry = next( lookupContext );
 
         if ( session.getDirectoryService().isAccessControlEnabled() )
         {
@@ -448,8 +447,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
@@ -464,10 +462,12 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
+        EntryFilteringCursor cursor = next( listContext );
 
         if ( listContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -475,6 +475,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
 
         cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
+
         return cursor;
     }
 

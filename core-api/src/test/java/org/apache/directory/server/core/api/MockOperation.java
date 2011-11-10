@@ -250,7 +250,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public void delete( Dn dn, Collection<String> bypass ) throws LdapException
+    public void delete( Dn dn ) throws LdapException
     {
     }
 
@@ -308,4 +308,20 @@ public class MockOperation implements OperationContext
     {
         return false;
     }
+
+
+	@Override
+	public void setInterceptors( List<String> interceptors ) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public String getNextInterceptor() 
+	{
+		// TODO Auto-generated method stub
+		return "";
+	}
 }

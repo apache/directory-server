@@ -24,6 +24,7 @@ import javax.security.sasl.SaslServer;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
@@ -60,6 +61,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         // Stores the Dn of the user to check, and its password
         bindContext.setDn( bindRequest.getName() );
         bindContext.setCredentials( bindRequest.getCredentials() );
+        bindContext.setInterceptors( ldapSession.getLdapServer().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( bindContext, bindRequest );

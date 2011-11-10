@@ -196,7 +196,7 @@ public class SchemaSubentryModifier
     public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
         Dn dn = getDn( obj );
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
     
@@ -209,7 +209,7 @@ public class SchemaSubentryModifier
             "cn=" + schemaName, 
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 
@@ -221,7 +221,7 @@ public class SchemaSubentryModifier
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 
@@ -234,7 +234,7 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 

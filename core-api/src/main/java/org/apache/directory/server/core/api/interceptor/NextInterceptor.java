@@ -6,36 +6,27 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor;
 
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
@@ -49,24 +40,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 public interface NextInterceptor
 {
     /**
-     * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
-     */
-    boolean compare( CompareOperationContext compareContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
-     */
-    Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, DeleteOperationContext )}.
-     */
-    void delete( DeleteOperationContext deleteContext ) throws LdapException;
-
-
-    /**
      * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
      */
     void add( AddOperationContext addContext ) throws LdapException;
@@ -76,35 +49,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
-     */
-    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext searchContext )}.
-     */
-    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
-     */
-    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#hasEntry( NextInterceptor, EntryOperationContext )}.
-     */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
-     */
-    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
@@ -120,12 +64,13 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, BindOperationContext )}
+     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
      */
-    void bind( BindOperationContext bindContext ) throws LdapException;
+    void rename( RenameOperationContext renameContext ) throws LdapException;
+
 
     /**
-     * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, UnbindOperationContext )}
+     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext searchContext )}.
      */
-    void unbind( UnbindOperationContext unbindContext ) throws LdapException;
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 }

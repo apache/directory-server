@@ -21,9 +21,10 @@ package org.apache.directory.server.core.operations.hasEntry;
 
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.server.core.api.OperationEnum;
+import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +46,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
     {
         Dn adminDn = new Dn( "uid=admin, ou=system" );
         EntryOperationContext hasEntryContext = new EntryOperationContext( getService().getAdminSession(), adminDn );
+        hasEntryContext.setInterceptors( getService().getInterceptors( OperationEnum.HAS_ENTRY ) );
         boolean hasEntry = getService().getOperationManager().hasEntry( hasEntryContext );
 
         assertTrue( hasEntry );

@@ -47,8 +47,6 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfigur
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;

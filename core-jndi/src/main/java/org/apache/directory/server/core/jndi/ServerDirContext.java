@@ -49,6 +49,7 @@ import javax.naming.spi.DirectoryManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
@@ -526,7 +527,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            if ( getDirectoryService().getOperationManager().hasEntry( new EntryOperationContext( getSession(), target ) ) )
+            EntryOperationContext hasEntryContext = new EntryOperationContext( getSession(), target );
+            
+            if ( getDirectoryService().getOperationManager().hasEntry( hasEntryContext ) )
             {
                 doDeleteOperation( target );
             }

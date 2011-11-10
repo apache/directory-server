@@ -578,4 +578,40 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
         return null;
     }
+
+
+	@Override
+	public List<String> getInterceptors( OperationEnum operation ) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void addFirst( Interceptor interceptor )  throws LdapException 
+	{
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public void addLast( Interceptor interceptor ) throws LdapException 
+	{
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public void addAfter( String interceptorName, Interceptor interceptor ) 
+	{
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public void remove( String interceptorName ) 
+	{
+		// TODO Auto-generated method stub
+	}
 }

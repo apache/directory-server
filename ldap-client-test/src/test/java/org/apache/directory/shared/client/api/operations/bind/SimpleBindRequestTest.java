@@ -38,7 +38,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -455,12 +454,12 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         {
             // Inject the interceptor that waits 1 second when binding 
             // in order to be able to send a request before we get the response
-            Interceptor interceptor = new BaseInterceptor()
+            Interceptor interceptor = new BaseInterceptor( "test" )
             {
                 /**
                  * Wait 1 second before going any further
                  */
-                public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+                public void bind( BindOperationContext bindContext ) throws LdapException
                 {
                     // Wait 1 second
                     try
@@ -472,11 +471,11 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
                         // Ok, get out
                     }
 
-                    next.bind( bindContext );
+                    next( bindContext );
                 }
             };
             
-            getService().getInterceptorChain().addFirst( interceptor );
+            getService().addFirst( interceptor );
 
             // Send another BindRequest
             BindRequest bindRequest = new BindRequestImpl();
@@ -509,7 +508,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         }
         finally
         {
-            getService().getInterceptorChain().remove( "" );
+            getService().remove( "test" );
         }
     }
 

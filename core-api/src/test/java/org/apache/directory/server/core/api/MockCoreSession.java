@@ -866,6 +866,7 @@ public class MockCoreSession implements CoreSession
     {
         EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
+        
         return operationManager.hasEntry( hasEntryContext );
     }
 

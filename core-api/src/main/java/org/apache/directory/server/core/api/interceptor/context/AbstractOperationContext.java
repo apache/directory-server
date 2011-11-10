@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -64,7 +65,13 @@ public abstract class AbstractOperationContext implements OperationContext
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
     
-    protected LdapPrincipal authorizedPrincipal;
+    /** The interceptors to call for this operation */
+    protected List<String> interceptors;
+    
+    /** The current interceptor position */
+    protected int currentInterceptor;
+    
+	protected LdapPrincipal authorizedPrincipal;
     
     /** The core session */
     protected CoreSession session;
@@ -83,6 +90,7 @@ public abstract class AbstractOperationContext implements OperationContext
     public AbstractOperationContext( CoreSession session )
     {
         this.session = session;
+        currentInterceptor = 0;
     }
     
     
@@ -261,6 +269,32 @@ public abstract class AbstractOperationContext implements OperationContext
     
     
     /**
+     * {@inheritDoc}
+     */
+    public final void setInterceptors( List<String> interceptors )
+    {
+    	this.interceptors = interceptors;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final String getNextInterceptor() 
+    {
+    	if ( currentInterceptor == interceptors.size() )
+    	{
+    		return "FINAL";
+    	}
+    	
+		String interceptor = interceptors.get( currentInterceptor );
+		currentInterceptor++;
+		
+		return interceptor;
+	}
+
+
+    /**
      * Sets the set of bypassed Interceptors.
      * 
      * @param byPassed the set of bypassed Interceptors
@@ -298,20 +332,13 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         opContext.setPreviousOperation( this );
         next = opContext;
-        opContext.setByPassed( byPassed );
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
     
     
-    public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
-    {
-        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
-        setup( hasEntryContext );
-        hasEntryContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
-    }
-    
-    
+    /**
+     * {@inheritDoc}
+     */
     public void add( Entry entry, Collection<String> byPassed ) throws LdapException
     {
         AddOperationContext addContext = new AddOperationContext( session, entry );
@@ -321,30 +348,27 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void delete( Dn dn, Collection<String> byPassed ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( Dn dn ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
         setup( deleteContext );
-        deleteContext.setByPassed( byPassed );
         session.getDirectoryService().getOperationManager().delete( deleteContext );
     }
     
     
-    public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
     {
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
-        setup( modifyContext );
-        modifyContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().modify( modifyContext );
-    }
-    
-    
-    // TODO - need synchronization here and where we update links
-    public LookupOperationContext newLookupContext( Dn dn )
-    {
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
-        setup( lookupContext );
-        return lookupContext;
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        setup( hasEntryContext );
+        hasEntryContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
+        
+        return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
     }
 
 
@@ -375,7 +399,23 @@ public abstract class AbstractOperationContext implements OperationContext
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
     
-
+    
+    public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
+    {
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
+        setup( modifyContext );
+        modifyContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().modify( modifyContext );
+    }
+    
+    
+    // TODO - need synchronization here and where we update links
+    public LookupOperationContext newLookupContext( Dn dn )
+    {
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        setup( lookupContext );
+        return lookupContext;
+    }
     public LdapPrincipal getEffectivePrincipal()
     {
         if ( authorizedPrincipal != null )

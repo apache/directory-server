@@ -119,7 +119,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
 
@@ -128,7 +128,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             dn.apply( schemaManager );
         }
 
-        nextInterceptor.delete( deleteContext );
+        next( deleteContext );
     }
 
 
@@ -150,7 +150,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 modification.apply( attributeType );
             }
         }
-        
+
         nextInterceptor.modify( modifyContext );
     }
 
@@ -216,8 +216,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
 
         if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
@@ -247,8 +246,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
     {
         Dn dn = searchContext.getDn();
 
@@ -286,21 +284,22 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         hasEntryContext.getDn().apply( schemaManager );
-        return nextInterceptor.hasEntry( hasEntryContext );
+
+        return next( hasEntryContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         listContext.getDn().apply( schemaManager );
-        return nextInterceptor.list( listContext );
+
+        return next( listContext );
     }
 
 
@@ -330,7 +329,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         lookupContext.getDn().apply( schemaManager );
 
@@ -342,7 +341,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
         }
 
-        return nextInterceptor.lookup( lookupContext );
+        return next( lookupContext );
     }
 
 
@@ -352,7 +351,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         if ( !compareContext.getDn().isSchemaAware() )
         {
@@ -378,17 +377,17 @@ public class NormalizationInterceptor extends BaseInterceptor
             throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
         }
 
-        return next.compare( compareContext );
+        return next( compareContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         bindContext.getDn().apply( schemaManager );
-        next.bind( bindContext );
+        next( bindContext );
     }
 
 
