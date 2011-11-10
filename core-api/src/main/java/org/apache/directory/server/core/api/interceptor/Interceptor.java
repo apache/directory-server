@@ -128,12 +128,11 @@ public interface Interceptor
 
     /**
      * Filters {@link Partition#add( AddOperationContext )} call.
-     * 
-     * @param next The next {@link Interceptor} in the chain
      * @param addContext The {@link AddOperationContext} instance
+     * 
      * @throws LdapException If we had some error while processing the Add operation
      */
-    void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
+    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**

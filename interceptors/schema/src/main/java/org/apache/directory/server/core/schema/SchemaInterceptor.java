@@ -1479,7 +1479,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -1494,7 +1494,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
-                next.add( addContext );
+                next( addContext );
 
                 if ( schemaManager.isSchemaLoaded( schemaName ) )
                 {
@@ -1507,7 +1507,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 // This is an ObjectClass addition
                 checkOcSuperior( addContext.getEntry() );
 
-                next.add( addContext );
+                next( addContext );
 
                 // Update the structures now that the schema element has been added
                 Schema schema = schemaManager.getLoadedSchema( schemaName );
@@ -1524,17 +1524,17 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
                 // This is an AttributeType addition
-                next.add( addContext );
+                next( addContext );
             }
             else
             {
-                next.add( addContext );
+                next( addContext );
             }
 
         }
         else
         {
-            next.add( addContext );
+            next( addContext );
         }
     }
 

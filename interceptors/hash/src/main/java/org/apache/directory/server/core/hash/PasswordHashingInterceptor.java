@@ -23,16 +23,16 @@ package org.apache.directory.server.core.hash;
 
 import java.util.List;
 
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -74,11 +74,11 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
 
     @Override
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( algorithm == null )
         {
-            next.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -88,7 +88,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
         includeHashedPassword( pwdAt );
 
-        next.add( addContext );
+        next( addContext );
     }
 
 

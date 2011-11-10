@@ -109,11 +109,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         checkAdd( addContext.getDn(), addContext.getEntry() );
 
-        next.add( addContext );
+        next( addContext );
     }
 
 

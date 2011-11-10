@@ -22,7 +22,6 @@ package org.apache.directory.server.core.api;
 
 import java.util.List;
 
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
@@ -82,10 +81,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         interceptors.add( this );
-        next.add( addContext );
+        next( addContext );
     }
 
 

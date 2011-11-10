@@ -21,20 +21,13 @@ package org.apache.directory.server.core.api;
 
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.api.CacheService;
-import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.DnFactory;
-import org.apache.directory.server.core.api.InstanceLayout;
-import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.OperationManager;
-import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.SubschemaAdministrativePoint;
@@ -70,7 +63,7 @@ public class MockDirectoryService implements DirectoryService
     
     /** The schemaManager */
     SchemaManager schemaManager;
-    
+
     
     public MockDirectoryService()
     {
@@ -243,7 +236,7 @@ public class MockDirectoryService implements DirectoryService
 
     public List<Interceptor> getInterceptors()
     {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
 

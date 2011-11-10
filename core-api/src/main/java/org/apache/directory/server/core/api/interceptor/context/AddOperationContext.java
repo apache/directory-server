@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
+import java.util.Collections;
+
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -47,6 +50,11 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session )
     {
         super( session );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
@@ -59,6 +67,11 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
@@ -72,6 +85,10 @@ public class AddOperationContext extends AbstractChangeOperationContext
     {
         super( session, entry.getDn() );
         this.entry = new ClonedServerEntry( entry );
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
@@ -85,6 +102,12 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Dn dn, Entry entry )
     {
         super( session, dn );
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
+        
         this.entry = new ClonedServerEntry( entry );
     }
 
@@ -92,6 +115,12 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws LdapException
     {
         super( session );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
+        
         entry = new ClonedServerEntry( 
             new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
         dn = addRequest.getEntry().getDn();

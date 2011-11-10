@@ -158,9 +158,9 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, final AddOperationContext addContext ) throws LdapException
+    public void add( final AddOperationContext addContext ) throws LdapException
     {
-        next.add( addContext );
+        next( addContext );
 
         List<RegistrationEntry> selecting = getSelectingRegistrations( addContext.getDn(), addContext.getEntry() );
 

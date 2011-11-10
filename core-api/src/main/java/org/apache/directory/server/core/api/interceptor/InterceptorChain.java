@@ -94,7 +94,7 @@ public class InterceptorChain
         /**
          * {@inheritDoc}
          */
-        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+        public void add( AddOperationContext addContext ) throws LdapException
         {
             nexus.add( addContext );
         }
@@ -585,7 +585,7 @@ public class InterceptorChain
 
         try
         {
-            head.add( next, addContext );
+            head.add( addContext );
         }
         catch ( LdapException le )
         {
@@ -740,7 +740,7 @@ public class InterceptorChain
                     try
                     {
                         //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", addRequest" );
-                        interceptor.add( next.nextInterceptor, addContext );
+                        interceptor.add( addContext );
                         //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", addRequest" );
                     }
                     catch ( LdapException le )

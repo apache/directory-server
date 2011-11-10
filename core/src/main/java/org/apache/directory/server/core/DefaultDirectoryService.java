@@ -64,12 +64,14 @@ import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.api.changelog.Tag;
 import org.apache.directory.server.core.api.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.api.event.EventService;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
@@ -533,18 +535,8 @@ public class DefaultDirectoryService implements DirectoryService
 		    	
 		        for ( Interceptor interceptor : interceptors )
 		        {
-			    	Method[] methods = interceptor.getClass().getDeclaredMethods();
-			    	
-			    	for ( Method method : methods )
-			    	{
-			    		if ( method.getName().equals( operation.getMethodName() ) )
-			    		{
-			    			operationList.add( interceptor.getName() );
-			    			break;
-			    		}
-			    	}
+		            gatherInterceptors( interceptor, interceptor.getClass(), operation, operationList );
 		        }
-		        
 		        operationInterceptors.put( operation, operationList );
 	    	}
     	}
@@ -552,6 +544,55 @@ public class DefaultDirectoryService implements DirectoryService
     	{
     		writeLock.unlock();
     	}
+    }
+    
+    
+    /**
+     * Recursively checks if the given interceptor can be added to the list of interceptors for a given
+     * operation and adds to the list of interceptors if it implements the respective operation
+     * 
+     * @param interceptor the instance of the interceptor
+     * @param interceptorClz the class of the interceptor
+     * @param operation type of operation
+     * @param selectedInterceptorList the list of selected interceptors
+     */
+    private void gatherInterceptors( Interceptor interceptor, Class interceptorClz, OperationEnum operation, List<String> selectedInterceptorList )
+    {
+        if( ( interceptorClz == null ) || ( interceptorClz == BaseInterceptor.class ) )
+        {
+            return;
+        }
+        
+        Method[] methods = interceptorClz.getDeclaredMethods();
+        
+        for ( Method method : methods )
+        {
+            Class<?>[] param = method.getParameterTypes();
+            boolean hasCorrestSig = false;
+            
+            // check for the correct signature
+            if( ( param == null ) || ( param.length > 1 ) || ( param.length == 0 ))
+            {
+                continue;
+            }
+            
+            if ( OperationContext.class.isAssignableFrom( param[0] ) )
+            {
+                hasCorrestSig = true;
+            }
+            else
+            {
+                continue;
+            }
+
+            if ( hasCorrestSig && method.getName().equals( operation.getMethodName() ) )
+            {
+                selectedInterceptorList.add( interceptor.getName() );
+                break;
+            }
+        }
+        
+        gatherInterceptors( interceptor, interceptorClz.getSuperclass(), operation, selectedInterceptorList );
     }
     
     

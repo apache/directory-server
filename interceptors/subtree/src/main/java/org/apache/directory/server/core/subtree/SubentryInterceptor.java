@@ -849,7 +849,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn dn = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -894,7 +894,7 @@ public class SubentryInterceptor extends BaseInterceptor
             directoryService.getSubentryCache().addSubentry( dn, subentry );
 
             // Now inject the subentry into the backend
-            next.add( addContext );
+            next( addContext );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -964,7 +964,7 @@ public class SubentryInterceptor extends BaseInterceptor
             addContext.setEntry( entry );
 
             // Propagate the addition down to the backend.
-            next.add( addContext );
+            next( addContext );
         }
     }
 

@@ -321,8 +321,9 @@ public class DefaultOperationManager implements OperationManager
                 directoryService.getReferralManager().unlock();
 
                 // Call the Add method
-                InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-                interceptorChain.add( addContext );
+                Interceptor head = directoryService.getInterceptor( addContext.getNextInterceptor() );
+
+                head.add( addContext );
             }
         }
         finally

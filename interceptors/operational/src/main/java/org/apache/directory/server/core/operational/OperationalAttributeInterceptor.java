@@ -180,7 +180,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - entryCSN
      * - entryUUID
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         String principal = getPrincipal( addContext ).getName();
 
@@ -228,7 +228,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // The SubSchemaSybentry attribute
         checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
 
-        nextInterceptor.add( addContext );
+        next( addContext );
     }
 
 

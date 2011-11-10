@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 public interface NextInterceptor
 {
     /**
-     * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
+     * Calls the next interceptor's {@link Interceptor#add( AddOperationContext )}.
      */
     void add( AddOperationContext addContext ) throws LdapException;
 

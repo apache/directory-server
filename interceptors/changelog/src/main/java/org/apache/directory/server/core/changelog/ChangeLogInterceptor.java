@@ -97,9 +97,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        next.add( addContext );
+        next( addContext );
 
         if ( !changeLog.isEnabled() )
         {

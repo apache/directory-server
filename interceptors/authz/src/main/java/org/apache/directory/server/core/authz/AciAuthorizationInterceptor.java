@@ -31,8 +31,6 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
-import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -56,8 +54,10 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -500,13 +500,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * -------------------------------------------------------------------------------
      */
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         // bypass authz code if it was disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
             ACI_LOG.debug( "ACI interceptor disabled" );
-            next.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -525,7 +525,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             ACI_LOG.debug( "Addition done by the administartor : no check" );
 
-            next.add( addContext );
+            next( addContext );
             tupleCache.subentryAdded( dn, serverEntry );
             groupCache.groupAdded( dn, serverEntry );
             return;
@@ -581,7 +581,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // if we've gotten this far then access has been granted
-        next.add( addContext );
+        next( addContext );
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync

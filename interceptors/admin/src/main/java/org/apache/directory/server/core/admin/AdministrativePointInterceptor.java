@@ -54,7 +54,6 @@ import org.apache.directory.server.core.api.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -1181,12 +1180,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * <ul>
      * <li>If it's an AA, then the added role should be the only one</li>
      * <li>It's not possible to add IA and SA at the same time</li>
-     * 
-     * @param next The next {@link Interceptor} in the chain
      * @param addContext The {@link AddOperationContext} instance
+     * 
      * @throws LdapException If we had some error while processing the Add operation
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
@@ -1198,7 +1196,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.add( addContext );
+            next( addContext );
 
             LOG.debug( "Exit from Administrative Interceptor, no AP in the added entry" );
 
@@ -1217,7 +1215,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Ok, we are golden.
-        next.add( addContext );
+        next( addContext );
 
         String apUuid = entry.get( ENTRY_UUID_AT ).getString();
 

@@ -101,7 +101,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         long opRevision = 0;
 
@@ -127,7 +127,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.add( addContext );
+            next( addContext );
 
             if ( journalEnabled )
             {

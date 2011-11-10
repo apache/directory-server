@@ -258,7 +258,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -266,7 +266,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -284,7 +284,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.ADD );
 
-        next.add( addContext );
+        next( addContext );
         triggerSpecCache.subentryAdded( name, entry );
 
         // Fire AFTER Triggers.

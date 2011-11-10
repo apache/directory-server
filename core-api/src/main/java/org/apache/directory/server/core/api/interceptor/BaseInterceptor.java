@@ -145,7 +145,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+        public void add( AddOperationContext addContext ) throws LdapException
         {
             nexus.add( addContext );
         }
@@ -378,9 +378,9 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        next.add( addContext );
+        // Do nothing
     }
 
 
@@ -452,6 +452,20 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
+    /**
+     * Calls the next interceptor for the add operation.
+     * 
+     * @param addContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( AddOperationContext addContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( addContext );
+        
+        interceptor.add( addContext );
+    }
+    
+    
     /**
      * {@inheritDoc}
      */

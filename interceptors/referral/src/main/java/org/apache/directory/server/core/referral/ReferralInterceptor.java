@@ -22,7 +22,6 @@ package org.apache.directory.server.core.referral;
 
 import javax.naming.Context;
 
-import org.apache.directory.server.core.shared.ReferralManagerImpl;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.shared.ReferralManagerImpl;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -225,7 +225,7 @@ public class ReferralInterceptor extends BaseInterceptor
      * entryAlreadyExists error.
      * 
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Entry entry = addContext.getEntry();
 
@@ -233,7 +233,7 @@ public class ReferralInterceptor extends BaseInterceptor
         boolean isReferral = isReferral( entry );
 
         // We add the entry into the server
-        next.add( addContext );
+        next( addContext );
 
         // If the addition is successful, we update the referralManager
         if ( isReferral )

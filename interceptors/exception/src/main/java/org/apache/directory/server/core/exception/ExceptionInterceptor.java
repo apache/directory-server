@@ -118,7 +118,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
 
@@ -132,7 +132,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )
         {
-            nextInterceptor.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -186,7 +186,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.add( addContext );
+        next( addContext );
     }
 
 
