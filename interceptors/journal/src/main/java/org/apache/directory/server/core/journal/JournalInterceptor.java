@@ -53,39 +53,39 @@ public class JournalInterceptor extends BaseInterceptor
 {
     /** for debugging */
     private static final Logger LOG = LoggerFactory.getLogger( JournalInterceptor.class );
-    
+
     /** A flag set to true if the journal interceptor is enabled */
     private boolean journalEnabled;
-    
-    /** A shared number stored within each change */ 
+
+    /** A shared number stored within each change */
     private AtomicLong revision;
-    
+
     /** the Journal service to log changes to */
     private Journal journal;
-    
+
 
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
     /**
-     * The init method will initialize the local variables and load the 
+     * The init method will initialize the local variables and load the
      * entryDeleted AttributeType.
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
-        
+
         if ( directoryService.getJournal().isEnabled() )
         {
-            journalEnabled = true; 
+            journalEnabled = true;
             journal = directoryService.getJournal();
             revision = new AtomicLong( System.currentTimeMillis() );
         }
 
         LOG.debug( "JournalInterceptor has been initialized" );
     }
-    
-    
+
+
     /**
      * Log the operation, manage the logs rotations.
      */
@@ -93,8 +93,8 @@ public class JournalInterceptor extends BaseInterceptor
     {
         journal.log( getPrincipal( opCtx ), revision, ldif );
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
@@ -104,11 +104,11 @@ public class JournalInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the added entry
             Entry addEntry = addContext.getEntry();
 
@@ -121,7 +121,7 @@ public class JournalInterceptor extends BaseInterceptor
                 AttributeType attributeType = attribute.getAttributeType();
                 ldif.addAttribute( addEntry.get( attributeType).clone() );
             }
-            
+
             log( addContext, opRevision, ldif );
         }
 
@@ -142,7 +142,7 @@ public class JournalInterceptor extends BaseInterceptor
                 // log the NACK
                 journal.nack( opRevision );
             }
-            
+
             throw le;
         }
     }
@@ -154,16 +154,16 @@ public class JournalInterceptor extends BaseInterceptor
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the deleted entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Delete );
             ldif.setDn( deleteContext.getDn() );
-            
+
             journal.log( getPrincipal( deleteContext ), opRevision, ldif );
         }
 
@@ -184,7 +184,7 @@ public class JournalInterceptor extends BaseInterceptor
                 // log the NACK
                 journal.nack( opRevision );
             }
-            
+
             throw e;
         }
     }
@@ -196,25 +196,25 @@ public class JournalInterceptor extends BaseInterceptor
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the modified entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Modify );
             ldif.setDn( modifyContext.getDn() );
-            
-            // Store the modifications 
+
+            // Store the modifications
             for ( Modification modification:modifyContext.getModItems() )
             {
                 ldif.addModification( modification );
             }
-            
+
             journal.log( getPrincipal( modifyContext ), opRevision, ldif );
         }
-        
+
         try
         {
             next.modify( modifyContext );
@@ -240,28 +240,28 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename ( RenameOperationContext renameContext ) throws LdapException
     {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the renamed entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModRdn );
             ldif.setDn( renameContext.getDn() );
             ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
             ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
-            
+
             journal.log( getPrincipal( renameContext ), opRevision, ldif );
         }
-        
+
         try
         {
-            next.rename( renameContext );
-    
+            next( renameContext );
+
             if ( journalEnabled )
             {
                 // log the ACK
@@ -275,7 +275,7 @@ public class JournalInterceptor extends BaseInterceptor
                 // log the NACK
                 journal.nack( opRevision );
             }
-            
+
             throw e;
         }
     }
@@ -286,13 +286,13 @@ public class JournalInterceptor extends BaseInterceptor
      */
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
-    {
+        {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the renamed entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
@@ -300,14 +300,14 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
             ldif.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
             ldif.setNewSuperior( moveAndRenameContext.getNewDn().getNormName() );
-            
+
             journal.log( getPrincipal( moveAndRenameContext ), opRevision, ldif );
         }
-        
+
         try
         {
             next.moveAndRename( moveAndRenameContext );
-            
+
             if ( journalEnabled )
             {
                 // log the ACK
@@ -321,10 +321,10 @@ public class JournalInterceptor extends BaseInterceptor
                 // log the NACK
                 journal.nack( opRevision );
             }
-            
+
             throw e;
         }
-    }
+        }
 
 
     /**
@@ -333,24 +333,24 @@ public class JournalInterceptor extends BaseInterceptor
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         long opRevision = 0;
-        
+
         if ( journalEnabled )
         {
             opRevision = revision.incrementAndGet();
-            
+
             // Store the moved entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
             ldif.setDn( moveContext.getDn() );
             ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
-            
+
             journal.log( getPrincipal( moveContext ), opRevision, ldif );
         }
-        
+
         try
         {
             next.move( moveContext );
-            
+
             if ( journalEnabled )
             {
                 // log the ACK
@@ -364,8 +364,8 @@ public class JournalInterceptor extends BaseInterceptor
                 // log the NACK
                 journal.nack( opRevision );
             }
-            
+
             throw e;
         }
-   }
+    }
 }

@@ -344,7 +344,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
@@ -356,7 +356,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         //modifiedEntry.setDn( renameContext.getNewDn() );
         renameContext.setModifiedEntry( modifiedEntry );
 
-        nextInterceptor.rename( renameContext );
+        next( renameContext );
     }
 
 

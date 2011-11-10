@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.referral;
 
@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An service which is responsible referral handling behavoirs.  It manages 
+ * An service which is responsible referral handling behavoirs.  It manages
  * referral handling behavoir when the {@link Context#REFERRAL} is implicitly
- * or explicitly set to "ignore", when set to "throw" and when set to "follow". 
+ * or explicitly set to "ignore", when set to "throw" and when set to "follow".
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -140,7 +140,7 @@ public class ReferralInterceptor extends BaseInterceptor
     static private boolean isReferral( Entry entry ) throws LdapException
     {
         // Check that the entry is not null, otherwise return FALSE.
-        // This is typically to cover the case where the entry has not 
+        // This is typically to cover the case where the entry has not
         // been added into the context because it does not exists.
         if ( entry == null )
         {
@@ -216,14 +216,14 @@ public class ReferralInterceptor extends BaseInterceptor
      * 
      * Case (1) is easy : we inject the entry into the server and we are done.
      * Case (2) is the same as case (1), but we have to update the referral manager.
-     * Case (3) is handled by the LdapProcotol handler, as we have to return a 
-     * LdapResult containing a list of this entry's parent's referrals URL, if the 
-     * ManageDSAIT control is not present, or the parent's entry if the control 
-     * is present. 
+     * Case (3) is handled by the LdapProcotol handler, as we have to return a
+     * LdapResult containing a list of this entry's parent's referrals URL, if the
+     * ManageDSAIT control is not present, or the parent's entry if the control
+     * is present.
      * 
      * Of course, if the entry already exists, nothing will be done, as we will get an
      * entryAlreadyExists error.
-     *  
+     * 
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
@@ -235,7 +235,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // We add the entry into the server
         next.add( addContext );
 
-        // If the addition is successful, we update the referralManager 
+        // If the addition is successful, we update the referralManager
         if ( isReferral )
         {
             // We have to add it to the referralManager
@@ -255,7 +255,7 @@ public class ReferralInterceptor extends BaseInterceptor
      * (3) the entry is a referral
      * 
      * Case (1) is handled by removing the entry from the server
-     * In case (2), we return an exception build using the parent referral 
+     * In case (2), we return an exception build using the parent referral
      * For case(3), we remove the entry from the server and remove the referral
      * from the referral manager.
      * 
@@ -335,12 +335,12 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( renameContext.getOriginalEntry() );
 
-        next.rename( renameContext );
+        next( renameContext );
 
         if ( isReferral )
         {

@@ -718,7 +718,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -727,7 +727,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( renameContext );
         checkPwdReset( renameContext );
-        next.rename( renameContext );
+        next( renameContext );
         invalidateAuthenticatorCaches( renameContext.getDn() );
     }
 

@@ -158,7 +158,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         // Normalize the new Rdn and the Dn if needed
 
@@ -175,7 +175,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         // Push to the next interceptor
-        nextInterceptor.rename( renameContext );
+        next( renameContext );
     }
 
 

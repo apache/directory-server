@@ -305,14 +305,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( renameContext, renameContext.getDn() );
         }
 
-        nextInterceptor.rename( renameContext );
+        next( renameContext );
     }
 
 

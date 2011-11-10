@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 
 package org.apache.directory.server.core.trigger;
@@ -92,7 +92,7 @@ public class TriggerInterceptor extends BaseInterceptor
     private TriggerExecutionAuthorizer triggerExecutionAuthorizer = new SimpleTriggerExecutionAuthorizer();
 
     private StoredProcExecutionManager manager;
-    
+
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
 
@@ -109,11 +109,11 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param dn the normalized distinguished name of the entry
      * @param entry the target entry that is considered as the trigger source
      * @throws Exception if there are problems accessing attribute values
-     * @param proxy the partition nexus proxy 
+     * @param proxy the partition nexus proxy
      */
     private void addPrescriptiveTriggerSpecs( OperationContext opContext, List<TriggerSpecification> triggerSpecs,
         Dn dn, Entry entry ) throws LdapException
-    {
+        {
 
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -131,7 +131,7 @@ public class TriggerInterceptor extends BaseInterceptor
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            
+
             entry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
@@ -147,7 +147,7 @@ public class TriggerInterceptor extends BaseInterceptor
             String subentryDn = value.getString();
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
         }
-    }
+        }
 
 
     /**
@@ -196,11 +196,11 @@ public class TriggerInterceptor extends BaseInterceptor
      * 
      * @param triggerSpecs the trigger specifications
      * @param ldapOperation the ldap operation being performed
-     * @return the set of trigger specs for a trigger action 
+     * @return the set of trigger specs for a trigger action
      */
     public Map<ActionTime, List<TriggerSpecification>> getActionTimeMappedTriggerSpecsForOperation(
         List<TriggerSpecification> triggerSpecs, LdapOperation ldapOperation )
-    {
+        {
         List<TriggerSpecification> afterTriggerSpecs = new ArrayList<TriggerSpecification>();
         Map<ActionTime, List<TriggerSpecification>> triggerSpecMap = new HashMap<ActionTime, List<TriggerSpecification>>();
 
@@ -222,7 +222,7 @@ public class TriggerInterceptor extends BaseInterceptor
         triggerSpecMap.put( ActionTime.AFTER, afterTriggerSpecs );
 
         return triggerSpecMap;
-    }
+        }
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -252,7 +252,7 @@ public class TriggerInterceptor extends BaseInterceptor
         manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
 
         this.enabled = true; // TODO: Get this from the configuration if needed.
-        
+
         // Init the SubentryUtils instance
         subentryUtils = new SubentryUtils( directoryService );
     }
@@ -361,7 +361,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn name = renameContext.getDn();
         Rdn newRdn = renameContext.getNewRdn();
@@ -370,11 +370,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.rename( renameContext );
+            next( renameContext );
             return;
         }
 
-        // Gather supplementary data.        
+        // Gather supplementary data.
         Entry renamedEntry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
@@ -396,7 +396,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.MODIFYDN_RENAME );
 
-        next.rename( renameContext );
+        next( renameContext );
         triggerSpecCache.subentryRenamed( name, newDn);
 
         // Fire AFTER Triggers.
@@ -419,7 +419,7 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        // Gather supplementary data.        
+        // Gather supplementary data.
         Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
         Rdn oldRdn = oldDn.getRdn();
@@ -497,7 +497,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Dn oldSuperior = moveContext.getOldSuperior();
         Dn newSuperior = moveContext.getNewSuperior();
 
-        // Gather supplementary data.        
+        // Gather supplementary data.
         Entry movedEntry = moveContext.getOriginalEntry();
 
         //Rdn newRDN = dn.getRdn();
@@ -560,7 +560,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
     private Object executeTriggers( OperationContext opContext, List<TriggerSpecification> triggerSpecs,
         StoredProcedureParameterInjector injector ) throws LdapException
-    {
+        {
         Object result = null;
 
         for ( TriggerSpecification triggerSpec : triggerSpecs )
@@ -581,15 +581,15 @@ public class TriggerInterceptor extends BaseInterceptor
          * can make sense (as in INSTEADOF Search Triggers).
          */
         return result;
-    }
+        }
 
 
     private Object executeTrigger( OperationContext opContext, TriggerSpecification tsec,
         StoredProcedureParameterInjector injector ) throws LdapException
-    {
+        {
         List<Object> returnValues = new ArrayList<Object>();
         List<SPSpec> spSpecs = tsec.getSPSpecs();
-        
+
         for ( SPSpec spSpec : spSpecs )
         {
             List<Object> arguments = new ArrayList<Object>();
@@ -600,7 +600,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         return returnValues;
-    }
+        }
 
 
     private Object executeProcedure( OperationContext opContext, String procedure, Object[] values ) throws LdapException
@@ -609,7 +609,7 @@ public class TriggerInterceptor extends BaseInterceptor
         {
             Entry spUnit = manager.findStoredProcUnit( opContext.getSession(), procedure );
             StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
-            
+
             return engine.invokeProcedure( opContext.getSession(), procedure, values );
         }
         catch ( Exception e )

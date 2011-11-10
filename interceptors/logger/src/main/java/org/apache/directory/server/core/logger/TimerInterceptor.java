@@ -486,10 +486,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.rename( renameContext );
+        next( renameContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )

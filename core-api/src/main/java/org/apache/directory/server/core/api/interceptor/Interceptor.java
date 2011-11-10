@@ -203,7 +203,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#rename( RenameOperationContext )} call.
      */
-    void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException;
+    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**

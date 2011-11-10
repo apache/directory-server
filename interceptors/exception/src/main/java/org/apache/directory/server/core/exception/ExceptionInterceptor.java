@@ -297,7 +297,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn dn = renameContext.getDn();
 
@@ -327,7 +327,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.rename( renameContext );
+        next( renameContext );
     }
 
 

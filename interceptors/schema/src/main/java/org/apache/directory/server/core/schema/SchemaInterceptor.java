@@ -925,7 +925,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
         Rdn newRdn = renameContext.getNewRdn();
@@ -978,7 +978,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         check( renameContext.getNewDn(), entry );
 
-        next.rename( renameContext );
+        next( renameContext );
     }
 
 

@@ -1005,9 +1005,17 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.rename( renameContext );
+            // Call the rename method
+            // populate the context with the old entry
+            eagerlyPopulateFields( renameContext );
+            Entry originalEntry = getOriginalEntry( renameContext );
+            renameContext.setOriginalEntry( originalEntry );
+            renameContext.setModifiedEntry( originalEntry.clone() );
+
+            // Call the Delete method
+            Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
+
+            head.rename( renameContext );
         }
         finally
         {

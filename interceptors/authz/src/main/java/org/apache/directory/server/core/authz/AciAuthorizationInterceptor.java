@@ -968,7 +968,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldName = renameContext.getDn();
         Entry originalEntry = null;
@@ -985,7 +985,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.rename( renameContext );
+            next( renameContext );
             return;
         }
 
@@ -994,7 +994,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.rename( renameContext );
+            next( renameContext );
             tupleCache.subentryRenamed( oldName, newName );
 
             // TODO : this method returns a boolean : what should we do with the result ?
@@ -1020,7 +1020,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.rename( renameContext );
+        next( renameContext );
         tupleCache.subentryRenamed( oldName, newName );
         groupCache.groupRenamed( oldName, newName );
     }

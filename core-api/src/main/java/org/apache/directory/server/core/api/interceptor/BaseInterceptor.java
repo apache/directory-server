@@ -244,7 +244,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+        public void rename( RenameOperationContext renameContext ) throws LdapException
         {
             nexus.rename( renameContext );
         }
@@ -571,9 +571,26 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        next.rename( renameContext );
+        // Nothing to do
+    }
+
+
+    /**
+     * Calls the next interceptor for the rename operation.
+     * 
+     * @param renameContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( RenameOperationContext renameContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( renameContext );
+
+        interceptor.rename( renameContext );
     }
 
 

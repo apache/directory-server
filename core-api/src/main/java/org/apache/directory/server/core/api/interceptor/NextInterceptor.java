@@ -25,7 +25,6 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -61,12 +60,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, MoveAndRenameOperationContext )}.
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
-     */
-    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**

@@ -178,7 +178,7 @@ public class InterceptorChain
         }
 
 
-        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+        public void rename( RenameOperationContext renameContext ) throws LdapException
         {
             nexus.rename( renameContext );
         }
@@ -642,31 +642,6 @@ public class InterceptorChain
     }
 
 
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( renameContext );
-        Entry originalEntry = getOriginalEntry( renameContext );
-        renameContext.setOriginalEntry( originalEntry );
-        renameContext.setModifiedEntry( originalEntry.clone() );
-
-        try
-        {
-            head.rename( next, renameContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -846,28 +821,6 @@ public class InterceptorChain
                     {
                         throwInterceptorException( interceptor, e );
                         throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public void rename( RenameOperationContext renameContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", renameRequest" );
-                        interceptor.rename( next.nextInterceptor, renameContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", renameRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
                     }
                 }
 

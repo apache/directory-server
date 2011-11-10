@@ -1424,7 +1424,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
 
@@ -1444,7 +1444,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.apply( schemaManager );
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
-            next.rename( renameContext );
+            next( renameContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
@@ -1499,7 +1499,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.rename( renameContext );
+            next( renameContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

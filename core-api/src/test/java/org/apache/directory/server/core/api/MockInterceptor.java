@@ -193,10 +193,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         interceptors.add( this );
-        next.rename( renameContext );
+        next( renameContext );
     }
 
 
@@ -206,6 +206,7 @@ public class MockInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
     {
         interceptors.add( this );
+
         return next.search( searchContext );
     }
 
