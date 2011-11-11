@@ -150,7 +150,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     // Note:
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
-
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -205,27 +207,54 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isTheAdministrator( Dn dn )
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        return dn.equals( ADMIN_SYSTEM_DN );
+        EntryFilteringCursor cursor = next( listContext );
+
+        if ( listContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            return cursor;
+        }
+
+        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
+
+        return cursor;
     }
 
 
-    private boolean isAnAdministrator( Dn dn )
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        return isTheAdministrator( dn ) || administrators.contains( dn.getNormName() );
+        CoreSession session = lookupContext.getSession();
+        Entry entry = next( lookupContext );
+
+        if ( session.getDirectoryService().isAccessControlEnabled() )
+        {
+            return entry;
+        }
+
+        protectLookUp( session.getEffectivePrincipal().getDn(), lookupContext.getDn() );
+
+        return entry;
     }
 
 
     // ------------------------------------------------------------------------
     // Entry Modification Operations
     // ------------------------------------------------------------------------
-
     /**
      * This policy needs to be really tight too because some attributes may take
      * part in giving the user permissions to protected resources.  We do not want
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
+     */
+    /**
+     * {@inheritDoc}
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
@@ -246,6 +275,86 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             next( modifyContext );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            protectDnAlterations( moveContext, moveContext.getDn() );
+        }
+
+        next( moveContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            protectDnAlterations( moveAndRenameContext, moveAndRenameContext.getDn() );
+        }
+
+        next( moveAndRenameContext );
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Dn altering operations are a no no for any user entry.  Basically here
+    // are the rules of conduct to follow:
+    //
+    //  o No user should have the ability to move or rename their entry
+    //  o Only the administrator can move or rename non-admin user entries
+    //  o The administrator entry cannot be moved or renamed by anyone
+    // ------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            protectDnAlterations( renameContext, renameContext.getDn() );
+        }
+
+        next( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
+        EntryFilteringCursor cursor = next( searchContext );
+
+        if ( searchContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        {
+            return cursor;
+        }
+
+        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
+
+        return cursor;
+    }
+
+
+    private boolean isTheAdministrator( Dn dn )
+    {
+        return dn.equals( ADMIN_SYSTEM_DN );
+    }
+
+
+    private boolean isAnAdministrator( Dn dn )
+    {
+        return isTheAdministrator( dn ) || administrators.contains( dn.getNormName() );
     }
 
 
@@ -295,51 +404,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    // ------------------------------------------------------------------------
-    // Dn altering operations are a no no for any user entry.  Basically here
-    // are the rules of conduct to follow:
-    //
-    //  o No user should have the ability to move or rename their entry
-    //  o Only the administrator can move or rename non-admin user entries
-    //  o The administrator entry cannot be moved or renamed by anyone
-    // ------------------------------------------------------------------------
-
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            protectDnAlterations( renameContext, renameContext.getDn() );
-        }
-
-        next( renameContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            protectDnAlterations( moveContext, moveContext.getDn() );
-        }
-
-        next( moveContext );
-    }
-
-
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            protectDnAlterations( moveAndRenameContext, moveAndRenameContext.getDn() );
-        }
-
-        next( moveAndRenameContext );
-    }
-
-
     private void protectDnAlterations( OperationContext opCtx, Dn dn ) throws LdapException
     {
         Dn principalDn = getPrincipal( opCtx ).getDn();
@@ -378,22 +442,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
-    }
-
-
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        CoreSession session = lookupContext.getSession();
-        Entry entry = next( lookupContext );
-
-        if ( session.getDirectoryService().isAccessControlEnabled() )
-        {
-            return entry;
-        }
-
-        protectLookUp( session.getEffectivePrincipal().getDn(), lookupContext.getDn() );
-
-        return entry;
     }
 
 
@@ -443,39 +491,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 throw new LdapNoPermissionException( msg );
             }
         }
-    }
-
-
-    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = next( searchContext );
-
-        if ( searchContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            return cursor;
-        }
-
-        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
-
-        return cursor;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = next( listContext );
-
-        if ( listContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            return cursor;
-        }
-
-        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
-
-        return cursor;
     }
 
 

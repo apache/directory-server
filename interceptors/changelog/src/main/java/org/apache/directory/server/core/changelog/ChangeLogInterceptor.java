@@ -96,6 +96,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         next( addContext );
@@ -131,6 +134,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
+     */
+    /**
+     * {@inheritDoc}
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
@@ -181,36 +187,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
 
     /**
-     * Gets attributes required for modifications.
-     *
-     * @param dn the dn of the entry to get
-     * @return the entry's attributes (may be immutable if the schema subentry)
-     * @throws Exception on error accessing the entry's attributes
-     */
-    private Entry getAttributes( OperationContext opContext ) throws LdapException
-    {
-        Dn dn = opContext.getDn();
-        Entry serverEntry;
-
-        // @todo make sure we're not putting in operational attributes that cannot be user modified
-        if ( dn.equals( ServerDNConstants.CN_SCHEMA_DN ) )
-        {
-            return SchemaService.getSubschemaEntryCloned( directoryService );
-        }
-        else
-        {
-            CoreSession session = opContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
-            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            serverEntry = directoryService.getPartitionNexus().lookup( lookupContext  );
-        }
-
-        return serverEntry;
-    }
-
-
-    /**
-     * 
+     * {@inheritDoc}
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
@@ -285,24 +262,12 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    // -----------------------------------------------------------------------
-    // Though part left as an exercise (Not Any More!)
-    // -----------------------------------------------------------------------
-
-
-    public void rename ( RenameOperationContext renameContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        Entry serverEntry = null;
-
-        if ( renameContext.getEntry() != null )
-        {
-            serverEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
-        }
-
-        next( renameContext );
-
-        // After this point, the entry has been modified. The cloned entry contains
-        // the modified entry, the originalEntry has changed
+        next( moveContext );
 
         if ( !changeLog.isEnabled() )
         {
@@ -310,18 +275,18 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         LdifEntry forward = new LdifEntry();
-        forward.setChangeType( ChangeType.ModRdn );
-        forward.setDn( renameContext.getDn() );
-        forward.setNewRdn( renameContext.getNewRdn().getName() );
-        forward.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
+        forward.setChangeType( ChangeType.ModDn );
+        forward.setDn( moveContext.getDn() );
+        forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
-        List<LdifEntry> reverses = LdifRevertor.reverseRename(
-            serverEntry, renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
-
-        renameContext.setChangeLogEvent( changeLog.log( getPrincipal( renameContext ), forward, reverses ) );
+        LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
+        moveContext.setChangeLogEvent( changeLog.log( getPrincipal( moveContext ), forward, reverse ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry serverEntry = null;
@@ -363,9 +328,19 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( MoveOperationContext moveContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        next( moveContext );
+        Entry serverEntry = null;
+
+        if ( renameContext.getEntry() != null )
+        {
+            serverEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        }
+
+        next( renameContext );
+
+        // After this point, the entry has been modified. The cloned entry contains
+        // the modified entry, the originalEntry has changed
 
         if ( !changeLog.isEnabled() )
         {
@@ -373,11 +348,43 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         LdifEntry forward = new LdifEntry();
-        forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( moveContext.getDn() );
-        forward.setNewSuperior( moveContext.getNewSuperior().getName() );
+        forward.setChangeType( ChangeType.ModRdn );
+        forward.setDn( renameContext.getDn() );
+        forward.setNewRdn( renameContext.getNewRdn().getName() );
+        forward.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
-        LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
-        moveContext.setChangeLogEvent( changeLog.log( getPrincipal( moveContext ), forward, reverse ) );
+        List<LdifEntry> reverses = LdifRevertor.reverseRename(
+            serverEntry, renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
+
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal( renameContext ), forward, reverses ) );
+    }
+
+
+    /**
+     * Gets attributes required for modifications.
+     *
+     * @param dn the dn of the entry to get
+     * @return the entry's attributes (may be immutable if the schema subentry)
+     * @throws Exception on error accessing the entry's attributes
+     */
+    private Entry getAttributes( OperationContext opContext ) throws LdapException
+    {
+        Dn dn = opContext.getDn();
+        Entry serverEntry;
+
+        // @todo make sure we're not putting in operational attributes that cannot be user modified
+        if ( dn.equals( ServerDNConstants.CN_SCHEMA_DN ) )
+        {
+            return SchemaService.getSubschemaEntryCloned( directoryService );
+        }
+        else
+        {
+            CoreSession session = opContext.getSession();
+            LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            serverEntry = directoryService.getPartitionNexus().lookup( lookupContext  );
+        }
+
+        return serverEntry;
     }
 }

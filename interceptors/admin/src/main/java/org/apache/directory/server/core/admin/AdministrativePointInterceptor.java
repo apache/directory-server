@@ -339,7 +339,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private void addRole( String role, Dn dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
         DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
         DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
-        {
+    {
         // Deal with Autonomous AP : create the 4 associated SAP/AAP
         if ( isAutonomousAreaRole( role ) )
         {
@@ -422,7 +422,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             return;
         }
-        }
+    }
 
 
 
@@ -433,7 +433,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private void delRole( String role, Dn dn, String uuid, DnNode<AccessControlAdministrativePoint> acapCache,
         DnNode<CollectiveAttributeAdministrativePoint> caapCache, DnNode<TriggerExecutionAdministrativePoint> teapCache,
         DnNode<SubschemaAdministrativePoint> ssapCache ) throws LdapException
-        {
+    {
         // Deal with Autonomous AP : remove the 4 associated SAP/AAP
         if ( isAutonomousAreaRole( role ) )
         {
@@ -483,7 +483,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             return;
         }
-        }
+    }
 
 
     private AdministrativePoint getParent( AdministrativePoint ap, List<AdministrativePoint> aps,
@@ -824,9 +824,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update The Administrative Points cache, removing the given AdminPoint
      */
-    private void deleteAdminPointCache( Attribute adminPoint, DeleteOperationContext deleteContext )
-        throws LdapException
-        {
+    private void deleteAdminPointCache( Attribute adminPoint, DeleteOperationContext deleteContext ) throws LdapException
+    {
         Dn dn = deleteContext.getDn();
 
         // Remove the APs in the AP cache
@@ -886,7 +885,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 continue;
             }
         }
-        }
+    }
 
 
     /**
@@ -1065,9 +1064,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check that the IAPs (if any) have a parent. We will check for each kind or role :
      * AC, CA and TE.
      */
-    private void checkIAPHasParent( String role, Attribute adminPoint, Dn dn )
-        throws LdapUnwillingToPerformException
-        {
+    private void checkIAPHasParent( String role, Attribute adminPoint, Dn dn ) throws LdapUnwillingToPerformException
+    {
         // Check for the AC role
         if ( isAccessControlInnerRole( role ) )
         {
@@ -1118,7 +1116,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             LOG.error( message );
             throw new LdapUnwillingToPerformException( message );
         }
-        }
+    }
 
 
     //-------------------------------------------------------------------------------------------
@@ -1457,9 +1455,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveAndRenameRequest" );
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
@@ -1480,7 +1477,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         String message = "Cannot move and rename an Administrative Point in the current version";
         LOG.error( message );
         throw new LdapUnwillingToPerformException( message );
-        }
+    }
 
 
     /**

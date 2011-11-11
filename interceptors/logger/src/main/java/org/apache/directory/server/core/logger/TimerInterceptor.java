@@ -142,6 +142,31 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    public void init( DirectoryService directoryService ) throws LdapException
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void destroy()
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -256,23 +281,6 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void destroy()
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getName()
-    {
-        return name;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -327,14 +335,6 @@ public class TimerInterceptor extends BaseInterceptor
         }
 
         return hasEntry;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void init( DirectoryService directoryService ) throws LdapException
-    {
     }
 
 

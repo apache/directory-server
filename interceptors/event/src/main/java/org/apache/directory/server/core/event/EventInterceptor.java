@@ -238,31 +238,23 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( RenameOperationContext renameContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
+        Entry oriEntry = moveContext.getOriginalEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
-        next( renameContext );
+        next( moveContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        // Get the modifed entry
-        CoreSession session = renameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
-        Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
-        renameContext.setModifiedEntry( alteredEntry );
-
         for ( final RegistrationEntry registration : selecting )
         {
-            if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
+            if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
             {
-                fire( renameContext, EventType.RENAME, registration.getListener() );
+                fire( moveContext, EventType.MOVE, registration.getListener() );
             }
         }
     }
@@ -301,23 +293,31 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( MoveOperationContext moveContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        Entry oriEntry = moveContext.getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
+        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
-        next( moveContext );
+        next( renameContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
+        // Get the modifed entry
+        CoreSession session = renameContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+        renameContext.setModifiedEntry( alteredEntry );
+
         for ( final RegistrationEntry registration : selecting )
         {
-            if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
+            if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
             {
-                fire( moveContext, EventType.MOVE, registration.getListener() );
+                fire( renameContext, EventType.RENAME, registration.getListener() );
             }
         }
     }

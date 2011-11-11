@@ -163,8 +163,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param subContext
      * @throws LdapException
      */
-    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws LdapException
+    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -237,18 +236,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param subContext
      * @throws LdapException
      */
-    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws LdapException
+    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
         Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
         lookupContext.setAttrsId( new String[]
-        {
+            {
             SchemaConstants.OBJECT_CLASS_AT,
             KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
             KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT
-        } );
+            } );
 
         Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -394,6 +392,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             return KerberosKeyFactory.getKerberosKeys( principalName, userPassword );
         }
     }
+
 
     static class ModifySubContext
     {

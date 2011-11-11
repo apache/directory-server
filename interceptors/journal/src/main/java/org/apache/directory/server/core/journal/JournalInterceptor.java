@@ -239,7 +239,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename ( RenameOperationContext renameContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         long opRevision = 0;
 
@@ -247,19 +247,18 @@ public class JournalInterceptor extends BaseInterceptor
         {
             opRevision = revision.incrementAndGet();
 
-            // Store the renamed entry
+            // Store the moved entry
             LdifEntry ldif = new LdifEntry();
-            ldif.setChangeType( ChangeType.ModRdn );
-            ldif.setDn( renameContext.getDn() );
-            ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
-            ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
+            ldif.setChangeType( ChangeType.ModDn );
+            ldif.setDn( moveContext.getDn() );
+            ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
 
-            journal.log( getPrincipal( renameContext ), opRevision, ldif );
+            journal.log( getPrincipal( moveContext ), opRevision, ldif );
         }
 
         try
         {
-            next( renameContext );
+            next( moveContext );
 
             if ( journalEnabled )
             {
@@ -328,7 +327,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( MoveOperationContext moveContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         long opRevision = 0;
 
@@ -336,18 +335,19 @@ public class JournalInterceptor extends BaseInterceptor
         {
             opRevision = revision.incrementAndGet();
 
-            // Store the moved entry
+            // Store the renamed entry
             LdifEntry ldif = new LdifEntry();
-            ldif.setChangeType( ChangeType.ModDn );
-            ldif.setDn( moveContext.getDn() );
-            ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
+            ldif.setChangeType( ChangeType.ModRdn );
+            ldif.setDn( renameContext.getDn() );
+            ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
+            ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
-            journal.log( getPrincipal( moveContext ), opRevision, ldif );
+            journal.log( getPrincipal( renameContext ), opRevision, ldif );
         }
 
         try
         {
-            next( moveContext );
+            next( renameContext );
 
             if ( journalEnabled )
             {

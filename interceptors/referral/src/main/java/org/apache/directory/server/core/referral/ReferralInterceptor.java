@@ -224,6 +224,9 @@ public class ReferralInterceptor extends BaseInterceptor
      * entryAlreadyExists error.
      * 
      */
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Entry entry = addContext.getEntry();
@@ -260,6 +263,9 @@ public class ReferralInterceptor extends BaseInterceptor
      * 
      * If the entry does not exist in the server, we will get a NoSuchObject error
      */
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // First delete the entry into the server
@@ -275,6 +281,52 @@ public class ReferralInterceptor extends BaseInterceptor
             referralManager.lockWrite();
 
             referralManager.removeReferral( entry );
+
+            referralManager.unlock();
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        Dn dn = modifyContext.getDn();
+
+        // handle a normal modify without following referrals
+        next( modifyContext );
+
+        // Check if we are trying to modify the schema or the rootDSE,
+        // if so, we don't modify the referralManager
+        if ( dn.isEmpty() || dn.equals( subschemaSubentryDn ) )
+        {
+            // Do nothing
+            return;
+        }
+
+        // Update the referralManager. We have to read the entry again
+        // as it has been modified, before updating the ReferralManager
+        // TODO: this can be spare, as we already have the altered entry
+        // into the opContext, but for an unknow reason, this will fail
+        // on eferral tests...
+        LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        Entry newEntry = nexus.lookup( lookupContext );
+
+        // Update the referralManager.
+        // Check that we have the entry, just in case
+        // TODO : entries should be locked until the operation is done on it.
+        if ( newEntry != null )
+        {
+            referralManager.lockWrite();
+
+            if ( referralManager.isReferral( newEntry.getDn() ) )
+            {
+                referralManager.removeReferral( modifyContext.getEntry() );
+                referralManager.addReferral( newEntry );
+            }
 
             referralManager.unlock();
         }
@@ -354,52 +406,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() );
-
-            referralManager.unlock();
-        }
-    }
-
-
-    /**
-     * Modify an entry in the server.
-     */
-    public void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        Dn dn = modifyContext.getDn();
-
-        // handle a normal modify without following referrals
-        next( modifyContext );
-
-        // Check if we are trying to modify the schema or the rootDSE,
-        // if so, we don't modify the referralManager
-        if ( dn.isEmpty() || dn.equals( subschemaSubentryDn ) )
-        {
-            // Do nothing
-            return;
-        }
-
-        // Update the referralManager. We have to read the entry again
-        // as it has been modified, before updating the ReferralManager
-        // TODO: this can be spare, as we already have the altered entry
-        // into the opContext, but for an unknow reason, this will fail
-        // on eferral tests...
-        LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
-        Entry newEntry = nexus.lookup( lookupContext );
-
-        // Update the referralManager.
-        // Check that we have the entry, just in case
-        // TODO : entries should be locked until the operation is done on it.
-        if ( newEntry != null )
-        {
-            referralManager.lockWrite();
-
-            if ( referralManager.isReferral( newEntry.getDn() ) )
-            {
-                referralManager.removeReferral( modifyContext.getEntry() );
-                referralManager.addReferral( newEntry );
-            }
 
             referralManager.unlock();
         }

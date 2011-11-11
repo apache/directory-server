@@ -118,6 +118,49 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    public void bind( BindOperationContext bindContext ) throws LdapException
+    {
+        bindContext.getDn().apply( schemaManager );
+        next( bindContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
+    {
+        if ( !compareContext.getDn().isSchemaAware() )
+        {
+            compareContext.getDn().apply( schemaManager );
+        }
+
+        // Get the attributeType from the OID
+        try
+        {
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
+
+            // Translate the value from binary to String if the AT is HR
+            if ( attributeType.getSyntax().isHumanReadable() && ( !compareContext.getValue().isHumanReadable() ) )
+            {
+                String value = compareContext.getValue().getString();
+                compareContext.setValue( new StringValue( value ) );
+            }
+
+            compareContext.setAttributeType( attributeType );
+        }
+        catch ( LdapException le )
+        {
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+        }
+
+        return next( compareContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
@@ -128,6 +171,47 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         next( deleteContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    {
+        hasEntryContext.getDn().apply( schemaManager );
+
+        return next( hasEntryContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        listContext.getDn().apply( schemaManager );
+
+        return next( listContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        lookupContext.getDn().apply( schemaManager );
+
+        List<String> attrIds = lookupContext.getAttrsId();
+
+        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
+        {
+            // We have to normalize the requested IDs
+            lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
+        }
+
+        return next( lookupContext );
     }
 
 
@@ -151,30 +235,6 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         next( modifyContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        // Normalize the new Rdn and the Dn if needed
-
-        if ( !renameContext.getDn().isSchemaAware() )
-        {
-            renameContext.getDn().apply( schemaManager );
-        }
-
-        renameContext.getNewRdn().apply( schemaManager );
-
-        if ( !renameContext.getNewDn().isSchemaAware() )
-        {
-            renameContext.getNewDn().apply( schemaManager );
-        }
-
-        // Push to the next interceptor
-        next( renameContext );
     }
 
 
@@ -244,6 +304,30 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        // Normalize the new Rdn and the Dn if needed
+
+        if ( !renameContext.getDn().isSchemaAware() )
+        {
+            renameContext.getDn().apply( schemaManager );
+        }
+
+        renameContext.getNewRdn().apply( schemaManager );
+
+        if ( !renameContext.getNewDn().isSchemaAware() )
+        {
+            renameContext.getNewDn().apply( schemaManager );
+        }
+
+        // Push to the next interceptor
+        next( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Dn dn = searchContext.getDn();
@@ -282,28 +366,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
-    {
-        hasEntryContext.getDn().apply( schemaManager );
-
-        return next( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        listContext.getDn().apply( schemaManager );
-
-        return next( listContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     private String[] normalizeAttrsId( String[] attrIds ) throws LdapException
     {
         if ( attrIds == null )
@@ -324,71 +386,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        lookupContext.getDn().apply( schemaManager );
-
-        List<String> attrIds = lookupContext.getAttrsId();
-
-        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
-        {
-            // We have to normalize the requested IDs
-            lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
-        }
-
-        return next( lookupContext );
-    }
-
-
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public boolean compare( CompareOperationContext compareContext ) throws LdapException
-    {
-        if ( !compareContext.getDn().isSchemaAware() )
-        {
-            compareContext.getDn().apply( schemaManager );
-        }
-
-        // Get the attributeType from the OID
-        try
-        {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
-
-            // Translate the value from binary to String if the AT is HR
-            if ( attributeType.getSyntax().isHumanReadable() && ( !compareContext.getValue().isHumanReadable() ) )
-            {
-                String value = compareContext.getValue().getString();
-                compareContext.setValue( new StringValue( value ) );
-            }
-
-            compareContext.setAttributeType( attributeType );
-        }
-        catch ( LdapException le )
-        {
-            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
-        }
-
-        return next( compareContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        bindContext.getDn().apply( schemaManager );
-        next( bindContext );
-    }
-
-
     /**
      * Adds missing Rdn's attributes and values to the entry.
      *

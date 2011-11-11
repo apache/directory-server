@@ -295,6 +295,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -373,446 +376,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", deleteContext );
-        }
-
-        checkAuthenticated( deleteContext );
-        checkPwdReset( deleteContext );
-        next( deleteContext );
-        invalidateAuthenticatorCaches( deleteContext.getDn() );
-    }
-
-
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", getRootDseContext );
-        }
-
-        checkAuthenticated( getRootDseContext );
-        checkPwdReset( getRootDseContext );
-
-        return next( getRootDseContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", hasEntryContext );
-        }
-
-        checkAuthenticated( hasEntryContext );
-        checkPwdReset( hasEntryContext );
-
-        return next( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", listContext );
-        }
-
-        checkAuthenticated( listContext );
-        checkPwdReset( listContext );
-
-        return next( listContext );
-    }
-
-
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", lookupContext );
-        }
-
-        checkAuthenticated( lookupContext );
-        checkPwdReset( lookupContext );
-
-        return next( lookupContext );
-    }
-
-
-    private void invalidateAuthenticatorCaches( Dn principalDn )
-    {
-        for ( AuthenticationLevel authMech : authenticatorsMapByType.keySet() )
-        {
-            Collection<Authenticator> authenticators = getAuthenticators( authMech );
-
-            // try each authenticator
-            for ( Authenticator authenticator : authenticators )
-            {
-                authenticator.invalidateCache( principalDn );
-            }
-        }
-    }
-
-
-    public void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", modifyContext );
-        }
-
-        checkAuthenticated( modifyContext );
-
-
-        if ( ! directoryService.isPwdPolicyEnabled() )
-        {
-            next( modifyContext );
-            invalidateAuthenticatorCaches( modifyContext.getDn() );
-            return;
-        }
-
-        // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
-        PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getEntry() );
-
-        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
-        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
-
-        PwdModDetailsHolder pwdModDetails = null;
-
-        pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
-
-        if ( pwdModDetails.isPwdModPresent() )
-        {
-            if ( pwdResetSet.contains( userDn ) )
-            {
-                if ( pwdModDetails.isOtherModExists() )
-                {
-                    if ( isPPolicyReqCtrlPresent )
-                    {
-                        PasswordPolicyDecorator responseControl =
-                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
-                        modifyContext.addResponseControl( responseControl );
-                    }
-
-                    throw new LdapNoPermissionException();
-                }
-            }
-
-            if ( policyConfig.isPwdSafeModify() )
-            {
-                if ( pwdModDetails.isAddOrReplace() && !pwdModDetails.isDelete() )
-                {
-                    LOG.debug( "trying to update password attribute without the supplying the old password" );
-
-                    if ( isPPolicyReqCtrlPresent )
-                    {
-                        PasswordPolicyDecorator responseControl =
-                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
-                        modifyContext.addResponseControl( responseControl );
-                    }
-
-                    throw new LdapNoPermissionException();
-                }
-            }
-
-            if ( !policyConfig.isPwdAllowUserChange() && !modifyContext.getSession().isAnAdministrator() )
-            {
-                if ( isPPolicyReqCtrlPresent )
-                {
-                    PasswordPolicyDecorator responseControl =
-                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
-                    modifyContext.addResponseControl( responseControl );
-                }
-
-                throw new LdapNoPermissionException();
-            }
-
-            Entry entry = modifyContext.getEntry();
-
-            if ( isPwdTooYoung( entry, policyConfig ) )
-            {
-                if ( isPPolicyReqCtrlPresent )
-                {
-                    PasswordPolicyDecorator responseControl =
-                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG );
-                    modifyContext.addResponseControl( responseControl );
-                }
-
-                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
-                    "password is too young to update" );
-            }
-
-            byte[] newPassword = null;
-
-            if ( ( pwdModDetails != null ) )
-            {
-                newPassword = pwdModDetails.getNewPwd();
-
-                try
-                {
-                    String userName = entry.getDn().getRdn().getUpValue().getString();
-                    check( userName, newPassword, policyConfig );
-                }
-                catch ( PasswordPolicyException e )
-                {
-                    if ( isPPolicyReqCtrlPresent )
-                    {
-                        PasswordPolicyDecorator responseControl =
-                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
-                        modifyContext.addResponseControl( responseControl );
-                    }
-
-                    // throw exception if userPassword quality checks fail
-                    throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage(), e );
-                }
-            }
-
-            int histSize = policyConfig.getPwdInHistory();
-            Modification pwdRemHistMod = null;
-            Modification pwdAddHistMod = null;
-            String pwdChangedTime = DateUtils.getGeneralizedTime();
-
-            if ( histSize > 0 )
-            {
-                Attribute pwdHistoryAt = entry.get( PWD_HISTORY_AT );
-
-                if ( pwdHistoryAt == null )
-                {
-                    pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
-                }
-
-                List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
-
-                for ( Value<?> value : pwdHistoryAt  )
-                {
-                    PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
-
-                    boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
-
-                    if ( matched )
-                    {
-                        if ( isPPolicyReqCtrlPresent )
-                        {
-                            PasswordPolicyDecorator responseControl =
-                                new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                            responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
-                            modifyContext.addResponseControl( responseControl );
-                        }
-
-                        throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
-                            "invalid reuse of password present in password history" );
-                    }
-
-                    pwdHistLst.add( pwdh );
-                }
-
-                if ( pwdHistLst.size() >= histSize )
-                {
-                    // see the javadoc of PasswordHistory
-                    Collections.sort( pwdHistLst );
-
-                    // remove the oldest value
-                    PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
-                    Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
-                    tempAt.add( remPwdHist.getHistoryValue() );
-                    pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
-                }
-
-                pwdHistoryAt.clear();
-                PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
-                pwdHistoryAt.clear();
-                pwdHistoryAt.add( newPwdHist.getHistoryValue() );
-                pwdAddHistMod = new DefaultModification( ADD_ATTRIBUTE, pwdHistoryAt );
-            }
-
-            next( modifyContext );
-
-            invalidateAuthenticatorCaches( modifyContext.getDn() );
-
-            List<Modification> mods = new ArrayList<Modification>();
-
-            if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
-            {
-                Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
-                pwdChangedTimeAt.add( pwdChangedTime );
-                Modification pwdChangedTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdChangedTimeAt );
-                mods.add( pwdChangedTimeMod );
-            }
-
-            if ( pwdAddHistMod != null )
-            {
-                mods.add( pwdAddHistMod );
-            }
-
-            if ( pwdRemHistMod != null )
-            {
-                mods.add( pwdRemHistMod );
-            }
-
-            boolean removeFromPwdResetSet = false;
-
-            if ( policyConfig.isPwdMustChange() )
-            {
-                Attribute pwdMustChangeAt = new DefaultAttribute( AT_PWD_RESET );
-                Modification pwdMustChangeMod = null;
-
-                if ( modifyContext.getSession().isAnAdministrator() )
-                {
-                    pwdMustChangeAt.add( "TRUE" );
-                    pwdMustChangeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdMustChangeAt );
-                }
-                else
-                {
-                    pwdMustChangeMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt );
-                    removeFromPwdResetSet = true;
-                }
-
-                mods.add( pwdMustChangeMod );
-            }
-
-            Attribute pwdFailureTimeAt = entry.get( PWD_FAILURE_TIME_AT );
-
-            if ( pwdFailureTimeAt != null )
-            {
-                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
-            }
-
-            Attribute pwdGraceUseTimeAt = entry.get( PWD_GRACE_USE_TIME_AT );
-
-            if ( pwdGraceUseTimeAt != null )
-            {
-                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdGraceUseTimeAt ) );
-            }
-
-            directoryService.getAdminSession().modify( modifyContext.getDn(), mods );
-
-            if ( removeFromPwdResetSet )
-            {
-                pwdResetSet.remove( userDn );
-            }
-        }
-        else
-        {
-            next( modifyContext );
-            invalidateAuthenticatorCaches( modifyContext.getDn() );
-        }
-    }
-
-
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", renameContext );
-        }
-
-        checkAuthenticated( renameContext );
-        checkPwdReset( renameContext );
-        next( renameContext );
-        invalidateAuthenticatorCaches( renameContext.getDn() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean compare( CompareOperationContext compareContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", compareContext );
-        }
-
-        checkAuthenticated( compareContext );
-        checkPwdReset( compareContext );
-        boolean result = next( compareContext );
-        invalidateAuthenticatorCaches( compareContext.getDn() );
-
-        return result;
-    }
-
-
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", moveAndRenameContext );
-        }
-
-        checkAuthenticated( moveAndRenameContext );
-        checkPwdReset( moveAndRenameContext );
-        next( moveAndRenameContext );
-        invalidateAuthenticatorCaches( moveAndRenameContext.getDn() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", moveContext );
-        }
-
-        checkAuthenticated( moveContext );
-        checkPwdReset( moveContext );
-        next( moveContext );
-        invalidateAuthenticatorCaches( moveContext.getDn() );
-    }
-
-
-    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", searchContext );
-        }
-
-        checkAuthenticated( searchContext );
-        checkPwdReset( searchContext );
-
-        return next( searchContext );
-    }
-
-
-    /**
-     * Check if the current operation has a valid PrincipalDN or not.
-     *
-     * @param operation the operation type
-     * @throws Exception
-     */
-    private void checkAuthenticated( OperationContext operation ) throws LdapException
-    {
-        if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess()
-            && !operation.getDn().isEmpty() )
-        {
-            String msg = I18n.err( I18n.ERR_5, operation.getName() );
-            LOG.error( msg );
-            throw new LdapNoPermissionException( msg );
-        }
-    }
-
-
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -1108,7 +674,449 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", compareContext );
+        }
+
+        checkAuthenticated( compareContext );
+        checkPwdReset( compareContext );
+        boolean result = next( compareContext );
+        invalidateAuthenticatorCaches( compareContext.getDn() );
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", deleteContext );
+        }
+
+        checkAuthenticated( deleteContext );
+        checkPwdReset( deleteContext );
+        next( deleteContext );
+        invalidateAuthenticatorCaches( deleteContext.getDn() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", getRootDseContext );
+        }
+
+        checkAuthenticated( getRootDseContext );
+        checkPwdReset( getRootDseContext );
+
+        return next( getRootDseContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", hasEntryContext );
+        }
+
+        checkAuthenticated( hasEntryContext );
+        checkPwdReset( hasEntryContext );
+
+        return next( hasEntryContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", listContext );
+        }
+
+        checkAuthenticated( listContext );
+        checkPwdReset( listContext );
+
+        return next( listContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", lookupContext );
+        }
+
+        checkAuthenticated( lookupContext );
+        checkPwdReset( lookupContext );
+
+        return next( lookupContext );
+    }
+
+
+    private void invalidateAuthenticatorCaches( Dn principalDn )
+    {
+        for ( AuthenticationLevel authMech : authenticatorsMapByType.keySet() )
+        {
+            Collection<Authenticator> authenticators = getAuthenticators( authMech );
+
+            // try each authenticator
+            for ( Authenticator authenticator : authenticators )
+            {
+                authenticator.invalidateCache( principalDn );
+            }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", modifyContext );
+        }
+
+        checkAuthenticated( modifyContext );
+
+
+        if ( ! directoryService.isPwdPolicyEnabled() )
+        {
+            next( modifyContext );
+            invalidateAuthenticatorCaches( modifyContext.getDn() );
+            return;
+        }
+
+        // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
+        PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getEntry() );
+
+        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
+        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
+
+        PwdModDetailsHolder pwdModDetails = null;
+
+        pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
+
+        if ( pwdModDetails.isPwdModPresent() )
+        {
+            if ( pwdResetSet.contains( userDn ) )
+            {
+                if ( pwdModDetails.isOtherModExists() )
+                {
+                    if ( isPPolicyReqCtrlPresent )
+                    {
+                        PasswordPolicyDecorator responseControl =
+                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
+                        modifyContext.addResponseControl( responseControl );
+                    }
+
+                    throw new LdapNoPermissionException();
+                }
+            }
+
+            if ( policyConfig.isPwdSafeModify() )
+            {
+                if ( pwdModDetails.isAddOrReplace() && !pwdModDetails.isDelete() )
+                {
+                    LOG.debug( "trying to update password attribute without the supplying the old password" );
+
+                    if ( isPPolicyReqCtrlPresent )
+                    {
+                        PasswordPolicyDecorator responseControl =
+                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
+                        modifyContext.addResponseControl( responseControl );
+                    }
+
+                    throw new LdapNoPermissionException();
+                }
+            }
+
+            if ( !policyConfig.isPwdAllowUserChange() && !modifyContext.getSession().isAnAdministrator() )
+            {
+                if ( isPPolicyReqCtrlPresent )
+                {
+                    PasswordPolicyDecorator responseControl =
+                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
+                    modifyContext.addResponseControl( responseControl );
+                }
+
+                throw new LdapNoPermissionException();
+            }
+
+            Entry entry = modifyContext.getEntry();
+
+            if ( isPwdTooYoung( entry, policyConfig ) )
+            {
+                if ( isPPolicyReqCtrlPresent )
+                {
+                    PasswordPolicyDecorator responseControl =
+                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG );
+                    modifyContext.addResponseControl( responseControl );
+                }
+
+                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
+                    "password is too young to update" );
+            }
+
+            byte[] newPassword = null;
+
+            if ( ( pwdModDetails != null ) )
+            {
+                newPassword = pwdModDetails.getNewPwd();
+
+                try
+                {
+                    String userName = entry.getDn().getRdn().getUpValue().getString();
+                    check( userName, newPassword, policyConfig );
+                }
+                catch ( PasswordPolicyException e )
+                {
+                    if ( isPPolicyReqCtrlPresent )
+                    {
+                        PasswordPolicyDecorator responseControl =
+                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
+                        modifyContext.addResponseControl( responseControl );
+                    }
+
+                    // throw exception if userPassword quality checks fail
+                    throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage(), e );
+                }
+            }
+
+            int histSize = policyConfig.getPwdInHistory();
+            Modification pwdRemHistMod = null;
+            Modification pwdAddHistMod = null;
+            String pwdChangedTime = DateUtils.getGeneralizedTime();
+
+            if ( histSize > 0 )
+            {
+                Attribute pwdHistoryAt = entry.get( PWD_HISTORY_AT );
+
+                if ( pwdHistoryAt == null )
+                {
+                    pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
+                }
+
+                List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
+
+                for ( Value<?> value : pwdHistoryAt  )
+                {
+                    PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
+
+                    boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
+
+                    if ( matched )
+                    {
+                        if ( isPPolicyReqCtrlPresent )
+                        {
+                            PasswordPolicyDecorator responseControl =
+                                new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                            responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
+                            modifyContext.addResponseControl( responseControl );
+                        }
+
+                        throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
+                            "invalid reuse of password present in password history" );
+                    }
+
+                    pwdHistLst.add( pwdh );
+                }
+
+                if ( pwdHistLst.size() >= histSize )
+                {
+                    // see the javadoc of PasswordHistory
+                    Collections.sort( pwdHistLst );
+
+                    // remove the oldest value
+                    PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
+                    Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
+                    tempAt.add( remPwdHist.getHistoryValue() );
+                    pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
+                }
+
+                pwdHistoryAt.clear();
+                PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
+                pwdHistoryAt.clear();
+                pwdHistoryAt.add( newPwdHist.getHistoryValue() );
+                pwdAddHistMod = new DefaultModification( ADD_ATTRIBUTE, pwdHistoryAt );
+            }
+
+            next( modifyContext );
+
+            invalidateAuthenticatorCaches( modifyContext.getDn() );
+
+            List<Modification> mods = new ArrayList<Modification>();
+
+            if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
+            {
+                Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
+                pwdChangedTimeAt.add( pwdChangedTime );
+                Modification pwdChangedTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdChangedTimeAt );
+                mods.add( pwdChangedTimeMod );
+            }
+
+            if ( pwdAddHistMod != null )
+            {
+                mods.add( pwdAddHistMod );
+            }
+
+            if ( pwdRemHistMod != null )
+            {
+                mods.add( pwdRemHistMod );
+            }
+
+            boolean removeFromPwdResetSet = false;
+
+            if ( policyConfig.isPwdMustChange() )
+            {
+                Attribute pwdMustChangeAt = new DefaultAttribute( AT_PWD_RESET );
+                Modification pwdMustChangeMod = null;
+
+                if ( modifyContext.getSession().isAnAdministrator() )
+                {
+                    pwdMustChangeAt.add( "TRUE" );
+                    pwdMustChangeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdMustChangeAt );
+                }
+                else
+                {
+                    pwdMustChangeMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt );
+                    removeFromPwdResetSet = true;
+                }
+
+                mods.add( pwdMustChangeMod );
+            }
+
+            Attribute pwdFailureTimeAt = entry.get( PWD_FAILURE_TIME_AT );
+
+            if ( pwdFailureTimeAt != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
+            }
+
+            Attribute pwdGraceUseTimeAt = entry.get( PWD_GRACE_USE_TIME_AT );
+
+            if ( pwdGraceUseTimeAt != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdGraceUseTimeAt ) );
+            }
+
+            directoryService.getAdminSession().modify( modifyContext.getDn(), mods );
+
+            if ( removeFromPwdResetSet )
+            {
+                pwdResetSet.remove( userDn );
+            }
+        }
+        else
+        {
+            next( modifyContext );
+            invalidateAuthenticatorCaches( modifyContext.getDn() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", moveContext );
+        }
+
+        checkAuthenticated( moveContext );
+        checkPwdReset( moveContext );
+        next( moveContext );
+        invalidateAuthenticatorCaches( moveContext.getDn() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", moveAndRenameContext );
+        }
+
+        checkAuthenticated( moveAndRenameContext );
+        checkPwdReset( moveAndRenameContext );
+        next( moveAndRenameContext );
+        invalidateAuthenticatorCaches( moveAndRenameContext.getDn() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", renameContext );
+        }
+
+        checkAuthenticated( renameContext );
+        checkPwdReset( renameContext );
+        next( renameContext );
+        invalidateAuthenticatorCaches( renameContext.getDn() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", searchContext );
+        }
+
+        checkAuthenticated( searchContext );
+        checkPwdReset( searchContext );
+
+        return next( searchContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         next( unbindContext );
@@ -1119,6 +1127,24 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( !directoryService.isPwdPolicyEnabled() )
         {
             pwdResetSet.remove( unbindContext.getDn() );
+        }
+    }
+
+
+    /**
+     * Check if the current operation has a valid PrincipalDN or not.
+     *
+     * @param operation the operation type
+     * @throws Exception
+     */
+    private void checkAuthenticated( OperationContext operation ) throws LdapException
+    {
+        if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess()
+            && !operation.getDn().isEmpty() )
+        {
+            String msg = I18n.err( I18n.ERR_5, operation.getName() );
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
         }
     }
 
@@ -1157,7 +1183,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     // ---------- private methods ----------------
-
     private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         final int qualityVal = policyConfig.getPwdCheckQuality();

@@ -236,7 +236,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
@@ -257,7 +257,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
@@ -294,7 +294,60 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        Dn oriChildName = moveContext.getDn();
+
+        if ( oriChildName.equals( subschemSubentryDn ) )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
+                subschemSubentryDn, subschemSubentryDn ) );
+        }
+
+        next( moveContext );
+
+        // Remove the original entry from the NotAlias cache, if needed
+        synchronized ( notAliasCache )
+        {
+            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+            {
+                notAliasCache.remove( oriChildName.getNormName() );
+            }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        Dn oldDn = moveAndRenameContext.getDn();
+
+        // Don't allow M&R in the SSSE
+        if ( oldDn.equals( subschemSubentryDn ) )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
+                subschemSubentryDn, subschemSubentryDn ) );
+        }
+
+        // Remove the original entry from the NotAlias cache, if needed
+        synchronized ( notAliasCache )
+        {
+            if ( notAliasCache.containsKey( oldDn.getNormName() ) )
+            {
+                notAliasCache.remove( oldDn.getNormName() );
+            }
+        }
+
+        next( moveAndRenameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
@@ -327,60 +380,6 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         next( renameContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        Dn oriChildName = moveContext.getDn();
-
-        if ( oriChildName.equals( subschemSubentryDn ) )
-        {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
-                subschemSubentryDn, subschemSubentryDn ) );
-        }
-
-        next( moveContext );
-
-        // Remove the original entry from the NotAlias cache, if needed
-        synchronized ( notAliasCache )
-        {
-            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
-            {
-                notAliasCache.remove( oriChildName.getNormName() );
-            }
-        }
-    }
-
-
-    /**
-     * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
-     * LdapException.
-     */
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        Dn oldDn = moveAndRenameContext.getDn();
-
-        // Don't allow M&R in the SSSE
-        if ( oldDn.equals( subschemSubentryDn ) )
-        {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
-                subschemSubentryDn, subschemSubentryDn ) );
-        }
-
-        // Remove the original entry from the NotAlias cache, if needed
-        synchronized ( notAliasCache )
-        {
-            if ( notAliasCache.containsKey( oldDn.getNormName() ) )
-            {
-                notAliasCache.remove( oldDn.getNormName() );
-            }
-        }
-
-        next( moveAndRenameContext );
     }
 
 

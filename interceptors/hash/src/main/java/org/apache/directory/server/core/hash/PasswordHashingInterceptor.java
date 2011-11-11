@@ -63,7 +63,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
      * Creates a new instance of PasswordHashingInterceptor which hashes the
      * incoming non-hashed password using the given algorithm.
      * If the password is found already hashed then it will skip hashing it.
-     *  
+     * 
      * @param algorithm the name of the algorithm to be used
      */
     public PasswordHashingInterceptor( LdapSecurityConstants algorithm )
@@ -72,7 +72,9 @@ public class PasswordHashingInterceptor extends BaseInterceptor
     }
 
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( algorithm == null )
@@ -91,7 +93,9 @@ public class PasswordHashingInterceptor extends BaseInterceptor
     }
 
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( algorithm == null )
@@ -106,7 +110,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
         {
             String oid = mod.getAttribute().getAttributeType().getOid();
 
-            // check for modification on 'userPassword' AT 
+            // check for modification on 'userPassword' AT
             if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( oid ) )
             {
                 includeHashedPassword( mod.getAttribute() );
