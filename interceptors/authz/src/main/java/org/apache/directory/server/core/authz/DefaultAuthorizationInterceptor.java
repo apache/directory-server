@@ -34,7 +34,6 @@ import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -447,9 +446,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         if ( searchContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {

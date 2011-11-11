@@ -208,7 +208,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException;
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api;
 
@@ -32,7 +32,6 @@ import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.entry.ServerEntryFactory;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
@@ -97,11 +96,8 @@ public interface DirectoryService extends ServerEntryFactory
     PartitionNexus getPartitionNexus();
 
 
-    InterceptorChain getInterceptorChain();
-
-
     void addPartition( Partition partition ) throws Exception;
-    
+
 
     void removePartition( Partition partition ) throws Exception;
 
@@ -109,20 +105,20 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The Directory Service SchemaManager
      */
     SchemaManager getSchemaManager();
-    
-    
+
+
     /**
      * @return The LDAP codec service.
      */
     LdapApiService getLdapCodecService();
-    
+
 
     /**
      * @return The referral manager
      */
     ReferralManager getReferralManager();
 
-    
+
     /**
      * Set the referralManager
      * 
@@ -130,7 +126,7 @@ public interface DirectoryService extends ServerEntryFactory
      */
     void setReferralManager( ReferralManager referralManager );
 
-    
+
     /**
      * @return The schema partition
      */
@@ -145,8 +141,8 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     EventService getEventService();
-    
-    
+
+
     /**
      */
     void setEventService( EventService eventService );
@@ -181,15 +177,15 @@ public interface DirectoryService extends ServerEntryFactory
      */
     boolean isStarted();
 
-    
+
     /**
      * @return The Admin session
      */
     CoreSession getAdminSession();
-    
-    
-    /** 
-     * @return Returns the hash mapping the Dn of a subentry to its SubtreeSpecification/types 
+
+
+    /**
+     * @return Returns the hash mapping the Dn of a subentry to its SubtreeSpecification/types
      **/
     SubentryCache getSubentryCache();
 
@@ -197,42 +193,42 @@ public interface DirectoryService extends ServerEntryFactory
      * @return Returns the subentry evaluator
      */
     SubtreeEvaluator getEvaluator();
-    
+
     /**
      * Gets a logical session to perform operations on this DirectoryService
-     * as the anonymous user.  This bypasses authentication without 
+     * as the anonymous user.  This bypasses authentication without
      * propagating a bind operation into the core.
      *
      * @return a logical session as the anonymous user
      */
     CoreSession getSession() throws Exception;
 
-    
+
     /**
      * Gets a logical session to perform operations on this DirectoryService
-     * as a specific user.  This bypasses authentication without propagating 
+     * as a specific user.  This bypasses authentication without propagating
      * a bind operation into the core.
      *
      * @return a logical session as a specific user
      */
     CoreSession getSession( LdapPrincipal principal ) throws Exception;
 
-    
+
     /**
      * Gets a logical session to perform operations on this DirectoryService
-     * as a specific user with a separate authorization principal.  This 
-     * bypasses authentication without propagating a bind operation into the 
+     * as a specific user with a separate authorization principal.  This
+     * bypasses authentication without propagating a bind operation into the
      * core.
      *
      * @return a logical session as a specific user
      */
     CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException;
 
-    
+
     /**
      * Gets a logical session to perform operations on this DirectoryService
-     * as a specific user with a separate authorization principal.  This 
-     * bypasses authentication without propagating a bind operation into the 
+     * as a specific user with a separate authorization principal.  This
+     * bypasses authentication without propagating a bind operation into the
      * core.
      *
      * @return a logical session as a specific user
@@ -240,7 +236,7 @@ public interface DirectoryService extends ServerEntryFactory
     CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception;
 
-    
+
     /**
      */
     void setInstanceId( String instanceId );
@@ -341,29 +337,29 @@ public interface DirectoryService extends ServerEntryFactory
      * @param interceptors the interceptors to be used in the server.
      */
     void setInterceptors( List<Interceptor> interceptors );
-    
-    
+
+
     /**
      * Add an interceptor in the first position in the interceptor list.
      * @param interceptor The added interceptor
      */
     void addFirst( Interceptor interceptor ) throws LdapException;
-    
-    
+
+
     /**
      * Add an interceptor in the last position in the interceptor list.
      * @param interceptor The added interceptor
      */
     void addLast( Interceptor interceptor ) throws LdapException;
-    
+
     /**
      * Add an interceptor after a given interceptor in the interceptor list.
      * @param interceptorName The interceptor name to find
      * @param interceptor The added interceptor
      */
     void addAfter( String interceptorName, Interceptor interceptor );
-    
-    
+
+
     /**
      * Remove an interceptor from the list of interceptors
      * @param interceptorName The interceptor to remove
@@ -378,7 +374,7 @@ public interface DirectoryService extends ServerEntryFactory
      */
     void setJournal( Journal journal );
 
-    
+
     /**
      * Returns test directory entries({@link org.apache.directory.shared.ldap.model.ldif.LdifEntry}) to be loaded while
      * bootstrapping.
@@ -404,7 +400,7 @@ public interface DirectoryService extends ServerEntryFactory
      */
     InstanceLayout getInstanceLayout();
 
-    
+
     /**
      * Sets the InstanceLayout used by the DirectoryService to store the files
      * @param instanceLayout The InstanceLayout to set
@@ -477,7 +473,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @param changeLog the change log service to set
      */
     void setChangeLog( ChangeLog changeLog );
-    
+
 
     /**
      * Create a new Entry.
@@ -486,8 +482,8 @@ public interface DirectoryService extends ServerEntryFactory
      * @param dn the Dn for this new entry
      */
     Entry newEntry( String ldif, String dn );
-    
-    
+
+
     /**
      * Gets the operation manager.
      */
@@ -501,21 +497,21 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Set the maximum allowed size for an incoming PDU 
+     * Set the maximum allowed size for an incoming PDU
      * @param maxPDUSize A positive number of bytes for the PDU. A negative or
      * null value will be transformed to {@link Integer#MAX_VALUE}
      */
     void setMaxPDUSize( int maxPDUSize );
-    
-    
+
+
     /**
      * Get an Interceptor instance from its name
-     * @param interceptorName The interceptor's name for which we want the instance 
+     * @param interceptorName The interceptor's name for which we want the instance
      * @return the interceptor for the given name
      */
     Interceptor getInterceptor( String interceptorName );
-    
-    
+
+
     /**
      * Get a new CSN
      * @return The CSN generated for this directory service
@@ -541,7 +537,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @param schemaManager The SchemaManager to associate
      */
     void setSchemaManager( SchemaManager schemaManager );
-    
+
 
     /**
      * the highest committed CSN value
@@ -550,31 +546,31 @@ public interface DirectoryService extends ServerEntryFactory
      */
     void setContextCsn( String lastCommittedCsnVal );
 
-    
+
     /**
      * @return the current highest committed CSN value
      */
     String getContextCsn();
-    
-    
+
+
     /**
      * the time interval at which the DirectoryService's data is flushed to disk
      * 
      * @param syncPeriodMillis the syncPeriodMillis to set
      */
     void setSyncPeriodMillis( long syncPeriodMillis );
-    
-    
+
+
     /**
      * @return the syncPeriodMillis
      */
     long getSyncPeriodMillis();
-    
+
     /**
      * @return the cache service
      */
     CacheService getCacheService();
-    
+
 
     /**
      * @return The AccessControl AdministrativePoint cache
@@ -598,8 +594,8 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The TriggerExecution AdministrativePoint cache
      */
     DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache();
-    
-    
+
+
     /**
      * @return true if the password policy is enabled, false otherwise
      */

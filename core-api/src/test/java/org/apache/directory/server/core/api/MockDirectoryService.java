@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api;
 
@@ -35,7 +35,6 @@ import org.apache.directory.server.core.api.administrative.TriggerExecutionAdmin
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
@@ -60,22 +59,22 @@ import org.apache.directory.shared.ldap.util.tree.DnNode;
 public class MockDirectoryService implements DirectoryService
 {
     int count;
-    
+
     /** The schemaManager */
     SchemaManager schemaManager;
 
-    
+
     public MockDirectoryService()
     {
         this( 0 );
     }
-    
-    
+
+
     public MockDirectoryService( int count )
     {
         this.count = count;
     }
-    
+
     public Hashtable<String, Object> getEnvironment()
     {
         return null;
@@ -100,12 +99,6 @@ public class MockDirectoryService implements DirectoryService
 
 
     public PartitionNexus getPartitionNexus()
-    {
-        return null;
-    }
-
-
-    public InterceptorChain getInterceptorChain()
     {
         return null;
     }
@@ -338,12 +331,12 @@ public class MockDirectoryService implements DirectoryService
     {
 
     }
-    
+
     public void setChangeLog( ChangeLog changeLog )
     {
-        
+
     }
-    
+
     public ChangeLog getChangeLog()
     {
         return null;
@@ -360,7 +353,7 @@ public class MockDirectoryService implements DirectoryService
     {
         return null;
     }
-    
+
     public Entry newEntry( String ldif, String dn )
     {
         return null;
@@ -390,12 +383,12 @@ public class MockDirectoryService implements DirectoryService
         return null;
     }
 
-    
+
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws LdapException
-    {
+        {
         return null;
-    }
+        }
 
     public CoreSession getAdminSession()
     {
@@ -410,19 +403,19 @@ public class MockDirectoryService implements DirectoryService
     public void setEventService( EventService eventService )
     {
     }
-    
-    
+
+
     public boolean isPasswordHidden()
     {
         return false;
     }
-         
-    
+
+
     public void setPasswordHidden( boolean passwordHidden )
     {
     }
 
-    
+
     public int getMaxPDUSize()
     {
         return Integer.MAX_VALUE;
@@ -434,25 +427,25 @@ public class MockDirectoryService implements DirectoryService
         // Do nothing
     }
 
-    
+
     public Interceptor getInterceptor( String interceptorName )
     {
         return null;
     }
-    
-    
+
+
     public Csn getCSN()
     {
         return null;
     }
-    
-    
+
+
     public int getReplicaId()
     {
         return 0;
     }
-    
-    
+
+
     public void setReplicaId( int replicaId )
     {
     }
@@ -573,38 +566,38 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-	@Override
-	public List<String> getInterceptors( OperationEnum operation ) 
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<String> getInterceptors( OperationEnum operation )
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 
-	@Override
-	public void addFirst( Interceptor interceptor )  throws LdapException 
-	{
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void addFirst( Interceptor interceptor )  throws LdapException
+    {
+        // TODO Auto-generated method stub
+    }
 
 
-	@Override
-	public void addLast( Interceptor interceptor ) throws LdapException 
-	{
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void addLast( Interceptor interceptor ) throws LdapException
+    {
+        // TODO Auto-generated method stub
+    }
 
 
-	@Override
-	public void addAfter( String interceptorName, Interceptor interceptor ) 
-	{
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void addAfter( String interceptorName, Interceptor interceptor )
+    {
+        // TODO Auto-generated method stub
+    }
 
 
-	@Override
-	public void remove( String interceptorName ) 
-	{
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void remove( String interceptorName )
+    {
+        // TODO Auto-generated method stub
+    }
 }

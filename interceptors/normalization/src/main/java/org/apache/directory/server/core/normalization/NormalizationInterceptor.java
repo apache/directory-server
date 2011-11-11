@@ -26,7 +26,6 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -245,7 +244,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Dn dn = searchContext.getDn();
 
@@ -275,7 +274,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             searchContext.setFilter( filter );
 
             // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
-            return nextInterceptor.search( searchContext );
+            return next( searchContext );
         }
     }
 

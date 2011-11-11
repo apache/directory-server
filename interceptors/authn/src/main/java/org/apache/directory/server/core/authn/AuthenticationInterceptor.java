@@ -51,7 +51,6 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyExceptio
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -782,9 +781,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext )
-        throws LdapException
-        {
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
         if ( IS_DEBUG )
         {
             LOG.debug( "Operation Context: {}", searchContext );
@@ -793,8 +791,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( searchContext );
         checkPwdReset( searchContext );
 
-        return next.search( searchContext );
-        }
+        return next( searchContext );
+    }
 
 
     /**

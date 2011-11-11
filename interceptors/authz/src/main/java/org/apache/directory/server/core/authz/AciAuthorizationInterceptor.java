@@ -39,7 +39,6 @@ import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -1233,11 +1232,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         LdapPrincipal user = searchContext.getSession().getEffectivePrincipal();
         Dn principalDn = user.getDn();
-        EntryFilteringCursor cursor = next.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( searchContext.getDn().getNormName() );
         SearchControls searchCtls = searchContext.getSearchControls();

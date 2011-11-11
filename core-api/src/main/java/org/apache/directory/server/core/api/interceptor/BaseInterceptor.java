@@ -253,7 +253,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+        public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
         {
             return nexus.search( searchContext );
         }
@@ -653,9 +653,27 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        return next.search( searchContext );
+        return null;
+    }
+
+
+    /**
+     * Calls the next interceptor for the search operation.
+     * 
+     * @param searchContext The context in which we are executing this operation
+     * @return the cursor containing the found entries
+     * @throws LdapException If something went wrong
+     */
+    protected final EntryFilteringCursor next( SearchOperationContext searchContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( searchContext );
+
+        return interceptor.search( searchContext );
     }
 
 

@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -202,11 +201,11 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         interceptors.add( this );
 
-        return next.search( searchContext );
+        return next( searchContext );
     }
 
 

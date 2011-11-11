@@ -30,7 +30,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -165,9 +164,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         cursor.addEntryFilter( SEARCH_FILTER );
 

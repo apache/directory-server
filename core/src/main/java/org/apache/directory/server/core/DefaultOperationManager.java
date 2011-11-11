@@ -29,7 +29,6 @@ import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -1111,9 +1110,10 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            return interceptorChain.search( searchContext );
+            // Call the Search method
+            Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
+
+            return head.search( searchContext );
         }
         finally
         {

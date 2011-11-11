@@ -36,7 +36,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -1518,9 +1517,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         // object scope searches by default return subentries
         if ( searchContext.getScope() == SearchScope.OBJECT )

@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -171,7 +170,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next( bindContext );
@@ -514,10 +513,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
