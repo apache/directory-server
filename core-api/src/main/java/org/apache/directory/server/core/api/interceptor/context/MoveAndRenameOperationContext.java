@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
@@ -46,6 +47,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     public MoveAndRenameOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
     }
 
 
@@ -61,7 +63,8 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.newSuperiorDn = newSuperiorDn;
-        
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+
         try
         {
             newDn = newSuperiorDn.add( newRdn );
@@ -78,6 +81,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );
         this.newSuperiorDn = modifyDnRequest.getNewSuperior();
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
 
         if ( newSuperiorDn == null )
         {

@@ -31,7 +31,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -405,7 +404,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
         Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
@@ -415,7 +414,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
             return;
         }
 
@@ -468,7 +467,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> importTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
             importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
 
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
         triggerSpecCache.subentryRenamed( oldDN, newDn);
 
         // Fire AFTER Triggers.

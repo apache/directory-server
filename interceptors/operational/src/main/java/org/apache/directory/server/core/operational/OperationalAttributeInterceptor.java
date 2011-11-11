@@ -375,7 +375,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
@@ -383,7 +383,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
-        nextInterceptor.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
     }
 
 

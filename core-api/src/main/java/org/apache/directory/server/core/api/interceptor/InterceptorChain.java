@@ -96,7 +96,7 @@ public class InterceptorChain
          */
         public void add( AddOperationContext addContext ) throws LdapException
         {
-            nexus.add( addContext );
+            // Do nothing
         }
 
 
@@ -156,31 +156,31 @@ public class InterceptorChain
 
         public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
         {
-            return nexus.lookup( lookupContext );
+            return null;
         }
 
 
         public void modify( ModifyOperationContext modifyContext ) throws LdapException
         {
-            nexus.modify( modifyContext );
+            // Do nothing
         }
 
 
         public void move( MoveOperationContext moveContext ) throws LdapException
         {
-            nexus.move( moveContext );
+            // Do nothing
         }
 
 
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
         {
-            nexus.moveAndRename( moveAndRenameContext );
+            // Do nothing
         }
 
 
         public void rename( RenameOperationContext renameContext ) throws LdapException
         {
-            nexus.rename( renameContext );
+            // Do nothing
         }
 
 
@@ -577,49 +577,6 @@ public class InterceptorChain
     }
 
 
-    public void add( AddOperationContext addContext ) throws LdapException
-    {
-        Element node = getStartingEntry();
-        Interceptor head = node.interceptor;
-        NextInterceptor next = node.nextInterceptor;
-
-        try
-        {
-            head.add( addContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
-    public void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( modifyContext );
-
-        try
-        {
-            head.modify( modifyContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -641,28 +598,6 @@ public class InterceptorChain
         }
     }
 
-
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-        moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
-        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
-
-        try
-        {
-            head.moveAndRename( next, moveAndRenameContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
 
     /**
      * Represents an internal entry of this chain.
@@ -732,50 +667,6 @@ public class InterceptorChain
                 }
 
 
-                public void add( AddOperationContext addContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", addRequest" );
-                        interceptor.add( addContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", addRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void modify( ModifyOperationContext modifyContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
-                        interceptor.modify( modifyContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", modifyRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
                 public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
                 {
                     Element next = getNextEntry();
@@ -797,28 +688,6 @@ public class InterceptorChain
                     {
                         throwInterceptorException( interceptor, e );
                         throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        //System.out.println( ">>> Entering into " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
-                        interceptor.moveAndRename( next.nextInterceptor, moveAndRenameContext );
-                        //System.out.println( "<<< Exiting from " + interceptor.getClass().getSimpleName() + ", moveAndRenameRequest" );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
                     }
                 }
             };

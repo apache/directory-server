@@ -196,7 +196,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#moveAndRename( MoveAndRenameOperationContext) } call.
      */
-    void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
+    void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
 
     /**

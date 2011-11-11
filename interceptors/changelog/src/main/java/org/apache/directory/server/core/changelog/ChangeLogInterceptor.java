@@ -30,7 +30,6 @@ import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -323,9 +322,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         Entry serverEntry = null;
 
         if ( changeLog.isEnabled() )
@@ -334,7 +332,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             serverEntry = moveAndRenameContext.getOriginalEntry();
         }
 
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
 
         if ( !changeLog.isEnabled() )
         {
@@ -359,7 +357,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal( moveAndRenameContext ), forward, reverses ) );
-        }
+    }
 
 
     /**

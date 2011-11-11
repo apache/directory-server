@@ -235,7 +235,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
         {
             nexus.moveAndRename( moveAndRenameContext );
         }
@@ -385,6 +385,20 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
+     * Calls the next interceptor for the add operation.
+     * 
+     * @param addContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( AddOperationContext addContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( addContext );
+
+        interceptor.add( addContext );
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
@@ -452,20 +466,6 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    /**
-     * Calls the next interceptor for the add operation.
-     * 
-     * @param addContext The context in which we are executing this operation
-     * @throws LdapException If something went wrong
-     */
-    protected final void next( AddOperationContext addContext ) throws LdapException
-    {
-        Interceptor interceptor = getNextInterceptor( addContext );
-        
-        interceptor.add( addContext );
-    }
-    
-    
     /**
      * {@inheritDoc}
      */
@@ -564,9 +564,26 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-       // Nothing to do
+        // Nothing to do
+    }
+
+
+    /**
+     * Calls the next interceptor for the modify operation.
+     * 
+     * @param modifyContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( modifyContext );
+
+        interceptor.modify( modifyContext );
     }
 
 
@@ -575,7 +592,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        // Nothing to do
+        // Do nothing
     }
 
 
@@ -593,9 +610,23 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        next.moveAndRename( moveAndRenameContext );
+        // Do nothing
+    }
+
+
+    /**
+     * Calls the next interceptor for the moveAndRename operation.
+     * 
+     * @param moveAndRenameContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( moveAndRenameContext );
+
+        interceptor.moveAndRename( moveAndRenameContext );
     }
 
 
@@ -649,19 +680,4 @@ public abstract class BaseInterceptor implements Interceptor
 
         interceptor.unbind( unbindContext );
     }
-    
-    
-    /**
-     * Calls the next interceptor for the modify operation.
-     * 
-     * @param modifyContext The context in which we are executing this operation
-     * @throws LdapException If something went wrong
-     */
-    protected final void next( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        Interceptor interceptor = getNextInterceptor( modifyContext );
-        
-        interceptor.modify( modifyContext );
-    }
-
 }

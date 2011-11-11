@@ -1026,7 +1026,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
         CoreSession session = moveAndRenameContext.getSession();
@@ -1040,7 +1040,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
+
             return;
         }
 
@@ -1049,7 +1050,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
             tupleCache.subentryRenamed( oldDn, newDn );
             groupCache.groupRenamed( oldDn, newDn );
 
@@ -1111,7 +1112,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
         tupleCache.subentryRenamed( oldDn, newDn );
         groupCache.groupRenamed( oldDn, newDn );
     }

@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -284,9 +283,8 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         long opRevision = 0;
 
         if ( journalEnabled )
@@ -306,7 +304,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             if ( journalEnabled )
             {
@@ -324,7 +322,7 @@ public class JournalInterceptor extends BaseInterceptor
 
             throw e;
         }
-        }
+    }
 
 
     /**

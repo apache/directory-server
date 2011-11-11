@@ -54,7 +54,6 @@ import org.apache.directory.server.core.api.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -1458,7 +1457,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
         {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveAndRenameRequest" );
@@ -1470,7 +1469,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 

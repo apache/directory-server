@@ -710,8 +710,8 @@ public class DefaultOperationManager implements OperationManager
 
             // populate the context with the old entry
             eagerlyPopulateFields( modifyContext );
-            
-            // Call the Add method
+
+            // Call the Modify method
             Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
             head.modify( modifyContext );
@@ -923,9 +923,13 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
 
-            // Call the Add method
-            InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.moveAndRename( moveAndRenameContext );
+            moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
+            moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
+
+            // Call the MoveAndRename method
+            Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
+
+            head.moveAndRename( moveAndRenameContext );
         }
         finally
         {

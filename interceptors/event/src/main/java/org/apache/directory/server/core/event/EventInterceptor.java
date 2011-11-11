@@ -38,7 +38,6 @@ import org.apache.directory.server.core.api.event.ExpressionEvaluator;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.event.RegistrationEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -272,11 +271,11 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry oriEntry = moveAndRenameContext.getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( moveAndRenameContext.getDn(), oriEntry );
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
 
         if ( selecting.isEmpty() )
         {

@@ -458,10 +458,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )

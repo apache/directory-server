@@ -1332,7 +1332,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
         Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
@@ -1353,7 +1353,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
@@ -1409,7 +1409,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

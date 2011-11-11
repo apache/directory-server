@@ -751,9 +751,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-        {
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
         if ( IS_DEBUG )
         {
             LOG.debug( "Operation Context: {}", moveAndRenameContext );
@@ -761,9 +760,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( moveAndRenameContext );
         checkPwdReset( moveAndRenameContext );
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
         invalidateAuthenticatorCaches( moveAndRenameContext.getDn() );
-        }
+    }
 
 
     /**

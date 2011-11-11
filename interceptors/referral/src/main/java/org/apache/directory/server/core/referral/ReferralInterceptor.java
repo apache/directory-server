@@ -26,7 +26,6 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -310,12 +309,12 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( moveAndRenameContext.getOriginalEntry() );
 
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
 
         if ( isReferral )
         {

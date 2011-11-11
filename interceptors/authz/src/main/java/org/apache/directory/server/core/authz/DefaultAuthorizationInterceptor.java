@@ -330,14 +330,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( moveAndRenameContext, moveAndRenameContext.getDn() );
         }
 
-        nextInterceptor.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
     }
 
 
