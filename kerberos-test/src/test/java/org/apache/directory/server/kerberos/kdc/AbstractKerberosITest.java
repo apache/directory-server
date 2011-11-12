@@ -105,7 +105,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
 
 
     /**
-     * Obtains a TGT and service tickets for the user. 
+     * Obtains a TGT and service tickets for the user.
      * Also makes some assertions on the received tickets.
      *
      * @param encryptionType the encryption type to use
@@ -151,7 +151,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     }
 
 
-    protected void setupEnv( ObtainTicketParameters parameters ) 
+    protected void setupEnv( ObtainTicketParameters parameters )
         throws Exception
     {
         // Save current value of sun.security.krb5.KrbKdcReq.udpPrefLimit field.
@@ -183,7 +183,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
             "ldap", "randall", servicePrincipal );
     }
     
-    protected void resetEnv( ObtainTicketParameters parameters ) 
+    protected void resetEnv( ObtainTicketParameters parameters )
         throws Exception
     {
         setUdpPrefLimit( parameters.oldUdpPrefLimit );
@@ -210,7 +210,19 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     {
         String clazz = "sun.security.krb5.KrbKdcReq";
         Class<?> krbKdcReqClass = Class.forName( clazz );
-        Field udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        
+        // Absolutely ugly fix to get this method working with the latest JVM on Mac (1.6.0_29)
+        Field udpPrefLimitField = null;
+        
+        try
+        {
+            udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
+        }
+        catch ( NoSuchFieldException nsfe )
+        {
+            udpPrefLimitField = krbKdcReqClass.getDeclaredField( "defaultUdpPrefLimit" );
+        }
+        
         udpPrefLimitField.setAccessible( true );
         return udpPrefLimitField;
     }
@@ -263,7 +275,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
      * </pre>
      *
      * @param encryptionType
-     * @param checksumType 
+     * @param checksumType
      * @return the path to the krb5.conf file
      * @throws IOException
      */

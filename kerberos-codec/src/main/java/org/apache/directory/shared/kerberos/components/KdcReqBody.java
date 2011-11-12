@@ -463,7 +463,7 @@ public class KdcReqBody extends AbstractAsn1Object
     @Override
     public int computeLength()
     {
-    	reset();
+        reset();
 
         // The KdcOptions length
         kdcOptionsLength = 1 + 1 + kdcOptions.getBytes().length;

@@ -346,8 +346,8 @@ public class ServiceBuilder
 
     /**
      * Load the entries from a Ldif file recursively
-     * @throws LdapLdifException 
-     * @throws IOException 
+     * @throws LdapLdifException
+     * @throws IOException
      */
     private static void loadEntries( File ldifFile, List<LdifEntry> entries ) throws LdapLdifException, IOException
     {
@@ -460,7 +460,7 @@ public class ServiceBuilder
             
             try
             {
-                Class authnImplClass = Class.forName( fqcn );
+                Class<?> authnImplClass = Class.forName( fqcn );
                 authenticator = ( Authenticator ) authnImplClass.newInstance();
             }
             catch( Exception e )
@@ -509,7 +509,7 @@ public class ServiceBuilder
 
     
     /**
-     * Creates the array of transports read from the DIT 
+     * Creates the array of transports read from the DIT
      * 
      * @param transportBeans The array of Transport configuration
      * @return An arry of Transport instance
@@ -528,7 +528,7 @@ public class ServiceBuilder
     }
 
     /**
-     * Creates the array of transports read from the DIT 
+     * Creates the array of transports read from the DIT
      * 
      * @param transportBeans The array of Transport configuration
      * @return An arry of Transport instance
@@ -569,7 +569,7 @@ public class ServiceBuilder
     }
 
     /**
-     * Instantiates a NtpServer based on the configuration present in the partition 
+     * Instantiates a NtpServer based on the configuration present in the partition
      *
      * @param ntpServerBean The NtpServerBean containing the NtpServer configuration
      * @return Instance of NtpServer
@@ -597,7 +597,7 @@ public class ServiceBuilder
 
 
     /**
-     * Instantiates a DhcpServer based on the configuration present in the partition 
+     * Instantiates a DhcpServer based on the configuration present in the partition
      *
      * @param dhcpServerBean The DhcpServerBean containing the DhcpServer configuration
      * @return Instance of DhcpServer
@@ -625,7 +625,7 @@ public class ServiceBuilder
 
 
     /**
-     * Instantiates a KdcServer based on the configuration present in the partition 
+     * Instantiates a KdcServer based on the configuration present in the partition
      *
      * @param kdcServerBean The KdcServerBean containing the KdcServer configuration
      * @return Instance of KdcServer
@@ -655,7 +655,7 @@ public class ServiceBuilder
         // BodyChecksumVerified
         kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
         
-        // CatalogBased 
+        // CatalogBased
         //kdcServer.setCatelogBased( kdcServerBean.is );
         
         // EmptyAddressesAllowed
@@ -704,7 +704,7 @@ public class ServiceBuilder
     
     
     /**
-     * Instantiates the HttpWebApps based on the configuration present in the partition 
+     * Instantiates the HttpWebApps based on the configuration present in the partition
      *
      * @param httpWebAppBeans The list of HttpWebAppBeans containing the HttpWebAppBeans configuration
      * @return Instances of HttpWebAppBean
@@ -742,7 +742,7 @@ public class ServiceBuilder
     
     
     /**
-     * Instantiates a HttpServer based on the configuration present in the partition 
+     * Instantiates a HttpServer based on the configuration present in the partition
      *
      * @param httpServerBean The HttpServerBean containing the HttpServer configuration
      * @return Instance of LdapServer
@@ -799,7 +799,7 @@ public class ServiceBuilder
     
     
     /**
-     * Instantiates a ChangePasswordServer based on the configuration present in the partition 
+     * Instantiates a ChangePasswordServer based on the configuration present in the partition
      *
      * @param ldapServerBean The ChangePasswordServerBean containing the ChangePasswordServer configuration
      * @return Instance of ChangePasswordServer
@@ -861,7 +861,7 @@ public class ServiceBuilder
     */
     
     /**
-     * Instantiates a LdapServer based on the configuration present in the partition 
+     * Instantiates a LdapServer based on the configuration present in the partition
      *
      * @param ldapServerBean The LdapServerBean containing the LdapServer configuration
      * @return Instance of LdapServer
@@ -937,7 +937,7 @@ public class ServiceBuilder
                 }
                 catch ( Exception e )
                 {
-                    String message = "Failed to load and instantiate ExtendedOperationHandler implementation " 
+                    String message = "Failed to load and instantiate ExtendedOperationHandler implementation "
                         + extendedpHandlerBean.getExtendedOpId() + ": " + e.getMessage();
                     LOG.error( message );
                     throw new ConfigurationException( message );
@@ -999,7 +999,7 @@ public class ServiceBuilder
             {
                 if( className == null )
                 {
-                    consumerClass = ReplicationConsumerImpl.class; 
+                    consumerClass = ReplicationConsumerImpl.class;
                 }
                 else
                 {
@@ -1129,7 +1129,7 @@ public class ServiceBuilder
      * 
      * @param jdbmPartitionBean the JdbmPartition bean
      * @return The instantiated JdbmPartition
-     * @throws LdapInvalidDnException 
+     * @throws LdapInvalidDnException
      * @throws Exception If the instance cannot be created
      */
     public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
@@ -1176,7 +1176,7 @@ public class ServiceBuilder
                 
                 if ( ( entries != null ) && ( entries.size() > 0 ) )
                 {
-                    LdifEntry entry = entries.get( 0 );
+                    entries.get( 0 );
                 }
             }
             catch ( LdapLdifException lle )
@@ -1246,12 +1246,12 @@ public class ServiceBuilder
 
     
     /**
-     * Instantiates a DirectoryService based on the configuration present in the partition 
+     * Instantiates a DirectoryService based on the configuration present in the partition
      *
      * @param directoryServiceBean The bean containing the configuration
-     * @param baseDirectory The working path for this DirectoryService 
+     * @param baseDirectory The working path for this DirectoryService
      * @return An instance of DirectoryService
-     * @throws Exception 
+     * @throws Exception
      */
     public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, InstanceLayout instanceLayout, SchemaManager schemaManager ) throws Exception
     {
@@ -1313,8 +1313,6 @@ public class ServiceBuilder
             directoryService.setJournal( journal );
         }
         
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
-
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
         
