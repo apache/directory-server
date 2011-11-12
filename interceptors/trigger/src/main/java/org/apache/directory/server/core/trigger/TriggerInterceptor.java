@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -94,6 +95,15 @@ public class TriggerInterceptor extends BaseInterceptor
 
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
+
+    /**
+     * Creates a new instance of a TriggerInterceptor.
+     */
+    public TriggerInterceptor()
+    {
+        super( InterceptorEnum.TRIGGER_INTERCEPTOR );
+    }
+    
 
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of

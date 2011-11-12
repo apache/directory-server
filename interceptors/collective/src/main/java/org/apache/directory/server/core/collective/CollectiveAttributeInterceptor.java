@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -70,6 +71,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
+    /**
+     * Creates a new instance of a CollectiveAttributeInterceptor.
+     */
+    public CollectiveAttributeInterceptor()
+    {
+        super( InterceptorEnum.COLLECTIVE_ATTRIBUTE_INTERCEPTOR );
+    }
+
+    
     /**
      * the search result filter to use for collective attribute injection
      */

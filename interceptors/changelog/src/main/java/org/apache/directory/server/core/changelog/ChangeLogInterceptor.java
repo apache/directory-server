@@ -26,6 +26,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
@@ -74,11 +75,19 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
     private static final String REV_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
 
+
+    /**
+     * Creates a new instance of a ChangeLogInterceptor.
+     */
+    public ChangeLogInterceptor()
+    {
+        super( InterceptorEnum.CHANGE_LOG_INTERCEPTOR );
+    }
+
+    
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
-
-
     /**
      * The init method will initialize the local variables and load the
      * entryDeleted AttributeType.

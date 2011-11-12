@@ -34,6 +34,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.administrative.AccessControlAAP;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
@@ -182,6 +183,16 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /** A lock to guarantee the AP cache consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
+
+    /**
+     * Creates a new instance of a AdministrativePointInterceptor.
+     */
+    public AdministrativePointInterceptor()
+    {
+        super( InterceptorEnum.ADMINISTRATIVE_POINT_INTERCEPTOR );
+    }
+
+    
     /**
      * Get a read-lock on the AP cache.
      * No read operation can be done on the AP cache if this
@@ -735,14 +746,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 }
             }
         }
-    }
-
-
-    /**
-     * Creates an Administrative service interceptor.
-     */
-    public AdministrativePointInterceptor()
-    {
     }
 
 

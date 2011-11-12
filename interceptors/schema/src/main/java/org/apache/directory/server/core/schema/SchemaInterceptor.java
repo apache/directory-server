@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
@@ -134,9 +135,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /** The SubschemaSubentry Dn */
     private Dn subschemaSubentryDn;
 
-    /**
-     * the normalized name for the schema modification attributes
-     */
+    /** The normalized name for the schema modification attributes */
     private Dn schemaModificationAttributesDn;
 
     /** The schema manager */
@@ -156,6 +155,14 @@ public class SchemaInterceptor extends BaseInterceptor
 
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
+
+    /**
+     * Creates a new instance of a SchemaInterceptor.
+     */
+    public SchemaInterceptor()
+    {
+        super( InterceptorEnum.SCHEMA_INTERCEPTOR );
+    }
 
 
     /**

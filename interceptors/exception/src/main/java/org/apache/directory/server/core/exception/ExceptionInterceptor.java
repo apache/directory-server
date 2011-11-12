@@ -23,6 +23,7 @@ package org.apache.directory.server.core.exception;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -96,9 +97,13 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public ExceptionInterceptor()
     {
+        super( InterceptorEnum.EXCEPTION_INTERCEPTOR );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );

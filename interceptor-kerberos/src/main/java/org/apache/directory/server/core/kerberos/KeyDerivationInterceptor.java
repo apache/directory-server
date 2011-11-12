@@ -72,8 +72,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     private static final Logger log = LoggerFactory.getLogger( KeyDerivationInterceptor.class );
 
     /** The service name. */
-    public static final String NAME = "keyDerivationService";
+    private static final String NAME = "keyDerivationService";
 
+    /**
+     * Creates an instance of a KeyDerivationInterceptor.
+     */
+    public KeyDerivationInterceptor()
+    {
+        super( NAME );
+    }
+    
+    
     /**
      * Intercept the addition of the 'userPassword' and 'krb5PrincipalName' attributes.  Use the 'userPassword'
      * and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.  If the 'userPassword' is

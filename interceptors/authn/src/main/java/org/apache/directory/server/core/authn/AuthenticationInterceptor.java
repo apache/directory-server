@@ -45,6 +45,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
@@ -149,6 +150,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public AuthenticationInterceptor()
     {
+        super( InterceptorEnum.AUTHENTICATION_INTERCEPTOR );
     }
 
 

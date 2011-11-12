@@ -23,6 +23,7 @@ package org.apache.directory.server.core.referral;
 import javax.naming.Context;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -189,6 +190,14 @@ public class ReferralInterceptor extends BaseInterceptor
 
             return true;
         }
+    }
+
+    /**
+     * Creates a new instance of a ReferralInterceptor.
+     */
+    public ReferralInterceptor()
+    {
+        super( InterceptorEnum.REFERRAL_INTERCEPTOR );
     }
 
 

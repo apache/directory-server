@@ -42,21 +42,11 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PasswordHashingInterceptor extends BaseInterceptor
+public abstract class PasswordHashingInterceptor extends BaseInterceptor
 {
 
     /** the hashing algorithm to be used, if null then the password won't be changed */
     private LdapSecurityConstants algorithm;
-
-
-    /**
-     * Creates a new instance of PasswordHashingInterceptor which does not hash the passwords.
-     */
-    public PasswordHashingInterceptor()
-    {
-        this( null );
-    }
-
 
     /**
      * 
@@ -66,8 +56,9 @@ public class PasswordHashingInterceptor extends BaseInterceptor
      * 
      * @param algorithm the name of the algorithm to be used
      */
-    public PasswordHashingInterceptor( LdapSecurityConstants algorithm )
+    protected PasswordHashingInterceptor( String name, LdapSecurityConstants algorithm )
     {
+        super( name );
         this.algorithm = algorithm;
     }
 

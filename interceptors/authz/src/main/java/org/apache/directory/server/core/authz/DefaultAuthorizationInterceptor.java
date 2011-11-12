@@ -29,6 +29,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -94,13 +95,12 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
     }
 
-
     /**
-     * Creates a new instance.
+     * Creates a new instance of DefaultAuthorizationInterceptor.
      */
     public DefaultAuthorizationInterceptor()
     {
-        // Nothing to do
+        super( InterceptorEnum.DEFAULT_AUTHORIZATION_INTERCEPTOR );
     }
 
 

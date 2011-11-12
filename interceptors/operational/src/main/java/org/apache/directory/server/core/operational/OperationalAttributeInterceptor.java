@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -124,6 +125,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     public OperationalAttributeInterceptor()
     {
+        super( InterceptorEnum.OPERATIONAL_ATTRIBUTE_INTERCEPTOR );
     }
 
 

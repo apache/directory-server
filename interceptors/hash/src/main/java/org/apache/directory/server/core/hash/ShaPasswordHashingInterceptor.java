@@ -29,8 +29,11 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
  */
 public class ShaPasswordHashingInterceptor extends PasswordHashingInterceptor
 {
+    /**
+     * Creates an instance of a ShaPasswordHashingInterceptor
+     */
     public ShaPasswordHashingInterceptor()
     {
-        super( LdapSecurityConstants.HASH_METHOD_SHA );
+        super( "ShaPasswordHashingInterceptor", LdapSecurityConstants.HASH_METHOD_SHA );
     }
 }

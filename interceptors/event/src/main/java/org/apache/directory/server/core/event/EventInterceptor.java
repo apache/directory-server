@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.Evaluator;
@@ -70,7 +71,15 @@ public class EventInterceptor extends BaseInterceptor
     private Evaluator evaluator;
     private ExecutorService executor;
 
-
+    /**
+     * Creates a new instance of a EventInterceptor.
+     */
+    public EventInterceptor()
+    {
+        super( InterceptorEnum.EVENT_INTERCEPTOR );
+    }
+    
+    
     /**
      * Initialize the event interceptor. It creates a pool of executor which will be used
      * to call the listeners in separate threads.

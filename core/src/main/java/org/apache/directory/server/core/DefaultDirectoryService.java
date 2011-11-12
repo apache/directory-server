@@ -51,6 +51,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
@@ -533,6 +534,7 @@ public class DefaultDirectoryService implements DirectoryService
                 {
                     gatherInterceptors( interceptor, interceptor.getClass(), operation, operationList );
                 }
+                
                 operationInterceptors.put( operation, operationList );
             }
         }
@@ -552,8 +554,9 @@ public class DefaultDirectoryService implements DirectoryService
      * @param operation type of operation
      * @param selectedInterceptorList the list of selected interceptors
      */
-    private void gatherInterceptors( Interceptor interceptor, Class interceptorClz, OperationEnum operation, List<String> selectedInterceptorList )
+    private void gatherInterceptors( Interceptor interceptor, Class<?> interceptorClz, OperationEnum operation, List<String> selectedInterceptorList )
     {
+        // We stop recursing when we reach the Base class
         if( ( interceptorClz == null ) || ( interceptorClz == BaseInterceptor.class ) )
         {
             return;
@@ -2232,7 +2235,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public boolean isPwdPolicyEnabled()
     {
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
 
         if ( authenticationInterceptor == null )
         {

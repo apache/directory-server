@@ -29,8 +29,11 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
  */
 public class Ssha384PasswordHashingInterceptor extends PasswordHashingInterceptor
 {
+    /**
+     * Creates an instance of a Ssha384PasswordHashingInterceptor
+     */
     public Ssha384PasswordHashingInterceptor()
     {
-        super( LdapSecurityConstants.HASH_METHOD_SSHA384 );
+        super( "Ssha384PasswordHashingInterceptor", LdapSecurityConstants.HASH_METHOD_SSHA384 );
     }
 }

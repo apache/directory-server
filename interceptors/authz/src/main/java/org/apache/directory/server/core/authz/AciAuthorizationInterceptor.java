@@ -33,6 +33,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
@@ -168,6 +169,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
 
+    
+    /**
+     * Create a AciAuthorizationInterceptor instance
+     */
+    public AciAuthorizationInterceptor()
+    {
+        super( InterceptorEnum.ACI_AUTHORIZATION_INTERCEPTOR );
+    }
+    
 
     /**
      * Load the Tuples into the cache

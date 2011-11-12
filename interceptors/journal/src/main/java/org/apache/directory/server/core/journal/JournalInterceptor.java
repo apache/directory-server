@@ -22,6 +22,7 @@ package org.apache.directory.server.core.journal;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -62,7 +63,15 @@ public class JournalInterceptor extends BaseInterceptor
     /** the Journal service to log changes to */
     private Journal journal;
 
+    /**
+     * Creates a new instance of a JournalInterceptor.
+     */
+    public JournalInterceptor()
+    {
+        super( InterceptorEnum.JOURNAL_INTERCEPTOR );
+    }
 
+    
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------

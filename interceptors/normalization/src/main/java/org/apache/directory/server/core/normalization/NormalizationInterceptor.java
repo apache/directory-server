@@ -23,6 +23,7 @@ package org.apache.directory.server.core.normalization;
 import java.util.List;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -77,6 +78,15 @@ public class NormalizationInterceptor extends BaseInterceptor
 
     /** a filter node value normalizer and undefined node remover */
     private FilterNormalizingVisitor normVisitor;
+
+    /**
+     * Creates a new instance of a NormalizationInterceptor.
+     */
+    public NormalizationInterceptor()
+    {
+        super( InterceptorEnum.NORMALIZATION_INTERCEPTOR );
+    }
+    
 
     /**
      * Initialize the registries, normalizers.

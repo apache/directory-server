@@ -131,6 +131,11 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     class DelayInducingInterceptor extends BaseInterceptor
     {
         private Long delayMillis;
+        
+        public DelayInducingInterceptor()
+        {
+            super( "DelayInterceptor" );
+        }
 
 
         public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
@@ -184,7 +189,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     {
         getLdapServer().setMaxTimeLimit( oldMaxTimeLimit );
         getLdapServer().setMaxSizeLimit( oldMaxSizeLimit );
-        getLdapServer().getDirectoryService().remove( DelayInducingInterceptor.class.getSimpleName() );
+        getLdapServer().getDirectoryService().remove( "DelayInterceptor" );
     }
 
 

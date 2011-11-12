@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -293,7 +294,7 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance with a default name : the class name itself.
      */
     protected BaseInterceptor()
     {
@@ -302,11 +303,24 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance with a given name.
+     * 
+     * @param name the Interceptor name
      */
     protected BaseInterceptor( String name )
     {
         this.name = name;
+    }
+
+
+    /**
+     * Creates a new instance with a given name.
+     * 
+     * @param name the Interceptor name
+     */
+    protected BaseInterceptor( InterceptorEnum interceptor )
+    {
+        this.name = interceptor.getName();
     }
 
 
