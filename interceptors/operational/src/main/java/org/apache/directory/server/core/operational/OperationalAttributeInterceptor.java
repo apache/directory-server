@@ -132,7 +132,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
 

@@ -26,7 +26,7 @@ import org.apache.directory.server.core.api.interceptor.context.BindOperationCon
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -57,13 +57,13 @@ public interface OperationManager
     
     
     /**
-     * Get the RooDSE entry.
+     * Get the RooDse entry.
      * 
-     * @param getRootDseContext The getRootDSE() context
-     * @return The rootDSE if found
-     * @throws LdapException If we can't get back the rootDSE entry
+     * @param getRootDseContext The getRootDse() context
+     * @return The rootDse if found
+     * @throws LdapException If we can't get back the rootDse entry
      */
-    Entry getRootDSE( GetRootDSEOperationContext  getRootDseContext ) throws LdapException;
+    Entry getRootDse( GetRootDseOperationContext  getRootDseContext ) throws LdapException;
 
 
     /**

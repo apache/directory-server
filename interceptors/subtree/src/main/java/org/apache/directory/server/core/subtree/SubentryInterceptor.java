@@ -859,7 +859,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             // The AP must be the parent Dn, but we also have to check that the given Dn
             // is not the rootDSE or a NamingContext
-            if ( dn.isRootDSE() || isNamingContext( dn ) )
+            if ( dn.isRootDse() || isNamingContext( dn ) )
             {
                 // Not allowed : we can't get a parent in those cases
                 throw new LdapOtherException( "Cannot find an AdministrativePoint for " + dn );

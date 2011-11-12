@@ -31,7 +31,7 @@ import org.apache.directory.server.core.api.interceptor.context.BindOperationCon
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -181,9 +181,9 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+        public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
         {
-            return nexus.getRootDSE( getRootDseContext );
+            return nexus.getRootDse( getRootDseContext );
         }
 
 
@@ -469,7 +469,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         // Nothing to do
         return null;
@@ -483,11 +483,11 @@ public abstract class BaseInterceptor implements Interceptor
      * @return the rootDSE
      * @throws LdapException If something went wrong
      */
-    protected final Entry next( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    protected final Entry next( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         Interceptor interceptor = getNextInterceptor( getRootDseContext );
 
-        return interceptor.getRootDSE( getRootDseContext );
+        return interceptor.getRootDse( getRootDseContext );
     }
 
 

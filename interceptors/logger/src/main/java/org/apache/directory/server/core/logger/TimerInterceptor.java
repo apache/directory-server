@@ -29,7 +29,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -87,9 +87,9 @@ public class TimerInterceptor extends BaseInterceptor
     private static AtomicLong totalDelete = new AtomicLong( 0 );
     private static AtomicInteger nbDeleteCalls = new AtomicInteger( 0 );
 
-    /** Stats for the GetRootDSE operation */
-    private static AtomicLong totalGetRootDSE = new AtomicLong( 0 );
-    private static AtomicInteger nbGetRootDSECalls = new AtomicInteger( 0 );
+    /** Stats for the GetRootDse operation */
+    private static AtomicLong totalGetRootDse = new AtomicLong( 0 );
+    private static AtomicInteger nbGetRootDseCalls = new AtomicInteger( 0 );
 
     /** Stats for the HasEntry operation */
     private static AtomicLong totalHasEntry = new AtomicLong( 0 );
@@ -281,21 +281,21 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry rootDSE = next( getRootDseContext );
+        Entry rootDse = next( getRootDseContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
         {
-            nbGetRootDSECalls.incrementAndGet();
-            totalGetRootDSE.getAndAdd( delta );
+            nbGetRootDseCalls.incrementAndGet();
+            totalGetRootDse.getAndAdd( delta );
 
-            if ( nbGetRootDSECalls.get() % 1000 == 0 )
+            if ( nbGetRootDseCalls.get() % 1000 == 0 )
             {
-                long average = totalGetRootDSE.get()/(nbGetRootDSECalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}", average, nbGetRootDSECalls.get() );
+                long average = totalGetRootDse.get()/(nbGetRootDseCalls.get() * 1000);
+                OPERATION_STATS.debug( name + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}", average, nbGetRootDseCalls.get() );
             }
         }
 
@@ -304,7 +304,7 @@ public class TimerInterceptor extends BaseInterceptor
             OPERATION_TIME.debug( "{} : Delta getRootDSE = {}", name, delta );
         }
 
-        return rootDSE;
+        return rootDse;
     }
 
 

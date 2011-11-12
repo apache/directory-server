@@ -47,7 +47,7 @@ import org.apache.directory.server.core.api.interceptor.context.BindOperationCon
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -115,7 +115,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     private static final String ASF = "Apache Software Foundation";
 
     /** the read only rootDSE attributes */
-    private final Entry rootDSE;
+    private final Entry rootDse;
 
     /** The DirectoryService instance */
     private DirectoryService directoryService;
@@ -151,28 +151,28 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * attributes are added to the rootDSE.
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
-     * @param rootDSE the root entry for the DSA
+     * @param rootDse the root entry for the DSA
      * @throws javax.naming.Exception on failure to initialize
      */
-    public DefaultPartitionNexus( Entry rootDSE ) throws Exception
+    public DefaultPartitionNexus( Entry rootDse ) throws Exception
     {
         id = ID;
         suffixDn = null;
             
         // setup that root DSE
-        this.rootDSE = rootDSE;
+        this.rootDse = rootDse;
 
         // Add the basic informations
-        rootDSE.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
-        rootDSE.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
-        rootDSE.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
-        rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
+        rootDse.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
+        rootDse.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
+        rootDse.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
+        rootDse.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the objectClasses
-        rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        rootDse.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // Add the 'vendor' name and version infos
-        rootDSE.put( SchemaConstants.VENDOR_NAME_AT, ASF );
+        rootDse.put( SchemaConstants.VENDOR_NAME_AT, ASF );
 
         Properties props = new Properties();
 
@@ -185,10 +185,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             LOG.error( I18n.err( I18n.ERR_33 ) );
         }
 
-        rootDSE.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
+        rootDse.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
         
         // The rootDSE uuid has been randomly created
-        rootDSE.put( SchemaConstants.ENTRY_UUID_AT, "f290425c-8272-4e62-8a67-92b06f38dbf5" );
+        rootDse.put( SchemaConstants.ENTRY_UUID_AT, "f290425c-8272-4e62-8a67-92b06f38dbf5" );
     }
 
 
@@ -205,7 +205,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             
             while ( ctrlOidItr.hasNext() )
             {
-                rootDSE.add( SchemaConstants.SUPPORTED_CONTROL_AT, ctrlOidItr.next() );
+                rootDse.add( SchemaConstants.SUPPORTED_CONTROL_AT, ctrlOidItr.next() );
             }
     
             schemaManager = directoryService.getSchemaManager();
@@ -216,7 +216,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
             adminDn.apply( schemaManager );
     
-            Value<?> attr = rootDSE.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+            Value<?> attr = rootDse.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
             subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
     
             //initializeSystemPartition( directoryService );
@@ -308,13 +308,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             partitions.put( key, system );
             partitionLookupTree.add( system.getSuffixDn(), system );
-            Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultAttribute( schemaManager
                     .getAttributeType( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffixDn().getName() );
-                rootDSE.put( namingContexts );
+                rootDse.put( namingContexts );
             }
             else
             {
@@ -443,8 +443,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     // ------------------------------------------------------------------------
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
@@ -456,8 +456,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
@@ -466,8 +466,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#compare(org.apache.directory.server.core.interceptor.context.CompareOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
@@ -509,8 +509,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
@@ -531,7 +531,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             LOG.debug( "Check if Dn '" + dn + "' exists." );
         }
 
-        if ( dn.isRootDSE() )
+        if ( dn.isRootDse() )
         {
             return true;
         }
@@ -562,17 +562,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            return new ClonedServerEntry( rootDSE.clone() );
+            return new ClonedServerEntry( rootDse.clone() );
         }
 
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
         {
-            Entry retval = new ClonedServerEntry( rootDSE );
+            Entry retval = new ClonedServerEntry( rootDse );
 
             if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
             {
-                for ( Attribute attribute : rootDSE.getAttributes() )
+                for ( Attribute attribute : rootDse.getAttributes() )
                 {
                     AttributeType attributeType = attribute.getAttributeType();
                     String oid = attributeType.getOid();
@@ -587,7 +587,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
             else
             {
-                return new ClonedServerEntry( rootDSE );
+                return new ClonedServerEntry( rootDse );
             }
         }
 
@@ -665,7 +665,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchContext ) throws LdapException
+    private EntryFilteringCursor searchRootDse( SearchOperationContext searchContext ) throws LdapException
     {
         SearchControls searchControls = searchContext.getSearchControls();
 
@@ -677,8 +677,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // -----------------------------------------------------------
         if ( ( ids == null ) || ( ids.length == 0 ) )
         {
-            Entry rootDSE = getRootDSE( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
+            Entry rootDse = getRootDse( null );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext );
         }
 
         // -----------------------------------------------------------
@@ -715,15 +715,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
-            Entry rootDSE = getRootDSE( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
+            Entry rootDse = getRootDse( null );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext );
         }
 
         Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
 
-        Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchContext.getSession() ) );
+        Entry rootDse = getRootDse( new GetRootDseOperationContext( searchContext.getSession() ) );
 
-        for ( Attribute attribute : rootDSE )
+        for ( Attribute attribute : rootDse )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
 
@@ -745,8 +745,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
@@ -783,7 +783,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
              */
             if ( ( filter instanceof PresenceNode ) && isObjectScope && isSearchAll )
             {
-                return searchRootDSE( searchContext );
+                return searchRootDse( searchContext );
             }
             else if ( isObjectScope && ( !isSearchAll ) )
             {
@@ -845,8 +845,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
@@ -855,17 +855,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getRootDSE(org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext)
+    /**
+     * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext )
     {
-        return rootDSE.clone();
+        return rootDse.clone();
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#addContextPartition(org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public synchronized void addContextPartition( Partition partition ) throws LdapException
     {
@@ -894,13 +894,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             partitions.put( partitionSuffix.getNormName(), partition );
             partitionLookupTree.add( partition.getSuffixDn(), partition );
 
-            Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultAttribute( schemaManager
                     .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
-                rootDSE.put( namingContexts );
+                rootDse.put( namingContexts );
             }
             else
             {
@@ -910,8 +910,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(Dn partitionDN)
+    /**
+     * {@inheritDoc}
      */
     public synchronized void removeContextPartition( Dn partitionDn )
         throws LdapException
@@ -933,7 +933,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
-        Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         if ( namingContexts != null )
         {
@@ -968,8 +968,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.model.name.Dn)
+    /**
+     * {@inheritDoc}
      */
     public Partition getPartition( Dn dn ) throws LdapException
     {
@@ -1010,17 +1010,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedExtensions(java.util.Set)
+    /**
+     * {@inheritDoc}
      */
     public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException
     {
-        Attribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
+        Attribute supportedExtension = rootDse.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
 
         if ( supportedExtension == null )
         {
-            rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, (String)null );
-            supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
+            rootDse.put( SchemaConstants.SUPPORTED_EXTENSION_AT, (String)null );
+            supportedExtension = rootDse.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
         }
 
         for ( String extensionOid : extensionOids )
@@ -1030,8 +1030,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedSaslMechanisms(java.util.Set)
+    /**
+     * {@inheritDoc}
      */
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException
     {
@@ -1044,7 +1044,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             supportedSaslMechanismsAt.add( saslMechanism );
         }
         
-        rootDSE.add( supportedSaslMechanismsAt );
+        rootDse.add( supportedSaslMechanismsAt );
     }
 
 
@@ -1063,7 +1063,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     private void unregister( Partition partition ) throws Exception
     {
-        Attribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         if ( namingContexts != null )
         {

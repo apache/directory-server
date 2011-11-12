@@ -60,7 +60,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -600,16 +600,16 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    protected Entry doGetRootDSEOperation( Dn target ) throws Exception
+    protected Entry doGetRootDseOperation( Dn target ) throws Exception
     {
-        GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
+        GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
         
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
         
-        return operationManager.getRootDSE( getRootDseContext );
+        return operationManager.getRootDse( getRootDseContext );
     }
 
 
@@ -1385,7 +1385,7 @@ public abstract class ServerContext implements EventContext
         {
             if ( name.size() == 0 )
             {
-                serverEntry = doGetRootDSEOperation( target );
+                serverEntry = doGetRootDseOperation( target );
             }
             else
             {

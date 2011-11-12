@@ -33,7 +33,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -501,17 +501,17 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
-        LOG.debug( ">> GetRootDSEOperation : {}", getRootDseContext );
+        LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
 
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
         
-        Entry root = head.getRootDSE( getRootDseContext );
+        Entry root = head.getRootDse( getRootDseContext );
         
-        LOG.debug( "<< getRootDSEOperation successful" );
+        LOG.debug( "<< getRootDseOperation successful" );
         
         return root;
     }

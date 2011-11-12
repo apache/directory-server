@@ -287,7 +287,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine = new ACDFEngine( schemaManager );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         Dn subschemaSubentryDnName = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
@@ -711,13 +711,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( !directoryService.isAccessControlEnabled() )
         {
-            return ( dn.isRootDSE() || next( hasEntryContext ) );
+            return ( dn.isRootDse() || next( hasEntryContext ) );
         }
 
         boolean answer = next( hasEntryContext );
 
         // no checks on the RootDSE
-        if ( dn.isRootDSE() )
+        if ( dn.isRootDse() )
         {
             // No need to go down to the stack, if the dn is empty
             // It's the rootDSE, and it exists !
@@ -1235,11 +1235,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( searchContext.getDn().getNormName() );
         SearchControls searchCtls = searchContext.getSearchControls();
-        boolean isRootDSELookup = searchContext.getDn().size() == 0
+        boolean isRootDseLookup = searchContext.getDn().size() == 0
             && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
         if ( isPrincipalAnAdministrator( principalDn )
-            || !directoryService.isAccessControlEnabled() || isRootDSELookup
+            || !directoryService.isAccessControlEnabled() || isRootDseLookup
             || isSubschemaSubentryLookup )
         {
             return cursor;
@@ -1270,7 +1270,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn dn = lookupContext.getDn();
 
         // no permissions checks on the RootDSE
-        if ( dn.isRootDSE() )
+        if ( dn.isRootDse() )
         {
             return;
         }

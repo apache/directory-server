@@ -144,7 +144,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    public void testRootDSEsSubschemaSubentry() throws Exception
+    public void testRootDseSubschemaSubentry() throws Exception
     {
         assertEquals( GLOBAL_SUBSCHEMA_DN, getSubschemaSubentryDN() );
         Attributes subschemaSubentryAttrs = getSubschemaSubentryAttributes();
