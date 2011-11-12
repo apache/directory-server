@@ -67,6 +67,11 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-codec-standalone</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>

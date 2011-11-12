@@ -43,6 +43,7 @@ import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
@@ -91,7 +92,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
     
-    private static final PasswordPolicyDecorator PP_REQ_CTRL = 
+    private static final PasswordPolicyDecorator PP_REQ_CTRL =
         new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
 
 
@@ -113,11 +114,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
         policyContainer.setDefaultPolicy( policyConfig );
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getService().getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getService().getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
         authenticationInterceptor.setPwdPolicies( policyContainer );
         
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
-        .getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
+            .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
         
         authInterceptor.loadPwdPolicyStateAtributeTypes();
     }
@@ -136,12 +137,12 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
         
         Dn userDn = new Dn( "cn=user,ou=system" );
-        Entry userEntry = new DefaultEntry( 
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: user",
-            "sn: user_sn", 
+            "sn: user_sn",
             "userPassword: 1234" );
 
         AddRequest addRequest = new AddRequestImpl();
@@ -223,12 +224,12 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
         
         Dn userDn = new Dn( "cn=user2,ou=system" );
-        Entry userEntry = new DefaultEntry( 
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: user2",
-            "sn: user_sn", 
+            "sn: user_sn",
             "userPassword: 12345" );
 
         AddRequest addRequest = new AddRequestImpl();
@@ -279,11 +280,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = new DefaultEntry(
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: userMinAge",
-            "sn: userMinAge_sn", 
+            "sn: userMinAge_sn",
             "userPassword: 12345");
 
         AddRequest addRequest = new AddRequestImpl();
@@ -327,11 +328,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         Dn userDn = new Dn( "cn=userPwdHist,ou=system" );
         Entry userEntry = new DefaultEntry(
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: userPwdHist",
-            "sn: userPwdHist_sn", 
+            "sn: userPwdHist_sn",
             "userPassword: 12345" );
 
         AddRequest addRequest = new AddRequestImpl();
@@ -396,11 +397,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
         Dn userDn = new Dn( "cn=userLen,ou=system" );
         Entry userEntry = new DefaultEntry(
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: userLen",
-            "sn: userLen_sn", 
+            "sn: userLen_sn",
             "userPassword: 1234");
 
         AddRequest addRequest = new AddRequestImpl();
@@ -446,11 +447,11 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
         String password = "12345";
         Entry userEntry = new DefaultEntry(
-            userDn.toString(), 
-            "ObjectClass: top", 
-            "ObjectClass: person", 
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
             "cn: userMaxAge",
-            "sn: userMaxAge_sn", 
+            "sn: userMaxAge_sn",
             "userPassword: " + password );
 
         AddRequest addRequest = new AddRequestImpl();

@@ -23,14 +23,14 @@ package org.apache.directory.server.core.exception;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -97,14 +97,18 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public ExceptionInterceptor()
     {
+        super( InterceptorEnum.EXCEPTION_INTERCEPTOR );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> attr = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
     }
 
@@ -118,7 +122,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
 
@@ -132,7 +136,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )
         {
-            nextInterceptor.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -186,7 +190,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.add( addContext );
+        next( addContext );
     }
 
 
@@ -237,7 +241,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
@@ -258,9 +262,9 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
+     * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
@@ -269,7 +273,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // and never try to look it up in the nexus below
         if ( modifyContext.getDn().equals( subschemSubentryDn ) )
         {
-            nextInterceptor.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -290,51 +294,14 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.modify( modifyContext );
-    }
-
-
-    /**
-     * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
-     */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
-    {
-        Dn dn = renameContext.getDn();
-
-        if ( dn.equals( subschemSubentryDn ) )
-        {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_255,
-                subschemSubentryDn, subschemSubentryDn ) );
-        }
-
-        // check to see if target entry exists
-        Dn newDn = renameContext.getNewDn();
-
-        if ( nexus.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
-        {
-            LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-            //e.setResolvedName( DNFactory.create( newDn.getName() ) );
-            throw e;
-        }
-
-        // Remove the previous entry from the notAnAlias cache
-        synchronized ( notAliasCache )
-        {
-            if ( notAliasCache.containsKey( dn.getNormName() ) )
-            {
-                notAliasCache.remove( dn.getNormName() );
-            }
-        }
-
-        nextInterceptor.rename( renameContext );
+        next( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oriChildName = moveContext.getDn();
 
@@ -344,7 +311,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
-        nextInterceptor.move( moveContext );
+        next( moveContext );
 
         // Remove the original entry from the NotAlias cache, if needed
         synchronized ( notAliasCache )
@@ -358,10 +325,9 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
-     * LdapException.
+     * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
 
@@ -381,7 +347,44 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        Dn dn = renameContext.getDn();
+
+        if ( dn.equals( subschemSubentryDn ) )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_255,
+                subschemSubentryDn, subschemSubentryDn ) );
+        }
+
+        // check to see if target entry exists
+        Dn newDn = renameContext.getNewDn();
+
+        if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
+        {
+            LdapEntryAlreadyExistsException e;
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
+            //e.setResolvedName( DNFactory.create( newDn.getName() ) );
+            throw e;
+        }
+
+        // Remove the previous entry from the notAnAlias cache
+        synchronized ( notAliasCache )
+        {
+            if ( notAliasCache.containsKey( dn.getNormName() ) )
+            {
+                notAliasCache.remove( dn.getNormName() );
+            }
+        }
+
+        next( renameContext );
     }
 
 

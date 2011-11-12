@@ -51,6 +51,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
@@ -64,12 +65,13 @@ import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.api.changelog.Tag;
 import org.apache.directory.server.core.api.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.api.event.EventService;
+import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.InterceptorChain;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
@@ -142,7 +144,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** A reference on the SchemaManager */
     private SchemaManager schemaManager;
-    
+
     /** The LDAP Codec Service */
     private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
 
@@ -151,9 +153,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
-
-    /** The interceptor (or interceptor chain) for this service */
-    private InterceptorChain interceptorChain;
 
     /** whether or not this instance has been shutdown */
     private boolean started;
@@ -190,7 +189,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
-            "WARNING: the changelog is only partially operational and will revert\n" +
+        "WARNING: the changelog is only partially operational and will revert\n" +
             "state without consideration of who made the original change.  All reverting " +
             "changes are made by the admin user.\n Furthermore the used controls are not at " +
             "all taken into account";
@@ -243,14 +242,14 @@ public class DefaultDirectoryService implements DirectoryService
     /** The list of declared interceptors */
     private List<Interceptor> interceptors;
     private Map<String, Interceptor> interceptorNames;
-    
+
     /** A lock to protect the interceptors List */
     private ReadWriteLock interceptorsLock = new ReentrantReadWriteLock();
-    
+
     /** The read and write locks */
     private Lock readLock  = interceptorsLock.readLock();
     private Lock writeLock  = interceptorsLock.writeLock();
-    
+
     /** A map associating a list of interceptor to each operation */
     private Map<OperationEnum, List<String>> operationInterceptors;
 
@@ -294,7 +293,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Dn factory */
     private DnFactory dnFactory;
-    
+
     /** The Subentry cache */
     SubentryCache subentryCache = new SubentryCache();
 
@@ -477,14 +476,14 @@ public class DefaultDirectoryService implements DirectoryService
     public List<Interceptor> getInterceptors()
     {
         List<Interceptor> cloned = new ArrayList<Interceptor>();
-    	
+
         try
         {
             readLock.lock();
-            
-        	cloned.addAll( interceptors );
-        
-        	return cloned;
+
+            cloned.addAll( interceptors );
+
+            return cloned;
         }
         finally
         {
@@ -501,13 +500,13 @@ public class DefaultDirectoryService implements DirectoryService
     public List<String> getInterceptors( OperationEnum operation )
     {
         List<String> cloned = new ArrayList<String>();
-        
+
         try
         {
-	        readLock.lock();
-	        cloned.addAll( operationInterceptors.get( operation ) );
-	        
-	        return cloned;
+            readLock.lock();
+            cloned.addAll( operationInterceptors.get( operation ) );
+
+            return cloned;
         }
         finally
         {
@@ -515,136 +514,177 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
     }
-    
-    
+
+
     /**
      * Compute the list of  to call for each operation
      */
     private void initOperationsList()
     {
-    	try
-    	{
-	        writeLock.lock();
-	    	operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
-	    	
-	    	for ( OperationEnum operation : OperationEnum.getOperations() )
-	    	{
-		    	List<String> operationList = new ArrayList<String>();
-		    	
-		        for ( Interceptor interceptor : interceptors )
-		        {
-			    	Method[] methods = interceptor.getClass().getDeclaredMethods();
-			    	
-			    	for ( Method method : methods )
-			    	{
-			    		if ( method.getName().equals( operation.getMethodName() ) )
-			    		{
-			    			operationList.add( interceptor.getName() );
-			    			break;
-			    		}
-			    	}
-		        }
-		        
-		        operationInterceptors.put( operation, operationList );
-	    	}
-    	}
-    	finally
-    	{
-    		writeLock.unlock();
-    	}
+        try
+        {
+            writeLock.lock();
+            operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
+
+            for ( OperationEnum operation : OperationEnum.getOperations() )
+            {
+                List<String> operationList = new ArrayList<String>();
+
+                for ( Interceptor interceptor : interceptors )
+                {
+                    gatherInterceptors( interceptor, interceptor.getClass(), operation, operationList );
+                }
+                
+                operationInterceptors.put( operation, operationList );
+            }
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
-    
-    
+
+
+    /**
+     * Recursively checks if the given interceptor can be added to the list of interceptors for a given
+     * operation and adds to the list of interceptors if it implements the respective operation
+     * 
+     * @param interceptor the instance of the interceptor
+     * @param interceptorClz the class of the interceptor
+     * @param operation type of operation
+     * @param selectedInterceptorList the list of selected interceptors
+     */
+    private void gatherInterceptors( Interceptor interceptor, Class<?> interceptorClz, OperationEnum operation, List<String> selectedInterceptorList )
+    {
+        // We stop recursing when we reach the Base class
+        if( ( interceptorClz == null ) || ( interceptorClz == BaseInterceptor.class ) )
+        {
+            return;
+        }
+
+        Method[] methods = interceptorClz.getDeclaredMethods();
+
+        for ( Method method : methods )
+        {
+            Class<?>[] param = method.getParameterTypes();
+            boolean hasCorrestSig = false;
+
+            // check for the correct signature
+            if( ( param == null ) || ( param.length > 1 ) || ( param.length == 0 ))
+            {
+                continue;
+            }
+
+            if ( OperationContext.class.isAssignableFrom( param[0] ) )
+            {
+                hasCorrestSig = true;
+            }
+            else
+            {
+                continue;
+            }
+
+            if ( hasCorrestSig && method.getName().equals( operation.getMethodName() ) )
+            {
+                selectedInterceptorList.add( interceptor.getName() );
+                break;
+            }
+        }
+
+        gatherInterceptors( interceptor, interceptorClz.getSuperclass(), operation, selectedInterceptorList );
+    }
+
+
     /**
      * Add an interceptor to the list of interceptors to call for each operation
-     * @throws LdapException 
+     * @throws LdapException
      */
     private void addInterceptor( Interceptor interceptor, int position ) throws LdapException
     {
-    	// First, init the interceptor
-    	interceptor.init( this );
-    	
-    	try
-    	{
-	        writeLock.lock();
-	    	
-	    	for ( OperationEnum operation : OperationEnum.getOperations() )
-	    	{
-		    	List<String> operationList = operationInterceptors.get( operation );
-		    		    	
-		    	Method[] methods = interceptor.getClass().getDeclaredMethods();
-		    	
-		    	for ( Method method : methods )
-		    	{
-		    		if ( method.getName().equals( operation.getMethodName() ) )
-		    		{
-		    	    	if ( position == -1 )
-		    	    	{
-		    	    		operationList.add( interceptor.getName() );
-		    	    	}
-		    	    	else
-		    	    	{
-		    	    		operationList.add( position, interceptor.getName() );
-		    	    	}
-		    	    	
-		    			break;
-		    		}
-		    	}
-	    	}
-	    	
-	    	interceptorNames.put( interceptor.getName(), interceptor );
-	    	
-	    	if ( position == -1 )
-	    	{
-	    		interceptors.add( interceptor );
-	    	}
-	    	else
-	    	{
-	    		interceptors.add( position, interceptor );
-	    	}
-    	}
-    	finally
-    	{
-    		writeLock.unlock();
-    	}
+        // First, init the interceptor
+        interceptor.init( this );
+
+        try
+        {
+            writeLock.lock();
+
+            for ( OperationEnum operation : OperationEnum.getOperations() )
+            {
+                List<String> operationList = operationInterceptors.get( operation );
+
+                Method[] methods = interceptor.getClass().getDeclaredMethods();
+
+                for ( Method method : methods )
+                {
+                    if ( method.getName().equals( operation.getMethodName() ) )
+                    {
+                        if ( position == -1 )
+                        {
+                            operationList.add( interceptor.getName() );
+                        }
+                        else
+                        {
+                            operationList.add( position, interceptor.getName() );
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            interceptorNames.put( interceptor.getName(), interceptor );
+
+            if ( position == -1 )
+            {
+                interceptors.add( interceptor );
+            }
+            else
+            {
+                interceptors.add( position, interceptor );
+            }
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
 
-    
+
     /**
      * Remove an interceptor to the list of interceptors to call for each operation
      */
     private void removeOperationsList( String interceptorName )
     {
-    	Interceptor interceptor = interceptorNames.get( interceptorName );
-    	
-    	try
-    	{
-	        writeLock.lock();
-	    	
-	    	for ( OperationEnum operation : OperationEnum.getOperations() )
-	    	{
-		    	List<String> operationList = operationInterceptors.get( operation );
-		    		    	
-		    	Method[] methods = interceptor.getClass().getDeclaredMethods();
-		    	
-		    	for ( Method method : methods )
-		    	{
-		    		if ( method.getName().equals( operation.getMethodName() ) )
-		    		{
-	    	    		operationList.remove( interceptor.getName() );
-		    	    	
-		    			break;
-		    		}
-		    	}
-	    	}
-	    	
-	    	interceptorNames.remove( interceptorName );
-	    	interceptors.remove( interceptor );
-    	}
-    	finally
-    	{
-    		writeLock.unlock();
-    	}
+        Interceptor interceptor = interceptorNames.get( interceptorName );
+
+        try
+        {
+            writeLock.lock();
+
+            for ( OperationEnum operation : OperationEnum.getOperations() )
+            {
+                List<String> operationList = operationInterceptors.get( operation );
+
+                Method[] methods = interceptor.getClass().getDeclaredMethods();
+
+                for ( Method method : methods )
+                {
+                    if ( method.getName().equals( operation.getMethodName() ) )
+                    {
+                        operationList.remove( interceptor.getName() );
+
+                        break;
+                    }
+                }
+            }
+
+            interceptorNames.remove( interceptorName );
+            interceptors.remove( interceptor );
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
 
 
@@ -665,7 +705,7 @@ public class DefaultDirectoryService implements DirectoryService
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
                 continue;
             }
-            
+
             interceptorNames.put( interceptor.getName(), interceptor );
         }
 
@@ -673,7 +713,19 @@ public class DefaultDirectoryService implements DirectoryService
         this.interceptorNames = interceptorNames;
 
         // Now update the Map that connect each operation with the list of interceptors.
-    	initOperationsList();
+        initOperationsList();
+    }
+
+
+    /**
+     * Initialize the interceptors
+     */
+    private void initInterceptors() throws LdapException
+    {
+        for ( Interceptor interceptor : interceptors )
+        {
+            interceptor.init( this );
+        }
     }
 
 
@@ -687,7 +739,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
-        
+
         return cloned;
     }
 
@@ -722,7 +774,7 @@ public class DefaultDirectoryService implements DirectoryService
     public void setInstanceLayout( InstanceLayout instanceLayout ) throws IOException
     {
         this.instanceLayout = instanceLayout;
-        
+
         // Create the directories if they are missing
         if ( !instanceLayout.getInstanceDirectory().exists() )
         {
@@ -739,7 +791,7 @@ public class DefaultDirectoryService implements DirectoryService
                 throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getLogDirectory() ) );
             }
         }
-        
+
         if ( !instanceLayout.getRunDirectory().exists() )
         {
             if ( !instanceLayout.getRunDirectory().mkdirs() )
@@ -747,7 +799,7 @@ public class DefaultDirectoryService implements DirectoryService
                 throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getRunDirectory() ) );
             }
         }
-        
+
         if ( !instanceLayout.getPartitionsDirectory().exists() )
         {
             if ( !instanceLayout.getPartitionsDirectory().mkdirs() )
@@ -755,7 +807,7 @@ public class DefaultDirectoryService implements DirectoryService
                 throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getPartitionsDirectory() ) );
             }
         }
-        
+
         if ( !instanceLayout.getConfDirectory().exists() )
         {
             if ( !instanceLayout.getConfDirectory().mkdirs() )
@@ -874,7 +926,7 @@ public class DefaultDirectoryService implements DirectoryService
             // We've got an exception, we cannot add the partition to the partitions
             throw le;
         }
-        
+
         // Now, add the partition to the set of managed partitions
         partitions.add( partition );
     }
@@ -896,7 +948,7 @@ public class DefaultDirectoryService implements DirectoryService
             // Bad ! We can't go any further
             throw le;
         }
-        
+
         // And update the set of managed partitions
         partitions.remove( partition );
     }
@@ -961,7 +1013,7 @@ public class DefaultDirectoryService implements DirectoryService
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn );
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
-        
+
         operationManager.bind( bindContext );
 
         return bindContext.getSession();
@@ -970,7 +1022,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
-    {
+        {
         if ( ! started )
         {
             throw new IllegalStateException( "Service has not started." );
@@ -985,7 +1037,7 @@ public class DefaultDirectoryService implements DirectoryService
         operationManager.bind( bindContext );
 
         return bindContext.getSession();
-    }
+        }
 
 
     public long revert() throws LdapException
@@ -1213,13 +1265,13 @@ public class DefaultDirectoryService implements DirectoryService
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
         loc.setDn( systemPartition.getSuffixDn() );
-        
+
         // get back all the attributes
         loc.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
-        
+
         if ( cntextCsnAt != null )
         {
             // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
@@ -1298,9 +1350,8 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
-        interceptorChain.destroy();
         cacheService.destroy();
-        
+
         if ( lockFile != null )
         {
             try
@@ -1356,7 +1407,7 @@ public class DefaultDirectoryService implements DirectoryService
         this.schemaManager = schemaManager;
     }
 
-    
+
     public LdapApiService getLdapCodecService()
     {
         return ldapCodecService;
@@ -1384,12 +1435,6 @@ public class DefaultDirectoryService implements DirectoryService
     public DefaultPartitionNexus getPartitionNexus()
     {
         return partitionNexus;
-    }
-
-
-    public InterceptorChain getInterceptorChain()
-    {
-        return interceptorChain;
     }
 
 
@@ -1430,17 +1475,17 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, adminDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, adminDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, adminDn );
 
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                                SchemaConstants.TOP_OC,
-                                SchemaConstants.PERSON_OC,
-                                SchemaConstants.ORGANIZATIONAL_PERSON_OC,
-                                SchemaConstants.INET_ORG_PERSON_OC );
+                SchemaConstants.TOP_OC,
+                SchemaConstants.PERSON_OC,
+                SchemaConstants.ORGANIZATIONAL_PERSON_OC,
+                SchemaConstants.INET_ORG_PERSON_OC );
 
             serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
             serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD_BYTES );
@@ -1463,15 +1508,15 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn userDn = getDnFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, userDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, userDn );
 
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                                SchemaConstants.TOP_OC,
-                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                SchemaConstants.TOP_OC,
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "users" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
@@ -1488,15 +1533,15 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn groupDn = getDnFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, groupDn ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, groupDn );
 
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                                SchemaConstants.TOP_OC,
-                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                SchemaConstants.TOP_OC,
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "groups" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
@@ -1513,15 +1558,15 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn name = getDnFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, name ) ) )
         {
             firstStart = true;
 
             Entry serverEntry = new DefaultEntry( schemaManager, name );
 
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                                SchemaConstants.TOP_OC,
-                                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
+                SchemaConstants.TOP_OC,
+                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
 
             serverEntry.put( SchemaConstants.CN_AT, "Administrators" );
             serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
@@ -1539,7 +1584,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn configurationDn = getDnFactory().create( "ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, configurationDn ) ) )
         {
             firstStart = true;
 
@@ -1561,7 +1606,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn partitionsDn = getDnFactory().create( "ou=partitions,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -1582,7 +1627,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn servicesDn = getDnFactory().create( "ou=services,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, servicesDn ) ) )
         {
             firstStart = true;
 
@@ -1604,7 +1649,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn interceptorsDn = getDnFactory().create( "ou=interceptors,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -1626,7 +1671,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn sysPrefRootDn = getDnFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
             firstStart = true;
 
@@ -1704,24 +1749,24 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
     }
-    
-    
+
+
     private void initializeSystemPartition() throws Exception
     {
         Partition system = getSystemPartition();
-        
+
         // Add root context entry for system partition
         Dn systemSuffixDn = getDnFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = getAdminSession();
 
-        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
+        if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
         {
             Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
-            
+
             // Add the ObjectClasses
             systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            
+
             // Add some operational attributes
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -1729,7 +1774,7 @@ public class DefaultDirectoryService implements DirectoryService
             systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
             systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
                 .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-            
+
             AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
             system.add( addOperationContext );
         }
@@ -1747,7 +1792,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
-        
+
         cacheService = new CacheService();
         cacheService.initialize( this );
 
@@ -1758,7 +1803,7 @@ public class DefaultDirectoryService implements DirectoryService
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
-        
+
         // triggers partition to load schema fully from schema partition
         schemaPartition.initialize();
         partitions.add( schemaPartition );
@@ -1773,15 +1818,15 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus.initialize( );
 
         initializeSystemPartition();
-        
+
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
         // --------------------------------------------------------------------
 
         firstStart = createBootstrapEntries();
-        
-        interceptorChain = new InterceptorChain();
-        interceptorChain.init( this );
+
+        // Initialize the interceptors
+        initInterceptors();
 
         // --------------------------------------------------------------------
         // Initialize the changeLog if it's enabled
@@ -1794,7 +1839,7 @@ public class DefaultDirectoryService implements DirectoryService
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
-                partitionNexus.getRootDSE( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
+                partitionNexus.getRootDse( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
 
@@ -1970,19 +2015,19 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Interceptor getInterceptor( String interceptorName )
     {
-    	try
-    	{
-	        readLock.lock();
-	
-	        for ( Interceptor interceptor:interceptors )
-	        {
-	            if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
-	            {
-	                return interceptor;
-	            }
-	        }
-	        
-	        return null;
+        try
+        {
+            readLock.lock();
+
+            for ( Interceptor interceptor:interceptors )
+            {
+                if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
+                {
+                    return interceptor;
+                }
+            }
+
+            return null;
         }
         finally
         {
@@ -1993,39 +2038,39 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * {@inheritDoc}
-     * @throws LdapException 
+     * @throws LdapException
      */
-	public void addFirst( Interceptor interceptor ) throws LdapException 
-	{
-		addInterceptor( interceptor, 0 );
-	}
+    public void addFirst( Interceptor interceptor ) throws LdapException
+    {
+        addInterceptor( interceptor, 0 );
+    }
 
 
     /**
      * {@inheritDoc}
-     * @throws LdapException 
+     * @throws LdapException
      */
-	public void addLast( Interceptor interceptor ) throws LdapException 
-	{
-		addInterceptor( interceptor, -1 );
-	}
-
-
-    /**
-     * {@inheritDoc}
-     */
-	public void addAfter( String interceptorName, Interceptor interceptor ) 
-	{
-	}
+    public void addLast( Interceptor interceptor ) throws LdapException
+    {
+        addInterceptor( interceptor, -1 );
+    }
 
 
     /**
      * {@inheritDoc}
      */
-	public void remove( String interceptorName ) 
-	{
-		removeOperationsList( interceptorName );
-	}
+    public void addAfter( String interceptorName, Interceptor interceptor )
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void remove( String interceptorName )
+    {
+        removeOperationsList( interceptorName );
+    }
 
 
     /**
@@ -2183,24 +2228,24 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return triggerExecutionAPCache;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean isPwdPolicyEnabled()
     {
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( AuthenticationInterceptor.class.getSimpleName() );
-        
+        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+
         if ( authenticationInterceptor == null )
         {
             return false;
         }
 
         PpolicyConfigContainer pwdPolicyContainer = authenticationInterceptor.getPwdPolicyContainer();
-        
-        return ( ( pwdPolicyContainer != null ) 
-                && ( ( pwdPolicyContainer.getDefaultPolicy() != null ) 
+
+        return ( ( pwdPolicyContainer != null )
+            && ( ( pwdPolicyContainer.getDefaultPolicy() != null )
                 || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
     }
 
@@ -2221,8 +2266,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return subentryCache;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

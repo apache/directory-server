@@ -26,11 +26,11 @@ import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -72,6 +72,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
     /**
+     * Creates a new instance of a CollectiveAttributeInterceptor.
+     */
+    public CollectiveAttributeInterceptor()
+    {
+        super( InterceptorEnum.COLLECTIVE_ATTRIBUTE_INTERCEPTOR );
+    }
+
+    
+    /**
      * the search result filter to use for collective attribute injection
      */
     private class CollectiveAttributeFilter implements EntryFilter
@@ -109,11 +118,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         checkAdd( addContext.getDn(), addContext.getEntry() );
 
-        next.add( addContext );
+        next( addContext );
     }
 
 
@@ -154,20 +163,20 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         checkModify( modifyContext );
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         cursor.addEntryFilter( SEARCH_FILTER );
 

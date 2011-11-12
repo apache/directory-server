@@ -25,13 +25,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -69,9 +68,6 @@ public class TimerInterceptor extends BaseInterceptor
     private static final boolean IS_DEBUG_STATS = OPERATION_STATS.isDebugEnabled();
     private static final boolean IS_DEBUG_TIME = OPERATION_TIME.isDebugEnabled();
 
-    /** The Logger's name */
-    private String name;
-
     /** Stats for the add operation */
     private static AtomicLong totalAdd = new AtomicLong( 0 );
     private static AtomicInteger nbAddCalls = new AtomicInteger( 0 );
@@ -88,9 +84,9 @@ public class TimerInterceptor extends BaseInterceptor
     private static AtomicLong totalDelete = new AtomicLong( 0 );
     private static AtomicInteger nbDeleteCalls = new AtomicInteger( 0 );
 
-    /** Stats for the GetRootDSE operation */
-    private static AtomicLong totalGetRootDSE = new AtomicLong( 0 );
-    private static AtomicInteger nbGetRootDSECalls = new AtomicInteger( 0 );
+    /** Stats for the GetRootDse operation */
+    private static AtomicLong totalGetRootDse = new AtomicLong( 0 );
+    private static AtomicInteger nbGetRootDseCalls = new AtomicInteger( 0 );
 
     /** Stats for the HasEntry operation */
     private static AtomicLong totalHasEntry = new AtomicLong( 0 );
@@ -132,21 +128,37 @@ public class TimerInterceptor extends BaseInterceptor
      * 
      * Creates a new instance of TimerInterceptor.
      *
-     * @param name This interceptor's name
+     * @param name This interceptor's getName()
      */
     public TimerInterceptor( String name )
     {
-        this.name = name;
+        super( name );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void init( DirectoryService directoryService ) throws LdapException
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void destroy()
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.add( addContext );
+        next( addContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -157,13 +169,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbAddCalls.get() % 1000 == 0 )
             {
                 long average = totalAdd.get()/(nbAddCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average add = {} microseconds, nb adds = {}", average, nbAddCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average add = {} microseconds, nb adds = {}", average, nbAddCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta add = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta add = {}", getName(), delta );
         }
     }
 
@@ -171,7 +183,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next( bindContext );
@@ -185,13 +197,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbBindCalls.get() % 1000 == 0 )
             {
                 long average = totalBind.get()/(nbBindCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average bind = {} microseconds, nb binds = {}", average, nbBindCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average bind = {} microseconds, nb binds = {}", average, nbBindCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta bind = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta bind = {}", getName(), delta );
         }
     }
 
@@ -213,13 +225,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbCompareCalls.get() % 1000 == 0 )
             {
                 long average = totalCompare.get()/(nbCompareCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average compare = {} microseconds, nb compares = {}", average, nbCompareCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average compare = {} microseconds, nb compares = {}", average, nbCompareCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta compare = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta compare = {}", getName(), delta );
         }
 
         return compare;
@@ -243,13 +255,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbDeleteCalls.get() % 1000 == 0 )
             {
                 long average = totalDelete.get()/(nbDeleteCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average delete = {} microseconds, nb deletes = {}", average, nbDeleteCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average delete = {} microseconds, nb deletes = {}", average, nbDeleteCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta delete = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta delete = {}", getName(), delta );
         }
     }
 
@@ -257,54 +269,37 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void destroy()
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getName()
-    {
-        return name;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry rootDSE = next( getRootDseContext );
+        Entry rootDse = next( getRootDseContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
         {
-            nbGetRootDSECalls.incrementAndGet();
-            totalGetRootDSE.getAndAdd( delta );
+            nbGetRootDseCalls.incrementAndGet();
+            totalGetRootDse.getAndAdd( delta );
 
-            if ( nbGetRootDSECalls.get() % 1000 == 0 )
+            if ( nbGetRootDseCalls.get() % 1000 == 0 )
             {
-                long average = totalGetRootDSE.get()/(nbGetRootDSECalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}", average, nbGetRootDSECalls.get() );
+                long average = totalGetRootDse.get()/(nbGetRootDseCalls.get() * 1000);
+                OPERATION_STATS.debug( getName() + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}", average, nbGetRootDseCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta getRootDSE = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta getRootDSE = {}", getName(), delta );
         }
 
-        return rootDSE;
+        return rootDse;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         boolean hasEntry = next( hasEntryContext );
@@ -318,24 +313,16 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbHasEntryCalls.get() % 1000 == 0 )
             {
                 long average = totalHasEntry.get()/(nbHasEntryCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average hasEntry = {} microseconds, nb hasEntrys = {}", average, nbHasEntryCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average hasEntry = {} microseconds, nb hasEntrys = {}", average, nbHasEntryCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta hasEntry = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta hasEntry = {}", getName(), delta );
         }
 
         return hasEntry;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void init( DirectoryService directoryService ) throws LdapException
-    {
     }
 
 
@@ -356,13 +343,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbListCalls.get() % 1000 == 0 )
             {
                 long average = totalList.get()/(nbListCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average list = {} microseconds, nb lists = {}", average, nbListCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average list = {} microseconds, nb lists = {}", average, nbListCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta list = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta list = {}", getName(), delta );
         }
 
         return cursor;
@@ -386,13 +373,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbLookupCalls.get() % 1000 == 0 )
             {
                 long average = totalLookup.get()/(nbLookupCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average lookup = {} microseconds, nb lookups = {}", average, nbLookupCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average lookup = {} microseconds, nb lookups = {}", average, nbLookupCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta lookup = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta lookup = {}", getName(), delta );
         }
 
         return entry;
@@ -402,10 +389,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.modify( modifyContext );
+        next( modifyContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -416,13 +403,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbModifyCalls.get() % 1000 == 0 )
             {
                 long average = totalModify.get()/(nbModifyCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average modify = {} microseconds, nb modifys = {}", average, nbModifyCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average modify = {} microseconds, nb modifys = {}", average, nbModifyCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta modify = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta modify = {}", getName(), delta );
         }
     }
 
@@ -430,10 +417,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.move( moveContext );
+        next( moveContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -444,13 +431,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbMoveCalls.get() % 1000 == 0 )
             {
                 long average = totalMove.get()/(nbMoveCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average move = {} microseconds, nb moves = {}", average, nbMoveCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average move = {} microseconds, nb moves = {}", average, nbMoveCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta move = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta move = {}", getName(), delta );
         }
     }
 
@@ -458,10 +445,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -472,13 +459,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbMoveAndRenameCalls.get() % 1000 == 0 )
             {
                 long average = totalMoveAndRename.get()/(nbMoveAndRenameCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average moveAndRename = {} microseconds, nb moveAndRenames = {}", average, nbMoveAndRenameCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average moveAndRename = {} microseconds, nb moveAndRenames = {}", average, nbMoveAndRenameCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta moveAndRename = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta moveAndRename = {}", getName(), delta );
         }
     }
 
@@ -486,10 +473,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.rename( renameContext );
+        next( renameContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -500,13 +487,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbRenameCalls.get() % 1000 == 0 )
             {
                 long average = totalRename.get()/(nbRenameCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average rename = {} microseconds, nb renames = {}", average, nbRenameCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average rename = {} microseconds, nb renames = {}", average, nbRenameCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta rename = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta rename = {}", getName(), delta );
         }
     }
 
@@ -514,10 +501,10 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )
@@ -528,13 +515,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbSearchCalls.get() % 1000 == 0 )
             {
                 long average = totalSearch.get()/(nbSearchCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average search = {} microseconds, nb searches = {}", average, nbSearchCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average search = {} microseconds, nb searches = {}", average, nbSearchCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta search = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta search = {}", getName(), delta );
         }
 
         return cursor;
@@ -558,13 +545,13 @@ public class TimerInterceptor extends BaseInterceptor
             if ( nbUnbindCalls.get() % 1000 == 0 )
             {
                 long average = totalUnbind.get()/(nbUnbindCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average unbind = {} microseconds, nb unbinds = {}", average, nbUnbindCalls.get() );
+                OPERATION_STATS.debug( getName() + " : Average unbind = {} microseconds, nb unbinds = {}", average, nbUnbindCalls.get() );
             }
         }
 
         if ( IS_DEBUG_TIME )
         {
-            OPERATION_TIME.debug( "{} : Delta unbind = {}", name, delta );
+            OPERATION_TIME.debug( "{} : Delta unbind = {}", getName(), delta );
         }
     }
 }

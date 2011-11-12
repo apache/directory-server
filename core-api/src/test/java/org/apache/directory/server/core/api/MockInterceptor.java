@@ -22,16 +22,14 @@ package org.apache.directory.server.core.api;
 
 import java.util.List;
 
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -82,10 +80,10 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         interceptors.add( this );
-        next.add( addContext );
+        next( addContext );
     }
 
 
@@ -122,7 +120,7 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         interceptors.add( this );
         return next( getRootDseContext );
@@ -132,7 +130,7 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         interceptors.add( this );
         return next( hasEntryContext );
@@ -163,50 +161,51 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         interceptors.add( this );
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move(  MoveOperationContext moveContext ) throws LdapException
     {
         interceptors.add( this );
-        next.move( moveContext );
+        next( moveContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         interceptors.add( this );
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         interceptors.add( this );
-        next.rename( renameContext );
+        next( renameContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         interceptors.add( this );
-        return next.search( searchContext );
+
+        return next( searchContext );
     }
 
 

@@ -29,12 +29,12 @@ import java.util.UUID;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -80,6 +80,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
+    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
+
+    private final EntryFilter SEARCH_FILTER = new OperationalAttributeSearchFilter();
+
+    /** The subschemasubentry Dn */
+    private Dn subschemaSubentryDn;
+
+    /** The admin Dn */
+    private Dn adminDn;
+
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -95,8 +105,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return filterDenormalized( entry );
         }
     }
-
-    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
+    
 
     /**
      * the database search result filter to register with filter service
@@ -109,20 +118,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 || filterOperationalAttributes( entry );
         }
     }
-
-    private final EntryFilter SEARCH_FILTER = new OperationalAttributeSearchFilter();
-
-    /** The subschemasubentry Dn */
-    private Dn subschemaSubentryDn;
-
-    /** The admin Dn */
-    private Dn adminDn;
-
+    
+    
     /**
      * Creates the operational attribute management service interceptor.
      */
     public OperationalAttributeInterceptor()
     {
+        super( InterceptorEnum.OPERATIONAL_ATTRIBUTE_INTERCEPTOR );
     }
 
 
@@ -131,7 +134,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
 
@@ -180,7 +183,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - entryCSN
      * - entryUUID
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         String principal = getPrincipal( addContext ).getName();
 
@@ -228,14 +234,48 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // The SubSchemaSybentry attribute
         checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
 
-        nextInterceptor.add( addContext );
+        next( addContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        EntryFilteringCursor cursor = next( listContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+
+        return cursor;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        Entry result = next( lookupContext );
+
+        if ( lookupContext.getAttrsId() == null )
+        {
+            filterOperationalAttributes( result );
+        }
+        else if ( !lookupContext.hasAllOperational() )
+        {
+            filter( lookupContext, result );
+        }
+
+        denormalizeEntryOpAttrs( result );
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
@@ -340,11 +380,44 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         // Go down in the chain
-        nextInterceptor.modify( modifyContext );
+        next( modifyContext );
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        Entry modifiedEntry = moveContext.getOriginalEntry().clone();
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.setDn( moveContext.getNewDn() );
+        moveContext.setModifiedEntry( modifiedEntry );
+
+        next( moveContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
+        moveAndRenameContext.setModifiedEntry( modifiedEntry );
+
+        next( moveAndRenameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
@@ -356,68 +429,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         //modifiedEntry.setDn( renameContext.getNewDn() );
         renameContext.setModifiedEntry( modifiedEntry );
 
-        nextInterceptor.rename( renameContext );
+        next( renameContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        Entry modifiedEntry = moveContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        modifiedEntry.setDn( moveContext.getNewDn() );
-        moveContext.setModifiedEntry( modifiedEntry );
-
-        nextInterceptor.move( moveContext );
-    }
-
-
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
-        moveAndRenameContext.setModifiedEntry( modifiedEntry );
-
-        nextInterceptor.moveAndRename( moveAndRenameContext );
-    }
-
-
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        Entry result = next( lookupContext );
-
-        if ( lookupContext.getAttrsId() == null )
-        {
-            filterOperationalAttributes( result );
-        }
-        else if ( !lookupContext.hasAllOperational() )
-        {
-            filter( lookupContext, result );
-        }
-
-        denormalizeEntryOpAttrs( result );
-
-        return result;
-    }
-
-
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = next( listContext );
-        cursor.addEntryFilter( SEARCH_FILTER );
-
-        return cursor;
-    }
-
-
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         if ( searchContext.isAllOperationalAttributes()
             || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
@@ -431,6 +452,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         cursor.addEntryFilter( SEARCH_FILTER );
+
         return cursor;
     }
 

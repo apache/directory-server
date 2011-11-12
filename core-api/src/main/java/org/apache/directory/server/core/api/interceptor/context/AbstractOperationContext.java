@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -49,13 +49,13 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The Dn associated with the context */
     protected Dn dn;
-    
+
     /** The entry associated with the target entry of this OperationContext */
     protected Entry entry;
 
     /** The original Entry */
     protected Entry originalEntry;
-    
+
     /** The associated request's controls */
     protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
 
@@ -64,26 +64,26 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
-    
+
     /** The interceptors to call for this operation */
     protected List<String> interceptors;
-    
+
     /** The current interceptor position */
     protected int currentInterceptor;
-    
-	protected LdapPrincipal authorizedPrincipal;
-    
+
+    protected LdapPrincipal authorizedPrincipal;
+
     /** The core session */
     protected CoreSession session;
-    
+
     protected OperationContext next;
-    
+
     protected OperationContext previous;
 
     /** A flag used to tell if we should consider referrals as standard entries */
     protected boolean throwReferral;
-    
-    
+
+
     /**
      * Creates a new instance of AbstractOperationContext.
      */
@@ -92,8 +92,8 @@ public abstract class AbstractOperationContext implements OperationContext
         this.session = session;
         currentInterceptor = 0;
     }
-    
-    
+
+
     /**
      * Creates a new instance of AbstractOperationContext.
      *
@@ -103,8 +103,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         this.dn = dn;
         this.session = session;
-        
-        // The flag is set to ignore, so that the revert operation can act on 
+
+        // The flag is set to ignore, so that the revert operation can act on
         // the entries, even if they are referrals.
         ignoreReferral();
     }
@@ -114,14 +114,14 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         return session;
     }
-    
-    
+
+
     public void setSession( CoreSession session )
     {
         this.session = session;
     }
-    
-    
+
+
     protected void setAuthorizedPrincipal( LdapPrincipal authorizedPrincipal )
     {
         this.authorizedPrincipal = authorizedPrincipal;
@@ -136,7 +136,7 @@ public abstract class AbstractOperationContext implements OperationContext
         return dn;
     }
 
-    
+
     /**
      * Set the context Dn
      *
@@ -147,25 +147,25 @@ public abstract class AbstractOperationContext implements OperationContext
         this.dn = dn;
     }
 
-    
+
     public void addRequestControl( Control requestControl )
     {
         requestControls.put( requestControl.getOid(), requestControl );
     }
 
-    
+
     public Control getRequestControl( String numericOid )
     {
         return requestControls.get( numericOid );
     }
 
-    
+
     public boolean hasRequestControl( String numericOid )
     {
         return requestControls.containsKey( numericOid );
     }
 
-    
+
     public boolean hasRequestControls()
     {
         return ! requestControls.isEmpty();
@@ -196,7 +196,7 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             return EMPTY_CONTROLS;
         }
-        
+
         return responseControls.values().toArray( EMPTY_CONTROLS );
     }
 
@@ -221,13 +221,13 @@ public abstract class AbstractOperationContext implements OperationContext
         }
     }
 
-    
+
     public void setRequestControls( Map<String, Control> requestControls )
     {
         this.requestControls = requestControls;
     }
 
-    
+
     /**
      * @return the operation name
      */
@@ -263,35 +263,35 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             return Collections.emptyList();
         }
-        
+
         return Collections.unmodifiableCollection( byPassed );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public final void setInterceptors( List<String> interceptors )
     {
-    	this.interceptors = interceptors;
+        this.interceptors = interceptors;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public final String getNextInterceptor() 
+    public final String getNextInterceptor()
     {
-    	if ( currentInterceptor == interceptors.size() )
-    	{
-    		return "FINAL";
-    	}
-    	
-		String interceptor = interceptors.get( currentInterceptor );
-		currentInterceptor++;
-		
-		return interceptor;
-	}
+        if ( currentInterceptor == interceptors.size() )
+        {
+            return "FINAL";
+        }
+
+        String interceptor = interceptors.get( currentInterceptor );
+        currentInterceptor++;
+
+        return interceptor;
+    }
 
 
     /**
@@ -304,7 +304,7 @@ public abstract class AbstractOperationContext implements OperationContext
         this.byPassed = byPassed;
     }
 
-    
+
     /**
      * Checks to see if an Interceptor is bypassed for this operation.
      *
@@ -327,15 +327,15 @@ public abstract class AbstractOperationContext implements OperationContext
         return byPassed != null && !byPassed.isEmpty();
     }
 
-    
+
     private void setup( AbstractOperationContext opContext )
     {
         opContext.setPreviousOperation( this );
         next = opContext;
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -346,8 +346,8 @@ public abstract class AbstractOperationContext implements OperationContext
         addContext.setByPassed( byPassed );
         session.getDirectoryService().getOperationManager().add( addContext );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -357,17 +357,17 @@ public abstract class AbstractOperationContext implements OperationContext
         setup( deleteContext );
         session.getDirectoryService().getOperationManager().delete( deleteContext );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
     {
-        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
         setup( hasEntryContext );
         hasEntryContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
-        
+
         return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
     }
 
@@ -378,7 +378,7 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
         }
-        
+
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
 
@@ -398,8 +398,8 @@ public abstract class AbstractOperationContext implements OperationContext
         lookupContext.setAttrsId( attrIds );
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
-    
-    
+
+
     public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
     {
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
@@ -407,8 +407,8 @@ public abstract class AbstractOperationContext implements OperationContext
         modifyContext.setByPassed( byPassed );
         session.getDirectoryService().getOperationManager().modify( modifyContext );
     }
-    
-    
+
+
     // TODO - need synchronization here and where we update links
     public LookupOperationContext newLookupContext( Dn dn )
     {
@@ -422,62 +422,62 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             return authorizedPrincipal;
         }
-        
+
         return session.getEffectivePrincipal();
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // OperationContext Linked List Methods
     // -----------------------------------------------------------------------
-    
-    
+
+
     public boolean isFirstOperation()
     {
         return previous == null;
     }
-    
-    
+
+
     public OperationContext getFirstOperation()
     {
         if ( previous == null )
         {
             return this;
         }
-        
+
         return previous.getFirstOperation();
     }
-    
-    
+
+
     public OperationContext getLastOperation()
     {
         if ( next == null )
         {
             return this;
         }
-        
+
         return next.getLastOperation();
     }
-    
-    
+
+
     public OperationContext getNextOperation()
     {
         return next;
     }
-    
-    
+
+
     protected void setNextOperation( OperationContext next )
     {
         this.next = next;
     }
-    
-    
+
+
     public OperationContext getPreviousOperation()
     {
         return previous;
     }
-    
-    
+
+
     protected void setPreviousOperation( OperationContext previous )
     {
         this.previous = previous;
@@ -500,8 +500,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         return entry;
     }
-    
-    
+
+
     /**
      * Set the throwReferral flag to true
      */
@@ -509,8 +509,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         throwReferral = true;
     }
-    
-    
+
+
     /**
      * @return <code>true</code> if the referrals are thrown
      */

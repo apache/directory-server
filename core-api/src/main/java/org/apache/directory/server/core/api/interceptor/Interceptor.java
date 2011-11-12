@@ -26,8 +26,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -128,12 +128,11 @@ public interface Interceptor
 
     /**
      * Filters {@link Partition#add( AddOperationContext )} call.
-     * 
-     * @param next The next {@link Interceptor} in the chain
      * @param addContext The {@link AddOperationContext} instance
+     * 
      * @throws LdapException If we had some error while processing the Add operation
      */
-    void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
+    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**
@@ -155,19 +154,19 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
+     * Filters {@link DefaultPartitionNexus#getRootDse( GetRootDseOperationContext )} call.
      * 
      * @param getRootDseContext The getRoot() operation context
      * @return The RootDSE entry, if found
      * @throws LdapException If we can't get back the RootDSE entry
      */
-    Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException;
+    Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException;
 
 
     /**
-     * Filters {@link Partition#hasEntry( EntryOperationContext )} call.
+     * Filters {@link Partition#hasEntry( HasEntryOperationContext )} call.
      */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
+    boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**
@@ -185,31 +184,31 @@ public interface Interceptor
     /**
      * Filters {@link Partition#modify( ModifyOperationContext )} call.
      */
-    void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException;
+    void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#move( MoveOperationContext )} call.
      */
-    void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException;
+    void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#moveAndRename( MoveAndRenameOperationContext) } call.
      */
-    void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
+    void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#rename( RenameOperationContext )} call.
      */
-    void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException;
+    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException;
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**

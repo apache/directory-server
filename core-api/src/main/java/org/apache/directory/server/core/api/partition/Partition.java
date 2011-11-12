@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -230,7 +230,7 @@ public interface Partition
      * @return true if the entry exists, false if it does not
      * @throws Exception if there are any problems
      */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
+    boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**

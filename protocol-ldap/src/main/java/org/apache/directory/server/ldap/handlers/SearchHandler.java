@@ -245,18 +245,18 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // Position the cursor at the beginning
             cursor.beforeFirst();
-            boolean hasRootDSE = false;
+            boolean hasRootDse = false;
 
             while ( cursor.next() )
             {
-                if ( hasRootDSE )
+                if ( hasRootDse )
                 {
                     // This is an error ! We should never find more than one rootDSE !
                     LOG.error( I18n.err( I18n.ERR_167 ) );
                 }
                 else
                 {
-                    hasRootDSE = true;
+                    hasRootDse = true;
                     Entry entry = cursor.get();
                     session.getIoSession().write( generateResponse( session, req, entry ) );
                 }
@@ -1019,7 +1019,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // ===============================================================
             // Handle search in rootDSE differently.
             // ===============================================================
-            if ( isRootDSESearch( req ) )
+            if ( isRootDseSearch( req ) )
             {
                 handleRootDseSearch( session, req );
 
@@ -1297,11 +1297,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      * @param req the request issued
      * @return true if the search is on the RootDSE false otherwise
      */
-    private boolean isRootDSESearch( SearchRequest req )
+    private boolean isRootDseSearch( SearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
         boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
-        boolean isRootDSEFilter = false;
+        boolean isRootDseFilter = false;
 
         if ( req.getFilter() instanceof PresenceNode )
         {
@@ -1310,17 +1310,17 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             if ( filter.isSchemaAware() )
             {
                 AttributeType attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
-                isRootDSEFilter = attributeType.equals( OBJECT_CLASS_AT );
+                isRootDseFilter = attributeType.equals( OBJECT_CLASS_AT );
             }
             else
             {
                 String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
-                isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+                isRootDseFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
                     || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
             }
         }
 
-        return isBaseIsRoot && isBaseScope && isRootDSEFilter;
+        return isBaseIsRoot && isBaseScope && isRootDseFilter;
     }
 
 
@@ -1354,7 +1354,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
-        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         Dn subschemaSubentryDn = new Dn( ds.getSchemaManager(), subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 

@@ -24,14 +24,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -145,7 +146,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+        public void add( AddOperationContext addContext ) throws LdapException
         {
             nexus.add( addContext );
         }
@@ -181,16 +182,16 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+        public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
         {
-            return nexus.getRootDSE( getRootDseContext );
+            return nexus.getRootDse( getRootDseContext );
         }
 
 
         /**
          * {@inheritDoc}
          */
-        public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+        public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
         {
             return nexus.hasEntry( hasEntryContext );
         }
@@ -217,7 +218,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+        public void modify( ModifyOperationContext modifyContext ) throws LdapException
         {
             nexus.modify( modifyContext );
         }
@@ -226,7 +227,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+        public void move( MoveOperationContext moveContext ) throws LdapException
         {
             nexus.move( moveContext );
         }
@@ -235,7 +236,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+        public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
         {
             nexus.moveAndRename( moveAndRenameContext );
         }
@@ -244,7 +245,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+        public void rename( RenameOperationContext renameContext ) throws LdapException
         {
             nexus.rename( renameContext );
         }
@@ -253,7 +254,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+        public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
         {
             return nexus.search( searchContext );
         }
@@ -293,7 +294,7 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance with a default name : the class name itself.
      */
     protected BaseInterceptor()
     {
@@ -302,11 +303,24 @@ public abstract class BaseInterceptor implements Interceptor
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance with a given name.
+     * 
+     * @param name the Interceptor name
      */
     protected BaseInterceptor( String name )
     {
         this.name = name;
+    }
+
+
+    /**
+     * Creates a new instance with a given name.
+     * 
+     * @param name the Interceptor name
+     */
+    protected BaseInterceptor( InterceptorEnum interceptor )
+    {
+        this.name = interceptor.getName();
     }
 
 
@@ -378,9 +392,23 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        next.add( addContext );
+        // Do nothing
+    }
+
+
+    /**
+     * Calls the next interceptor for the add operation.
+     * 
+     * @param addContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( AddOperationContext addContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( addContext );
+
+        interceptor.add( addContext );
     }
 
 
@@ -455,7 +483,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         // Nothing to do
         return null;
@@ -469,18 +497,18 @@ public abstract class BaseInterceptor implements Interceptor
      * @return the rootDSE
      * @throws LdapException If something went wrong
      */
-    protected final Entry next( GetRootDSEOperationContext getRootDseContext ) throws LdapException
+    protected final Entry next( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         Interceptor interceptor = getNextInterceptor( getRootDseContext );
 
-        return interceptor.getRootDSE( getRootDseContext );
+        return interceptor.getRootDse( getRootDseContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         // Return false in any case
         return false;
@@ -494,7 +522,7 @@ public abstract class BaseInterceptor implements Interceptor
      * @return a boolean indicating if the entry exists on the server
      * @throws LdapException If something went wrong
      */
-    protected final boolean next( EntryOperationContext hasEntryContext ) throws LdapException
+    protected final boolean next( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         Interceptor interceptor = getNextInterceptor( hasEntryContext );
 
@@ -550,36 +578,116 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        next.modify( modifyContext );
+        // Nothing to do
+    }
+
+
+    /**
+     * Calls the next interceptor for the modify operation.
+     * 
+     * @param modifyContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( modifyContext );
+
+        interceptor.modify( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( moveContext );
+        // Do nothing
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    /**
+     * Calls the next interceptor for the move operation.
+     * 
+     * @param moveContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( MoveOperationContext moveContext ) throws LdapException
     {
-        next.moveAndRename( moveAndRenameContext );
+        Interceptor interceptor = getNextInterceptor( moveContext );
+
+        interceptor.move( moveContext );
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        next.rename( renameContext );
+        // Do nothing
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    /**
+     * Calls the next interceptor for the moveAndRename operation.
+     * 
+     * @param moveAndRenameContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        return next.search( searchContext );
+        Interceptor interceptor = getNextInterceptor( moveAndRenameContext );
+
+        interceptor.moveAndRename( moveAndRenameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * Calls the next interceptor for the rename operation.
+     * 
+     * @param renameContext The context in which we are executing this operation
+     * @throws LdapException If something went wrong
+     */
+    protected final void next( RenameOperationContext renameContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( renameContext );
+
+        interceptor.rename( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
+        return null;
+    }
+
+
+    /**
+     * Calls the next interceptor for the search operation.
+     * 
+     * @param searchContext The context in which we are executing this operation
+     * @return the cursor containing the found entries
+     * @throws LdapException If something went wrong
+     */
+    protected final EntryFilteringCursor next( SearchOperationContext searchContext ) throws LdapException
+    {
+        Interceptor interceptor = getNextInterceptor( searchContext );
+
+        return interceptor.search( searchContext );
     }
 
 

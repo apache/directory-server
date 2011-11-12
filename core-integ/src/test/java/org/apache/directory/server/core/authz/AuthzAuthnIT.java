@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.authz;
 
@@ -72,7 +72,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    public void testAuthnWithRootDSE() throws Exception
+    public void testAuthnWithRootDse() throws Exception
     {
         createUser( "billyd", "billyd" );
 
@@ -122,21 +122,21 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
         // Note: In order to read contents of the bound context
         //       user will need appropriate Read permissions.
         createAccessControlSubentry( "grantBrowseForTheWholeNamingContext", "{ maximum 0 }", // !!!!! Replace this with "{ minimum 1 }" for practicing !
-            "{ " + 
-            "  identificationTag \"browseACI\", " + 
-            "  precedence 14, " + 
+            "{ " +
+            "  identificationTag \"browseACI\", " +
+            "  precedence 14, " +
             "  authenticationLevel none, " +
-            "  itemOrUserFirst userFirst: " + 
+            "  itemOrUserFirst userFirst: " +
             "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
+            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
             "    userPermissions " +
-            "    { " + 
-            "      { " + 
+            "    { " +
+            "      { " +
             "        protectedItems { entry }, " +
-            "        grantsAndDenials { grantBrowse } " + 
-            "      } " + 
-            "    } " + 
-            "  } " + 
+            "        grantsAndDenials { grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
             "}" );
 
         Dn userName = new Dn( "uid=billyd,ou=users,ou=system" );

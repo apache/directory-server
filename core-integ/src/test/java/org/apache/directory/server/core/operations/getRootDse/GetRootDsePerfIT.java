@@ -21,7 +21,7 @@ package org.apache.directory.server.core.operations.getRootDse;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -41,12 +41,12 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
      * A GetRootDSE performance test
      */
     @Test
-    public void testPerfGetRootDSE() throws Exception
+    public void testPerfGetRootDse() throws Exception
     {
-        GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( getService().getAdminSession() );
-        Entry rootDSE = getService().getOperationManager().getRootDSE( getRootDseContext );
+        GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( getService().getAdminSession() );
+        Entry rootDse = getService().getOperationManager().getRootDse( getRootDseContext );
 
-        assertNotNull( rootDSE );
+        assertNotNull( rootDse );
         int nbIterations = 150000;
 
         long t0 = System.currentTimeMillis();
@@ -68,7 +68,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            rootDSE = getService().getOperationManager().getRootDSE( getRootDseContext );
+            rootDse = getService().getOperationManager().getRootDse( getRootDseContext );
         }
         
         long t1 = System.currentTimeMillis();

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.kerberos.messages;
 
@@ -200,11 +200,11 @@ public class ApReq extends KerberosMessage
      *        +--> 0xA1 0x03 msg-type tag
      *        |     |
      *        |     +--> 0x02 0x01 0x0E msg-type (14)
-     *        |     
+     *        |
      *        +--> 0xA2 0x03 APOptions tag
      *        |     |
      *        |     +--> 0x03 0x05 0x00 b1 b2 b3 b4 APOtions
-     *        |     
+     *        |
      *        +--> 0xA3 L3 ticket tag
      *        |     |
      *        |     +--> 0x61 L3-1 ticket
@@ -216,8 +216,8 @@ public class ApReq extends KerberosMessage
      */
     public int computeLength()
     {
-    	reset();
-    	
+        reset();
+        
         // Compute the PVNO length.
         pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
 
@@ -234,10 +234,10 @@ public class ApReq extends KerberosMessage
         authenticatorLength = authenticator.computeLength();
         
         // Compute the sequence size
-        apReqLength = 
+        apReqLength =
             1 + TLV.getNbBytes( pvnoLength ) + pvnoLength +
             1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength +
-            1 + TLV.getNbBytes( apOptionsLength ) + apOptionsLength + 
+            1 + TLV.getNbBytes( apOptionsLength ) + apOptionsLength +
             1 + TLV.getNbBytes( ticketLength ) + ticketLength +
             1 + TLV.getNbBytes( authenticatorLength ) + authenticatorLength;
         
@@ -313,7 +313,7 @@ public class ApReq extends KerberosMessage
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( apReqLength ) + apReqLength, 
+            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( apReqLength ) + apReqLength,
                 buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
@@ -333,13 +333,13 @@ public class ApReq extends KerberosMessage
      */
     private void reset()
     {
-    	pvnoLength = 0;
+        pvnoLength = 0;
         msgTypeLength = 0;
         apOptionsLength = 0;
         ticketLength = 0;
         authenticatorLength = 0;
         apReqLength = 0;
-        apReqSeqLength = 0;	
+        apReqSeqLength = 0;
     }
     
     

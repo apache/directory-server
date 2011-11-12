@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.Evaluator;
@@ -38,7 +39,6 @@ import org.apache.directory.server.core.api.event.ExpressionEvaluator;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.event.RegistrationEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -67,11 +67,19 @@ public class EventInterceptor extends BaseInterceptor
 {
     /** A logger for this class */
     private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
-    
+
     private Evaluator evaluator;
     private ExecutorService executor;
 
-
+    /**
+     * Creates a new instance of a EventInterceptor.
+     */
+    public EventInterceptor()
+    {
+        super( InterceptorEnum.EVENT_INTERCEPTOR );
+    }
+    
+    
     /**
      * Initialize the event interceptor. It creates a pool of executor which will be used
      * to call the listeners in separate threads.
@@ -105,9 +113,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryAdded( ( AddOperationContext ) opContext );
                     }
                 } );
-                
+
                 break;
-                
+
             case DELETE:
                 executor.execute( new Runnable()
                 {
@@ -116,9 +124,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryDeleted( ( DeleteOperationContext ) opContext );
                     }
                 } );
-                
+
                 break;
-                
+
             case MODIFY:
                 executor.execute( new Runnable()
                 {
@@ -127,9 +135,9 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryModified( ( ModifyOperationContext ) opContext );
                     }
                 } );
-                
+
                 break;
-                
+
             case MOVE:
                 executor.execute( new Runnable()
                 {
@@ -138,7 +146,7 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryMoved( ( MoveOperationContext ) opContext );
                     }
                 } );
-                
+
                 break;
 
             case RENAME:
@@ -149,7 +157,7 @@ public class EventInterceptor extends BaseInterceptor
                         listener.entryRenamed( ( RenameOperationContext ) opContext );
                     }
                 } );
-                
+
                 break;
         }
     }
@@ -158,10 +166,10 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, final AddOperationContext addContext ) throws LdapException
+    public void add( final AddOperationContext addContext ) throws LdapException
     {
-        next.add( addContext );
-        
+        next( addContext );
+
         List<RegistrationEntry> selecting = getSelectingRegistrations( addContext.getDn(), addContext.getEntry() );
 
         if ( selecting.isEmpty() )
@@ -205,13 +213,13 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, final ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( final ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry oriEntry = modifyContext.getEntry();
 
         List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
 
-        next.modify( modifyContext );
+        next( modifyContext );
 
         if ( selecting.isEmpty() )
         {
@@ -222,7 +230,7 @@ public class EventInterceptor extends BaseInterceptor
         CoreSession session = modifyContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn() );
         lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        
+
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
 
@@ -239,31 +247,23 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
+        Entry oriEntry = moveContext.getOriginalEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
-        next.rename( renameContext );
+        next( moveContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        // Get the modifed entry
-        CoreSession session = renameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        
-        Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
-        renameContext.setModifiedEntry( alteredEntry );
-
         for ( final RegistrationEntry registration : selecting )
         {
-            if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
+            if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
             {
-                fire( renameContext, EventType.RENAME, registration.getListener() );
+                fire( moveContext, EventType.MOVE, registration.getListener() );
             }
         }
     }
@@ -272,11 +272,11 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    public void moveAndRename( final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry oriEntry = moveAndRenameContext.getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( moveAndRenameContext.getDn(), oriEntry );
-        next.moveAndRename( moveAndRenameContext );
+        next( moveAndRenameContext );
 
         if ( selecting.isEmpty() )
         {
@@ -302,23 +302,31 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        Entry oriEntry = moveContext.getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
+        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
-        next.move( moveContext );
+        next( renameContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
+        // Get the modifed entry
+        CoreSession session = renameContext.getSession();
+        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
+        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+        renameContext.setModifiedEntry( alteredEntry );
+
         for ( final RegistrationEntry registration : selecting )
         {
-            if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
+            if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
             {
-                fire( moveContext, EventType.MOVE, registration.getListener() );
+                fire( renameContext, EventType.RENAME, registration.getListener() );
             }
         }
     }

@@ -145,7 +145,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     protected LdapContext sysRoot;
 
     /** the context root for the rootDSE */
-    protected CoreSession rootDSE;
+    protected CoreSession rootDse;
 
     /**
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties.
@@ -406,7 +406,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         sysRoot = new InitialLdapContext( envFinal, null );
 
         envFinal.put( Context.PROVIDER_URL, "" );
-        rootDSE = getService().getAdminSession();
+        rootDse = getService().getAdminSession();
 
         envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
         schemaRoot = new InitialLdapContext( envFinal, null );

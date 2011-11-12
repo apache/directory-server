@@ -23,15 +23,15 @@ package org.apache.directory.server.core.normalization;
 import java.util.List;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -80,6 +80,15 @@ public class NormalizationInterceptor extends BaseInterceptor
     private FilterNormalizingVisitor normVisitor;
 
     /**
+     * Creates a new instance of a NormalizationInterceptor.
+     */
+    public NormalizationInterceptor()
+    {
+        super( InterceptorEnum.NORMALIZATION_INTERCEPTOR );
+    }
+    
+
+    /**
      * Initialize the registries, normalizers.
      */
     public void init( DirectoryService directoryService ) throws LdapException
@@ -107,247 +116,25 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         addContext.getDn().apply( schemaManager );
         addContext.getEntry().getDn().apply( schemaManager );
         addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
-        nextInterceptor.add( addContext );
+        next( addContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
-        Dn dn = deleteContext.getDn();
-
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( schemaManager );
-        }
-
-        next( deleteContext );
+        bindContext.getDn().apply( schemaManager );
+        next( bindContext );
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
-    {
-        if ( !modifyContext.getDn().isSchemaAware() )
-        {
-            modifyContext.getDn().apply( schemaManager );
-        }
-
-        if ( modifyContext.getModItems() != null )
-        {
-            for ( Modification modification : modifyContext.getModItems() )
-            {
-                AttributeType attributeType = schemaManager.getAttributeType( modification.getAttribute().getId() );
-                modification.apply( attributeType );
-            }
-        }
-
-        nextInterceptor.modify( modifyContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
-    {
-        // Normalize the new Rdn and the Dn if needed
-
-        if ( !renameContext.getDn().isSchemaAware() )
-        {
-            renameContext.getDn().apply( schemaManager );
-        }
-
-        renameContext.getNewRdn().apply( schemaManager );
-
-        if ( !renameContext.getNewDn().isSchemaAware() )
-        {
-            renameContext.getNewDn().apply( schemaManager );
-        }
-
-        // Push to the next interceptor
-        nextInterceptor.rename( renameContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
-    {
-        if ( !moveContext.getDn().isSchemaAware() )
-        {
-            moveContext.getDn().apply( schemaManager );
-        }
-
-        if ( !moveContext.getOldSuperior().isSchemaAware() )
-        {
-            moveContext.getOldSuperior().apply( schemaManager );
-        }
-
-        if ( !moveContext.getNewSuperior().isSchemaAware() )
-        {
-            moveContext.getNewSuperior().apply( schemaManager );
-        }
-
-        if ( !moveContext.getNewDn().isSchemaAware() )
-        {
-            moveContext.getNewDn().apply( schemaManager );
-        }
-
-        if ( !moveContext.getRdn().isSchemaAware() )
-        {
-            moveContext.getRdn().apply( schemaManager );
-        }
-
-        nextInterceptor.move( moveContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-
-        if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
-        {
-            moveAndRenameContext.getNewRdn().apply( schemaManager );
-        }
-
-        if ( !moveAndRenameContext.getDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getDn().apply( schemaManager );
-        }
-
-        if ( !moveAndRenameContext.getNewDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getNewDn().apply( schemaManager );
-        }
-
-        if ( !moveAndRenameContext.getNewSuperiorDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getNewSuperiorDn().apply( schemaManager );
-        }
-
-        nextInterceptor.moveAndRename( moveAndRenameContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
-    {
-        Dn dn = searchContext.getDn();
-
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( schemaManager );
-        }
-
-        ExprNode filter = searchContext.getFilter();
-
-        if ( filter == null )
-        {
-            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-        }
-
-        // Normalize the filter
-        filter = ( ExprNode ) filter.accept( normVisitor );
-
-        if ( filter == null )
-        {
-            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-        }
-        else
-        {
-            searchContext.setFilter( filter );
-
-            // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
-            return nextInterceptor.search( searchContext );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
-    {
-        hasEntryContext.getDn().apply( schemaManager );
-
-        return next( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        listContext.getDn().apply( schemaManager );
-
-        return next( listContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    private String[] normalizeAttrsId( String[] attrIds ) throws LdapException
-    {
-        if ( attrIds == null )
-        {
-            return attrIds;
-        }
-
-        String[] normalizedAttrIds = new String[attrIds.length];
-        int pos = 0;
-
-        for ( String id : attrIds )
-        {
-            String oid = schemaManager.lookupAttributeTypeRegistry( id ).getOid();
-            normalizedAttrIds[pos++] = oid;
-        }
-
-        return normalizedAttrIds;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        lookupContext.getDn().apply( schemaManager );
-
-        List<String> attrIds = lookupContext.getAttrsId();
-
-        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
-        {
-            // We have to normalize the requested IDs
-            lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
-        }
-
-        return next( lookupContext );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Normalize all Name based arguments for other interface operations
-    // ------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -384,13 +171,234 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext bindContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        bindContext.getDn().apply( schemaManager );
-        next( bindContext );
+        Dn dn = deleteContext.getDn();
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn.apply( schemaManager );
+        }
+
+        next( deleteContext );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
+    {
+        hasEntryContext.getDn().apply( schemaManager );
+
+        return next( hasEntryContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        listContext.getDn().apply( schemaManager );
+
+        return next( listContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        lookupContext.getDn().apply( schemaManager );
+
+        List<String> attrIds = lookupContext.getAttrsId();
+
+        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
+        {
+            // We have to normalize the requested IDs
+            lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
+        }
+
+        return next( lookupContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        if ( !modifyContext.getDn().isSchemaAware() )
+        {
+            modifyContext.getDn().apply( schemaManager );
+        }
+
+        if ( modifyContext.getModItems() != null )
+        {
+            for ( Modification modification : modifyContext.getModItems() )
+            {
+                AttributeType attributeType = schemaManager.getAttributeType( modification.getAttribute().getId() );
+                modification.apply( attributeType );
+            }
+        }
+
+        next( modifyContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void move( MoveOperationContext moveContext ) throws LdapException
+    {
+        if ( !moveContext.getDn().isSchemaAware() )
+        {
+            moveContext.getDn().apply( schemaManager );
+        }
+
+        if ( !moveContext.getOldSuperior().isSchemaAware() )
+        {
+            moveContext.getOldSuperior().apply( schemaManager );
+        }
+
+        if ( !moveContext.getNewSuperior().isSchemaAware() )
+        {
+            moveContext.getNewSuperior().apply( schemaManager );
+        }
+
+        if ( !moveContext.getNewDn().isSchemaAware() )
+        {
+            moveContext.getNewDn().apply( schemaManager );
+        }
+
+        if ( !moveContext.getRdn().isSchemaAware() )
+        {
+            moveContext.getRdn().apply( schemaManager );
+        }
+
+        next( moveContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    {
+        if ( !moveAndRenameContext.getNewRdn().isSchemaAware() )
+        {
+            moveAndRenameContext.getNewRdn().apply( schemaManager );
+        }
+
+        if ( !moveAndRenameContext.getDn().isSchemaAware() )
+        {
+            moveAndRenameContext.getDn().apply( schemaManager );
+        }
+
+        if ( !moveAndRenameContext.getNewDn().isSchemaAware() )
+        {
+            moveAndRenameContext.getNewDn().apply( schemaManager );
+        }
+
+        if ( !moveAndRenameContext.getNewSuperiorDn().isSchemaAware() )
+        {
+            moveAndRenameContext.getNewSuperiorDn().apply( schemaManager );
+        }
+
+        next( moveAndRenameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        // Normalize the new Rdn and the Dn if needed
+
+        if ( !renameContext.getDn().isSchemaAware() )
+        {
+            renameContext.getDn().apply( schemaManager );
+        }
+
+        renameContext.getNewRdn().apply( schemaManager );
+
+        if ( !renameContext.getNewDn().isSchemaAware() )
+        {
+            renameContext.getNewDn().apply( schemaManager );
+        }
+
+        // Push to the next interceptor
+        next( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
+        Dn dn = searchContext.getDn();
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn.apply( schemaManager );
+        }
+
+        ExprNode filter = searchContext.getFilter();
+
+        if ( filter == null )
+        {
+            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+        }
+
+        // Normalize the filter
+        filter = ( ExprNode ) filter.accept( normVisitor );
+
+        if ( filter == null )
+        {
+            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+        }
+        else
+        {
+            searchContext.setFilter( filter );
+
+            // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
+            return next( searchContext );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    private String[] normalizeAttrsId( String[] attrIds ) throws LdapException
+    {
+        if ( attrIds == null )
+        {
+            return attrIds;
+        }
+
+        String[] normalizedAttrIds = new String[attrIds.length];
+        int pos = 0;
+
+        for ( String id : attrIds )
+        {
+            String oid = schemaManager.lookupAttributeTypeRegistry( id ).getOid();
+            normalizedAttrIds[pos++] = oid;
+        }
+
+        return normalizedAttrIds;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Normalize all Name based arguments for other interface operations
+    // ------------------------------------------------------------------------
     /**
      * Adds missing Rdn's attributes and values to the entry.
      *

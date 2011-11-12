@@ -6,21 +6,22 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -42,49 +43,69 @@ public class AddOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of AddOperationContext.
      * 
-     * @param session the current Session 
+     * @param session the current Session
      */
     public AddOperationContext( CoreSession session )
     {
         super( session );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
     /**
      * Creates a new instance of AddOperationContext.
      * 
-     * @param session the current Session 
+     * @param session the current Session
      * @param dn the name of the entry being added
      */
     public AddOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
     /**
      * Creates a new instance of AddOperationContext.
      * 
-     * @param session the current Session 
+     * @param session the current Session
      * @param entry the entry being added
      */
     public AddOperationContext( CoreSession session, Entry entry )
     {
         super( session, entry.getDn() );
         this.entry = new ClonedServerEntry( entry );
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
     }
 
 
     /**
      * Creates a new instance of ModifyOperationContext.
      *
-     * @param session the current Session 
+     * @param session the current Session
      * @param dn the name of the entry being added
      * @param entry the entry being added
      */
     public AddOperationContext( CoreSession session, Dn dn, Entry entry )
     {
         super( session, dn );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
+
         this.entry = new ClonedServerEntry( entry );
     }
 
@@ -92,11 +113,17 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws LdapException
     {
         super( session );
-        entry = new ClonedServerEntry( 
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
+
+        entry = new ClonedServerEntry(
             new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
-        
+
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
@@ -116,7 +143,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
         return MessageTypeEnum.ADD_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */

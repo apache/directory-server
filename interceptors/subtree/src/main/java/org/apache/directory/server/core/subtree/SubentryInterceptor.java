@@ -31,12 +31,12 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -119,7 +119,15 @@ public class SubentryInterceptor extends BaseInterceptor
         REMOVE,
         REPLACE
     }
-
+    
+    /**
+     * Creates a new instance of SubentryInterceptor
+     */
+    public SubentryInterceptor()
+    {
+        super( InterceptorEnum.SUBENTRY_INTERCEPTOR );
+    }
+    
 
     //-------------------------------------------------------------------------------------------
     // Search filter methods
@@ -849,7 +857,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn dn = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -860,7 +868,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             // The AP must be the parent Dn, but we also have to check that the given Dn
             // is not the rootDSE or a NamingContext
-            if ( dn.isRootDSE() || isNamingContext( dn ) )
+            if ( dn.isRootDse() || isNamingContext( dn ) )
             {
                 // Not allowed : we can't get a parent in those cases
                 throw new LdapOtherException( "Cannot find an AdministrativePoint for " + dn );
@@ -894,7 +902,7 @@ public class SubentryInterceptor extends BaseInterceptor
             directoryService.getSubentryCache().addSubentry( dn, subentry );
 
             // Now inject the subentry into the backend
-            next.add( addContext );
+            next( addContext );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -964,7 +972,7 @@ public class SubentryInterceptor extends BaseInterceptor
             addContext.setEntry( entry );
 
             // Propagate the addition down to the backend.
-            next.add( addContext );
+            next( addContext );
         }
     }
 
@@ -1031,7 +1039,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
         List<Modification> modifications = modifyContext.getModItems();
@@ -1083,7 +1091,7 @@ public class SubentryInterceptor extends BaseInterceptor
             subentry.setAdministrativeRoles( getSubentryTypes( entry, modifications ) );
             directoryService.getSubentryCache().addSubentry( dn, subentry );
 
-            next.modify( modifyContext );
+            next( modifyContext );
 
             // search for all entries selected by the old SS and remove references to subentry
             Dn apName = dn.getParent();
@@ -1178,7 +1186,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            next.modify( modifyContext );
+            next( modifyContext );
 
             if ( !containsSubentryOC )
             {
@@ -1223,7 +1231,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
         Dn newSuperiorDn = moveContext.getNewSuperior();
@@ -1252,7 +1260,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
-            next.move( moveContext );
+            next( moveContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
@@ -1316,7 +1324,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // Move the entry
-            next.move( moveContext );
+            next( moveContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
@@ -1332,7 +1340,10 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
         Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
@@ -1353,7 +1364,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
@@ -1409,7 +1420,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
@@ -1424,7 +1435,10 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
 
@@ -1444,7 +1458,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.apply( schemaManager );
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
-            next.rename( renameContext );
+            next( renameContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
             ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
@@ -1499,7 +1513,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.rename( renameContext );
+            next( renameContext );
 
             // calculate the new Dn now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
@@ -1518,9 +1532,9 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         // object scope searches by default return subentries
         if ( searchContext.getScope() == SearchScope.OBJECT )

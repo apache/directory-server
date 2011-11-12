@@ -83,7 +83,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     {
         ACI_LOG.debug( "Filtering MaxImmSub..." );
 
-        if ( aciContext.getEntryDn().isRootDSE() )
+        if ( aciContext.getEntryDn().isRootDse() )
         {
             return aciContext.getAciTuples();
         }
