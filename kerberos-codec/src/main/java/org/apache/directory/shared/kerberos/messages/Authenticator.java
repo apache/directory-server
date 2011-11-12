@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.kerberos.messages;
 
@@ -326,8 +326,8 @@ public class Authenticator extends KerberosMessage
     @Override
     public int computeLength()
     {
-    	reset();
-    	
+        reset();
+        
         // Compute the Authenticator version length.
         authenticatorVnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
         authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
@@ -385,15 +385,15 @@ public class Authenticator extends KerberosMessage
     
 
     /**
-     * Encode the Authenticator message to a PDU. 
+     * Encode the Authenticator message to a PDU.
      * <pre>
      * Authenticator :
      * 
      * 0x62 LL
      *   0x30 LL
-     *     0xA0 0x03 
-     *       0x02 0x01 0x05 authenticator-vno 
-     *     0xA1 LL 
+     *     0xA0 0x03
+     *       0x02 0x01 0x05 authenticator-vno
+     *     0xA1 LL
      *       0x1B LL abcd crealm
      *     0xA2 LL
      *       0x30 LL abcd cname
@@ -481,7 +481,7 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( ctimeLength ) );
             
             // The value
-            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( (byte)0x0F );
             buffer.put( ctime.getBytes() );
             
@@ -537,7 +537,7 @@ public class Authenticator extends KerberosMessage
      */
     private void reset()
     {
-    	authenticatorVnoLength = 0;
+        authenticatorVnoLength = 0;
         crealmLength = 0;
         crealmBytes = null;
         cnameLength = 0;
@@ -548,7 +548,7 @@ public class Authenticator extends KerberosMessage
         seqNumberLength = 0;
         authorizationDataLength = 0;
         authenticatorSeqLength = 0;
-        authenticatorLength = 0;	
+        authenticatorLength = 0;
     }
     
     
