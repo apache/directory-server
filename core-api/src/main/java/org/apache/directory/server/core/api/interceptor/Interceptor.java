@@ -26,7 +26,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -154,7 +154,7 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
+     * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDseOperationContext )} call.
      * 
      * @param getRootDseContext The getRoot() operation context
      * @return The RootDSE entry, if found
@@ -164,9 +164,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#hasEntry( EntryOperationContext )} call.
+     * Filters {@link Partition#hasEntry( HasEntryOperationContext )} call.
      */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
+    boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**

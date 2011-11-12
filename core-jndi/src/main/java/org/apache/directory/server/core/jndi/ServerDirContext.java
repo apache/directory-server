@@ -54,7 +54,7 @@ import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
@@ -527,7 +527,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            EntryOperationContext hasEntryContext = new EntryOperationContext( getSession(), target );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( getSession(), target );
             
             if ( getDirectoryService().getOperationManager().hasEntry( hasEntryContext ) )
             {

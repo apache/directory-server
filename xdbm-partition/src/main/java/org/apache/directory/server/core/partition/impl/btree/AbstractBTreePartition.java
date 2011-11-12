@@ -41,7 +41,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -1799,7 +1799,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext entryContext ) throws LdapException
     {
         try
         {

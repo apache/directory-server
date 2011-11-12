@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.partition;
 
@@ -78,9 +78,9 @@ public interface PartitionNexus extends Partition
 
 
     /**
-     * Get's the partition corresponding to a distinguished name.  This 
-     * name need not be the name of the partition suffix.  When used in 
-     * conjunction with get suffix this can properly find the partition 
+     * Get's the partition corresponding to a distinguished name.  This
+     * name need not be the name of the partition suffix.  When used in
+     * conjunction with get suffix this can properly find the partition
      * associated with the Dn.  Make sure to use the normalized Dn.
      * 
      * @param dn the normalized distinguished name to get a partition for
@@ -115,7 +115,7 @@ public interface PartitionNexus extends Partition
     /**
      * Adds a set of supportedExtension (OID Strings) to the RootDSE.
      * 
-     * @param extensionOids a set of OID strings to add to the supportedExtension 
+     * @param extensionOids a set of OID strings to add to the supportedExtension
      * attribute in the RootDSE
      */
     public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
@@ -124,7 +124,7 @@ public interface PartitionNexus extends Partition
     /**
      * Adds a set of supportedSaslMechanisms (OID Strings) to the RootDSE.
      * 
-     * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms 
+     * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms
      * attribute in the RootDSE
      */
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;

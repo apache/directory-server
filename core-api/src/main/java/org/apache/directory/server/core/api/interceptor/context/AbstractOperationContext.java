@@ -364,7 +364,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
     {
-        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
         setup( hasEntryContext );
         hasEntryContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
 

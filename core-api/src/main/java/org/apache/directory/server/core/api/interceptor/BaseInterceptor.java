@@ -30,7 +30,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -190,7 +190,7 @@ public abstract class BaseInterceptor implements Interceptor
         /**
          * {@inheritDoc}
          */
-        public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+        public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
         {
             return nexus.hasEntry( hasEntryContext );
         }
@@ -494,7 +494,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         // Return false in any case
         return false;
@@ -508,7 +508,7 @@ public abstract class BaseInterceptor implements Interceptor
      * @return a boolean indicating if the entry exists on the server
      * @throws LdapException If something went wrong
      */
-    protected final boolean next( EntryOperationContext hasEntryContext ) throws LdapException
+    protected final boolean next( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         Interceptor interceptor = getNextInterceptor( hasEntryContext );
 

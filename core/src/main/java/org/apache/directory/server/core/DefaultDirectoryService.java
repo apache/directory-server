@@ -68,7 +68,7 @@ import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.journal.Journal;
@@ -1472,7 +1472,7 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, adminDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, adminDn ) ) )
         {
             firstStart = true;
 
@@ -1505,7 +1505,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn userDn = getDnFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, userDn ) ) )
         {
             firstStart = true;
 
@@ -1530,7 +1530,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn groupDn = getDnFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, groupDn ) ) )
         {
             firstStart = true;
 
@@ -1555,7 +1555,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn name = getDnFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, name ) ) )
         {
             firstStart = true;
 
@@ -1581,7 +1581,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn configurationDn = getDnFactory().create( "ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, configurationDn ) ) )
         {
             firstStart = true;
 
@@ -1603,7 +1603,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn partitionsDn = getDnFactory().create( "ou=partitions,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -1624,7 +1624,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn servicesDn = getDnFactory().create( "ou=services,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, servicesDn ) ) )
         {
             firstStart = true;
 
@@ -1646,7 +1646,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn interceptorsDn = getDnFactory().create( "ou=interceptors,ou=configuration,ou=system" );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -1668,7 +1668,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         Dn sysPrefRootDn = getDnFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
+        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
             firstStart = true;
 
@@ -1756,7 +1756,7 @@ public class DefaultDirectoryService implements DirectoryService
         Dn systemSuffixDn = getDnFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = getAdminSession();
 
-        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
+        if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
         {
             Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
 

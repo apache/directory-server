@@ -29,7 +29,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -362,7 +362,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check to see if target entry exists
         Dn newDn = renameContext.getNewDn();
 
-        if ( nexus.hasEntry( new EntryOperationContext( renameContext.getSession(), newDn ) ) )
+        if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );

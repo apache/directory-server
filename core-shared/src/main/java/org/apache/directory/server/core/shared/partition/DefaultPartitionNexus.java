@@ -46,7 +46,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -277,7 +277,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Dn systemSuffixDn = directoryService.getDnFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = directoryService.getAdminSession();
 
-        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemSuffixDn ) ) )
+        if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
         {
             Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
             
@@ -522,7 +522,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         Dn dn = hasEntryContext.getDn();
 
@@ -796,7 +796,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 for ( Partition partition : partitions.values() )
                 {
                     Dn contextDn = partition.getSuffixDn();
-                    EntryOperationContext hasEntryContext = new EntryOperationContext( searchContext.getSession(), contextDn );
+                    HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( searchContext.getSession(), contextDn );
                     
                     // search only if the context entry exists
                     if( partition.hasEntry( hasEntryContext ) )
