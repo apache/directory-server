@@ -28,7 +28,6 @@ import java.util.Map;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -41,11 +40,11 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -73,15 +72,24 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     private static final Logger log = LoggerFactory.getLogger( KeyDerivationInterceptor.class );
 
     /** The service name. */
-    public static final String NAME = "keyDerivationService";
+    private static final String NAME = "keyDerivationService";
 
+    /**
+     * Creates an instance of a KeyDerivationInterceptor.
+     */
+    public KeyDerivationInterceptor()
+    {
+        super( NAME );
+    }
+    
+    
     /**
      * Intercept the addition of the 'userPassword' and 'krb5PrincipalName' attributes.  Use the 'userPassword'
      * and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.  If the 'userPassword' is
      * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
      * to '0'.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn normName = addContext.getDn();
 
@@ -121,7 +129,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 .getName() );
         }
 
-        next.add( addContext );
+        next( addContext );
     }
 
 
@@ -136,7 +144,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws LdapException
+    public void modify( ModifyOperationContext modContext ) throws LdapException
     {
         ModifySubContext subContext = new ModifySubContext();
 
@@ -152,7 +160,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             deriveKeys( modContext, subContext );
         }
 
-        next.modify( modContext );
+        next( modContext );
     }
 
 
@@ -164,8 +172,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param subContext
      * @throws LdapException
      */
-    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws LdapException
+    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -238,19 +245,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param subContext
      * @throws LdapException
      */
-    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws LdapException
+    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
         Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
-        //lookupContext.setByPassed( USERLOOKUP_BYPASS );
         lookupContext.setAttrsId( new String[]
-        {
+            {
             SchemaConstants.OBJECT_CLASS_AT,
             KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
             KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT
-        } );
+            } );
 
         Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -396,6 +401,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             return KerberosKeyFactory.getKerberosKeys( principalName, userPassword );
         }
     }
+
 
     static class ModifySubContext
     {

@@ -34,6 +34,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.administrative.AccessControlAAP;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
@@ -54,8 +55,6 @@ import org.apache.directory.server.core.api.administrative.TriggerExecutionSAP;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -184,6 +183,16 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /** A lock to guarantee the AP cache consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
+
+    /**
+     * Creates a new instance of a AdministrativePointInterceptor.
+     */
+    public AdministrativePointInterceptor()
+    {
+        super( InterceptorEnum.ADMINISTRATIVE_POINT_INTERCEPTOR );
+    }
+
+    
     /**
      * Get a read-lock on the AP cache.
      * No read operation can be done on the AP cache if this
@@ -247,7 +256,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid );
             directoryService.getSubschemaAPCache().add( dn, ssAap );
 
-            // TODO : Here, we have to update the children, removing any 
+            // TODO : Here, we have to update the children, removing any
             // reference to any other underlying AP
 
             // If it's an AAP, we can get out immediately
@@ -264,8 +273,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 AccessControlAdministrativePoint sap = new AccessControlSAP( dn, uuid );
                 directoryService.getAccessControlAPCache().add( dn, sap );
 
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying AccessControl IAP or SAP 
+                // TODO : Here, we have to update the children, removing any
+                // reference to any other underlying AccessControl IAP or SAP
 
                 continue;
             }
@@ -284,9 +293,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 CollectiveAttributeAdministrativePoint sap = new CollectiveAttributeSAP( dn, uuid );
                 directoryService.getCollectiveAttributeAPCache().add( dn, sap );
 
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying CollectiveAttribute IAP or SAP 
-                
+                // TODO : Here, we have to update the children, removing any
+                // reference to any other underlying CollectiveAttribute IAP or SAP
+
                 continue;
             }
 
@@ -304,8 +313,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 SubschemaAdministrativePoint sap = new SubschemaSAP( dn, uuid );
                 directoryService.getSubschemaAPCache().add( dn, sap );
 
-                // TODO : Here, we have to update the children, removing any 
-                // reference to any other underlying Subschema IAP or SAP 
+                // TODO : Here, we have to update the children, removing any
+                // reference to any other underlying Subschema IAP or SAP
 
                 continue;
             }
@@ -316,9 +325,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 TriggerExecutionAdministrativePoint sap = new TriggerExecutionSAP( dn, uuid );
                 directoryService.getTriggerExecutionAPCache().add( dn, sap );
 
-                // TODO : Here, we have to update the children, removing any 
+                // TODO : Here, we have to update the children, removing any
                 // reference to any other underlying TriggerExecution IAP or SAP
-                
+
                 continue;
             }
 
@@ -360,7 +369,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // The SS AAP
             SubschemaAdministrativePoint ssAap = new SubschemaAAP( dn, uuid );
             ssapCache.add( dn, ssAap );
-            
+
             // If it's an AAP, we can get out immediately
             return;
         }
@@ -450,7 +459,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             // The SS AAP
             ssapCache.remove( dn );
-            
+
             return;
         }
 
@@ -487,7 +496,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     private AdministrativePoint getParent( AdministrativePoint ap, List<AdministrativePoint> aps,
         AdministrativeRole role, DnNode<List<AdministrativePoint>> currentNode )
     {
@@ -525,7 +534,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     /**
      * Find the parent for the given administrative point. If the AP is an AAP, the parent will be the closest
-     * AAP or the closest SAP. If we have a SAP between the added AAP and a AAP, then 
+     * AAP or the closest SAP. If we have a SAP between the added AAP and a AAP, then
      */
     private AdministrativePoint findParent( AdministrativePoint ap, DnNode<List<AdministrativePoint>> currentNode )
     {
@@ -612,7 +621,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             throw new LdapUnwillingToPerformException( message );
         }
 
-        // If we are trying to add an AAP, we have to check that 
+        // If we are trying to add an AAP, we have to check that
         // it's the only role in the AdminPoint AT
         if ( isAutonomousAreaRole( roleStr ) )
         {
@@ -629,7 +638,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 return;
             }
         }
-        
+
         // Check that we don't have already an AAP in the AdminPoint AT when we try to
         // add a role
         if ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) )
@@ -667,24 +676,24 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             throw new LdapUnwillingToPerformException( message );
         }
 
-        // Now we are trying to delete an Administrative point. We have to check that 
+        // Now we are trying to delete an Administrative point. We have to check that
         // we only have one role if the deleted role is an AAP
         if ( isAutonomousAreaRole( roleStr ) )
         {
-            // We know have to check that removing the AAP, we will not 
+            // We know have to check that removing the AAP, we will not
             // left any pending IAP. We should check for the 3 potential IAPs :
             // AccessControl, CollectiveAttribute and TriggerExecution.
             // If the removed AP has a parent, no need to go any further :
             // the children IAPs will depend on this parent.
-            
+
             // Process the ACs
             DnNode<AccessControlAdministrativePoint> acAps = directoryService.getAccessControlAPCache();
-            
+
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
                 List<AccessControlAdministrativePoint> children = acAps.getDescendantElements( dn );
-                
+
                 for ( AccessControlAdministrativePoint child : children )
                 {
                     if ( child.isInner() )
@@ -696,15 +705,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                     }
                 }
             }
-            
+
             // Process the CAs
             DnNode<CollectiveAttributeAdministrativePoint> caAps = directoryService.getCollectiveAttributeAPCache();
-            
+
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
                 List<CollectiveAttributeAdministrativePoint> children = caAps.getDescendantElements( dn );
-                
+
                 for ( CollectiveAttributeAdministrativePoint child : children )
                 {
                     if ( child.isInner() )
@@ -716,15 +725,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                     }
                 }
             }
-            
+
             // Process the TEs
             DnNode<TriggerExecutionAdministrativePoint> teAps = directoryService.getTriggerExecutionAPCache();
-            
+
             if ( !acAps.hasParent( dn ) )
             {
                 // No parent, check for any IAP
                 List<TriggerExecutionAdministrativePoint> children = teAps.getDescendantElements( dn );
-                
+
                 for ( TriggerExecutionAdministrativePoint child : children )
                 {
                     if ( child.isInner() )
@@ -737,14 +746,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 }
             }
         }
-    }
-
-
-    /**
-     * Creates an Administrative service interceptor.
-     */
-    public AdministrativePointInterceptor()
-    {
     }
 
 
@@ -783,7 +784,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
                 entries.add( entry );
             }
-            
+
             results.close();
         }
         catch ( Exception e )
@@ -826,11 +827,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Update The Administrative Points cache, removing the given AdminPoint
      */
-    private void deleteAdminPointCache( Attribute adminPoint, DeleteOperationContext deleteContext )
-        throws LdapException
+    private void deleteAdminPointCache( Attribute adminPoint, DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
-        
+
         // Remove the APs in the AP cache
         for ( Value<?> value : adminPoint )
         {
@@ -897,7 +897,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isAccessControlInnerRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-               role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+            role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
     }
 
 
@@ -907,7 +907,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isAccessControlSpecificRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-               role.equals( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+            role.equals( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
     }
 
 
@@ -917,7 +917,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isCollectiveAttributeInnerRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-               role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+            role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
     }
 
 
@@ -927,7 +927,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isCollectiveAttributeSpecificRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-               role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+            role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
     }
 
 
@@ -937,7 +937,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isTriggerExecutionInnerRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-               role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+            role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
 
@@ -947,7 +947,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isTriggerExecutionSpecificRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-               role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+            role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
 
@@ -957,7 +957,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isSubschemaSpecficRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
-               role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+            role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
     }
 
 
@@ -967,7 +967,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean isAutonomousAreaRole( String role )
     {
         return role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
-               role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
+            role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
     }
 
 
@@ -984,7 +984,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean hasAccessControlSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+            adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
     }
 
 
@@ -997,14 +997,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     private boolean hasCollectiveAttributeSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+            adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
     }
 
 
     private boolean hasTriggerExecutionSpecificRole( Attribute adminPoint )
     {
         return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-               adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+            adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
 
@@ -1067,16 +1067,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check that the IAPs (if any) have a parent. We will check for each kind or role :
      * AC, CA and TE.
      */
-    private void checkIAPHasParent( String role, Attribute adminPoint, Dn dn )
-        throws LdapUnwillingToPerformException
+    private void checkIAPHasParent( String role, Attribute adminPoint, Dn dn ) throws LdapUnwillingToPerformException
     {
         // Check for the AC role
         if ( isAccessControlInnerRole( role ) )
         {
             DnNode<AccessControlAdministrativePoint> acCache = directoryService.getAccessControlAPCache();
-            
+
             DnNode<AccessControlAdministrativePoint> parent =  acCache.getNode( dn );
-            
+
             if ( parent == null )
             {
                 // We don't have any AC administrativePoint in the tree, this is an error
@@ -1088,9 +1087,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         else if ( isCollectiveAttributeInnerRole( role ) )
         {
             DnNode<CollectiveAttributeAdministrativePoint> caCache = directoryService.getCollectiveAttributeAPCache();
-            
+
             boolean hasAP = caCache.hasParentElement( dn );
-            
+
             if ( !hasAP )
             {
                 // We don't have any AC administrativePoint in the tree, this is an error
@@ -1102,9 +1101,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         else if ( isTriggerExecutionInnerRole( role ) )
         {
             DnNode<TriggerExecutionAdministrativePoint> caCache = directoryService.getTriggerExecutionAPCache();
-            
+
             DnNode<TriggerExecutionAdministrativePoint> parent =  caCache.getNode( dn );
-            
+
             if ( parent == null )
             {
                 // We don't have any AC administrativePoint in the tree, this is an error
@@ -1148,7 +1147,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         // get the list of all the AAPs
         List<Entry> administrativePoints = getAdministrativePoints();
-        
+
         lockWrite();
         addAdminPointCache( administrativePoints );
         unlock();
@@ -1181,12 +1180,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * <ul>
      * <li>If it's an AA, then the added role should be the only one</li>
      * <li>It's not possible to add IA and SA at the same time</li>
-     * 
-     * @param next The next {@link Interceptor} in the chain
      * @param addContext The {@link AddOperationContext} instance
+     * 
      * @throws LdapException If we had some error while processing the Add operation
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, addRequest" );
         Entry entry = addContext.getEntry();
@@ -1198,7 +1196,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.add( addContext );
+            next( addContext );
 
             LOG.debug( "Exit from Administrative Interceptor, no AP in the added entry" );
 
@@ -1209,7 +1207,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         // Protect the AP caches against concurrent access
         lockWrite();
-        
+
         // Loop on all the added roles to check if they are valid
         for ( Value<?> role : adminPoint )
         {
@@ -1217,7 +1215,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Ok, we are golden.
-        next.add( addContext );
+        next( addContext );
 
         String apUuid = entry.get( ENTRY_UUID_AT ).getString();
 
@@ -1226,7 +1224,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         // Release the APCaches lock
         unlock();
-        
+
         LOG.debug( "Added an Administrative Point at {}", dn );
 
         return;
@@ -1234,14 +1232,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
-     * We have to check that we can remove the associated AdministrativePoint : <br/> 
+     * We have to check that we can remove the associated AdministrativePoint : <br/>
      * <ul>
      * <li> if we remove an AAP, no descendant IAP should remain orphan</li>
      * <li> If we remove a SAP, no descendant IAP should remain orphan</li>
-     * </ul> 
+     * </ul>
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, delRequest" );
         Entry entry = deleteContext.getEntry();
@@ -1253,7 +1251,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.delete( deleteContext );
+            next( deleteContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 
@@ -1261,10 +1259,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         LOG.debug( "Deletion of an administrative point at {} for the role {}", dn, adminPoint );
-        
+
         // Protect the AP caches against concurrent access
         lockWrite();
-        
+
         // Check that the removed AdministrativeRoles are valid. We don't have to do
         // any other check, as the deleted entry has no children.
         for ( Value<?> role : adminPoint )
@@ -1278,14 +1276,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         }
 
         // Ok, we can remove the AP
-        next.delete( deleteContext );
+        next( deleteContext );
 
         // Now, update the AdminPoint cache
         deleteAdminPointCache( adminPoint, deleteContext );
 
         // Release the APCaches lock
         unlock();
-        
+
         LOG.debug( "Deleted an Administrative Point at {}", dn );
 
         return;
@@ -1303,7 +1301,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * 
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, modifyRequest" );
         // We have to check that the modification is acceptable
@@ -1329,7 +1327,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         DnNode<CollectiveAttributeAdministrativePoint> caapCacheCopy = directoryService.getCollectiveAttributeAPCache().clone();
         DnNode<TriggerExecutionAdministrativePoint> teapCacheCopy = directoryService.getTriggerExecutionAPCache().clone();
         DnNode<SubschemaAdministrativePoint> ssapCacheCopy = directoryService.getSubschemaAPCache().clone();
-        
+
         // Loop on the modification to select the AdministrativeRole and process it :
         // we will create a new AT containing all the roles after having applied the modifications
         // on it
@@ -1425,14 +1423,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // At this point, we have a new AdministrativeRole AT, and we need to get the lists of
         // added roles and removed roles, in order to process them
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveRequest" );
         Entry entry = moveContext.getOriginalEntry();
@@ -1443,7 +1441,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.move( moveContext );
+            next( moveContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 
@@ -1460,8 +1458,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveAndRenameRequest" );
         Entry entry = moveAndRenameContext.getOriginalEntry();
@@ -1472,7 +1469,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.moveAndRename( moveAndRenameContext );
+            next( moveAndRenameContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 
@@ -1489,7 +1486,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, renameRequest" );
         Entry entry = renameContext.getEntry();
@@ -1500,7 +1497,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( adminPoint == null )
         {
             // Nope, go on.
-            next.rename( renameContext );
+            next( renameContext );
 
             LOG.debug( "Exit from Administrative Interceptor" );
 

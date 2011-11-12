@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.schema;
 
@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -52,7 +53,7 @@ import org.apache.directory.shared.util.Base64;
 
 
 /**
- * Responsible for translating modify operations on the subschemaSubentry into 
+ * Responsible for translating modify operations on the subschemaSubentry into
  * operations against entries within the schema partition.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -64,11 +65,11 @@ public class SchemaSubentryModifier
     static
     {
         Set<String> c = new HashSet<String>();
-        c.add( "AuthenticationInterceptor" );
-        c.add( "AciAuthorizationInterceptor" );
-        c.add( "DefaultAuthorizationInterceptor" );
-        c.add( "ExceptionInterceptor" );
-        c.add( "SchemaInterceptor" );
+        c.add( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+        c.add( InterceptorEnum.ACI_AUTHORIZATION_INTERCEPTOR.getName() );
+        c.add( InterceptorEnum.DEFAULT_AUTHORIZATION_INTERCEPTOR.getName() );
+        c.add( InterceptorEnum.EXCEPTION_INTERCEPTOR.getName() );
+        c.add( InterceptorEnum.SCHEMA_INTERCEPTOR.getName() );
         BYPASS = Collections.unmodifiableCollection( c );
     }
     
@@ -140,7 +141,7 @@ public class SchemaSubentryModifier
 
     public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
-        String schemaName = getSchema( comparatorDescription );   
+        String schemaName = getSchema( comparatorDescription );
         Dn dn = dnFactory.create(
             "m-oid=" + comparatorDescription.getOid(),
             SchemaConstants.COMPARATORS_PATH,
@@ -149,7 +150,7 @@ public class SchemaSubentryModifier
         
         Entry entry = getEntry( dn, comparatorDescription );
 
-        opContext.add( (Entry)entry, BYPASS );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -158,13 +159,13 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( normalizerDescription );
         Dn dn = dnFactory.create(
             "m-oid=" + normalizerDescription.getOid(),
-            SchemaConstants.NORMALIZERS_PATH , 
+            SchemaConstants.NORMALIZERS_PATH ,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
         Entry entry = getEntry( dn, normalizerDescription );
 
-        opContext.add( (Entry)entry, BYPASS );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -174,11 +175,11 @@ public class SchemaSubentryModifier
         Dn dn = dnFactory.create(
             "m-oid=" + syntaxCheckerDescription.getOid(),
             SchemaConstants.SYNTAX_CHECKERS_PATH,
-            "cn=" + schemaName, 
+            "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
         Entry entry = getEntry( dn, syntaxCheckerDescription );
-        opContext.add( (Entry)entry, BYPASS );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -196,7 +197,7 @@ public class SchemaSubentryModifier
     public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
         Dn dn = getDn( obj );
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
     
@@ -206,10 +207,10 @@ public class SchemaSubentryModifier
         Dn dn = dnFactory.create(
             "m-oid=" + normalizerDescription.getOid(),
             SchemaConstants.NORMALIZERS_PATH,
-            "cn=" + schemaName, 
+            "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 
@@ -217,11 +218,11 @@ public class SchemaSubentryModifier
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         Dn dn = dnFactory.create(
-            "m-oid=" + syntaxCheckerDescription.getOid(), 
+            "m-oid=" + syntaxCheckerDescription.getOid(),
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 
@@ -234,7 +235,7 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn, BYPASS );
+        opContext.delete( dn );
     }
 
 
@@ -242,8 +243,8 @@ public class SchemaSubentryModifier
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
         
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
-                    SchemaConstants.TOP_OC, 
+        entry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
                     MetaSchemaConstants.META_TOP_OC,
                     MetaSchemaConstants.META_COMPARATOR_OC );
         
@@ -252,7 +253,7 @@ public class SchemaSubentryModifier
 
         if ( comparatorDescription.getBytecode() != null )
         {
-            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT,
                 Base64.decode( comparatorDescription.getBytecode().toCharArray() ) );
         }
         
@@ -269,8 +270,8 @@ public class SchemaSubentryModifier
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
 
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
-            SchemaConstants.TOP_OC, 
+        entry.put( SchemaConstants.OBJECT_CLASS_AT,
+            SchemaConstants.TOP_OC,
             MetaSchemaConstants.META_TOP_OC,
             MetaSchemaConstants.META_NORMALIZER_OC );
         
@@ -279,7 +280,7 @@ public class SchemaSubentryModifier
 
         if ( normalizerDescription.getBytecode() != null )
         {
-            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT,
                 Base64.decode( normalizerDescription.getBytecode().toCharArray() ) );
         }
         
@@ -292,7 +293,7 @@ public class SchemaSubentryModifier
     }
 
 
-    private String getSchema( SchemaObject desc ) 
+    private String getSchema( SchemaObject desc )
     {
         if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
         {
@@ -307,8 +308,8 @@ public class SchemaSubentryModifier
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
         
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
-            SchemaConstants.TOP_OC, 
+        entry.put( SchemaConstants.OBJECT_CLASS_AT,
+            SchemaConstants.TOP_OC,
             MetaSchemaConstants.META_TOP_OC,
             MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
 

@@ -29,8 +29,11 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
  */
 public class CryptPasswordHashingInterceptor extends PasswordHashingInterceptor
 {
+    /**
+     * Creates an instance of a CryptPasswordHashingInterceptor
+     */
     public CryptPasswordHashingInterceptor()
     {
-        super( LdapSecurityConstants.HASH_METHOD_CRYPT );
+        super( "CryptPasswordHashingInterceptor", LdapSecurityConstants.HASH_METHOD_CRYPT );
     }
 }

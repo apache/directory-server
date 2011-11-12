@@ -29,8 +29,11 @@ import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
  */
 public class Smd5PasswordHashingInterceptor extends PasswordHashingInterceptor
 {
+    /**
+     * Creates an instance of a Smd5PasswordHashingInterceptor
+     */
     public Smd5PasswordHashingInterceptor()
     {
-        super( LdapSecurityConstants.HASH_METHOD_SMD5 );
+        super( "Smd5PasswordHashingInterceptor", LdapSecurityConstants.HASH_METHOD_SMD5 );
     }
 }

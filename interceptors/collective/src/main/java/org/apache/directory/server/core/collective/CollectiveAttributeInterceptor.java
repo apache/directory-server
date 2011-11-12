@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.collective;
 
@@ -26,11 +26,11 @@ import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -72,6 +72,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
     /**
+     * Creates a new instance of a CollectiveAttributeInterceptor.
+     */
+    public CollectiveAttributeInterceptor()
+    {
+        super( InterceptorEnum.COLLECTIVE_ATTRIBUTE_INTERCEPTOR );
+    }
+
+    
+    /**
      * the search result filter to use for collective attribute injection
      */
     private class CollectiveAttributeFilter implements EntryFilter
@@ -80,15 +89,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
             addCollectiveAttributes( operation, entry, retAttrs );
-            
+
             return true;
         }
     }
-    
+
     /** The CollectiveAttribute search filter */
     private final EntryFilter SEARCH_FILTER = new CollectiveAttributeFilter();
 
-    
+
     //-------------------------------------------------------------------------------------
     // Initialization
     //-------------------------------------------------------------------------------------
@@ -98,7 +107,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
-        
+
         LOG.debug( "CollectiveAttribute interceptor initilaized" );
     }
 
@@ -109,24 +118,23 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         checkAdd( addContext.getDn(), addContext.getEntry() );
 
-        next.add( addContext );
+        next( addContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
-        
+        EntryFilteringCursor cursor = next( listContext );
+
         cursor.addEntryFilter( SEARCH_FILTER );
-        
+
         return cursor;
     }
 
@@ -134,9 +142,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( lookupContext );
+        Entry result = next( lookupContext );
 
         // Adding the collective attributes if any
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
@@ -155,22 +163,21 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         checkModify( modifyContext );
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
-        
+        EntryFilteringCursor cursor = next( searchContext );
+
         cursor.addEntryFilter( SEARCH_FILTER );
 
         return cursor;
@@ -200,7 +207,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     return;
                 }
             }
-            
+
             LOG.info( "A CollectiveAttribute subentry *should* have at least one collectiveAttribute" );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
         }
@@ -216,7 +223,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Check that we can modify an entry
      */
@@ -224,7 +231,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         List<Modification> mods = modifyContext.getModItems();
         Entry originalEntry = modifyContext.getEntry();
-        Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( mods, originalEntry );
+        Entry targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
 
         // If the modified entry contains the CollectiveAttributeSubentry, then the modification
         // is accepted, no matter what
@@ -245,7 +252,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Check that we have a CollectiveAttribute in the modifications. (CollectiveAttributes
      * are those with a name starting with 'c-').
@@ -284,7 +291,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         return false;
     }
 
-    
+
     /**
      * Check if the entry contains any collective AttributeType (those starting with 'c-')
      */
@@ -303,14 +310,14 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         return false;
     }
 
-    
+
     /**
      * Adds the set of collective attributes requested in the returning attribute list
      * and contained in subentries referenced by the entry. Excludes collective
      * attributes that are specified to be excluded via the 'collectiveExclusions'
      * attribute in the entry.
      *
-     * @param opContext the context of the operation collective attributes 
+     * @param opContext the context of the operation collective attributes
      * are added to
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
@@ -322,7 +329,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         /*
-         * If there are no collective attribute subentries referenced then we 
+         * If there are no collective attribute subentries referenced then we
          * have no collective attributes to inject to this entry.
          */
         if ( collectiveAttributeSubentries == null )
@@ -331,9 +338,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
 
         /*
-         * Before we proceed we need to lookup the exclusions within the entry 
-         * and build a set of exclusions for rapid lookup.  We use OID values 
-         * in the exclusions set instead of regular names that may have case 
+         * Before we proceed we need to lookup the exclusions within the entry
+         * and build a set of exclusions for rapid lookup.  We use OID values
+         * in the exclusions set instead of regular names that may have case
          * variance.
          */
         Attribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
@@ -400,10 +407,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             Dn subentryDn = opContext.getSession().getDirectoryService().getDnFactory().create( subentryDnStr );
 
             /*
-             * TODO - Instead of hitting disk here can't we leverage the 
+             * TODO - Instead of hitting disk here can't we leverage the
              * SubentryService to get us cached sub-entries so we're not
              * wasting time with a lookup here? It is ridiculous to waste
-             * time looking up this sub-entry. 
+             * time looking up this sub-entry.
              */
 
             CoreSession session = opContext.getSession();

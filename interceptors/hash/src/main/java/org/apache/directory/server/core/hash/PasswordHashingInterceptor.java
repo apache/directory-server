@@ -23,16 +23,15 @@ package org.apache.directory.server.core.hash;
 
 import java.util.List;
 
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -43,42 +42,35 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PasswordHashingInterceptor extends BaseInterceptor
+public abstract class PasswordHashingInterceptor extends BaseInterceptor
 {
 
     /** the hashing algorithm to be used, if null then the password won't be changed */
     private LdapSecurityConstants algorithm;
-
-
-    /**
-     * Creates a new instance of PasswordHashingInterceptor which does not hash the passwords.
-     */
-    public PasswordHashingInterceptor()
-    {
-        this( null );
-    }
-
 
     /**
      * 
      * Creates a new instance of PasswordHashingInterceptor which hashes the
      * incoming non-hashed password using the given algorithm.
      * If the password is found already hashed then it will skip hashing it.
-     *  
+     * 
      * @param algorithm the name of the algorithm to be used
      */
-    public PasswordHashingInterceptor( LdapSecurityConstants algorithm )
+    protected PasswordHashingInterceptor( String name, LdapSecurityConstants algorithm )
     {
+        super( name );
         this.algorithm = algorithm;
     }
 
 
-    @Override
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( algorithm == null )
         {
-            next.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -88,16 +80,18 @@ public class PasswordHashingInterceptor extends BaseInterceptor
 
         includeHashedPassword( pwdAt );
 
-        next.add( addContext );
+        next( addContext );
     }
 
 
-    @Override
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( algorithm == null )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -107,7 +101,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
         {
             String oid = mod.getAttribute().getAttributeType().getOid();
 
-            // check for modification on 'userPassword' AT 
+            // check for modification on 'userPassword' AT
             if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( oid ) )
             {
                 includeHashedPassword( mod.getAttribute() );
@@ -115,7 +109,7 @@ public class PasswordHashingInterceptor extends BaseInterceptor
             }
         }
 
-        next.modify( modifyContext );
+        next( modifyContext );
     }
 
 

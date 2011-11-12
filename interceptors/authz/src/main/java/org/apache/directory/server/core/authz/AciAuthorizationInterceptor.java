@@ -31,21 +31,19 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
-import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -56,8 +54,10 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
@@ -165,10 +165,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private PartitionNexus nexus;
 
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
-    
+
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
 
+    
+    /**
+     * Create a AciAuthorizationInterceptor instance
+     */
+    public AciAuthorizationInterceptor()
+    {
+        super( InterceptorEnum.ACI_AUTHORIZATION_INTERCEPTOR );
+    }
+    
 
     /**
      * Load the Tuples into the cache
@@ -184,7 +193,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             { SchemaConstants.PRESCRIPTIVE_ACI_AT } );
 
         ExprNode filter =
-                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+            new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
         CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             directoryService );
@@ -288,7 +297,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine = new ACDFEngine( schemaManager );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
             SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         Dn subschemaSubentryDnName = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
@@ -296,7 +305,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Init the caches now
         initTupleCache();
         initGroupCache();
-        
+
         // Init the SubentryUtils instance
         subentryUtils = new SubentryUtils( directoryService );
     }
@@ -336,8 +345,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry )
-        throws LdapException
+    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry ) throws LdapException
     {
         Entry originalEntry = null;
 
@@ -367,7 +375,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            
+
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
@@ -434,8 +442,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry )
-        throws LdapException
+    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry ) throws LdapException
     {
         // only perform this for subentries
         if ( !entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
@@ -446,10 +453,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
         Dn parentDn = dn.getParent();
-        
+
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        
+
         Entry administrativeEntry = (( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
 
@@ -501,14 +508,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * operation.
      * -------------------------------------------------------------------------------
      */
-
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         // bypass authz code if it was disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
             ACI_LOG.debug( "ACI interceptor disabled" );
-            next.add( addContext );
+            next( addContext );
             return;
         }
 
@@ -527,7 +536,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             ACI_LOG.debug( "Addition done by the administartor : no check" );
 
-            next.add( addContext );
+            next( addContext );
             tupleCache.subentryAdded( dn, serverEntry );
             groupCache.groupAdded( dn, serverEntry );
             return;
@@ -583,7 +592,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // if we've gotten this far then access has been granted
-        next.add( addContext );
+        next( addContext );
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
@@ -592,20 +601,71 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isTheAdministrator( Dn normalizedDn )
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        return normalizedDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        CoreSession session = compareContext.getSession();
+        Dn dn = compareContext.getDn();
+        String oid = compareContext.getOid();
+
+        Entry entry = compareContext.getOriginalEntry();
+
+        LdapPrincipal principal = session.getEffectivePrincipal();
+        Dn principalDn = principal.getDn();
+
+        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
+        {
+            return next( compareContext );
+        }
+
+        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
+        Collection<ACITuple> tuples = new HashSet<ACITuple>();
+        addPerscriptiveAciTuples( compareContext, tuples, dn, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( compareContext, tuples, dn, entry );
+
+        AciContext aciContext = new AciContext( schemaManager, compareContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( READ_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
+
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+
+        aciContext = new AciContext( schemaManager, compareContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setAttributeType( attributeType );
+        aciContext.setMicroOperations( COMPARE_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
+
+        return next( compareContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         CoreSession session = deleteContext.getSession();
 
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.delete( deleteContext );
+            next( deleteContext );
             return;
         }
 
@@ -620,7 +680,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.delete( deleteContext );
+            next( deleteContext );
 
             tupleCache.subentryDeleted( dn, entry );
             groupCache.groupDeleted( dn, entry );
@@ -645,16 +705,125 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.delete( deleteContext );
+        next( deleteContext );
 
         tupleCache.subentryDeleted( dn, entry );
         groupCache.groupDeleted( dn, entry );
     }
 
 
-    // False positive, we want to keep the comment
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
+    {
+        Dn dn = hasEntryContext.getDn();
+
+        if ( !directoryService.isAccessControlEnabled() )
+        {
+            return ( dn.isRootDse() || next( hasEntryContext ) );
+        }
+
+        boolean answer = next( hasEntryContext );
+
+        // no checks on the RootDSE
+        if ( dn.isRootDse() )
+        {
+            // No need to go down to the stack, if the dn is empty
+            // It's the rootDSE, and it exists !
+            return answer;
+        }
+
+        CoreSession session = hasEntryContext.getSession();
+
+        // TODO - eventually replace this with a check on session.isAnAdministrator()
+        LdapPrincipal principal = session.getEffectivePrincipal();
+        Dn principalDn = principal.getDn();
+
+        if ( isPrincipalAnAdministrator( principalDn ) )
+        {
+            return answer;
+        }
+
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
+
+        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
+        Collection<ACITuple> tuples = new HashSet<ACITuple>();
+        addPerscriptiveAciTuples( hasEntryContext, tuples, dn, entry );
+        addEntryAciTuples( tuples, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addSubentryAciTuples( hasEntryContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+
+        // check that we have browse access to the entry
+        AciContext aciContext = new AciContext( schemaManager, hasEntryContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( BROWSE_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( ((ClonedServerEntry)entry).getOriginalEntry() );
+
+        engine.checkPermission( aciContext );
+
+        return next( hasEntryContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        LdapPrincipal user = listContext.getSession().getEffectivePrincipal();
+        EntryFilteringCursor cursor = next( listContext );
+
+        if ( isPrincipalAnAdministrator( user.getDn() )
+            || !directoryService.isAccessControlEnabled() )
+        {
+            return cursor;
+        }
+
+        AuthorizationFilter authzFilter = new AuthorizationFilter();
+        cursor.addEntryFilter( authzFilter );
+
+        return cursor;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        CoreSession session = lookupContext.getSession();
+
+        LdapPrincipal principal = session.getEffectivePrincipal();
+        Dn principalDn = principal.getDn();
+
+        if ( !principalDn.isSchemaAware() )
+        {
+            principalDn.apply( schemaManager );
+        }
+
+        // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
+        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
+        {
+            return next( lookupContext );
+        }
+
+        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
+
+        checkLookupAccess( lookupContext, entry );
+
+        return entry;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
 
@@ -667,7 +836,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
             return;
         }
 
@@ -676,7 +845,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.modify( modifyContext );
+            next( modifyContext );
 
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
@@ -686,7 +855,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
-            
+
             return;
         }
 
@@ -802,7 +971,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
         }
 
-        next.modify( modifyContext );
+        next( modifyContext );
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
@@ -815,312 +984,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
-    {
-        Dn dn = hasEntryContext.getDn();
-
-        if ( !directoryService.isAccessControlEnabled() )
-        {
-            return ( dn.isRootDSE() || next.hasEntry( hasEntryContext ) );
-        }
-
-        boolean answer = next.hasEntry( hasEntryContext );
-
-        // no checks on the RootDSE
-        if ( dn.isRootDSE() )
-        {
-            // No need to go down to the stack, if the dn is empty
-            // It's the rootDSE, and it exists !
-            return answer;
-        }
-        
-        CoreSession session = hasEntryContext.getSession();
-
-        // TODO - eventually replace this with a check on session.isAnAdministrator()
-        LdapPrincipal principal = session.getEffectivePrincipal();
-        Dn principalDn = principal.getDn();
-
-        if ( isPrincipalAnAdministrator( principalDn ) )
-        {
-            return answer;
-        }
-
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
-        
-        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( hasEntryContext, tuples, dn, entry );
-        addEntryAciTuples( tuples, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
-        addSubentryAciTuples( hasEntryContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
-
-        // check that we have browse access to the entry
-        AciContext aciContext = new AciContext( schemaManager, hasEntryContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( dn );
-        aciContext.setMicroOperations( BROWSE_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( ((ClonedServerEntry)entry).getOriginalEntry() );
-
-        engine.checkPermission( aciContext );
-
-        return next.hasEntry( hasEntryContext );
-    }
-
-
-    /**
-     * Checks if the READ permissions exist to the entry and to each attribute type and
-     * value.
-     *
-     * @todo not sure if we should hide attribute types/values or throw an exception
-     * instead.  I think we're going to have to use a filter to restrict the return
-     * of attribute types and values instead of throwing an exception.  Lack of read
-     * perms to attributes and their values results in their removal when returning
-     * the entry.
-     *
-     * @param principal the user associated with the call
-     * @param dn the name of the entry being looked up
-     * @param entry the raw entry pulled from the nexus
-     * @throws Exception if undlying access to the DIT fails
-     */
-    private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws LdapException
-    {
-        Dn dn = lookupContext.getDn();
-
-        // no permissions checks on the RootDSE
-        if ( dn.isRootDSE() )
-        {
-            return;
-        }
-
-        LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
-        Dn userName = principal.getDn();
-        Set<Dn> userGroups = groupCache.getGroups( userName.getNormName() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( lookupContext, tuples, dn, entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( lookupContext, tuples, dn, entry );
-
-        // check that we have read access to the entry
-        AciContext aciContext = new AciContext( schemaManager, lookupContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( userName );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( dn );
-        aciContext.setMicroOperations( LOOKUP_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( entry );
-
-        engine.checkPermission( aciContext );
-
-        // check that we have read access to every attribute type and value
-        for ( Attribute attribute : entry )
-        {
-
-            for ( Value<?> value : attribute )
-            {
-                AciContext valueAciContext = new AciContext( schemaManager, lookupContext );
-                valueAciContext.setUserGroupNames( userGroups );
-                valueAciContext.setUserDn( userName );
-                valueAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-                valueAciContext.setEntryDn( dn );
-                valueAciContext.setAttributeType( attribute.getAttributeType() );
-                valueAciContext.setAttrValue( value );
-                valueAciContext.setMicroOperations( READ_PERMS );
-                valueAciContext.setAciTuples( tuples );
-                valueAciContext.setEntry( entry );
-
-                engine.checkPermission( valueAciContext );
-            }
-        }
-    }
-
-
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
-    {
-        CoreSession session = lookupContext.getSession();
-
-        LdapPrincipal principal = session.getEffectivePrincipal();
-        Dn principalDn = principal.getDn();
-
-        if ( !principalDn.isSchemaAware() )
-        {
-            principalDn.apply( schemaManager );
-        }
-
-        // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
-        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
-        {
-            return next.lookup( lookupContext );
-        }
-
-        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
-
-        checkLookupAccess( lookupContext, entry );
-
-        return entry;
-    }
-
-
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        Dn oldName = renameContext.getDn();
-        Entry originalEntry = null;
-
-        if ( renameContext.getEntry() != null )
-        {
-            originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
-        }
-
-        LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
-        Dn principalDn = principal.getDn();
-        Dn newName = renameContext.getNewDn();
-
-        // bypass authz code if we are disabled
-        if ( !directoryService.isAccessControlEnabled() )
-        {
-            next.rename( renameContext );
-            return;
-        }
-
-        protectCriticalEntries( renameContext, oldName );
-
-        // bypass authz code but manage caches if operation is performed by the admin
-        if ( isPrincipalAnAdministrator( principalDn ) )
-        {
-            next.rename( renameContext );
-            tupleCache.subentryRenamed( oldName, newName );
-
-            // TODO : this method returns a boolean : what should we do with the result ?
-            groupCache.groupRenamed( oldName, newName );
-
-            return;
-        }
-
-        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( renameContext, tuples, oldName, originalEntry );
-        addEntryAciTuples( tuples, originalEntry );
-        addSubentryAciTuples( renameContext, tuples, oldName, originalEntry );
-
-        AciContext aciContext = new AciContext( schemaManager, renameContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( oldName );
-        aciContext.setMicroOperations( RENAME_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( originalEntry );
-
-        engine.checkPermission( aciContext );
-
-        next.rename( renameContext );
-        tupleCache.subentryRenamed( oldName, newName );
-        groupCache.groupRenamed( oldName, newName );
-    }
-
-
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws LdapException
-    {
-        Dn oldDn = moveAndRenameContext.getDn();
-        CoreSession session = moveAndRenameContext.getSession();
-
-        Entry entry = moveAndRenameContext.getOriginalEntry();
-
-        LdapPrincipal principal = session.getEffectivePrincipal();
-        Dn principalDn = principal.getDn();
-        Dn newDn = moveAndRenameContext.getNewDn();
-
-        // bypass authz code if we are disabled
-        if ( !directoryService.isAccessControlEnabled() )
-        {
-            next.moveAndRename( moveAndRenameContext );
-            return;
-        }
-
-        protectCriticalEntries( moveAndRenameContext, oldDn );
-
-        // bypass authz code but manage caches if operation is performed by the admin
-        if ( isPrincipalAnAdministrator( principalDn ) )
-        {
-            next.moveAndRename( moveAndRenameContext );
-            tupleCache.subentryRenamed( oldDn, newDn );
-            groupCache.groupRenamed( oldDn, newDn );
-            
-            return;
-        }
-
-        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oldDn,entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( moveAndRenameContext, tuples, oldDn, entry );
-
-        AciContext aciContext = new AciContext( schemaManager, moveAndRenameContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( oldDn );
-        aciContext.setMicroOperations( MOVERENAME_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( entry );
-
-        engine.checkPermission( aciContext );
-
-        // Get the entry again without operational attributes
-        // because access control subentry operational attributes
-        // will not be valid at the new location.
-        // This will certainly be fixed by the SubentryInterceptor,
-        // but after this service.
-
-        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
-
-        // As the target entry does not exist yet and so
-        // its subentry operational attributes are not there,
-        // we need to construct an entry to represent it
-        // at least with minimal requirements which are object class
-        // and access control subentry operational attributes.
-        Entry subentryAttrs = subentryUtils.getSubentryAttributes( newDn, importedEntry );
-
-        for ( Attribute attribute : importedEntry )
-        {
-            subentryAttrs.put( attribute );
-        }
-
-        Collection<ACITuple> destTuples = new HashSet<ACITuple>();
-        // Import permission is only valid for prescriptive ACIs
-        addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newDn, subentryAttrs );
-
-        // Evaluate the target context to see whether it
-        // allows an entry named newName to be imported as a subordinate.
-        aciContext = new AciContext( schemaManager, moveAndRenameContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( newDn );
-        aciContext.setMicroOperations( IMPORT_PERMS );
-        aciContext.setAciTuples( destTuples );
-        aciContext.setEntry( subentryAttrs );
-
-        engine.checkPermission( aciContext );
-
-        next.moveAndRename( moveAndRenameContext );
-        tupleCache.subentryRenamed( oldDn, newDn );
-        groupCache.groupRenamed( oldDn, newDn );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oriChildName = moveContext.getDn();
 
@@ -1136,7 +1003,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !directoryService.isAccessControlEnabled() )
         {
-            next.move( moveContext );
+            next( moveContext );
             return;
         }
 
@@ -1145,7 +1012,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.move( moveContext );
+            next( moveContext );
             tupleCache.subentryRenamed( oriChildName, newDn );
             groupCache.groupRenamed( oriChildName, newDn );
             return;
@@ -1205,42 +1072,184 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( aciContext );
 
-        next.move( moveContext );
+        next( moveContext );
         tupleCache.subentryRenamed( oriChildName, newDn );
         groupCache.groupRenamed( oriChildName, newDn );
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        LdapPrincipal user = listContext.getSession().getEffectivePrincipal();
-        EntryFilteringCursor cursor = next.list( listContext );
+        Dn oldDn = moveAndRenameContext.getDn();
+        CoreSession session = moveAndRenameContext.getSession();
 
-        if ( isPrincipalAnAdministrator( user.getDn() )
-            || !directoryService.isAccessControlEnabled() )
+        Entry entry = moveAndRenameContext.getOriginalEntry();
+
+        LdapPrincipal principal = session.getEffectivePrincipal();
+        Dn principalDn = principal.getDn();
+        Dn newDn = moveAndRenameContext.getNewDn();
+
+        // bypass authz code if we are disabled
+        if ( !directoryService.isAccessControlEnabled() )
         {
-            return cursor;
+            next( moveAndRenameContext );
+
+            return;
         }
 
-        AuthorizationFilter authzFilter = new AuthorizationFilter();
-        cursor.addEntryFilter( authzFilter );
-        return cursor;
+        protectCriticalEntries( moveAndRenameContext, oldDn );
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( isPrincipalAnAdministrator( principalDn ) )
+        {
+            next( moveAndRenameContext );
+            tupleCache.subentryRenamed( oldDn, newDn );
+            groupCache.groupRenamed( oldDn, newDn );
+
+            return;
+        }
+
+        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
+        Collection<ACITuple> tuples = new HashSet<ACITuple>();
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oldDn,entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( moveAndRenameContext, tuples, oldDn, entry );
+
+        AciContext aciContext = new AciContext( schemaManager, moveAndRenameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( oldDn );
+        aciContext.setMicroOperations( MOVERENAME_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
+
+        // Get the entry again without operational attributes
+        // because access control subentry operational attributes
+        // will not be valid at the new location.
+        // This will certainly be fixed by the SubentryInterceptor,
+        // but after this service.
+
+        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+
+        // As the target entry does not exist yet and so
+        // its subentry operational attributes are not there,
+        // we need to construct an entry to represent it
+        // at least with minimal requirements which are object class
+        // and access control subentry operational attributes.
+        Entry subentryAttrs = subentryUtils.getSubentryAttributes( newDn, importedEntry );
+
+        for ( Attribute attribute : importedEntry )
+        {
+            subentryAttrs.put( attribute );
+        }
+
+        Collection<ACITuple> destTuples = new HashSet<ACITuple>();
+        // Import permission is only valid for prescriptive ACIs
+        addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newDn, subentryAttrs );
+
+        // Evaluate the target context to see whether it
+        // allows an entry named newName to be imported as a subordinate.
+        aciContext = new AciContext( schemaManager, moveAndRenameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( newDn );
+        aciContext.setMicroOperations( IMPORT_PERMS );
+        aciContext.setAciTuples( destTuples );
+        aciContext.setEntry( subentryAttrs );
+
+        engine.checkPermission( aciContext );
+
+        next( moveAndRenameContext );
+        tupleCache.subentryRenamed( oldDn, newDn );
+        groupCache.groupRenamed( oldDn, newDn );
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        Dn oldName = renameContext.getDn();
+        Entry originalEntry = null;
+
+        if ( renameContext.getEntry() != null )
+        {
+            originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        }
+
+        LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
+        Dn principalDn = principal.getDn();
+        Dn newName = renameContext.getNewDn();
+
+        // bypass authz code if we are disabled
+        if ( !directoryService.isAccessControlEnabled() )
+        {
+            next( renameContext );
+            return;
+        }
+
+        protectCriticalEntries( renameContext, oldName );
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( isPrincipalAnAdministrator( principalDn ) )
+        {
+            next( renameContext );
+            tupleCache.subentryRenamed( oldName, newName );
+
+            // TODO : this method returns a boolean : what should we do with the result ?
+            groupCache.groupRenamed( oldName, newName );
+
+            return;
+        }
+
+        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
+        Collection<ACITuple> tuples = new HashSet<ACITuple>();
+        addPerscriptiveAciTuples( renameContext, tuples, oldName, originalEntry );
+        addEntryAciTuples( tuples, originalEntry );
+        addSubentryAciTuples( renameContext, tuples, oldName, originalEntry );
+
+        AciContext aciContext = new AciContext( schemaManager, renameContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( principalDn );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( oldName );
+        aciContext.setMicroOperations( RENAME_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( originalEntry );
+
+        engine.checkPermission( aciContext );
+
+        next( renameContext );
+        tupleCache.subentryRenamed( oldName, newName );
+        groupCache.groupRenamed( oldName, newName );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         LdapPrincipal user = searchContext.getSession().getEffectivePrincipal();
         Dn principalDn = user.getDn();
-        EntryFilteringCursor cursor = next.search( searchContext );
+        EntryFilteringCursor cursor = next( searchContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( searchContext.getDn().getNormName() );
         SearchControls searchCtls = searchContext.getSearchControls();
-        boolean isRootDSELookup = searchContext.getDn().size() == 0
+        boolean isRootDseLookup = searchContext.getDn().size() == 0
             && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
         if ( isPrincipalAnAdministrator( principalDn )
-            || !directoryService.isAccessControlEnabled() || isRootDSELookup
+            || !directoryService.isAccessControlEnabled() || isRootDseLookup
             || isSubschemaSubentryLookup )
         {
             return cursor;
@@ -1251,63 +1260,77 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public final boolean isPrincipalAnAdministrator( Dn principalDn )
+    /**
+     * Checks if the READ permissions exist to the entry and to each attribute type and
+     * value.
+     *
+     * @todo not sure if we should hide attribute types/values or throw an exception
+     * instead.  I think we're going to have to use a filter to restrict the return
+     * of attribute types and values instead of throwing an exception.  Lack of read
+     * perms to attributes and their values results in their removal when returning
+     * the entry.
+     *
+     * @param principal the user associated with the call
+     * @param dn the name of the entry being looked up
+     * @param entry the raw entry pulled from the nexus
+     * @throws Exception if undlying access to the DIT fails
+     */
+    private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
-        return groupCache.isPrincipalAnAdministrator( principalDn );
+        Dn dn = lookupContext.getDn();
+
+        // no permissions checks on the RootDSE
+        if ( dn.isRootDse() )
+        {
+            return;
+        }
+
+        LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
+        Dn userName = principal.getDn();
+        Set<Dn> userGroups = groupCache.getGroups( userName.getNormName() );
+        Collection<ACITuple> tuples = new HashSet<ACITuple>();
+        addPerscriptiveAciTuples( lookupContext, tuples, dn, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( lookupContext, tuples, dn, entry );
+
+        // check that we have read access to the entry
+        AciContext aciContext = new AciContext( schemaManager, lookupContext );
+        aciContext.setUserGroupNames( userGroups );
+        aciContext.setUserDn( userName );
+        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+        aciContext.setEntryDn( dn );
+        aciContext.setMicroOperations( LOOKUP_PERMS );
+        aciContext.setAciTuples( tuples );
+        aciContext.setEntry( entry );
+
+        engine.checkPermission( aciContext );
+
+        // check that we have read access to every attribute type and value
+        for ( Attribute attribute : entry )
+        {
+
+            for ( Value<?> value : attribute )
+            {
+                AciContext valueAciContext = new AciContext( schemaManager, lookupContext );
+                valueAciContext.setUserGroupNames( userGroups );
+                valueAciContext.setUserDn( userName );
+                valueAciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
+                valueAciContext.setEntryDn( dn );
+                valueAciContext.setAttributeType( attribute.getAttributeType() );
+                valueAciContext.setAttrValue( value );
+                valueAciContext.setMicroOperations( READ_PERMS );
+                valueAciContext.setAciTuples( tuples );
+                valueAciContext.setEntry( entry );
+
+                engine.checkPermission( valueAciContext );
+            }
+        }
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    public final boolean isPrincipalAnAdministrator( Dn principalDn )
     {
-        CoreSession session = compareContext.getSession();
-        Dn dn = compareContext.getDn();
-        String oid = compareContext.getOid();
-
-        Entry entry = compareContext.getOriginalEntry();
-
-        LdapPrincipal principal = session.getEffectivePrincipal();
-        Dn principalDn = principal.getDn();
-
-        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
-        {
-            return next.compare( compareContext );
-        }
-
-        Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( compareContext, tuples, dn, entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( compareContext, tuples, dn, entry );
-
-        AciContext aciContext = new AciContext( schemaManager, compareContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( dn );
-        aciContext.setMicroOperations( READ_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( entry );
-
-        engine.checkPermission( aciContext );
-
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-
-        aciContext = new AciContext( schemaManager, compareContext );
-        aciContext.setUserGroupNames( userGroups );
-        aciContext.setUserDn( principalDn );
-        aciContext.setAuthenticationLevel( principal.getAuthenticationLevel() );
-        aciContext.setEntryDn( dn );
-        aciContext.setAttributeType( attributeType );
-        aciContext.setMicroOperations( COMPARE_PERMS );
-        aciContext.setAciTuples( tuples );
-        aciContext.setEntry( entry );
-
-        engine.checkPermission( aciContext );
-
-        return next.compare( compareContext );
+        return groupCache.isPrincipalAnAdministrator( principalDn );
     }
 
 
@@ -1420,7 +1443,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         return true;
     }
 
-    
+
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
@@ -1429,8 +1452,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             Dn normName = entry.getDn().apply( schemaManager );
-            
+
             return filter( searchContext, normName, entry );
         }
+    }
+
+
+    private boolean isTheAdministrator( Dn normalizedDn )
+    {
+        return normalizedDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
 }

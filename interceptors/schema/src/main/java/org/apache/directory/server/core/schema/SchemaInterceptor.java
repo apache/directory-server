@@ -34,12 +34,12 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.NextInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -135,9 +135,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /** The SubschemaSubentry Dn */
     private Dn subschemaSubentryDn;
 
-    /**
-     * the normalized name for the schema modification attributes
-     */
+    /** The normalized name for the schema modification attributes */
     private Dn schemaModificationAttributesDn;
 
     /** The schema manager */
@@ -157,6 +155,14 @@ public class SchemaInterceptor extends BaseInterceptor
 
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
+
+    /**
+     * Creates a new instance of a SchemaInterceptor.
+     */
+    public SchemaInterceptor()
+    {
+        super( InterceptorEnum.SCHEMA_INTERCEPTOR );
+    }
 
 
     /**
@@ -183,7 +189,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn.apply( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
@@ -300,8 +306,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
      * superiors.
      */
-    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
-        throws LdapException
+    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen ) throws LdapException
     {
         List<ObjectClass> parents = objectClass.getSuperiors();
 
@@ -368,38 +373,6 @@ public class SchemaInterceptor extends BaseInterceptor
             ObjectClass objectClass = objectClasses.next();
             computeSuperior( objectClass );
         }
-    }
-
-
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
-        throws LdapException
-    {
-        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
-        cursor.addEntryFilter( binaryAttributeFilter );
-        return cursor;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", compareContext );
-        }
-
-        // Check that the requested AT exists
-        // complain if we do not recognize the attribute being compared
-        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
-        {
-            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
-        }
-
-        boolean result = next.compare( compareContext );
-
-        return result;
     }
 
 
@@ -572,9 +545,9 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
             else if ( ( filter instanceof SubstringNode ) ||
-                      ( filter instanceof PresenceNode ) ||
-                      ( filter instanceof AssertionNode ) ||
-                      ( filter instanceof ScopeNode ) )
+                ( filter instanceof PresenceNode ) ||
+                ( filter instanceof AssertionNode ) ||
+                ( filter instanceof ScopeNode ) )
             {
                 // Nothing to do
             }
@@ -628,123 +601,6 @@ public class SchemaInterceptor extends BaseInterceptor
                 checkFilter( child );
             }
         }
-    }
-
-
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
-        throws LdapException
-    {
-        Dn base = searchContext.getDn();
-        SearchControls searchCtls = searchContext.getSearchControls();
-        ExprNode filter = searchContext.getFilter();
-
-        // We have to eliminate bad attributes from the request, accordingly
-        // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
-        // from the list
-        if ( searchCtls.getReturningAttributes() != null )
-        {
-            filterAttributesToReturn( searchCtls );
-        }
-
-        // We also have to check the H/R flag for the filter attributes
-        checkFilter( filter );
-
-        String baseNormForm = ( base.isSchemaAware() ? base.getNormName() : base.getNormName() );
-
-        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
-        if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
-        {
-            EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
-
-            if ( searchCtls.getReturningAttributes() != null )
-            {
-                cursor.addEntryFilter( topFilter );
-                return cursor;
-            }
-
-            for ( EntryFilter ef : filters )
-            {
-                cursor.addEntryFilter( ef );
-            }
-
-            return cursor;
-        }
-
-        // The user was searching into the subSchemaSubEntry
-        // This kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
-        // does not have any sub level)
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
-        {
-            // The filter can be an equality or a presence, but nothing else
-            if ( filter instanceof SimpleNode)
-            {
-                // We should get the value for the filter.
-                // only 'top' and 'subSchema' are valid values
-                SimpleNode node = ( SimpleNode ) filter;
-                String objectClass;
-
-                objectClass = node.getValue().getString();
-
-                String objectClassOid = null;
-
-                if ( schemaManager.getObjectClassRegistry().contains( objectClass ) )
-                {
-                    objectClassOid = schemaManager.lookupObjectClassRegistry( objectClass ).getOid();
-                }
-                else
-                {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-                }
-
-                AttributeType nodeAt = node.getAttributeType();
-
-                // see if node attribute is objectClass
-                if ( nodeAt.equals( OBJECT_CLASS_AT )
-                    && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || objectClassOid
-                        .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
-                {
-                    // call.setBypass( true );
-                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
-                    serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
-                }
-                else
-                {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-                }
-            }
-            else if ( filter instanceof PresenceNode )
-            {
-                PresenceNode node = ( PresenceNode ) filter;
-
-                // see if node attribute is objectClass
-                if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
-                {
-                    // call.setBypass( true );
-                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
-                    serverEntry.setDn( base );
-                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
-                        new SingletonCursor<Entry>( serverEntry ), searchContext );
-                    return cursor;
-                }
-            }
-        }
-
-        // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-    }
-
-
-    /**
-     * Search for an entry, using its Dn. Binary attributes and ObjectClass attribute are removed.
-     */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
-    {
-        Entry result = nextInterceptor.lookup( lookupContext );
-
-        filterBinaryAttributes( result );
-
-        return result;
     }
 
 
@@ -927,63 +783,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
-    {
-        Dn oldDn = renameContext.getDn();
-        Rdn newRdn = renameContext.getNewRdn();
-        boolean deleteOldRn = renameContext.getDeleteOldRdn();
-        Entry entry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
-
-        /*
-         *  Note: This is only a consistency checks, to the ensure that all
-         *  mandatory attributes are available after deleting the old Rdn.
-         *  The real modification is done in the XdbmStore class.
-         *  - TODO: this check is missing in the moveAndRename() method
-         */
-        if ( deleteOldRn )
-        {
-            Rdn oldRdn = oldDn.getRdn();
-
-            // Delete the old Rdn means we remove some attributes and values.
-            // We must make sure that after this operation all must attributes
-            // are still present in the entry.
-            for ( Ava atav : oldRdn)
-            {
-                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-                entry.remove( type, atav.getUpValue() );
-            }
-
-            // Check that no operational attributes are removed
-            for ( Ava atav : oldRdn)
-            {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-
-                if ( !attributeType.isUserModifiable() )
-                {
-                    throw new LdapNoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
-                }
-            }
-        }
-
-        for ( Ava atav : newRdn )
-        {
-            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-
-            if ( !entry.contains( type, atav.getNormValue() ) )
-            {
-                entry.add( new DefaultAttribute( type, atav.getNormValue() ) );
-            }
-        }
-
-        // Substitute the Rdn and check if the new entry is correct
-        entry.setDn( renameContext.getNewDn() );
-
-        check( renameContext.getNewDn(), entry );
-
-        next.rename( renameContext );
-    }
-
-
     /**
      * Create a new attribute using the given values
      */
@@ -1026,7 +825,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 && ( !attributeType.equals( MODIFIERS_NAME_AT )
                     && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
                     && ( !attributeType.equals( ENTRY_CSN_AT ) )
-                && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
+                    && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
             {
                 String msg = I18n.err( I18n.ERR_52, attributeType );
                 LOG.error( msg );
@@ -1065,7 +864,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // point, as one of the following modification can change the
                         // ObjectClasses.
                         Attribute newAttribute = attribute.clone();
-                        
+
                         // Check that the attribute allows null values if we don'y have any value
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
@@ -1182,64 +981,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     /**
-     * {@inheritDoc}
-     */
-    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
-    {
-        // A modification on a simple entry will be done in three steps :
-        // - get the original entry (it should already been in the context)
-        // - apply the modification on it
-        // - check that the entry is still correct
-        // - add the operational attributes (modifiersName/modifyTimeStamp)
-        // - store the modified entry on the backend.
-        //
-        // A modification done on the schema is a bit different, as there is two more
-        // steps
-        // - We have to update the registries
-        // - We have to modify the ou=schemaModifications entry
-        //
-
-        // First, check that the entry is either a subschemaSubentry or a schema element.
-        // This is the case if it's a child of cn=schema or ou=schema
-        Dn dn = modifyContext.getDn();
-
-        // Gets the stored entry on which the modification must be applied
-        if ( dn.equals( subschemaSubentryDn ) )
-        {
-            LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, modifyContext );
-
-            // We can get rid of the modifiersName and modifyTimestamp, they are useless.
-            List<Modification> mods = modifyContext.getModItems();
-            List<Modification> cleanMods = new ArrayList<Modification>();
-
-            for ( Modification mod : mods )
-            {
-                AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
-
-                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) )
-                {
-                    cleanMods.add( mod );
-                }
-            }
-
-            modifyContext.setModItems( cleanMods );
-
-            // Now that the entry has been modified, update the SSSE
-            schemaSubEntryManager.modifySchemaSubentry( modifyContext, modifyContext
-                .hasRequestControl( Cascade.OID ) );
-
-            return;
-        }
-
-        Entry entry = modifyContext.getEntry();
-        List<Modification> modifications = modifyContext.getModItems();
-        checkModifyEntry( dn, entry, modifications );
-
-        next.modify( modifyContext );
-    }
-
-
-    /**
      * Filter the attributes by removing the ones which are not allowed
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
@@ -1325,7 +1066,7 @@ public class SchemaInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterBinaryAttributes( entry );
-            
+
             return true;
         }
     }
@@ -1339,7 +1080,7 @@ public class SchemaInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterAttributeTypes( operation, entry );
-            
+
             return true;
         }
     }
@@ -1481,7 +1222,10 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -1496,7 +1240,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
-                next.add( addContext );
+                next( addContext );
 
                 if ( schemaManager.isSchemaLoaded( schemaName ) )
                 {
@@ -1509,16 +1253,16 @@ public class SchemaInterceptor extends BaseInterceptor
                 // This is an ObjectClass addition
                 checkOcSuperior( addContext.getEntry() );
 
-                next.add( addContext );
+                next( addContext );
 
                 // Update the structures now that the schema element has been added
                 Schema schema = schemaManager.getLoadedSchema( schemaName );
 
                 if ( ( schema != null ) && schema.isEnabled() )
                 {
-                    Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );                    
+                    Attribute oidAT = entry.get( MetaSchemaConstants.M_OID_AT );
                     String ocOid = oidAT.getString();
-                    
+
                     ObjectClass addedOC = schemaManager.lookupObjectClassRegistry( ocOid );
                     computeSuperior( addedOC );
                 }
@@ -1526,32 +1270,304 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
                 // This is an AttributeType addition
-                next.add( addContext );
+                next( addContext );
             }
             else
             {
-                next.add( addContext );
+                next( addContext );
             }
 
         }
         else
         {
-            next.add( addContext );
+            next( addContext );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", compareContext );
+        }
+
+        // Check that the requested AT exists
+        // complain if we do not recognize the attribute being compared
+        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
+        {
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+        }
+
+        boolean result = next( compareContext );
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
+    {
+        EntryFilteringCursor cursor = next( listContext );
+        cursor.addEntryFilter( binaryAttributeFilter );
+
+        return cursor;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
+    {
+        Entry result = next( lookupContext );
+
+        filterBinaryAttributes( result );
+
+        return result;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        // A modification on a simple entry will be done in three steps :
+        // - get the original entry (it should already been in the context)
+        // - apply the modification on it
+        // - check that the entry is still correct
+        // - add the operational attributes (modifiersName/modifyTimeStamp)
+        // - store the modified entry on the backend.
+        //
+        // A modification done on the schema is a bit different, as there is two more
+        // steps
+        // - We have to update the registries
+        // - We have to modify the ou=schemaModifications entry
+        //
+
+        // First, check that the entry is either a subschemaSubentry or a schema element.
+        // This is the case if it's a child of cn=schema or ou=schema
+        Dn dn = modifyContext.getDn();
+
+        // Gets the stored entry on which the modification must be applied
+        if ( dn.equals( subschemaSubentryDn ) )
+        {
+            LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, modifyContext );
+
+            // We can get rid of the modifiersName and modifyTimestamp, they are useless.
+            List<Modification> mods = modifyContext.getModItems();
+            List<Modification> cleanMods = new ArrayList<Modification>();
+
+            for ( Modification mod : mods )
+            {
+                AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
+
+                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) && !ENTRY_CSN_AT.equals( at ) )
+                {
+                    cleanMods.add( mod );
+                }
+            }
+
+            modifyContext.setModItems( cleanMods );
+
+            // Now that the entry has been modified, update the SSSE
+            schemaSubEntryManager.modifySchemaSubentry( modifyContext, modifyContext
+                .hasRequestControl( Cascade.OID ) );
+
+            return;
+        }
+
+        Entry entry = modifyContext.getEntry();
+        List<Modification> modifications = modifyContext.getModItems();
+        checkModifyEntry( dn, entry, modifications );
+
+        next( modifyContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( RenameOperationContext renameContext ) throws LdapException
+    {
+        Dn oldDn = renameContext.getDn();
+        Rdn newRdn = renameContext.getNewRdn();
+        boolean deleteOldRn = renameContext.getDeleteOldRdn();
+        Entry entry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
+
+        /*
+         *  Note: This is only a consistency checks, to the ensure that all
+         *  mandatory attributes are available after deleting the old Rdn.
+         *  The real modification is done in the XdbmStore class.
+         *  - TODO: this check is missing in the moveAndRename() method
+         */
+        if ( deleteOldRn )
+        {
+            Rdn oldRdn = oldDn.getRdn();
+
+            // Delete the old Rdn means we remove some attributes and values.
+            // We must make sure that after this operation all must attributes
+            // are still present in the entry.
+            for ( Ava atav : oldRdn)
+            {
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+                entry.remove( type, atav.getUpValue() );
+            }
+
+            // Check that no operational attributes are removed
+            for ( Ava atav : oldRdn)
+            {
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+
+                if ( !attributeType.isUserModifiable() )
+                {
+                    throw new LdapNoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
+                }
+            }
+        }
+
+        for ( Ava atav : newRdn )
+        {
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+
+            if ( !entry.contains( type, atav.getNormValue() ) )
+            {
+                entry.add( new DefaultAttribute( type, atav.getNormValue() ) );
+            }
+        }
+
+        // Substitute the Rdn and check if the new entry is correct
+        entry.setDn( renameContext.getNewDn() );
+
+        check( renameContext.getNewDn(), entry );
+
+        next( renameContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
+    {
+        Dn base = searchContext.getDn();
+        SearchControls searchCtls = searchContext.getSearchControls();
+        ExprNode filter = searchContext.getFilter();
+
+        // We have to eliminate bad attributes from the request, accordingly
+        // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
+        // from the list
+        if ( searchCtls.getReturningAttributes() != null )
+        {
+            filterAttributesToReturn( searchCtls );
+        }
+
+        // We also have to check the H/R flag for the filter attributes
+        checkFilter( filter );
+
+        String baseNormForm = ( base.isSchemaAware() ? base.getNormName() : base.getNormName() );
+
+        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
+        if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
+        {
+            EntryFilteringCursor cursor = next( searchContext );
+
+            if ( searchCtls.getReturningAttributes() != null )
+            {
+                cursor.addEntryFilter( topFilter );
+                return cursor;
+            }
+
+            for ( EntryFilter ef : filters )
+            {
+                cursor.addEntryFilter( ef );
+            }
+
+            return cursor;
+        }
+
+        // The user was searching into the subSchemaSubEntry
+        // This kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
+        // does not have any sub level)
+        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        {
+            // The filter can be an equality or a presence, but nothing else
+            if ( filter instanceof SimpleNode)
+            {
+                // We should get the value for the filter.
+                // only 'top' and 'subSchema' are valid values
+                SimpleNode node = ( SimpleNode ) filter;
+                String objectClass;
+
+                objectClass = node.getValue().getString();
+
+                String objectClassOid = null;
+
+                if ( schemaManager.getObjectClassRegistry().contains( objectClass ) )
+                {
+                    objectClassOid = schemaManager.lookupObjectClassRegistry( objectClass ).getOid();
+                }
+                else
+                {
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                }
+
+                AttributeType nodeAt = node.getAttributeType();
+
+                // see if node attribute is objectClass
+                if ( nodeAt.equals( OBJECT_CLASS_AT )
+                    && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || objectClassOid
+                        .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
+                {
+                    // call.setBypass( true );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    serverEntry.setDn( base );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
+                }
+                else
+                {
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                }
+            }
+            else if ( filter instanceof PresenceNode )
+            {
+                PresenceNode node = ( PresenceNode ) filter;
+
+                // see if node attribute is objectClass
+                if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
+                {
+                    // call.setBypass( true );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    serverEntry.setDn( base );
+                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
+                        new SingletonCursor<Entry>( serverEntry ), searchContext );
+                    return cursor;
+                }
+            }
+        }
+
+        // In any case not handled previously, just return an empty result
+        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
     }
 
 
     private String getSchemaName( Dn dn ) throws LdapException
     {
         int size = dn.size();
-        
+
         if ( size < 2 )
         {
             throw new LdapException( I18n.err( I18n.ERR_276 ) );
         }
 
         Rdn rdn = dn.getRdn( size - 2 );
-        
+
         return rdn.getNormValue().getString();
     }
 
@@ -1605,8 +1621,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see numbers of values of attributes conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Attribute attribute )
-        throws LdapInvalidAttributeValueException
+    private void assertNumberOfAttributeValuesValid( Attribute attribute ) throws LdapInvalidAttributeValueException
     {
         if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValued() )
         {
@@ -1631,25 +1646,25 @@ public class SchemaInterceptor extends BaseInterceptor
             // include AT names for better error reporting
             StringBuilder sb = new StringBuilder();
             sb.append( '[' );
-            
+
             for( String oid: must )
             {
                 String name = schemaManager.getAttributeType( oid ).getName();
                 sb.append( name )
-                  .append( '(' )
-                  .append( oid )
-                  .append( "), " );
+                .append( '(' )
+                .append( oid )
+                .append( "), " );
             }
-            
+
             int end = sb.length();
             sb.replace( end - 2, end, "" ); // remove the trailing ', '
             sb.append( ']' );
-            
+
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_279,
                 sb, dn.getName() ) );
         }
     }
-    
+
 
     /**
      * Checck that OC does not conflict :
