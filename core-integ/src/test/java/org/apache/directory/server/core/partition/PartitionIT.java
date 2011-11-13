@@ -120,8 +120,8 @@ public final class PartitionIT extends AbstractLdapTestUnit
          * Confirm presence and publishing of foo and bar partitions as 
          * namingContexts as values innamingContexts attribute of the rootDSE
          */
-        LdapContext rootDSE = getRootContext( getService() );
-        Attribute namingContexts = rootDSE.getAttributes( "", new String[]
+        LdapContext rootDse = getRootContext( getService() );
+        Attribute namingContexts = rootDse.getAttributes( "", new String[]
             { "namingContexts" } ).get( "namingContexts" );
         assertTrue( namingContexts.contains( "dc=foo,dc=com" ) );
         assertTrue( namingContexts.contains( "dc=bar,dc=com" ) );
@@ -143,22 +143,22 @@ public final class PartitionIT extends AbstractLdapTestUnit
      */
     public void addLookupDelete( String partitionSuffix ) throws Exception
     {
-        LdapContext rootDSE = getRootContext( getService() );
+        LdapContext rootDse = getRootContext( getService() );
         Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "people" );
         String entryDn = "ou=people," + partitionSuffix;
-        rootDSE.createSubcontext( entryDn, attrs );
+        rootDse.createSubcontext( entryDn, attrs );
         LOG.debug( "added entry {} to partition {}", entryDn, partitionSuffix );
 
-        Attributes reloaded = rootDSE.getAttributes( entryDn );
+        Attributes reloaded = rootDse.getAttributes( entryDn );
         assertNotNull( reloaded );
         assertTrue( reloaded.get( "ou" ).contains( "people" ) );
         LOG.debug( "looked up entry {} from partition {}", entryDn, partitionSuffix );
 
-        rootDSE.destroySubcontext( entryDn );
+        rootDse.destroySubcontext( entryDn );
         try
         {
-            rootDSE.getAttributes( entryDn );
+            rootDse.getAttributes( entryDn );
             fail( "should never get here" );
         }
         catch ( Exception e )

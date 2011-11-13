@@ -38,7 +38,7 @@ import org.apache.directory.server.core.api.interceptor.context.AbstractOperatio
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -87,17 +87,29 @@ import org.apache.directory.shared.util.Strings;
  */
 public class DefaultCoreSession implements CoreSession
 {
+    /** The DirectoryService we are connected to */
     private final DirectoryService directoryService;
+    
+    /** The Principal used to process operations */
     private final LdapPrincipal authenticatedPrincipal;
+    
+    /** The anonymous principal, if we have to process operation as anonymous */
     private final LdapPrincipal anonymousPrincipal;
+    
+    /** The authorized principal, which will be used when a user has been authorized */
     private LdapPrincipal authorizedPrincipal;
 
 
+    /**
+     * Creates a new instance of a DefaultCoreSession
+     * @param principal The principal to use to process operation for this session
+     * @param directoryService The DirectoryService to which we will send requests
+     */
     public DefaultCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
-        this.authenticatedPrincipal = principal;
-        this.anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+        authenticatedPrincipal = principal;
+        anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
     }
 
 
@@ -105,7 +117,7 @@ public class DefaultCoreSession implements CoreSession
      * Set the ignoreRefferal flag for the current operationContext.
      *
      * @param opContext The current operationContext
-     * @param ignoreReferral The flag 
+     * @param ignoreReferral The flag
      */
     private void setReferralHandling( AbstractOperationContext opContext, boolean ignoreReferral )
     {
@@ -121,7 +133,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( Entry entry ) throws LdapException
     {
@@ -130,7 +142,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( Entry entry, boolean ignoreReferral ) throws LdapException
     {
@@ -139,7 +151,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( Entry entry, LogChange log ) throws LdapException
     {
@@ -153,7 +165,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( Entry entry, boolean ignoreReferral, LogChange log ) throws LdapException
     {
@@ -168,7 +180,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( AddRequest addRequest ) throws LdapException
     {
@@ -177,7 +189,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void add( AddRequest addRequest, LogChange log ) throws LdapException
     {
@@ -427,7 +439,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * TODO - perhaps we should just use a flag that is calculated on creation
      * of this session
-     *  
+     * 
      * @see org.apache.directory.server.core.api.CoreSession#isAdministrator()
      */
     public boolean isAdministrator()
@@ -439,13 +451,13 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * TODO - this method impl does not check to see if the principal is in 
+     * TODO - this method impl does not check to see if the principal is in
      * the administrators group - it only returns true of the principal is
      * the actual admin user.  need to make it check groups.
      * 
      * TODO - perhaps we should just use a flag that is calculated on creation
      * of this session
-     *  
+     * 
      * @see org.apache.directory.server.core.api.CoreSession#isAnAdministrator()
      */
     public boolean isAnAdministrator()
@@ -493,7 +505,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public Entry lookup( Dn dn ) throws LdapException
     {
@@ -616,7 +628,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( Dn dn, Dn newParent ) throws LdapException
     {
@@ -625,7 +637,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( Dn dn, Dn newParent, LogChange log ) throws LdapException
     {
@@ -638,7 +650,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( Dn dn, Dn newParent, boolean ignoreReferral ) throws Exception
     {
@@ -647,7 +659,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( Dn dn, Dn newParent, boolean ignoreReferral, LogChange log ) throws LdapException
     {
@@ -662,7 +674,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn ) throws LdapException
     {
@@ -671,7 +683,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( Dn dn, Dn newSuperiorDn, Rdn newRdn, boolean deleteOldRdn, LogChange log )
         throws LdapException
@@ -687,7 +699,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral )
         throws LdapException
@@ -697,7 +709,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral,
         LogChange log ) throws LdapException
@@ -781,7 +793,7 @@ public class DefaultCoreSession implements CoreSession
 
         try
         {
-            filterNode = ( ExprNode ) FilterParser.parse( directoryService.getSchemaManager(), filter );
+            filterNode = FilterParser.parse( directoryService.getSchemaManager(), filter );
         }
         catch ( ParseException pe )
         {
@@ -877,6 +889,7 @@ public class DefaultCoreSession implements CoreSession
         deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         try
         {
             operationManager.delete( deleteContext );
@@ -892,7 +905,7 @@ public class DefaultCoreSession implements CoreSession
     
     
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public boolean exists( String dn ) throws LdapException
     {
@@ -901,12 +914,13 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public boolean exists( Dn dn ) throws LdapException
     {
-        EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
+        
         return operationManager.hasEntry( hasEntryContext );
     }
 
@@ -946,7 +960,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( ModifyDnRequest modifyDnRequest ) throws LdapException
     {
@@ -955,7 +969,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
@@ -980,7 +994,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws LdapException
     {
@@ -989,7 +1003,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
     public void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
@@ -1070,15 +1084,26 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unbind() throws LdapException
     {
+        UnbindOperationContext unbindContext = new UnbindOperationContext( this );
+        
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.unbind( new UnbindOperationContext( this ) );
+        operationManager.unbind( unbindContext );
     }
 
 
-    public void unbind( UnbindRequest unbindRequest )
+    /**
+     * {@inheritDoc}
+     */
+    public void unbind( UnbindRequest unbindRequest ) throws LdapException
     {
-        // TODO Auto-generated method stub
+        UnbindOperationContext unbindContext = new UnbindOperationContext( this, unbindRequest );
+        
+        OperationManager operationManager = directoryService.getOperationManager();
+        operationManager.unbind( unbindContext );
     }
 }
