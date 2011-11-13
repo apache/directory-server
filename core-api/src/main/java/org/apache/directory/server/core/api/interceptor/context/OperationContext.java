@@ -272,6 +272,22 @@ public interface OperationContext
      */
     Collection<String> getByPassed();
     
+    /**
+     * Gets the next interceptor in the list of interceptors. The 
+     * position in the list will be incremented.
+     * 
+     * @return The next interceptor from the list of interceptors
+     */
+    String getNextInterceptor();
+    
+
+    /**
+     * Sets the list of interceptors to go through for an operation
+     * 
+     * @param interceptors The list of interceptors
+     */
+    void setInterceptors( List<String> interceptors );
+    
     
     /**
      * Sets the set of bypassed Interceptors.
@@ -312,7 +328,14 @@ public interface OperationContext
     void add( Entry entry, Collection<String> byPass ) throws LdapException;
     
     
-    void delete( Dn dn, Collection<String> byPass ) throws LdapException;
+    /**
+     * Process the delete for inner operations. This is only valid for SubschemaSubentry
+     * operations, and will most certainly be removed later.
+     *  
+     * @param dn
+     * @throws LdapException
+     */
+    void delete( Dn dn ) throws LdapException;
 
 
     /**

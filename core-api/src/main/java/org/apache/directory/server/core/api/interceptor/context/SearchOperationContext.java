@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -57,41 +58,43 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
     }
 
 
     /**
      * Creates a new instance of SearchOperationContext.
-     * @throws Exception 
+     * @throws Exception
      */
     public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws LdapException
     {
         super( session );
-        
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+
         this.dn = searchRequest.getBase();
         this.filter = searchRequest.getFilter();
         this.abandoned = searchRequest.isAbandoned();
         this.aliasDerefMode = searchRequest.getDerefAliases();
-        
+
         this.requestControls = searchRequest.getControls();
         this.scope = searchRequest.getScope();
         this.sizeLimit = searchRequest.getSizeLimit();
         this.timeLimit = searchRequest.getTimeLimit();
         this.typesOnly = searchRequest.getTypesOnly();
-        
+
         List<String> ats = searchRequest.getAttributes();
-        
+
         // section 4.5.1.8 of RFC 4511
         //1. An empty list with no attributes requests the return of all user attributes.
         if ( ats.isEmpty() )
         {
             ats = new ArrayList<String>();
             ats.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-            ats = Collections.unmodifiableList( ats ); 
+            ats = Collections.unmodifiableList( ats );
         }
-        
+
         setReturningAttributes( ats );
-        
+
         throwReferral = !requestControls.containsKey( ManageDsaIT.OID );
     }
 
@@ -111,6 +114,7 @@ public class SearchOperationContext extends SearchingOperationContext
         timeLimit = searchControls.getTimeLimit();
         sizeLimit = searchControls.getCountLimit();
         typesOnly = searchControls.getReturningObjFlag();
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
 
         if ( searchControls.getReturningAttributes() != null )
         {
@@ -139,11 +143,12 @@ public class SearchOperationContext extends SearchingOperationContext
         super( session, dn, returningAttributes );
         super.setScope( scope );
         this.filter = filter;
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
     }
 
 
     /**
-     * Checks whether or not the ManageDsaITControl is present.  If not 
+     * Checks whether or not the ManageDsaITControl is present.  If not
      * present then the filter is modified to force the return of all referral
      * entries regardless of whether or not the filter matches the referral
      * entry.
@@ -152,8 +157,8 @@ public class SearchOperationContext extends SearchingOperationContext
     {
         return super.hasRequestControl( ManageDsaIT.OID );
     }
-    
-    
+
+
     /**
      * @return The filter
      */
@@ -180,7 +185,7 @@ public class SearchOperationContext extends SearchingOperationContext
     public String toString()
     {
         return "SearchContext for Dn '" + getDn().getName() + "', filter :'"
-        + filter + "'"; 
+            + filter + "'";
     }
 
 

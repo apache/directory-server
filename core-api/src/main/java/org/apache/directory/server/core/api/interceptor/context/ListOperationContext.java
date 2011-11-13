@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
@@ -41,6 +42,7 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
     }
 
 
@@ -52,6 +54,7 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
     }
 
 
@@ -66,6 +69,7 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, returningAttributes );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
     }
 
 
@@ -77,7 +81,7 @@ public class ListOperationContext extends SearchingOperationContext
         return "List";
     }
 
-    
+
     /**
      * @see Object#toString()
      */

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -60,6 +61,11 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session )
     {
         super( session );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
     }
 
 
@@ -73,6 +79,11 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         super( session, dn );
 
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
+
         this.modItems = modItems;
     }
 
@@ -80,6 +91,11 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws LdapException
     {
         super( session, modifyRequest.getName() );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
 
         modItems = ServerEntryUtils.toServerModification( modifyRequest.getModifications().toArray(
             new DefaultModification[0] ), session.getDirectoryService().getSchemaManager() );
@@ -118,7 +134,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
     public static List<Modification> createModItems( Entry serverEntry, ModificationOperation modOp )
         throws LdapException
-    {
+        {
         List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
 
         for ( Attribute attribute : serverEntry )
@@ -127,7 +143,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         }
 
         return items;
-    }
+        }
 
 
     /**
@@ -140,7 +156,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * Returns the entry after it has been renamed and potentially changed for 
+     * Returns the entry after it has been renamed and potentially changed for
      * Rdn alterations.
      *
      * @return the new renamed entry

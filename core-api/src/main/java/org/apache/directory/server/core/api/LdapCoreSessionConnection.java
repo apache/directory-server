@@ -934,7 +934,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( "The entry Dn must not be null" );
         }
 
-        if ( entryDn.isRootDSE() )
+        if ( entryDn.isRootDse() )
         {
             throw new IllegalArgumentException( "The RootDSE cannot be moved" );
         }
@@ -944,7 +944,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             throw new IllegalArgumentException( "The new Dn must not be null" );
         }
 
-        if ( newDn.isRootDSE() )
+        if ( newDn.isRootDse() )
         {
             throw new IllegalArgumentException( "The RootDSE cannot be the target" );
         }
@@ -1183,6 +1183,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setDn( bindRequest.getName() );
+        bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
 

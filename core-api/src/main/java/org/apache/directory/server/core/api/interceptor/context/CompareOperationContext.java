@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
@@ -57,6 +58,7 @@ public class CompareOperationContext extends AbstractOperationContext
     public CompareOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
     }
 
     
@@ -68,6 +70,7 @@ public class CompareOperationContext extends AbstractOperationContext
     public CompareOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
     }
 
     
@@ -80,6 +83,7 @@ public class CompareOperationContext extends AbstractOperationContext
     {
         super( session );
         this.oid = oid;
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
     }
 
     
@@ -92,6 +96,7 @@ public class CompareOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         this.oid = oid;
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
     }
 
     
@@ -105,6 +110,7 @@ public class CompareOperationContext extends AbstractOperationContext
         super( session, dn );
         this.oid = oid;
         this.value = value;
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
     }
 
     
@@ -114,6 +120,7 @@ public class CompareOperationContext extends AbstractOperationContext
         this.oid = compareRequest.getAttributeId();
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
         
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {

@@ -25,8 +25,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**
- * An interface used by the DirectoryService to isolate operations that can be 
+ * An interface used by the DirectoryService to isolate operations that can be
  * performed on it.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -48,9 +48,22 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 public interface OperationManager
 {
     /**
-     * TODO document after determining if this method should be here.
+     * Add an entry into the backend, going through the interceptor chain
+     * 
+     * @param addContext The context containing the information to process the addition
+     * @throws LdapException If the addition can't be processed successfully
      */
-    Entry getRootDSE( GetRootDSEOperationContext  getRootDseContext ) throws LdapException;
+    void add( AddOperationContext addContext ) throws LdapException;
+    
+    
+    /**
+     * Get the RooDse entry.
+     * 
+     * @param getRootDseContext The getRootDse() context
+     * @return The rootDse if found
+     * @throws LdapException If we can't get back the rootDse entry
+     */
+    Entry getRootDse( GetRootDseOperationContext  getRootDseContext ) throws LdapException;
 
 
     /**
@@ -63,12 +76,6 @@ public interface OperationManager
      * TODO document after determining if this method should be here.
      */
     void delete( DeleteOperationContext deleteContext ) throws LdapException;
-
-
-    /**
-     * TODO document after determining if this method should be here.
-     */
-    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**
@@ -98,7 +105,7 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
+    boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**

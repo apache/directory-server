@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api;
 
@@ -44,7 +44,7 @@ public class MockOperation implements OperationContext
     final CoreSession session;
 
 
-    public MockOperation( SchemaManager schemaManager, int count ) throws Exception 
+    public MockOperation( SchemaManager schemaManager, int count ) throws Exception
     {
         this.count = count;
         this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
@@ -250,7 +250,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public void delete( Dn dn, Collection<String> bypass ) throws LdapException
+    public void delete( Dn dn ) throws LdapException
     {
     }
 
@@ -307,5 +307,21 @@ public class MockOperation implements OperationContext
     public boolean isReferralIgnored()
     {
         return false;
+    }
+
+
+    @Override
+    public void setInterceptors( List<String> interceptors )
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public String getNextInterceptor()
+    {
+        // TODO Auto-generated method stub
+        return "";
     }
 }

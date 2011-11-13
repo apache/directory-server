@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
@@ -62,6 +63,11 @@ public class LookupOperationContext extends AbstractOperationContext
     public LookupOperationContext( CoreSession session )
     {
         super( session );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
+        }
     }
 
 
@@ -73,6 +79,11 @@ public class LookupOperationContext extends AbstractOperationContext
     public LookupOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
+        }
     }
 
 
@@ -85,6 +96,11 @@ public class LookupOperationContext extends AbstractOperationContext
     {
         super( session );
         setAttrsId( attrsId );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
+        }
     }
 
 
@@ -97,6 +113,11 @@ public class LookupOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         setAttrsId( attrsId );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
+        }
     }
 
 
@@ -128,7 +149,7 @@ public class LookupOperationContext extends AbstractOperationContext
         {
             this.attrsId = new ArrayList<String>( Arrays.asList( attrsId ) );
 
-            // filter out the '+' and '*' and set boolean parameters 
+            // filter out the '+' and '*' and set boolean parameters
             for ( String id : this.attrsId )
             {
                 if ( id.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )

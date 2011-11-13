@@ -6,21 +6,22 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
@@ -54,6 +55,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     public RenameOperationContext( CoreSession session )
     {
         super( session );
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
     }
 
 
@@ -69,6 +71,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
         super( session, oldDn );
         this.newRdn = newRdn;
         this.deleteOldRdn = deleteOldRdn;
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
     }
 
 
@@ -76,15 +79,16 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     {
         super( session, modifyDnRequest.getName() );
         this.newRdn = modifyDnRequest.getNewRdn();
-        
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+
         if ( newRdn == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_328, modifyDnRequest ) );
         }
-        
+
         this.deleteOldRdn = modifyDnRequest.getDeleteOldRdn();
         this.requestControls = modifyDnRequest.getControls();
-        
+
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
@@ -99,7 +103,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /**
      * @return The delete old Rdn flag
      */
-    public boolean getDeleteOldRdn() 
+    public boolean getDeleteOldRdn()
     {
         return deleteOldRdn;
     }
@@ -109,7 +113,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * Set the flag to delete the old Rdn
      * @param deleteOldRdn the flag to set
      */
-    public void setDelOldDn( boolean deleteOldRdn ) 
+    public void setDelOldDn( boolean deleteOldRdn )
     {
         this.deleteOldRdn = deleteOldRdn;
     }
@@ -160,15 +164,15 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     {
         return MessageTypeEnum.MODIFYDN_REQUEST.name();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         return "RenameContext for old Dn '" + getDn().getName() + "'" +
-        ", new Rdn '" + newRdn + "'" +
-        ( deleteOldRdn ? ", delete old Rdn" : "" ) ; 
+            ", new Rdn '" + newRdn + "'" +
+            ( deleteOldRdn ? ", delete old Rdn" : "" ) ;
     }
 }
