@@ -353,7 +353,6 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public DefaultDirectoryService() throws Exception
     {
-        setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
@@ -957,8 +956,10 @@ public class DefaultDirectoryService implements DirectoryService
     // ------------------------------------------------------------------------
     // BackendSubsystem Interface Method Implementations
     // ------------------------------------------------------------------------
-
-
+    /**
+     * Define a default list of interceptors that has to be used if no other 
+     * configuration is defined.
+     */
     private void setDefaultInterceptorConfigurations()
     {
         // Set default interceptor chains
@@ -1792,6 +1793,12 @@ public class DefaultDirectoryService implements DirectoryService
         {
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
+        
+        // If no interceptor list is defined, setup a default list
+        if ( interceptors == null )
+        {
+            setDefaultInterceptorConfigurations();
+        }
 
         cacheService = new CacheService();
         cacheService.initialize( this );
@@ -2061,6 +2068,35 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void addAfter( String interceptorName, Interceptor interceptor )
     {
+        try
+        {
+            int position = 0;
+            writeLock.lock();
+
+            // Find the position
+            for ( Interceptor inter : interceptors )
+            {
+                if ( interceptorName.equals( inter.getName() ) )
+                {
+                    break;
+                }
+                
+                position++;
+            }
+            
+            if ( position == interceptors.size() )
+            {
+                interceptors.add( interceptor );
+            }
+            else
+            {
+                interceptors.add( position, interceptor );
+            }
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
 
 
