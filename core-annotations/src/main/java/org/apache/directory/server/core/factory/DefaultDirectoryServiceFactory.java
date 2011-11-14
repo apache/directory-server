@@ -69,6 +69,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             // we we can set some properties like accesscontrol, anon access
             // before starting up the service
             directoryService = new DefaultDirectoryService();
+            
             // no need to register a shutdown hook during tests because this 
             // starts a lot of threads and slows down test execution
             directoryService.setShutdownHookEnabled( false );
