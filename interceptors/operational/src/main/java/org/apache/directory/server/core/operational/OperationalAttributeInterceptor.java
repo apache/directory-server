@@ -256,16 +256,46 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry result = next( lookupContext );
-
-        if ( lookupContext.getAttrsId() == null )
+        
+        if ( lookupContext.hasAllUser() )
         {
-            filterOperationalAttributes( result );
+            if ( lookupContext.hasAllOperational() )
+            {
+                // The user has requested '+' and '*', return everything.
+                return result;
+            }
+            else
+            {
+                filter( lookupContext, result );
+            }
         }
-        else if ( !lookupContext.hasAllOperational() )
+        else
         {
-            filter( lookupContext, result );
+            if ( lookupContext.hasAllOperational() )
+            {
+                // Select the user attrinbutes from the result, depending on the returning attributes list
+                filterUserAttributes( lookupContext, result );
+            }
+            else if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+            {
+                // No returning attributes, return all the user attributes
+                // unless the user has requested no attributes
+                if ( lookupContext.hasNoAttribute() )
+                {
+                    result.clear();
+                }
+                else
+                {
+                    filterOperationalAttributes( result );
+                }
+            }
+            else
+            {
+                // Deal with the returning attributes
+                filterList( lookupContext, result );
+            }
         }
-
+        
         denormalizeEntryOpAttrs( result );
 
         return result;
@@ -490,13 +520,52 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Filters out the user attributes within a search results attributes. The attributes are directly
+     * modified.
+     *
+     * @param attributes the resultant attributes to filter
+     * @return true always
+     * @throws Exception if there are failures in evaluation
+     */
+    private boolean filterUserAttributes( LookupOperationContext lookupContext, Entry attributes ) throws LdapException
+    {
+        Set<String> removedAttributes = new HashSet<String>();
+
+        // Build a list of attributeType to remove
+        for ( Attribute attribute : attributes.getAttributes() )
+        {
+            AttributeType attributeType = attribute.getAttributeType();
+
+            if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
+            {
+                removedAttributes.add( attributeType.getOid() );
+            }
+        }
+
+        // Now remove the attributes which are not in the list to be returned
+        for ( String returningAttribute : lookupContext.getAttrsId() )
+        {
+            removedAttributes.remove( returningAttribute );
+        }
+        
+        // Now, remove the attributes from the result
+        for ( String attribute : removedAttributes )
+        {
+            attributes.removeAttributes( attribute );
+        }
+
+        return true;
+    }
+
+
     private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
 
         // still need to protect against returning op attrs when ids is null
-        if ( ids == null || ids.isEmpty() )
+        if ( ( ids == null ) || ids.isEmpty() )
         {
             filterOperationalAttributes( entry );
             return;
@@ -504,14 +573,66 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         if ( dn.size() == 0 )
         {
+            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
+
             for ( Attribute attribute : entry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
+                
+                if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
+                {
+                    // If it's not in the list of returning attribute, remove it
+                    if ( !ids.contains( attributeType.getOid() ) )
+                    {
+                        removedAttributes.add( attributeType );
+                    }
+                }
+            }
+            
+            for ( AttributeType attributeType : removedAttributes )
+            {
+                entry.removeAttributes( attributeType );
+            }
+        }
 
+        denormalizeEntryOpAttrs( entry );
+
+        // do nothing past here since this explicity specifies which
+        // attributes to include - backends will automatically populate
+        // with right set of attributes using ids array
+    }
+
+
+    private void filterList( LookupOperationContext lookupContext, Entry entry ) throws LdapException
+    {
+        Dn dn = lookupContext.getDn();
+        List<String> ids = lookupContext.getAttrsId();
+
+        // still need to protect against returning op attrs when ids is null
+        if ( ( ids == null ) || ids.isEmpty() )
+        {
+            filterOperationalAttributes( entry );
+            return;
+        }
+
+        if ( dn.size() == 0 )
+        {
+            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
+
+            for ( Attribute attribute : entry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                
+                // If it's not in the list of returning attribute, remove it
                 if ( !ids.contains( attributeType.getOid() ) )
                 {
-                    entry.removeAttributes( attributeType );
+                    removedAttributes.add( attributeType );
                 }
+            }
+            
+            for ( AttributeType attributeType : removedAttributes )
+            {
+                entry.removeAttributes( attributeType );
             }
         }
 
