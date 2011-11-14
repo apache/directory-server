@@ -81,12 +81,14 @@ public class DSAnnotationProcessor
         service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
         service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
 
-        List<Interceptor> interceptorList = service.getInterceptors();
-        
+        dsf.init( dsBuilder.name() );
+
         for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
         {
-            interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
+            service.addLast( ( Interceptor ) interceptorClass.newInstance() );
         }
+
+        List<Interceptor> interceptorList = service.getInterceptors();
 
         if ( dsBuilder.authenticators().length != 0 )
         {
@@ -126,8 +128,6 @@ public class DSAnnotationProcessor
         }
 
         service.setInterceptors( interceptorList );
-
-        dsf.init( dsBuilder.name() );
 
         // Process the Partition, if any.
         for ( CreatePartition createPartition : dsBuilder.partitions() )
