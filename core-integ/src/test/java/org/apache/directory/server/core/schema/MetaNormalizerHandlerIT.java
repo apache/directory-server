@@ -102,7 +102,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -124,7 +124,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries",
             schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -155,7 +155,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries",
             schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -187,7 +187,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer" );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -216,7 +216,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -229,7 +229,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "normalizer should be removed from the registry after being deleted",
             schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -245,7 +245,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -258,7 +258,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "normalizer should be removed from the registry after being deleted",
             schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -274,7 +274,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -422,7 +422,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Create a new Normalizer
         testAddNormalizerToEnabledSchema();
-        assertTrue( isOnDisk( nDn ) );
+        assertTrue( isOnDisk0( nDn ) );
         assertTrue( getService().getSchemaManager().getNormalizerRegistry().contains( OID ) );
 
         // Create a MR using this Normalizer
@@ -438,14 +438,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         mrDn = mrDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( mrDn ) );
+        assertFalse( isOnDisk0( mrDn ) );
         assertFalse( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         // MatchingRule Addition
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( mrDn ), attrs );
 
         // Post-checks
-        assertTrue( isOnDisk( mrDn ) );
+        assertTrue( isOnDisk0( mrDn ) );
         assertTrue( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         try

@@ -96,7 +96,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, OctetStringSyntaxChecker.class );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -114,7 +114,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries",
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -141,7 +141,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries",
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -169,7 +169,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -194,7 +194,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
 
         assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -207,7 +207,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -223,7 +223,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -236,7 +236,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -252,7 +252,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -400,7 +400,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Create a new SyntaxChecker
         testAddSyntaxCheckerToEnabledSchema();
-        assertTrue( isOnDisk( scDn ) );
+        assertTrue( isOnDisk0( scDn ) );
         assertTrue( getService().getSchemaManager().getSyntaxCheckerRegistry().contains( OID ) );
 
         // Create a Syntax using this comparator
@@ -411,14 +411,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         sDn = sDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( sDn ) );
+        assertFalse( isOnDisk0( sDn ) );
         assertFalse( getService().getSchemaManager().getLdapSyntaxRegistry().contains( OID ) );
 
         // Syntax Addition
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( sDn ), attrs );
 
         // Post-checks
-        assertTrue( isOnDisk( sDn ) );
+        assertTrue( isOnDisk0( sDn ) );
         assertTrue( getService().getSchemaManager().getLdapSyntaxRegistry().contains( OID ) );
 
         try

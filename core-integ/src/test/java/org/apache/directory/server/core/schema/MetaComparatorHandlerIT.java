@@ -106,7 +106,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
         assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
@@ -117,7 +117,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -133,7 +133,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
         assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
@@ -142,7 +142,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries",
             schemaManager.getComparatorRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -158,7 +158,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
         assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
@@ -175,7 +175,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries",
             schemaManager.getComparatorRegistry().contains( OID ) );
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -199,7 +199,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
         assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
@@ -210,7 +210,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator" );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -235,7 +235,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
         assertFalse( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Addition
@@ -245,7 +245,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( "adding new comparator to disabled schema should not register it into the registries",
             schemaManager.getComparatorRegistry().contains( OID ) );
 
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -262,7 +262,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         // Deletion
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
@@ -280,7 +280,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -294,7 +294,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         // Pre-checks
         assertFalse( "comparator should be removed from the registry after being deleted", schemaManager
             .getComparatorRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         // Deletion
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
@@ -312,7 +312,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -324,7 +324,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Create a new Comparator
         testAddComparatorToEnabledSchema();
-        assertTrue( isOnDisk( cDn ) );
+        assertTrue( isOnDisk0( cDn ) );
         assertTrue( getService().getSchemaManager().getComparatorRegistry().contains( OID ) );
 
         // Create a MR using this comparator
@@ -340,14 +340,14 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         mrDn = mrDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
-        assertFalse( isOnDisk( mrDn ) );
+        assertFalse( isOnDisk0( mrDn ) );
         assertFalse( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         // MatchingRule Addition
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( mrDn ), attrs );
 
         // Post-checks
-        assertTrue( isOnDisk( mrDn ) );
+        assertTrue( isOnDisk0( mrDn ) );
         assertTrue( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
 
         try

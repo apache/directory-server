@@ -37,7 +37,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     protected static String workingDir;
 
     @Before
-    public final void init()
+    public void init() throws Exception
     {
         workingDir = getService().getInstanceLayout().getPartitionsDirectory().getAbsolutePath();
     }
@@ -49,6 +49,29 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @param dn the SchemaObject Dn
      */
     protected String getSchemaPath( Dn dn )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( workingDir ).append( '/' ).append( getService().getSchemaPartition().getId() );
+
+        for ( Rdn rdn : dn )
+        {
+            sb.append( '/' );
+            sb.append( Strings.toLowerCase( rdn.getName() ) );
+        }
+
+        sb.append( ".ldif" );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * Get the path on disk where a specific SchemaObject is stored
+     *
+     * @param dn the SchemaObject Dn
+     */
+    protected String getSchemaPath0( Dn dn )
     {
         StringBuilder sb = new StringBuilder();
 
@@ -74,9 +97,27 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      */
     protected boolean isOnDisk( Dn dn )
     {
-        // donot change the value of getSchemaPath to lowercase
+        // do not change the value of getSchemaPath to lowercase
         // on Linux this gives a wrong path
         String schemaObjectFileName = getSchemaPath( dn );
+
+        File file = new File( schemaObjectFileName );
+
+        return file.exists();
+    }
+
+
+    /**
+     * Check that a specific SchemaObject is stored on the disk at the
+     * correct position in the Ldif partition
+     *
+     * @param dn The SchemaObject Dn
+     */
+    protected boolean isOnDisk0( Dn dn )
+    {
+        // do not change the value of getSchemaPath to lowercase
+        // on Linux this gives a wrong path
+        String schemaObjectFileName = getSchemaPath0( dn );
 
         File file = new File( schemaObjectFileName );
 
@@ -103,7 +144,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @param schemaName the name of the schema
      * @return the dn of the a schema's attributeType entity container
      * @throws Exception on failure
-     */
+     *
     protected Dn getAttributeTypeContainer( String schemaName ) throws Exception
     {
         return new Dn( "ou=attributeTypes,cn=" + schemaName );

@@ -112,7 +112,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) );
         assertEquals( schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -134,7 +134,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new syntax to disabled schema should not register it into the registries",
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -165,7 +165,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new syntax to disabled schema should not register it into the registries",
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -176,7 +176,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToEnabledSchema();
 
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
         assertTrue( "syntax should be removed from the registry after being deleted",
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
@@ -194,7 +194,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -205,7 +205,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         dn = dn.add( "m-oid" + "=" + OID );
         testAddSyntaxToDisabledSchema();
 
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
         assertFalse( "syntax should be removed from the registry after being deleted",
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
@@ -223,7 +223,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 

@@ -109,7 +109,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -120,7 +120,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
     }
 
 
@@ -153,7 +153,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
             getObjectClassRegistry().contains( OID ) );
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -166,7 +166,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -182,7 +182,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
@@ -195,7 +195,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk( dn ) );
+        assertTrue( isOnDisk0( dn ) );
 
         getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
 
@@ -211,7 +211,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk( dn ) );
+        assertFalse( isOnDisk0( dn ) );
     }
 
 
