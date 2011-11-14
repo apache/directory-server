@@ -42,6 +42,14 @@ public class MasterTableWrapper implements MasterTable
     /** partition the table belongs to */
     private Dn partitionDn;
     
+    
+    public MasterTableWrapper( Dn partitionDn, MasterTable wrappedTable )
+    {
+        this.partitionDn = partitionDn;
+        this.wrappedTable = wrappedTable;
+    }
+    
+    
     /**
      * {@inheritDoc}
      */

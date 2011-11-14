@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.api.txn;
 
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 
 import org.apache.directory.server.core.api.log.UserLogRecord;
@@ -82,7 +84,29 @@ public interface TxnLogManager
      * @return a cursor which provides a transactionally consistent view of the wrapped cursor 
      * @throws Exception
      */
-    IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
+    IndexCursor<?> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
+    
+    /**
+     * Returns an index which a provides a transactionally consistent view over the given index
+     *
+     * @param partitionDn dn of the partition the index lives in
+     * @param wrappedIndex index to be wrapped
+     * @return a transactionally consistent index
+     * @throws Exception
+     */
+    Index<?> wrap( Dn partitionDn, Index<?> wrappedIndex ) throws Exception;
+    
+    
+    /**
+     * Returns a transactionally consistent view of the master table
+     *
+     * @param partitionDn
+     * @param wrappedTable
+     * @return
+     * @throws Exception
+     */
+    MasterTable wrap( Dn partitionDn, MasterTable wrappedTable ) throws Exception;
+
     
     /**
      * Adds a dn and a scope on which the current txn depens

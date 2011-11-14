@@ -48,7 +48,14 @@ public class IndexWrapper implements Index<Object>
     /** partition the table belongs to */
     private Dn partitionDn;
    
+    
+    public IndexWrapper( Dn partitionDn, Index<Object> wrappedIndex )
+    {
+        this.partitionDn = partitionDn;
+        this.wrappedIndex = wrappedIndex;
+    }
 
+    
     /**
      * {@inheritDoc}
      */
@@ -243,7 +250,7 @@ public class IndexWrapper implements Index<Object>
         
         try
         {
-            wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>) logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, null );
         } 
         catch (Exception e)
@@ -267,7 +274,7 @@ public class IndexWrapper implements Index<Object>
         
         try
         {
-            wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, null, null );
         } 
         catch (Exception e)
@@ -291,7 +298,7 @@ public class IndexWrapper implements Index<Object>
         
         try
         {
-            wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, id );
         } 
         catch (Exception e)
@@ -315,7 +322,7 @@ public class IndexWrapper implements Index<Object>
         
         try
         {
-            wrappedCursor = logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, key, null );
         } 
         catch (Exception e)

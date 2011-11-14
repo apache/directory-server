@@ -26,11 +26,15 @@ import java.util.UUID;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 
@@ -55,9 +59,6 @@ public abstract class AbstractPartition implements Partition
     
     /** The root Dn for this partition */
     protected Dn suffixDn;
-
-    /** root ID */
-    UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
     
     /** Default ID */
     UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
@@ -227,7 +228,124 @@ public abstract class AbstractPartition implements Partition
         return rootID;
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public MasterTable getMasterTable() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( AttributeType attributeType ) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
     
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( String oid ) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( String oid ) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasSystemIndexOn( String oid) throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getIndex( String oid ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getUserIndex( String oid ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getSystemIndex( String oid ) throws IndexNotFoundException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
+    }
+
+
+
     /**
      * Check that the operation is done on an initialized store
      * @param property

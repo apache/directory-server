@@ -27,8 +27,10 @@ import java.util.UUID;
 import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.log.Log;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -151,6 +153,24 @@ public class DefaultTxnLogManager implements TxnLogManager
     public IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception
     {
         return new IndexCursorWrapper( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Index<Object> wrap( Dn partitionDn, Index<?> wrappedIndex ) throws Exception
+    {
+        return new IndexWrapper( partitionDn, ( Index<Object> ) wrappedIndex );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public MasterTable wrap( Dn partitionDn, MasterTable wrappedTable ) throws Exception
+    {
+        return new MasterTableWrapper( partitionDn, wrappedTable );
     }
     
 

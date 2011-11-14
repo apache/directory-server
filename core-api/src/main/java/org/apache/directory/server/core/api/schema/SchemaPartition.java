@@ -41,6 +41,9 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -53,6 +56,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
@@ -429,6 +433,123 @@ public final class SchemaPartition extends AbstractPartition
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return wrapped.lookup( lookupContext );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public MasterTable getMasterTable() throws Exception
+    {
+        return wrapped.getMasterTable();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( AttributeType attributeType ) throws Exception
+    {
+        return wrapped.hasIndexOn( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( AttributeType attributeType ) throws Exception
+    {
+        return wrapped.hasUserIndexOn( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception
+    {
+        return wrapped.hasSystemIndexOn( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( String oid ) throws Exception
+    {
+        return wrapped.hasIndexOn( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( String oid ) throws Exception
+    {
+        return wrapped.hasUserIndexOn( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasSystemIndexOn( String oid ) throws Exception
+    {
+        return wrapped.hasSystemIndexOn( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        return wrapped.getIndex( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        return wrapped.getUserIndex( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    {
+        return wrapped.getSystemIndex( attributeType );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getIndex( String oid ) throws IndexNotFoundException
+    {
+        return wrapped.getIndex( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getUserIndex( String oid ) throws IndexNotFoundException
+    {
+        return wrapped.getUserIndex( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getSystemIndex( String oid ) throws IndexNotFoundException
+    {
+        return wrapped.getSystemIndex( oid );
     }
 
 

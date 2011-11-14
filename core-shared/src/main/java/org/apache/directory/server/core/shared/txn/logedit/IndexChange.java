@@ -52,8 +52,10 @@ public class IndexChange extends AbstractDataChange
     private UUID id;
 
     /** Change type */
-    Type type;
+    private Type type;
 
+    /** Whether the index is a system index. False is user index */
+    private boolean isSystemIndex;
 
     // For externalizable
     public IndexChange()
@@ -61,13 +63,14 @@ public class IndexChange extends AbstractDataChange
     }
 
 
-    public IndexChange( Index<?> index, String oid, Object key, UUID id, Type type )
+    public IndexChange( Index<?> index, String oid, Object key, UUID id, Type type, boolean isSystemIndex )
     {
         this.index = index;
         this.oid = oid;
         this.key = key;
         this.id = id;
         this.type = type;
+        this.isSystemIndex = isSystemIndex;
     }
 
 

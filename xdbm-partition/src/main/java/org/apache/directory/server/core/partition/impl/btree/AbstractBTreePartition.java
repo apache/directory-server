@@ -62,6 +62,7 @@ import org.apache.directory.server.core.api.partition.index.IndexNotFoundExcepti
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -2124,8 +2125,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         return systemIndices.keySet().iterator();
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public MasterTable getMasterTable() throws Exception
+    {
+        return master;
+    }
 
-
+ 
     /**
      * {@inheritDoc}
      */
@@ -2133,17 +2143,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         String id = attributeType.getOid();
 
-        if ( userIndices.containsKey( id ) )
-        {
-            return userIndices.get( id );
-        }
-
-        if ( systemIndices.containsKey( id ) )
-        {
-            return systemIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
+        return getIndex( id );
     }
 
 
@@ -2159,15 +2159,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         String oid = attributeType.getOid();
         
-        if ( userIndices.containsKey( oid ) )
-        {
-            return userIndices.get( oid );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, attributeType, attributeType ) );
+        return getUserIndex( oid );
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -2180,12 +2175,55 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         String oid = attributeType.getOid();
         
+       return getSystemIndex( oid );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getIndex( String oid ) throws IndexNotFoundException
+    {
+        if ( userIndices.containsKey( oid ) )
+        {
+            return userIndices.get( oid );
+        }
+
         if ( systemIndices.containsKey( oid ) )
         {
             return systemIndices.get( oid );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, oid, oid ) );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getUserIndex( String oid ) throws IndexNotFoundException
+    {
+        if ( userIndices.containsKey( oid ) )
+        {
+            return userIndices.get( oid );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, oid, oid ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?> getSystemIndex( String oid ) throws IndexNotFoundException
+    {
+        if ( systemIndices.containsKey( oid ) )
+        {
+            return systemIndices.get( oid );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, oid, oid ) );
+
     }
 
 
@@ -2294,7 +2332,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
     {
-        return userIndices.containsKey( attributeType.getOid() );
+        return hasUserIndexOn( attributeType.getOid() );
     }
 
 
@@ -2303,7 +2341,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
     {
-        return systemIndices.containsKey( attributeType.getOid() );
+        return hasSystemIndexOn( attributeType.getOid() );
     }
 
 
@@ -2313,6 +2351,33 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public boolean hasIndexOn( AttributeType attributeType ) throws LdapException
     {
         return hasUserIndexOn( attributeType ) || hasSystemIndexOn( attributeType );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasUserIndexOn( String oid ) throws LdapException
+    {
+        return userIndices.containsKey( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasSystemIndexOn( String oid ) throws LdapException
+    {
+        return systemIndices.containsKey( oid );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( String oid ) throws LdapException
+    {
+        return hasUserIndexOn( oid ) || hasSystemIndexOn( oid );
     }
     
     

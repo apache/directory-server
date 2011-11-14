@@ -155,17 +155,17 @@ public class IndexCursorWrapperTest
 
             // Add (5,5) missing in the original index 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 5 ), getUUIDString( 5 ),
-                IndexChange.Type.ADD );
+                IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Add (10,11) missing in the original index 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 10 ), getUUIDString( 11 ),
-                IndexChange.Type.ADD );
+                IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Delete (6,6) existing in the original index 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 6 ), getUUIDString( 6 ),
-                IndexChange.Type.DELETE );
+                IndexChange.Type.DELETE, true );
             changeContainer.getChanges().add( idxChange );
 
             // add the log edit to the current txn
@@ -179,17 +179,17 @@ public class IndexCursorWrapperTest
 
             // Add (4,5) already existing in the original index 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 4 ), getUUIDString( 5 ),
-                IndexChange.Type.ADD );
+                IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Re add (0,1) missing in the original index 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 0 ), getUUIDString( 1 ),
-                IndexChange.Type.ADD );
+                IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Delete (10,11) added by the previous txn 
             idxChange = new IndexChange( mockIndex, attributeOid, new Long( 10 ), getUUIDString( 11 ),
-                IndexChange.Type.DELETE );
+                IndexChange.Type.DELETE, true );
             changeContainer.getChanges().add( idxChange );
 
             txnLogManager.log( changeContainer, false );
@@ -199,7 +199,7 @@ public class IndexCursorWrapperTest
             // Begin a read only txn and prepare the cursor wrapper 
             txnManager.beginTransaction( true );
 
-            cursorWrapper = txnLogManager.wrap( dn, cursor, ( ForwardIndexComparator<Object> ) comparator,
+            cursorWrapper = ( IndexCursor<Object> ) txnLogManager.wrap( dn, cursor, ( ForwardIndexComparator<Object> ) comparator,
                 attributeOid, true, null, null );
 
         }

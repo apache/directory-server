@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.partition;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.entry.ServerSearchResult;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -37,10 +38,14 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -53,6 +58,9 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public interface Partition
 {
+    /** root ID common to all partitions */
+    UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
+    
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
@@ -290,6 +298,131 @@ public interface Partition
      * @throws Exception if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
+    
+    
+    /**
+     * Returns the master table this partition maintains.
+     *
+     * @return master table.
+     * @throws Exception
+     */
+    MasterTable getMasterTable() throws Exception;
+
+    
+    /**
+     * Tells if an index is already present in the User's <strong>or</strong> System's index list
+     * @param id The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's <strong>or</strong> System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
+    
+
+    /**
+     * Tells if an index is already present in the User's index list
+     * @param attributeType The attributeType index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+
+
+    /**
+     * Tells if an index is already present in the System's index list
+     * @param attributeType The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+    
+    
+    /**
+     * Tells if an index is already present in the User's <strong>or</strong> System's index list
+     * @param oid The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's <strong>or</strong> System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasUserIndexOn( String oid ) throws Exception;
+
+
+    /**
+     * Tells if an index is already present in the System's index list
+     * @param oid The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasSystemIndexOn( String oid ) throws Exception;
+ 
+    
+    /**
+     * Tells if an index is already present in the User's <strong>or</strong> System's index list
+     * @param id The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's <strong>or</strong> System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasIndexOn( String oid ) throws Exception;
+
+
+    /**
+     * Get the user <strong>or</strong> system index associated with the given attributeType
+     * 
+     * @param attributeType The index attributeType we are looking for
+     * @return The associated user <strong>or</strong> system index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+
+
+    /**
+     * Get the user index associated with the given name
+     * @param attributeType The index name we are looking for
+     * @return The associated user index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+
+
+    /**
+     * Get the system index associated with the given name
+     * @param attributeType The index name we are looking for
+     * @return The associated system index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    
+    
+    /**
+     * Get the user <strong>or</strong> system index associated with the given attributeType
+     * 
+     * @param attributeType The index attributeType we are looking for
+     * @return The associated user <strong>or</strong> system index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getIndex( String oid ) throws IndexNotFoundException;
+
+
+    /**
+     * Get the user index associated with the given name
+     * @param oid The index name we are looking for
+     * @return The associated user index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getUserIndex( String oid ) throws IndexNotFoundException;
+
+
+    /**
+     * Get the system index associated with the given name
+     * @param oid The index name we are looking for
+     * @return The associated system index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?> getSystemIndex( String oid ) throws IndexNotFoundException;
     
     
     /**

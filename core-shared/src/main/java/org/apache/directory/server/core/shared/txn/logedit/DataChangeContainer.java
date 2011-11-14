@@ -108,6 +108,10 @@ public class DataChangeContainer extends AbstractLogEdit
         return changes;
     }
 
+    public void addChange( DataChange change )
+    {
+        changes.add( change );
+    }
 
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
