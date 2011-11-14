@@ -139,32 +139,6 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
 
 
     /**
-     * Gets relative Dn to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the a schema's attributeType entity container
-     * @throws Exception on failure
-     *
-    protected Dn getAttributeTypeContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=attributeTypes,cn=" + schemaName );
-    }
-
-
-    /**
-     * Get relative Dn to ou=schema for Comparators
-     *
-     * @param schemaName the name of the schema
-     * @return the dn to the ou under which comparators are found for a schema
-     * @throws Exception if there are dn construction issues
-     */
-    protected Dn getComparatorContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=comparators,cn=" + schemaName );
-    }
-
-
-    /**
      * Get relative Dn to ou=schema for MatchingRules
      *
      * @param schemaName the name of the schema

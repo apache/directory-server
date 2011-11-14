@@ -89,8 +89,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid: " + OID,
             "m-description: A test comparator" );
 
-        Dn dn = getComparatorContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta" );
 
         // Addition
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
