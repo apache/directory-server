@@ -166,19 +166,6 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
 
 
     /**
-     * Gets relative Dn to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return  the name of the container with normalizer entries in it
-     * @throws Exception on error
-     */
-    protected Dn getNormalizerContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=normalizers,cn=" + schemaName );
-    }
-
-
-    /**
      * Get relative Dn to ou=schema for Syntaxes
      *
      * @param schemaName the name of the schema
