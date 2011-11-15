@@ -47,7 +47,11 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     public MoveAndRenameOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+        }
     }
 
 
@@ -63,7 +67,11 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.newSuperiorDn = newSuperiorDn;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+        }
 
         try
         {
@@ -81,7 +89,11 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );
         this.newSuperiorDn = modifyDnRequest.getNewSuperior();
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE_AND_RENAME ) );
+        }
 
         if ( newSuperiorDn == null )
         {

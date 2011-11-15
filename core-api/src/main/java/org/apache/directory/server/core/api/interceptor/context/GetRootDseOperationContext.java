@@ -39,7 +39,11 @@ public class GetRootDseOperationContext extends AbstractOperationContext
     public GetRootDseOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
+        }
     }
     
     
@@ -51,7 +55,11 @@ public class GetRootDseOperationContext extends AbstractOperationContext
     public GetRootDseOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
+        }
     }
     
     

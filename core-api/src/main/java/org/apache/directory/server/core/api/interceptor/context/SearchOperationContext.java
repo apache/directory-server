@@ -58,7 +58,11 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        }
     }
 
 
@@ -69,7 +73,11 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws LdapException
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        }
 
         this.dn = searchRequest.getBase();
         this.filter = searchRequest.getFilter();
@@ -114,7 +122,11 @@ public class SearchOperationContext extends SearchingOperationContext
         timeLimit = searchControls.getTimeLimit();
         sizeLimit = searchControls.getCountLimit();
         typesOnly = searchControls.getReturningObjFlag();
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        }
 
         if ( searchControls.getReturningAttributes() != null )
         {
@@ -143,7 +155,11 @@ public class SearchOperationContext extends SearchingOperationContext
         super( session, dn, returningAttributes );
         super.setScope( scope );
         this.filter = filter;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
+        }
     }
 
 
