@@ -418,7 +418,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         // Create a new Normalizer
         testAddNormalizerToEnabledSchema();
         assertTrue( isOnDisk( nDn ) );
-        assertTrue( getService().getSchemaManager().getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
 
         // Create a MR using this Normalizer
         Dn mrDn = new Dn( "m-oid=" + OID + ",ou=matchingrules,cn=apachemeta,ou=schema" );
@@ -434,14 +434,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Pre-checks
         assertFalse( isOnDisk( mrDn ) );
-        assertFalse( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+        assertFalse( schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
         // MatchingRule Addition
         connection.add( entry );
 
         // Post-checks
         assertTrue( isOnDisk( mrDn ) );
-        assertTrue( getService().getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+        assertTrue( schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
         try
         {

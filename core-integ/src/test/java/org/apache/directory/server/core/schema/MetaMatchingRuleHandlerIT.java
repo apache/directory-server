@@ -65,7 +65,6 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";
 
-
     public static SchemaManager schemaManager;
     private static LdapConnection connection;
 

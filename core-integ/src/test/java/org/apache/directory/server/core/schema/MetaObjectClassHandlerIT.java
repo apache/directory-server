@@ -20,31 +20,27 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.util.JndiUtils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,15 +68,31 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.3.100002";
 
 
+
+    public static SchemaManager schemaManager;
+    private static LdapConnection connection;
+
+
+    @Before
+    public void setup() throws Exception
+    {
+        super.init();
+        connection = IntegrationUtils.getAdminConnection( getService() );
+        schemaManager = getService().getSchemaManager();
+    }
+
     private static ObjectClassRegistry getObjectClassRegistry()
     {
-        return getService().getSchemaManager().getObjectClassRegistry();
+        return schemaManager.getObjectClassRegistry();
     }
 
 
     private Dn addObjectClass() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes(
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+
+        Entry entry = new DefaultEntry(
+            dn,
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -91,9 +103,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-must: cn",
             "m-may: ou" );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         return dn;
     }
@@ -109,7 +119,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
-        assertTrue( isOnDisk0( dn ) );
+        assertTrue( isOnDisk( dn ) );
     }
 
 
@@ -120,14 +130,17 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk0( dn ) );
+        assertTrue( isOnDisk( dn ) );
     }
 
 
     @Test
     public void testAddObjectClassToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes(
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=notloaded,ou=schema" );
+
+        Entry entry = new DefaultEntry(
+            dn,
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -138,37 +151,34 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-must: cn",
             "m-may: ou" );
 
-        Dn dn = getObjectClassContainer( "notloaded" );
-        dn = dn.add( "m-oid" + "=" + OID );
-
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( NameNotFoundException nnfe )
+        catch( LdapException le )
         {
             // Excpected result
         }
 
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
             getObjectClassRegistry().contains( OID ) );
-        assertFalse( isOnDisk0( dn ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 
     @Test
     public void testDeleteObjectClassFromEnabledSchema() throws Exception
     {
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+
         addObjectClass();
 
         assertTrue( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk0( dn ) );
+        assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
+        connection.delete( dn );
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
@@ -182,22 +192,22 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk0( dn ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 
     @Test
     public void testDeleteObjectClassFromDisabledSchema() throws Exception
     {
-        Dn dn = getObjectClassContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
+
         addObjectClassToDisabledSchema();
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
-        assertTrue( isOnDisk0( dn ) );
+        assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
+        connection.delete( dn );
 
         assertFalse( "objectClass should be removed from the registry after being deleted",
             getObjectClassRegistry().contains( OID ) );
@@ -211,7 +221,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertFalse( isOnDisk0( dn ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 
@@ -219,13 +229,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameObjectClassType() throws Exception
     {
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
+
         addObjectClass();
 
-        Dn newdn = getObjectClassContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apachemeta,ou=schema" );
+
+        connection.move( dn, newDn );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed",
             getObjectClassRegistry().contains( OID ) );
@@ -250,13 +260,11 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         addObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn newdn = getObjectClassContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apache,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -272,13 +280,11 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         addObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn newdn = getObjectClassContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apache,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertFalse( "old objectClass OID should NOT be present",
             getObjectClassRegistry().contains( OID ) );
@@ -301,15 +307,14 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        ModificationItem[] mods = new ModificationItem[2];
-        Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new BasicAttribute( "m-name", NEW_NAME );
-        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        Modification mod1 = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-description", DESCRIPTION1 );
+        Modification mod2 = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-name", NEW_NAME );
+        
+        connection.modify( dn, mod1, mod2 );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -333,13 +338,14 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Attributes mods = new BasicAttributes( true );
-        mods.put( "m-description", DESCRIPTION1 );
-        mods.put( "m-name", NEW_NAME );
-        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
+        Modification mod1 = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-description", DESCRIPTION1 );
+        Modification mod2 = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-name", NEW_NAME );
+
+        connection.modify( dn, mod1, mod2 );
 
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
@@ -358,22 +364,22 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     private void addDependeeObjectClass() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
-        attrs.put( "m-oid", DEPENDEE_OID );
-        attrs.put( "m-name", DEPENDEE_NAME );
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-        attrs.put( "m-supObjectClass", OID );
+        Dn dn = new Dn( "m-oid=" + DEPENDEE_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+        
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", DEPENDEE_OID,
+            "m-name", DEPENDEE_NAME,
+            "m-description", DESCRIPTION0,
+            "m-typeObjectClass", "AUXILIARY",
+            "m-must: cn",
+            "m-may: ou",
+            "m-supObjectClass", OID );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + DEPENDEE_OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( DEPENDEE_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
@@ -383,17 +389,17 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteObjectClassWhenInUse() throws Exception
     {
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+
         addObjectClass();
         addDependeeObjectClass();
 
         try
         {
-            getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
+            connection.delete( dn );
             fail( "should not be able to delete a objectClass in use" );
         }
-        catch( OperationNotSupportedException e )
+        catch( LdapException e )
         {
         }
 
@@ -409,18 +415,16 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         addDependeeObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn newdn = getObjectClassContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apache,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName(dn), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move a objectClass in use" );
         }
-        catch( OperationNotSupportedException e )
+        catch( LdapException e )
         {
         }
 
@@ -436,18 +440,16 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
         addDependeeObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn newdn = getObjectClassContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apache,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move an objectClass in use" );
         }
-        catch( OperationNotSupportedException e )
+        catch( LdapException e )
         {
         }
 
@@ -460,20 +462,19 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameObjectClassWhenInUse() throws Exception
     {
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+
         addObjectClass();
         addDependeeObjectClass();
 
-        Dn newdn = getObjectClassContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.rename( dn, rdn );
             fail( "should not be able to rename an objectClass in use" );
         }
-        catch( OperationNotSupportedException e )
+        catch ( LdapException e )
         {
         }
 
@@ -491,18 +492,16 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         addObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn top = new Dn();
-        top.add( "m-oid" + "=" + OID );
+        Dn top = new Dn( "m-oid=" + OID );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
+            connection.move( dn, top );
             fail( "should not be able to move a objectClass up to ou=schema" );
         }
-        catch( InvalidNameException e )
+        catch ( LdapException e )
         {
         }
 
@@ -517,18 +516,16 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         addObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        Dn newdn = new Dn( "ou=comparators,cn=apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move a objectClass into comparators container" );
         }
-        catch( InvalidNameException e )
+        catch( LdapException e )
         {
         }
 
@@ -539,7 +536,10 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private Dn addObjectClassToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes(
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
+
+        Entry entry = new DefaultEntry(
+            dn,
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -550,9 +550,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-must: cn",
             "m-may: ou" );
 
-        Dn dn = getObjectClassContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         return dn;
     }
@@ -564,14 +562,12 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         addObjectClass();
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
         // nis is inactive by default
-        Dn newdn = getObjectClassContainer( "nis" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertFalse( "objectClass OID should no longer be present",
             getObjectClassRegistry().contains( OID ) );
@@ -585,16 +581,14 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClassToDisabledSchema();
 
         // nis is inactive by default
-        Dn dn = getObjectClassContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
 
         assertFalse( "objectClass OID should NOT be present when added to disabled nis schema",
             getObjectClassRegistry().contains( OID ) );
 
-        Dn newdn = getObjectClassContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apachemeta,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertTrue( "objectClass OID should be present when moved to enabled schema",
             getObjectClassRegistry().contains( OID ) );
@@ -602,6 +596,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( "objectClass should be in apachemeta schema after move",
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
+    
 
     // ----------------------------------------------------------------------
     // Let's test the Abstract, Auiliary and Structural inheritence enforcement
@@ -612,23 +607,22 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAbstractOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "ABSTRACT" );
-        attrs.put( "m-supObjectClass", "top" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: ABSTRACT",
+            "m-supObjectClass: top",
+            "m-must: cn",
+            "m-may: ou" );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -641,33 +635,28 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAbstractOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "ABSTRACT" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "javaSerializedObject");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: ABSTRACT",
+            "m-supObjectClass: top",
+            "m-supObjectClass: javaSerializedObject",
+            "m-must: cn",
+            "m-may: ou" );
 
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
@@ -680,33 +669,28 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAbstractOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "ABSTRACT" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "person");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: ABSTRACT",
+            "m-supObjectClass: top",
+            "m-supObjectClass: person",
+            "m-must: cn",
+            "m-may: ou" );
 
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
@@ -719,23 +703,22 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAuxiliaryOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", NEW_OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-supObjectClass", "top" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", NEW_OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: AUXILIARY",
+            "m-supObjectClass: top",
+            "m-must: cn",
+            "m-may: ou" );
 
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -748,27 +731,23 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAuxiliaryOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", NEW_OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", NEW_OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: AUXILIARY",
+            "m-supObjectClass: top",
+            "m-supObjectClass: javaNamingReference",
+            "m-must: cn",
+            "m-may: ou" );
 
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "javaNamingReference");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -781,33 +760,28 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAuxiliaryOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "ABSTRACT" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "person");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: ABSTRACT",
+            "m-supObjectClass: top",
+            "m-supObjectClass: person",
+            "m-must: cn",
+            "m-may: ou" );
 
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
@@ -820,23 +794,22 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddStructuralOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+        
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", NEW_OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: STRUCTURAL",
+            "m-supObjectClass: top",
+            "m-must: cn",
+            "m-may: ou" );
 
-        attrs.put( "m-oid", NEW_OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
-        attrs.put( "m-supObjectClass", "top" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
@@ -849,33 +822,28 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddStructuralOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
-
-        attrs.put( "m-oid", NEW_OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "javaNamingReference");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + NEW_OID );
+        Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+        
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", NEW_OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: STRUCTURAL",
+            "m-supObjectClass: top",
+            "m-supObjectClass: javaNamingReference",
+            "m-must: cn",
+            "m-may: ou" );
 
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
@@ -888,27 +856,23 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddStructuralOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
+        Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
+        
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid", NEW_OID,
+            "m-name: abstractOCtest",
+            "m-description: An abstract oC inheriting from top",
+            "m-typeObjectClass: STRUCTURAL",
+            "m-supObjectClass: top",
+            "m-supObjectClass: person",
+            "m-must: cn",
+            "m-may: ou" );
 
-        attrs.put( "m-oid", NEW_OID );
-        attrs.put( "m-name", "abstractOCtest");
-        attrs.put( "m-description", "An abstract oC inheriting from top" );
-        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-
-        Attribute sup = new BasicAttribute( "m-supObjectClass" );
-        sup.add( "top" );
-        sup.add( "person");
-        attrs.put( sup );
-
-        Dn dn = getObjectClassContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
