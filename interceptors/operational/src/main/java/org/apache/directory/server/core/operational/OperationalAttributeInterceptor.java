@@ -456,7 +456,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        //modifiedEntry.setDn( renameContext.getNewDn() );
         renameContext.setModifiedEntry( modifiedEntry );
 
         next( renameContext );
@@ -644,7 +643,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
+    private void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
     {
         if ( directoryService.isDenormalizeOpAttrsEnabled() )
         {
