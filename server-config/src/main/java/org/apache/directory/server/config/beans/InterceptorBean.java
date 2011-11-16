@@ -120,7 +120,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
     /**
      * @param interceptorClassName the interceptor ClassName to set
      */
-    public void setFqcn( String interceptorClassName )
+    public void setInterceptorClassName( String interceptorClassName )
     {
         this.interceptorClassName = interceptorClassName;
     }
