@@ -110,18 +110,27 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public CoreSession getSession()
     {
         return session;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setSession( CoreSession session )
     {
         this.session = session;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     protected void setAuthorizedPrincipal( LdapPrincipal authorizedPrincipal )
     {
         this.authorizedPrincipal = authorizedPrincipal;
@@ -148,48 +157,72 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addRequestControl( Control requestControl )
     {
         requestControls.put( requestControl.getOid(), requestControl );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control getRequestControl( String numericOid )
     {
         return requestControls.get( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasRequestControl( String numericOid )
     {
         return requestControls.containsKey( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasRequestControls()
     {
         return ! requestControls.isEmpty();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addResponseControl( Control responseControl )
     {
         responseControls.put( responseControl.getOid(), responseControl );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control getResponseControl( String numericOid )
     {
         return responseControls.get( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasResponseControl( String numericOid )
     {
         return responseControls.containsKey( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control[] getResponseControls()
     {
         if ( responseControls.isEmpty() )
@@ -201,18 +234,27 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasResponseControls()
     {
         return ! responseControls.isEmpty();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int getResponseControlCount()
     {
         return responseControls.size();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addRequestControls( Control[] requestControls )
     {
         for ( Control c : requestControls )
@@ -222,6 +264,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setRequestControls( Map<String, Control> requestControls )
     {
         this.requestControls = requestControls;
@@ -294,6 +339,28 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    
+    
+    /**
+     * @return The number of the current interceptor in the list
+     */
+    public int getCurrentInterceptor()
+    {
+        return currentInterceptor;
+    }
+    
+    
+    /**
+     * Sets the current interceptor number to a new value.
+     * 
+     * @param currentInterceptor The new current interceptor value
+     */
+    public void setCurrentInterceptor( int currentInterceptor )
+    {
+        this.currentInterceptor = currentInterceptor;
+    }
+
+    
     /**
      * Sets the set of bypassed Interceptors.
      * 
@@ -372,6 +439,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         if ( lookupContext != next )
@@ -383,6 +453,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( Dn dn, Collection<String> byPassed ) throws LdapException
     {
         LookupOperationContext lookupContext = newLookupContext( dn );
@@ -391,6 +464,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( Dn dn, Collection<String> byPassed, String... attrIds ) throws LdapException
     {
         LookupOperationContext lookupContext = newLookupContext( dn );
@@ -400,6 +476,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
     {
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
@@ -410,12 +489,20 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     // TODO - need synchronization here and where we update links
+    /**
+     * {@inheritDoc}
+     */
     public LookupOperationContext newLookupContext( Dn dn )
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
         return lookupContext;
     }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public LdapPrincipal getEffectivePrincipal()
     {
         if ( authorizedPrincipal != null )
@@ -430,14 +517,18 @@ public abstract class AbstractOperationContext implements OperationContext
     // -----------------------------------------------------------------------
     // OperationContext Linked List Methods
     // -----------------------------------------------------------------------
-
-
+    /**
+     * {@inheritDoc}
+     */
     public boolean isFirstOperation()
     {
         return previous == null;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public OperationContext getFirstOperation()
     {
         if ( previous == null )
@@ -449,6 +540,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public OperationContext getLastOperation()
     {
         if ( next == null )
@@ -460,12 +554,18 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public OperationContext getNextOperation()
     {
         return next;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     protected void setNextOperation( OperationContext next )
     {
         this.next = next;

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -43,11 +43,11 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 public interface OperationContext
 {
     /**
-     * Checks to see if this operation is the first operation in a chain of 
-     * operations performed on the DirectoryService.  The first operation in  
-     * a sequence of operations, is not a byproduct of another operation 
-     * unlike operations following in the sequence.  The other operations 
-     * following the first, occur as a side effect to complete this first 
+     * Checks to see if this operation is the first operation in a chain of
+     * operations performed on the DirectoryService.  The first operation in
+     * a sequence of operations, is not a byproduct of another operation
+     * unlike operations following in the sequence.  The other operations
+     * following the first, occur as a side effect to complete this first
      * operation.
      * 
      * @return true if the operation is the first, false otherwise
@@ -58,7 +58,7 @@ public interface OperationContext
     /**
      * Gets the first, direct operation issued against the DirectoryService.
      *
-     * @return the first, direct operation issued 
+     * @return the first, direct operation issued
      */
     OperationContext getFirstOperation();
     
@@ -74,7 +74,7 @@ public interface OperationContext
     /**
      * Gets the next, indirect operation issued on the DirectoryService.
      *
-     * @return the next, indirect operation issued 
+     * @return the next, indirect operation issued
      */
     OperationContext getNextOperation();
     
@@ -85,12 +85,26 @@ public interface OperationContext
      * @return the last, operation issued
      */
     OperationContext getLastOperation();
+    
+    
+    /**
+     * @return The number of the current interceptor in the list
+     */
+    int getCurrentInterceptor();
+    
+    
+    /**
+     * Sets the current interceptor number to a new value.
+     * 
+     * @param currentInterceptor The new current interceptor value
+     */
+    void setCurrentInterceptor( int currentInterceptor );
 
 
     /**
-     * Gets the effective principal for this operation which may not be the 
+     * Gets the effective principal for this operation which may not be the
      * same as the authenticated principal when the session for this context
-     * has an explicit authorization id, or this operation was applied with 
+     * has an explicit authorization id, or this operation was applied with
      * the proxy authorization control.
      * 
      * @see CoreSession#getAuthenticatedPrincipal()
@@ -117,23 +131,23 @@ public interface OperationContext
     /**
      * Gets the server entry associated with the target Dn of this
      * OperationContext.  The entry associated with the Dn may be altered
-     * during the course of processing an LDAP operation through the 
+     * during the course of processing an LDAP operation through the
      * InterceptorChain.  This place holder is put here to prevent the need
      * for repetitive lookups of the target entry.  Furthermore the returned
      * entry may be altered by any Interceptor in the chain and this is why a
-     * ClonedServerEntry is returned instead of a Entry.  A 
+     * ClonedServerEntry is returned instead of a Entry.  A
      * ClonedServerEntry has an immutable reference to the original state of
      * the target entry.  The original state can be accessed via a call to
-     * {@link ClonedServerEntry#getOriginalEntry()}.  The return value may be 
-     * null in which case any lookup performed to access it may set it to 
+     * {@link ClonedServerEntry#getOriginalEntry()}.  The return value may be
+     * null in which case any lookup performed to access it may set it to
      * prevent the need for subsequent lookups.
      * 
-     * Also note that during the course of handling some operations such as 
+     * Also note that during the course of handling some operations such as
      * those that rename, move or rename and move the entry, may alter the Dn
      * of this entry.  Interceptor implementors should not presume the Dn or
-     * the values contained in this entry are currently what is present in the 
-     * DIT.  The original entry contained in the ClonedServerEntry shoudl be 
-     * used as the definitive source of information about the state of the 
+     * the values contained in this entry are currently what is present in the
+     * DIT.  The original entry contained in the ClonedServerEntry shoudl be
+     * used as the definitive source of information about the state of the
      * entry in the DIT before returning from the Partition subsystem.
      * 
      * @return target entry associated with the Dn of this OperationContext
@@ -158,7 +172,7 @@ public interface OperationContext
     void addResponseControl( Control responseControl );
     
     
-    /** 
+    /**
      * Checks to see if a response control is present on this operation.
      *
      * @param numericOid the numeric OID of the control also known as it's type OID
@@ -179,7 +193,7 @@ public interface OperationContext
     /**
      * Gets all the response controls producted during this operation.
      *
-     * @return an array over all the response controls 
+     * @return an array over all the response controls
      */
     Control[] getResponseControls();
     
@@ -208,7 +222,7 @@ public interface OperationContext
     void addRequestControl( Control requestControl );
     
     
-    /** 
+    /**
      * Checks to see if a request control is present on this request.
      *
      * @param numericOid the numeric OID of the control also known as it's type OID
@@ -273,7 +287,7 @@ public interface OperationContext
     Collection<String> getByPassed();
     
     /**
-     * Gets the next interceptor in the list of interceptors. The 
+     * Gets the next interceptor in the list of interceptors. The
      * position in the list will be incremented.
      * 
      * @return The next interceptor from the list of interceptors
@@ -331,7 +345,7 @@ public interface OperationContext
     /**
      * Process the delete for inner operations. This is only valid for SubschemaSubentry
      * operations, and will most certainly be removed later.
-     *  
+     * 
      * @param dn
      * @throws LdapException
      */

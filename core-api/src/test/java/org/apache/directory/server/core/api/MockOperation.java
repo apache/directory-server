@@ -324,4 +324,17 @@ public class MockOperation implements OperationContext
         // TODO Auto-generated method stub
         return "";
     }
+
+
+    @Override
+    public int getCurrentInterceptor()
+    {
+        return 0;
+    }
+
+
+    @Override
+    public void setCurrentInterceptor( int currentInterceptor )
+    {
+    }
 }

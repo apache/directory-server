@@ -1375,7 +1375,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
 
             modifyContext.setModItems( cleanMods );
-
+            
             // Now that the entry has been modified, update the SSSE
             schemaSubEntryManager.modifySchemaSubentry( modifyContext, modifyContext
                 .hasRequestControl( Cascade.OID ) );
