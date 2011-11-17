@@ -22,16 +22,22 @@ package org.apache.directory.server.core.shared.txn.logedit;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.UUID;
 
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
+import org.apache.directory.server.core.api.txn.logedit.EntryModification;
+import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryAddDelete extends AbstractDataChange
+public class EntryAddDelete extends AbstractDataChange implements EntryModification
 {
     /** Added or deleted entry */
     private Entry entry;
@@ -61,6 +67,51 @@ public class EntryAddDelete extends AbstractDataChange
     public Type getType()
     {
         return type;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Entry applyModification( Partition partition, Entry curEntry, UUID entryId, long changeLsn, boolean recovery )
+    {
+        if ( type == EntryAddDelete.Type.ADD )
+        {
+            if ( curEntry != null )
+            {
+                if ( recovery == false )
+                {
+                    throw new IllegalStateException( "Entry is being added while it already exists:" + entryId
+                        + " curEntry:" + curEntry + " entry:" + entry );
+                }
+                else
+                {
+                    // TODO verify the curEnty is more recent
+                    return curEntry;
+                }
+            }
+
+            curEntry = entry;
+        }
+        else
+        {
+            if ( curEntry == null )
+            {
+                if ( recovery == false )
+                {
+                    throw new IllegalStateException( "Entry is being delete while it doesnt exist:" + entryId
+                        + " curEntry:" + curEntry + " entry:" + entry );
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            curEntry = null;
+        }
+
+        return curEntry;
     }
     
     

@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Comparator;
 
+import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
 import org.apache.directory.server.core.api.txn.logedit.DataChange;
@@ -270,76 +271,12 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
             {
                 container = ( DataChangeContainer ) edit;
 
-                /**
-                 * Check if the container has changes for the entry
-                 * and the version says we need to apply this change
-                 */
-                //TODO check version and id here. 
-                UUID entryId = container.getEntryID();
-                boolean applyChanges = false;
-
-                if ( entryId != null )
+                Entry nextEntry = container.mergeUpdates( partitionDn, entryID, curEntry, cloneOnChange );
+                
+                if ( nextEntry != curEntry )
                 {
-                    /*
-                     * Container has changes for entry. Check if the entry change
-                     * affects out entry by comparing id and partitionDn.
-                     */
-
-                    Comparator<UUID> idComp = UUIDComparator.INSTANCE;
-
-                    if ( partitionDn.equals( container.getPartitionDn() )
-                        && ( idComp.compare( entryID, container.getEntryID() ) == 0 ) )
-                    {
-                        applyChanges = true;
-                    }
-
-                }
-
-                if ( applyChanges )
-                {
-                    List<DataChange> dataChanges = container.getChanges();
-                    Iterator<DataChange> dit = dataChanges.iterator();
-                    DataChange nextChange;
-
-                    while ( dit.hasNext() )
-                    {
-                        nextChange = dit.next();
-
-                        if ( ( nextChange instanceof EntryChange ) && ( curEntry != null ) )
-                        {
-                            EntryChange entryChange = ( EntryChange ) nextChange;
-
-                            if ( needToCloneOnChange )
-                            {
-                                curEntry = curEntry.clone();
-                                needToCloneOnChange = false;
-                            }
-
-                            try
-                            {
-                                AttributeUtils.applyModification( curEntry, entryChange.getRedoChange() );
-                            }
-                            catch ( LdapException e )
-                            {
-                                //TODO decide whether to throw IOException or an internal exception here
-                            }
-                        }
-                        else if ( nextChange instanceof EntryAddDelete )
-                        {
-                            EntryAddDelete addDelete = ( EntryAddDelete ) nextChange;
-                            needToCloneOnChange = false;
-
-                            if ( addDelete.getType() == EntryAddDelete.Type.ADD )
-                            {
-                                curEntry = addDelete.getChangedEntry();
-                            }
-                            else
-                            {
-                                curEntry = null;
-                            }
-                        }
-                    }
-
+                    cloneOnChange = false;
+                    curEntry = nextEntry;
                 }
             }
         }

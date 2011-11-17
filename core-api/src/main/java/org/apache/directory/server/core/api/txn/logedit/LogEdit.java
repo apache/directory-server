@@ -37,4 +37,11 @@ public interface LogEdit extends Externalizable
      * @return position of the log edit in the wal
      */
     LogAnchor getLogAnchor();
+    
+    /**
+     * Applies the logedit to the underlying partitions
+     *
+     * @param recovery true if at recovery stage 
+     */
+    void apply( boolean recovery ) throws Exception;
 }

@@ -24,16 +24,23 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.UUID;
 
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 import org.apache.directory.server.core.api.txn.logedit.DataChange;
+import org.apache.directory.server.core.api.txn.logedit.EntryModification;
+import org.apache.directory.server.core.api.txn.logedit.IndexModification;
 
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.txn.TxnManager;
@@ -53,6 +60,9 @@ public class DataChangeContainer extends AbstractLogEdit
     /** Transaction under which the change is done */
     private long txnID;
 
+    /** Partition stored for fast access */
+    private transient Partition partition;
+    
     /** partition this change applies to */
     private Dn partitionDn;
 
@@ -67,11 +77,15 @@ public class DataChangeContainer extends AbstractLogEdit
     }
 
 
+    public DataChangeContainer( Partition partition )
+    {
+        this.partitionDn = partition.getSuffixDn();
+    }
+
     public DataChangeContainer( Dn partitionDn )
     {
         this.partitionDn = partitionDn;
     }
-
 
     public long getTxnID()
     {
@@ -88,6 +102,11 @@ public class DataChangeContainer extends AbstractLogEdit
     public Dn getPartitionDn()
     {
         return partitionDn;
+    }
+    
+    public Partition getPartition()
+    {
+        return partition;
     }
 
 
@@ -108,10 +127,140 @@ public class DataChangeContainer extends AbstractLogEdit
         return changes;
     }
 
+
     public void addChange( DataChange change )
     {
         changes.add( change );
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void apply( boolean recovery ) throws Exception
+    {
+        long changeLsn = getLogAnchor().getLogLSN();
+        Entry curEntry = null;
+        boolean entryExisted = false;
+
+        // TODO find the partition from the dn if changeContainer doesnt have it.
+
+        if ( entryID != null )
+        {
+            MasterTable master = partition.getMasterTable();
+            curEntry = master.get( entryID );
+
+            if ( curEntry != null )
+            {
+                curEntry = curEntry.clone();
+                entryExisted = true;
+            }
+        }
+
+        Iterator<DataChange> dit = changes.iterator();
+        DataChange nextChange;
+
+        while ( dit.hasNext() )
+        {
+            nextChange = dit.next();
+
+            if ( ( nextChange instanceof EntryModification ) )
+            {
+                EntryModification entryModification = ( EntryModification ) nextChange;
+
+                curEntry = entryModification.applyModification( partition, curEntry, entryID, changeLsn, false );
+            }
+            else
+            {
+                IndexModification indexModification = ( IndexModification ) nextChange;
+                indexModification.applyModification( partition, false );
+            }
+        }
+
+        if ( curEntry != null )
+        {
+            MasterTable master = partition.getMasterTable();
+            master.put( entryID, curEntry );
+        }
+        else
+        {
+            if ( entryExisted )
+            {
+                MasterTable master = partition.getMasterTable();
+                master.remove( entryID );
+            }
+        }
+    }
+
+
+    /**
+     * Applies the updates made by this log edit to the entry identified by the entryID and partition dn. 
+     *
+     * @param entryPartitionDn dn of the partition of the entry
+     * @param id id of the entry
+     * @param curEntry entry to be merged
+     * @param needToCloneOnChange true if entry should be cloned while applying a change.
+     * @return entry after it is merged with the updates in the txn.
+     */
+    public Entry mergeUpdates( Dn entryPartitionDn, UUID id, Entry curEntry, boolean needToCloneOnChange )
+    {
+        /**
+        * Check if the container has changes for the entry
+        * and the version says we need to apply this change
+        */
+        boolean applyChanges = false;
+
+        if ( entryID != null )
+        {
+            /*
+             * Container has changes for an entry. Check if the entry change
+             * affects out entry by comparing id and partitionDn.
+             */
+
+            Comparator<UUID> idComp = UUIDComparator.INSTANCE;
+
+            if ( entryPartitionDn.equals( partitionDn )
+                && ( idComp.compare( id, entryID ) == 0 ) )
+            {
+                applyChanges = true;
+            }
+
+        }
+
+        if ( applyChanges )
+        {
+            long changeLsn = getLogAnchor().getLogLSN();
+            Iterator<DataChange> dit = changes.iterator();
+            DataChange nextChange;
+
+            while ( dit.hasNext() )
+            {
+                nextChange = dit.next();
+
+                if ( nextChange instanceof EntryModification )
+                {
+                    EntryModification entryModification = ( EntryModification ) nextChange;
+
+                    if ( needToCloneOnChange )
+                    {
+                        if ( curEntry != null )
+                        {
+                            curEntry = curEntry.clone();
+                        }
+
+                        needToCloneOnChange = false;
+                    }
+
+                    entryModification.applyModification( partition, curEntry, id, changeLsn, true );
+                }
+            }
+
+        }
+
+        return curEntry;
+    }
+
 
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException

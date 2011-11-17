@@ -25,9 +25,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
+import org.apache.directory.server.core.api.txn.logedit.IndexModification;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -37,7 +39,7 @@ import org.apache.directory.shared.ldap.model.entry.Value;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexChange extends AbstractDataChange
+public class IndexChange extends AbstractDataChange implements IndexModification
 {
     /** Index this change is done on */
     private transient Index<?> index;
@@ -103,7 +105,53 @@ public class IndexChange extends AbstractDataChange
         return type;
     }
 
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void applyModification( Partition partition, boolean recovery ) throws Exception
+    {
+        Index<Object> index = ( Index<Object> )partition.getIndex( oid );
+        
+        if ( index == null )
+        {
+            // TODO decide how to handle index add drop
+        }
+        
+        if ( type == Type.ADD )
+        {
+            // During recovery, idex might have already been added. But it should not hurt to readd the index entry.
+            index.add( key, id );
+        }
+        else // delete
+        {
+            if ( recovery == false )
+            {
+                index.drop( key, id );
+            }
+            else
+            {
+                //If forward or reverse index entry existence diffes, first add the index entry and then delete it.
+                boolean forwardExists = index.forward( key, id );
+                boolean reverseExists = index.reverse( id, key );
+                
+                if ( forwardExists != reverseExists )
+                {
+                    // We assume readding the same entry to an index wont hurt
+                    index.add( key, id );
+                    
+                    index.drop( key, id );
+                }
+                else if ( forwardExists )
+                {
+                    // Index entry exists both for reverse and forward index
+                    index.drop( key, id );
+                }
+            }
+        }
+    }
+    
+    
     @Override
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException

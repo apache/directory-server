@@ -30,11 +30,21 @@ public abstract class AbstractLogEdit implements LogEdit
     /** position in the wal */
     private transient LogAnchor logAnchor = new LogAnchor();
     
+    
     /**
      * {@inheritDoc}
      */
     public LogAnchor getLogAnchor()
     {
         return logAnchor;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void apply( boolean recovery ) throws Exception
+    {
+        // do nothing by default
     }
 }
