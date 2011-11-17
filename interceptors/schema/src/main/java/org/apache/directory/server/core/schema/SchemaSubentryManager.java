@@ -160,7 +160,17 @@ public class SchemaSubentryManager
     }
 
     
-
+    /**
+     * Find the next interceptor in an operation's list of interceptors, assuming that
+     * we are already processing an operation, and we have stopped in a specific
+     * interceptor.<br/>
+     * For instance, if the list of all the interceptors is : <br/>
+     * [A, B, C, D, E, F]<br/>
+     * and we ave two operations op1 and op2 with the following interceptors list : <br/>
+     * op1 -> [A, D, F]<br/>
+     * op2 -> [B, C, E]<br/>
+     * then assuming that we have stopped at D, then op1.next -> F and op2.next -> E.
+     */
     private Interceptor findNextInterceptor( OperationEnum operation, DirectoryService directoryService )
     {
         Interceptor interceptor = null;
@@ -198,6 +208,9 @@ public class SchemaSubentryManager
     }
     
     
+    /**
+     * Find the position in the operation's list knowing the inteceptor name.
+     */
     private int findPosition( OperationEnum operation, Interceptor interceptor, DirectoryService directoryService )
     {
         int position = 1;
@@ -221,11 +234,15 @@ public class SchemaSubentryManager
     
     
     /**
-     * @TODO
+     * Update the SubschemaSubentry with all the modifications
      */
     public void modifySchemaSubentry( ModifyOperationContext modifyContext, boolean doCascadeModify ) throws LdapException
     {
         DirectoryService directoryService = modifyContext.getSession().getDirectoryService();
+        
+        // Compute the next interceptor for the Add and Delete operation, starting from
+        // the schemaInterceptor. We also need to get the position of this next interceptor
+        // in the operation's list.
         Interceptor nextAdd = findNextInterceptor( OperationEnum.ADD, directoryService );
         int positionAdd = findPosition( OperationEnum.ADD, nextAdd, directoryService );
         Interceptor nextDelete = findNextInterceptor( OperationEnum.DELETE, directoryService );

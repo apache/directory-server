@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.api;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
@@ -32,7 +31,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -52,14 +50,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext searchContext )
-        throws LdapException
-    {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext );
-    }
-
-
-    public EntryFilteringCursor search( SearchOperationContext searchContext, Collection<String> bypass ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext );
     }
@@ -77,12 +68,6 @@ public class MockOperation implements OperationContext
 
     public void addResponseControl( Control responseControl )
     {
-    }
-
-
-    public Collection<String> getByPassed()
-    {
-        return null;
     }
 
 
@@ -128,12 +113,6 @@ public class MockOperation implements OperationContext
     }
 
 
-    public boolean hasBypass()
-    {
-        return false;
-    }
-
-
     public boolean hasRequestControl( String numericOid )
     {
         return false;
@@ -158,49 +137,15 @@ public class MockOperation implements OperationContext
     }
 
 
-    public boolean isBypassed( String interceptorName )
-    {
-        return false;
-    }
-
-
-    public boolean isCollateralOperation()
-    {
-        return false;
-    }
-
-
-    public Entry lookup( Dn dn, Collection<String> bypass ) throws LdapException
-    {
-        return null;
-    }
-
-
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }
 
 
-    public Entry lookup( Dn dn, Collection<String> byPass, String... attrIds ) throws LdapException
-    {
-        return null;
-    }
-    
-
     public LookupOperationContext newLookupContext( Dn dn )
     {
         return null;
-    }
-
-
-    public void setByPassed( Collection<String> byPassed )
-    {
-    }
-
-
-    public void setCollateralOperation( boolean collateralOperation )
-    {
     }
 
 
@@ -215,54 +160,8 @@ public class MockOperation implements OperationContext
     }
 
 
-    public OperationContext getFirstOperation()
-    {
-        return null;
-    }
-
-
-    public OperationContext getLastOperation()
-    {
-        return null;
-    }
-
-
-    public OperationContext getNextOperation()
-    {
-        return null;
-    }
-
-
-    public OperationContext getPreviousOperation()
-    {
-        return null;
-    }
-
-
-    public boolean isFirstOperation()
-    {
-        return false;
-    }
-
-
-    public void add( Entry entry, Collection<String> bypass ) throws LdapException
-    {
-    }
-
-
     public void delete( Dn dn ) throws LdapException
     {
-    }
-
-
-    public void modify( Dn dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
-    {
-    }
-
-
-    public boolean hasEntry( Dn dn, Collection<String> byPass ) throws LdapException
-    {
-        return false;
     }
 
 
@@ -313,15 +212,12 @@ public class MockOperation implements OperationContext
     @Override
     public void setInterceptors( List<String> interceptors )
     {
-        // TODO Auto-generated method stub
-        
     }
 
 
     @Override
     public String getNextInterceptor()
     {
-        // TODO Auto-generated method stub
         return "";
     }
 

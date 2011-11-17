@@ -20,15 +20,12 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -42,51 +39,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  */
 public interface OperationContext
 {
-    /**
-     * Checks to see if this operation is the first operation in a chain of
-     * operations performed on the DirectoryService.  The first operation in
-     * a sequence of operations, is not a byproduct of another operation
-     * unlike operations following in the sequence.  The other operations
-     * following the first, occur as a side effect to complete this first
-     * operation.
-     * 
-     * @return true if the operation is the first, false otherwise
-     */
-    boolean isFirstOperation();
-    
-    
-    /**
-     * Gets the first, direct operation issued against the DirectoryService.
-     *
-     * @return the first, direct operation issued
-     */
-    OperationContext getFirstOperation();
-    
-    
-    /**
-     * Gets the previous, operation issued on the DirectoryService.
-     *
-     * @return the previous, operation issued
-     */
-    OperationContext getPreviousOperation();
-    
-    
-    /**
-     * Gets the next, indirect operation issued on the DirectoryService.
-     *
-     * @return the next, indirect operation issued
-     */
-    OperationContext getNextOperation();
-    
-    
-    /**
-     * Gets the last, operation issued on the DirectoryService.
-     *
-     * @return the last, operation issued
-     */
-    OperationContext getLastOperation();
-    
-    
     /**
      * @return The number of the current interceptor in the list
      */
@@ -263,30 +215,6 @@ public interface OperationContext
     
     
     /**
-     * Checks to see if an Interceptor is bypassed for this operation.
-     *
-     * @param interceptorName the interceptorName of the Interceptor to check for bypass
-     * @return true if the Interceptor should be bypassed, false otherwise
-     */
-    boolean isBypassed( String interceptorName );
-
-
-    /**
-     * Checks to see if any Interceptors are bypassed by this Invocation.
-     *
-     * @return true if at least one bypass exists
-     */
-    boolean hasBypass();
-    
-    
-    /**
-     * Gets the set of bypassed Interceptors.
-     *
-     * @return the set of bypassed Interceptors
-     */
-    Collection<String> getByPassed();
-    
-    /**
      * Gets the next interceptor in the list of interceptors. The
      * position in the list will be incremented.
      * 
@@ -304,14 +232,6 @@ public interface OperationContext
     
     
     /**
-     * Sets the set of bypassed Interceptors.
-     * 
-     * @param byPassed the set of bypassed Interceptors
-     */
-    void setByPassed( Collection<String> byPassed );
-    
-    
-    /**
      * Gets the session associated with this operation.
      *
      * @return the session associated with this operation
@@ -322,24 +242,10 @@ public interface OperationContext
     // -----------------------------------------------------------------------
     // Utility Factory Methods to Create New OperationContexts
     // -----------------------------------------------------------------------
-    
-    
     LookupOperationContext newLookupContext( Dn dn );
 
     
-    Entry lookup( Dn dn, Collection<String> byPass ) throws LdapException;
-    
-    
-    Entry lookup( Dn dn, Collection<String> byPass, String... attrIds ) throws LdapException;
-    
-    
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
-    
-    
-    void modify( Dn dn, List<Modification> mods, Collection<String> byPass ) throws LdapException;
-    
-    
-    void add( Entry entry, Collection<String> byPass ) throws LdapException;
     
     
     /**
@@ -352,17 +258,6 @@ public interface OperationContext
     void delete( Dn dn ) throws LdapException;
 
 
-    /**
-     * Checks to see if an entry exists.
-     *
-     * @param dn the distinguished name of the entry to check
-     * @param byPass collection of {@link Interceptor}'s to bypass for this check
-     * @return true if the entry exists, false if it does not
-     * @throws Exception on failure to perform this operation
-     */
-    boolean hasEntry( Dn dn, Collection<String> byPass ) throws LdapException;
-    
-    
     /**
      * Set the throwReferral flag to true
      */

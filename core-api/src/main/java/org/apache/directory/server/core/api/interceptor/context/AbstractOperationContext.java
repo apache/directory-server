@@ -21,17 +21,14 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -298,22 +295,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     /**
-     * Gets the set of bypassed Interceptors.
-     *
-     * @return the set of bypassed Interceptors
-     */
-    public Collection<String> getByPassed()
-    {
-        if ( byPassed == null )
-        {
-            return Collections.emptyList();
-        }
-
-        return Collections.unmodifiableCollection( byPassed );
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public final void setInterceptors( List<String> interceptors )
@@ -337,8 +318,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
         return interceptor;
     }
-
-
     
     
     /**
@@ -360,58 +339,11 @@ public abstract class AbstractOperationContext implements OperationContext
         this.currentInterceptor = currentInterceptor;
     }
 
-    
-    /**
-     * Sets the set of bypassed Interceptors.
-     * 
-     * @param byPassed the set of bypassed Interceptors
-     */
-    public void setByPassed( Collection<String> byPassed )
-    {
-        this.byPassed = byPassed;
-    }
-
-
-    /**
-     * Checks to see if an Interceptor is bypassed for this operation.
-     *
-     * @param interceptorName the interceptorName of the Interceptor to check for bypass
-     * @return true if the Interceptor should be bypassed, false otherwise
-     */
-    public boolean isBypassed( String interceptorName )
-    {
-        return byPassed != null && byPassed.contains( interceptorName );
-    }
-
-
-    /**
-     * Checks to see if any Interceptors are bypassed by this operation.
-     *
-     * @return true if at least one bypass exists
-     */
-    public boolean hasBypass()
-    {
-        return byPassed != null && !byPassed.isEmpty();
-    }
-
 
     private void setup( AbstractOperationContext opContext )
     {
-        opContext.setPreviousOperation( this );
         next = opContext;
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void add( Entry entry, Collection<String> byPassed ) throws LdapException
-    {
-        AddOperationContext addContext = new AddOperationContext( session, entry );
-        setup( addContext );
-        addContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().add( addContext );
     }
 
 
@@ -429,19 +361,6 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
-    {
-        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
-        setup( hasEntryContext );
-        hasEntryContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
-
-        return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         if ( lookupContext != next )
@@ -453,41 +372,6 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( Dn dn, Collection<String> byPassed ) throws LdapException
-    {
-        LookupOperationContext lookupContext = newLookupContext( dn );
-        lookupContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( Dn dn, Collection<String> byPassed, String... attrIds ) throws LdapException
-    {
-        LookupOperationContext lookupContext = newLookupContext( dn );
-        lookupContext.setByPassed( byPassed );
-        lookupContext.setAttrsId( attrIds );
-        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
-    {
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
-        setup( modifyContext );
-        modifyContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().modify( modifyContext );
-    }
-
-
     // TODO - need synchronization here and where we update links
     /**
      * {@inheritDoc}
@@ -496,6 +380,7 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
+        
         return lookupContext;
     }
 
@@ -517,73 +402,6 @@ public abstract class AbstractOperationContext implements OperationContext
     // -----------------------------------------------------------------------
     // OperationContext Linked List Methods
     // -----------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirstOperation()
-    {
-        return previous == null;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public OperationContext getFirstOperation()
-    {
-        if ( previous == null )
-        {
-            return this;
-        }
-
-        return previous.getFirstOperation();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public OperationContext getLastOperation()
-    {
-        if ( next == null )
-        {
-            return this;
-        }
-
-        return next.getLastOperation();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public OperationContext getNextOperation()
-    {
-        return next;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void setNextOperation( OperationContext next )
-    {
-        this.next = next;
-    }
-
-
-    public OperationContext getPreviousOperation()
-    {
-        return previous;
-    }
-
-
-    protected void setPreviousOperation( OperationContext previous )
-    {
-        this.previous = previous;
-    }
-
-
     /**
      * @param entry the entry to set
      */
