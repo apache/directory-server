@@ -40,7 +40,11 @@ public class HasEntryOperationContext extends AbstractOperationContext
     public HasEntryOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
+        }
     }
     
     
@@ -52,7 +56,11 @@ public class HasEntryOperationContext extends AbstractOperationContext
     public HasEntryOperationContext( CoreSession session, Dn entryDn )
     {
         super( session, entryDn );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
+        }
     }
     
 

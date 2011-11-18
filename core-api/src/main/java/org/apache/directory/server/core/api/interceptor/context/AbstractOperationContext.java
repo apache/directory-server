@@ -21,17 +21,14 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -110,18 +107,27 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public CoreSession getSession()
     {
         return session;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setSession( CoreSession session )
     {
         this.session = session;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     protected void setAuthorizedPrincipal( LdapPrincipal authorizedPrincipal )
     {
         this.authorizedPrincipal = authorizedPrincipal;
@@ -148,48 +154,72 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addRequestControl( Control requestControl )
     {
         requestControls.put( requestControl.getOid(), requestControl );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control getRequestControl( String numericOid )
     {
         return requestControls.get( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasRequestControl( String numericOid )
     {
         return requestControls.containsKey( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasRequestControls()
     {
         return ! requestControls.isEmpty();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addResponseControl( Control responseControl )
     {
         responseControls.put( responseControl.getOid(), responseControl );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control getResponseControl( String numericOid )
     {
         return responseControls.get( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasResponseControl( String numericOid )
     {
         return responseControls.containsKey( numericOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Control[] getResponseControls()
     {
         if ( responseControls.isEmpty() )
@@ -201,18 +231,27 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasResponseControls()
     {
         return ! responseControls.isEmpty();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int getResponseControlCount()
     {
         return responseControls.size();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addRequestControls( Control[] requestControls )
     {
         for ( Control c : requestControls )
@@ -222,6 +261,9 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setRequestControls( Map<String, Control> requestControls )
     {
         this.requestControls = requestControls;
@@ -253,22 +295,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     /**
-     * Gets the set of bypassed Interceptors.
-     *
-     * @return the set of bypassed Interceptors
-     */
-    public Collection<String> getByPassed()
-    {
-        if ( byPassed == null )
-        {
-            return Collections.emptyList();
-        }
-
-        return Collections.unmodifiableCollection( byPassed );
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public final void setInterceptors( List<String> interceptors )
@@ -292,59 +318,32 @@ public abstract class AbstractOperationContext implements OperationContext
 
         return interceptor;
     }
-
-
+    
+    
     /**
-     * Sets the set of bypassed Interceptors.
+     * @return The number of the current interceptor in the list
+     */
+    public int getCurrentInterceptor()
+    {
+        return currentInterceptor;
+    }
+    
+    
+    /**
+     * Sets the current interceptor number to a new value.
      * 
-     * @param byPassed the set of bypassed Interceptors
+     * @param currentInterceptor The new current interceptor value
      */
-    public void setByPassed( Collection<String> byPassed )
+    public void setCurrentInterceptor( int currentInterceptor )
     {
-        this.byPassed = byPassed;
-    }
-
-
-    /**
-     * Checks to see if an Interceptor is bypassed for this operation.
-     *
-     * @param interceptorName the interceptorName of the Interceptor to check for bypass
-     * @return true if the Interceptor should be bypassed, false otherwise
-     */
-    public boolean isBypassed( String interceptorName )
-    {
-        return byPassed != null && byPassed.contains( interceptorName );
-    }
-
-
-    /**
-     * Checks to see if any Interceptors are bypassed by this operation.
-     *
-     * @return true if at least one bypass exists
-     */
-    public boolean hasBypass()
-    {
-        return byPassed != null && !byPassed.isEmpty();
+        this.currentInterceptor = currentInterceptor;
     }
 
 
     private void setup( AbstractOperationContext opContext )
     {
-        opContext.setPreviousOperation( this );
         next = opContext;
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void add( Entry entry, Collection<String> byPassed ) throws LdapException
-    {
-        AddOperationContext addContext = new AddOperationContext( session, entry );
-        setup( addContext );
-        addContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().add( addContext );
     }
 
 
@@ -362,16 +361,6 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( Dn dn, Collection<String> byPassed ) throws LdapException
-    {
-        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
-        setup( hasEntryContext );
-        hasEntryContext.setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
-
-        return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
-    }
-
-
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         if ( lookupContext != next )
@@ -383,39 +372,22 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public Entry lookup( Dn dn, Collection<String> byPassed ) throws LdapException
-    {
-        LookupOperationContext lookupContext = newLookupContext( dn );
-        lookupContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
-    }
-
-
-    public Entry lookup( Dn dn, Collection<String> byPassed, String... attrIds ) throws LdapException
-    {
-        LookupOperationContext lookupContext = newLookupContext( dn );
-        lookupContext.setByPassed( byPassed );
-        lookupContext.setAttrsId( attrIds );
-        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
-    }
-
-
-    public void modify( Dn dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
-    {
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
-        setup( modifyContext );
-        modifyContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().modify( modifyContext );
-    }
-
-
     // TODO - need synchronization here and where we update links
+    /**
+     * {@inheritDoc}
+     */
     public LookupOperationContext newLookupContext( Dn dn )
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
+        
         return lookupContext;
     }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public LdapPrincipal getEffectivePrincipal()
     {
         if ( authorizedPrincipal != null )
@@ -430,60 +402,6 @@ public abstract class AbstractOperationContext implements OperationContext
     // -----------------------------------------------------------------------
     // OperationContext Linked List Methods
     // -----------------------------------------------------------------------
-
-
-    public boolean isFirstOperation()
-    {
-        return previous == null;
-    }
-
-
-    public OperationContext getFirstOperation()
-    {
-        if ( previous == null )
-        {
-            return this;
-        }
-
-        return previous.getFirstOperation();
-    }
-
-
-    public OperationContext getLastOperation()
-    {
-        if ( next == null )
-        {
-            return this;
-        }
-
-        return next.getLastOperation();
-    }
-
-
-    public OperationContext getNextOperation()
-    {
-        return next;
-    }
-
-
-    protected void setNextOperation( OperationContext next )
-    {
-        this.next = next;
-    }
-
-
-    public OperationContext getPreviousOperation()
-    {
-        return previous;
-    }
-
-
-    protected void setPreviousOperation( OperationContext previous )
-    {
-        this.previous = previous;
-    }
-
-
     /**
      * @param entry the entry to set
      */

@@ -55,7 +55,11 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     public RenameOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+        }
     }
 
 
@@ -71,7 +75,11 @@ public class RenameOperationContext extends AbstractChangeOperationContext
         super( session, oldDn );
         this.newRdn = newRdn;
         this.deleteOldRdn = deleteOldRdn;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+        }
     }
 
 
@@ -79,7 +87,11 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     {
         super( session, modifyDnRequest.getName() );
         this.newRdn = modifyDnRequest.getNewRdn();
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.RENAME ) );
+        }
 
         if ( newRdn == null )
         {

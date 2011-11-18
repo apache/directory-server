@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,26 +28,22 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -68,12 +63,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.0.100001";
 
-    public static SchemaManager schemaManager;
-
+    private static LdapConnection connection;
+    private static SchemaManager schemaManager;
 
     @Before
-    public void setup()
+    public void setup() throws Exception
     {
+        super.init();
+        connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = getService().getSchemaManager();
     }
 
@@ -84,13 +81,18 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToEnabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", OctetStringSyntaxChecker.class.getName(),
+            "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
@@ -103,14 +105,19 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToDisabledSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );
+
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", OctetStringSyntaxChecker.class.getName(),
+            "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
         // nis is by default inactive
-        Dn dn = getSyntaxCheckerContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries",
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
@@ -121,20 +128,23 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToUnloadedSchema() throws Exception
     {
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntaxChecker", "m-fqcn", OctetStringSyntaxChecker.class.getName(), "m-oid", OID,
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=notloaded,ou=schema" );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", OctetStringSyntaxChecker.class.getName(),
+            "m-oid", OID,
             "m-description: A test syntaxChecker" );
 
         // nis is by default inactive
-        Dn dn = getSyntaxCheckerContainer( "notloaded" );
-        dn = dn.add( "m-oid" + "=" + OID );
-
         try
         {
-            getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+            connection.add( entry );
             fail( "Should not be there" );
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapException le )
         {
             // Expected result.
         }
@@ -156,14 +166,19 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntaxChecker", "m-fqcn",
-            "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
-                .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker" );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+        
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
+            "m-bytecode", out.toByteArray(),
+            "m-oid", OID,
+            "m-description: A test syntaxChecker" );
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        connection.add( entry );
 
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
@@ -184,14 +199,19 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: metaTop",
-                "objectClass: metaSyntaxChecker", "m-fqcn",
-                "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", "m-bytecode", out
-                .toByteArray(), "m-oid", OID, "m-description: A test syntaxChecker");
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );
 
-        Dn dn = getSyntaxCheckerContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attrs );
+        Entry entry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
+            "m-bytecode", out.toByteArray(),
+            "m-oid", OID,
+            "m-description: A test syntaxChecker");
+
+        connection.add( entry );
 
         assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
@@ -201,15 +221,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerFromEnabledSchema() throws Exception
     {
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+
         testAddSyntaxCheckerToEnabledSchema();
 
         assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
+        connection.delete( dn );
 
         assertFalse( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
@@ -230,15 +250,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerFromDisabledSchema() throws Exception
     {
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+
         testAddSyntaxCheckerToEnabledSchema();
 
         assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
 
-        getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( dn ) );
+        connection.delete( dn );
 
         assertFalse( "syntaxChecker should be removed from the registry after being deleted", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
@@ -260,13 +280,12 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameSyntaxChecker() throws Exception
     {
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn newdn = getSyntaxCheckerContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
+        connection.rename( dn, rdn );
 
         assertFalse( "old syntaxChecker OID should be removed from the registry after being renamed", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
@@ -293,13 +312,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        Dn newdn = getSyntaxCheckerContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apache,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName(dn), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
@@ -318,13 +335,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        Dn newdn = getSyntaxCheckerContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=syntaxCheckers,cn=apache,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.moveAndRename( dn, newDn );
 
         assertFalse( "old syntaxChecker OID should NOT be present", schemaManager.getSyntaxCheckerRegistry().contains(
             OID ) );
@@ -346,13 +361,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-fqcn", BogusSyntaxChecker.class.getName() );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), mods );
+        Modification mod = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", BogusSyntaxChecker.class.getName() );
+        connection.modify( dn, mod );
 
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
@@ -371,12 +384,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        Attributes mods = new BasicAttributes( true );
-        mods.put( "m-fqcn", BogusSyntaxChecker.class.getName() );
-        getSchemaContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
+        Modification mod = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", BogusSyntaxChecker.class.getName() );
+        connection.modify( dn, mod );
 
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
@@ -395,38 +407,41 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerWhenInUse() throws Exception
     {
-        Dn scDn = getSyntaxCheckerContainer( "apachemeta" );
-        scDn = scDn.add( "m-oid" + "=" + OID );
+        Dn scDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
         // Create a new SyntaxChecker
         testAddSyntaxCheckerToEnabledSchema();
         assertTrue( isOnDisk( scDn ) );
-        assertTrue( getService().getSchemaManager().getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
 
         // Create a Syntax using this comparator
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: metaTop",
-            "objectClass: metaSyntax", "m-oid", OID, "m-description: test" );
+        Dn sDn = new Dn( "m-oid=" + OID + ",ou=syntaxes,cn=apachemeta,ou=schema" );
 
-        Dn sDn = getSyntaxContainer( "apachemeta" );
-        sDn = sDn.add( "m-oid" + "=" + OID );
+        Entry entry = new DefaultEntry(
+            sDn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntax",
+            "m-oid", OID,
+            "m-description: test" );
 
         // Pre-checks
         assertFalse( isOnDisk( sDn ) );
-        assertFalse( getService().getSchemaManager().getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
         // Syntax Addition
-        getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( sDn ), attrs );
+        connection.add( entry );
 
         // Post-checks
         assertTrue( isOnDisk( sDn ) );
-        assertTrue( getService().getSchemaManager().getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
         try
         {
-            getSchemaContext( getService() ).destroySubcontext( JndiUtils.toName( scDn ) );
+            connection.delete( scDn );
             fail( "should not be able to delete a syntaxChecker in use" );
         }
-        catch ( OperationNotSupportedException e )
+        catch ( LdapException e )
         {
         }
 
@@ -442,18 +457,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-
-        Dn newdn = getSyntaxCheckerContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apache,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move a syntaxChecker in use" );
         }
-        catch ( OperationNotSupportedException e )
+        catch ( LdapException e )
         {
         }
 
@@ -471,18 +483,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
-
-        Dn newdn = getSyntaxCheckerContainer( "apache" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=syntaxCheckers,cn=apache,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move a syntaxChecker in use" );
         }
-        catch ( OperationNotSupportedException e )
+        catch ( LdapException e )
         {
         }
 
@@ -497,20 +506,19 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameSyntaxCheckerWhenInUse() throws Exception
     {
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
+
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
 
-        Dn newdn = getSyntaxCheckerContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + NEW_OID );
+        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.rename( dn, rdn );
             fail( "should not be able to rename a syntaxChecker in use" );
         }
-        catch ( OperationNotSupportedException e )
+        catch ( LdapException e )
         {
         }
 
@@ -531,18 +539,16 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        Dn top = new Dn();
-        top.add( "m-oid" + "=" + OID );
+        Dn top = new Dn( "m-oid=" + OID );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( top ) );
+            connection.move( dn, top );
             fail( "should not be able to move a syntaxChecker up to ou=schema" );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapException e )
         {
         }
 
@@ -557,18 +563,16 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        Dn newdn = new Dn( "ou=comparators,cn=apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta,ou=schema" );
 
         try
         {
-            getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+            connection.move( dn, newDn );
             fail( "should not be able to move a syntaxChecker into comparators container" );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapException e )
         {
         }
 
@@ -583,14 +587,12 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
 
-        Dn dn = getSyntaxCheckerContainer( "apachemeta" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
         // nis is inactive by default
-        Dn newdn = getSyntaxCheckerContainer( "nis" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertFalse( "syntaxChecker OID should no longer be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
@@ -604,16 +606,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToDisabledSchema();
 
         // nis is inactive by default
-        Dn dn = getSyntaxCheckerContainer( "nis" );
-        dn = dn.add( "m-oid" + "=" + OID );
+        Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );
 
         assertFalse( "syntaxChecker OID should NOT be present when added to disabled nis schema", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
 
-        Dn newdn = getSyntaxCheckerContainer( "apachemeta" );
-        newdn = newdn.add( "m-oid" + "=" + OID );
+        Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
-        getSchemaContext( getService() ).rename( JndiUtils.toName( dn ), JndiUtils.toName( newdn ) );
+        connection.move( dn, newDn );
 
         assertTrue( "syntaxChecker OID should be present when moved to enabled schema", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );

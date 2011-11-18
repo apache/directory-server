@@ -820,8 +820,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        return new BaseEntryFilteringCursor( 
-            new EntryCursorAdaptor<ID>( this, 
+        return new BaseEntryFilteringCursor(
+            new EntryCursorAdaptor<ID>( this,
                 list( getEntryId( listContext.getDn() ) ) ), listContext );
     }
 
@@ -870,7 +870,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
         catch ( LdapException le )
         {
-            // TODO: SearchEngine.cursor() should only throw LdapException, then the exception handling here can be removed 
+            // TODO: SearchEngine.cursor() should only throw LdapException, then the exception handling here can be removed
             throw le;
         }
         catch ( Exception e )
@@ -897,8 +897,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
         Entry entry = lookup( id );
 
-        // Remove all the attributes if the NO_ATTRIBUTE flag is set
-        if ( lookupContext.hasNoAttribute() )
+        // Remove all the attributes if the NO_ATTRIBUTE flag is set and there is no requested attribute
+        if ( lookupContext.hasNoAttribute() && ( ( lookupContext.getAttrsId() == null ) || lookupContext.getAttrsId().size() == 0 ) )
         {
             entry.clear();
 
@@ -918,7 +918,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                     AttributeType attributeType = attribute.getAttributeType();
                     String oid = attributeType.getOid();
 
-                    if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
+                    if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                     {
                         if ( !lookupContext.getAttrsId().contains( oid ) )
                         {
@@ -936,7 +936,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 {
                     AttributeType attributeType = attribute.getAttributeType();
 
-                    if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) 
+                    if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                     {
                         entry.removeAttributes( attributeType );
                     }
@@ -950,7 +950,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                     {
                         AttributeType attributeType = attribute.getAttributeType();
 
-                        if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) 
+                        if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                         {
                             entry.removeAttributes( attributeType );
                         }
@@ -1481,7 +1481,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
         catch ( LdapException le )
         {
-            // In case we get an LdapException, just rethrow it as is to 
+            // In case we get an LdapException, just rethrow it as is to
             // avoid having it lost
             throw le;
         }
@@ -1807,7 +1807,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             Entry entry = lookup( id );
             
-            return entry != null; 
+            return entry != null;
         }
         catch ( LdapException e )
         {

@@ -25,9 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
@@ -48,6 +45,9 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -301,25 +301,24 @@ public class IntegrationUtils
 
     public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapConnection connection = getAdminConnection( service );
 
         // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        javax.naming.directory.Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        connection.modify( "cn=" + schemaName + ",ou=schema",
+            new DefaultModification(
+                ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
     }
 
 
     public static void disableSchema( DirectoryService service, String schemaName ) throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( service );
+        LdapConnection connection = getAdminConnection( service );
 
         // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        javax.naming.directory.Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        Modification mod = new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "TRUE" );
+        
+        connection.modify( "cn=" + schemaName + ",ou=schema", mod );
     }
 
 

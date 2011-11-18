@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -58,7 +58,11 @@ public class CompareOperationContext extends AbstractOperationContext
     public CompareOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
     }
 
     
@@ -70,7 +74,11 @@ public class CompareOperationContext extends AbstractOperationContext
     public CompareOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
     }
 
     
@@ -83,7 +91,11 @@ public class CompareOperationContext extends AbstractOperationContext
     {
         super( session );
         this.oid = oid;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
     }
 
     
@@ -96,7 +108,11 @@ public class CompareOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         this.oid = oid;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
     }
 
     
@@ -110,7 +126,11 @@ public class CompareOperationContext extends AbstractOperationContext
         super( session, dn );
         this.oid = oid;
         this.value = value;
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
     }
 
     
@@ -120,7 +140,11 @@ public class CompareOperationContext extends AbstractOperationContext
         this.oid = compareRequest.getAttributeId();
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
+        }
         
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
@@ -136,7 +160,7 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      * @return The compared OID
      */
-    public String getOid() 
+    public String getOid()
     {
         return oid;
     }
@@ -146,7 +170,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Set the compared OID
      * @param oid The compared OID
      */
-    public void setOid( String  oid ) 
+    public void setOid( String  oid )
     {
         this.oid = oid;
     }
@@ -155,7 +179,7 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      * @return The value to compare
      */
-    public Value<?> getValue() 
+    public Value<?> getValue()
     {
         return value;
     }

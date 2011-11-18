@@ -22,10 +22,15 @@ package org.apache.directory.server.core.schema;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.OperationEnum;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.schema.DescriptionParsers;
 import org.apache.directory.server.i18n.I18n;
@@ -85,17 +90,17 @@ public class SchemaSubentryManager
     /** The description parsers */
     private final DescriptionParsers parsers;
     
-    /** 
-     * Maps the OID of a subschemaSubentry operational attribute to the index of 
+    /**
+     * Maps the OID of a subschemaSubentry operational attribute to the index of
      * the handler in the schemaObjectHandlers array.
-     */ 
+     */
     private final Map<String, Integer> opAttr2handlerIndex = new HashMap<String, Integer>( 11 );
     private static final String CASCADING_ERROR =
             "Cascading has not yet been implemented: standard operation is in effect.";
 
     private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
     
-    static 
+    static
     {
         VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
@@ -155,11 +160,94 @@ public class SchemaSubentryManager
     }
 
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
+    /**
+     * Find the next interceptor in an operation's list of interceptors, assuming that
+     * we are already processing an operation, and we have stopped in a specific
+     * interceptor.<br/>
+     * For instance, if the list of all the interceptors is : <br/>
+     * [A, B, C, D, E, F]<br/>
+     * and we ave two operations op1 and op2 with the following interceptors list : <br/>
+     * op1 -> [A, D, F]<br/>
+     * op2 -> [B, C, E]<br/>
+     * then assuming that we have stopped at D, then op1.next -> F and op2.next -> E.
      */
-    public void modifySchemaSubentry( ModifyOperationContext modifyContext, boolean doCascadeModify ) throws LdapException 
+    private Interceptor findNextInterceptor( OperationEnum operation, DirectoryService directoryService )
     {
+        Interceptor interceptor = null;
+        
+        List<Interceptor> allInterceptors = directoryService.getInterceptors();
+        List<String> operationInterceptors = directoryService.getInterceptors( operation );
+        int position = 0;
+        String addInterceptor = operationInterceptors.get( position );
+        
+        for ( Interceptor inter : allInterceptors )
+        {
+            String interName = inter.getName();
+            
+            if ( interName.equals( InterceptorEnum.SCHEMA_INTERCEPTOR.getName() ) )
+            {
+                // Found, get out
+                position++;
+                
+                if ( position < operationInterceptors.size() )
+                {
+                    interceptor = directoryService.getInterceptor( operationInterceptors.get( position ) );
+                }
+                
+                break;
+            }
+            
+            if ( interName.equals( addInterceptor ) )
+            {
+                position++;
+                addInterceptor = operationInterceptors.get( position );
+            }
+        }
+        
+        return interceptor;
+    }
+    
+    
+    /**
+     * Find the position in the operation's list knowing the inteceptor name.
+     */
+    private int findPosition( OperationEnum operation, Interceptor interceptor, DirectoryService directoryService )
+    {
+        int position = 1;
+        
+        List<String> interceptors = directoryService.getInterceptors( operation );
+        
+        String interceptorName = interceptor.getName();
+        
+        for ( String name : interceptors )
+        {
+            if ( name.equals( interceptorName ) )
+            {
+                break;
+            }
+            
+            position++;
+        }
+        
+        return position;
+    }
+    
+    
+    /**
+     * Update the SubschemaSubentry with all the modifications
+     */
+    public void modifySchemaSubentry( ModifyOperationContext modifyContext, boolean doCascadeModify ) throws LdapException
+    {
+        DirectoryService directoryService = modifyContext.getSession().getDirectoryService();
+        
+        // Compute the next interceptor for the Add and Delete operation, starting from
+        // the schemaInterceptor. We also need to get the position of this next interceptor
+        // in the operation's list.
+        Interceptor nextAdd = findNextInterceptor( OperationEnum.ADD, directoryService );
+        int positionAdd = findPosition( OperationEnum.ADD, nextAdd, directoryService );
+        Interceptor nextDelete = findNextInterceptor( OperationEnum.DELETE, directoryService );
+        int positionDelete = findPosition( OperationEnum.DELETE, nextDelete, directoryService );
+
         for ( Modification mod : modifyContext.getModItems() )
         {
             String opAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
@@ -169,12 +257,12 @@ public class SchemaSubentryManager
             switch ( mod.getOperation() )
             {
                 case ADD_ATTRIBUTE :
-                    modifyAddOperation( modifyContext, opAttrOid, serverAttribute, doCascadeModify );
+                    modifyAddOperation( nextAdd, positionAdd, modifyContext, opAttrOid, serverAttribute, doCascadeModify );
                     break;
                     
                 case REMOVE_ATTRIBUTE :
-                    modifyRemoveOperation( modifyContext, opAttrOid, serverAttribute );
-                    break; 
+                    modifyRemoveOperation( nextDelete, positionDelete, modifyContext, opAttrOid, serverAttribute );
+                    break;
                     
                 case REPLACE_ATTRIBUTE :
                     // a hack to allow entryCSN modification
@@ -194,7 +282,7 @@ public class SchemaSubentryManager
     
     
     /**
-     * Handles the modify remove operation on the subschemaSubentry for schema entities. 
+     * Handles the modify remove operation on the subschemaSubentry for schema entities.
      * 
      * @param opAttrOid the numeric id of the operational attribute modified
      * @param mods the attribute with the modifications
@@ -202,7 +290,7 @@ public class SchemaSubentryManager
      * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyRemoveOperation( ModifyOperationContext modifyContext, String opAttrOid, 
+    private void modifyRemoveOperation( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, String opAttrOid,
         Attribute mods ) throws LdapException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
@@ -214,15 +302,17 @@ public class SchemaSubentryManager
                 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    subentryModifier.delete( modifyContext, comparatorDescription );
+                    subentryModifier.delete( nextInterceptor, position, modifyContext, comparatorDescription );
                 }
+                
                 break;
+                
             case( NORMALIZER_INDEX ):
                 NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    subentryModifier.delete( modifyContext, normalizerDescription );
+                    subentryModifier.delete( nextInterceptor, position, modifyContext, normalizerDescription );
                 }
                 
                 break;
@@ -232,7 +322,7 @@ public class SchemaSubentryManager
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    subentryModifier.delete( modifyContext, syntaxCheckerDescription );
+                    subentryModifier.delete( nextInterceptor, position, modifyContext, syntaxCheckerDescription );
                 }
                 
                 break;
@@ -242,7 +332,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapSyntax syntax : syntaxes )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, syntax );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, syntax );
                 }
                 
                 break;
@@ -252,7 +342,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRule mr : mrs )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, mr );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, mr );
                 }
                 
                 break;
@@ -262,7 +352,7 @@ public class SchemaSubentryManager
                 
                 for ( AttributeType at : ats )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, at );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, at );
                 }
                 
                 break;
@@ -272,7 +362,7 @@ public class SchemaSubentryManager
 
                 for ( ObjectClass oc : ocs )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, oc );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, oc );
                 }
                 
                 break;
@@ -282,7 +372,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRuleUse mru : mrus )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, mru );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, mru );
                 }
                 
                 break;
@@ -292,7 +382,7 @@ public class SchemaSubentryManager
                 
                 for ( DITStructureRule dsr : dsrs )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, dsr );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, dsr );
                 }
                 
                 break;
@@ -302,7 +392,7 @@ public class SchemaSubentryManager
                 
                 for ( DITContentRule dcr : dcrs )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, dcr );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, dcr );
                 }
                 
                 break;
@@ -312,7 +402,7 @@ public class SchemaSubentryManager
                 
                 for ( NameForm nf : nfs )
                 {
-                    subentryModifier.deleteSchemaObject( modifyContext, nf );
+                    subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, nf );
                 }
                 
                 break;
@@ -324,7 +414,7 @@ public class SchemaSubentryManager
     
     
     /**
-     * Handles the modify add operation on the subschemaSubentry for schema entities. 
+     * Handles the modify add operation on the subschemaSubentry for schema entities.
      * 
      * @param opAttrOid the numeric id of the operational attribute modified
      * @param mods the attribute with the modifications
@@ -333,7 +423,7 @@ public class SchemaSubentryManager
      * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyAddOperation( ModifyOperationContext modifyContext, String opAttrOid, 
+    private void modifyAddOperation( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, String opAttrOid,
         Attribute mods, boolean doCascadeModify ) throws LdapException
     {
         if ( doCascadeModify )
@@ -350,7 +440,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    subentryModifier.add( modifyContext, comparatorDescription );
+                    subentryModifier.add( nextInterceptor, position, modifyContext, comparatorDescription );
                 }
                 
                 break;
@@ -360,7 +450,7 @@ public class SchemaSubentryManager
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    subentryModifier.add( modifyContext, normalizerDescription );
+                    subentryModifier.add( nextInterceptor, position, modifyContext, normalizerDescription );
                 }
                 
                 break;
@@ -370,7 +460,7 @@ public class SchemaSubentryManager
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    subentryModifier.add( modifyContext, syntaxCheckerDescription );
+                    subentryModifier.add( nextInterceptor, position, modifyContext, syntaxCheckerDescription );
                 }
                 
                 break;
@@ -380,7 +470,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapSyntax syntax : syntaxes )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, syntax );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, syntax );
                 }
                 
                 break;
@@ -390,7 +480,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRule mr : mrs )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, mr );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, mr );
                 }
                 
                 break;
@@ -400,7 +490,7 @@ public class SchemaSubentryManager
                 
                 for ( AttributeType at : ats )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, at );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, at );
                 }
                 
                 break;
@@ -410,7 +500,7 @@ public class SchemaSubentryManager
 
                 for ( ObjectClass oc : ocs )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, oc );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, oc );
                 }
                 
                 break;
@@ -420,7 +510,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRuleUse mru : mrus )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, mru );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, mru );
                 }
                 
                 break;
@@ -430,7 +520,7 @@ public class SchemaSubentryManager
                 
                 for ( DITStructureRule dsr : dsrs )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, dsr );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, dsr );
                 }
                 
                 break;
@@ -440,7 +530,7 @@ public class SchemaSubentryManager
                 
                 for ( DITContentRule dcr : dcrs )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, dcr );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, dcr );
                 }
                 
                 break;
@@ -450,7 +540,7 @@ public class SchemaSubentryManager
                 
                 for ( NameForm nf : nfs )
                 {
-                    subentryModifier.addSchemaObject( modifyContext, nf );
+                    subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, nf );
                 }
                 
                 break;

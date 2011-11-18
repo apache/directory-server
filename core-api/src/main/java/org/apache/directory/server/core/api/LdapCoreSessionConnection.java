@@ -557,13 +557,31 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( LdapNoPermissionException lnpe )
         {
-            // Special case to deal with insufficient permissions 
+            // Special case to deal with insufficient permissions
             return false;
         }
         catch ( LdapException le )
         {
             throw le;
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDse() throws LdapException
+    {
+        return lookup( Dn.ROOT_DSE, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry getRootDse( String... attributes ) throws LdapException
+    {
+        return lookup( Dn.ROOT_DSE, attributes );
     }
 
 

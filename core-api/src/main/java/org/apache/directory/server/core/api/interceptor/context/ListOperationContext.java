@@ -42,7 +42,11 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+        }
     }
 
 
@@ -54,7 +58,11 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session, Dn dn )
     {
         super( session, dn );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+        }
     }
 
 
@@ -69,7 +77,11 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, returningAttributes );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LIST ) );
+        }
     }
 
 
