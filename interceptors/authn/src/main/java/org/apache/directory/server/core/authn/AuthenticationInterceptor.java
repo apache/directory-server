@@ -146,6 +146,30 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     /**
+     * the set of interceptors we should *not* go through when pwdpolicy state information is being updated
+     */
+    private static final Collection<String> BYPASS_INTERCEPTORS;
+
+    static
+    {
+        Set<String> c = new HashSet<String>();
+        c.add( "NormalizationInterceptor" );
+        c.add( "AuthenticationInterceptor" );
+        c.add( "AciAuthorizationInterceptor" );
+        c.add( "AdministrativePointInterceptor" );
+        c.add( "DefaultAuthorizationInterceptor" );
+        c.add( "ExceptionInterceptor" );
+        c.add( "OperationalAttributeInterceptor" );
+        c.add( "SchemaInterceptor" );
+        c.add( "CollectiveAttributeInterceptor" );
+        c.add( "SubentryInterceptor" );
+        c.add( "EventInterceptor" );
+        c.add( "TriggerInterceptor" );
+        BYPASS_INTERCEPTORS = Collections.unmodifiableCollection( c );
+    }
+
+
+    /**
      * Creates an authentication service interceptor.
      */
     public AuthenticationInterceptor()

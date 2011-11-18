@@ -154,8 +154,6 @@
     <module>apache-felix</module>
     <module>dependencies</module>
     <module>service-osgi</module>
-    <module>component-annotations</module>
-    <module>component-ipojo-handlers</module>
     <module>component-hub</module>
   </modules>
 
