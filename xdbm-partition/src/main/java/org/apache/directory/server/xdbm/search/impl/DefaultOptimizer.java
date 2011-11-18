@@ -23,9 +23,11 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -54,7 +56,7 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 public class DefaultOptimizer implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store db;
+    private final Partition db;
     private UUID contextEntryId;
 
 
@@ -63,7 +65,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store db ) throws Exception
+    public DefaultOptimizer( Partition db ) throws Exception
     {
         this.db = db;
     }
@@ -77,7 +79,7 @@ public class DefaultOptimizer implements Optimizer
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -87,7 +89,7 @@ public class DefaultOptimizer implements Optimizer
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.defaultID;
         }
 
         return contextEntryId;
@@ -350,14 +352,15 @@ public class DefaultOptimizer implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String> idx = db.getPresenceIndex();
+            Index<String> idx;
+            idx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
         {
             // the system indices (objectClass, entryUUID, entryCSN) are maintained for
             // each entry, so we could just return the database count
-            return db.count();
+            return db.getMasterTable().count();
         }
 
         return Long.MAX_VALUE;
@@ -373,23 +376,27 @@ public class DefaultOptimizer implements Optimizer
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {
-        UUID id = db.getEntryId( node.getBaseDn() );
+        Index<?> idx;
+        idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+        UUID id = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
         switch ( node.getScope() )
         {
             case OBJECT:
                 return 1L;
 
             case ONELEVEL:
-                return db.getChildCount( id );
+                idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+                return ( ( Index<UUID> )idx ).count( id );
 
             case SUBTREE:
                 if ( id.compareTo( getContextEntryId() ) == 0 )
                 {
-                    return db.count();
+                    return db.getMasterTable().count();
                 }
                 else
                 {
-                    return db.getSubLevelIndex().count( id );
+                    idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+                    return ( ( Index<UUID> )idx ).count( id );
                 }
 
             default:

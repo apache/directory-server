@@ -21,11 +21,15 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -39,16 +43,20 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
 public class NotCursor<V> extends AbstractIndexCursor<V>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final IndexCursor<V> uuidCursor;
+    private final IndexCursor<String> uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
+    public NotCursor( Partition store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
         this.childEvaluator = childEvaluator;
-        this.uuidCursor = ( IndexCursor<V> ) store.getEntryUuidIndex().forwardCursor();
+ 
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
+        entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
+        uuidCursor = ( ( Index<String> )entryUuidIdx ).forwardCursor();
     }
 
 
@@ -133,7 +141,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         
         if ( available() )
         {
-            return uuidCursor.get();
+            return ( IndexEntry<V> ) uuidCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

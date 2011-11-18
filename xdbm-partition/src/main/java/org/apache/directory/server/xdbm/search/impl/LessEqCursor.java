@@ -23,14 +23,16 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
@@ -54,31 +56,36 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     private final IndexCursor<V> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V> uuidIdxCursor;
+    private final IndexCursor<String> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<V> ndnCandidate;
+    IndexEntry<String> ndnCandidate;
 
 
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
+    public LessEqCursor( Partition db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         this.lessEqEvaluator = lessEqEvaluator;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
         
         if ( db.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V> ) db.getIndex( attributeType ) ).forwardCursor();
+            Index<?> index = db.getIndex( attributeType );
+            index = txnLogManager.wrap( db.getSuffixDn(), index );
+            userIdxCursor = ( ( Index<V> )index ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = ( IndexCursor<V> ) db.getEntryUuidIndex().forwardCursor();
+            Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
+            entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
+            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -401,7 +408,8 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         return setAvailable( false );
     }
 
-
+    
+    @SuppressWarnings("unchecked")
     public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
@@ -418,7 +426,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         if ( available() )
         {
-            return ndnCandidate;
+            return ( IndexEntry<V> ) ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

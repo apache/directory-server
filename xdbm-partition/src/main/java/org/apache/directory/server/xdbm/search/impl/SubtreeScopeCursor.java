@@ -22,11 +22,17 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.UUID;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -43,7 +49,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store db;
+    private final Partition db;
 
     /** A ScopeNode Evaluator */
     private final SubtreeScopeEvaluator evaluator;
@@ -58,6 +64,10 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
     private IndexCursor<UUID> cursor;
 
     private UUID contextEntryId;
+    
+    /** Alias idx if dereferencing aliases */
+    private Index<String> aliasIdx;
+    
 
 
     /**
@@ -67,9 +77,11 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store db, SubtreeScopeEvaluator evaluator )
+    @SuppressWarnings("unchecked")
+    public SubtreeScopeCursor( Partition db, SubtreeScopeEvaluator evaluator )
         throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         this.db = db;
         this.evaluator = evaluator;
 
@@ -79,12 +91,19 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
         }
         else
         {
-            scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+            Index<?> subLevelIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            subLevelIdx = txnLogManager.wrap( db.getSuffixDn(), subLevelIdx );
+            scopeCursor = ( ( Index<UUID> ) subLevelIdx ).forwardCursor( evaluator.getBaseId() );
         }
 
         if ( evaluator.isDereferencing() )
-        {
-            dereferencedCursor = db.getSubAliasIndex().forwardCursor( evaluator.getBaseId() );
+        {            
+            Index<?> subAliasIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            subAliasIdx = txnLogManager.wrap( db.getSuffixDn(), subAliasIdx );
+            dereferencedCursor = ( ( Index<UUID> )subAliasIdx ).forwardCursor( evaluator.getBaseId() );
+            
+            aliasIdx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
         }
         else
         {
@@ -109,7 +128,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -120,7 +139,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.defaultID;
         }
 
         return contextEntryId;
@@ -191,7 +210,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
                     checkNotClosed( "previous()" );
                     setAvailable( cursor.previous() );
                     
-                    if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
                     }
@@ -225,7 +244,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
                 checkNotClosed( "previous()" );
                 setAvailable( cursor.previous() );
 
-                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
@@ -260,7 +279,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
                 checkNotClosed( "next()" );
                 setAvailable( cursor.next() );
 
-                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }

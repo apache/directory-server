@@ -33,25 +33,25 @@ public interface TxnManager<ID>
      * Starts a new txn and associates it with the current thread.
      *
      * @param readOnly whether the txn is read only
-     * @throws IOException
+     * @throws Exception
      */
-    void beginTransaction( boolean readOnly ) throws IOException;
+    void beginTransaction( boolean readOnly ) throws Exception;
    
     /**
      * Tries to commit the current txn associated with the current thread. ReadWrite txns have to be verified against txns
      * that committed after they started for any conflicting change and conflicting
      * exception is thrown if verificatin fails.
      *
-     * @throws IOException
+     * @throws Exception
      * @throws TxnConflictException
      */
-    void commitTransaction() throws IOException, TxnConflictException;
+    void commitTransaction() throws Exception, TxnConflictException;
     
     /**
      * Aborts the current txn associated with the current thread.
      *
-     * @throws IOException
+     * @throws Exception
      */
-    void abortTransaction() throws IOException;
+    void abortTransaction() throws Exception;
   
 }

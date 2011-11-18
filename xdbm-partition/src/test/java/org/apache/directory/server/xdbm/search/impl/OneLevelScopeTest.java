@@ -33,6 +33,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -72,7 +74,7 @@ public class OneLevelScopeTest
     public static final Logger LOG = LoggerFactory.getLogger( OneLevelScopeTest.class );
 
     File wkdir;
-    Store store;
+    Partition store;
     static SchemaManager schemaManager = null;
 
 
@@ -119,22 +121,27 @@ public class OneLevelScopeTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
+        
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( true );
+        store.setId( "example" );
+        ( ( Store )store).setCacheSize( 10 );
+        ( ( Store )store).setPartitionPath( wkdir.toURI() );
+        ( ( Store )store).setSyncOnWrite( true );
 
-        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Store )store).addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        ( ( Store )store).addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
+        store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        store.initialize();
 
-        ((Partition)store).initialize();
+        store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
         LOG.debug( "Created new store" );
     }
 

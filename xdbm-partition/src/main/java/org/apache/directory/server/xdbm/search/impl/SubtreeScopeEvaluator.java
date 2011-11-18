@@ -22,9 +22,14 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.UUID;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -62,7 +67,16 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
     private final boolean dereferencing;
 
     /** The entry database/store */
-    private final Store db;
+    private final Partition db;
+    
+    /** One level idx */
+    private final Index<UUID> subLevelIdx;
+    
+    /** One level alias idx. Set if dereferencing aliases */
+    private final Index<UUID> subAliasIdx;
+    
+    /** Alias idx. Set if dereferencing aliases */
+    private final Index<String> aliasIdx;
 
 
     /**
@@ -72,7 +86,8 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    @SuppressWarnings("unchecked")
+    public SubtreeScopeEvaluator( Partition db, ScopeNode node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -82,9 +97,29 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
             throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
         }
 
-        baseId = db.getEntryId( node.getBaseDn() );
+        baseId = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
         baseIsContextEntry = ( getContextEntryId().compareTo( baseId ) == 0 );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
+        
+        Index<?> index;
+        
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        index = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+        subLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), index );
+        
+        if ( dereferencing )
+        {
+            index = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            subAliasIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), index );
+            
+            index = db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), index );
+        }
+        else
+        {
+            subAliasIdx = null;
+            aliasIdx = null;
+        }
     }
 
     private UUID contextEntryId;
@@ -98,7 +133,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -109,7 +144,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.defaultID;
         }
 
         return contextEntryId;
@@ -137,7 +172,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || db.getSubLevelIndex().forward( baseId, id );
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || subLevelIdx.forward( baseId, id );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -154,7 +189,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != db.getAliasIndex().reverseLookup( id ) )
+        if ( null != aliasIdx.reverseLookup( id ) )
         {
             return false;
         }
@@ -181,7 +216,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getSubAliasIndex().forward( baseId, id );
+        return subAliasIdx.forward( baseId, id );
     }
 
 

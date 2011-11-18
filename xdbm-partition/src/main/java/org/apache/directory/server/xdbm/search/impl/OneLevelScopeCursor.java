@@ -23,9 +23,14 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -44,7 +49,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store db;
+    private final Partition db;
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
@@ -58,6 +63,9 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
 
     /** Currently active Cursor: we switch between two cursors */
     private Cursor<IndexEntry<UUID>> cursor;
+    
+    /** Alias idx set if dereferencing aliases */
+    private Index<String> aliasIdx;
 
 
     /**
@@ -67,17 +75,26 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    //@SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Store db, OneLevelScopeEvaluator evaluator )
+    @SuppressWarnings("unchecked")
+    public OneLevelScopeCursor( Partition db, OneLevelScopeEvaluator evaluator )
         throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         this.db = db;
         this.evaluator = evaluator;
-        scopeCursor = db.getOneLevelIndex().forwardCursor( evaluator.getBaseId() );
+        
+        Index<?> oneLevelIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+        oneLevelIdx = txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
+        scopeCursor = ( ( Index<UUID> ) oneLevelIdx ).forwardCursor( evaluator.getBaseId() );
 
         if ( evaluator.isDereferencing() )
         {
-            dereferencedCursor = db.getOneAliasIndex().forwardCursor( evaluator.getBaseId() );
+            Index<?> oneAliasIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            oneAliasIdx = txnLogManager.wrap( db.getSuffixDn(), oneAliasIdx );
+            dereferencedCursor = ( ( Index<UUID> )oneAliasIdx ).forwardCursor( evaluator.getBaseId() );
+            
+            aliasIdx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
         }
         else
         {
@@ -159,7 +176,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
                     checkNotClosed( "previous()" );
                     setAvailable( cursor.previous() );
 
-                    if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
                     }
@@ -193,7 +210,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
                 checkNotClosed( "previous()" );
                 setAvailable( cursor.previous() );
 
-                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
@@ -228,7 +245,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
                 checkNotClosed( "next()" );
                 setAvailable( cursor.next() );
 
-                if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                if ( available() && aliasIdx.reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }

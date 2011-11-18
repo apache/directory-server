@@ -23,10 +23,16 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -44,9 +50,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private final IndexCursor<String> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
 
-
-    public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
+    @SuppressWarnings("unchecked")
+    public PresenceCursor( Partition store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
@@ -55,13 +62,18 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         // instead for those attributes and all un-indexed attributes we use the ndn index
         if ( store.hasUserIndexOn( type ) )
         {
-            presenceCursor = store.getPresenceIndex().forwardCursor( type.getOid() );
+            Index<?> presenceIdx;
+            presenceIdx = store.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+            presenceIdx = txnLogManager.wrap( store.getSuffixDn(), presenceIdx );
+            presenceCursor = ( ( Index<String> )presenceIdx ).forwardCursor( type.getOid() );
             uuidCursor = null;
         }
         else
         {
             presenceCursor = null;
-            uuidCursor = store.getEntryUuidIndex().forwardCursor();
+            Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
+            entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
+            uuidCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
         }
     }
 

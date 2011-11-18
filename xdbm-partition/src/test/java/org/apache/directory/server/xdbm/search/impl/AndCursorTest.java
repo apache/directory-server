@@ -26,12 +26,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
@@ -127,6 +130,11 @@ public class AndCursorTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
+        
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
 
         // initialize the store
         store = new AvlPartition( schemaManager );
@@ -144,8 +152,8 @@ public class AndCursorTest
         
         XdbmStoreUtils.loadExampleData( store, schemaManager );
 
-        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
-        cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
+        cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
 
         LOG.debug( "Created new store" );
     }
@@ -212,8 +220,8 @@ public class AndCursorTest
         Evaluator<? extends ExprNode> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( (SubstringNode) exprNode, store, schemaManager );
-        IndexCursor<?> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        eval = new SubstringEvaluator( (SubstringNode) exprNode, ( Partition )store, schemaManager );
+        IndexCursor<?> wrapped = new SubstringCursor( ( Partition )store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -222,7 +230,7 @@ public class AndCursorTest
         andNode.addNode( exprNode );
 
         exprNode = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-        eval = new PresenceEvaluator( (PresenceNode) exprNode, store, schemaManager );
+        eval = new PresenceEvaluator( (PresenceNode) exprNode, ( Partition )store, schemaManager );
         evaluators.add( eval );
 
         andNode.addNode( exprNode );

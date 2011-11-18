@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.server.core.api.partition;
 
 
@@ -61,7 +80,7 @@ public interface OperationExecutionManager
      * @param addContext the context used  to add and entry to this ContextPartition
      * @throws LdapException if there are any problems
      */
-    public void add( Partition partition, AddOperationContext addContext ) throws LdapException;
+    void add( Partition partition, AddOperationContext addContext ) throws LdapException;
 
 
     /**
@@ -73,7 +92,7 @@ public interface OperationExecutionManager
      * delete from this ContextPartition.
      * @throws Exception if there are any problems
      */
-    public void delete( Partition partition, DeleteOperationContext deleteContext ) throws LdapException;
+    void delete( Partition partition, DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
@@ -83,7 +102,7 @@ public interface OperationExecutionManager
      * @param id The id of the entry to delete
      * @throws Exception If the deletion failed
      */
-    public void delete( Partition partition, Dn entryDn, UUID id ) throws LdapException;
+    void delete( Partition partition, Dn entryDn, UUID id ) throws LdapException;
 
 
     /**
@@ -97,10 +116,10 @@ public interface OperationExecutionManager
      * 
      * @throws Exception if there are any problems
      */
-    public void modify( Partition partition, ModifyOperationContext modifyContext ) throws LdapException;
+    void modify( Partition partition, ModifyOperationContext modifyContext ) throws LdapException;
 
 
-    public Entry modify( Partition partition, Dn dn, Modification... mods ) throws Exception;
+    Entry modify( Partition partition, Dn dn, Modification... mods ) throws Exception;
 
 
     /**
@@ -113,7 +132,7 @@ public interface OperationExecutionManager
      * @param renameContext the modify Dn context
      * @throws Exception if there are any problems
      */
-    public void rename( Partition partition, RenameOperationContext renameContext ) throws LdapException;
+    void rename( Partition partition, RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
@@ -135,7 +154,7 @@ public interface OperationExecutionManager
      * @param originalEntry entry to be renamed as read from the underlying partition
      * @throws Exception if there are any errors propagating the name changes
      */
-    public void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
+    void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
         throws Exception;
 
 
@@ -147,7 +166,7 @@ public interface OperationExecutionManager
      * @param moveContext The context containing the DNs to move
      * @throws Exception if there are any problems
      */
-    public void move( Partition partition, MoveOperationContext moveContext ) throws LdapException;
+    void move( Partition partition, MoveOperationContext moveContext ) throws LdapException;
 
 
     /**
@@ -182,7 +201,7 @@ public interface OperationExecutionManager
      * @param originalEntry entry to be moved. Version of the entry as read from the underlying partition.
      * @throws Exception If the move failed
      */
-    public void move( Partition partition, Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry,
+    void move( Partition partition, Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry,
         Entry originalEntry ) throws Exception;
 
 
@@ -199,11 +218,11 @@ public interface OperationExecutionManager
      * the modifyDN operation
      * @throws Exception if there are any problems
      */
-    public void moveAndRename( Partition partition, MoveAndRenameOperationContext moveAndRenameContext )
+    void moveAndRename( Partition partition, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException;
 
 
-    public void moveAndRename( Partition partition, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
+    void moveAndRename( Partition partition, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
         Entry originalEntry, boolean deleteOldRdn ) throws Exception;
 
 
@@ -220,7 +239,7 @@ public interface OperationExecutionManager
      * @return an Attributes object representing the entry
      * @throws Exception if there are any problems
      */
-    public Entry lookup( Partition partition, LookupOperationContext lookupContext ) throws LdapException;
+    Entry lookup( Partition partition, LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**
@@ -231,6 +250,17 @@ public interface OperationExecutionManager
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    public Entry lookup( Partition partition, UUID id ) throws LdapException;
+    Entry lookup( Partition partition, UUID id ) throws LdapException;
+    
+    
+    /**
+     * Returns the entry id for the given dn
+     *
+     * @param partition partition the given dn corresponds to
+     * @param dn dn for which we want to get the id
+     * @return entry id
+     * @throws LdapException
+     */
+    public UUID getEntryId( Partition partition, Dn dn ) throws LdapException;
 
 }

@@ -47,7 +47,7 @@ public interface TxnLogManager
      * @param sync log edit will be flushed to media if set to true
      * @throws IOException 
      */
-    void log( LogEdit logEdit, boolean sync ) throws IOException;
+    void log( LogEdit logEdit, boolean sync ) throws Exception;
     
     
     /**
@@ -55,9 +55,9 @@ public interface TxnLogManager
      *
      * @param logRecord log record to be logged
      * @param sync log edit will be flushed to media if set to true
-     * @throws IOException 
+     * @throws Exception 
      */
-    void log( UserLogRecord logRecord, boolean sync ) throws IOException;
+    void log( UserLogRecord logRecord, boolean sync ) throws Exception;
     
     /**
      * Provide a transactionally consistent view on the entry identified

@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.server.core.shared.partition;
 
 
@@ -15,6 +34,7 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
@@ -22,6 +42,7 @@ import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
 import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
@@ -55,13 +76,18 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 
 
-public class DefaultOperationExecutionManager
+public class DefaultOperationExecutionManager implements OperationExecutionManager
 {
 
     /** Txn log manager kept for fast access */
     private TxnLogManager txnLogManager;
 
 
+    public DefaultOperationExecutionManager()
+    {
+        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+    }
+    
     //---------------------------------------------------------------------------------------------
     // The Add operation
     //---------------------------------------------------------------------------------------------
@@ -1719,15 +1745,10 @@ public class DefaultOperationExecutionManager
     // ID and DN operations
     //---------------------------------------------------------------------------------------------
     /**
-     * Returns the entry id for the given dn
-     *
-     * @param partition partition the given dn corresponds to
-     * @param dn dn for which we want to get the id
-     * @return entry id
-     * @throws LdapException
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    private UUID getEntryId( Partition partition, Dn dn ) throws LdapException
+    public UUID getEntryId( Partition partition, Dn dn ) throws LdapException
     {
         try
         {

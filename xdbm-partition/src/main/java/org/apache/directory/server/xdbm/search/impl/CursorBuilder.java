@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -46,7 +46,7 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
 public class CursorBuilder
 {
     /** The database used by this builder */
-    private Store db = null;
+    private Partition db = null;
 
     /** Evaluator dependency on a EvaluatorBuilder */
     private EvaluatorBuilder evaluatorBuilder;
@@ -58,7 +58,7 @@ public class CursorBuilder
      * @param db database used by this enumerator
      * @param evaluatorBuilder the evaluator builder
      */
-    public CursorBuilder( Store db, EvaluatorBuilder evaluatorBuilder )
+    public CursorBuilder( Partition db, EvaluatorBuilder evaluatorBuilder )
     {
         this.db = db;
         this.evaluatorBuilder = evaluatorBuilder;

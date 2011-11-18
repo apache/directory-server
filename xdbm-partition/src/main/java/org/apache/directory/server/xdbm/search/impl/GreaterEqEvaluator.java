@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -45,7 +46,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
-    public GreaterEqEvaluator( GreaterEqNode<T> node, Store db, SchemaManager schemaManager )
+    public GreaterEqEvaluator( GreaterEqNode<T> node, Partition db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
@@ -53,6 +54,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             idx = ( Index<T> ) db.getIndex( attributeType );
+            idx = ( Index<T> ) txnLogManager.wrap(db.getSuffixDn(), idx );
         }
         else
         {
@@ -100,7 +102,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.lookup( indexEntry.getId() );
+            entry = masterTable.get( indexEntry.getId() );
             indexEntry.setEntry( entry );
         }
 
@@ -158,7 +160,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
             return idx.reverseGreaterOrEq( id, node.getValue().getValue() );
         }
 
-        return evaluateEntry( db.lookup( id ) );
+        return evaluateEntry( masterTable.get( id ) );
     }
 
 

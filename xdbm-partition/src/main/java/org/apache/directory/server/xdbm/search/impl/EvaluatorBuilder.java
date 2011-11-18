@@ -23,10 +23,9 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
@@ -50,7 +49,7 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
  */
 public class EvaluatorBuilder
 {
-    private final Store db;
+    private final Partition db;
     private final SchemaManager schemaManager;
 
 
@@ -62,7 +61,7 @@ public class EvaluatorBuilder
      * @param schemaManager the schema manager
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Partition db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;

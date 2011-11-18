@@ -17,11 +17,24 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.api.txn.logedit;
+package org.apache.directory.server.core.shared.partition;
 
-import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 
-public interface IndexModification extends DataChange
+public class OperationExecutionManagerFactory
 {
-    void applyModification( Partition partition, boolean recovery ) throws Exception;
+    /** Operation Manager instance */
+    private static OperationExecutionManager executionManager;
+    
+    
+    public static void init()
+    {
+        executionManager = new DefaultOperationExecutionManager();
+    }
+    
+    
+    public static OperationExecutionManager instance()
+    {
+        return executionManager;
+    }
 }

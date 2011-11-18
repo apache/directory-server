@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
 
 /**
@@ -69,11 +70,21 @@ public class DefaultTxnLogManager implements TxnLogManager
     /**
      * {@inheritDoc}
      */
-    public void log( LogEdit logEdit, boolean sync ) throws IOException
+    public void log( LogEdit logEdit, boolean sync ) throws Exception
     {
         Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( curTxn == null )
+        {
+            /*
+             *  Txn is not initialized. This might happen if the change path does not use txn like during testing
+             *  or bootstrap. In this case we should have some data change and we will apply them to the underyling
+             *  partitions directly
+             */
+            logEdit.apply( false );
+        }
        
-        if ( ( curTxn == null ) || ( ! ( curTxn instanceof ReadWriteTxn ) ) )
+        if ( ! ( curTxn instanceof ReadWriteTxn ) )
         {
             throw new IllegalStateException( "Trying to log logedit without ReadWriteTxn" );
         }
@@ -118,7 +129,7 @@ public class DefaultTxnLogManager implements TxnLogManager
     /**
      * {@inheritDoc}
      */
-    public void log( UserLogRecord logRecord, boolean sync ) throws IOException
+    public void log( UserLogRecord logRecord, boolean sync ) throws Exception
     {
         try
         {
@@ -152,6 +163,13 @@ public class DefaultTxnLogManager implements TxnLogManager
      */
     public IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception
     {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            return wrappedCursor;
+        }
+        
         return new IndexCursorWrapper( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
     }
     
@@ -159,8 +177,16 @@ public class DefaultTxnLogManager implements TxnLogManager
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     public Index<Object> wrap( Dn partitionDn, Index<?> wrappedIndex ) throws Exception
     {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            return ( Index<Object> )wrappedIndex;
+        }
+        
         return new IndexWrapper( partitionDn, ( Index<Object> ) wrappedIndex );
     }
     
@@ -170,6 +196,13 @@ public class DefaultTxnLogManager implements TxnLogManager
      */
     public MasterTable wrap( Dn partitionDn, MasterTable wrappedTable ) throws Exception
     {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            return wrappedTable;
+        }
+        
         return new MasterTableWrapper( partitionDn, wrappedTable );
     }
     
@@ -198,7 +231,8 @@ public class DefaultTxnLogManager implements TxnLogManager
 
         if ( ( curTxn == null ) )
         {
-            throw new IllegalStateException( "Trying to add dn set wihout txn" );
+            // NO txn, return without doing anything.
+            return;
         }
 
         // No need to do anything for read only txns

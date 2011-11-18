@@ -24,18 +24,22 @@ import java.util.UUID;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.SingletonIndexCursor;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.BranchNode;
@@ -56,12 +60,23 @@ public class DefaultSearchEngine implements SearchEngine
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
+    
     /** the Database this DefaultSearchEngine operates on */
-    private final Store db;
+    private final Partition db;
+    
     /** creates Cursors over entries satisfying filter expressions */
     private final CursorBuilder cursorBuilder;
+    
     /** creates evaluators which check to see if candidates satisfy a filter expression */
     private final EvaluatorBuilder evaluatorBuilder;
+    
+    /** Txn log manager */
+    private final TxnLogManager txnLogManager;
+    
+    /** Operation execution manager */
+    private final OperationExecutionManager executionManager;
+    
+    
 
 
     // ------------------------------------------------------------------------
@@ -76,13 +91,15 @@ public class DefaultSearchEngine implements SearchEngine
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store db, CursorBuilder cursorBuilder,
+    public DefaultSearchEngine( Partition db, CursorBuilder cursorBuilder,
         EvaluatorBuilder evaluatorBuilder, Optimizer optimizer )
     {
         this.db = db;
         this.optimizer = optimizer;
         this.cursorBuilder = cursorBuilder;
         this.evaluatorBuilder = evaluatorBuilder;
+        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        executionManager = OperationExecutionManagerFactory.instance();
     }
 
 
@@ -100,16 +117,17 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * @see SearchEngine#cursor(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
      */
+    @SuppressWarnings("unchecked")
     public IndexCursor<UUID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception
     {
         Dn effectiveBase;
-        UUID baseId = db.getEntryId( base );
+        UUID baseId = executionManager.getEntryId( db, base );
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            if ( ((Partition)db).getSuffixDn().equals( base ) )
+            if ( db.getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
                 return new EmptyIndexCursor<UUID>();
@@ -121,7 +139,10 @@ public class DefaultSearchEngine implements SearchEngine
             }
         }
 
-        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Index<?> aliasIdx;
+        aliasIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        aliasIdx = txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
+        String aliasedBase = ( (Index<String>) aliasIdx ).reverseLookup( baseId );
 
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
@@ -156,7 +177,7 @@ public class DefaultSearchEngine implements SearchEngine
             UUID effectiveBaseId = baseId;
             if ( effectiveBase != base )
             {
-                effectiveBaseId = db.getEntryId( effectiveBase );
+                effectiveBaseId = executionManager.getEntryId( db, effectiveBase );
             }
 
             IndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();

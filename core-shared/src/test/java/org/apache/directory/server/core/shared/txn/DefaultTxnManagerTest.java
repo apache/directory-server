@@ -89,7 +89,7 @@ public class DefaultTxnManagerTest
 
 
     @Test
-    public void testBeginCommitReadOnlyTxn() throws IOException
+    public void testBeginCommitReadOnlyTxn() throws Exception
     {
         try
         {
@@ -100,12 +100,12 @@ public class DefaultTxnManagerTest
 
             txnManager.commitTransaction();
         }
-        catch ( IOException e )
+        catch ( TxnConflictException e )
         {
             e.printStackTrace();
             fail();
         }
-        catch ( TxnConflictException e )
+        catch ( IOException e )
         {
             e.printStackTrace();
             fail();
@@ -125,7 +125,7 @@ public class DefaultTxnManagerTest
 
             txnManager.abortTransaction();
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             fail();
@@ -145,12 +145,12 @@ public class DefaultTxnManagerTest
 
             txnManager.commitTransaction();
         }
-        catch ( IOException e )
+        catch ( TxnConflictException e )
         {
             e.printStackTrace();
             fail();
         }
-        catch ( TxnConflictException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             fail();
@@ -170,7 +170,7 @@ public class DefaultTxnManagerTest
 
             txnManager.abortTransaction();
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             fail();
@@ -217,12 +217,12 @@ public class DefaultTxnManagerTest
             txnManager.commitTransaction();
 
         }
-        catch ( IOException e )
+        catch ( TxnConflictException e )
         {
             e.printStackTrace();
             fail();
         }
-        catch ( TxnConflictException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             fail();

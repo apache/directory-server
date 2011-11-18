@@ -25,9 +25,12 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -49,7 +52,7 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
 public class SubstringEvaluator implements Evaluator<SubstringNode>
 {
     /** Database used while evaluating candidates */
-    private final Store db;
+    private final Partition db;
 
     /** Reference to the SchemaManager */
     private final SchemaManager schemaManager;
@@ -68,6 +71,9 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
     /** The index to use if any */
     private final Index<String> idx;
+    
+    /** Master table */
+    private final MasterTable masterTable;
 
 
     /**
@@ -79,7 +85,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager )
+    public SubstringEvaluator( SubstringNode node, Partition db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -114,14 +120,18 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
             regex = null;
         }
 
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<String> ) db.getIndex( attributeType );
+            Index<?> index = db.getIndex( attributeType );
+            idx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), index );
         }
         else
         {
             idx = null;
         }
+        
+        masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
     }
 
 
@@ -251,7 +261,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     // wrapper or the raw normalized value
     private boolean evaluateWithoutIndex( UUID id ) throws Exception
     {
-        return evaluateWithoutIndex( db.lookup( id ) );
+        return evaluateWithoutIndex( masterTable.get( id ) );
     }
 
 
@@ -338,7 +348,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.lookup( indexEntry.getId() );
+            entry = masterTable.get( indexEntry.getId() );
             indexEntry.setEntry( entry );
         }
 

@@ -33,6 +33,8 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.XdbmStoreUtils;
@@ -126,6 +128,11 @@ public class NestedFilterTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
+        
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
 
         // initialize the store
         store = new AvlPartition( schemaManager );
@@ -141,9 +148,9 @@ public class NestedFilterTest
 
         XdbmStoreUtils.loadExampleData( store, schemaManager );
 
-        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
-        cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        optimizer = new DefaultOptimizer( store );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
+        cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
+        optimizer = new DefaultOptimizer( ( Partition )store );
 
         LOG.debug( "Created new store" );
     }

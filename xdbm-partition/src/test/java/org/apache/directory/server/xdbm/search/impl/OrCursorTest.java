@@ -32,6 +32,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
@@ -78,7 +80,7 @@ public class OrCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store store;
+    Partition store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -126,22 +128,27 @@ public class OrCursorTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
+        
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( false );
+        store.setId( "example" );
+        ( ( Store )store).setCacheSize( 10 );
+        ( ( Store )store).setPartitionPath( wkdir.toURI() );
+        ( ( Store )store).setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Store )store).addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
+        ( ( Store )store).addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        store.initialize();
 
-        ((Partition)store).initialize();
+        store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );

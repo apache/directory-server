@@ -30,6 +30,8 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.XdbmStoreUtils;
@@ -64,7 +66,7 @@ public class SubstringTest
     private static final Logger LOG = LoggerFactory.getLogger( SubstringTest.class.getSimpleName() );
 
     File wkdir;
-    Store store;
+    Partition store;
     static SchemaManager schemaManager = null;
 
 
@@ -111,22 +113,27 @@ public class SubstringTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
+        
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( false );
+        store.setId( "example" );
+        ( (Store )store ).setCacheSize( 10 );
+        ( (Store )store ).setPartitionPath( wkdir.toURI() );
+        ( (Store )store ).setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        ( (Store )store ).addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
+        ( (Store )store ).addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
         
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
-        ((Partition)store).setSuffixDn( suffixDn );
+        store.setSuffixDn( suffixDn );
 
-        ((Partition)store).initialize();
+        store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
         
         LOG.debug( "Created new store" );
     }
@@ -623,35 +630,35 @@ public class SubstringTest
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 5 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 5 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 5 ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -672,14 +679,14 @@ public class SubstringTest
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUIDString( 6 ) ) );
+        indexEntry.setEntry( store.getMasterTable().get( Strings.getUUIDString( 6 ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 

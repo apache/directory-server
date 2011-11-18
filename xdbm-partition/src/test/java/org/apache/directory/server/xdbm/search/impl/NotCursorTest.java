@@ -33,6 +33,8 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
@@ -125,6 +127,11 @@ public class NotCursorTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
+        
+        File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
 
         // initialize the store
         store = new AvlPartition( schemaManager );
@@ -142,8 +149,8 @@ public class NotCursorTest
         
         XdbmStoreUtils.loadExampleData( store, schemaManager );
 
-        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
-        cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
+        cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
 
         LOG.debug( "Created new store" );
     }
@@ -209,11 +216,11 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( (SubstringNode) exprNode, store,
+        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( (SubstringNode) exprNode, ( Partition )store,
             schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( ( Partition )store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
         Set<UUID> set = new HashSet<UUID>();

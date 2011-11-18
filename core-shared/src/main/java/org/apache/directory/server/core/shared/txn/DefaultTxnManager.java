@@ -100,7 +100,7 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public void beginTransaction( boolean readOnly ) throws IOException
+    public void beginTransaction( boolean readOnly ) throws Exception
     {
         Transaction curTxn = getCurTxn();
 
@@ -124,7 +124,7 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public void commitTransaction() throws IOException, TxnConflictException
+    public void commitTransaction() throws Exception, TxnConflictException
     {
         Transaction txn = getCurTxn();
 
@@ -151,7 +151,7 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public void abortTransaction() throws IOException
+    public void abortTransaction() throws Exception
     {
         Transaction txn = getCurTxn();
 
@@ -242,7 +242,7 @@ class DefaultTxnManager implements TxnManagerInternal
      * into the txn log and the lsn of that log record is the
      * start time.
      */
-    private void beginReadWriteTxn() throws IOException
+    private void beginReadWriteTxn() throws Exception
     {
 
         ReadWriteTxn txn = new ReadWriteTxn();
@@ -443,10 +443,10 @@ class DefaultTxnManager implements TxnManagerInternal
      * committed yet as its commit record might not have made it to the underlying media but this is OK as rw3 cannot commit before rw1 because of the log.
      *
      * @param txn txn to commit.
-     * @throws IOException
+     * @throws Exception
      * @throws TxnConflictException
      */
-    private void commitReadWriteTxn( ReadWriteTxn txn ) throws IOException, TxnConflictException
+    private void commitReadWriteTxn( ReadWriteTxn txn ) throws Exception, TxnConflictException
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
@@ -531,7 +531,7 @@ class DefaultTxnManager implements TxnManagerInternal
      * @param txn txn to abort
      * @throws IOException
      */
-    private void abortReadWriteTxn( ReadWriteTxn txn ) throws IOException
+    private void abortReadWriteTxn( ReadWriteTxn txn ) throws Exception
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 

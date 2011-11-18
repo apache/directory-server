@@ -22,12 +22,15 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**
@@ -58,10 +61,15 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
      * @param db
      * @throws Exception
      */
-    public AllEntriesCursor( Store db ) throws Exception
+    @SuppressWarnings("unchecked")
+    public AllEntriesCursor( Partition db ) throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
+        entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
+        
         // Get a reverse cursor because we want to sort by ID
-        wrapped = db.getEntryUuidIndex().reverseCursor();
+        wrapped = ( ( Index<String> )entryUuidIdx ).reverseCursor();
     }
 
 

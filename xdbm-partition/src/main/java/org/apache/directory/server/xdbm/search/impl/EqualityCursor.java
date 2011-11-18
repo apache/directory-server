@@ -23,13 +23,15 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
@@ -65,8 +67,9 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public EqualityCursor( Store db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
+    public EqualityCursor( Partition db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
     {
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
@@ -74,13 +77,16 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         
         if ( db.hasIndexOn( attributeType ) )
         {
-            Index<V> userIndex = ( Index<V> ) db.getIndex( attributeType );
-            userIdxCursor = userIndex.forwardCursor( value.getValue() );
+            Index<?> index = db.getIndex( attributeType );
+            index = txnLogManager.wrap( db.getSuffixDn(), index );
+            userIdxCursor = ( ( Index<V> )index ).forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = db.getEntryUuidIndex().forwardCursor();
+            Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
+            entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
+            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
             userIdxCursor = null;
         }
     }

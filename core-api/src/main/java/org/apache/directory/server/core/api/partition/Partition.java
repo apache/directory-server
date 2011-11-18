@@ -61,6 +61,9 @@ public interface Partition
     /** root ID common to all partitions */
     UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
     
+    /** Default id used for context entry if context entry doesnt exists */
+    UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
+    
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------

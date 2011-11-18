@@ -23,7 +23,13 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -48,8 +54,16 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
     private final boolean dereferencing;
 
     /** the entry db storing entries */
-    private final Store db;
-
+    private final Partition db;
+    
+    /** One level idx */
+    private Index<UUID> oneLevelIdx;
+    
+    /** One level alias idx. Set if dereferencing aliases */
+    private Index<UUID> oneAliasIdx;
+    
+    /** Alias idx. Set if dereferencing aliases */
+    private Index<String> aliasIdx;
 
     /**
      * Creates a one level scope node Evaluator for search expressions.
@@ -58,7 +72,8 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    @SuppressWarnings("unchecked")
+    public OneLevelScopeEvaluator( Partition db, ScopeNode node ) throws Exception
     {
         this.node = node;
 
@@ -68,8 +83,21 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
         }
 
         this.db = db;
-        baseId = db.getEntryId( node.getBaseDn() );
+        baseId = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
+        
+        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        oneLevelIdx = ( Index<UUID> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+        oneLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
+        
+        if ( dereferencing )
+        {
+            oneAliasIdx = ( Index<UUID> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            oneAliasIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), oneAliasIdx );
+            
+            aliasIdx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
+        }
     }
 
 
@@ -84,7 +112,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
      */
     public boolean evaluateId( UUID candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate );
+        boolean isChild = oneLevelIdx.forward( baseId, candidate );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -101,7 +129,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != db.getAliasIndex().reverseLookup( candidate ) )
+        if ( null != aliasIdx.reverseLookup( candidate ) )
         {
             return false;
         }
@@ -125,7 +153,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getOneAliasIndex().forward( baseId, candidate );
+        return oneAliasIdx.forward( baseId, candidate );
     }
 
 
@@ -155,7 +183,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
      */
     public boolean evaluate( IndexEntry<?> candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
+        boolean isChild = oneLevelIdx.forward( baseId, candidate.getId() );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -172,7 +200,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != db.getAliasIndex().reverseLookup( candidate.getId() ) )
+        if ( null != aliasIdx.reverseLookup( candidate.getId() ) )
         {
             return false;
         }
@@ -196,7 +224,7 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getOneAliasIndex().forward( baseId, candidate.getId() );
+        return oneAliasIdx.forward( baseId, candidate.getId() );
     }
 
 
