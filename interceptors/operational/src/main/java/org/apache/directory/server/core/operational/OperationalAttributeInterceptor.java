@@ -55,8 +55,6 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -331,7 +329,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_31 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -345,7 +343,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_32 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -359,7 +357,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_32 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -371,7 +369,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                throw new LdapNoPermissionException( message );
             }
         }
 
