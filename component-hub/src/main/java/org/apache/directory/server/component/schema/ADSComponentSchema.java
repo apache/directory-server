@@ -21,6 +21,7 @@ package org.apache.directory.server.component.schema;
 
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
@@ -47,6 +48,11 @@ public class ADSComponentSchema
      * Schema name which @schemaElements will go under.
      */
     private String parentSchemaDn = null;
+
+    /*
+     * The default attribute/property values for this schemas associated component to be instantiated
+     */
+    private Dictionary defaultConf = null;
 
 
     public ADSComponentSchema( String name, List<LdifEntry> elements )
@@ -98,6 +104,28 @@ public class ADSComponentSchema
         }
 
         return new ArrayList<LdifEntry>( schemaElements );
+    }
+
+
+    /**
+     * Setter for default configuration
+     *
+     * @param conf Dictionary containing property name -> value mapping
+     */
+    public void setDefaultConf( Dictionary conf )
+    {
+        defaultConf = conf;
+    }
+
+
+    /**
+     * Getter for default configuration
+     *
+     * @param conf Dictionary containing property name -> value mapping
+     */
+    public Dictionary getDefaultConf()
+    {
+        return defaultConf;
     }
 
 }

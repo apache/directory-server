@@ -21,6 +21,8 @@ package org.apache.directory.server.component.schema;
 
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSConstants;
@@ -59,6 +61,9 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
         //Will hold the m-must attributes while iterating over properties of the component
         List<String> ocAttribs = new ArrayList<String>();
 
+        //Will hold default values for factory proeprties.
+        Dictionary defaultConf = new Hashtable<String, Object>();
+
         // Creating schema elements with proper order and pushing them into the list
         try
         {
@@ -68,9 +73,10 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
             for ( PropertyDescription prop : componentFactory.getComponentDescription().getProperties() )
             {
 
-                //Must be lower case, alphanumeric only
+                //Must be lower case, alphanumeric+'-' only
                 String propname = prop.getName();
 
+                String propvalue = prop.getValue();
                 String proptype = prop.getType();
                 String propoid = ComponentOIDGenerator.generateAttribOID( componentBaseOID );
                 String propdn = "m-oid=" + propoid + "," + attribsDn;
@@ -110,6 +116,8 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
                 {
                     ocAttribs.add( "m-may:" + propname );
                 }
+
+                defaultConf.put( propname, propvalue );
 
             }
 
@@ -151,7 +159,11 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
                 + componentFactory );
         }
 
-        return new ADSComponentSchema( ADSConstants.ADS_USER_COMPONENTS_SCHEMA_DN, schemaElements );
+        ADSComponentSchema compSchema = new ADSComponentSchema( ADSConstants.ADS_USER_COMPONENTS_SCHEMA_DN,
+            schemaElements );
+        compSchema.setDefaultConf( defaultConf );
+
+        return compSchema;
     }
 
 }

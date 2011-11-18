@@ -6,49 +6,41 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *
+ *  
  *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License.
- *
+ *  under the License. 
+ *  
  */
-package org.apache.directory.server.component.hub.listener;
+package org.apache.directory.server.component.instance;
 
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.felix.ipojo.Factory;
+import org.apache.directory.server.component.ADSComponentInstance;
 
 
 /**
- * Abstract HubListener implementation. Override the intended methods to receive notifications.
+ * Class that generates an instances of "user" typed components.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractHubListener implements HubListener
+public class UserComponentInstanceGenerator implements ADSComponentInstanceGenerator
 {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.directory.server.component.hub.listener.HubListener#onComponentCreation(org.apache.directory.server.component.ADSComponent)
+     * @see org.apache.directory.server.component.instance.ADSComponentInstanceGenerator#createInstance(org.apache.directory.server.component.ADSComponent)
      */
     @Override
-    public void onComponentCreation( ADSComponent component )
+    public ADSComponentInstance createInstance( ADSComponent component )
     {
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.directory.server.component.hub.listener.HubListener#onComponentDeletion(org.apache.directory.server.component.ADSComponent)
-     */
-    @Override
-    public void onComponentDeletion( ADSComponent component )
-    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

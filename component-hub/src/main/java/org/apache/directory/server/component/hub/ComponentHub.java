@@ -29,6 +29,9 @@ import java.util.List;
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.ADSConstants;
 import org.apache.directory.server.component.hub.listener.HubListener;
+import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
+import org.apache.directory.server.component.instance.UserComponentInstanceGenerator;
+import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.component.schema.UserComponentSchemaGenerator;
 import org.apache.felix.ipojo.Factory;
@@ -90,9 +93,19 @@ public class ComponentHub
     private Dictionary<String, ComponentSchemaGenerator> schemaGenerators;
 
     /*
-     * Map to keep "component type" -> "listeners" mapping
+     * Map to keep "component type" -> "instance generator" mapping.
      */
-    private Dictionary<String, List<HubListener>> listenersMap;
+    private Dictionary<String, ADSComponentInstanceGenerator> instanceGenerators;
+
+    /*
+     * Used to manage listeners.
+     */
+    private ComponentEventManager eventManager = new ComponentEventManager();
+
+    /*
+     * Used to manage component caches.
+     */
+    private ComponentCacheManager cacheManager = new ComponentCacheManager();
 
     /*
      * OSGI Logger
@@ -109,7 +122,8 @@ public class ComponentHub
         schemaGenerators = new Hashtable<String, ComponentSchemaGenerator>();
         schemaGenerators.put( ADSConstants.ADS_COMPONENT_TYPE_USER, new UserComponentSchemaGenerator() );
 
-        listenersMap = new Hashtable<String, List<HubListener>>();
+        instanceGenerators = new Hashtable<String, ADSComponentInstanceGenerator>();
+        instanceGenerators.put( ADSConstants.ADS_COMPONENT_TYPE_USER, new UserComponentInstanceGenerator() );
     }
 
 
@@ -152,32 +166,10 @@ public class ComponentHub
         {
             String componentType = parseComponentType( arrivingFactory );
 
-            List<HubListener> listenersByType = listenersMap.get( componentType );
-
-            // Fire the 'factory arrived' event on listeners.
-            if ( listenersByType != null )
-            {
-                for ( HubListener listener : listenersByType )
-                {
-                    listener.onFactoryArrival( arrivingFactory );
-                }
-            }
-
             //Actual ADSComponent creation
             ADSComponent component = generateADSComponent( componentType, arrivingFactory );
 
-            // Iterate over listeners for 'component created' event. Apply the changes applied by them.
-            if ( listenersByType != null )
-            {
-                for ( HubListener listener : listenersByType )
-                {
-                    ADSComponent _comp = listener.onComponentCreation( component );
-                    if ( _comp != null )
-                    {
-                        component = _comp;
-                    }
-                }
-            }
+            eventManager.fireComponentCreated( component );
 
             //Keep the newly created ADSComponent reference.
             components.add( component );
@@ -220,17 +212,6 @@ public class ComponentHub
         {
             String componentType = parseComponentType( leavingFactory );
 
-            List<HubListener> listenersByType = listenersMap.get( componentType );
-
-            // Fire the 'factory leaving' event on listeners.
-            if ( listenersByType != null )
-            {
-                for ( HubListener listener : listenersByType )
-                {
-                    listener.onFactoryDeparture( leavingFactory );
-                }
-            }
-
             ADSComponent associatedComp = null;
             for ( ADSComponent _comp : components )
             {
@@ -248,17 +229,11 @@ public class ComponentHub
                 return;
             }
 
-            // Iterate over listeners for 'component deleting' event.
-            if ( listenersByType != null )
-            {
-                for ( HubListener listener : listenersByType )
-                {
-                    listener.onComponentDeletion( associatedComp );
-                }
-            }
-
             // All clients are notified now cache and delete the ADSComponent existence on ApacheDS
             cacheAndReleaseADSComponent( associatedComp );
+
+            // Fire "Component Deleted" event
+            eventManager.fireComponentDeleted( associatedComp );
 
         }
         catch ( ParseException e )
@@ -358,7 +333,23 @@ public class ComponentHub
      */
     private ADSComponent generateADSComponent( String componentType, Factory factory )
     {
-        return null;
+        ADSComponent component = new ADSComponent();
+
+        ComponentSchemaGenerator schemaGenerator = schemaGenerators.get( componentType );
+        if ( schemaGenerator == null )
+        {
+            logger.log( LogService.LOG_INFO, "Schema generator not present for component type:" + componentType );
+            return null;
+        }
+
+        ADSComponentSchema schema = schemaGenerator.generateOrGetSchemaElements( factory );
+        component.setSchema( schema );
+
+        component.setFactory( factory );
+        component.setComponentType( componentType );
+        component.setCacheHandle( cacheManager.getCacheHandle( component ) );
+
+        return component;
     }
 
 
@@ -381,20 +372,7 @@ public class ComponentHub
      */
     public void registerListener( String componentType, HubListener listener )
     {
-        List<HubListener> listenersForComp = listenersMap.get( componentType );
-        if ( listenersForComp == null )
-        {
-            ArrayList<HubListener> list = new ArrayList<HubListener>();
-            list.add( listener );
-            listenersMap.put( componentType, list );
-        }
-        else
-        {
-            if ( !listenersForComp.contains( listener ) )
-            {
-                listenersForComp.add( listener );
-            }
-        }
+        eventManager.registerListener( componentType, listener );
     }
 
 
@@ -405,14 +383,6 @@ public class ComponentHub
      */
     public void removeListener( HubListener listener )
     {
-        Enumeration<List<HubListener>> it = listenersMap.elements();
-        while ( it.hasMoreElements() )
-        {
-            List<HubListener> list = it.nextElement();
-            if ( list.contains( listener ) )
-            {
-                list.remove( listener );
-            }
-        }
+        eventManager.removeListener( listener );
     }
 }

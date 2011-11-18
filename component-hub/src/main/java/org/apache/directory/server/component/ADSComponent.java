@@ -19,10 +19,13 @@
  */
 package org.apache.directory.server.component;
 
+
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.model.ldif.LdifReader;
-import org.apache.felix.ipojo.ComponentFactory;
+import org.apache.directory.server.component.schema.ADSComponentSchema;
+import org.apache.felix.ipojo.Factory;
+
 
 /**
  * Class that represents a component for ApacheDS use.
@@ -31,19 +34,114 @@ import org.apache.felix.ipojo.ComponentFactory;
  */
 public class ADSComponent
 {
-    private ComponentFactory factory;
-    
-    private String componentType = "user";
-    
-    private String componentSchemaDn;
-    
-    private List<ADSComponentInstance> instances;
-    
-    private LdifReader cacheHandle;
+    private Factory factory;
 
-    public ComponentFactory getFactory()
+    private String componentType = "user";
+
+    private List<ADSComponentInstance> instances;
+
+    private ADSComponentCacheHandle cacheHandle;
+
+    private ADSComponentSchema schema;
+
+
+    public ADSComponent()
+    {
+        instances = new ArrayList<ADSComponentInstance>();
+    }
+
+
+    /**
+     * Adds an instance to a instances list
+     *
+     * @param instance instance reference to add to a list
+     */
+    public void addInstance( ADSComponentInstance instance )
+    {
+        instances.add( instance );
+    }
+
+
+    /**
+     * Removes an instance from instances list
+     *
+     * @param instance to remove from the list
+     */
+    public void removeInstance( ADSComponentInstance instance )
+    {
+        instances.remove( instance );
+    }
+
+
+    /**
+     * @return the cacheHandle
+     */
+    public ADSComponentCacheHandle getCacheHandle()
+    {
+        return cacheHandle;
+    }
+
+
+    /**
+     * @param cacheHandle the cacheHandle to set
+     */
+    public void setCacheHandle( ADSComponentCacheHandle cacheHandle )
+    {
+        this.cacheHandle = cacheHandle;
+    }
+
+
+    /**
+     * @return the factory
+     */
+    public Factory getFactory()
     {
         return factory;
     }
-    
+
+
+    /**
+     * @param factory the factory to set
+     */
+    public void setFactory( Factory factory )
+    {
+        this.factory = factory;
+    }
+
+
+    /**
+     * @return the componentType
+     */
+    public String getComponentType()
+    {
+        return componentType;
+    }
+
+
+    /**
+     * @param componentType the componentType to set
+     */
+    public void setComponentType( String componentType )
+    {
+        this.componentType = componentType;
+    }
+
+
+    /**
+     * @return the schema
+     */
+    public ADSComponentSchema getSchema()
+    {
+        return schema;
+    }
+
+
+    /**
+     * @param schema the schema to set
+     */
+    public void setSchema( ADSComponentSchema schema )
+    {
+        this.schema = schema;
+    }
+
 }

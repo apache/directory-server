@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.component;
 
+
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+
 
 /**
  * Class that represents an individual instance of an ADSComponent
@@ -28,12 +30,96 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
  */
 public class ADSComponentInstance
 {
-    private LdifEntry instanceEntry;
-    
-    private String configHookDn;
-    
+    /*
+     * Actual instance reference.
+     */
     private Object instance;
-    
+
+    /*
+     * The parent component of this spesific instance
+     */
     private ADSComponent parentComponent;
-    
+
+    /*
+     * LdifEntry of configuration hook.
+     */
+    private LdifEntry instanceEntry;
+
+    /*
+     * Dn value shows where the configuration hook is set on DIT.
+     */
+    private String configHookDn;
+
+
+    /**
+     * @return the instance
+     */
+    public Object getInstance()
+    {
+        return instance;
+    }
+
+
+    /**
+     * @param instance the instance to set
+     */
+    public void setInstance( Object instance )
+    {
+        this.instance = instance;
+    }
+
+
+    /**
+     * @return the parentComponent
+     */
+    public ADSComponent getParentComponent()
+    {
+        return parentComponent;
+    }
+
+
+    /**
+     * @param parentComponent the parentComponent to set
+     */
+    public void setParentComponent( ADSComponent parentComponent )
+    {
+        this.parentComponent = parentComponent;
+    }
+
+
+    /**
+     * @return the instanceEntry
+     */
+    public LdifEntry getInstanceEntry()
+    {
+        return instanceEntry;
+    }
+
+
+    /**
+     * @param instanceEntry the instanceEntry to set
+     */
+    public void setInstanceEntry( LdifEntry instanceEntry )
+    {
+        this.instanceEntry = instanceEntry;
+    }
+
+
+    /**
+     * @return the configHookDn
+     */
+    public String getConfigHookDn()
+    {
+        return configHookDn;
+    }
+
+
+    /**
+     * @param configHookDn the configHookDn to set
+     */
+    public void setConfigHookDn( String configHookDn )
+    {
+        this.configHookDn = configHookDn;
+    }
+
 }

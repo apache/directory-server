@@ -17,38 +17,20 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.component.hub.listener;
+package org.apache.directory.server.component.hub;
 
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.felix.ipojo.Factory;
+import org.apache.directory.server.component.ADSComponentCacheHandle;
 
 
-/**
- * Abstract HubListener implementation. Override the intended methods to receive notifications.
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+/*
+ * Class to manage schema and instance cache locations for ADSComponents.
  */
-public abstract class AbstractHubListener implements HubListener
+public class ComponentCacheManager
 {
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.directory.server.component.hub.listener.HubListener#onComponentCreation(org.apache.directory.server.component.ADSComponent)
-     */
-    @Override
-    public void onComponentCreation( ADSComponent component )
+    public ADSComponentCacheHandle getCacheHandle( ADSComponent component )
     {
+        return null;
     }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.directory.server.component.hub.listener.HubListener#onComponentDeletion(org.apache.directory.server.component.ADSComponent)
-     */
-    @Override
-    public void onComponentDeletion( ADSComponent component )
-    {
-    }
-
 }

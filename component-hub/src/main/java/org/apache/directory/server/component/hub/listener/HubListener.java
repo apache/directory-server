@@ -35,30 +35,15 @@ import org.apache.felix.ipojo.architecture.Architecture;
  */
 public interface HubListener
 {
-    /**
-     * Notified when a new factory is sniffed by Hub.
-     *
-     * @param factory arriving factory
-     */
-    public void onFactoryArrival( Factory factory );
-
-
-    /**
-     * Notified when a factory leaving the container.
-     *
-     * @param factory departuring factory
-     */
-    public void onFactoryDeparture( Factory factory );
-
 
     /**
      * Notified when a new ADSComponent is created.
-     * Listener can change the newly created ADSComponent by returning changed ADSComponent.(Be cautious)
+     * Listener can change the newly created ADSComponent by modifying the suppliad argument.
      *
      * @param component newly created ADSComponent
      * @return the overrided version of the ADSComponent or null if no change is intended.
      */
-    public ADSComponent onComponentCreation( ADSComponent component );
+    public void onComponentCreation( ADSComponent component );
 
 
     /**
