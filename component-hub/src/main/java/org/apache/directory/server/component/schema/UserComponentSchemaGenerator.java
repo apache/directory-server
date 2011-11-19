@@ -25,6 +25,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.apache.directory.server.component.ADSComponentHelper;
 import org.apache.directory.server.component.ADSConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -39,7 +40,8 @@ import org.slf4j.LoggerFactory;
 public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
 {
 
-    private static final Logger LOG = LoggerFactory.getLogger( UserComponentSchemaGenerator.class );
+    private final Logger LOG = LoggerFactory.getLogger( UserComponentSchemaGenerator.class );
+    private final String ADS_USER_COMPONENTS_SCHEMA_DN = "cn=usercomponents,ou=schema";
 
 
     @Override
@@ -47,16 +49,10 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
     {
         List<LdifEntry> schemaElements = new ArrayList<LdifEntry>();
 
-        String componentName = componentFactory.getName();
-        if ( componentName.contains( "." ) )
-        {
-            componentName = componentName.substring( componentName.lastIndexOf( '.' ) + 1 );
-        }
+        String componentName = ADSComponentHelper.getComponentName( componentFactory );
 
-        String schemaDn = ADSConstants.ADS_USER_COMPONENTS_SCHEMA_DN;
-
-        String attribsDn = "ou=attributeTypes," + schemaDn;
-        String ocsDn = "ou=objectClasses," + schemaDn;
+        String attribsDn = "ou=attributeTypes," + ADS_USER_COMPONENTS_SCHEMA_DN;
+        String ocsDn = "ou=objectClasses," + ADS_USER_COMPONENTS_SCHEMA_DN;
 
         //Will hold the m-must attributes while iterating over properties of the component
         List<String> ocAttribs = new ArrayList<String>();
@@ -159,7 +155,7 @@ public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
                 + componentFactory );
         }
 
-        ADSComponentSchema compSchema = new ADSComponentSchema( ADSConstants.ADS_USER_COMPONENTS_SCHEMA_DN,
+        ADSComponentSchema compSchema = new ADSComponentSchema( ADS_USER_COMPONENTS_SCHEMA_DN,
             schemaElements );
         compSchema.setDefaultConf( defaultConf );
 

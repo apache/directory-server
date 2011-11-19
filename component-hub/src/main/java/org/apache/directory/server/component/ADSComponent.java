@@ -34,14 +34,40 @@ import org.apache.felix.ipojo.Factory;
  */
 public class ADSComponent
 {
+    /*
+     * IPojo factory reference for component
+     */
     private Factory factory;
 
+    /*
+     * Component's type
+     */
     private String componentType = "user";
 
+    /*
+     * Name of the component(Its IPojo factory name in normalized form).
+     */
+    private String componentName;
+
+    /*
+     * Version of the component.
+     * (Implementing factory's Bundle version/Subject to change).
+     */
+    private String componentVersion;
+
+    /*
+     * List holding all the created instances of that component
+     */
     private List<ADSComponentInstance> instances;
 
+    /*
+     * cache handle for pointing places in the cache for that component.
+     */
     private ADSComponentCacheHandle cacheHandle;
 
+    /*
+     * Generated/Choosed schema information
+     */
     private ADSComponentSchema schema;
 
 
@@ -70,6 +96,17 @@ public class ADSComponent
     public void removeInstance( ADSComponentInstance instance )
     {
         instances.remove( instance );
+    }
+
+
+    /**
+     * Gets the current instances of the component
+     *
+     * @return Cloned ADSComponentInstance list.
+     */
+    public List<ADSComponentInstance> getInstances()
+    {
+        return new ArrayList<ADSComponentInstance>( instances );
     }
 
 
@@ -142,6 +179,49 @@ public class ADSComponent
     public void setSchema( ADSComponentSchema schema )
     {
         this.schema = schema;
+    }
+
+
+    /**
+     * @return the componentName
+     */
+    public String getComponentName()
+    {
+        return componentName;
+    }
+
+
+    /**
+     * @param componentName the componentName to set
+     */
+    public void setComponentName( String componentName )
+    {
+        this.componentName = componentName;
+    }
+
+
+    /**
+     * @return the componentVersion
+     */
+    public String getComponentVersion()
+    {
+        return componentVersion;
+    }
+
+
+    /**
+     * @param componentVersion the componentVersion to set
+     */
+    public void setComponentVersion( String componentVersion )
+    {
+        this.componentVersion = componentVersion;
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return getComponentType() + ":" + getComponentName() + ":" + getComponentVersion();
     }
 
 }

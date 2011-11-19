@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.ADSComponentHelper;
 import org.apache.directory.server.component.ADSConstants;
 import org.apache.directory.server.component.hub.listener.HubListener;
 import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
@@ -145,7 +146,9 @@ public class ComponentHub
     @Invalidate
     public void hubInvalidated()
     {
-        logger.log( LogService.LOG_INFO, "ADSComponentHub validated." );
+        logger.log( LogService.LOG_INFO, "ADSComponentHub being invalidated." );
+
+        cacheManager.cacheRemaningComponents();
     }
 
 
@@ -347,6 +350,8 @@ public class ComponentHub
 
         component.setFactory( factory );
         component.setComponentType( componentType );
+        component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
+        component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
         component.setCacheHandle( cacheManager.getCacheHandle( component ) );
 
         return component;

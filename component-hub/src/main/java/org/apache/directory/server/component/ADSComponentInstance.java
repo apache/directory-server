@@ -20,7 +20,7 @@
 package org.apache.directory.server.component;
 
 
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
+import java.util.Properties;
 
 
 /**
@@ -43,7 +43,7 @@ public class ADSComponentInstance
     /*
      * LdifEntry of configuration hook.
      */
-    private LdifEntry instanceEntry;
+    private Properties instanceConfiguration;
 
     /*
      * Dn value shows where the configuration hook is set on DIT.
@@ -88,20 +88,20 @@ public class ADSComponentInstance
 
 
     /**
-     * @return the instanceEntry
+     * @return the instanceConfiguration
      */
-    public LdifEntry getInstanceEntry()
+    public Properties getInstanceConfiguration()
     {
-        return instanceEntry;
+        return instanceConfiguration;
     }
 
 
     /**
-     * @param instanceEntry the instanceEntry to set
+     * @param instanceConfiguration the instanceConfiguration to set
      */
-    public void setInstanceEntry( LdifEntry instanceEntry )
+    public void setInstanceConfiguration( Properties instanceConfiguration )
     {
-        this.instanceEntry = instanceEntry;
+        this.instanceConfiguration = instanceConfiguration;
     }
 
 

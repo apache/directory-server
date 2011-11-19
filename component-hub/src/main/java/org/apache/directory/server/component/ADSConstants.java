@@ -83,11 +83,6 @@ public class ADSConstants
     public static final String ADS_COMPONENT_TYPE_USER = "user";
 
     /*
-     * Base DN for @ADSComponent(componentType="user") component schema elements.
-     */
-    public static final String ADS_USER_COMPONENTS_SCHEMA_DN = "cn=usercomponents,ou=schema";
-
-    /*
      * Hash table for mapping property type name to its syntax in ApacheDS
      */
     public static Dictionary<String, String> syntaxMappings;
