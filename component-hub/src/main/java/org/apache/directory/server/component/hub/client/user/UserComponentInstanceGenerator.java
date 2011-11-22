@@ -56,6 +56,8 @@ public class UserComponentInstanceGenerator implements ADSComponentInstanceGener
         }
 
         // TODO Auto-generated method stub
+
+        //Remember to set configuration of the instance here...
         return null;
     }
 

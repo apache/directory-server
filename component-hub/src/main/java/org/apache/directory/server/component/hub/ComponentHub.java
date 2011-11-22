@@ -99,9 +99,14 @@ public class ComponentHub
     private ComponentCacheManager cacheManager = new ComponentCacheManager();
 
     /*
+     * Used to manage instances' DIT hooks.
+     */
+    private ConfigurationManager configManager = new ConfigurationManager();
+
+    /*
      * Used to manage components
      */
-    private ComponentManager componentManager = new ComponentManager( cacheManager );
+    private ComponentManager componentManager = new ComponentManager( cacheManager, configManager );
 
     /*
      * OSGI Logger

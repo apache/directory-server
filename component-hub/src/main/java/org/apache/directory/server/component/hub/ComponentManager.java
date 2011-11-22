@@ -70,6 +70,11 @@ public class ComponentManager
     private ComponentCacheManager cacheManager;
 
     /*
+     * Configuration Manager
+     */
+    private ConfigurationManager configManager;
+
+    /*
      * Ldif deferred writing queue.
      */
     private Queue<LdifEntry> ldifQueue = new LinkedBlockingQueue<LdifEntry>();
@@ -80,11 +85,13 @@ public class ComponentManager
     private LdapCoreSessionConnection ldapConn;
 
 
-    public ComponentManager( ComponentCacheManager cacheManager )
+    public ComponentManager( ComponentCacheManager cacheManager, ConfigurationManager configManager )
     {
         schemaGenerators = new Hashtable<String, ComponentSchemaGenerator>();
         instanceGenerators = new Hashtable<String, ADSComponentInstanceGenerator>();
+
         this.cacheManager = cacheManager;
+        this.configManager = configManager;
     }
 
 
@@ -94,7 +101,7 @@ public class ComponentManager
      *
      * @param conn LdapCoreSessionConnection reference to set.
      */
-    public synchronized void setConnectionReady( LdapCoreSessionConnection conn )
+    public synchronized void setConnection( LdapCoreSessionConnection conn )
     {
         ldapConn = conn;
 
@@ -147,6 +154,8 @@ public class ComponentManager
         if ( generator != null )
         {
             ADSComponentInstance instance = generator.createInstance( component, properties );
+
+            instance.setConfigManager( configManager );
 
             if ( instance != null )
             {
@@ -323,6 +332,48 @@ public class ComponentManager
         {
             LOG.info( "Error occured while deleting component's schema elements" );
         }
+    }
+
+
+    /**
+     * Caches the component manually
+     *
+     * @param component ADSComponent to initiate caching
+     */
+    public void cacheComponent( ADSComponent component )
+    {
+        cacheManager.cacheComponent( component );
+    }
+
+
+    /**
+     * Loads the cached instance configurations for component, and use
+     * them to create cached instances.
+     *
+     * @param component ADSComponent reference to load its cached instances.
+     * @return loaded instances.
+     */
+    public List<ADSComponentInstance> loadCachedInstances( ADSComponent component )
+    {
+        List<ADSComponentInstance> cachedInstances = new ArrayList<ADSComponentInstance>();
+
+        List<Properties> cachedConfigurations = cacheManager.getCachedInstanceConfigurations( component );
+
+        if ( cachedConfigurations == null )
+        {
+            return null;
+        }
+
+        for ( Properties props : cachedConfigurations )
+        {
+            ADSComponentInstance ins = createInstance( component, props );
+            if ( ins != null )
+            {
+                cachedInstances.add( ins );
+            }
+        }
+
+        return cachedInstances;
     }
 
 }

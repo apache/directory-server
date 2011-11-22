@@ -23,6 +23,7 @@ package org.apache.directory.server.component.instance;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.hub.ConfigurationManager;
 
 
 /**
@@ -51,6 +52,11 @@ public class ADSComponentInstance
      * Dn value shows where the configuration hook is set on DIT.
      */
     private String configHookDn;
+
+    /*
+     * ConfigurationManager to manage instance's DIT hooks.
+     */
+    private ConfigurationManager configManager;
 
 
     /**
@@ -122,6 +128,15 @@ public class ADSComponentInstance
     public void setConfigHookDn( String configHookDn )
     {
         this.configHookDn = configHookDn;
+    }
+
+
+    /**
+     * @param configManager the configManager to set
+     */
+    public void setConfigManager( ConfigurationManager configManager )
+    {
+        this.configManager = configManager;
     }
 
 }
