@@ -90,7 +90,7 @@ public class LdifPartitionTest
     private static CsnFactory defaultCSNFactory;
 
     @Rule
-    public static TemporaryFolder folder = new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
 
     @BeforeClass
