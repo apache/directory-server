@@ -51,32 +51,17 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core-api</artifactId>
+      <artifactId>apacheds-core-shared</artifactId>
     </dependency>
     
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1-ber</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-codec-core</artifactId>
     </dependency>
     
     <dependency>
