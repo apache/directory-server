@@ -27,12 +27,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
-import javax.naming.ConfigurationException;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
+import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -53,7 +52,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test the LdapConnection class by enabling SSL and StartTLS one after the other 
+ * Test the LdapConnection class by enabling SSL and StartTLS one after the other
  * (using both in the same test class saves the time required to start/stop another server for StartTLS)
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -61,23 +60,23 @@ import org.junit.runner.RunWith;
 
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { 
+    {
         @CreateTransport(protocol = "LDAP"),
-        @CreateTransport(protocol = "LDAPS") 
-    }, 
-    saslHost = "localhost", 
+        @CreateTransport(protocol = "LDAPS")
+    },
+    saslHost = "localhost",
     saslMechanisms =
-    { 
+    {
         @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
-    }, 
+    },
     extendedOpHandlers =
-    { 
-        StartTlsHandler.class 
+    {
+        StartTlsHandler.class
     })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
@@ -140,7 +139,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         assertFalse( controlList.isEmpty() );
 
         connection.close();
-    }    
+    }
     
     
     /**
@@ -201,4 +200,18 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         connection.startTls();
     }
 
+    @Test( expected = InvalidConnectionException.class )
+    public void testStallingSsl() throws Exception
+    {
+        LdapConnectionConfig sslConfig = new LdapConnectionConfig();
+        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setUseSsl( true );
+        sslConfig.setLdapPort( getLdapServer().getPortSSL() );
+        //sslConfig.setTrustManagers( new NoVerificationTrustManager() );
+
+        LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig );
+
+        // We should get an exception here, as we don't have a trustManager defined
+        connection.bind();
+    }
 }
