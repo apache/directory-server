@@ -122,6 +122,7 @@ public class KerberosTcpITest extends AbstractKerberosITest
 
 
     @Test
+    @Ignore("Fails with javax.security.auth.login.LoginException: No supported encryption types listed in default_tkt_enctypes")
     public void testObtainTickets_AES256() throws Exception
     {
         // RFC3962, Section 7: aes256-cts-hmac-sha1-96 + hmac-sha1-96-aes256
