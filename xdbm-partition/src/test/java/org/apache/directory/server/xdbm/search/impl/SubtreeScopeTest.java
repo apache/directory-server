@@ -141,7 +141,7 @@ public class SubtreeScopeTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         
         LOG.debug( "Created new store" );
     }
@@ -642,7 +642,7 @@ public class SubtreeScopeTest
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        OperationExecutionManagerFactory.instance().add( store, addContext );
 
         dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
@@ -655,7 +655,7 @@ public class SubtreeScopeTest
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
         
         addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        OperationExecutionManagerFactory.instance().add( store, addContext );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );

@@ -36,6 +36,9 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.index.GenericIndex;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
@@ -96,6 +99,9 @@ public class AvlPartitionTest
     
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
+    
+    /** Operation execution manager */
+    private static OperationExecutionManager executionManager;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -108,6 +114,12 @@ public class AvlPartitionTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
+        
+        File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
+        executionManager = OperationExecutionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -399,34 +411,34 @@ public class AvlPartitionTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ),  partition.getEntryId( dn ) );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ),  executionManager.getEntryId( partition, dn ) );
         assertEquals( 11, partition.count() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000000" ), partition.getParentId( partition.getEntryId( dn ) ) );
-        assertNull( partition.getParentId( UUID.fromString( "00000000-0000-0000-0000-000000000000" ) ) );
+        assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000000" ), executionManager.getParentId( partition, executionManager.getEntryId( partition, dn ) ) );
+        assertNull( executionManager.getParentId( partition, UUID.fromString( "00000000-0000-0000-0000-000000000000" ) ) );
 
         // should be allowed
-        partition.delete( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
+        executionManager.delete( partition, dn, UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 3, partition.getChildCount( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) ) );
+        assertEquals( 3, executionManager.getChildCount( partition, UUID.fromString( "00000000-0000-0000-0000-000000000001" ) ) );
 
-        Cursor<IndexEntry<UUID>> cursor = partition.list( UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
+        Cursor<IndexEntry<UUID>> cursor = executionManager.list( partition, UUID.fromString( "00000000-0000-0000-0000-000000000001" ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertEquals( Strings.getUUIDString( 2 ),  cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 3, partition.getChildCount( Strings.getUUIDString( 1 ) ) );
+        assertEquals( 3, executionManager.getChildCount( partition, Strings.getUUIDString( 1 ) ) );
 
-        partition.delete( Strings.getUUIDString( 2 ) );
+        executionManager.delete( partition, executionManager.buildEntryDn( partition, Strings.getUUIDString( 2 ) ), Strings.getUUIDString( 2 ) );
 
-        assertEquals( 2, partition.getChildCount( Strings.getUUIDString( 1 ) ) );
+        assertEquals( 2, executionManager.getChildCount( partition, Strings.getUUIDString( 1 ) ) );
         assertEquals( 10, partition.count() );
 
         // add an alias and delete to test dropAliasIndices method
@@ -440,9 +452,9 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
-        partition.delete( Strings.getUUIDString( 12 ) );
+        executionManager.delete( partition, dn, Strings.getUUIDString( 12 ) );
     }
 
 
@@ -488,7 +500,7 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
         cursor.afterLast();
@@ -498,7 +510,7 @@ public class AvlPartitionTest
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
         Dn newDn = newParentDn.add( martinDn.getRdn() );
-        partition.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
+        executionManager.move( partition, martinDn, newParentDn, newDn, entry.clone(), entry );
 
         cursor = idx.forwardCursor( Strings.getUUIDString( 3 ) );
         cursor.afterLast();
@@ -514,7 +526,7 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
 
         addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         // dn id 14
         Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
@@ -526,10 +538,10 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 14 ).toString() );
 
         addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         newDn = newParentDn.add( marketingDn.getRdn() );
-        partition.move( marketingDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
+        executionManager.move( partition, marketingDn, newParentDn, newDn, entry.clone(), entry );
 
         cursor = idx.forwardCursor( Strings.getUUIDString( 3 ) );
         cursor.afterLast();
@@ -584,7 +596,7 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 15 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
     }
 
 
@@ -598,7 +610,7 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 16 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
     }
 
 
@@ -612,7 +624,7 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        partition.modify( dn, add );
+        executionManager.modify( partition, dn, add );
     }
 
 
@@ -628,11 +640,11 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 17 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         Rdn rdn = new Rdn( "sn=James" );
 
-        partition.rename( dn, rdn, true, null );
+        executionManager.rename( partition, dn, rdn, true, null, addContext.getModifiedEntry() );
     }
 
 
@@ -648,16 +660,16 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 18 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
 
-        partition.rename( dn, rdn, true, null );
+        executionManager.rename( partition, dn, rdn, true, null, addContext.getModifiedEntry() );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        UUID id = partition.getEntryId( dn2 );
+        UUID id = executionManager.getEntryId( partition, dn2 );
         assertNotNull( id );
-        Entry entry2 = partition.lookup( id );
+        Entry entry2 = executionManager.lookup( partition, id );
         assertEquals( "ja+es", entry2.get( "sn" ).getString() );
     }
 
@@ -674,13 +686,15 @@ public class AvlPartitionTest
         childEntry.add( "entryUUID", Strings.getUUIDString( 19 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
         Rdn rdn = new Rdn( "cn=Ryan" );
 
-        partition.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
+        childEntry = ( DefaultEntry )addContext.getModifiedEntry();
+        Entry modifiedChildEntry = childEntry.clone();
+        executionManager.moveAndRename( partition, childDn, parentDn, rdn, modifiedChildEntry, childEntry, true );
 
         // to drop the alias indices   
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -690,9 +704,10 @@ public class AvlPartitionTest
         assertEquals( 3, partition.getSubAliasIndex().count() );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
-        partition.move( childDn, parentDn, newDn, childEntry );
+        executionManager.move( partition, childDn, parentDn, newDn, modifiedChildEntry.clone(), modifiedChildEntry );
 
-        assertEquals( 4, partition.getSubAliasIndex().count() );
+        // Count should be two after one add and two removes
+        assertEquals( 2, partition.getSubAliasIndex().count() );
     }
 
 
@@ -709,14 +724,14 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = executionManager.lookup( partition, executionManager.getEntryId( partition, dn ) );
 
-        partition.modify( dn, add );
+        executionManager.modify( partition, dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
-        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        executionManager.modify( partition, dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
             schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
-        lookedup = partition.lookup( partition.getEntryId( dn ) );
+        lookedup = executionManager.lookup( partition, executionManager.getEntryId( partition, dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
     }
 
@@ -734,14 +749,14 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = executionManager.lookup( partition, executionManager.getEntryId( partition, dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        lookedup = partition.modify( dn, add );
+        lookedup = executionManager.modify( partition, dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = executionManager.modify( partition, dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
@@ -756,18 +771,18 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = executionManager.lookup( partition, executionManager.getEntryId( partition, dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        lookedup = partition.modify( dn, add );
+        lookedup = executionManager.modify( partition, dn, add );
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = executionManager.modify( partition, dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertNotNull( lookedup.get( "sn" ) );
 
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );
+        lookedup = executionManager.modify( partition, dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -783,7 +798,7 @@ public class AvlPartitionTest
         entry.add( "entryUUID", Strings.getUUIDString( 20 ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
@@ -792,11 +807,11 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = executionManager.lookup( partition, executionManager.getEntryId( partition, dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        lookedup = partition.modify( dn, add );
+        lookedup = executionManager.modify( partition, dn, add );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

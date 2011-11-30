@@ -150,7 +150,7 @@ public class LessEqTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -651,7 +651,7 @@ public class LessEqTest
         attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, attrs );
-        ((Partition)store).add( addContext );
+        OperationExecutionManagerFactory.instance().add( store, addContext );
 
         indexEntry.setId( Strings.getUUIDString( 12 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );

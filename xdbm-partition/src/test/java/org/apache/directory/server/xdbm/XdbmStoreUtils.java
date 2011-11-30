@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -59,7 +60,7 @@ public class XdbmStoreUtils
      */
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public static void loadExampleData( Store store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Partition store, SchemaManager schemaManager ) throws Exception
     {
         int idx = 1;
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
@@ -182,12 +183,12 @@ public class XdbmStoreUtils
      * @param idx index used to build the entry uuid
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store store, Entry entry, int idx ) throws Exception
+    public static void injectEntryInStore( Partition store, Entry entry, int idx ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( idx ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        OperationExecutionManagerFactory.instance().add( store, addContext );
     }
 }

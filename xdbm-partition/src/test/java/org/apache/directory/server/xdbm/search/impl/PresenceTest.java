@@ -137,7 +137,7 @@ public class PresenceTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         
         LOG.debug( "Created new store" );
     }

@@ -148,7 +148,7 @@ public class OrCursorTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Store )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );

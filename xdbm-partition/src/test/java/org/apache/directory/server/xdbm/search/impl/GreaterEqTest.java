@@ -145,10 +145,10 @@ public class GreaterEqTest
         ( ( Store ) store ).addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         ( ( Store ) store ).addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
         ( ( Store ) store ).addIndex( new AvlIndex( SchemaConstants.POSTALCODE_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        store.initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Store ) store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -623,7 +623,7 @@ public class GreaterEqTest
         attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, attrs );
-        ((Partition)store).add( addContext );
+        OperationExecutionManagerFactory.instance().add( store, addContext );
 
         indexEntry.setId( Strings.getUUIDString( 12 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );

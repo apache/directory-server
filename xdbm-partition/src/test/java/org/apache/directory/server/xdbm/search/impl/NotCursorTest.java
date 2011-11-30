@@ -147,7 +147,7 @@ public class NotCursorTest
 
         ((Partition)store).initialize();
         
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
         cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
