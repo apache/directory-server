@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.Map;
 import java.util.HashMap;
@@ -210,7 +211,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
                             new TreeSet<IndexEntry<Object>>( index.getReverseIndexEntryComparator() );
 
                         forwardIndices.put( indexChange.getOID(), forwardAdds );
-                        reverseIndices.put( indexChange.getOID(), forwardAdds );
+                        reverseIndices.put( indexChange.getOID(), reverseAdds );
                     }
 
                     TreeSet<IndexEntry<Object>> deletes = deletedIndices.get( indexChange.getOID() );
@@ -284,93 +285,288 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
         return curEntry;
     }
     
+    
+    /**
+     * Checks all the updates done on the given index for the given key and returns 
+     * the latest version of the coressponding id
+     *
+     * @param partitionDn dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param indexEntry index entry to do the lookup on 
+     * @param valueComp value comparator
+     * @return current version of the index entry
+     */
+    public void updateForwardLookup(Dn partitionDn, String attributeOid, IndexEntry<Object> indexEntry,  Comparator<Object> valueComp )
+    {
+        UUID id  = indexEntry.getId();
+        Object key = indexEntry.getValue();
+        NavigableSet<IndexEntry<Object>> changes = getForwardIndexChanges( partitionDn, attributeOid );
+        
+        if ( changes == null )
+        {
+            // No add. If we have a value, check if it is deleted.
+            if ( id != null )
+            {
+                // Check if index entry is deleted
+                NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+                
+                if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+                {
+                    // Index entry is deleted
+                    id = null;
+                }
+                else
+                {
+                    // No update
+                }
+            }
+        }
+        else
+        {
+            boolean added = false;
+            indexEntry.setId( null );
+            changes = changes.tailSet( indexEntry, false );
+            Iterator<IndexEntry<Object>> it = changes.iterator();
+            
+            if ( it.hasNext() )
+            {
+                IndexEntry<Object> lookedUpEntry = it.next();
+                
+                if ( valueComp.compare( key, lookedUpEntry.getValue() ) == 0 )
+                {
+                    id = lookedUpEntry.getId();
+                    added = true;
+                }
+            }
+            
+            if ( added == false && id != null )
+            {
+                // Check if index entry is deleted
+                indexEntry.setId( id ); // reset the id
+                NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+                
+                
+                if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+                {
+                    // Index entry is deleted
+                    id = null;
+                }
+                else
+                {
+                    // No update
+                }
+            }
+        }
+        
+        // Set the current version of the id
+        indexEntry.setId( id );
+    }
+    
+    
+    /**
+     * Checks all the updates done on the given index for the given id and returns 
+     * the latest version of the corressponding value
+     *
+     * @param partitionDn dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param id key to do the lookup on 
+     * @return value corresponding to the id
+     */
+    public void updateReverseLookup(Dn partitionDn, String attributeOid, IndexEntry<Object> indexEntry )
+    {
+        UUID id  = indexEntry.getId();
+        Object key = indexEntry.getValue();
+        NavigableSet<IndexEntry<Object>> changes = getReverseIndexChanges( partitionDn, attributeOid );
+        
+        if ( changes == null )
+        {
+            // No add. If we have a value, check if it is deleted.
+            if ( key != null )
+            {
+                // Check if index entry is deleted
+                NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+                
+                if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+                {
+                    // Index entry is deleted
+                    key = null;
+                }
+                else
+                {
+                    // No update
+                }
+            }
+        }
+        else
+        {
+            boolean added = false;
+            indexEntry.setValue( null );
+            changes = changes.tailSet( indexEntry, false );
+            Iterator<IndexEntry<Object>> it = changes.iterator();
+            
+            if ( it.hasNext() )
+            {
+                IndexEntry<Object> lookedUpEntry = it.next();
+                
+                if ( UUIDComparator.INSTANCE.compare( id, lookedUpEntry.getId() ) == 0 )
+                {
+                    key = lookedUpEntry.getValue();
+                }
+            }
+            
+            if ( added == false && key != null )
+            {
+                // Check if index entry is deleted
+                indexEntry.setValue( key ); // reset the id
+                NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+                
+                
+                if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+                {
+                    // Index entry is deleted
+                    key = null;
+                }
+                else
+                {
+                    // No update
+                }
+            }
+        }
+        
+        // Set the current version of the value
+        indexEntry.setValue( key );
+    }
+    
+    
+    /**
+     * Checks updates on the given index entry and returns whether the it exists or not
+     *
+     * @param partitionDn dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param indexEntry entry to do the check for 
+     * @param currentlyExists true if the index entry currently exists
+     * @param forward true if lookup is on forward index, false otherwise
+     * @return updated version of the existence status
+     */
+    public boolean updateExistence(Dn partitionDn, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists, boolean forward )
+    {
+        NavigableSet<IndexEntry<Object>> changes; 
+
+        if ( forward )
+        {
+            changes = getForwardIndexChanges( partitionDn, attributeOid );
+        }
+        else
+        {
+            changes = getReverseIndexChanges( partitionDn, attributeOid );
+        }
+        
+        if ( changes == null )
+        {
+            // No adds, check if index entry is deleted
+            NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+            
+            if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+            {
+                // Index entry is delete
+                return false;
+            }
+            else
+            {
+                // No update on existence status
+                return currentlyExists;
+            }
+        }
+        else
+        {
+            if ( changes.contains( indexEntry ) )
+            {
+                return true;
+            }
+            else
+            {
+                // No add, check if index entry is deleted
+                NavigableSet<IndexEntry<Object>> txnDeletes = getDeletesFor( partitionDn, attributeOid );
+                
+                if ( txnDeletes != null && txnDeletes.contains( indexEntry ) )
+                {
+                    // Index entry is delete
+                    return false;
+                }
+                else
+                {
+                    // No update on existence status
+                    return currentlyExists;
+                }
+            }
+        }
+    }
+    
 
     /**
-     * Returns true if this txn has deletes for the index identified by partitionDn + attributeOid
+     * Returns deletes his txn has for the index identified by partitionDn + attributeOid
      *
      * @param partitionDn dn of the partition
      * @param attributeOid oid of the indexed attribute
-     * @return
+     * @return deletes for the given index
      */
-    public boolean hasDeletesFor( Dn partitionDn, String attributeOid )
+    public NavigableSet<IndexEntry<Object>> getDeletesFor( Dn partitionDn, String attributeOid )
     {
         Map<String, TreeSet<IndexEntry<Object>>> deletedIndices =
             indexDeletes.get( partitionDn );
 
         if ( deletedIndices != null )
         {
-            return ( deletedIndices.get( attributeOid ) != null );
+            return deletedIndices.get( attributeOid );
         }
 
-        return false;
+        return null;
     }
-
+    
+    
 
     /**
-     * Returns a cursor over the changes made by this txn on the index identified by partitionDn+attributeOid. 
+     * Returns add this txn has for the forward index identified by partitionDn + attributeOid
      *
      * @param partitionDn dn of the partition
      * @param attributeOid oid of the indexed attribute
-     * @param forwardIndex true if forward index and reverse if reverse index
-     * @param onlyValueKey set if the cursor should be locked down by a key ( should be non null only for forward indices )
-     * @param onlyIDKey  set if the cursor should be locked down by a key ( should be non null only for reverse indices )
-     * @param comparator comparator that will be used to order index entries.
-     * @return
+     * @return adds for the given forward index 
      */
-    public IndexCursor<Object> getCursorFor( Dn partitionDn, String attributeOid, boolean forwardIndex,
-        Object onlyValueKey, UUID onlyIDKey, IndexComparator<Object> comparator )
+    public NavigableSet<IndexEntry<Object>> getForwardIndexChanges( Dn partitionDn, String attributeOid )
     {
-        TxnIndexCursor txnIndexCursor = null;
-
         Map<String, TreeSet<IndexEntry<Object>>> forwardIndices =
             forwardIndexAdds.get( partitionDn );
 
         if ( forwardIndices != null )
         {
-            TreeSet<IndexEntry<Object>> sortedSet = forwardIndices.get( attributeOid );
-
-            if ( sortedSet != null )
-            {
-                txnIndexCursor = new TxnIndexCursor( sortedSet, forwardIndex, onlyValueKey, onlyIDKey, comparator );
-            }
+            return  forwardIndices.get( attributeOid );
         }
 
-        return txnIndexCursor;
+        return null;
     }
-
-
+    
+    
     /**
-     * Returns true if the given index entry is deleted by this txn. partitionDn + attributeOid 
-     * identifies the index. 
+     * Returns add this txn has for the reverse index identified by partitionDn + attributeOid
      *
-     * @param partitionDn dn of the partition index belongs to 
-     * @param attributeOid oid of the indexed attribute.
-     * @param indexEntry value to be checked
-     * @return true if the given value is deleted.
+     * @param partitionDn dn of the partition
+     * @param attributeOid oid of the indexed attribute
+     * @return adds for the given reverse index 
      */
-    public boolean isIndexEntryDeleted( Dn partitionDn, String attributeOid, IndexEntry<Object> indexEntry )
+    public NavigableSet<IndexEntry<Object>> getReverseIndexChanges( Dn partitionDn, String attributeOid )
     {
-        Map<String, TreeSet<IndexEntry<Object>>> deletedIndices =
-            indexDeletes.get( partitionDn );
+        Map<String, TreeSet<IndexEntry<Object>>> reverseIndices =
+            reverseIndexAdds.get( partitionDn );
 
-        if ( deletedIndices == null )
+        if ( reverseIndices != null )
         {
-            return false;
+            return  reverseIndices.get( attributeOid );
         }
 
-        TreeSet<IndexEntry<Object>> deletedEntries = deletedIndices.get( attributeOid );
-
-        if ( deletedEntries == null )
-        {
-            return false;
-        }
-
-        boolean result = deletedEntries.contains( indexEntry );
-
-        return result;
+        return null;
     }
 
-
+    
     /**
      * Adds the given Dn to the read set of the current txn
      *

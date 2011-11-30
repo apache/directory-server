@@ -57,6 +57,7 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
@@ -141,6 +142,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     
     /** The cn=schema Dn */
     private Dn subschemSubentryDn;
+    
+    /** Operation Execution Manager */
+    OperationExecutionManager operationExecutionManager;
 
 
 
@@ -200,6 +204,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( !initialized )
         {
+            operationExecutionManager = OperationExecutionManagerFactory.instance();
+            
             // Add the supported controls
             Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredControls();
             
@@ -449,7 +455,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Partition partition = getPartition( addContext.getDn() );
-        partition.add( addContext );
+        operationExecutionManager.add( partition, addContext );
 
         Attribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
         directoryService.setContextCsn( at.getString() );
@@ -515,7 +521,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Partition partition = getPartition( deleteContext.getDn() );
-        partition.delete( deleteContext );
+        operationExecutionManager.delete( partition, deleteContext );
     }
 
 
@@ -538,7 +544,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Partition partition = getPartition( dn );
         
-        return partition.hasEntry( hasEntryContext );
+        return operationExecutionManager.hasEntry( partition, hasEntryContext );
     }
 
 
@@ -549,7 +555,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( listContext.getDn() );
         
-        return partition.list( listContext );
+        return operationExecutionManager.list( partition, listContext );
     }
 
 
@@ -592,7 +598,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition partition = getPartition( dn );
-        Entry entry =  partition.lookup( lookupContext );
+        Entry entry =  operationExecutionManager.lookup( partition, lookupContext );
         
         if ( entry == null )
         {
@@ -619,7 +625,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Partition partition = getPartition( modifyContext.getDn() );
 
-        partition.modify( modifyContext );
+        operationExecutionManager.modify( partition, modifyContext );
         
         Entry alteredEntry = modifyContext.getAlteredEntry();
         
@@ -641,7 +647,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // We also have to get the new partition as it can be different
         //Partition newBackend = getPartition( opContext.getNewDn() );
 
-        partition.move( moveContext );
+        operationExecutionManager.move( partition, moveContext );
     }
 
 
@@ -651,7 +657,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Partition partition = getPartition( moveAndRenameContext.getDn() );
-        partition.moveAndRename( moveAndRenameContext );
+        operationExecutionManager.moveAndRename( partition, moveAndRenameContext );
     }
 
 
@@ -661,7 +667,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Partition partition = getPartition( renameContext.getDn() );
-        partition.rename( renameContext );
+        operationExecutionManager.rename( partition, renameContext );
     }
 
 

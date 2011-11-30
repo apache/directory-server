@@ -21,12 +21,17 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.server.i18n.I18n;
 
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -70,14 +75,14 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
     /** whether this is a cursor on forward or reverse index */
     private boolean forwardIndex;
     
-    /** List of txns that this cursor depends on */
-    private ArrayList<ReadWriteTxn> txns;
+    /** Index deletes by txns that this cursor depends on */
+    private ArrayList<NavigableSet<IndexEntry<Object>>> deletes;
     
     /** True if cursor is positioned */
     private boolean positioned;
     
     /** direction of the move */
-    boolean movingNext = true;
+    private boolean movingNext = true;
     
     /** Comparator used to order the index entries */
     private IndexComparator<Object> comparator;
@@ -85,6 +90,9 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
     /** unsupported operation message */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     
+    /** Last value returned: here to keep memory overhead low */
+    private ForwardIndexEntry<Object> lastValue = new ForwardIndexEntry<Object>();
+     
     public IndexCursorWrapper( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey )
     {
         this.partitionDn = partitionDn;
@@ -103,7 +111,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         
         if ( toCheck.size() > 0 )
         {
-            txns = new ArrayList<ReadWriteTxn>( toCheck.size() );
+            deletes = new ArrayList<NavigableSet<IndexEntry<Object>>>( toCheck.size() );
             
             ReadWriteTxn dependentTxn;
             
@@ -111,19 +119,30 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             {
                 dependentTxn = toCheck.get( idx );
                 
-                if ( dependentTxn.hasDeletesFor( partitionDn, attributeOid ) )
+                if ( curTxn == dependentTxn )
                 {
-                    txns.add( dependentTxn );
+                    NavigableSet<IndexEntry<Object>> txnDeletes = dependentTxn.getDeletesFor( partitionDn, attributeOid );
+                    
+                    if ( txnDeletes != null )
+                    {
+                        TreeSet<IndexEntry<Object>> clonedDeletes = new TreeSet<IndexEntry<Object>>( comparator );
+                        clonedDeletes.addAll( txnDeletes );
+                        deletes.add( clonedDeletes );
+                    }
+                    else
+                    {
+                        deletes.add( null );
+                    }
                 }
                 else
                 {
-                    txns.add( null );
+                    deletes.add( dependentTxn.getDeletesFor( partitionDn, attributeOid ) );
                 }
                 
                 values.add( null );
                 
                 // This adds a null to the array if the txn does not have any changes for the index
-                cursors.add( dependentTxn.getCursorFor( partitionDn, attributeOid, forwardIndex, onlyValueKey, onlyIDKey, comparator ) );
+                cursors.add( getCursorFor( dependentTxn, partitionDn, attributeOid, forwardIndex, onlyValueKey, onlyIDKey, comparator ) );
             }
         }
     }
@@ -324,11 +343,12 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         
         checkNotClosed( "next()" );
         
-        IndexEntry<Object> lastValue = null;
         
         if ( getIndex >= 0 )
         {
-            lastValue = values.get( getIndex );
+            IndexEntry<Object> indexEntry = values.get( getIndex );
+            lastValue.setId( indexEntry.getId() );
+            lastValue.setValue( indexEntry.getValue() );
         }
         
         int idx;
@@ -377,7 +397,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         }
         
         int txnIdx;
-        ReadWriteTxn curTxn;
+        NavigableSet<IndexEntry<Object>> txnDeletes;
         boolean valueDeleted;
         
         do
@@ -398,11 +418,11 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             
             valueDeleted = false;
             
-            for ( ; txnIdx < txns.size(); txnIdx++ )
+            for ( ; txnIdx < deletes.size(); txnIdx++ )
             {
-                curTxn = txns.get( txnIdx );
+                txnDeletes = deletes.get( txnIdx );
                 
-                if ( ( curTxn != null ) && ( curTxn.isIndexEntryDeleted( partitionDn, attributeOid, value ) ) )
+                if ( ( txnDeletes != null ) && ( txnDeletes.contains( value ) ) )
                 {
                     valueDeleted = true;
                     break;
@@ -410,7 +430,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             }
             
             // If the value we get is not deleted and greater than the last value we returned, then we are done
-            if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) > 0 ) ) )
+            if ( ( valueDeleted == false ) && ( ( lastValue.getId() == null ) || ( comparator.compare( value, lastValue ) > 0 ) ) )
             {
                 break;
             }
@@ -435,11 +455,11 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         
         checkNotClosed( "previous()" );
         
-        IndexEntry<Object> lastValue = null;
-        
         if ( getIndex >= 0 )
         {
-            lastValue = values.get( getIndex );
+            IndexEntry<Object> indexEntry = values.get( getIndex );
+            lastValue.setId( indexEntry.getId() );
+            lastValue.setValue( indexEntry.getValue() );
         }
         
         int idx;
@@ -489,7 +509,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         }
         
         int txnIdx;
-        ReadWriteTxn curTxn;
+        NavigableSet<IndexEntry<Object>> txnDeletes;
         boolean valueDeleted;
         
         do
@@ -510,11 +530,11 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             
             valueDeleted = false;
             
-            for ( ; txnIdx < txns.size(); txnIdx++ )
+            for ( ; txnIdx < deletes.size(); txnIdx++ )
             {
-                curTxn = txns.get( txnIdx );
+                txnDeletes = deletes.get( txnIdx );
                 
-                if ( curTxn!= null && curTxn.isIndexEntryDeleted( partitionDn, attributeOid, value ) )
+                if ( txnDeletes!= null && txnDeletes.contains( value ) )
                 {
                     valueDeleted = true;
                     break;
@@ -522,7 +542,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             }
             
             // If the value we get is not deleted and less than the last value we returned, then we are done
-            if ( ( valueDeleted == false ) && ( ( lastValue == null ) || ( comparator.compare( value, lastValue ) < 0 ) ) )
+            if ( ( valueDeleted == false ) && ( ( lastValue.getId() == null ) || ( comparator.compare( value, lastValue ) < 0 ) ) )
             {
                 break;
             }
@@ -552,7 +572,27 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
                 throw new IllegalStateException( "getIndex points to a null value" );
             }
             
-            return value;
+            /*
+             * TODO fixme:
+             * Upper layers might change the index entry we return. To work around this.
+             * we create a new idex entry here. This code should be removed when
+             * search engine is changed to avoid modifying index entries.
+             */
+            IndexEntry<Object> indexEntry;
+            
+            if ( forwardIndex )
+            {
+                indexEntry = new ForwardIndexEntry<Object>();
+            }
+            else
+            {
+                indexEntry = new ReverseIndexEntry<Object>();
+            }
+            
+            indexEntry.setId( value.getId() );
+            indexEntry.setValue( value.getValue() );
+            
+            return indexEntry;
         }
 
         throw new InvalidCursorPositionException();
@@ -697,4 +737,49 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             }
         }
     }
+    
+    /**
+     * Returns a cursor over the changes made by the given txn on the index identified by partitionDn+attributeOid. 
+     *
+     * @param txn for which the cursor will be built.
+     * @param partitionDn dn of the partition
+     * @param attributeOid oid of the indexed attribute
+     * @param forwardIndex true if forward index and reverse if reverse index
+     * @param onlyValueKey set if the cursor should be locked down by a key ( should be non null only for forward indices )
+     * @param onlyIDKey  set if the cursor should be locked down by a key ( should be non null only for reverse indices )
+     * @param comparator comparator that will be used to order index entries.
+     * @return
+     */
+    private IndexCursor<Object> getCursorFor( ReadWriteTxn txn, Dn partitionDn, String attributeOid, boolean forwardIndex,
+        Object onlyValueKey, UUID onlyIDKey, IndexComparator<Object> comparator )
+    {
+        NavigableSet<IndexEntry<Object>> changes; 
+        TxnIndexCursor txnIndexCursor = null;
+
+        if ( forwardIndex )
+        {
+            changes = txn.getForwardIndexChanges( partitionDn, attributeOid );
+        }
+        else
+        {
+            changes = txn.getReverseIndexChanges( partitionDn, attributeOid );
+        }
+        
+        if ( changes == null || ( changes.size() == 0 ) )
+        {
+            return null;
+        }
+        
+        Transaction curTxn = TxnManagerFactory.txnManagerInternalInstance().getCurTxn();
+        
+        if ( txn == curTxn )
+        {
+            NavigableSet<IndexEntry<Object>> originalChanges = changes;
+            changes = new TreeSet<IndexEntry<Object>>( comparator );
+            changes.addAll( originalChanges );
+        }
+        
+        return new TxnIndexCursor( changes, forwardIndex, onlyValueKey, onlyIDKey, comparator );
+    }
+
 }

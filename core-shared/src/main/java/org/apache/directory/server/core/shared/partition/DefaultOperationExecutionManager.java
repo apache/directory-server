@@ -27,8 +27,12 @@ import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -41,21 +45,19 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
-import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
 import org.apache.directory.server.core.shared.txn.logedit.EntryReplace;
 import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
@@ -265,13 +267,22 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             // Add the parentId in the entry
             entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
+            
+            // Add the dn
+            entry.setDn( entryDn );
 
             // And finally prepare the entry change
             EntryAddDelete entryAdd = new EntryAddDelete( entry, EntryAddDelete.Type.ADD );
             changeContainer.addChange( entryAdd );
+            
+            // Set the modified entry
+            addContext.setModifiedEntry( entry );
 
             // log the change
             txnLogManager.log( changeContainer, false );
+            
+            //TODO TODO TODO REMOVE THIS
+            partition.add( addContext );
         }
         catch ( LdapException le )
         {
@@ -291,9 +302,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
      * {@inheritDoc}
      */
     public void delete( Partition partition, DeleteOperationContext deleteContext ) throws LdapException
-    {
+    {        
         Dn dn = deleteContext.getDn();
 
+        //TODO TODO TODO REMOVE THIS
+        partition.delete( deleteContext );
+        
         // Add write dependency on the dn
         txnLogManager.addWrite( dn, SearchScope.SUBTREE );
 
@@ -492,6 +506,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
             modifyContext.setAlteredEntry( modifiedEntry );
+            
+            //TODO TODO TODO REMOVE THIS
+            partition.modify( modifyContext );
+
         }
         catch ( Exception e )
         {
@@ -508,7 +526,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         UUID id = getEntryId( partition, dn );
         MasterTable master = partition.getMasterTable();
         master = txnLogManager.wrap( partition.getSuffixDn(), master );
-        Entry entry = master.get( id );
+        Entry originalEntry = master.get( id );
+        Entry entry = originalEntry.clone();
 
         DataChangeContainer changeContainer = new DataChangeContainer( partition );
         changeContainer.setEntryID( id );
@@ -537,10 +556,14 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     throw new LdapException( I18n.err( I18n.ERR_221 ) );
             }
         }
+        
+        // For now use and EntryReplace change
+        EntryReplace entryReplace = new EntryReplace( entry, originalEntry );
+        changeContainer.addChange( entryReplace );
 
         // log the changes
         txnLogManager.log( changeContainer, false );
-
+        
         return entry;
     }
 
@@ -608,16 +631,22 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
         }
 
-        // create log edit for the entry change
-        Modification undo = null;
-
-        if ( prevValueExists )
+//        // create log edit for the entry change
+//        Modification undo = null;
+//
+//        if ( prevValueExists )
+//        {
+//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+//        }
+//
+//        EntryChange entryChange = new EntryChange( mod, null );
+//        changeContainer.addChange( entryChange );
+        
+        // add all the values in mods to the same attribute in the entry
+        for ( Value<?> value : mods )
         {
-            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+            entry.add( mods.getAttributeType(), value );
         }
-
-        EntryChange entryChange = new EntryChange( mod, null );
-        changeContainer.addChange( entryChange );
 
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
@@ -763,16 +792,27 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             dropAliasIndices( partition, entryDn, id, null, changeContainer );
         }
 
-        // create log edit for the entry change
-        Modification undo = null;
-
-        if ( prevValueExists )
+//        // create log edit for the entry change
+//        Modification undo = null;
+//
+//        if ( prevValueExists )
+//        {
+//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, replacedAttribute );
+//        }
+//
+//        EntryChange entryChange = new EntryChange( mod, undo );
+//        changeContainer.addChange( entryChange );
+        
+        // replaces old attributes with new modified ones if they exist
+        if ( mods.size() > 0 )
         {
-            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, replacedAttribute );
+            entry.put( mods );
         }
-
-        EntryChange entryChange = new EntryChange( mod, undo );
-        changeContainer.addChange( entryChange );
+        else
+        // removes old attributes if new replacements do not exist
+        {
+            entry.remove( mods );
+        }
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
@@ -922,16 +962,42 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
         }
 
-        // Prepare the entry change
-        Modification undo = null;
-
-        if ( prevValueExists )
+//        // Prepare the entry change
+//        Modification undo = null;
+//
+//        if ( prevValueExists )
+//        {
+//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+//        }
+//
+//        EntryChange entryChange = new EntryChange( mod, undo );
+//        changeContainer.addChange( entryChange );
+        
+        /*
+         * If there are no attribute values in the modifications then this
+         * implies the complete removal of the attribute from the entry. Else
+         * we remove individual attribute values from the entry in mods one
+         * at a time.
+         */
+        if ( mods.size() == 0 )
         {
-            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+            entry.removeAttributes( mods.getAttributeType() );
         }
+        else
+        {
+            Attribute entryAttr = entry.get( mods.getAttributeType() );
 
-        EntryChange entryChange = new EntryChange( mod, undo );
-        changeContainer.addChange( entryChange );
+            for ( Value<?> value : mods )
+            {
+                entryAttr.remove( value );
+            }
+
+            // if nothing is left just remove empty attribute
+            if ( entryAttr.size() == 0 )
+            {
+                entry.removeAttributes( entryAttr.getId() );
+            }
+        }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
@@ -954,7 +1020,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn oldDn = renameContext.getDn();
             Rdn newRdn = renameContext.getNewRdn();
             boolean deleteOldRdn = renameContext.getDeleteOldRdn();
-            Entry originalEntry = renameContext.getOriginalEntry();
+            Entry originalEntry = ( ( ClonedServerEntry )renameContext.getOriginalEntry() ).getOriginalEntry();
 
             if ( renameContext.getEntry() != null )
             {
@@ -965,6 +1031,9 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 rename( partition, oldDn, newRdn, deleteOldRdn, null, originalEntry );
             }
+            
+            //TODO TODO TODO REMOVE THIS
+            partition.rename( renameContext );
         }
         catch ( Exception e )
         {
@@ -977,180 +1046,18 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
-        throws Exception
+    public void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry ) throws Exception
     {
-        UUID id = getEntryId( partition, dn );
-        SchemaManager schemaManager = partition.getSchemaManager();
-        Dn suffixDn = partition.getSuffixDn();
-
-        DataChangeContainer changeContainer = new DataChangeContainer( partition );
-        changeContainer.setEntryID( id );
-        IndexChange indexChange;
-
-        if ( entry == null )
+        if ( partition.updateEntryOnDnChange() )
         {
-            entry = originalEntry.clone();
+            UUID id = getEntryId( partition, dn );
+            Dn parentDn = dn.getParent();
+            Dn newDn = new Dn( newRdn, parentDn );
+            newDn.apply( partition.getSchemaManager() );
+            handleDnChange( partition, dn, newDn, id );
         }
-
-        Dn updn = entry.getDn();
-
-        newRdn.apply( schemaManager );
-
-        Dn parentDn = updn.getParent();
-        Dn newDn = new Dn( newRdn, parentDn );
-        newDn.apply( schemaManager );
-
-        // Add subtree dependency to old and new dn
-        txnLogManager.addWrite( updn, SearchScope.SUBTREE );
-        txnLogManager.addWrite( newDn, SearchScope.SUBTREE );
-
-        /*
-         * H A N D L E   N E W   R D N
-         * ====================================================================
-         * Add the new Rdn attribute to the entry.  If an index exists on the
-         * new Rdn attribute we add the index for this attribute value pair.
-         * Also we make sure that the presence index shows the existence of the
-         * new Rdn attribute within this entry.
-         */
-
-        for ( Ava newAtav : newRdn )
-        {
-            String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getNormValue().getValue();
-
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-
-            if ( partition.hasUserIndexOn( newRdnAttrType ) )
-            {
-                Index<?> index = partition.getUserIndex( newRdnAttrType );
-                index = txnLogManager.wrap( partition.getSuffixDn(), index );
-
-                if ( !( ( Index<Object> ) index ).forward( newNormValue, id ) )
-                {
-                    indexChange = new IndexChange( index, newNormType, newNormValue, id,
-                        IndexChange.Type.ADD, true );
-                    changeContainer.addChange( indexChange );
-                }
-
-                // Check the entry before modifying it below so that we can check if we need to update the presence index.
-                Attribute curAttribute = entry.get( newRdnAttrType );
-
-                if ( ( curAttribute == null ) || ( curAttribute.size() == 0 ) )
-                {
-                    Index<?> presenceIdx;
-                    presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                        newNormType, id,
-                        IndexChange.Type.ADD, false );
-                    changeContainer.addChange( indexChange );
-                }
-            }
-
-            // Change the entry
-            entry.add( newRdnAttrType, newAtav.getNormValue() );
-
-        }
-
-        /*
-         * H A N D L E   O L D   R D N
-         * ====================================================================
-         * If the old Rdn is to be removed we need to get the attribute and
-         * value for it.  Keep in mind the old Rdn need not be based on the
-         * same attr as the new one.  We remove the Rdn value from the entry
-         * and remove the value/id tuple from the index on the old Rdn attr
-         * if any.  We also test if the delete of the old Rdn index tuple
-         * removed all the attribute values of the old Rdn using a reverse
-         * lookup.  If so that means we blew away the last value of the old
-         * Rdn attribute.  In this case we need to remove the attrName/id
-         * tuple from the presence index.
-         *
-         * We only remove an ATAV of the old Rdn if it is not included in the
-         * new Rdn.
-         */
-
-        if ( deleteOldRdn )
-        {
-            Rdn oldRdn = updn.getRdn();
-
-            for ( Ava oldAtav : oldRdn )
-            {
-                // check if the new ATAV is part of the old Rdn
-                // if that is the case we do not remove the ATAV
-                boolean mustRemove = true;
-
-                for ( Ava newAtav : newRdn )
-                {
-                    if ( oldAtav.equals( newAtav ) )
-                    {
-                        mustRemove = false;
-                        break;
-                    }
-                }
-
-                if ( mustRemove )
-                {
-                    String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
-                    entry.remove( oldRdnAttrType, oldNormValue );
-
-                    if ( partition.hasUserIndexOn( oldRdnAttrType ) )
-                    {
-                        Index<?> index = partition.getUserIndex( oldRdnAttrType );
-                        indexChange = new IndexChange( index, oldNormType, oldNormValue, id,
-                            IndexChange.Type.DELETE, false );
-                        changeContainer.addChange( indexChange );
-
-                        /*
-                         * If there is no value for id in this index due to our
-                         * drop above we remove the oldRdnAttr from the presence idx
-                         */
-                        Attribute curAttribute = entry.get( oldRdnAttrType );
-
-                        if ( ( curAttribute == null ) || ( curAttribute.size() == 0 ) )
-                        {
-                            Index<?> presenceIdx;
-                            presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                            indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                                oldNormType, id,
-                                IndexChange.Type.DELETE, true );
-                            changeContainer.addChange( indexChange );
-                        }
-                    }
-                }
-            }
-        }
-
-        /*
-         * H A N D L E   D N   C H A N G E
-         * ====================================================================
-         * We only need to update the Rdn index.
-         * No need to calculate the new Dn.
-         */
-
-        Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-        UUID parentId = UUID.fromString( entry.get( SchemaConstants.ENTRY_PARENT_ID_AT ).getString() );
-
-        ParentIdAndRdn oldKey = new ParentIdAndRdn( parentId, newRdn );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, oldKey, id,
-            IndexChange.Type.DELETE, true );
-        changeContainer.addChange( indexChange );
-
-        ParentIdAndRdn key = new ParentIdAndRdn( parentId, newRdn );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, key, id,
-            IndexChange.Type.ADD, true );
-        changeContainer.addChange( indexChange );
-
-        /*
-         * Finall prepare the log edit for the entry change
-         */
-        EntryReplace entryReplace = new EntryReplace( entry, originalEntry );
-        changeContainer.addChange( entryReplace );
-
-        // log the change
-        txnLogManager.log( changeContainer, false );
-
+        
+        renameInternal( partition, dn, newRdn, deleteOldRdn, null, originalEntry );
     }
 
 
@@ -1445,9 +1352,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn newSuperior = moveContext.getNewSuperior();
             Dn newDn = moveContext.getNewDn();
             Entry modifiedEntry = moveContext.getModifiedEntry();
-            Entry originalEntry = moveContext.getOriginalEntry();
+            Entry originalEntry = ( ( ClonedServerEntry )moveContext.getOriginalEntry() ).getOriginalEntry();
 
             move( partition, oldDn, newSuperior, newDn, modifiedEntry, originalEntry );
+            
+            //TODO TODO TODO REMOVE THIS
+            partition.move( moveContext );
 
         }
         catch ( Exception e )
@@ -1511,8 +1421,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             modifiedEntry = originalEntry.clone();
         }
-        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newParentId );
-
+        
+        if ( partition.updateEntryOnDnChange() )
+        {
+            handleDnChange( partition, oldDn, newDn, entryId );
+        }
+        
+        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newParentId, entryId, oldParentId, false );
     }
 
 
@@ -1538,7 +1453,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Rdn newRdn = moveAndRenameContext.getNewRdn();
             boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
-            Entry originalEntry = moveAndRenameContext.getOriginalEntry();
+            Entry originalEntry = ( ( ClonedServerEntry )moveAndRenameContext.getOriginalEntry() ).getOriginalEntry();
 
             moveAndRename( partition, oldDn, newSuperiorDn, newRdn, modifiedEntry, originalEntry, deleteOldRdn );
         }
@@ -1584,6 +1499,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
 
         Dn newDn = newSuperiorDn.add( newRdn );
+        
+        UUID oldParentId = getParentId( partition, oldId );
 
         // Now check that the new entry does not exist
         UUID newId = getEntryId( partition, newDn );
@@ -1610,9 +1527,19 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             modifiedEntry = originalEntry.clone();
         }
-
-        rename( partition, oldDn, newRdn, deleteOldRdn, modifiedEntry, originalEntry );
-        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newSuperiorId );
+        
+        if ( partition.updateEntryOnDnChange() )
+        {
+            handleDnChange( partition, oldDn, newDn, oldId );
+        }
+        
+        renameInternal( partition, oldDn, newRdn, deleteOldRdn, modifiedEntry, originalEntry );
+        
+        Dn parentDn = oldDn.getParent();
+        oldDn = new Dn( newRdn, parentDn );
+        oldDn.apply( partition.getSchemaManager() );
+        
+        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newSuperiorId, oldId, oldParentId, true );
     }
 
 
@@ -1739,8 +1666,70 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( Partition partition, HasEntryOperationContext entryContext ) throws LdapException
+    {
+        try
+        {
+            UUID id = getEntryId( partition, entryContext.getDn() );
 
+            Entry entry = lookup( partition, id );
+            
+            return entry != null; 
+        }
+        catch ( LdapException e )
+        {
+            return false;
+        }
+    }
+    
+    
+    //---------------------------------------------------------------------------------------------
+    // The List operation
+    //---------------------------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public EntryFilteringCursor list( Partition partition, ListOperationContext listContext ) throws LdapException
+    {
+        try
+        {
+        return new BaseEntryFilteringCursor( 
+            new EntryCursorAdaptor( partition, 
+                list( partition, getEntryId( partition, listContext.getDn() ) ) ), listContext );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+    }
 
+    
+    public IndexCursor<UUID> list( Partition partition, UUID id ) throws LdapException
+    {
+        try
+        {
+            Index<UUID> oneLevelIdx = ( Index<UUID> )partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            oneLevelIdx = ( Index<UUID> )txnLogManager.wrap( partition.getSuffixDn(), oneLevelIdx );
+            
+            // We use the OneLevel index to get all the entries from a starting point
+            // and below
+            IndexCursor<UUID> cursor = oneLevelIdx.forwardCursor( id );
+            cursor.beforeFirst();
+            
+            return cursor;
+         }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+    }
+
+    
     //---------------------------------------------------------------------------------------------
     // ID and DN operations
     //---------------------------------------------------------------------------------------------
@@ -1789,14 +1778,9 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
 
     /**
-     * builds the Dn of the entry identified by the given id
-     *
-     * @param partition partition entry lives in
-     * @param id the entry's id
-     * @return the normalized Dn of the entry
-     * @throws Exception
+     * {@inheritDoc}
      */
-    private Dn buildEntryDn( Partition partition, UUID id ) throws Exception
+    public Dn buildEntryDn( Partition partition, UUID id ) throws Exception
     {
         UUID parentId = id;
         UUID rootId = Partition.rootID;
@@ -1839,15 +1823,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
 
     /**
-     * Gets the parent id of the given child id.
-     *
-     * @param partition partition childId lives in.
-     * @param childId id of the entry for which we want to get the parent id.
-     * @return parent id
-     * @throws Exception
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    private UUID getParentId( Partition partition, UUID childId ) throws Exception
+    public UUID getParentId( Partition partition, UUID childId ) throws Exception
     {
         Index<ParentIdAndRdn> rdnIdx;
         rdnIdx = ( Index<ParentIdAndRdn> ) partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
@@ -1860,6 +1839,49 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
 
         return key.getParentId();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public int getChildCount( Partition partition, UUID id ) throws LdapOperationErrorException
+    {
+        IndexCursor<?> cursor = null;
+        try
+        {
+            Index<?> oneLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            oneLevelIdx = txnLogManager.wrap( partition.getSuffixDn(), oneLevelIdx );
+            cursor =  ( ( Index<Object> ) oneLevelIdx ).forwardCursor( id );
+            
+            int count = 0;
+            
+            while ( cursor.next() )
+            {
+                count++;
+            }
+            
+            return count;
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+        finally
+        {
+            if ( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch ( Exception e )
+                {
+                    throw new LdapOperationErrorException( e.getMessage(), e );
+                }
+            }
+        }
     }
 
 
@@ -1967,12 +1989,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
 
     private void moveInternal( Partition partition, Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry,
-        Entry originalEntry, UUID newParentId ) throws Exception
+        Entry originalEntry, UUID newParentId, UUID entryId, UUID oldParentId, boolean afterRename  ) throws Exception
     {
-        // Get the entry and the old parent IDs
-        UUID entryId = getEntryId( partition, oldDn );
-        UUID oldParentId = getParentId( partition, entryId );
-
         DataChangeContainer changeContainer = new DataChangeContainer( partition );
         changeContainer.setEntryID( entryId );
         IndexChange indexChange;
@@ -2008,12 +2026,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         // Update the Rdn index
         Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
 
-        ParentIdAndRdn oldKey = new ParentIdAndRdn( oldParentId, oldDn.getRdn() );
+        ParentIdAndRdn oldKey = new ParentIdAndRdn( oldParentId, newDn.getRdn() );
         indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, oldKey, entryId,
             IndexChange.Type.DELETE, true );
         changeContainer.addChange( indexChange );
 
-        ParentIdAndRdn newKey = new ParentIdAndRdn( newParentId, oldDn.getRdn() );
+        ParentIdAndRdn newKey = new ParentIdAndRdn( newParentId, newDn.getRdn() );
         indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, newKey, entryId,
             IndexChange.Type.ADD, true );
         changeContainer.addChange( indexChange );
@@ -2039,11 +2057,267 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         /*
          * Finally prepare the log edit for the entry change
          */
+        modifiedEntry.setDn( newDn );
         EntryReplace entryReplace = new EntryReplace( modifiedEntry, originalEntry );
         changeContainer.addChange( entryReplace );
 
         // log the change
         txnLogManager.log( changeContainer, false );
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void renameInternal( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
+        throws Exception
+    {
+        UUID id = getEntryId( partition, dn );
+        SchemaManager schemaManager = partition.getSchemaManager();
+        Dn suffixDn = partition.getSuffixDn();
+
+        DataChangeContainer changeContainer = new DataChangeContainer( partition );
+        changeContainer.setEntryID( id );
+        IndexChange indexChange;
+
+        if ( originalEntry == null )
+        {
+            MasterTable master = partition.getMasterTable();
+            master = txnLogManager.wrap( partition.getSuffixDn(), master );
+
+            // First get the entry
+            originalEntry = master.get( id );
+        }
+        
+        if ( entry == null )
+        {
+            entry = originalEntry.clone();
+        }
+
+        Dn updn = entry.getDn();
+
+        newRdn.apply( schemaManager );
+
+        Dn parentDn = updn.getParent();
+        Dn newDn = new Dn( newRdn, parentDn );
+        newDn.apply( schemaManager );
+
+        // Add subtree dependency to old and new dn
+        txnLogManager.addWrite( updn, SearchScope.SUBTREE );
+        txnLogManager.addWrite( newDn, SearchScope.SUBTREE );
+
+        /*
+         * H A N D L E   N E W   R D N
+         * ====================================================================
+         * Add the new Rdn attribute to the entry.  If an index exists on the
+         * new Rdn attribute we add the index for this attribute value pair.
+         * Also we make sure that the presence index shows the existence of the
+         * new Rdn attribute within this entry.
+         */
+
+        for ( Ava newAtav : newRdn )
+        {
+            String newNormType = newAtav.getNormType();
+            Object newNormValue = newAtav.getNormValue().getValue();
+
+            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
+
+            if ( partition.hasUserIndexOn( newRdnAttrType ) )
+            {
+                Index<?> index = partition.getUserIndex( newRdnAttrType );
+                index = txnLogManager.wrap( partition.getSuffixDn(), index );
+
+                if ( !( ( Index<Object> ) index ).forward( newNormValue, id ) )
+                {
+                    indexChange = new IndexChange( index, newNormType, newNormValue, id,
+                        IndexChange.Type.ADD, true );
+                    changeContainer.addChange( indexChange );
+                }
+
+                // Check the entry before modifying it below so that we can check if we need to update the presence index.
+                Attribute curAttribute = entry.get( newRdnAttrType );
+
+                if ( ( curAttribute == null ) || ( curAttribute.size() == 0 ) )
+                {
+                    Index<?> presenceIdx;
+                    presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
+                        newNormType, id,
+                        IndexChange.Type.ADD, false );
+                    changeContainer.addChange( indexChange );
+                }
+            }
+
+            // Change the entry
+            entry.add( newRdnAttrType, newAtav.getNormValue() );
+
+        }
+
+        /*
+         * H A N D L E   O L D   R D N
+         * ====================================================================
+         * If the old Rdn is to be removed we need to get the attribute and
+         * value for it.  Keep in mind the old Rdn need not be based on the
+         * same attr as the new one.  We remove the Rdn value from the entry
+         * and remove the value/id tuple from the index on the old Rdn attr
+         * if any.  We also test if the delete of the old Rdn index tuple
+         * removed all the attribute values of the old Rdn using a reverse
+         * lookup.  If so that means we blew away the last value of the old
+         * Rdn attribute.  In this case we need to remove the attrName/id
+         * tuple from the presence index.
+         *
+         * We only remove an ATAV of the old Rdn if it is not included in the
+         * new Rdn.
+         */
+
+        if ( deleteOldRdn )
+        {
+            Rdn oldRdn = updn.getRdn();
+
+            for ( Ava oldAtav : oldRdn )
+            {
+                // check if the new ATAV is part of the old Rdn
+                // if that is the case we do not remove the ATAV
+                boolean mustRemove = true;
+
+                for ( Ava newAtav : newRdn )
+                {
+                    if ( oldAtav.equals( newAtav ) )
+                    {
+                        mustRemove = false;
+                        break;
+                    }
+                }
+
+                if ( mustRemove )
+                {
+                    String oldNormType = oldAtav.getNormType();
+                    String oldNormValue = oldAtav.getNormValue().getString();
+                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
+                    entry.remove( oldRdnAttrType, oldNormValue );
+
+                    if ( partition.hasUserIndexOn( oldRdnAttrType ) )
+                    {
+                        Index<?> index = partition.getUserIndex( oldRdnAttrType );
+                        indexChange = new IndexChange( index, oldNormType, oldNormValue, id,
+                            IndexChange.Type.DELETE, false );
+                        changeContainer.addChange( indexChange );
+
+                        /*
+                         * If there is no value for id in this index due to our
+                         * drop above we remove the oldRdnAttr from the presence idx
+                         */
+                        Attribute curAttribute = entry.get( oldRdnAttrType );
+
+                        if ( ( curAttribute == null ) || ( curAttribute.size() == 0 ) )
+                        {
+                            Index<?> presenceIdx;
+                            presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+                            indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
+                                oldNormType, id,
+                                IndexChange.Type.DELETE, true );
+                            changeContainer.addChange( indexChange );
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * H A N D L E   D N   C H A N G E
+         * ====================================================================
+         * We only need to update the Rdn index.
+         * No need to calculate the new Dn.
+         */
+
+        Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+        UUID parentId = UUID.fromString( entry.get( SchemaConstants.ENTRY_PARENT_ID_AT ).getString() );
+
+        ParentIdAndRdn oldKey = new ParentIdAndRdn( parentId, updn.getRdn() );
+        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, oldKey, id,
+            IndexChange.Type.DELETE, true );
+        changeContainer.addChange( indexChange );
+
+        ParentIdAndRdn key = new ParentIdAndRdn( parentId, newRdn );
+        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, key, id,
+            IndexChange.Type.ADD, true );
+        changeContainer.addChange( indexChange );
+
+        /*
+         * Finally prepare the log edit for the entry change
+         */
+        entry.setDn( newDn );
+        EntryReplace entryReplace = new EntryReplace( entry, originalEntry );
+        changeContainer.addChange( entryReplace );
+
+        // log the change
+        txnLogManager.log( changeContainer, false );
+
+    }
+    
+    
+    private void handleDnChange( Partition partition, Dn oldDn, Dn newDn, UUID baseId ) throws Exception
+    {
+        Dn  suffixDn = partition.getSuffixDn();
+        SchemaManager schemaManager = partition.getSchemaManager();
+        Index<?> subLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+        subLevelIdx = txnLogManager.wrap( suffixDn, subLevelIdx );
+        
+        MasterTable master = partition.getMasterTable();
+        master = txnLogManager.wrap( partition.getSuffixDn(), master );
+        
+        Entry childEntry;
+        Entry clonedChildEntry;
+        UUID childId;
+        Dn childDn;
+        Dn childNewDn = null;
+        IndexCursor<UUID> cursor = ( ( Index<UUID> ) subLevelIdx ).forwardCursor( baseId );
+        
+        try
+        {
+            while ( cursor.next() )
+            {
+                childId = cursor.get().getId();
+                
+                // Skip base entry
+                
+                if ( UUIDComparator.INSTANCE.compare( baseId, childId ) == 0 )
+                {
+                    continue;
+                }
+                
+                childEntry = master.get( childId );
+                clonedChildEntry = childEntry.clone();
+                
+                childDn = childEntry.getDn();                
+                int startIdx = childDn.size() - oldDn.size() - 1;
+                
+                for ( int idx = startIdx; idx >= 0; idx-- )
+                {
+                    if (  idx == startIdx )
+                    {
+                        childNewDn = new Dn( childDn.getRdn( idx ), newDn );
+                        childNewDn.apply( schemaManager );
+                    }
+                    else
+                    {
+                        childNewDn = childNewDn.add( childDn.getRdn( idx ) );
+                    }
+                }
+                
+                clonedChildEntry.setDn( childNewDn );
+                
+                /*
+                 * Prepare the log edit for the entry change
+                 */
+                DataChangeContainer changeContainer = new DataChangeContainer( partition );
+                changeContainer.setEntryID( childId );
+                EntryReplace entryReplace = new EntryReplace( clonedChildEntry, childEntry );
+                changeContainer.addChange( entryReplace );
+                txnLogManager.log( changeContainer, false );
+            }
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 }

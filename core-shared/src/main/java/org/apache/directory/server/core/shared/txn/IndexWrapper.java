@@ -25,9 +25,11 @@ import java.util.Comparator;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 
@@ -47,12 +49,15 @@ public class IndexWrapper implements Index<Object>
     
     /** partition the table belongs to */
     private Dn partitionDn;
-   
+    
+    /** Txn log manager */
+   private TxnLogManager txnLogManager;
     
     public IndexWrapper( Dn partitionDn, Index<Object> wrappedIndex )
     {
         this.partitionDn = partitionDn;
         this.wrappedIndex = wrappedIndex;
+        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
     }
 
     
@@ -167,23 +172,28 @@ public class IndexWrapper implements Index<Object>
      */
     public UUID forwardLookup( Object attrVal ) throws Exception
     {
-        IndexCursor<Object> cursor = forwardCursor( attrVal );
+//        IndexCursor<Object> cursor = forwardCursor( attrVal );
+//
+//        try
+//        {
+//
+//            if ( cursor.next() )
+//            {
+//                return cursor.get().getId();
+//            }
+//
+//            return null;
+//        }
+//        finally
+//        {
+//            cursor.close();
+//        }
         
-        try
-        {
-            cursor.beforeValue( null, attrVal );
-            
-            if ( cursor.next() )
-            {
-                return cursor.get().getId();
-            }
-            
-            return null;
-        }
-        finally
-        {
-            cursor.close();
-        }
+        UUID curId = wrappedIndex.forwardLookup( attrVal );
+        
+        curId = txnLogManager.mergeForwardLookup( partitionDn, wrappedIndex.getAttribute().getOid(), attrVal, curId, wrappedIndex.getForwardIndexEntryComparator().getValueComparator() );
+       
+        return curId;
     }
 
 
@@ -192,23 +202,28 @@ public class IndexWrapper implements Index<Object>
      */
     public Object reverseLookup( UUID id ) throws Exception
     {
-        IndexCursor<Object> cursor = reverseCursor( id );
+//        IndexCursor<Object> cursor = reverseCursor( id );
+//        
+//        try
+//        {
+//            
+//            if ( cursor.next() )
+//            {
+//                return cursor.get().getValue();
+//            }
+//            
+//            return null;
+//        }
+//        finally
+//        {
+//            cursor.close();
+//        }
         
-        try
-        {
-            cursor.beforeValue( id, null );
-            
-            if ( cursor.next() )
-            {
-                return cursor.get().getValue();
-            }
-            
-            return null;
-        }
-        finally
-        {
-            cursor.close();
-        }
+        Object curVal = wrappedIndex.reverseLookup( id );
+        
+        curVal = txnLogManager.mergeReversLookup( partitionDn, wrappedIndex.getAttribute().getOid(), id, curVal );
+        
+        return curVal;
     }
 
 
@@ -246,11 +261,10 @@ public class IndexWrapper implements Index<Object>
     {
         IndexCursor<Object> wrappedCursor;
         IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         
         try
         {
-            wrappedCursor = ( IndexCursor<Object>) logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>) txnLogManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, null );
         } 
         catch (Exception e)
@@ -269,12 +283,11 @@ public class IndexWrapper implements Index<Object>
     public IndexCursor<Object> forwardCursor() throws Exception
     {
         IndexCursor<Object> wrappedCursor;
-        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
+        IndexCursor<Object> cursor = wrappedIndex.forwardCursor();
         
         try
         {
-            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)txnLogManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, null, null );
         } 
         catch (Exception e)
@@ -293,12 +306,11 @@ public class IndexWrapper implements Index<Object>
     public IndexCursor<Object> reverseCursor( UUID id ) throws Exception
     {
         IndexCursor<Object> wrappedCursor;
-        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
+        IndexCursor<Object> cursor = wrappedIndex.reverseCursor( id );
         
         try
         {
-            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)txnLogManager.wrap( partitionDn, cursor, wrappedIndex.getReverseIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), false, null, id );
         } 
         catch (Exception e)
@@ -317,12 +329,11 @@ public class IndexWrapper implements Index<Object>
     public IndexCursor<Object> forwardCursor( Object key ) throws Exception
     {
         IndexCursor<Object> wrappedCursor;
-        IndexCursor<Object> cursor = wrappedIndex.reverseCursor();
-        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
+        IndexCursor<Object> cursor = wrappedIndex.forwardCursor( key );
         
         try
         {
-            wrappedCursor = ( IndexCursor<Object>)logManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
+            wrappedCursor = ( IndexCursor<Object>)txnLogManager.wrap( partitionDn, cursor, wrappedIndex.getForwardIndexEntryComparator(), 
                 wrappedIndex.getAttribute().getOid(), true, key, null );
         } 
         catch (Exception e)
@@ -381,24 +392,12 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean forward( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object> cursor = forwardCursor( attrVal );
-        Comparator<UUID> idComp = UUIDComparator.INSTANCE;
+        boolean currentlyExists = wrappedIndex.forward( attrVal, id );
         
-        try
-        {
-            cursor.beforeValue( id, attrVal );
-            
-            if ( cursor.next() && ( idComp.compare( cursor.get().getId(), id ) == 0 ) )
-            {
-                return true;
-            }
-            
-            return false;
-        }
-        finally
-        {
-            cursor.close();
-        }
+        ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
+        indexEntry.setId( id );
+        indexEntry.setValue( attrVal );
+        return txnLogManager.mergeExistence( partitionDn, wrappedIndex.getAttribute().getOid(), indexEntry, currentlyExists );
     }
     
 
@@ -430,24 +429,12 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean reverse( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object> cursor = reverseCursor( id );
-        Comparator<Object> valueComp = wrappedIndex.getForwardIndexEntryComparator().getValueComparator();
+        boolean currentlyExists = wrappedIndex.reverse( id, attrVal );
         
-        try
-        {
-            cursor.beforeValue( id, attrVal );
-            
-            if ( cursor.next() && ( valueComp.compare( cursor.get().getValue(), attrVal ) == 0 ))
-            {
-                return true;
-            }
-            
-            return false;
-        }
-        finally
-        {
-            cursor.close();
-        }
+        ReverseIndexEntry<Object> indexEntry = new ReverseIndexEntry<Object>();
+        indexEntry.setId( id );
+        indexEntry.setValue( attrVal );
+        return txnLogManager.mergeExistence( partitionDn, wrappedIndex.getAttribute().getOid(), indexEntry, currentlyExists );
     }
     
 

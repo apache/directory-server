@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -100,6 +102,44 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      * @return
      */
     Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry );
+    
+    
+    /**
+     * Checks all the updates done on the given index for the given key and returns 
+     * the latest version of the coressponding id
+     *
+     * @param partitionDN dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param key key to do the lookup on 
+     * @param valueComp value comparator
+     * @return id corresponding to the key
+     */
+    UUID mergeForwardLookup(Dn partitionDN, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator );
+    
+    
+    /**
+     * Checks all the updates done on the given index for the given id and returns 
+     * the latest version of the corressponding value
+     *
+     * @param partitionDN dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param id key to do the lookup on 
+     * @return value corresponding to the id
+     */
+    Object mergeReverseLookup(Dn partitionDN, String attributeOid,  UUID id, Object curValue );
+    
+    
+    /**
+     * Checks all the updates on the given index entry and returns whether the it exists or not
+     *
+     * @param partitionDN dn of the partition the entry lives in
+     * @param attributeOid oid of the indexed attribute
+     * @param indexEntry entry to do the check for 
+     * @param currentlyExists true if the index entry currently exists in the underlying partition
+     * @return true if the given index entry exists
+     */
+    boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists );
+
 
     enum State
     {

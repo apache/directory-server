@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Comparator;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.log.UserLogRecord;
@@ -30,6 +31,7 @@ import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -82,6 +84,8 @@ public class DefaultTxnLogManager implements TxnLogManager
              *  partitions directly
              */
             logEdit.apply( false );
+            
+            return;
         }
        
         if ( ! ( curTxn instanceof ReadWriteTxn ) )
@@ -155,6 +159,55 @@ public class DefaultTxnLogManager implements TxnLogManager
          }
         
         return curTxn.mergeUpdates( partitionDn, entryID, entry );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public UUID mergeForwardLookup(Dn partitionDN, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator )
+    {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            throw new IllegalStateException( "Trying to merge with log wihout txn" );
+        }
+        
+        return curTxn.mergeForwardLookup( partitionDN, attributeOid, key, curId, valueComparator );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Object mergeReversLookup(Dn partitionDN, String attributeOid,  UUID id, Object curValue )
+    {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            throw new IllegalStateException( "Trying to merge with log wihout txn" );
+        }
+        
+        return curTxn.mergeReverseLookup( partitionDN, attributeOid, id, curValue );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists )
+    {
+        Transaction curTxn = txnManager.getCurTxn();
+        
+        if ( ( curTxn == null ) )
+        {
+            throw new IllegalStateException( "Trying to merge with log wihout txn" );
+        }
+        
+      
+        return curTxn.mergeExistence( partitionDN, attributeOid, indexEntry, currentlyExists );
     }
     
    

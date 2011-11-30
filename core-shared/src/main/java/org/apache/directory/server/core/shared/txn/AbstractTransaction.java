@@ -19,11 +19,15 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -129,6 +133,9 @@ abstract class AbstractTransaction implements Transaction
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry )
     {
         Entry prevEntry  = entry;
@@ -150,5 +157,70 @@ abstract class AbstractTransaction implements Transaction
         }
         
         return curEntry;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public UUID mergeForwardLookup(Dn partitionDn, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator )
+    {
+        ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
+        indexEntry.setId( curId );
+        indexEntry.setValue( key );
+        
+        ReadWriteTxn curTxn;
+        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
+        
+        while ( it.hasNext() )
+        {
+            curTxn = it.next();
+            curTxn.updateForwardLookup( partitionDn, attributeOid, indexEntry, valueComparator );   
+        }
+        
+        return indexEntry.getId();
+    }
+   
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Object mergeReverseLookup(Dn partitionDn, String attributeOid,  UUID id, Object curValue )
+    {
+        ReverseIndexEntry<Object> indexEntry = new ReverseIndexEntry<Object>();
+        indexEntry.setId( id );
+        indexEntry.setValue( curValue );
+        
+        ReadWriteTxn curTxn;
+        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
+        
+        while ( it.hasNext() )
+        {
+            curTxn = it.next();
+            curTxn.updateReverseLookup( partitionDn, attributeOid, indexEntry );
+        }
+        
+        return indexEntry.getValue();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists )
+    {
+        ReadWriteTxn curTxn;
+        boolean forward = ( indexEntry instanceof ForwardIndexEntry );
+        
+        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
+        
+        while ( it.hasNext() )
+        {
+            curTxn = it.next();
+            currentlyExists = curTxn.updateExistence( partitionDN, attributeOid, indexEntry, currentlyExists, forward );
+          
+        }
+        
+        return currentlyExists;
     }
 }

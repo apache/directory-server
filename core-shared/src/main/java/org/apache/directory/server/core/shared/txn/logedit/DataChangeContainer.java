@@ -80,6 +80,7 @@ public class DataChangeContainer extends AbstractLogEdit
     public DataChangeContainer( Partition partition )
     {
         this.partitionDn = partition.getSuffixDn();
+        this.partition = partition;
     }
 
     public DataChangeContainer( Dn partitionDn )
@@ -143,6 +144,7 @@ public class DataChangeContainer extends AbstractLogEdit
         long changeLsn = getLogAnchor().getLogLSN();
         Entry curEntry = null;
         boolean entryExisted = false;
+        Entry originalEntry = null;
 
         // TODO find the partition from the dn if changeContainer doesnt have it.
 
@@ -153,7 +155,7 @@ public class DataChangeContainer extends AbstractLogEdit
 
             if ( curEntry != null )
             {
-                curEntry = curEntry.clone();
+                originalEntry = curEntry = curEntry.clone();
                 entryExisted = true;
             }
         }
@@ -188,7 +190,7 @@ public class DataChangeContainer extends AbstractLogEdit
             if ( entryExisted )
             {
                 MasterTable master = partition.getMasterTable();
-                master.remove( entryID );
+                master.remove( entryID, originalEntry );
             }
         }
     }
@@ -252,7 +254,7 @@ public class DataChangeContainer extends AbstractLogEdit
                         needToCloneOnChange = false;
                     }
 
-                    entryModification.applyModification( partition, curEntry, id, changeLsn, true );
+                   curEntry = entryModification.applyModification( partition, curEntry, id, changeLsn, true );
                 }
             }
 

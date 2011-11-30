@@ -171,8 +171,8 @@ public class MasterTableWrapper implements MasterTable
         }
         
         TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
-        Entry entry = wrappedTable.get( key );
-        entry = logManager.mergeUpdates( partitionDn, key, entry );
+        Entry originalEntry = wrappedTable.get( key );
+        Entry entry = logManager.mergeUpdates( partitionDn, key, originalEntry );
         
         return entry;
     }
