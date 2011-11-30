@@ -25,8 +25,10 @@ import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdnComparator;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -88,6 +90,9 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
             false );
         reverse = new AvlTable<UUID, ParentIdAndRdn>( attributeType.getName(), UUIDComparator.INSTANCE, comp,
             false );
+        
+        fIndexEntryComparator = new ForwardIndexComparator( comp );
+        rIndexEntryComparator = new ReverseIndexComparator( comp );
     }
 
 

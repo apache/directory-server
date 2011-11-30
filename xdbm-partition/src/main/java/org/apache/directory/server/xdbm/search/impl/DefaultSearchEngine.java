@@ -147,7 +147,7 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-
+        
         /*
          * If the base is not an alias or if alias dereferencing does not
          * occur on finding the base then we set the effective base to the
@@ -156,6 +156,9 @@ public class DefaultSearchEngine implements SearchEngine
         if ( ( null == aliasedBase ) || !aliasDerefMode.isDerefFindingBase() )
         {
             effectiveBase = base;
+            
+            // We depend on the provided base with the given scope
+            txnLogManager.addRead( base, SearchScope.values()[ searchCtls.getSearchScope() ] );
         }
 
         /*
@@ -166,6 +169,13 @@ public class DefaultSearchEngine implements SearchEngine
         else
         {
             effectiveBase = new Dn( aliasedBase );
+            
+            // Add dependency on the effective base with the given scope
+            txnLogManager.addRead( effectiveBase, SearchScope.values()[ searchCtls.getSearchScope() ] );
+            
+            // We also depend on the base as we are routed through it.
+            txnLogManager.addRead( base, SearchScope.OBJECT );
+            
         }
 
         // --------------------------------------------------------------------

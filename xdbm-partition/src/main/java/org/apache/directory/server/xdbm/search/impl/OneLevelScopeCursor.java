@@ -30,11 +30,14 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -66,7 +69,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     
     /** Alias idx set if dereferencing aliases */
     private Index<String> aliasIdx;
-
+ 
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -291,7 +294,20 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
         
         if ( available() )
         {
-            return cursor.get();
+            IndexEntry<UUID> indexEntry = cursor.get();
+            
+            /*
+             *  If the entry is coming from the alias index, then search scope is enlarged
+             *  to include the returned entry.
+             */
+            
+            if ( cursor == dereferencedCursor )
+            {
+                Dn aliasTargetDn = OperationExecutionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
+                TxnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
+            }
+            
+            return indexEntry;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

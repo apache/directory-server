@@ -62,6 +62,7 @@ import org.apache.directory.server.core.api.partition.index.IndexNotFoundExcepti
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
+import org.apache.directory.server.core.shared.partition.EntryCursorAdaptor;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -530,156 +531,156 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        try
-        {
-            Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
-            Dn entryDn = entry.getDn();
-    
-            // check if the entry already exists
-            if ( getEntryId( entryDn ) != null )
-            {
-                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-                throw ne;
-            }
-    
-            UUID parentId = null;
-    
-            //
-            // Suffix entry cannot have a parent since it is the root so it is
-            // capped off using the zero value which no entry can have since
-            // entry sequences start at 1.
-            //
-            Dn parentDn = null;
-            ParentIdAndRdn key = null;
-    
-            if ( entryDn.equals( suffixDn ) )
-            {
-                parentId = getRootId();
-                key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
-            }
-            else
-            {
-                parentDn = entryDn.getParent();
-                parentId = getEntryId( parentDn );
-                
-                key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
-            }
-    
-            // don't keep going if we cannot find the parent Id
-            if ( parentId == null )
-            {
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
-            }
-            
-            // Get a new ID for the added entry
-            UUID id = master.getNextId( entry );
-    
-            // Update the RDN index
-            rdnIdx.add( key, id );
-    
-            // Update the ObjectClass index
-            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-            
-            if ( objectClass == null )
-            {
-                String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
-                ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
-                LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
-                //e.setResolvedName( entryDn );
-                throw e;
-            }
-    
-            for ( Value<?> value : objectClass )
-            {
-                objectClassIdx.add( value.getString(), id );
-            }
-    
-            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
-            {
-                Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
-                addAliasIndices( id, entryDn, aliasAttr.getString() );
-            }
-    
-            // Update the OneLevel index
-            oneLevelIdx.add( parentId, id );
-    
-            // Update the SubLevel index
-            UUID tempId = parentId;
-    
-            while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
-            {
-                subLevelIdx.add( tempId, id );
-                tempId = getParentId( tempId );
-            }
-    
-            // making entry an ancestor/descendent of itself in sublevel index
-            subLevelIdx.add( id, id );
-    
-            // Update the EntryCsn index
-            Attribute entryCsn = entry.get( ENTRY_CSN_AT );
-    
-            if ( entryCsn == null )
-            {
-                String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-            }
-    
-            entryCsnIdx.add( entryCsn.getString(), id );
-    
-            // Update the EntryUuid index
-            Attribute entryUuid = entry.get( ENTRY_UUID_AT );
-    
-            if ( entryUuid == null )
-            {
-                String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-            }
-    
-            entryUuidIdx.add( entryUuid.getString(), id );
-    
-            // Now work on the user defined userIndices
-            for ( Attribute attribute : entry )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                String attributeOid = attributeType.getOid();
-    
-                if ( hasUserIndexOn( attributeType ) )
-                {
-                    Index<Object> idx = ( Index<Object> ) getUserIndex( attributeType );
-    
-                    // here lookup by attributeId is OK since we got attributeId from
-                    // the entry via the enumeration - it's in there as is for sure
-    
-                    for ( Value<?> value : attribute )
-                    {
-                        idx.add( value.getValue(), id );
-                    }
-    
-                    // Adds only those attributes that are indexed
-                    presenceIdx.add( attributeOid, id );
-                }
-            }
-    
-            // Add the parentId in the entry
-            entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
-            
-            // And finally add the entry into the master table
-            master.put( id, entry );
-    
-            if ( isSyncOnWrite.get() )
-            {
-                sync();
-            }
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Exception e )
-        {
-            throw new LdapException( e );
-        }
+//        try
+//        {
+//            Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
+//            Dn entryDn = entry.getDn();
+//    
+//            // check if the entry already exists
+//            if ( getEntryId( entryDn ) != null )
+//            {
+//                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+//                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+//                throw ne;
+//            }
+//    
+//            UUID parentId = null;
+//    
+//            //
+//            // Suffix entry cannot have a parent since it is the root so it is
+//            // capped off using the zero value which no entry can have since
+//            // entry sequences start at 1.
+//            //
+//            Dn parentDn = null;
+//            ParentIdAndRdn key = null;
+//    
+//            if ( entryDn.equals( suffixDn ) )
+//            {
+//                parentId = getRootId();
+//                key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
+//            }
+//            else
+//            {
+//                parentDn = entryDn.getParent();
+//                parentId = getEntryId( parentDn );
+//                
+//                key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
+//            }
+//    
+//            // don't keep going if we cannot find the parent Id
+//            if ( parentId == null )
+//            {
+//                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
+//            }
+//            
+//            // Get a new ID for the added entry
+//            UUID id = master.getNextId( entry );
+//    
+//            // Update the RDN index
+//            rdnIdx.add( key, id );
+//    
+//            // Update the ObjectClass index
+//            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+//            
+//            if ( objectClass == null )
+//            {
+//                String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
+//                ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
+//                LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
+//                //e.setResolvedName( entryDn );
+//                throw e;
+//            }
+//    
+//            for ( Value<?> value : objectClass )
+//            {
+//                objectClassIdx.add( value.getString(), id );
+//            }
+//    
+//            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+//            {
+//                Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
+//                addAliasIndices( id, entryDn, aliasAttr.getString() );
+//            }
+//    
+//            // Update the OneLevel index
+//            oneLevelIdx.add( parentId, id );
+//    
+//            // Update the SubLevel index
+//            UUID tempId = parentId;
+//    
+//            while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
+//            {
+//                subLevelIdx.add( tempId, id );
+//                tempId = getParentId( tempId );
+//            }
+//    
+//            // making entry an ancestor/descendent of itself in sublevel index
+//            subLevelIdx.add( id, id );
+//    
+//            // Update the EntryCsn index
+//            Attribute entryCsn = entry.get( ENTRY_CSN_AT );
+//    
+//            if ( entryCsn == null )
+//            {
+//                String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
+//                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
+//            }
+//    
+//            entryCsnIdx.add( entryCsn.getString(), id );
+//    
+//            // Update the EntryUuid index
+//            Attribute entryUuid = entry.get( ENTRY_UUID_AT );
+//    
+//            if ( entryUuid == null )
+//            {
+//                String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
+//                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
+//            }
+//    
+//            entryUuidIdx.add( entryUuid.getString(), id );
+//    
+//            // Now work on the user defined userIndices
+//            for ( Attribute attribute : entry )
+//            {
+//                AttributeType attributeType = attribute.getAttributeType();
+//                String attributeOid = attributeType.getOid();
+//    
+//                if ( hasUserIndexOn( attributeType ) )
+//                {
+//                    Index<Object> idx = ( Index<Object> ) getUserIndex( attributeType );
+//    
+//                    // here lookup by attributeId is OK since we got attributeId from
+//                    // the entry via the enumeration - it's in there as is for sure
+//    
+//                    for ( Value<?> value : attribute )
+//                    {
+//                        idx.add( value.getValue(), id );
+//                    }
+//    
+//                    // Adds only those attributes that are indexed
+//                    presenceIdx.add( attributeOid, id );
+//                }
+//            }
+//    
+//            // Add the parentId in the entry
+//            entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
+//            
+//            // And finally add the entry into the master table
+//            master.put( id, entry );
+//    
+//            if ( isSyncOnWrite.get() )
+//            {
+//                sync();
+//            }
+//        }
+//        catch ( LdapException le )
+//        {
+//            throw le;
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapException( e );
+//        }
     }
 
 
@@ -705,25 +706,25 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        Dn dn = deleteContext.getDn();
-
-        UUID id = getEntryId( dn );
-
-        // don't continue if id is null
-        if ( id == null )
-        {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
-        }
-
-        if ( getChildCount( id ) > 0 )
-        {
-            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
-            //cnee.setRemainingName( dn );
-            throw cnee;
-        }
-
-        // We now defer the deletion to the implementing class
-        delete( id );
+//        Dn dn = deleteContext.getDn();
+//
+//        UUID id = getEntryId( dn );
+//
+//        // don't continue if id is null
+//        if ( id == null )
+//        {
+//            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
+//        }
+//
+//        if ( getChildCount( id ) > 0 )
+//        {
+//            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
+//            //cnee.setRemainingName( dn );
+//            throw cnee;
+//        }
+//
+//        // We now defer the deletion to the implementing class
+//        delete( id );
     }
 
 
@@ -734,75 +735,75 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void delete( UUID id ) throws LdapException
     {
-        try
-        {
-            // First get the entry
-            Entry entry = master.get( id );
-            
-            if ( entry == null )
-            {
-                // Not allowed
-                throw new LdapNoSuchObjectException( "Cannot find an entry for ID " + id );
-            }
-
-            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-
-            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
-            {
-                dropAliasIndices( id );
-            }
-
-            // Update the ObjectClass index
-            for ( Value<?> value : objectClass )
-            {
-                objectClassIdx.drop( value.getString(), id );
-            }
-
-            // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
-            rdnIdx.drop( id );
-            oneLevelIdx.drop( id );
-            subLevelIdx.drop( id );
-            entryCsnIdx.drop( id );
-            entryUuidIdx.drop( id );
-
-            // Update the user indexes
-            for ( Attribute attribute : entry )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                String attributeOid = attributeType.getOid();
-
-                if ( hasUserIndexOn( attributeType ) )
-                {
-                    Index<?> index = getUserIndex( attributeType );
-
-                    // here lookup by attributeId is ok since we got attributeId from
-                    // the entry via the enumeration - it's in there as is for sure
-                    for ( Value<?> value : attribute )
-                    {
-                        ( ( Index ) index ).drop( value.getValue(), id );
-                    }
-
-                    presenceIdx.drop( attributeOid, id );
-                }
-            }
-
-            master.remove( id );
-            
-            // if this is a context entry reset the master table counter
-            if ( id.equals( getDefaultId() ) )
-            {
-                master.resetCounter();
-            }
-
-            if ( isSyncOnWrite.get() )
-            {
-                sync();
-            }
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
+//        try
+//        {
+//            // First get the entry
+//            Entry entry = master.get( id );
+//
+//            if ( entry == null )
+//            {
+//                // Not allowed
+//                throw new LdapNoSuchObjectException( "Cannot find an entry for ID " + id );
+//            }
+//
+//            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+//
+//            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+//            {
+//                dropAliasIndices( id );
+//            }
+//
+//            // Update the ObjectClass index
+//            for ( Value<?> value : objectClass )
+//            {
+//                objectClassIdx.drop( value.getString(), id );
+//            }
+//
+//            // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
+//            rdnIdx.drop( id );
+//            oneLevelIdx.drop( id );
+//            subLevelIdx.drop( id );
+//            entryCsnIdx.drop( id );
+//            entryUuidIdx.drop( id );
+//
+//            // Update the user indexes
+//            for ( Attribute attribute : entry )
+//            {
+//                AttributeType attributeType = attribute.getAttributeType();
+//                String attributeOid = attributeType.getOid();
+//
+//                if ( hasUserIndexOn( attributeType ) )
+//                {
+//                    Index<?> index = getUserIndex( attributeType );
+//
+//                    // here lookup by attributeId is ok since we got attributeId from
+//                    // the entry via the enumeration - it's in there as is for sure
+//                    for ( Value<?> value : attribute )
+//                    {
+//                        ( ( Index ) index ).drop( value.getValue(), id );
+//                    }
+//
+//                    presenceIdx.drop( attributeOid, id );
+//                }
+//            }
+//
+//            master.remove( id );
+//
+//            // if this is a context entry reset the master table counter
+//            if ( id.equals( getDefaultId() ) )
+//            {
+//                master.resetCounter();
+//            }
+//
+//            if ( isSyncOnWrite.get() )
+//            {
+//                sync();
+//            }
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapOperationErrorException( e.getMessage(), e );
+//        }
     }
 
     
@@ -814,9 +815,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
+        try
+        {
         return new BaseEntryFilteringCursor( 
             new EntryCursorAdaptor( this, 
                 list( getEntryId( listContext.getDn() ) ) ), listContext );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
     }
 
     
@@ -826,7 +834,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public final IndexCursor<UUID> list( UUID id ) throws LdapException
     {
         try
-        {
+        {            
             // We use the OneLevel index to get all the entries from a starting point
             // and below
             IndexCursor<UUID> cursor = oneLevelIdx.forwardCursor( id );
@@ -1009,15 +1017,15 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        try
-        {
-            Entry modifiedEntry = modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{}) );
-            modifyContext.setAlteredEntry( modifiedEntry );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
+//        try
+//        {
+//            Entry modifiedEntry = modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{}) );
+//            modifyContext.setAlteredEntry( modifiedEntry );
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapOperationErrorException( e.getMessage(), e );
+//        }
     }
     
     
@@ -1026,305 +1034,306 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public synchronized final Entry modify( Dn dn, Modification... mods ) throws Exception
     {
-        UUID id = getEntryId( dn );
-        Entry entry = master.get( id );
-        
-        for ( Modification mod : mods )
-        {
-            Attribute attrMods = mod.getAttribute();
-
-            switch ( mod.getOperation() )
-            {
-                case ADD_ATTRIBUTE:
-                    modifyAdd( id, entry, attrMods );
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    modifyRemove( id, entry, attrMods );
-                    break;
-
-                case REPLACE_ATTRIBUTE:
-                    modifyReplace( id, entry, attrMods );
-                    break;
-
-                default:
-                    throw new LdapException( I18n.err( I18n.ERR_221 ) );
-            }
-        }
-
-        updateCsnIndex( entry, id );
-        master.put( id, entry );
-
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
-
-        return entry;
+//        UUID id = getEntryId( dn );
+//        Entry entry = master.get( id );
+//        
+//        for ( Modification mod : mods )
+//        {
+//            Attribute attrMods = mod.getAttribute();
+//
+//            switch ( mod.getOperation() )
+//            {
+//                case ADD_ATTRIBUTE:
+//                    modifyAdd( id, entry, attrMods );
+//                    break;
+//
+//                case REMOVE_ATTRIBUTE:
+//                    modifyRemove( id, entry, attrMods );
+//                    break;
+//
+//                case REPLACE_ATTRIBUTE:
+//                    modifyReplace( id, entry, attrMods );
+//                    break;
+//
+//                default:
+//                    throw new LdapException( I18n.err( I18n.ERR_221 ) );
+//            }
+//        }
+//
+//        updateCsnIndex( entry, id );
+//        master.put( id, entry );
+//
+//        if ( isSyncOnWrite.get() )
+//        {
+//            sync();
+//        }
+//
+//        return entry;
+        return null;
     }
-    
-    
-    /**
-     * Adds a set of attribute values while affecting the appropriate userIndices.
-     * The entry is not persisted: it is only changed in anticipation for a put
-     * into the master table.
-     *
-     * @param id the primary key of the entry
-     * @param entry the entry to alter
-     * @param mods the attribute and values to add
-     * @throws Exception if index alteration or attribute addition fails
-     */
-    @SuppressWarnings("unchecked")
-    private void modifyAdd( UUID id, Entry entry, Attribute mods ) throws Exception
-    {
-        if ( entry instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
-        AttributeType attributeType = mods.getAttributeType();
-
-        // Special case for the ObjectClass index
-        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
-        {
-            for ( Value<?> value : mods )
-            {
-                objectClassIdx.add( value.getString(), id );
-            }
-        }
-        else if ( hasUserIndexOn( attributeType ) )
-        {
-            Index<?> index = getUserIndex( attributeType );
-
-            for ( Value<?> value : mods )
-            {
-                ( ( Index ) index ).add( value.getValue(), id );
-            }
-
-            // If the attr didn't exist for this id add it to presence index
-            if ( !presenceIdx.forward( modsOid, id ) )
-            {
-                presenceIdx.add( modsOid, id );
-            }
-        }
-
-        // add all the values in mods to the same attribute in the entry
-
-        for ( Value<?> value : mods )
-        {
-            entry.add( mods.getAttributeType(), value );
-        }
-
-        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
-        {
-            Dn ndn = getEntryDn( id );
-            addAliasIndices( id, ndn, mods.getString() );
-        }
-    }
-
-
-    /**
-     * Completely replaces the existing set of values for an attribute with the
-     * modified values supplied affecting the appropriate userIndices.  The entry
-     * is not persisted: it is only changed in anticipation for a put into the
-     * master table.
-     *
-     * @param id the primary key of the entry
-     * @param entry the entry to alter
-     * @param mods the replacement attribute and values
-     * @throws Exception if index alteration or attribute modification
-     * fails.
-     */
-    @SuppressWarnings("unchecked")
-    private void modifyReplace( UUID id, Entry entry, Attribute mods ) throws Exception
-    {
-        if ( entry instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
-        AttributeType attributeType = mods.getAttributeType();
-
-        // Special case for the ObjectClass index
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
-        {
-            // if the id exists in the index drop all existing attribute
-            // value index entries and add new ones
-            if ( objectClassIdx.reverse( id ) )
-            {
-                objectClassIdx.drop( id );
-            }
-
-            for ( Value<?> value : mods )
-            {
-                objectClassIdx.add( value.getString(), id );
-            }
-        }
-        else if ( hasUserIndexOn( attributeType ) )
-        {
-            Index<?> index = getUserIndex( attributeType );
-
-            // if the id exists in the index drop all existing attribute
-            // value index entries and add new ones
-            if ( index.reverse( id ) )
-            {
-                ( ( Index<?> ) index ).drop( id );
-            }
-
-            for ( Value<?> value : mods )
-            {
-                ( ( Index<Object> ) index ).add( value.getValue(), id );
-            }
-
-            /*
-             * If no attribute values exist for this entryId in the index then
-             * we remove the presence index entry for the removed attribute.
-             */
-            if ( null == index.reverseLookup( id ) )
-            {
-                presenceIdx.drop( modsOid, id );
-            }
-        }
-
-        String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName(
-            SchemaConstants.ALIASED_OBJECT_NAME_AT );
-
-        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
-        {
-            dropAliasIndices( id );
-        }
-
-        // replaces old attributes with new modified ones if they exist
-        if ( mods.size() > 0 )
-        {
-            entry.put( mods );
-        }
-        else
-        // removes old attributes if new replacements do not exist
-        {
-            entry.remove( mods );
-        }
-
-        if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
-        {
-            Dn entryDn = getEntryDn( id );
-            addAliasIndices( id, entryDn, mods.getString() );
-        }
-    }
-
-
-    /**
-     * Completely removes the set of values for an attribute having the values
-     * supplied while affecting the appropriate userIndices.  The entry is not
-     * persisted: it is only changed in anticipation for a put into the master
-     * table.  Note that an empty attribute w/o values will remove all the
-     * values within the entry where as an attribute w/ values will remove those
-     * attribute values it contains.
-     *
-     * @param id the primary key of the entry
-     * @param entry the entry to alter
-     * @param mods the attribute and its values to delete
-     * @throws Exception if index alteration or attribute modification fails.
-     */
-    @SuppressWarnings("unchecked")
-    private void modifyRemove( UUID id, Entry entry, Attribute mods ) throws Exception
-    {
-        if ( entry instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
-        AttributeType attributeType = mods.getAttributeType();
-
-        // Special case for the ObjectClass index
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
-        {
-            /*
-             * If there are no attribute values in the modifications then this
-             * implies the complete removal of the attribute from the index. Else
-             * we remove individual tuples from the index.
-             */
-            if ( mods.size() == 0 )
-            {
-                objectClassIdx.drop( id );
-            }
-            else
-            {
-                for ( Value<?> value : mods )
-                {
-                    objectClassIdx.drop( value.getString(), id );
-                }
-            }
-        }
-        else if ( hasUserIndexOn( attributeType ) )
-        {
-            Index<?> index = getUserIndex( attributeType );
-
-            /*
-             * If there are no attribute values in the modifications then this
-             * implies the complete removal of the attribute from the index. Else
-             * we remove individual tuples from the index.
-             */
-            if ( mods.size() == 0 )
-            {
-                ( ( Index ) index ).drop( id );
-            }
-            else
-            {
-                for ( Value<?> value : mods )
-                {
-                    ( ( Index ) index ).drop( value.getValue(), id );
-                }
-            }
-
-            /*
-             * If no attribute values exist for this entryId in the index then
-             * we remove the presence index entry for the removed attribute.
-             */
-            if ( null == index.reverseLookup( id ) )
-            {
-                presenceIdx.drop( modsOid, id );
-            }
-        }
-
-        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
-
-        /*
-         * If there are no attribute values in the modifications then this
-         * implies the complete removal of the attribute from the entry. Else
-         * we remove individual attribute values from the entry in mods one
-         * at a time.
-         */
-        if ( mods.size() == 0 )
-        {
-            entry.removeAttributes( mods.getAttributeType() );
-        }
-        else
-        {
-            Attribute entryAttr = entry.get( mods.getAttributeType() );
-
-            for ( Value<?> value : mods )
-            {
-                entryAttr.remove( value );
-            }
-
-            // if nothing is left just remove empty attribute
-            if ( entryAttr.size() == 0 )
-            {
-                entry.removeAttributes( entryAttr.getId() );
-            }
-        }
-
-        // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
-        {
-            dropAliasIndices( id );
-        }
-    }
-
+//    
+//    
+//    /**
+//     * Adds a set of attribute values while affecting the appropriate userIndices.
+//     * The entry is not persisted: it is only changed in anticipation for a put
+//     * into the master table.
+//     *
+//     * @param id the primary key of the entry
+//     * @param entry the entry to alter
+//     * @param mods the attribute and values to add
+//     * @throws Exception if index alteration or attribute addition fails
+//     */
+//    @SuppressWarnings("unchecked")
+//    private void modifyAdd( UUID id, Entry entry, Attribute mods ) throws Exception
+//    {
+//        if ( entry instanceof ClonedServerEntry )
+//        {
+//            throw new Exception( I18n.err( I18n.ERR_215 ) );
+//        }
+//
+//        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+//        AttributeType attributeType = mods.getAttributeType();
+//
+//        // Special case for the ObjectClass index
+//        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+//        {
+//            for ( Value<?> value : mods )
+//            {
+//                objectClassIdx.add( value.getString(), id );
+//            }
+//        }
+//        else if ( hasUserIndexOn( attributeType ) )
+//        {
+//            Index<?> index = getUserIndex( attributeType );
+//
+//            for ( Value<?> value : mods )
+//            {
+//                ( ( Index ) index ).add( value.getValue(), id );
+//            }
+//
+//            // If the attr didn't exist for this id add it to presence index
+//            if ( !presenceIdx.forward( modsOid, id ) )
+//            {
+//                presenceIdx.add( modsOid, id );
+//            }
+//        }
+//
+//        // add all the values in mods to the same attribute in the entry
+//
+//        for ( Value<?> value : mods )
+//        {
+//            entry.add( mods.getAttributeType(), value );
+//        }
+//
+//        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
+//        {
+//            Dn ndn = getEntryDn( id );
+//            addAliasIndices( id, ndn, mods.getString() );
+//        }
+//    }
+//
+//
+//    /**
+//     * Completely replaces the existing set of values for an attribute with the
+//     * modified values supplied affecting the appropriate userIndices.  The entry
+//     * is not persisted: it is only changed in anticipation for a put into the
+//     * master table.
+//     *
+//     * @param id the primary key of the entry
+//     * @param entry the entry to alter
+//     * @param mods the replacement attribute and values
+//     * @throws Exception if index alteration or attribute modification
+//     * fails.
+//     */
+//    @SuppressWarnings("unchecked")
+//    private void modifyReplace( UUID id, Entry entry, Attribute mods ) throws Exception
+//    {
+//        if ( entry instanceof ClonedServerEntry )
+//        {
+//            throw new Exception( I18n.err( I18n.ERR_215 ) );
+//        }
+//
+//        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+//        AttributeType attributeType = mods.getAttributeType();
+//
+//        // Special case for the ObjectClass index
+//        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+//        {
+//            // if the id exists in the index drop all existing attribute
+//            // value index entries and add new ones
+//            if ( objectClassIdx.reverse( id ) )
+//            {
+//                objectClassIdx.drop( id );
+//            }
+//
+//            for ( Value<?> value : mods )
+//            {
+//                objectClassIdx.add( value.getString(), id );
+//            }
+//        }
+//        else if ( hasUserIndexOn( attributeType ) )
+//        {
+//            Index<?> index = getUserIndex( attributeType );
+//
+//            // if the id exists in the index drop all existing attribute
+//            // value index entries and add new ones
+//            if ( index.reverse( id ) )
+//            {
+//                ( ( Index<?> ) index ).drop( id );
+//            }
+//
+//            for ( Value<?> value : mods )
+//            {
+//                ( ( Index<Object> ) index ).add( value.getValue(), id );
+//            }
+//
+//            /*
+//             * If no attribute values exist for this entryId in the index then
+//             * we remove the presence index entry for the removed attribute.
+//             */
+//            if ( null == index.reverseLookup( id ) )
+//            {
+//                presenceIdx.drop( modsOid, id );
+//            }
+//        }
+//
+//        String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName(
+//            SchemaConstants.ALIASED_OBJECT_NAME_AT );
+//
+//        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
+//        {
+//            dropAliasIndices( id );
+//        }
+//
+//        // replaces old attributes with new modified ones if they exist
+//        if ( mods.size() > 0 )
+//        {
+//            entry.put( mods );
+//        }
+//        else
+//        // removes old attributes if new replacements do not exist
+//        {
+//            entry.remove( mods );
+//        }
+//
+//        if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
+//        {
+//            Dn entryDn = getEntryDn( id );
+//            addAliasIndices( id, entryDn, mods.getString() );
+//        }
+//    }
+//
+//
+//    /**
+//     * Completely removes the set of values for an attribute having the values
+//     * supplied while affecting the appropriate userIndices.  The entry is not
+//     * persisted: it is only changed in anticipation for a put into the master
+//     * table.  Note that an empty attribute w/o values will remove all the
+//     * values within the entry where as an attribute w/ values will remove those
+//     * attribute values it contains.
+//     *
+//     * @param id the primary key of the entry
+//     * @param entry the entry to alter
+//     * @param mods the attribute and its values to delete
+//     * @throws Exception if index alteration or attribute modification fails.
+//     */
+//    @SuppressWarnings("unchecked")
+//    private void modifyRemove( UUID id, Entry entry, Attribute mods ) throws Exception
+//    {
+//        if ( entry instanceof ClonedServerEntry )
+//        {
+//            throw new Exception( I18n.err( I18n.ERR_215 ) );
+//        }
+//
+//        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+//        AttributeType attributeType = mods.getAttributeType();
+//
+//        // Special case for the ObjectClass index
+//        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+//        {
+//            /*
+//             * If there are no attribute values in the modifications then this
+//             * implies the complete removal of the attribute from the index. Else
+//             * we remove individual tuples from the index.
+//             */
+//            if ( mods.size() == 0 )
+//            {
+//                objectClassIdx.drop( id );
+//            }
+//            else
+//            {
+//                for ( Value<?> value : mods )
+//                {
+//                    objectClassIdx.drop( value.getString(), id );
+//                }
+//            }
+//        }
+//        else if ( hasUserIndexOn( attributeType ) )
+//        {
+//            Index<?> index = getUserIndex( attributeType );
+//
+//            /*
+//             * If there are no attribute values in the modifications then this
+//             * implies the complete removal of the attribute from the index. Else
+//             * we remove individual tuples from the index.
+//             */
+//            if ( mods.size() == 0 )
+//            {
+//                ( ( Index ) index ).drop( id );
+//            }
+//            else
+//            {
+//                for ( Value<?> value : mods )
+//                {
+//                    ( ( Index ) index ).drop( value.getValue(), id );
+//                }
+//            }
+//
+//            /*
+//             * If no attribute values exist for this entryId in the index then
+//             * we remove the presence index entry for the removed attribute.
+//             */
+//            if ( null == index.reverseLookup( id ) )
+//            {
+//                presenceIdx.drop( modsOid, id );
+//            }
+//        }
+//
+//        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
+//
+//        /*
+//         * If there are no attribute values in the modifications then this
+//         * implies the complete removal of the attribute from the entry. Else
+//         * we remove individual attribute values from the entry in mods one
+//         * at a time.
+//         */
+//        if ( mods.size() == 0 )
+//        {
+//            entry.removeAttributes( mods.getAttributeType() );
+//        }
+//        else
+//        {
+//            Attribute entryAttr = entry.get( mods.getAttributeType() );
+//
+//            for ( Value<?> value : mods )
+//            {
+//                entryAttr.remove( value );
+//            }
+//
+//            // if nothing is left just remove empty attribute
+//            if ( entryAttr.size() == 0 )
+//            {
+//                entry.removeAttributes( entryAttr.getId() );
+//            }
+//        }
+//
+//        // Aliases->single valued comp/partial attr removal is not relevant here
+//        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
+//        {
+//            dropAliasIndices( id );
+//        }
+//    }
+//
 
     //---------------------------------------------------------------------------------------------
     // The Move operation
@@ -1334,25 +1343,25 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        if ( moveContext.getNewSuperior().isDescendantOf( moveContext.getDn() ) )
-        {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                "cannot place an entry below itself" );
-        }
-
-        try
-        {
-            Dn oldDn = moveContext.getDn();
-            Dn newSuperior = moveContext.getNewSuperior();
-            Dn newDn = moveContext.getNewDn();
-            Entry modifiedEntry = moveContext.getModifiedEntry();
-            
-            move( oldDn, newSuperior, newDn, modifiedEntry );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
+//        if ( moveContext.getNewSuperior().isDescendantOf( moveContext.getDn() ) )
+//        {
+//            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+//                "cannot place an entry below itself" );
+//        }
+//
+//        try
+//        {
+//            Dn oldDn = moveContext.getDn();
+//            Dn newSuperior = moveContext.getNewSuperior();
+//            Dn newDn = moveContext.getNewDn();
+//            Entry modifiedEntry = moveContext.getModifiedEntry();
+//            
+//            move( oldDn, newSuperior, newDn, modifiedEntry );
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapOperationErrorException( e.getMessage(), e );
+//        }
     }
 
 
@@ -1361,91 +1370,91 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public synchronized final void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry ) throws Exception
     {
-        // Check that the parent Dn exists
-        UUID newParentId = getEntryId( newSuperiorDn );
-
-        if ( newParentId == null )
-        {
-            // This is not allowed : the parent must exist
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
-            throw ne;
-        }
-
-        // Now check that the new entry does not exist
-        UUID newId = getEntryId( newDn );
-
-        if ( newId != null )
-        {
-            // This is not allowed : we should not be able to move an entry
-            // to an existing position
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
-            throw ne;
-        }
-
-        // Get the entry and the old parent IDs
-        UUID entryId = getEntryId( oldDn );
-        UUID oldParentId = getParentId( entryId );
-
-        /*
-         * All aliases including and below oldChildDn, will be affected by
-         * the move operation with respect to one and subtree userIndices since
-         * their relationship to ancestors above oldChildDn will be
-         * destroyed.  For each alias below and including oldChildDn we will
-         * drop the index tuples mapping ancestor ids above oldChildDn to the
-         * respective target ids of the aliases.
-         */
-        dropMovedAliasIndices( oldDn );
-
-        /*
-         * Drop the old parent child relationship and add the new one
-         * Set the new parent id for the child replacing the old parent id
-         */
-        oneLevelIdx.drop( oldParentId, entryId );
-        oneLevelIdx.add( newParentId, entryId );
-
-        updateSubLevelIndex( entryId, oldParentId, newParentId );
-
-        // Update the Rdn index
-        rdnIdx.drop( entryId );
-        ParentIdAndRdn key = new ParentIdAndRdn( newParentId, oldDn.getRdn() );
-        rdnIdx.add( key, entryId );
-
-
-        /*
-         * Read Alias Index Tuples
-         *
-         * If this is a name change due to a move operation then the one and
-         * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.
-         *
-         * aliasTarget is used as a marker to tell us if we're moving an
-         * alias.  If it is null then the moved entry is not an alias.
-         */
-        String aliasTarget = aliasIdx.reverseLookup( entryId );
-
-        if ( null != aliasTarget )
-        {
-            addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
-        }
-
-        // the below case arises only when the move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) is called
-        // directly using the Store API, in this case the value of modified entry will be null
-        // we need to lookup the entry to update the parent ID
-        if ( modifiedEntry == null )
-        {
-            modifiedEntry = lookup( entryId );
-        }
-        
-        // Update the master table with the modified entry
-        modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
-        master.put( entryId, modifiedEntry );
-
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
+//        // Check that the parent Dn exists
+//        UUID newParentId = getEntryId( newSuperiorDn );
+//
+//        if ( newParentId == null )
+//        {
+//            // This is not allowed : the parent must exist
+//            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+//                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
+//            throw ne;
+//        }
+//
+//        // Now check that the new entry does not exist
+//        UUID newId = getEntryId( newDn );
+//
+//        if ( newId != null )
+//        {
+//            // This is not allowed : we should not be able to move an entry
+//            // to an existing position
+//            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+//                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+//            throw ne;
+//        }
+//
+//        // Get the entry and the old parent IDs
+//        UUID entryId = getEntryId( oldDn );
+//        UUID oldParentId = getParentId( entryId );
+//
+//        /*
+//         * All aliases including and below oldChildDn, will be affected by
+//         * the move operation with respect to one and subtree userIndices since
+//         * their relationship to ancestors above oldChildDn will be
+//         * destroyed.  For each alias below and including oldChildDn we will
+//         * drop the index tuples mapping ancestor ids above oldChildDn to the
+//         * respective target ids of the aliases.
+//         */
+//        dropMovedAliasIndices( oldDn );
+//
+//        /*
+//         * Drop the old parent child relationship and add the new one
+//         * Set the new parent id for the child replacing the old parent id
+//         */
+//        oneLevelIdx.drop( oldParentId, entryId );
+//        oneLevelIdx.add( newParentId, entryId );
+//
+//        updateSubLevelIndex( entryId, oldParentId, newParentId );
+//
+//        // Update the Rdn index
+//        rdnIdx.drop( entryId );
+//        ParentIdAndRdn key = new ParentIdAndRdn( newParentId, oldDn.getRdn() );
+//        rdnIdx.add( key, entryId );
+//
+//
+//        /*
+//         * Read Alias Index Tuples
+//         *
+//         * If this is a name change due to a move operation then the one and
+//         * subtree userIndices for aliases were purged before the aliases were
+//         * moved.  Now we must add them for each alias entry we have moved.
+//         *
+//         * aliasTarget is used as a marker to tell us if we're moving an
+//         * alias.  If it is null then the moved entry is not an alias.
+//         */
+//        String aliasTarget = aliasIdx.reverseLookup( entryId );
+//
+//        if ( null != aliasTarget )
+//        {
+//            addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
+//        }
+//
+//        // the below case arises only when the move( Dn oldDn, Dn newSuperiorDn, Dn newDn  ) is called
+//        // directly using the Store API, in this case the value of modified entry will be null
+//        // we need to lookup the entry to update the parent ID
+//        if ( modifiedEntry == null )
+//        {
+//            modifiedEntry = lookup( entryId );
+//        }
+//        
+//        // Update the master table with the modified entry
+//        modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
+//        master.put( entryId, modifiedEntry );
+//
+//        if ( isSyncOnWrite.get() )
+//        {
+//            sync();
+//        }
     }
 
 
@@ -1457,32 +1466,32 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        if ( moveAndRenameContext.getNewSuperiorDn().isDescendantOf( moveAndRenameContext.getDn() ) )
-        {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                "cannot place an entry below itself" );
-        }
-
-        try
-        {
-            Dn oldDn = moveAndRenameContext.getDn();
-            Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-            Rdn newRdn = moveAndRenameContext.getNewRdn();
-            boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
-            Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
-            
-            moveAndRename( oldDn, newSuperiorDn, newRdn, modifiedEntry, deleteOldRdn );
-        }
-        catch ( LdapException le )
-        {
-            // In case we get an LdapException, just rethrow it as is to 
-            // avoid having it lost
-            throw le;
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
+//        if ( moveAndRenameContext.getNewSuperiorDn().isDescendantOf( moveAndRenameContext.getDn() ) )
+//        {
+//            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+//                "cannot place an entry below itself" );
+//        }
+//
+//        try
+//        {
+//            Dn oldDn = moveAndRenameContext.getDn();
+//            Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
+//            Rdn newRdn = moveAndRenameContext.getNewRdn();
+//            boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
+//            Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
+//            
+//            moveAndRename( oldDn, newSuperiorDn, newRdn, modifiedEntry, deleteOldRdn );
+//        }
+//        catch ( LdapException le )
+//        {
+//            // In case we get an LdapException, just rethrow it as is to 
+//            // avoid having it lost
+//            throw le;
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapOperationErrorException( e.getMessage(), e );
+//        }
     }
 
 
@@ -1491,49 +1500,49 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
-        // Check that the old entry exists
-        UUID oldId = getEntryId( oldDn );
-
-        if ( oldId == null )
-        {
-            // This is not allowed : the old entry must exist
-            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
-                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, oldDn ) );
-            throw nse;
-        }
-
-        // Check that the new superior exist
-        UUID newSuperiorId = getEntryId( newSuperiorDn );
-
-        if ( newSuperiorId == null )
-        {
-            // This is not allowed : the new superior must exist
-            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
-                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
-            throw nse;
-        }
-
-        Dn newDn = newSuperiorDn.add( newRdn );
-
-        // Now check that the new entry does not exist
-        UUID newId = getEntryId( newDn );
-
-        if ( newId != null )
-        {
-            // This is not allowed : we should not be able to move an entry
-            // to an existing position
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
-            throw ne;
-        }
-
-        rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
-        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
-
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
+//        // Check that the old entry exists
+//        UUID oldId = getEntryId( oldDn );
+//
+//        if ( oldId == null )
+//        {
+//            // This is not allowed : the old entry must exist
+//            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
+//                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, oldDn ) );
+//            throw nse;
+//        }
+//
+//        // Check that the new superior exist
+//        UUID newSuperiorId = getEntryId( newSuperiorDn );
+//
+//        if ( newSuperiorId == null )
+//        {
+//            // This is not allowed : the new superior must exist
+//            LdapNoSuchObjectException nse = new LdapNoSuchObjectException(
+//                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
+//            throw nse;
+//        }
+//
+//        Dn newDn = newSuperiorDn.add( newRdn );
+//
+//        // Now check that the new entry does not exist
+//        UUID newId = getEntryId( newDn );
+//
+//        if ( newId != null )
+//        {
+//            // This is not allowed : we should not be able to move an entry
+//            // to an existing position
+//            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+//                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+//            throw ne;
+//        }
+//
+//        rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
+//        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
+//
+//        if ( isSyncOnWrite.get() )
+//        {
+//            sync();
+//        }
     }
 
 
@@ -1622,26 +1631,26 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        try
-        {
-            Dn oldDn = renameContext.getDn();
-            Rdn newRdn = renameContext.getNewRdn();
-            boolean deleteOldRdn = renameContext.getDeleteOldRdn();
-
-            if ( renameContext.getEntry() != null )
-            {
-                Entry modifiedEntry = renameContext.getModifiedEntry();
-                rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
-            }
-            else
-            {
-                rename( oldDn, newRdn, deleteOldRdn, null );
-            }
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
+//        try
+//        {
+//            Dn oldDn = renameContext.getDn();
+//            Rdn newRdn = renameContext.getNewRdn();
+//            boolean deleteOldRdn = renameContext.getDeleteOldRdn();
+//
+//            if ( renameContext.getEntry() != null )
+//            {
+//                Entry modifiedEntry = renameContext.getModifiedEntry();
+//                rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
+//            }
+//            else
+//            {
+//                rename( oldDn, newRdn, deleteOldRdn, null );
+//            }
+//        }
+//        catch ( Exception e )
+//        {
+//            throw new LdapOperationErrorException( e.getMessage(), e );
+//        }
     }
 
 
@@ -1651,128 +1660,128 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     @SuppressWarnings("unchecked")
     public synchronized final void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
-        UUID id = getEntryId( dn );
-
-        if ( entry == null )
-        {
-            entry = master.get( id );
-        }
-        
-        Dn updn = entry.getDn();
-
-        newRdn.apply( schemaManager );
-
-        /*
-         * H A N D L E   N E W   R D N
-         * ====================================================================
-         * Add the new Rdn attribute to the entry.  If an index exists on the
-         * new Rdn attribute we add the index for this attribute value pair.
-         * Also we make sure that the presence index shows the existence of the
-         * new Rdn attribute within this entry.
-         */
-
-        for ( Ava newAtav : newRdn )
-        {
-            String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getNormValue().getValue();
-
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-
-            entry.add( newRdnAttrType, newAtav.getNormValue() );
-
-            if ( hasUserIndexOn( newRdnAttrType ) )
-            {
-                Index<?> index = getUserIndex( newRdnAttrType );
-                ( ( Index ) index ).add( newNormValue, id );
-
-                // Make sure the altered entry shows the existence of the new attrib
-                if ( !presenceIdx.forward( newNormType, id ) )
-                {
-                    presenceIdx.add( newNormType, id );
-                }
-            }
-        }
-
-        /*
-         * H A N D L E   O L D   R D N
-         * ====================================================================
-         * If the old Rdn is to be removed we need to get the attribute and
-         * value for it.  Keep in mind the old Rdn need not be based on the
-         * same attr as the new one.  We remove the Rdn value from the entry
-         * and remove the value/id tuple from the index on the old Rdn attr
-         * if any.  We also test if the delete of the old Rdn index tuple
-         * removed all the attribute values of the old Rdn using a reverse
-         * lookup.  If so that means we blew away the last value of the old
-         * Rdn attribute.  In this case we need to remove the attrName/id
-         * tuple from the presence index.
-         *
-         * We only remove an ATAV of the old Rdn if it is not included in the
-         * new Rdn.
-         */
-
-        if ( deleteOldRdn )
-        {
-            Rdn oldRdn = updn.getRdn();
-
-            for ( Ava oldAtav : oldRdn )
-            {
-                // check if the new ATAV is part of the old Rdn
-                // if that is the case we do not remove the ATAV
-                boolean mustRemove = true;
-
-                for ( Ava newAtav : newRdn )
-                {
-                    if ( oldAtav.equals( newAtav ) )
-                    {
-                        mustRemove = false;
-                        break;
-                    }
-                }
-
-                if ( mustRemove )
-                {
-                    String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
-                    entry.remove( oldRdnAttrType, oldNormValue );
-
-                    if ( hasUserIndexOn( oldRdnAttrType ) )
-                    {
-                        Index<?> index = getUserIndex( oldRdnAttrType );
-                        ( ( Index ) index ).drop( oldNormValue, id );
-
-                        /*
-                         * If there is no value for id in this index due to our
-                         * drop above we remove the oldRdnAttr from the presence idx
-                         */
-                        if ( null == index.reverseLookup( id ) )
-                        {
-                            presenceIdx.drop( oldNormType, id );
-                        }
-                    }
-                }
-            }
-        }
-
-
-        /*
-         * H A N D L E   D N   C H A N G E
-         * ====================================================================
-         * We only need to update the Rdn index.
-         * No need to calculate the new Dn.
-         */
-
-        UUID parentId = getParentId( id );
-        rdnIdx.drop( id );
-        ParentIdAndRdn key = new ParentIdAndRdn( parentId, newRdn );
-        rdnIdx.add( key, id );
-
-        master.put( id, entry );
-
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
+//        UUID id = getEntryId( dn );
+//
+//        if ( entry == null )
+//        {
+//            entry = master.get( id );
+//        }
+//        
+//        Dn updn = entry.getDn();
+//
+//        newRdn.apply( schemaManager );
+//
+//        /*
+//         * H A N D L E   N E W   R D N
+//         * ====================================================================
+//         * Add the new Rdn attribute to the entry.  If an index exists on the
+//         * new Rdn attribute we add the index for this attribute value pair.
+//         * Also we make sure that the presence index shows the existence of the
+//         * new Rdn attribute within this entry.
+//         */
+//
+//        for ( Ava newAtav : newRdn )
+//        {
+//            String newNormType = newAtav.getNormType();
+//            Object newNormValue = newAtav.getNormValue().getValue();
+//
+//            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
+//
+//            entry.add( newRdnAttrType, newAtav.getNormValue() );
+//
+//            if ( hasUserIndexOn( newRdnAttrType ) )
+//            {
+//                Index<?> index = getUserIndex( newRdnAttrType );
+//                ( ( Index ) index ).add( newNormValue, id );
+//
+//                // Make sure the altered entry shows the existence of the new attrib
+//                if ( !presenceIdx.forward( newNormType, id ) )
+//                {
+//                    presenceIdx.add( newNormType, id );
+//                }
+//            }
+//        }
+//
+//        /*
+//         * H A N D L E   O L D   R D N
+//         * ====================================================================
+//         * If the old Rdn is to be removed we need to get the attribute and
+//         * value for it.  Keep in mind the old Rdn need not be based on the
+//         * same attr as the new one.  We remove the Rdn value from the entry
+//         * and remove the value/id tuple from the index on the old Rdn attr
+//         * if any.  We also test if the delete of the old Rdn index tuple
+//         * removed all the attribute values of the old Rdn using a reverse
+//         * lookup.  If so that means we blew away the last value of the old
+//         * Rdn attribute.  In this case we need to remove the attrName/id
+//         * tuple from the presence index.
+//         *
+//         * We only remove an ATAV of the old Rdn if it is not included in the
+//         * new Rdn.
+//         */
+//
+//        if ( deleteOldRdn )
+//        {
+//            Rdn oldRdn = updn.getRdn();
+//
+//            for ( Ava oldAtav : oldRdn )
+//            {
+//                // check if the new ATAV is part of the old Rdn
+//                // if that is the case we do not remove the ATAV
+//                boolean mustRemove = true;
+//
+//                for ( Ava newAtav : newRdn )
+//                {
+//                    if ( oldAtav.equals( newAtav ) )
+//                    {
+//                        mustRemove = false;
+//                        break;
+//                    }
+//                }
+//
+//                if ( mustRemove )
+//                {
+//                    String oldNormType = oldAtav.getNormType();
+//                    String oldNormValue = oldAtav.getNormValue().getString();
+//                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
+//                    entry.remove( oldRdnAttrType, oldNormValue );
+//
+//                    if ( hasUserIndexOn( oldRdnAttrType ) )
+//                    {
+//                        Index<?> index = getUserIndex( oldRdnAttrType );
+//                        ( ( Index ) index ).drop( oldNormValue, id );
+//
+//                        /*
+//                         * If there is no value for id in this index due to our
+//                         * drop above we remove the oldRdnAttr from the presence idx
+//                         */
+//                        if ( null == index.reverseLookup( id ) )
+//                        {
+//                            presenceIdx.drop( oldNormType, id );
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//        /*
+//         * H A N D L E   D N   C H A N G E
+//         * ====================================================================
+//         * We only need to update the Rdn index.
+//         * No need to calculate the new Dn.
+//         */
+//
+//        UUID parentId = getParentId( id );
+//        rdnIdx.drop( id );
+//        ParentIdAndRdn key = new ParentIdAndRdn( parentId, newRdn );
+//        rdnIdx.add( key, id );
+//
+//        master.put( id, entry );
+//
+//        if ( isSyncOnWrite.get() )
+//        {
+//            sync();
+//        }
     }
 
 

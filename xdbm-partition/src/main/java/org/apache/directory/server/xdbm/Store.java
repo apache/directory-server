@@ -176,287 +176,287 @@ public interface Store
     void addIndex( Index<?> index ) throws Exception;
 
 
-    //------------------------------------------------------------------------
-    // System index
-    //------------------------------------------------------------------------
-    /**
-     * @return The Presence system index
-     */
-    Index<String> getPresenceIndex();
-
-
-    /**
-     * @return The OneLevel system index
-     */
-    Index<UUID> getOneLevelIndex();
-
-
-    /**
-     * @return The SubLevel system index
-     */
-    Index<UUID> getSubLevelIndex();
-
-
-    /**
-     * @return The Alias system index
-     */
-    Index<String> getAliasIndex();
-
-
-    /**
-     * @return The OneAlias system index
-     */
-    Index<UUID> getOneAliasIndex();
-
-
-    /**
-     * @return The SubAlias system index
-     */
-    Index<UUID> getSubAliasIndex();
-
-
-    /**
-     * @return The Rdn system index
-     */
-    Index<ParentIdAndRdn> getRdnIndex();
-
-
-    /**
-     * @return The ObjectClass system index
-     */
-    Index<String> getObjectClassIndex();
-
-
-    /**
-     * @return The EntryUUID system index
-     */
-    Index<String> getEntryUuidIndex();
-
-
-    /**
-     * @return The EntryCSN system index
-     */
-    Index<String> getEntryCsnIndex();
-
-
-    /**
-     * An iterator build on top of the User's index
-     */
-    Iterator<String> getUserIndices();
-
-
-    /**
-     * An iterator build on top of the System's index
-     */
-    Iterator<String> getSystemIndices();
-
-
-    /**
-     * Tells if an index is already present in the User's <strong>or</strong> System's index list
-     * @param id The index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * User's <strong>or</strong> System's index list 
-     * @throws Exception If something went wrong
-     */
-    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    /**
-     * Tells if an index is already present in the User's index list
-     * @param attributeType The attributeType index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * User's index list 
-     * @throws Exception If something went wrong
-     */
-    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    /**
-     * Tells if an index is already present in the System's index list
-     * @param attributeType The index we are looking for
-     * @return <code>true</code> if the index is already present in the
-     * System's index list 
-     * @throws Exception If something went wrong
-     */
-    boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
-
-
-    /**
-     * Get the user <strong>or</strong> system index associated with the given attributeType
-     * 
-     * @param attributeType The index attributeType we are looking for
-     * @return The associated user <strong>or</strong> system index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
-
-
-    /**
-     * Get the user index associated with the given name
-     * @param attributeType The index name we are looking for
-     * @return The associated user index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
-
-
-    /**
-     * Get the system index associated with the given name
-     * @param attributeType The index name we are looking for
-     * @return The associated system index
-     * @throws IndexNotFoundException If the index does not exist
-     */
-    Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
-
-
-    /**
-     * Gets the entry's id. Returns <code>null</code> if the Dn doesn't exist in this store.
-     * Note that the Dn must be normalized!
-     * @param dn the normalized entry Dn
-     * @return the entry's id, or <code>null</code> if the Dn doesn't exists
-     */
-    UUID getEntryId( Dn dn ) throws Exception;
-
-
-    /**
-     * Gets the Entry's Dn identified by the given id.
-     * 
-     * @param id the entry's id
-     * @return the entry's Dn
-     */
-    Dn getEntryDn( UUID id ) throws Exception;
-
-
-    /**
-     * Gets the ID of an entry's parent using the child entry's ID.
-     * Note that the suffix entry returns 0, which does not map to any entry.
-     *
-     * @param childId the ID of the entry
-     * @return the id of the parent entry or zero if the suffix entry ID is used
-     * @throws Exception on failures to access the underlying store
-     */
-    UUID getParentId( UUID childId ) throws Exception;
-
-
-    /**
-     * Gets the total count of entries within this store.
-     *
-     * @return the total count of entries within this store
-     * @throws Exception on failures to access the underlying store
-     */
-    int count() throws Exception;
-
-
-    /**
-     * Delete an entry from the store
-     *
-     * @param id The Entry ID we want to delete
-     * @throws Exception If the deletion failed for any reason
-     */
-    void delete( UUID id ) throws Exception;
-
-
-    /**
-     * Gets an IndexEntry Cursor over the child nodes of an entry.
-     *
-     * @param id the id of the parent entry
-     * @return an IndexEntry Cursor over the child entries
-     * @throws Exception on failures to access the underlying store
-     */
-    IndexCursor<UUID> list( UUID id ) throws Exception;
-
-
-    /**
-     * Get back an entry knowing its ID
-     *
-     * @param id The Entry ID we want to get back
-     * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
-     */
-    Entry lookup( UUID id ) throws Exception;
-
-    
-    /**
-     * Gets the count of immediate children of the given entry ID.
-     *
-     * @param id the entry ID
-     * @return the child count 
-     * @throws Exception on failures to access the underlying store
-     */
-    int getChildCount( UUID id ) throws Exception;
-
-
-    /**
-     * Modify an entry applying the given list of modifications.
-     *
-     * @param dn The Entry's Dn
-     * @param mods The list of modifications
-     * @return The modified entry
-     * @throws Exception If the modification failed
-     */
-    Entry modify( Dn dn, Modification... mods ) throws Exception;
-
-
-    /**
-     * Changes the relative distinguished name of an entry specified by a
-     * distinguished name with the optional removal of the old Rdn attribute
-     * value from the entry.  Name changes propagate down as dn changes to the
-     * descendants of the entry where the Rdn changed.
-     *
-     * An Rdn change operation does not change parent child relationships.  It
-     * merely propagates a name change at a point in the DIT where the Rdn is
-     * changed. The change propagates down the subtree rooted at the
-     * distinguished name specified.
-     *
-     * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new Rdn to set
-     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
-     * @param entry the modified entry
-     * @throws Exception if there are any errors propagating the name changes
-     */
-    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
-
-    
-    void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
-
-
-    /**
-     * <p>Move an entry from one place to the other. The Rdn remains unchanged,
-     * the parent Dn changes</p>
-     * <p>We have to update some of the index when moving an entry. Assuming
-     * that the target destination does not exist, the following index must
-     * be updated :</p>
-     * <ul>
-     * <li><b>oneLevel</b> index</li>
-     * <li><b>subLevel</b> index</li>
-     * </ul>
-     * <p>If the moved entry is an alias, then we also have to update the
-     * following index :</p>
-     * <ul>
-     * <li><b>oneAlias</b> index</li>
-     * <li><b>subAlias</b> index</li>
-     * </ul>
-     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p> 
-     * <p>We have a few check we must do before moving the entry :
-     * <ul>
-     * <li>The destination must not exist
-     * <li>The moved entry must exist (this has already been checked)
-     * <li>The moved entry must not inherit from a referral (already checked)
-     * </ul>
-     *
-     * @param oldDn The previous entry Dn
-     * @param newSuperior The new superior Dn
-     * @param newDn The new Dn
-     * @param entry The entry to move
-     * @throws Exception If the move failed
-     */
-    void move( Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws Exception;
-
-
-    /**
-     * Gets the default ID.
-     *
-     * @return the default ID.
-     */
-    UUID getDefaultId() throws Exception;
+//    //------------------------------------------------------------------------
+//    // System index
+//    //------------------------------------------------------------------------
+//    /**
+//     * @return The Presence system index
+//     */
+//    Index<String> getPresenceIndex();
+//
+//
+//    /**
+//     * @return The OneLevel system index
+//     */
+//    Index<UUID> getOneLevelIndex();
+//
+//
+//    /**
+//     * @return The SubLevel system index
+//     */
+//    Index<UUID> getSubLevelIndex();
+//
+//
+//    /**
+//     * @return The Alias system index
+//     */
+//    Index<String> getAliasIndex();
+//
+//
+//    /**
+//     * @return The OneAlias system index
+//     */
+//    Index<UUID> getOneAliasIndex();
+//
+//
+//    /**
+//     * @return The SubAlias system index
+//     */
+//    Index<UUID> getSubAliasIndex();
+//
+//
+//    /**
+//     * @return The Rdn system index
+//     */
+//    Index<ParentIdAndRdn> getRdnIndex();
+//
+//
+//    /**
+//     * @return The ObjectClass system index
+//     */
+//    Index<String> getObjectClassIndex();
+//
+//
+//    /**
+//     * @return The EntryUUID system index
+//     */
+//    Index<String> getEntryUuidIndex();
+//
+//
+//    /**
+//     * @return The EntryCSN system index
+//     */
+//    Index<String> getEntryCsnIndex();
+//
+//
+//    /**
+//     * An iterator build on top of the User's index
+//     */
+//    Iterator<String> getUserIndices();
+//
+//
+//    /**
+//     * An iterator build on top of the System's index
+//     */
+//    Iterator<String> getSystemIndices();
+//
+//
+//    /**
+//     * Tells if an index is already present in the User's <strong>or</strong> System's index list
+//     * @param id The index we are looking for
+//     * @return <code>true</code> if the index is already present in the
+//     * User's <strong>or</strong> System's index list 
+//     * @throws Exception If something went wrong
+//     */
+//    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
+//
+//
+//    /**
+//     * Tells if an index is already present in the User's index list
+//     * @param attributeType The attributeType index we are looking for
+//     * @return <code>true</code> if the index is already present in the
+//     * User's index list 
+//     * @throws Exception If something went wrong
+//     */
+//    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+//
+//
+//    /**
+//     * Tells if an index is already present in the System's index list
+//     * @param attributeType The index we are looking for
+//     * @return <code>true</code> if the index is already present in the
+//     * System's index list 
+//     * @throws Exception If something went wrong
+//     */
+//    boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+//
+//
+//    /**
+//     * Get the user <strong>or</strong> system index associated with the given attributeType
+//     * 
+//     * @param attributeType The index attributeType we are looking for
+//     * @return The associated user <strong>or</strong> system index
+//     * @throws IndexNotFoundException If the index does not exist
+//     */
+//    Index<?> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+//
+//
+//    /**
+//     * Get the user index associated with the given name
+//     * @param attributeType The index name we are looking for
+//     * @return The associated user index
+//     * @throws IndexNotFoundException If the index does not exist
+//     */
+//    Index<?> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+//
+//
+//    /**
+//     * Get the system index associated with the given name
+//     * @param attributeType The index name we are looking for
+//     * @return The associated system index
+//     * @throws IndexNotFoundException If the index does not exist
+//     */
+//    Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+//
+//
+//    /**
+//     * Gets the entry's id. Returns <code>null</code> if the Dn doesn't exist in this store.
+//     * Note that the Dn must be normalized!
+//     * @param dn the normalized entry Dn
+//     * @return the entry's id, or <code>null</code> if the Dn doesn't exists
+//     */
+//    UUID getEntryId( Dn dn ) throws Exception;
+//
+//
+//    /**
+//     * Gets the Entry's Dn identified by the given id.
+//     * 
+//     * @param id the entry's id
+//     * @return the entry's Dn
+//     */
+//    Dn getEntryDn( UUID id ) throws Exception;
+//
+//
+//    /**
+//     * Gets the ID of an entry's parent using the child entry's ID.
+//     * Note that the suffix entry returns 0, which does not map to any entry.
+//     *
+//     * @param childId the ID of the entry
+//     * @return the id of the parent entry or zero if the suffix entry ID is used
+//     * @throws Exception on failures to access the underlying store
+//     */
+//    UUID getParentId( UUID childId ) throws Exception;
+//
+//
+//    /**
+//     * Gets the total count of entries within this store.
+//     *
+//     * @return the total count of entries within this store
+//     * @throws Exception on failures to access the underlying store
+//     */
+//    int count() throws Exception;
+//
+//
+//    /**
+//     * Delete an entry from the store
+//     *
+//     * @param id The Entry ID we want to delete
+//     * @throws Exception If the deletion failed for any reason
+//     */
+//    void delete( UUID id ) throws Exception;
+//
+//
+//    /**
+//     * Gets an IndexEntry Cursor over the child nodes of an entry.
+//     *
+//     * @param id the id of the parent entry
+//     * @return an IndexEntry Cursor over the child entries
+//     * @throws Exception on failures to access the underlying store
+//     */
+//    IndexCursor<UUID> list( UUID id ) throws Exception;
+//
+//
+//    /**
+//     * Get back an entry knowing its ID
+//     *
+//     * @param id The Entry ID we want to get back
+//     * @return The found Entry, or null if not found
+//     * @throws Exception If the lookup failed for any reason (except a not found entry)
+//     */
+//    Entry lookup( UUID id ) throws Exception;
+//
+//    
+//    /**
+//     * Gets the count of immediate children of the given entry ID.
+//     *
+//     * @param id the entry ID
+//     * @return the child count 
+//     * @throws Exception on failures to access the underlying store
+//     */
+//    int getChildCount( UUID id ) throws Exception;
+//
+//
+//    /**
+//     * Modify an entry applying the given list of modifications.
+//     *
+//     * @param dn The Entry's Dn
+//     * @param mods The list of modifications
+//     * @return The modified entry
+//     * @throws Exception If the modification failed
+//     */
+//    Entry modify( Dn dn, Modification... mods ) throws Exception;
+//
+//
+//    /**
+//     * Changes the relative distinguished name of an entry specified by a
+//     * distinguished name with the optional removal of the old Rdn attribute
+//     * value from the entry.  Name changes propagate down as dn changes to the
+//     * descendants of the entry where the Rdn changed.
+//     *
+//     * An Rdn change operation does not change parent child relationships.  It
+//     * merely propagates a name change at a point in the DIT where the Rdn is
+//     * changed. The change propagates down the subtree rooted at the
+//     * distinguished name specified.
+//     *
+//     * @param dn the normalized distinguished name of the entry to alter
+//     * @param newRdn the new Rdn to set
+//     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
+//     * @param entry the modified entry
+//     * @throws Exception if there are any errors propagating the name changes
+//     */
+//    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
+//
+//    
+//    void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
+//
+//
+//    /**
+//     * <p>Move an entry from one place to the other. The Rdn remains unchanged,
+//     * the parent Dn changes</p>
+//     * <p>We have to update some of the index when moving an entry. Assuming
+//     * that the target destination does not exist, the following index must
+//     * be updated :</p>
+//     * <ul>
+//     * <li><b>oneLevel</b> index</li>
+//     * <li><b>subLevel</b> index</li>
+//     * </ul>
+//     * <p>If the moved entry is an alias, then we also have to update the
+//     * following index :</p>
+//     * <ul>
+//     * <li><b>oneAlias</b> index</li>
+//     * <li><b>subAlias</b> index</li>
+//     * </ul>
+//     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p> 
+//     * <p>We have a few check we must do before moving the entry :
+//     * <ul>
+//     * <li>The destination must not exist
+//     * <li>The moved entry must exist (this has already been checked)
+//     * <li>The moved entry must not inherit from a referral (already checked)
+//     * </ul>
+//     *
+//     * @param oldDn The previous entry Dn
+//     * @param newSuperior The new superior Dn
+//     * @param newDn The new Dn
+//     * @param entry The entry to move
+//     * @throws Exception If the move failed
+//     */
+//    void move( Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws Exception;
+//
+//
+//    /**
+//     * Gets the default ID.
+//     *
+//     * @return the default ID.
+//     */
+//    UUID getDefaultId() throws Exception;
 }
