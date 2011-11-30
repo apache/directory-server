@@ -27,8 +27,12 @@ import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.entry.ServerSearchResult;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -253,6 +257,35 @@ public interface OperationExecutionManager
     Entry lookup( Partition partition, UUID id ) throws LdapException;
     
     
+   /**
+    * Looksups the entry identified in entryContext.
+    *
+    * @param partition partition lookup will be done
+    * @param entryContext operation parameters
+    * @return true if the entry can be found
+    * @throws LdapException
+    */
+    boolean hasEntry( Partition partition, HasEntryOperationContext entryContext ) throws LdapException;
+    
+    
+
+    /**
+     * A specialized form of one level search used to return a minimal set of 
+     * information regarding child entries under a base.  Convenience method
+     * used to optimize operations rather than conducting a full search with 
+     * retrieval.
+     *
+     * @param partition partition lookup will be done
+     * @param listContext the context containing the distinguished/absolute name for the search/listing
+     * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
+     * @throws Exception if there are any problems
+     */
+    EntryFilteringCursor list( Partition partition, ListOperationContext listContext ) throws LdapException;
+    
+    
+    IndexCursor<UUID> list( Partition partition, UUID id ) throws LdapException;
+    
+    
     /**
      * Returns the entry id for the given dn
      *
@@ -261,6 +294,39 @@ public interface OperationExecutionManager
      * @return entry id
      * @throws LdapException
      */
-    public UUID getEntryId( Partition partition, Dn dn ) throws LdapException;
+    UUID getEntryId( Partition partition, Dn dn ) throws LdapException;
+    
+    
+    /**
+     * builds the Dn of the entry identified by the given id
+     *
+     * @param partition partition entry lives in
+     * @param id the entry's id
+     * @return the normalized Dn of the entry
+     * @throws Exception
+     */
+    Dn buildEntryDn( Partition partition, UUID id ) throws Exception;
+    
+    
+    /**
+     * Gets the parent id of the given child id.
+     *
+     * @param partition partition childId lives in.
+     * @param childId id of the entry for which we want to get the parent id.
+     * @return parent id
+     * @throws Exception
+     */
+    public UUID getParentId( Partition partition, UUID childId ) throws Exception;
+    
+    
+    /**
+     * Returns the child count of the corresponding to the id
+     *
+     * @param partition partition entry lives in
+     * @param id id of the entry
+     * @return child count of the entry
+     * @throws LdapOperationErrorException
+     */
+    public int getChildCount( Partition partition, UUID id ) throws LdapOperationErrorException;
 
 }

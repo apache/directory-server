@@ -429,6 +429,17 @@ public interface Partition
     
     
     /**
+     * Normally Dn change of an entry is not recorded in the entry and such
+     * changes do not result in an update of the entry in the partition. However
+     * some partitions might want the Dn change of the entry to be recorded and
+     * the entry to be updated on such a change. 
+     *
+     * @return true if a partition wants the entries to be updated on Dn change.
+     */
+    boolean updateEntryOnDnChange();
+    
+    
+    /**
      * Dump the requested index to a given stream
      * @param name The index to dump to stdout
      * @throws IOException if we can't write the data

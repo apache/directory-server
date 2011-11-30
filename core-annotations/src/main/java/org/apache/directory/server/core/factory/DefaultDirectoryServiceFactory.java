@@ -31,6 +31,8 @@ import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -59,6 +61,12 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
     /** The partition factory. */
     private PartitionFactory partitionFactory;
+    
+    /** Default txn log file size */
+    private final static long TXN_LOG_FILE_SIZE = 1 << 27;
+    
+    /** Default txn log buffer size */
+    private final static int TXN_LOG_BUFFER_SIZE = 1 << 22;
 
 
     public DefaultDirectoryServiceFactory()
@@ -224,6 +232,10 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setInstanceId( name );
         buildInstanceDirectory( name );
 
+        // Initialize the txn subsystem and the operation execution manager
+        TxnManagerFactory.init( directoryService.getInstanceLayout().getTxnLogDirectory().getPath(), TXN_LOG_BUFFER_SIZE, TXN_LOG_FILE_SIZE );
+        OperationExecutionManagerFactory.init();
+        
         // Init the service now
         initSchema();
         initSystemPartition();

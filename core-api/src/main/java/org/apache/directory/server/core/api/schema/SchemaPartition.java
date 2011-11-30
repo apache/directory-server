@@ -260,19 +260,6 @@ public final class SchemaPartition extends AbstractPartition
         // but only if it does not break the server.
         synchronizer.add( addContext );
 
-        // Now, write the newly added SchemaObject into the schemaPartition
-        try
-        {
-            wrapped.add( addContext );
-        }
-        catch ( LdapException e )
-        {
-            // If something went wrong, we have to unregister the schemaObject
-            // from the registries
-            // TODO : deregister the newly added element.
-            throw e;
-        }
-
         updateSchemaModificationAttributes( addContext );
     }
 
@@ -295,16 +282,6 @@ public final class SchemaPartition extends AbstractPartition
 
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
-
-        try
-        {
-            wrapped.delete( deleteContext );
-        }
-        catch ( LdapException e )
-        {
-            // TODO : If something went wrong, what should we do here ?
-            throw e;
-        }
 
         updateSchemaModificationAttributes( deleteContext );
     }
@@ -346,12 +323,7 @@ public final class SchemaPartition extends AbstractPartition
 
         boolean cascade = modifyContext.hasRequestControl( Cascade.OID );
 
-        boolean hasModification = synchronizer.modify( modifyContext, targetEntry, cascade );
-
-        if ( hasModification )
-        {
-            wrapped.modify( modifyContext );
-        }
+        synchronizer.modify( modifyContext, targetEntry, cascade );
 
         if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
         {
@@ -371,7 +343,6 @@ public final class SchemaPartition extends AbstractPartition
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.move( moveContext, entry, cascade );
-        wrapped.move( moveContext );
         updateSchemaModificationAttributes( moveContext );
     }
 
@@ -386,7 +357,6 @@ public final class SchemaPartition extends AbstractPartition
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
-        wrapped.moveAndRename( moveAndRenameContext );
         updateSchemaModificationAttributes( moveAndRenameContext );
     }
 
@@ -400,9 +370,6 @@ public final class SchemaPartition extends AbstractPartition
 
         // First update the registries
         synchronizer.rename( renameContext, cascade );
-
-        // Update the schema partition
-        wrapped.rename( renameContext );
 
         // Update the SSSE operational attributes
         updateSchemaModificationAttributes( renameContext );

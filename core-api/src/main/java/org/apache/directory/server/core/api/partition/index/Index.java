@@ -257,9 +257,11 @@ public interface Index<K>
 
     boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception;
 
-    public ForwardIndexComparator<K> getForwardIndexEntryComparator();
+    
+    ForwardIndexComparator<K> getForwardIndexEntryComparator();
 
-    public ReverseIndexComparator<K> getReverseIndexEntryComparator();
+    
+    ReverseIndexComparator<K> getReverseIndexEntryComparator();
 
     void close() throws Exception;
 

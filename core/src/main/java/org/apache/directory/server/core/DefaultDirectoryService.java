@@ -78,6 +78,7 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -97,6 +98,8 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
@@ -299,6 +302,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
+    
 
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -790,6 +794,14 @@ public class DefaultDirectoryService implements DirectoryService
                 throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getLogDirectory() ) );
             }
         }
+        
+        if ( !instanceLayout.getTxnLogDirectory().exists() )
+        {
+            if ( !instanceLayout.getTxnLogDirectory().mkdirs() )
+            {
+                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceLayout.getLogDirectory() ) );
+            }
+        }
 
         if ( !instanceLayout.getRunDirectory().exists() )
         {
@@ -1050,6 +1062,8 @@ public class DefaultDirectoryService implements DirectoryService
 
         Tag latest = changeLog.getLatest();
 
+        
+        
         if ( null != latest )
         {
             if ( latest.getRevision() < changeLog.getCurrentRevision() )
@@ -1130,7 +1144,8 @@ public class DefaultDirectoryService implements DirectoryService
             throw new IllegalArgumentException( I18n.err( I18n.ERR_314 ) );
         }
 
-        Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );
+        TxnManager txnManager = TxnManagerFactory.txnManagerInstance();
+        Cursor<ChangeLogEvent> cursor = null;
 
         /*
          * BAD, BAD, BAD!!!
@@ -1150,59 +1165,99 @@ public class DefaultDirectoryService implements DirectoryService
         try
         {
             LOG.warn( PARTIAL_IMPL_WARNING );
-            cursor.afterLast();
 
-            while ( cursor.previous() ) // apply ldifs in reverse order
+            boolean done = false;
+
+            do
             {
-                ChangeLogEvent event = cursor.get();
-                List<LdifEntry> reverses = event.getReverseLdifs();
+                txnManager.beginTransaction( false );
+                
+                cursor = changeLog.getChangeLogStore().findAfter( revision );
 
-                for ( LdifEntry reverse:reverses )
+                try
                 {
-                    switch( reverse.getChangeType().getChangeType() )
+                    cursor.afterLast();
+
+                    while ( cursor.previous() ) // apply ldifs in reverse order
                     {
-                        case ChangeType.ADD_ORDINAL :
-                            adminSession.add(
-                                new DefaultEntry( schemaManager, reverse.getEntry() ), true );
-                            break;
+                        ChangeLogEvent event = cursor.get();
+                        List<LdifEntry> reverses = event.getReverseLdifs();
 
-                        case ChangeType.DELETE_ORDINAL :
-                            adminSession.delete( reverse.getDn(), true );
-                            break;
+                        for ( LdifEntry reverse : reverses )
+                        {
+                            switch ( reverse.getChangeType().getChangeType() )
+                            {
+                                case ChangeType.ADD_ORDINAL:
+                                    adminSession.add(
+                                        new DefaultEntry( schemaManager, reverse.getEntry() ), true );
+                                    break;
 
-                        case ChangeType.MODIFY_ORDINAL :
-                            List<Modification> mods = reverse.getModifications();
+                                case ChangeType.DELETE_ORDINAL:
+                                    adminSession.delete( reverse.getDn(), true );
+                                    break;
 
-                            adminSession.modify( reverse.getDn(), mods, true );
-                            break;
+                                case ChangeType.MODIFY_ORDINAL:
+                                    List<Modification> mods = reverse.getModifications();
 
-                        case ChangeType.MODDN_ORDINAL :
-                            // NO BREAK - both ModDN and ModRDN handling is the same
+                                    adminSession.modify( reverse.getDn(), mods, true );
+                                    break;
 
-                        case ChangeType.MODRDN_ORDINAL :
-                            Dn forwardDn = event.getForwardLdif().getDn();
-                            Dn reverseDn = reverse.getDn();
+                                case ChangeType.MODDN_ORDINAL:
+                                    // NO BREAK - both ModDN and ModRDN handling is the same
 
-                            moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
+                                case ChangeType.MODRDN_ORDINAL:
+                                    Dn forwardDn = event.getForwardLdif().getDn();
+                                    Dn reverseDn = reverse.getDn();
 
-                            break;
+                                    moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
 
-                        default:
-                            LOG.error( I18n.err( I18n.ERR_75 ) );
-                            throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
+                                    break;
+
+                                default:
+                                    LOG.error( I18n.err( I18n.ERR_75 ) );
+                                    throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
+                            }
+                        }
                     }
                 }
+                catch ( Exception e )
+                {
+                    txnManager.abortTransaction();
+
+                    throw e;
+                }
+
+                txnManager.commitTransaction();
+                done = true;
             }
+            while ( !done );
+                    
         }
         catch ( IOException e )
         {
+            e.printStackTrace();
             String message = I18n.err( I18n.ERR_77, revision );
             LOG.error( message );
             throw new LdapException( message );
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new LdapOperationException( e.getMessage(), e );
+        }
+        finally
+        {
+            if ( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch( Exception e )
+                {
+                    
+                }
+            }
         }
 
         return changeLog.getCurrentRevision();
@@ -1777,7 +1832,7 @@ public class DefaultDirectoryService implements DirectoryService
                 .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
 
             AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-            system.add( addOperationContext );
+            OperationExecutionManagerFactory.instance().add( system, addOperationContext );
         }
     }
 

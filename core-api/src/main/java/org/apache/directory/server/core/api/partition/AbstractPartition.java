@@ -345,6 +345,14 @@ public abstract class AbstractPartition implements Partition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean updateEntryOnDnChange()
+    {
+        return false;
+    }
+    
 
     /**
      * Check that the operation is done on an initialized store
@@ -357,4 +365,5 @@ public abstract class AbstractPartition implements Partition
             throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
         }
     }
+   
 }

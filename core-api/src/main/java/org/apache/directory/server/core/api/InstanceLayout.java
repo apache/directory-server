@@ -78,6 +78,7 @@ public class InstanceLayout extends AbstractLayout
     
     /** Static directory names */
     private static final String LOG_NAME = "log";
+    private static final String TXN_LOG_NAME = "txnlog";
     private static final String RUN_NAME = "run";
     private static final String CONF_NAME = "conf";
     private static final String PARTITIONS_NAME = "partitions";
@@ -89,6 +90,9 @@ public class InstanceLayout extends AbstractLayout
     
     /** The Log directory */
     private File logDir;
+    
+    /** The Txn Log directory */
+    private File txnLogDir;
 
     /** The Partitions directory */
     private File partitionsDir;
@@ -135,6 +139,7 @@ public class InstanceLayout extends AbstractLayout
                 getInstanceDirectory(),
                 getConfDirectory(),
                 getLogDirectory(),
+                getTxnLogDirectory(),
                 getPartitionsDirectory(),
                 getRunDirectory()
             };
@@ -198,6 +203,22 @@ public class InstanceLayout extends AbstractLayout
         }
         
         return logDir;
+    }
+    
+    
+    /**
+     * Gets the 'txn log' directory.
+     *
+     * @return the 'txn log' directory
+     */
+    public File getTxnLogDirectory()
+    {
+        if ( txnLogDir == null )
+        {
+            txnLogDir = new File( getInstanceDirectory(), TXN_LOG_NAME );
+        }
+        
+        return txnLogDir;
     }
 
 
