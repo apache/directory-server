@@ -23,7 +23,9 @@ package org.apache.directory.server.core.partition.ldif;
 
 import java.net.URI;
 
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -37,9 +39,15 @@ public abstract class AbstractLdifPartition extends AvlPartition
 {
     /** The extension used for LDIF entry files */
     protected static final String CONF_FILE_EXTN = ".ldif";
+    
+    /** The extension used for LDIF shadow files */
+    protected static final String CONF_SHADOW_FILE_EXTN = ".shadow";
 
     /** A default CSN factory */
     protected static CsnFactory defaultCSNFactory;
+    
+    /** Operation execution manager */
+    protected OperationExecutionManager executionManager;
 
 
     public AbstractLdifPartition( SchemaManager schemaManager )
@@ -49,6 +57,8 @@ public abstract class AbstractLdifPartition extends AvlPartition
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
+        
+        executionManager = OperationExecutionManagerFactory.instance();
     }
     
     

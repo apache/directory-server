@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +35,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -72,7 +75,6 @@ import org.slf4j.LoggerFactory;
  *           |
  *           +--> cn=another test.ldif
  *                ...
- * </pre>
  * <br><br>
  * In this exemple, the partition's suffix is <b>ou=example,ou=system</b>.
  * <br>
@@ -153,6 +155,9 @@ public class LdifPartition extends AbstractLdifPartition
             suffixDirectory = new File( partitionDir, suffixDirName );
     
             super.doInit();
+            
+            // Create the master table
+            master = new LdifMasterTable( this );
     
             // Create the context entry now, if it does not exists, or load the
             // existing entries
@@ -204,193 +209,19 @@ public class LdifPartition extends AbstractLdifPartition
         }
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean updateEntryOnDnChange()
+    {
+        return true;
+    }
 
+    
     //-------------------------------------------------------------------------
     // Operations
     //-------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public void add( AddOperationContext addContext ) throws LdapException
-    {
-        super.add( addContext );
-        addEntry( addContext.getEntry() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void delete( UUID id ) throws LdapException
-    {
-        Entry entry = lookup( id );
-
-        super.delete( id );
-
-        if ( entry != null )
-        {
-            File ldifFile = getFile( entry.getDn(), DELETE );
-
-            boolean deleted = deleteFile( ldifFile );
-
-            LOG.debug( "deleted file {} {}", ldifFile.getAbsoluteFile(), deleted );
-
-            // Delete the parent if there is no more children
-            File parentFile = ldifFile.getParentFile();
-
-            if ( parentFile.listFiles().length == 0 )
-            {
-                deleteFile( parentFile );
-
-                LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
-            }
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        UUID id = getEntryId( modifyContext.getDn() );
-
-        try
-        {
-            super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationException( e.getMessage(), e );
-        }
-
-        // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
-        modifyContext.setAlteredEntry( modifiedEntry );
-
-        // just overwrite the existing file
-        Dn dn = modifyContext.getDn();
-
-        // And write it back on disk
-        try
-        {
-            FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-            fw.write( LdifUtils.convertToLdif(modifiedEntry, true) );
-            fw.close();
-        }
-        catch ( IOException ioe )
-        {
-            throw new LdapOperationException( ioe.getMessage(), ioe );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        Dn oldDn = moveContext.getDn();
-        UUID id = getEntryId( oldDn );
-
-        super.move( moveContext );
-
-        // Get the modified entry
-        Entry modifiedEntry = lookup( id );
-
-        entryMoved( oldDn, modifiedEntry, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
-    {
-        Dn oldDn = moveAndRenameContext.getDn();
-        UUID id = getEntryId( oldDn );
-
-        super.moveAndRename( moveAndRenameContext );
-
-        // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
-        moveAndRenameContext.setModifiedEntry( modifiedEntry );
-
-        entryMoved( oldDn, modifiedEntry, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        Dn oldDn = renameContext.getDn();
-        UUID id = getEntryId( oldDn );
-
-        // Create the new entry
-        super.rename( renameContext );
-
-        // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
-        renameContext.setModifiedEntry( modifiedEntry );
-
-        // Now move the potential children for the old entry
-        // and remove the old entry
-        entryMoved( oldDn, modifiedEntry, id );
-    }
-
-
-    /**
-     * rewrites the moved entry and its associated children
-     * Note that instead of moving and updating the existing files on disk
-     * this method gets the moved entry and its children and writes the LDIF files
-     *
-     * @param oldEntryDn the moved entry's old Dn
-     * @param entryId the moved entry's master table ID
-     * @param deleteOldEntry a flag to tell whether to delete the old entry files
-     * @throws Exception
-     */
-    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, UUID entryIdOld ) throws LdapException
-    {
-        // First, add the new entry
-        addEntry( modifiedEntry );
-
-        // Then, if there are some children, move then to the new place
-        try
-        {
-            IndexCursor<UUID> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
-
-            while ( cursor.next() )
-            {
-                IndexEntry<UUID> entry = cursor.get();
-
-                // except the parent entry add the rest of entries
-                if ( entry.getId().compareTo( entryIdOld ) != 0 )
-                {
-                    addEntry( lookup( entry.getId() ) );
-                }
-            }
-
-            cursor.close();
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationException( e.getMessage(), e );
-        }
-
-        // And delete the old entry's LDIF file
-        File file = getFile( oldEntryDn, DELETE );
-        boolean deleted = deleteFile( file );
-        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
-
-        // and the associated directory ( the file's name's minus ".ldif")
-        String dirName = file.getAbsolutePath();
-        dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
-        deleted = deleteFile( new File( dirName ) );
-        LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
-    }
-
 
     /**
      * loads the configuration into the DIT from the file system
@@ -445,7 +276,7 @@ public class LdifPartition extends AbstractLdifPartition
 
                     // call add on the wrapped partition not on the self
                     AddOperationContext addContext = new AddOperationContext( null, serverEntry );
-                    super.add( addContext );
+                    executionManager.add( this, addContext );
                 }
             }
 
@@ -467,12 +298,99 @@ public class LdifPartition extends AbstractLdifPartition
             }
         }
     }
+    
+    
+    /** No protection */ void writeEntry( Entry entry ) throws Exception
+    {
+        Dn dn = entry.getDn();
+        
+        if ( dn == null || dn.isEmpty() )
+        {
+            throw new IllegalStateException( "LdifPartition: Entry's dn is not set" + entry );
+        }
+        
+        File entryFile = getFile( dn );
+        
+        File shadowFile = new File( entryFile.getPath() + CONF_SHADOW_FILE_EXTN );
+        
+        boolean shadowFileExists = !shadowFile.createNewFile();
+        
+        if ( shadowFileExists )
+        {
+            // Truncate the file
+            RandomAccessFile raf = new RandomAccessFile( shadowFile, "rw" );
+            raf.setLength( 0 );
+            raf.seek( 0 );
+            raf.close();
+        }
+        
+        FileWriter fw = new FileWriter( shadowFile );
+        fw.write( LdifUtils.convertToLdif( entry ) );
+        fw.close();
+        
+        // Now rename to the entry's file
+        boolean succeeded = shadowFile.renameTo( entryFile );
+        
+        if ( succeeded == false )
+        {
+            throw new LdapException( "LdiPartition: Rename of File did not succeed" );
+        }
+    }
+    
+    
+    /** No protection */ void deleteEntry( Entry entry ) throws Exception
+    {
+        Dn dn = entry.getDn();
+        
+        if ( dn == null || dn.isEmpty() )
+        {
+            throw new IllegalStateException( "LdifPartition: Entry's dn is not set" + entry );
+        }
+        
+        File entryFile = getFile( dn );
+      
+        // If file to be deleted doesnt exist then just return 
+        
+        if ( entryFile.exists() == false )
+        {
+            return;
+        }
+        
+        File shadowFile = new File( entryFile.getPath() + CONF_SHADOW_FILE_EXTN );
+        
+        // Now rename to the shadow file
+        boolean succeeded = entryFile.renameTo( shadowFile );
+        
+        if ( succeeded == false )
+        {
+            throw new LdapException( "LdiPartition: Rename of File did not succeed" );
+        }
+        
+        boolean deleted;
+        
+        // Try to delete the shadow file
+        deleted = shadowFile.delete();
+        LOG.debug( "deleted file {} {}", shadowFile.getAbsoluteFile(), deleted );
+     
+        
+        // If parent directory does not have any children, then try to delete it
+        File parentFile = entryFile.getParentFile();
+        
+        while ( parentFile.listFiles().length == 0 )
+        {
+            deleted = parentFile.delete();
+
+            LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
+            
+            parentFile = parentFile.getParentFile();
+        }
+    }
 
 
     /**
      * Create the file name from the entry Dn.
      */
-    private File getFile( Dn entryDn, boolean create ) throws LdapException
+    private File getFile( Dn entryDn ) throws LdapException
     {
         String parentDir = null;
         String rdnFileName = null;
@@ -503,7 +421,7 @@ public class LdifPartition extends AbstractLdifPartition
 
         File dir = new File( parentDir );
 
-        if ( !dir.exists() && create )
+        if ( !dir.exists() )
         {
             // We have to create the entry if it does not have a parent
             if ( !dir.mkdirs() )
@@ -513,12 +431,6 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         File ldifFile = new File( parentDir + rdnFileName );
-
-        if ( ldifFile.exists() && create )
-        {
-            // The entry already exists
-            throw new LdapException( I18n.err( I18n.ERR_633 ) );
-        }
 
         return ldifFile;
     }
@@ -675,26 +587,7 @@ public class LdifPartition extends AbstractLdifPartition
 
         return Strings.toLowerCase( sb.toString() );
     }
-
-
-    /**
-     * Write the new entry on disk. It does not exist, as this has been checked
-     * by the ExceptionInterceptor.
-     */
-    private void addEntry( Entry entry ) throws LdapException
-    {
-        try
-        {
-            FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
-            fw.write( LdifUtils.convertToLdif( entry ) );
-            fw.close();
-        }
-        catch ( IOException ioe )
-        {
-            throw new LdapOperationException( ioe.getMessage(), ioe );
-        }
-    }
-
+    
 
     /**
      * Recursively delete an entry and all of its children. If the entry is a directory,

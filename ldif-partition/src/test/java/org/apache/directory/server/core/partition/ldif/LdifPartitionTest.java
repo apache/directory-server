@@ -46,7 +46,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -88,6 +91,9 @@ public class LdifPartitionTest
     private static LdifPartition partition;
     private static SchemaManager schemaManager = null;
     private static CsnFactory defaultCSNFactory;
+    
+    /** Operation execution manager */
+    private static OperationExecutionManager executionManager;
 
     @Rule
     public static TemporaryFolder folder = new TemporaryFolder();
@@ -104,6 +110,12 @@ public class LdifPartitionTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
+        
+        File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
+        OperationExecutionManagerFactory.init();
+        executionManager = OperationExecutionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -145,7 +157,7 @@ public class LdifPartitionTest
         entry.put(  "cn", "test" );
         
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
+        executionManager.add( partition, addContext );
 
         LOG.debug( "Created new LDIF partition" );
     }
@@ -184,21 +196,21 @@ public class LdifPartitionTest
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test" );
         addCtx.setEntry( entry2 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
         entryMvrdn.put( "ObjectClass", "top", "domain" );
         entryMvrdn.put( "dc", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
@@ -229,14 +241,14 @@ public class LdifPartitionTest
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test" );
         addCtx.setEntry( entry2 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry3 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
@@ -245,7 +257,7 @@ public class LdifPartitionTest
 
         try
         {
-            partition.add( addCtx );
+            executionManager.add( partition, addCtx );
             fail();
         }
         catch ( LdapException ne )
@@ -283,28 +295,28 @@ public class LdifPartitionTest
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test1" );
         addCtx.setEntry( entry2 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
         entry3.put( "dc", "test2" );
         addCtx.setEntry( entry3 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
         entryMvrdn.put( "ObjectClass", "top", "domain" );
         entryMvrdn.put( "dc", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         DeleteOperationContext delCtx = new DeleteOperationContext( session );
 
@@ -312,7 +324,7 @@ public class LdifPartitionTest
 
         delCtx.setDn( dn );
 
-        partition.delete( delCtx );
+        executionManager.delete( partition, delCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
@@ -329,13 +341,13 @@ public class LdifPartitionTest
 
         delCtx.setDn( dn );
 
-        partition.delete( delCtx );
+        executionManager.delete( partition, delCtx );
 
         dn = new Dn( schemaManager, "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
 
         delCtx.setDn( dn );
 
-        partition.delete( delCtx );
+        executionManager.delete( partition, delCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
@@ -369,21 +381,21 @@ public class LdifPartitionTest
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
         entry2.put( "ObjectClass", "top", "domain" );
         entry2.put( "dc", "test1" );
         addCtx.setEntry( entry2 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
         entry3.put( "ObjectClass", "top", "domain" );
         entry3.put( "dc", "test2" );
         addCtx.setEntry( entry3 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         SearchOperationContext searchCtx = new SearchOperationContext( session );
 
@@ -428,11 +440,11 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        Entry childEntry1 = executionManager.lookup( partition, executionManager.getEntryId( partition, new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
+        Entry childEntry2 = executionManager.lookup( partition, executionManager.getEntryId( partition, new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
-        partition.move( moveOpCtx );
+        executionManager.move( partition, moveOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
@@ -460,7 +472,7 @@ public class LdifPartitionTest
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
-        partition.rename( renameOpCtx );
+        executionManager.rename( partition, renameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
@@ -478,7 +490,7 @@ public class LdifPartitionTest
     }
 
 
-    @Test
+   @Test
     public void testLdifRenameAndRetainOldDN() throws Exception
     {
         CoreSession session = injectEntries();
@@ -487,7 +499,7 @@ public class LdifPartitionTest
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
-        partition.rename( renameOpCtx );
+        executionManager.rename( partition, renameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
@@ -522,7 +534,7 @@ public class LdifPartitionTest
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, true );
-        partition.moveAndRename( moveAndRenameOpCtx );
+        executionManager.moveAndRename( partition, moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
@@ -552,7 +564,7 @@ public class LdifPartitionTest
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, false );
-        partition.moveAndRename( moveAndRenameOpCtx );
+        executionManager.moveAndRename( partition, moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
@@ -595,7 +607,7 @@ public class LdifPartitionTest
         entry1.put( "objectClass", "top", "domain" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
@@ -631,7 +643,7 @@ public class LdifPartitionTest
         entry1.put( "sn", "test" );
         addCtx.setEntry( entry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
@@ -652,35 +664,35 @@ public class LdifPartitionTest
         childEntry1.put( "dc", "child1" );
         addCtx.setEntry( childEntry1 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry childEntry2 = createEntry( "dc=child2,ou=test,ou=system" );
         childEntry2.put( "ObjectClass", "top", "domain" );
         childEntry2.put( "dc", "child2" );
         addCtx.setEntry( childEntry2 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
         grandChild11.put( "ObjectClass", "top", "domain" );
         grandChild11.put( "dc", "grandChild11" );
         addCtx.setEntry( grandChild11 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry grandChild12 = createEntry( "dc=grandChild12,dc=child1,ou=test,ou=system" );
         grandChild12.put( "ObjectClass", "top", "domain" );
         grandChild12.put( "dc", "grandChild12" );
         addCtx.setEntry( grandChild12 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         Entry greatGrandChild111 = createEntry( "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
         greatGrandChild111.put( "ObjectClass", "top", "domain" );
         greatGrandChild111.put( "dc", "greatGrandChild111" );
         addCtx.setEntry( greatGrandChild111 );
 
-        partition.add( addCtx );
+        executionManager.add( partition, addCtx );
 
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );

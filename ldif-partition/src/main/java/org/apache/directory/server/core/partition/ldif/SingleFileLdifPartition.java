@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.ldif;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
@@ -63,7 +64,10 @@ import org.slf4j.LoggerFactory;
 public class SingleFileLdifPartition extends AbstractLdifPartition
 {
     /** the LDIF file holding the partition's data */
-    private RandomAccessFile ldifFile;
+    private File partitionFile;
+    
+    /** Shadow File */
+    private String ldifShadowFile;
 
     /** flag to enable/disable re-writing in-memory partition data back to file, default is set to true */
     private volatile boolean enableRewriting = true;
@@ -96,14 +100,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 throw new IllegalArgumentException( "Partition path cannot be null" );
             }
     
-            File partitionFile = new File( getPartitionPath() );
+            partitionFile = new File( getPartitionPath() );
             
             if ( partitionFile.exists() && !partitionFile.isFile() )
             {
                 throw new IllegalArgumentException( "Partition path must be a LDIF file" );
             }
     
-            ldifFile = new RandomAccessFile( partitionFile, "rws" );
+            ldifShadowFile = partitionFile.getPath() + CONF_SHADOW_FILE_EXTN;
     
             LOG.debug( "id is : {}", getId() );
     
@@ -152,7 +156,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             addMandatoryOpAt( contextEntry );
 
             AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-            super.add( addContext );
+            executionManager.add( this, addContext );
         }
         else
         {
@@ -168,7 +172,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             addMandatoryOpAt( entry );
 
             AddOperationContext addContext = new AddOperationContext( null, entry );
-            super.add( addContext );
+            executionManager.add( this,  addContext );
         }
 
         parser.close();
@@ -178,98 +182,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     //---------------------------------------------------------------------------------------------
     // Operations
     //---------------------------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public void add( AddOperationContext addContext ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            super.add( addContext );
-
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void modify( ModifyOperationContext modifyContext ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            try
-            {
-                Entry modifiedEntry = super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
-                modifyContext.setAlteredEntry( modifiedEntry );
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationException( e.getMessage(), e );
-            }
-
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void rename( RenameOperationContext renameContext ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            super.rename( renameContext );
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void move( MoveOperationContext moveContext ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            super.move( moveContext );
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            super.moveAndRename( opContext );
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
-    @Override
-    public void delete( UUID id ) throws LdapException
-    {
-        synchronized ( lock )
-        {
-            super.delete( id );
-            dirty = true;
-            rewritePartitionData();
-        }
-    }
-
-
+    
     /**
      * writes the partition's data to the file if {@link #enableRewriting} is set to true
      * and partition was modified since the last write or {@link #dirty} data. 
@@ -280,13 +193,23 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         synchronized ( lock )
         {
-            if ( !enableRewriting || !dirty )
-            {
-                return;
-            }
 
+            RandomAccessFile ldifFile = null;
+            IndexCursor<UUID> cursor = null;
+            
             try
             {
+                File shadowFile = new File( ldifShadowFile );
+                
+                if ( shadowFile.exists() == false )
+                {
+                    if ( shadowFile.createNewFile() == false )
+                    {
+                        throw new LdapException( "SingleFileLdifPartition: failed to create shadow file" ); 
+                    }
+                }
+                                 
+                ldifFile = new RandomAccessFile( shadowFile, "rw" );
                 ldifFile.setLength( 0 ); // wipe the file clean
 
                 UUID suffixId = getEntryId( suffixDn );
@@ -295,11 +218,12 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 {
                     return;
                 }
+               
                 
-                IndexCursor<UUID> cursor = getOneLevelIndex().forwardCursor( suffixId );
+                cursor = getOneLevelIndex().forwardCursor( suffixId );
 
 
-                appendLdif( lookup( suffixId ) );
+                appendLdif( lookup( suffixId ), ldifFile );
 
                 while ( cursor.next() )
                 {
@@ -307,13 +231,19 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     Entry entry = lookup( childId );
 
-                    appendLdif( entry );
+                    appendLdif( entry, ldifFile );
 
-                    appendRecursive( childId, null );
+                    appendRecursive( childId, null, ldifFile );
+                }
+                
+                // Finally rename to the partition file
+                boolean succeeded = shadowFile.renameTo( partitionFile );
+                
+                if ( succeeded == false )
+                {
+                    throw new LdapException( "SingleFileLdifPartition: reanme of shadow file to partition file failed" );
                 }
 
-                cursor.close();
-                dirty = false;
             }
             catch ( LdapException e )
             {
@@ -322,6 +252,25 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             catch ( Exception e )
             {
                 throw new LdapException( e );
+            }
+            finally
+            {
+                try
+                {
+                    if ( ldifFile != null )
+                    {
+                        ldifFile.close();
+                    }
+                    
+                    if ( cursor != null )
+                    {
+                        cursor.close();
+                    }
+                }
+                catch( Exception e )
+                {
+                    throw new LdapException( e );
+                }
             }
         }
     }
@@ -334,7 +283,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param cursorMap the open cursor map
      * @throws Exception
      */
-    private void appendRecursive( UUID entryId, Map<UUID, IndexCursor<UUID>> cursorMap ) throws Exception
+    private void appendRecursive( UUID entryId, Map<UUID, IndexCursor<UUID>> cursorMap, RandomAccessFile ldifFile ) throws Exception
     {
         synchronized ( lock )
         {
@@ -368,9 +317,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     UUID childId = getEntryId( entry.getDn() );
 
-                    appendLdif( entry );
+                    appendLdif( entry, ldifFile );
 
-                    appendRecursive( childId, cursorMap );
+                    appendRecursive( childId, cursorMap, ldifFile );
                 }
                 while ( cursor.next() );
                 cursorMap.remove( entryId );
@@ -386,7 +335,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param entry the entry to be written
      * @throws LdapException
      */
-    private void appendLdif( Entry entry ) throws IOException, LdapException
+    private void appendLdif( Entry entry, RandomAccessFile ldifFile ) throws IOException, LdapException
     {
         synchronized ( lock )
         {
@@ -402,9 +351,19 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     {
         private long len;
 
-
+        RandomAccessFile ldifFile;
+        
         public RandomAccessLdifReader() throws LdapException
         {
+            try
+            {
+                ldifFile = new RandomAccessFile( partitionFile, "rw" );
+            }
+            catch ( FileNotFoundException e )
+            {
+                throw new LdapException( e.getMessage(), e );
+            }
+            
             try
             {
                 len = ldifFile.length();
@@ -430,6 +389,17 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             return ldifFile.readLine();
         }
+        
+        @Override
+        public void close() throws IOException
+        {
+            if ( ldifFile != null )
+            {
+                ldifFile.close();
+            }
+            
+            super.close();
+        }
     }
 
 
@@ -450,17 +420,6 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void doDestroy() throws Exception
-    {
-        super.doDestroy();
-        ldifFile.close();
-    }
-
     
     /**
      * enable/disable the re-writing of partition data.
@@ -476,4 +435,13 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         // save data if found dirty 
         rewritePartitionData();
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void sync() throws Exception
+    {
+        rewritePartitionData();
+    }
+
 }
