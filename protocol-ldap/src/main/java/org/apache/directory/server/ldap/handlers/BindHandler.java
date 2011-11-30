@@ -601,15 +601,40 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
             return;
         }
-
-        // Deal with the two kinds of authentication : Simple and SASL
-        if ( bindRequest.isSimple() )
+        
+        boolean done = false;
+        
+        do
         {
-            handleSimpleAuth( ldapSession, bindRequest );
+            txnManager.beginTransaction( false );
+            
+            try
+            {    
+             // Deal with the two kinds of authentication : Simple and SASL
+                if ( bindRequest.isSimple() )
+                {
+                    handleSimpleAuth( ldapSession, bindRequest );
+                }
+                else
+                {
+                    handleSaslAuth( ldapSession, bindRequest );
+                }
+            }
+            catch ( Exception e )
+            {
+              txnManager.abortTransaction();
+              
+              // TODO Instead of rethrowing the exception here all the time, check
+              // if the root cause if conflictexception and retry by going to he
+              // beginning of the loop if necessary.
+              
+              throw ( e );
+            }
+            
+            // If here then we are done.
+            txnManager.commitTransaction();
+            done = true;
         }
-        else
-        {
-            handleSaslAuth( ldapSession, bindRequest );
-        }
+        while ( !done );
     }
 }

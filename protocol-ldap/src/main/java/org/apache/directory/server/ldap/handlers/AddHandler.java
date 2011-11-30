@@ -48,12 +48,37 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
     {
         LOG.debug( "Handling request: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
-
+        
         try
         {
-            // Call the underlying layer to inject the new entry 
-            CoreSession coreSession = session.getCoreSession();
-            coreSession.add( req );
+            boolean done = false;
+            
+            do
+            {
+                txnManager.beginTransaction( false );
+                
+                try
+                {    
+                    // Call the underlying layer to inject the new entry
+                    CoreSession coreSession = session.getCoreSession();
+                    coreSession.add( req );
+                }
+                catch ( Exception e )
+                {
+                  txnManager.abortTransaction();
+                  
+                  // TODO Instead of rethrowing the exception here all the time, check
+                  // if the root cause if conflictexception and retry by going to he
+                  // beginning of the loop if necessary.
+                  
+                  throw ( e );
+                }
+                
+                // If here then we are done.
+                txnManager.commitTransaction();
+                done = true;
+            }
+            while ( !done );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );

@@ -85,20 +85,70 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
             CoreSession coreSession = session.getCoreSession();
             
             if ( rdnChanged )
-            {
-                if ( req.getNewSuperior() != null )
+            {   
+                boolean done = false;
+                
+                do
                 {
-                    coreSession.moveAndRename( req );
+                    txnManager.beginTransaction( false );
+                    
+                    try
+                    {    
+                        if ( req.getNewSuperior() != null )
+                        {
+                            coreSession.moveAndRename( req );
+                        }
+                        else
+                        {
+                            coreSession.rename( req );
+                        }
+                    }
+                    catch ( Exception e )
+                    {
+                      txnManager.abortTransaction();
+                      
+                      // TODO Instead of rethrowing the exception here all the time, check
+                      // if the root cause if conflictexception and retry by going to he
+                      // beginning of the loop if necessary.
+                      
+                      throw ( e );
+                    }
+                    
+                    // If here then we are done.
+                    txnManager.commitTransaction();
+                    done = true;
                 }
-                else
-                {
-                    coreSession.rename( req );
-                }
+                while ( !done );
             }
             else if ( req.getNewSuperior() != null )
             {
-                req.setNewRdn( null );
-                coreSession.move( req );
+                boolean done = false;
+                
+                do
+                {
+                    txnManager.beginTransaction( false );
+                    
+                    try
+                    {    
+                        req.setNewRdn( null );
+                        coreSession.move( req );
+                    }
+                    catch ( Exception e )
+                    {
+                      txnManager.abortTransaction();
+                      
+                      // TODO Instead of rethrowing the exception here all the time, check
+                      // if the root cause if conflictexception and retry by going to he
+                      // beginning of the loop if necessary.
+                      
+                      throw ( e );
+                    }
+                    
+                    // If here then we are done.
+                    txnManager.commitTransaction();
+                    done = true;
+                }
+                while ( !done );
             }
             else
             {
@@ -114,6 +164,7 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             handleException( session, req, e );
         }
     }

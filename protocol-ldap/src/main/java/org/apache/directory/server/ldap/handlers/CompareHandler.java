@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
@@ -49,15 +50,29 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
         LdapResult result = req.getResultResponse().getLdapResult();
         
         try
-        {
-            if ( session.getCoreSession().compare( req ) )
+        {   
+            txnManager.beginTransaction( true );
+
+            try
             {
-                result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
+                if ( session.getCoreSession().compare( req ) )
+                {
+                    result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
+                }
+                else
+                {
+                    result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
+                }
             }
-            else
+            catch ( Exception e )
             {
-                result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
+                txnManager.abortTransaction();
+                throw ( e );
             }
+
+            // If here then we are done.
+            txnManager.commitTransaction();
+            
 
             result.setMatchedDn( req.getName() );
             session.getIoSession().write( req.getResultResponse() );

@@ -22,6 +22,8 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.txn.TxnManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -61,7 +63,16 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     /** The reference on the Ldap server instance */
     protected LdapServer ldapServer;
 
-
+    /** Txn Manager */
+    protected TxnManager txnManager;
+   
+    
+    public LdapRequestHandler()
+    {
+        txnManager = TxnManagerFactory.txnManagerInstance();
+    }
+    
+    
     /**
      * @return The associated ldap server instance
      */

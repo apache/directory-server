@@ -783,32 +783,48 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             return doPagedSearch( session, req, ( PagedResultsDecorator ) control );
         }
 
-        // A normal search
-        // Check that we have a cursor or not.
-        // No cursor : do a search.
-        EntryFilteringCursor cursor = session.getCoreSession().search( req );
-
-        // Position the cursor at the beginning
-        cursor.beforeFirst();
-
-        /*
-         * Iterate through all search results building and sending back responses
-         * for each search result returned.
-         */
+        EntryFilteringCursor cursor = null;
+        
         try
         {
-            // Get the size limits
-            // Don't bother setting size limits for administrators that don't ask for it
-            long serverLimit = getServerSizeLimit( session, req );
+            txnManager.beginTransaction( true );
+            
+            try
+            {
+                // A normal search
+                // Check that we have a cursor or not.
+                // No cursor : do a search.
+                cursor = session.getCoreSession().search( req );
+        
+                // Position the cursor at the beginning
+                cursor.beforeFirst();
+        
+                /*
+                 * Iterate through all search results building and sending back responses
+                 * for each search result returned.
+                 */
+               
+                    // Get the size limits
+                    // Don't bother setting size limits for administrators that don't ask for it
+                    long serverLimit = getServerSizeLimit( session, req );
+        
+                    long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
+        
+                    req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
+                    setTimeLimitsOnCursor( req, session, cursor );
+                    LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+                    long sizeLimit = min( requestLimit, serverLimit );
+        
+                    readResults( session, req, ldapResult, cursor, sizeLimit );
+            }
+            catch ( Exception e )
+            {
+                txnManager.abortTransaction();
+                throw ( e );
+            }
 
-            long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
-
-            req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
-            setTimeLimitsOnCursor( req, session, cursor );
-            LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
-            long sizeLimit = min( requestLimit, serverLimit );
-
-            readResults( session, req, ldapResult, cursor, sizeLimit );
+            // If here then we are done.
+            txnManager.commitTransaction();
         }
         finally
         {
