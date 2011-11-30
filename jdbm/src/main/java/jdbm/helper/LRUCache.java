@@ -357,10 +357,11 @@ public class LRUCache<K, V>
      * @param key the identifier for the entry
      * @param version version the caller want to read
      * @param serializer used in case of IO
+     * @param neverReplace true if entry is never synced to disk( entry wont be read from disk if not found in memory )
      * @return value read
      * @throws IOException
      */
-    public V get( K key, long version, Serializer serializer ) throws IOException
+    public V get( K key, long version, Serializer serializer, boolean neverReplace ) throws IOException
     {
         int hashValue = hash(key);
         int hashIndex = ( hashValue & ( numBuckets - 1 ) );
@@ -408,9 +409,14 @@ public class LRUCache<K, V>
                     case ENTRY_READY: // should be the common case
                         if ( !entry.isCurrentVersion() )
                         {
-                            value = this.searchChainForVersion( entry, version );
+                            value = this.searchChainForVersion( entry, version, neverReplace );
                             
                             if ( value != null )
+                            {
+                                break;
+                            }
+                            
+                            if ( neverReplace )
                             {
                                 break;
                             }
@@ -448,7 +454,7 @@ public class LRUCache<K, V>
                         
                         // FALLTHROUGH
                     case ENTRY_WRITING:    // being written entry is always at current version                        
-                        value = this.searchChainForVersion( entry, version );
+                        value = this.searchChainForVersion( entry, version, neverReplace );
                         break;
                         
                     case ENTRY_READING:
@@ -457,7 +463,7 @@ public class LRUCache<K, V>
                         
                         if ( entry.getState() == EntryState.ENTRY_READY )
                         {
-                            value = this.searchChainForVersion( entry, version );
+                            value = this.searchChainForVersion( entry, version, neverReplace );
                             break;
                         }
                         LOG.warn( "Entry with key {} is at intial state after waiting for IO", entry.getKey() );
@@ -466,9 +472,16 @@ public class LRUCache<K, V>
                     case ENTRY_INITIAL:
                         
                         LOG.warn( "Entry with key {} is at intial while trying to read from it", entry.getKey() );
+                        
+                        // Do not read entries which are not supposed to exist on disk
+                        if ( neverReplace )
+                        {
+                            break;
+                        }
+                        
                         this.cacheMisses++;
                         this.doRead( entry, latches[latchIndex], serializer );
-                        value = this.searchChainForVersion( entry, version );
+                        value = this.searchChainForVersion( entry, version, neverReplace );
                         break;
 
                     default:
@@ -481,7 +494,7 @@ public class LRUCache<K, V>
                 entry = this.findNewEntry( key, latchIndex );
                 buckets[hashIndex].add( entry );
                 this.doRead( entry, latches[latchIndex], serializer );
-                value = this.searchChainForVersion( entry, version );
+                value = this.searchChainForVersion( entry, version, neverReplace );
             }
         }
         catch ( CacheEvictionException e)
@@ -639,7 +652,7 @@ public class LRUCache<K, V>
      * @param version version the caller wants to read at
      * @return value found.
      */
-    private V searchChainForVersion( CacheEntry head, long version )
+    private V searchChainForVersion( CacheEntry head, long version, boolean neverReplace )
     {
         ExplicitList.Link<CacheEntry> curLink = head.getVersionsLink();
         CacheEntry curEntry;
@@ -648,7 +661,7 @@ public class LRUCache<K, V>
         
         V value = null;
         
-        if ( head.getState() !=  EntryState.ENTRY_READY || !head.isCurrentVersion() )
+        if ( head.getState() !=  EntryState.ENTRY_READY || !head.isCurrentVersion() || neverReplace )
         {
             mustFind = false;
         }

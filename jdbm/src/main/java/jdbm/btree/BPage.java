@@ -168,7 +168,7 @@ public class BPage<K, V> implements Serializer
         keys[btree.pageSize - 1] = null; // I am the root BPage for now
 
         values = (V[])new Object[btree.pageSize];
-        values[btree.pageSize - 2] = btree.copyValue( value );
+        values[btree.pageSize - 2] = value;
         values[btree.pageSize - 1] = null; // I am the root BPage for now
 
         recordId = btree.recordManager.insert( this, this );
@@ -405,7 +405,7 @@ public class BPage<K, V> implements Serializer
                 
                 if ( replace )
                 {
-                    pageNewCopy.values[index] = btree.copyValue( value );
+                    pageNewCopy.values[index] = value;
                     btree.recordManager.update( recordId, pageNewCopy, this );
                 }
                 
@@ -916,7 +916,7 @@ public class BPage<K, V> implements Serializer
         System.arraycopy( values, start, values, start - 1, count );
         page.first -= 1;
         keys[index] = key;
-        values[index] = btree.copyValue( value );
+        values[index] = value;
     }
 
 
@@ -963,7 +963,7 @@ public class BPage<K, V> implements Serializer
     private void setEntry( BPage<K, V> page, int index, K key, V value ) throws IOException
     {
         page.keys[index] = key;
-        page.values[index] = btree.copyValue( value );
+        page.values[index] = value;
     }
 
 
@@ -1485,7 +1485,7 @@ public class BPage<K, V> implements Serializer
                 }
     
                 tuple.setKey( page.keys[index] );
-                tuple.setValue( btree.copyValue( page.values[index] ) );
+                tuple.setValue( page.values[index] );
                 index++;
             }
             catch( IOException e )
@@ -1528,7 +1528,7 @@ public class BPage<K, V> implements Serializer
     
                 index--;
                 tuple.setKey( page.keys[index] );
-                tuple.setValue( btree.copyValue( page.values[index] ) );
+                tuple.setValue( page.values[index] );
             }
             catch( IOException e )
             {

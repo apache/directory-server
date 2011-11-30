@@ -60,10 +60,10 @@ public class TestVersionedCache
         
         LRUCache<Integer, Integer> cache = new LRUCache<Integer, Integer>( arrayIO, numEntries );
         
-        Integer val = cache.get( new Integer ( 5 ), 0, null );
+        Integer val = cache.get( new Integer ( 5 ), 0, null, false );
         assertEquals( val.intValue(), 1 );
         
-        val = cache.get( new Integer ( 20 ), 0, null );
+        val = cache.get( new Integer ( 20 ), 0, null, false );
         assertEquals( val.intValue(), 1 );
         
         cache.put( new Integer(1), 2, 1, null, false );
@@ -73,7 +73,7 @@ public class TestVersionedCache
         int sum = 0;
         for ( idx = 0; idx < numEntries; idx++ )
         {
-            sum += cache.get( new Integer( idx ), 0, null ).intValue();
+            sum += cache.get( new Integer( idx ), 0, null, false ).intValue();
         }
         
         assertEquals( sum, numEntries );
@@ -82,7 +82,7 @@ public class TestVersionedCache
         cache.advanceMinReadVersion( 1 );
         for ( idx = 0; idx < numEntries; idx++ )
         {
-            sum += cache.get( new Integer( idx ), 1, null ).intValue();
+            sum += cache.get( new Integer( idx ), 1, null, false ).intValue();
         }
         
         System.out.println( "Sum is: "+ sum);
@@ -136,7 +136,7 @@ public class TestVersionedCache
         cache.advanceMinReadVersion( 2 );        
         for ( idx = 0; idx < intsArray.length; idx++ )
         {
-            sum += cache.get( new Integer( idx ), 2, null ).intValue();
+            sum += cache.get( new Integer( idx ), 2, null, false ).intValue();
         }
         
         assertEquals( sum, expectedSum );
@@ -223,7 +223,7 @@ public class TestVersionedCache
                
                 for ( idx = 0; idx < intsArray.length; idx++ )
                 {
-                    sum += cache.get( new Integer( idx ), 0, null ).intValue();
+                    sum += cache.get( new Integer( idx ), 0, null, false ).intValue();
                 }
                 
                 assertEquals( sum, intsArray.length );
@@ -246,7 +246,7 @@ public class TestVersionedCache
                 
                 for ( idx = 0; idx < intsArray.length; idx++ )
                 {
-                    sum += cache.get( new Integer( idx ), 2, null ).intValue();
+                    sum += cache.get( new Integer( idx ), 2, null, false ).intValue();
                 }
                 
                 assertEquals( sum, expectedSum );

@@ -470,7 +470,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         try 
         {
            obj = versionedCache.get( Long.valueOf( recid ), actionContext.getVersion().getVersion(),
-               serializer );
+               serializer, recid < 0 );
         } 
         catch ( IOException e )
         {

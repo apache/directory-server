@@ -293,7 +293,9 @@ public class BTree<K, V> implements Externalizable
             btree.recordManager = recman;
             btree.bpageSerializer = new BPage<K, V>();
             btree.bpageSerializer.btree = btree;
-            btree.updateMetaRoot( btree.rootId, btree.bTreeHeight );
+            
+            btree.metaRoot.rootID = btree.rootId;
+            btree.metaRoot.treeHeight = btree.bTreeHeight;
 
         }
         catch ( IOException e )
@@ -560,7 +562,7 @@ public class BTree<K, V> implements Externalizable
                 }
                 else
                 {
-                   return this.copyValue( tuple.getValue() );
+                   return tuple.getValue();
                 }
             }
             else
@@ -617,7 +619,7 @@ public class BTree<K, V> implements Externalizable
             
             if ( browser.getNext( tuple ) )
             {
-                tuple.setValue( this.copyValue( tuple.getValue() ) );
+                tuple.setValue( tuple.getValue() );
                 return tuple;
             }
             else
@@ -792,7 +794,16 @@ public class BTree<K, V> implements Externalizable
     {
         if ( isActionCapable )
         { 
-            return ( MetaRoot )recordManager.fetch( -this.recordId );
+            MetaRoot readRoot =  ( MetaRoot )recordManager.fetch( -this.recordId );
+            
+            if ( readRoot != null )
+            {
+                return readRoot;
+            }
+            else
+            {
+                return metaRoot;
+            }
         }
         else
         {
@@ -940,73 +951,6 @@ public class BTree<K, V> implements Externalizable
         { 
             recordManager.update( -this.recordId, metaRoot );
         }
-    }
-    
-    
-    V copyValue( V value) throws IOException 
-    {
-        byte[] array;
-        V valueCopy = null;
-        
-        
-        if ( value == null )
-        {
-            return null;
-        }
-        
-        if ( this.valueSerializer != null )
-        {
-            array = this.valueSerializer.serialize( value );
-            valueCopy = (V) this.valueSerializer.deserialize( array );
-        }
-        else
-        {
-            ObjectOutputStream out = null;
-            ObjectInputStream in = null;
-            ByteArrayOutputStream bout = null;
-            ByteArrayInputStream bin = null;
-
-            try
-            {
-                bout = new ByteArrayOutputStream();
-                out = new ObjectOutputStream( bout );
-                out.writeObject( value );
-                out.flush();
-                byte[]  arr = bout.toByteArray();
-                bin = new ByteArrayInputStream( arr );
-                in = new ObjectInputStream( bin );
-                valueCopy = ( V )in.readObject();
-            }
-            catch ( ClassNotFoundException e )
-            {
-                throw new WrappedRuntimeException( e );
-            }
-            finally
-            {
-                if ( bout != null )
-                {
-                    bout.close();
-                }
-
-                if ( out != null )
-                {
-                    out.close();
-                }
-
-                if ( bin != null )
-                {
-                    bin.close();
-                }
-
-                if ( in != null )
-                {
-                    in.close();
-                }
-            }
-
-        }
-        
-        return valueCopy;
     }
     
     

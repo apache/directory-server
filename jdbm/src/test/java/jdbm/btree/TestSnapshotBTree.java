@@ -158,7 +158,7 @@ public class TestSnapshotBTree
                 {
                     Thread.sleep( 1 );
                 }
-
+                
                 assertTrue( tuple.getValue().value != -1 );
             }
 
@@ -195,12 +195,12 @@ public class TestSnapshotBTree
             
             Integer key = new Integer( 1023 );
             IntWrapper value = btree.find( key );
-            value.value = -1;
+            value = new IntWrapper( -1 );
             btree.insert( key, value, true );
             
-            key = new Integer(512);
+            key = new Integer(46);
             value = btree.find( key );
-            value.value = -1;
+            value = new IntWrapper( -1 );
             
             btree.insert( key, value , true );
             for ( idx = 1024; idx < 2048; idx++ )
@@ -210,7 +210,7 @@ public class TestSnapshotBTree
 
             key = new Integer(1);
             value = btree.find( key );
-            value.value = -1;
+            value = new IntWrapper( -1 );
             
             btree.insert( key, value , true );
             btree.insert( new Integer(1024), new IntWrapper( -1 ), true );
@@ -380,7 +380,7 @@ public class TestSnapshotBTree
                 {
                     Integer key = new Integer( 0 );
                     IntWrapper value = btree.find( key );
-                    value.value = idx;
+                    value = new IntWrapper( idx );
                     btree.insert( key, value, true );
                     
                     for ( int updates = 0; updates < 2048; updates++ )
@@ -390,7 +390,7 @@ public class TestSnapshotBTree
                         
                         assertTrue( value.value <= idx );
                         
-                        value.value = idx;
+                        value = new IntWrapper( idx );
                         btree.insert( key, value, true );
                     }
                 }
