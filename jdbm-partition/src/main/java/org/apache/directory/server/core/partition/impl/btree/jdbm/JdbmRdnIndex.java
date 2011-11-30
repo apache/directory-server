@@ -33,8 +33,10 @@ import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdnComparator;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -142,6 +144,9 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
             recMan, comp, null, UUIDSerializer.INSTANCE );
         reverse = new JdbmTable<UUID, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
             recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, null );
+        
+        fIndexEntryComparator = new ForwardIndexComparator( comp );
+        rIndexEntryComparator = new ReverseIndexComparator( comp );
     }
 
 

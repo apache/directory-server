@@ -704,7 +704,19 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                 {
                     ArrayTree<V> avlTree = convertToArrayTree( tree );
                     bt.insert( key, (V)marshaller.serialize( avlTree ), true );
-                    recMan.delete( tree.getRecordId() );
+                    
+                    /*
+                     * Deleting the btree from the recman might cause problems for code
+                     * which already have a reference to the Btree. They would still find 
+                     * pages of the deleted btree using the recids taken from the Btree reference
+                     * they have and by the time they do that, those recids might have been used
+                     * for other objects in the recman. As a work around for this problem, we avoid
+                     * deleting the tree below. 
+                     * 
+                     * TODO collect tree ids which are not deleted in a special list and persit it.
+                     * Remove these recids either when all operations are queisced or during bootstrap.
+                     */
+                    //recMan.delete( tree.getRecordId() );
                 }
                     
                 count--;
@@ -777,7 +789,7 @@ public class JdbmTable<K,V> extends AbstractTable<K,V>
                     LOG.debug( "<--- Remove BTree {} = {}", name, key );
                 }
 
-                recMan.delete( tree.getRecordId() );
+                //recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
                 
                 return;
