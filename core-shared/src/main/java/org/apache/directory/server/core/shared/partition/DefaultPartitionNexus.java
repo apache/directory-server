@@ -575,7 +575,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( dn.size() == 0 )
         {
             Entry retval = new ClonedServerEntry( rootDse );
-
+            
+            return retval;
+            
+            /*
             if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
             {
                 for ( Attribute attribute : rootDse.getAttributes() )
@@ -595,6 +598,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             {
                 return new ClonedServerEntry( rootDse );
             }
+            */
         }
 
         Partition partition = getPartition( dn );

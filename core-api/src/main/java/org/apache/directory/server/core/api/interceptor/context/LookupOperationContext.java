@@ -148,6 +148,7 @@ public class LookupOperationContext extends AbstractOperationContext
         if ( ( attrsId != null ) && ( attrsId.length > 0 ) )
         {
             this.attrsId = new ArrayList<String>( Arrays.asList( attrsId ) );
+            int nbNoAttribute = 0;
 
             // filter out the '+' and '*' and set boolean parameters
             for ( String id : this.attrsId )
@@ -163,11 +164,7 @@ public class LookupOperationContext extends AbstractOperationContext
                 else if ( id.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     noAttribute = true;
-                    allOperational = null;
-                    allUser = null;
-
-                    // We can stop here
-                    break;
+                    nbNoAttribute++;
                 }
             }
 
@@ -183,7 +180,16 @@ public class LookupOperationContext extends AbstractOperationContext
 
             if ( noAttribute != null )
             {
-                this.attrsId.clear();
+                if ( attrsId.length == nbNoAttribute )
+                {
+                    this.attrsId.clear();
+                }
+                else
+                {
+                    // We have to ignore the 1.1
+                    this.attrsId.remove( SchemaConstants.NO_ATTRIBUTE );
+                    noAttribute = false;
+                }
             }
         }
     }
@@ -262,7 +268,7 @@ public class LookupOperationContext extends AbstractOperationContext
 
 
     /**
-     * @return The flag telling if the "+" attribute has been used
+     * @return The flag telling if the "1.1" attribute has been used
      */
     public boolean hasNoAttribute()
     {

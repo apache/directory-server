@@ -41,56 +41,15 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-i18n</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-api</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core-constants</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-client-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-i18n</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-codec-standalone</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-i18n</artifactId>
     </dependency>
     
     <dependency>
@@ -100,22 +59,17 @@
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-extras-util</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
     
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-data</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-util</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-extras-util</artifactId>
     </dependency>
     
     <dependency>

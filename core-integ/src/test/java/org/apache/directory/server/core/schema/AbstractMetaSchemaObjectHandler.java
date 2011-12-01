@@ -37,7 +37,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     protected static String workingDir;
 
     @Before
-    public final void init()
+    public void init() throws Exception
     {
         workingDir = getService().getInstanceLayout().getPartitionsDirectory().getAbsolutePath();
     }
@@ -52,7 +52,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( workingDir ).append( '/' ).append( getService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
+        sb.append( workingDir ).append( '/' ).append( getService().getSchemaPartition().getId() );
 
         for ( Rdn rdn : dn )
         {
@@ -74,7 +74,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      */
     protected boolean isOnDisk( Dn dn )
     {
-        // donot change the value of getSchemaPath to lowercase
+        // do not change the value of getSchemaPath to lowercase
         // on Linux this gives a wrong path
         String schemaObjectFileName = getSchemaPath( dn );
 
@@ -94,97 +94,5 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     protected Dn getSchemaContainer( String schemaName ) throws Exception
     {
         return new Dn( "cn=" + schemaName );
-    }
-
-
-    /**
-     * Gets relative Dn to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the a schema's attributeType entity container
-     * @throws Exception on failure
-     */
-    protected Dn getAttributeTypeContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=attributeTypes,cn=" + schemaName );
-    }
-
-
-    /**
-     * Get relative Dn to ou=schema for Comparators
-     *
-     * @param schemaName the name of the schema
-     * @return the dn to the ou under which comparators are found for a schema
-     * @throws Exception if there are dn construction issues
-     */
-    protected Dn getComparatorContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=comparators,cn=" + schemaName );
-    }
-
-
-    /**
-     * Get relative Dn to ou=schema for MatchingRules
-     *
-     * @param schemaName the name of the schema
-     * @return the dn to the ou under which MatchingRules are found for a schema
-     * @throws Exception if there are dn construction issues
-     */
-    protected Dn getMatchingRuleContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=matchingRules,cn=" + schemaName );
-    }
-
-
-    /**
-     * Gets relative Dn to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the container which contains objectClasses
-     * @throws Exception on error
-     */
-    protected Dn getObjectClassContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=objectClasses,cn=" + schemaName );
-    }
-
-
-
-    /**
-     * Gets relative Dn to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return  the name of the container with normalizer entries in it
-     * @throws Exception on error
-     */
-    protected Dn getNormalizerContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=normalizers,cn=" + schemaName );
-    }
-
-
-    /**
-     * Get relative Dn to ou=schema for Syntaxes
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the container holding syntaxes for the schema
-     * @throws Exception on dn parse errors
-     */
-    protected Dn getSyntaxContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=syntaxes,cn=" + schemaName );
-    }
-
-
-    /**
-     * Get relative Dn to ou=schema for SyntaxCheckers
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the container holding syntax checkers for the schema
-     * @throws Exception on dn parse errors
-     */
-    protected Dn getSyntaxCheckerContainer( String schemaName ) throws Exception
-    {
-        return new Dn( "ou=syntaxCheckers,cn=" + schemaName );
     }
 }

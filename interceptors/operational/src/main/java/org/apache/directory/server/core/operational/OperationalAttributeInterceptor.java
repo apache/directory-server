@@ -55,8 +55,6 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -256,16 +254,46 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry result = next( lookupContext );
-
-        if ( lookupContext.getAttrsId() == null )
+        
+        if ( lookupContext.hasAllUser() )
         {
-            filterOperationalAttributes( result );
+            if ( lookupContext.hasAllOperational() )
+            {
+                // The user has requested '+' and '*', return everything.
+                return result;
+            }
+            else
+            {
+                filter( lookupContext, result );
+            }
         }
-        else if ( !lookupContext.hasAllOperational() )
+        else
         {
-            filter( lookupContext, result );
+            if ( lookupContext.hasAllOperational() )
+            {
+                // Select the user attrinbutes from the result, depending on the returning attributes list
+                filterUserAttributes( lookupContext, result );
+            }
+            else if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+            {
+                // No returning attributes, return all the user attributes
+                // unless the user has requested no attributes
+                if ( lookupContext.hasNoAttribute() )
+                {
+                    result.clear();
+                }
+                else
+                {
+                    filterOperationalAttributes( result );
+                }
+            }
+            else
+            {
+                // Deal with the returning attributes
+                filterList( lookupContext, result );
+            }
         }
-
+        
         denormalizeEntryOpAttrs( result );
 
         return result;
@@ -301,7 +329,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_31 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -315,7 +343,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_32 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -329,7 +357,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_32 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                    throw new LdapNoPermissionException( message );
                 }
                 else
                 {
@@ -341,7 +369,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                throw new LdapNoPermissionException( message );
             }
         }
 
@@ -426,7 +454,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        //modifiedEntry.setDn( renameContext.getNewDn() );
         renameContext.setModifiedEntry( modifiedEntry );
 
         next( renameContext );
@@ -490,13 +517,52 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Filters out the user attributes within a search results attributes. The attributes are directly
+     * modified.
+     *
+     * @param attributes the resultant attributes to filter
+     * @return true always
+     * @throws Exception if there are failures in evaluation
+     */
+    private boolean filterUserAttributes( LookupOperationContext lookupContext, Entry attributes ) throws LdapException
+    {
+        Set<String> removedAttributes = new HashSet<String>();
+
+        // Build a list of attributeType to remove
+        for ( Attribute attribute : attributes.getAttributes() )
+        {
+            AttributeType attributeType = attribute.getAttributeType();
+
+            if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
+            {
+                removedAttributes.add( attributeType.getOid() );
+            }
+        }
+
+        // Now remove the attributes which are not in the list to be returned
+        for ( String returningAttribute : lookupContext.getAttrsId() )
+        {
+            removedAttributes.remove( returningAttribute );
+        }
+        
+        // Now, remove the attributes from the result
+        for ( String attribute : removedAttributes )
+        {
+            attributes.removeAttributes( attribute );
+        }
+
+        return true;
+    }
+
+
     private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
 
         // still need to protect against returning op attrs when ids is null
-        if ( ids == null || ids.isEmpty() )
+        if ( ( ids == null ) || ids.isEmpty() )
         {
             filterOperationalAttributes( entry );
             return;
@@ -504,14 +570,25 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         if ( dn.size() == 0 )
         {
+            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
+
             for ( Attribute attribute : entry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-
-                if ( !ids.contains( attributeType.getOid() ) )
+                
+                if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                 {
-                    entry.removeAttributes( attributeType );
+                    // If it's not in the list of returning attribute, remove it
+                    if ( !ids.contains( attributeType.getOid() ) )
+                    {
+                        removedAttributes.add( attributeType );
+                    }
                 }
+            }
+            
+            for ( AttributeType attributeType : removedAttributes )
+            {
+                entry.removeAttributes( attributeType );
             }
         }
 
@@ -523,7 +600,48 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
+    private void filterList( LookupOperationContext lookupContext, Entry entry ) throws LdapException
+    {
+        Dn dn = lookupContext.getDn();
+        List<String> ids = lookupContext.getAttrsId();
+
+        // still need to protect against returning op attrs when ids is null
+        if ( ( ids == null ) || ids.isEmpty() )
+        {
+            filterOperationalAttributes( entry );
+            return;
+        }
+
+        if ( dn.size() == 0 )
+        {
+            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
+
+            for ( Attribute attribute : entry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                
+                // If it's not in the list of returning attribute, remove it
+                if ( !ids.contains( attributeType.getOid() ) )
+                {
+                    removedAttributes.add( attributeType );
+                }
+            }
+            
+            for ( AttributeType attributeType : removedAttributes )
+            {
+                entry.removeAttributes( attributeType );
+            }
+        }
+
+        denormalizeEntryOpAttrs( entry );
+
+        // do nothing past here since this explicity specifies which
+        // attributes to include - backends will automatically populate
+        // with right set of attributes using ids array
+    }
+
+
+    private void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
     {
         if ( directoryService.isDenormalizeOpAttrsEnabled() )
         {

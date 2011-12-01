@@ -502,6 +502,52 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
     }
 
     
+    @Test
+    public void testModifyPwdSubentry() throws Exception
+    {
+        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        
+        Dn userDn = new Dn( "cn=ppolicySubentry,ou=system" );
+        String password = "12345";
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: ppolicySubentry",
+            "sn: ppolicySubentry_sn",
+            "userPassword: " + password,
+            "pwdPolicySubEntry:" + userDn.getName() );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        AddResponse addResp = connection.add( addRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        
+        userEntry = connection.lookup( userDn, "*", "+" );
+        assertEquals( userDn.getName(), userEntry.get( "pwdPolicySubEntry" ).getString() );
+        
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        String modSubEntryDn = "cn=policy,ou=system";
+        modReq.replace( "pwdPolicySubEntry", modSubEntryDn );
+        ModifyResponse modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        
+        userEntry = connection.lookup( userDn, "*", "+" );
+        assertEquals( modSubEntryDn, userEntry.get( "pwdPolicySubEntry" ).getString() );
+        
+        // try to modify the subentry as a non-admin
+        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.bind( userDn.getName(), password );
+        
+        modResp = connection.modify( modReq );
+        modReq.replace( "pwdPolicySubEntry", userDn.getName() );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
+    }
+    
+    
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
         Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );

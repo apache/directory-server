@@ -185,7 +185,7 @@ objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: FALSE
-ads-interceptororder: 8
+ads-interceptororder: 7
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
 ads-interceptorid: keyDerivationInterceptor
 
@@ -202,7 +202,7 @@ dn: ads-interceptorId=operationalAttributeInterceptor,ou=interceptors,ads-direct
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 7
+ads-interceptororder: 10
 ads-interceptorclassname: org.apache.directory.server.core.operational.OperationalAttributeInterceptor
 ads-interceptorid: operationalAttributeInterceptor
 ads-enabled: TRUE
@@ -212,7 +212,7 @@ objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: TRUE
-ads-interceptororder: 9
+ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
 ads-interceptorid: passwordHashingInterceptor
 
@@ -229,7 +229,7 @@ dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=d
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 10
+ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.schema.SchemaInterceptor
 ads-interceptorid: schemaInterceptor
 ads-enabled: TRUE

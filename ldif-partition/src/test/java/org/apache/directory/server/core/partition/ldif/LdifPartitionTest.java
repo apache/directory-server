@@ -96,7 +96,7 @@ public class LdifPartitionTest
     private static OperationExecutionManager executionManager;
 
     @Rule
-    public static TemporaryFolder folder = new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
 
     @BeforeClass

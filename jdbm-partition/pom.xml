@@ -39,11 +39,6 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -85,11 +80,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1-api</artifactId>
     </dependency>
     
     <dependency>

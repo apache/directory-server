@@ -20,14 +20,11 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.directory.server.core.api.DnFactory;
-import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -60,19 +57,6 @@ import org.apache.directory.shared.util.Base64;
  */
 public class SchemaSubentryModifier
 {
-    private static final Collection<String> BYPASS;
-    
-    static
-    {
-        Set<String> c = new HashSet<String>();
-        c.add( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
-        c.add( InterceptorEnum.ACI_AUTHORIZATION_INTERCEPTOR.getName() );
-        c.add( InterceptorEnum.DEFAULT_AUTHORIZATION_INTERCEPTOR.getName() );
-        c.add( InterceptorEnum.EXCEPTION_INTERCEPTOR.getName() );
-        c.add( InterceptorEnum.SCHEMA_INTERCEPTOR.getName() );
-        BYPASS = Collections.unmodifiableCollection( c );
-    }
-    
     private AttributesFactory factory = new AttributesFactory();
 
     /** The server schemaManager */
@@ -139,7 +123,7 @@ public class SchemaSubentryModifier
     }
     
 
-    public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
         Dn dn = dnFactory.create(
@@ -150,11 +134,14 @@ public class SchemaSubentryModifier
         
         Entry entry = getEntry( dn, comparatorDescription );
 
-        opContext.add( entry, BYPASS );
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
     }
     
     
-    public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
         Dn dn = dnFactory.create(
@@ -165,11 +152,14 @@ public class SchemaSubentryModifier
         
         Entry entry = getEntry( dn, normalizerDescription );
 
-        opContext.add( entry, BYPASS );
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
     }
     
     
-    public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         Dn dn = dnFactory.create(
@@ -179,29 +169,41 @@ public class SchemaSubentryModifier
             SchemaConstants.OU_SCHEMA );
         
         Entry entry = getEntry( dn, syntaxCheckerDescription );
-        opContext.add( entry, BYPASS );
+
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
     }
     
     
-    public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
+    public void addSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SchemaObject obj ) throws LdapException
     {
         Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
         Dn dn = getDn( obj );
         Entry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );
+        
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
 
-        opContext.add( entry, BYPASS );
+        nextInterceptor.add( addContext );
     }
 
 
-    public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
+    public void deleteSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SchemaObject obj ) throws LdapException
     {
         Dn dn = getDn( obj );
-        opContext.delete( dn );
+
+        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
+        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
+        deleteContext.setCurrentInterceptor( position );
+
+        nextInterceptor.delete( deleteContext );
     }
 
     
-    public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
         Dn dn = dnFactory.create(
@@ -210,11 +212,15 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
+        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
+        deleteContext.setCurrentInterceptor( position );
+
+        nextInterceptor.delete( deleteContext );
     }
 
 
-    public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         Dn dn = dnFactory.create(
@@ -222,11 +228,16 @@ public class SchemaSubentryModifier
             SchemaConstants.SYNTAX_CHECKERS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        opContext.delete( dn );
+
+        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
+        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
+        deleteContext.setCurrentInterceptor( position );
+
+        nextInterceptor.delete( deleteContext );
     }
 
 
-    public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
         Dn dn = dnFactory.create(
@@ -235,7 +246,11 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        opContext.delete( dn );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
+        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
+        deleteContext.setCurrentInterceptor( position );
+
+        nextInterceptor.delete( deleteContext );
     }
 
 

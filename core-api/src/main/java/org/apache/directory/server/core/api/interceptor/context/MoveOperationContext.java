@@ -58,7 +58,11 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     public MoveOperationContext( CoreSession session )
     {
         super( session );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+        }
     }
 
 
@@ -71,7 +75,11 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         this.newSuperior = newSuperior;
         oldSuperior = oldDn.getParent();
         rdn = ( oldDn.getRdn().clone() );
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+        }
 
         try
         {
@@ -88,7 +96,11 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     {
         super( session, modifyDnRequest.getName() );
         this.newSuperior = modifyDnRequest.getNewSuperior();
-        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MOVE ) );
+        }
 
         if ( newSuperior == null )
         {

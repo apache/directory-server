@@ -899,8 +899,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         Entry entry = lookup( id );
 
-        // Remove all the attributes if the NO_ATTRIBUTE flag is set
-        if ( lookupContext.hasNoAttribute() )
+        // Remove all the attributes if the NO_ATTRIBUTE flag is set and there is no requested attribute
+        if ( lookupContext.hasNoAttribute() && ( ( lookupContext.getAttrsId() == null ) || lookupContext.getAttrsId().size() == 0 ) )
         {
             entry.clear();
 

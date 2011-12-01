@@ -371,7 +371,7 @@ public abstract class BaseInterceptor implements Interceptor
      * @param operationContext The operation context
      * @return The next interceptor in the list for this operation
      */
-    private Interceptor getNextInterceptor( OperationContext operationContext )
+    protected Interceptor getNextInterceptor( OperationContext operationContext )
     {
         String currentInterceptor = operationContext.getNextInterceptor();
 
