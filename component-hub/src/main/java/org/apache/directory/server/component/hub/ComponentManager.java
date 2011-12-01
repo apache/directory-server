@@ -72,7 +72,7 @@ public class ComponentManager
     /*
      * Configuration Manager
      */
-    private ConfigurationManager configManager;
+    private InstanceManager instanceManager;
 
     /*
      * Ldif deferred writing queue.
@@ -85,13 +85,13 @@ public class ComponentManager
     private LdapCoreSessionConnection ldapConn;
 
 
-    public ComponentManager( ComponentCacheManager cacheManager, ConfigurationManager configManager )
+    public ComponentManager( ComponentCacheManager cacheManager, InstanceManager instanceManager )
     {
         schemaGenerators = new Hashtable<String, ComponentSchemaGenerator>();
         instanceGenerators = new Hashtable<String, ADSComponentInstanceGenerator>();
 
         this.cacheManager = cacheManager;
-        this.configManager = configManager;
+        this.instanceManager = instanceManager;
     }
 
 
@@ -155,7 +155,7 @@ public class ComponentManager
         {
             ADSComponentInstance instance = generator.createInstance( component, properties );
 
-            instance.setConfigManager( configManager );
+            instance.setInstanceManager( instanceManager );
 
             if ( instance != null )
             {

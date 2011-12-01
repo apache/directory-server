@@ -102,7 +102,7 @@ public class ComponentHub
     /*
      * Used to manage instances' DIT hooks.
      */
-    private ConfigurationManager configManager = new ConfigurationManager();
+    private InstanceManager configManager = new InstanceManager();
 
     /*
      * Used to manage components
