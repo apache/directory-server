@@ -323,6 +323,17 @@ public class ComponentCacheManager
      */
     public List<Properties> getCachedInstanceConfigurations( ADSComponent component )
     {
+        if ( !cacheVersionMatch( component ) )
+        {
+            LOG.info( "Version mismatch between the cache and the component:  "
+                + component );
+
+            if ( !validateCache( component ) )
+            {
+                return null;
+            }
+        }
+        
         String instancesDirPath = component.getCacheHandle().getCachedInstanceConfigurationsLocation();
         File instancesDir = new File( instancesDirPath );
 

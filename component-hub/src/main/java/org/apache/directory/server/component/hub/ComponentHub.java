@@ -35,6 +35,7 @@ import org.apache.directory.server.component.hub.listener.HubListener;
 import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Invalidate;
@@ -109,6 +110,12 @@ public class ComponentHub
     private ComponentManager componentManager = new ComponentManager( cacheManager, configManager );
 
     /*
+     * Allowed interfaces for components.
+     */
+    private String[] allowedInterfaces = new String[]
+        { Interceptor.class.getName() };
+
+    /*
      * OSGI Logger
      */
     @Requires
@@ -159,34 +166,26 @@ public class ComponentHub
             return;
         }
 
-        try
+        String componentType = parseComponentType( arrivingFactory );
+
+        //Actual ADSComponent creation
+        ADSComponent component = generateADSComponent( componentType, arrivingFactory );
+
+        eventManager.fireComponentCreated( component );
+
+        //Keep the newly created ADSComponent reference.
+        components.add( component );
+
+        List<ADSComponent> componentsByType = componentMap.get( componentType );
+        if ( componentsByType == null )
         {
-            String componentType = parseComponentType( arrivingFactory );
-
-            //Actual ADSComponent creation
-            ADSComponent component = generateADSComponent( componentType, arrivingFactory );
-
-            eventManager.fireComponentCreated( component );
-
-            //Keep the newly created ADSComponent reference.
-            components.add( component );
-
-            List<ADSComponent> componentsByType = componentMap.get( componentType );
-            if ( componentsByType == null )
-            {
-                List<ADSComponent> newCompList = new ArrayList<ADSComponent>();
-                newCompList.add( component );
-                componentMap.put( componentType, newCompList );
-            }
-            else
-            {
-                componentsByType.add( component );
-            }
-
+            List<ADSComponent> newCompList = new ArrayList<ADSComponent>();
+            newCompList.add( component );
+            componentMap.put( componentType, newCompList );
         }
-        catch ( ParseException e )
+        else
         {
-            e.printStackTrace();
+            componentsByType.add( component );
         }
 
     }
@@ -205,38 +204,31 @@ public class ComponentHub
             return;
         }
 
-        try
+        String componentType = parseComponentType( leavingFactory );
+
+        ADSComponent associatedComp = null;
+        for ( ADSComponent _comp : components )
         {
-            String componentType = parseComponentType( leavingFactory );
-
-            ADSComponent associatedComp = null;
-            for ( ADSComponent _comp : components )
+            if ( _comp.getFactory().getName().equals( leavingFactory.getName() ) )
             {
-                if ( _comp.getFactory().getName().equals( leavingFactory.getName() ) )
-                {
-                    associatedComp = _comp;
-                    break;
-                }
+                associatedComp = _comp;
+                break;
             }
-
-            if ( associatedComp == null )
-            {
-                logger.log( LogService.LOG_INFO, "Couldn't found an associated ADSComponent for factory:"
-                    + leavingFactory.getName() );
-                return;
-            }
-
-            // All clients are notified now cache and delete the ADSComponent existence on ApacheDS
-            cacheAndReleaseADSComponent( associatedComp );
-
-            // Fire "Component Deleted" event
-            eventManager.fireComponentDeleted( associatedComp );
-
         }
-        catch ( ParseException e )
+
+        if ( associatedComp == null )
         {
-            e.printStackTrace();
+            logger.log( LogService.LOG_INFO, "Couldn't found an associated ADSComponent for factory:"
+                + leavingFactory.getName() );
+            return;
         }
+
+        // All clients are notified now cache and delete the ADSComponent existence on ApacheDS
+        cacheAndReleaseADSComponent( associatedComp );
+
+        // Fire "Component Deleted" event
+        eventManager.fireComponentDeleted( associatedComp );
+
     }
 
 
@@ -270,10 +262,10 @@ public class ComponentHub
      */
     private boolean checkIfADSComponent( Factory factory )
     {
-        List<String> handlers = factory.getRequiredHandlers();
-        for ( String handlerName : handlers )
+        String implementingIface = parseBaseInterface( factory );
+        for ( String iface : allowedInterfaces )
         {
-            if ( handlerName.equals( ADSConstants.ADS_COMPONENT_HANDLER_FULLNAME ) )
+            if ( iface.equals( implementingIface ) )
             {
                 return true;
             }
@@ -283,41 +275,37 @@ public class ComponentHub
     }
 
 
-    private String parseComponentType( Factory factory ) throws ParseException
+    /**
+     * Gets the component type by provided specification of a component.
+     *
+     * @param factory to get its component type
+     * @return component type as interface name.
+     */
+    private String parseComponentType( Factory factory )
     {
-        Dictionary bundleHeaders = factory.getBundleContext().getBundle().getHeaders();
-        String ipojoHeader = ( String ) bundleHeaders.get( ADSConstants.IPOJO_HEADER );
+        String baseInterface = parseBaseInterface( factory ).toLowerCase();
 
-        if ( ipojoHeader == null )
+        if ( baseInterface.contains( "." ) )
         {
-            throw new ParseException( "Null ipojo header returned for factory: " + factory.getName() );
+            return baseInterface.substring( baseInterface.lastIndexOf( '.' ) + 1 );
+        }
+        else
+        {
+            return baseInterface;
+        }
+    }
+
+
+    private String parseBaseInterface( Factory factory )
+    {
+        String[] publishedInterfaces = factory.getComponentDescription().getprovidedServiceSpecification();
+        if ( publishedInterfaces.length == 0 )
+        {
+            return null;
         }
 
-        ManifestMetadataParser parser = new ManifestMetadataParser();
-        parser.parseHeader( ipojoHeader );
+        return publishedInterfaces[publishedInterfaces.length - 1];
 
-        Element[] componentMetas = parser.getComponentsMetadata();
-
-        for ( Element componentMeta : componentMetas )
-        {
-            String compName = componentMeta.getAttribute( "name" );
-            if ( compName.equals( factory.getName() ) )
-            {
-                Element[] adsElements = componentMeta.getElements(
-                    ADSConstants.ADS_COMPONENT_HANDLER_NAME,
-                    ADSConstants.ADS_COMPONENT_HANDLER_NS );
-
-                if ( adsElements == null || adsElements.length == 0 )
-                {
-                    throw new ParseException( "ADSComponent element couldn't be found for factory: "
-                        + factory.getName() );
-                }
-
-                return adsElements[0].getAttribute( "componentType" );
-            }
-        }
-
-        return null;
     }
 
 
