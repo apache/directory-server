@@ -1,4 +1,4 @@
-package org.apache.directory.server.component;
+package org.apache.directory.server.component.utilities;
 
 
 import org.apache.commons.io.IOUtils;

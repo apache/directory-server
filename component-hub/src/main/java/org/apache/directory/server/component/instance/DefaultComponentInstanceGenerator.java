@@ -17,14 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.component.hub.client.user;
+package org.apache.directory.server.component.instance;
 
 
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.directory.server.component.instance.ADSComponentInstance;
-import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
+import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.slf4j.Logger;
@@ -36,10 +35,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class UserComponentInstanceGenerator implements ADSComponentInstanceGenerator
+public class DefaultComponentInstanceGenerator implements ADSComponentInstanceGenerator
 {
 
-    private final Logger LOG = LoggerFactory.getLogger( UserComponentSchemaGenerator.class );
+    private final Logger LOG = LoggerFactory.getLogger( DefaultComponentSchemaGenerator.class );
 
 
     /*

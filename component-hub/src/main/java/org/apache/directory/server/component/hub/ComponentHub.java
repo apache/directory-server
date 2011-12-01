@@ -27,14 +27,14 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.directory.server.component.ADSComponentHelper;
-import org.apache.directory.server.component.ADSConstants;
-import org.apache.directory.server.component.hub.client.user.UserComponentInstanceGenerator;
-import org.apache.directory.server.component.hub.client.user.UserComponentSchemaGenerator;
 import org.apache.directory.server.component.hub.listener.HubListener;
 import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
+import org.apache.directory.server.component.instance.DefaultComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
+import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
+import org.apache.directory.server.component.utilities.ADSComponentHelper;
+import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.Component;

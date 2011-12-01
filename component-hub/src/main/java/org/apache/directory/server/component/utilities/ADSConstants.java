@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.component;
+package org.apache.directory.server.component.utilities;
 
 
 import java.util.Dictionary;

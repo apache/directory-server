@@ -17,17 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.component.hub.client.user;
+package org.apache.directory.server.component.schema;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.component.ADSComponentHelper;
-import org.apache.directory.server.component.ADSConstants;
-import org.apache.directory.server.component.schema.ADSComponentSchema;
-import org.apache.directory.server.component.schema.ComponentOIDGenerator;
-import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
+import org.apache.directory.server.component.utilities.ADSComponentHelper;
+import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
@@ -38,9 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class UserComponentSchemaGenerator implements ComponentSchemaGenerator
+public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
 {
-    private final Logger LOG = LoggerFactory.getLogger( UserComponentSchemaGenerator.class );
+    private final Logger LOG = LoggerFactory.getLogger( DefaultComponentSchemaGenerator.class );
 
     private final String ADS_USER_COMPONENTS_SCHEMA_DN = "cn=usercomponents,ou=schema";
     private final String ADS_USER_COMPONENTS_SCHEMA_NAME = "usercomponents";

@@ -60,9 +60,14 @@ public class ADSComponent
     private String componentVersion;
 
     /*
-     * List holding all the created instances of that component
+     * List holding all the created instances.
      */
-    private List<ADSComponentInstance> instances;
+    private List<ADSComponentInstance> activeInstances;
+    
+    /*
+     * List holding all the cached instances.
+     */
+    private List<ADSComponentInstance> cachedInstances;
 
     /*
      * cache handle for pointing places in the cache for that component.
@@ -89,7 +94,7 @@ public class ADSComponent
     {
         this.componentManager = componentManager;
 
-        instances = new ArrayList<ADSComponentInstance>();
+        activeInstances = new ArrayList<ADSComponentInstance>();
     }
 
 
@@ -100,7 +105,7 @@ public class ADSComponent
      */
     public void addInstance( ADSComponentInstance instance )
     {
-        instances.add( instance );
+        activeInstances.add( instance );
     }
 
 
@@ -111,7 +116,7 @@ public class ADSComponent
      */
     public void removeInstance( ADSComponentInstance instance )
     {
-        instances.remove( instance );
+        activeInstances.remove( instance );
     }
 
 
@@ -122,7 +127,7 @@ public class ADSComponent
      */
     public List<ADSComponentInstance> getInstances()
     {
-        return new ArrayList<ADSComponentInstance>( instances );
+        return new ArrayList<ADSComponentInstance>( activeInstances );
     }
 
 
