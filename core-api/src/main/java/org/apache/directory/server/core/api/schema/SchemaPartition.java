@@ -52,11 +52,14 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.DateUtils;
@@ -124,6 +127,9 @@ public final class SchemaPartition extends AbstractPartition
     /** A static Dn for the ou=schema partition */
     private static Dn SCHEMA_DN;
 
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
+
 
     public SchemaPartition( SchemaManager schemaManager )
     {
@@ -139,6 +145,7 @@ public final class SchemaPartition extends AbstractPartition
         id = SCHEMA_ID;
         suffixDn = SCHEMA_DN;
         this.schemaManager = schemaManager;
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
     
     
@@ -293,7 +300,8 @@ public final class SchemaPartition extends AbstractPartition
             Dn dn = deleteContext.getDn();
             SearchRequest searchRequest = new SearchRequestImpl();
             searchRequest.setBase( dn );
-            searchRequest.setFilter( "ObjectClass=*)" );
+            ExprNode node = new PresenceNode( OBJECT_CLASS_AT );
+            searchRequest.setFilter( node );
             searchRequest.setTypesOnly( true );
             searchRequest.setScope( SearchScope.ONELEVEL );
             
