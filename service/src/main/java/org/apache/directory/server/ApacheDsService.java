@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server;
 
@@ -139,7 +139,7 @@ public class ApacheDsService
 
 
     /**
-     * starts various services configured according to the 
+     * starts various services configured according to the
      * configuration present in the given instance's layout
      *
      * @param instanceLayout the on disk location's layout of the intance to be started
@@ -152,6 +152,7 @@ public class ApacheDsService
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
+            
             if ( !partitionsDir.mkdirs() )
             {
                 throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
@@ -223,7 +224,7 @@ public class ApacheDsService
         schemaManager = new DefaultSchemaManager( loader );
 
         // We have to load the schema now, otherwise we won't be able
-        // to initialize the Partitions, as we won't be able to parse 
+        // to initialize the Partitions, as we won't be able to parse
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
@@ -432,10 +433,10 @@ public class ApacheDsService
     //            LOG.info( "Cannot find any reference to the DNS Server in the configuration : the server won't be started" );
     //            return;
     //        }
-    //        
+    //
     //        System.out.println( "Starting the DNS server" );
     //        LOG.info( "Starting the DNS server" );
-    //        
+    //
     //        printBanner( BANNER_DNS );
     //        long startTime = System.currentTimeMillis();
     //
@@ -610,7 +611,7 @@ public class ApacheDsService
     //        + "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|_|\\__|____/   \n"
     //        + "               |_|                                              \n";
     //
-    //    
+    //
     //    private static final String BANNER_DHCP =
     //          "           _                     _          ____  _   _  ___ ____  \n"
     //        + "          / \\   _ __    ___  ___| |__   ___|  _ \\| | | |/ __|  _ \\ \n"
@@ -641,11 +642,11 @@ public class ApacheDsService
      * adds mandatory operational attributes {@link #MANDATORY_ENTRY_ATOP_MAP} and updates all the LDIF files.
      * WARN: this method is only called for the first time when schema and config files are bootstrapped
      *       afterwards it is the responsibility of the user to ensure correctness of LDIF files if modified
-     *       by hand 
+     *       by hand
      * 
      * Note: we do these modifications explicitly cause we have no idea if each entry's LDIF file has the
      *       correct values for all these mandatory attributes
-     *       
+     * 
      * @param partition instance of the partition Note: should only be those which are loaded before starting the DirectoryService
      * @param dirService the DirectoryService instance
      * @throws Exception

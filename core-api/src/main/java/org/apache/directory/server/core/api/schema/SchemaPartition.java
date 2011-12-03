@@ -27,7 +27,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -126,10 +125,9 @@ public final class SchemaPartition extends AbstractPartition
 
     /** A static Dn for the ou=schema partition */
     private static Dn SCHEMA_DN;
-
+    
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
-
 
     public SchemaPartition( SchemaManager schemaManager )
     {
@@ -284,12 +282,6 @@ public final class SchemaPartition extends AbstractPartition
     }
 
    
-    public void bind( BindOperationContext bindContext ) throws LdapException 
-    {
-        wrapped.bind( bindContext );
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -321,6 +313,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             return 0;
         }
     }
