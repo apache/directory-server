@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
-import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
+import org.apache.directory.server.component.instance.ComponentInstanceGenerator;
 import org.apache.directory.server.component.instance.DefaultComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
@@ -95,11 +95,6 @@ public class ComponentHub
     private ComponentEventManager eventManager = new ComponentEventManager();
 
     /*
-     * Used to manage component caches.
-     */
-    private ComponentCacheManager cacheManager = new ComponentCacheManager();
-
-    /*
      * Used to manage instances' DIT hooks.
      */
     private InstanceManager configManager = new InstanceManager();
@@ -107,7 +102,7 @@ public class ComponentHub
     /*
      * Used to manage components
      */
-    private ComponentManager componentManager = new ComponentManager( cacheManager, configManager );
+    private ComponentManager componentManager = new ComponentManager( configManager );
 
     /*
      * Allowed interfaces for components.
@@ -148,8 +143,6 @@ public class ComponentHub
     public void hubInvalidated()
     {
         logger.log( LogService.LOG_INFO, "ADSComponentHub being invalidated." );
-
-        cacheManager.cacheRemaningComponents();
     }
 
 
@@ -324,7 +317,6 @@ public class ComponentHub
         component.setComponentType( componentType );
         component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
         component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
-        component.setCacheHandle( cacheManager.getCacheHandle( component ) );
 
         return component;
     }

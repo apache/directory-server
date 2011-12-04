@@ -26,7 +26,7 @@ import org.apache.directory.server.component.ADSComponent;
 import org.apache.felix.ipojo.Factory;
 
 
-public interface ADSComponentInstanceGenerator
+public interface ComponentInstanceGenerator
 {
     /**
      * Creates an instance of a supplied ADSComponent.
@@ -35,7 +35,7 @@ public interface ADSComponentInstanceGenerator
      * @param component ADSComponent reference to be instantiated
      * @return ADSInstance reference created from ADSComponent
      */
-    public ADSComponentInstance createInstance( ADSComponent component, Properties properties );
+    public ComponentInstance createInstance( ADSComponent component, Properties properties );
 
 
     /**

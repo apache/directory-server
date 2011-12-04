@@ -30,8 +30,8 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.directory.server.component.instance.ADSComponentInstance;
-import org.apache.directory.server.component.instance.ADSComponentInstanceGenerator;
+import org.apache.directory.server.component.instance.ComponentInstance;
+import org.apache.directory.server.component.instance.ComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -62,12 +62,7 @@ public class ComponentManager
     /*
      * Instance Generators
      */
-    private Dictionary<String, ADSComponentInstanceGenerator> instanceGenerators;
-
-    /*
-     * Cache Manager
-     */
-    private ComponentCacheManager cacheManager;
+    private Dictionary<String, ComponentInstanceGenerator> instanceGenerators;
 
     /*
      * Configuration Manager
@@ -85,12 +80,11 @@ public class ComponentManager
     private LdapCoreSessionConnection ldapConn;
 
 
-    public ComponentManager( ComponentCacheManager cacheManager, InstanceManager instanceManager )
+    public ComponentManager( InstanceManager instanceManager )
     {
         schemaGenerators = new Hashtable<String, ComponentSchemaGenerator>();
-        instanceGenerators = new Hashtable<String, ADSComponentInstanceGenerator>();
+        instanceGenerators = new Hashtable<String, ComponentInstanceGenerator>();
 
-        this.cacheManager = cacheManager;
         this.instanceManager = instanceManager;
     }
 
@@ -132,7 +126,7 @@ public class ComponentManager
      * @param componentType component type to register instance generator
      * @param generator instance generator instance
      */
-    public void addInstanceGenerator( String componentType, ADSComponentInstanceGenerator generator )
+    public void addInstanceGenerator( String componentType, ComponentInstanceGenerator generator )
     {
         if ( instanceGenerators.get( componentType ) == null )
         {
@@ -143,17 +137,17 @@ public class ComponentManager
 
     /**
      * Create and return the instance of the given component
-     * using ADSComponentInstanceGenerator registered for its type.
+     * using ComponentInstanceGenerator registered for its type.
      *
      * @param component ADSComponent reference to instantiate
-     * @return created ADSComponentInstance reference
+     * @return created ComponentInstance reference
      */
-    public ADSComponentInstance createInstance( ADSComponent component, Properties properties )
+    public ComponentInstance createInstance( ADSComponent component, Properties properties )
     {
-        ADSComponentInstanceGenerator generator = instanceGenerators.get( component.getComponentType() );
+        ComponentInstanceGenerator generator = instanceGenerators.get( component.getComponentType() );
         if ( generator != null )
         {
-            ADSComponentInstance instance = generator.createInstance( component, properties );
+            ComponentInstance instance = generator.createInstance( component, properties );
 
             instance.setInstanceManager( instanceManager );
 
@@ -335,16 +329,6 @@ public class ComponentManager
     }
 
 
-    /**
-     * Caches the component manually
-     *
-     * @param component ADSComponent to initiate caching
-     */
-    public void cacheComponent( ADSComponent component )
-    {
-        cacheManager.cacheComponent( component );
-    }
-
 
     /**
      * Loads the cached instance configurations for component, and use
@@ -353,27 +337,9 @@ public class ComponentManager
      * @param component ADSComponent reference to load its cached instances.
      * @return loaded instances.
      */
-    public List<ADSComponentInstance> loadCachedInstances( ADSComponent component )
+    public List<ComponentInstance> loadCachedInstances( ADSComponent component )
     {
-        List<ADSComponentInstance> cachedInstances = new ArrayList<ADSComponentInstance>();
-
-        List<Properties> cachedConfigurations = cacheManager.getCachedInstanceConfigurations( component );
-
-        if ( cachedConfigurations == null )
-        {
-            return null;
-        }
-
-        for ( Properties props : cachedConfigurations )
-        {
-            ADSComponentInstance ins = createInstance( component, props );
-            if ( ins != null )
-            {
-                cachedInstances.add( ins );
-            }
-        }
-
-        return cachedInstances;
+        return null;
     }
 
 }

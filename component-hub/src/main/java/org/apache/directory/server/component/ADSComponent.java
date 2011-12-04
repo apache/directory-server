@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.directory.server.component.hub.ComponentCacheManager;
 import org.apache.directory.server.component.hub.ComponentManager;
-import org.apache.directory.server.component.instance.ADSComponentInstance;
+import org.apache.directory.server.component.instance.CachedComponentInstance;
+import org.apache.directory.server.component.instance.ComponentInstance;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.felix.ipojo.Factory;
 
@@ -62,17 +62,12 @@ public class ADSComponent
     /*
      * List holding all the created instances.
      */
-    private List<ADSComponentInstance> activeInstances;
-    
+    private List<ComponentInstance> activeInstances;
+
     /*
      * List holding all the cached instances.
      */
-    private List<ADSComponentInstance> cachedInstances;
-
-    /*
-     * cache handle for pointing places in the cache for that component.
-     */
-    private ADSComponentCacheHandle cacheHandle;
+    private List<CachedComponentInstance> cachedInstances;
 
     /*
      * Generated/Choosed schema information
@@ -94,7 +89,7 @@ public class ADSComponent
     {
         this.componentManager = componentManager;
 
-        activeInstances = new ArrayList<ADSComponentInstance>();
+        activeInstances = new ArrayList<ComponentInstance>();
     }
 
 
@@ -103,7 +98,7 @@ public class ADSComponent
      *
      * @param instance instance reference to add to a list
      */
-    public void addInstance( ADSComponentInstance instance )
+    public void addInstance( ComponentInstance instance )
     {
         activeInstances.add( instance );
     }
@@ -114,38 +109,31 @@ public class ADSComponent
      *
      * @param instance to remove from the list
      */
-    public void removeInstance( ADSComponentInstance instance )
+    public void removeInstance( ComponentInstance instance )
     {
         activeInstances.remove( instance );
     }
 
 
     /**
+     * Sets the cached instances.
+     *
+     * @param cachedList List of CachedComponentInstances to set for this component.
+     */
+    public void setCachedInstances( List<CachedComponentInstance> cachedList )
+    {
+        cachedInstances = cachedList;
+    }
+
+
+    /**
      * Gets the current instances of the component
      *
-     * @return Cloned ADSComponentInstance list.
+     * @return Cloned ComponentInstance list.
      */
-    public List<ADSComponentInstance> getInstances()
+    public List<ComponentInstance> getInstances()
     {
-        return new ArrayList<ADSComponentInstance>( activeInstances );
-    }
-
-
-    /**
-     * @return the cacheHandle
-     */
-    public ADSComponentCacheHandle getCacheHandle()
-    {
-        return cacheHandle;
-    }
-
-
-    /**
-     * @param cacheHandle the cacheHandle to set
-     */
-    public void setCacheHandle( ADSComponentCacheHandle cacheHandle )
-    {
-        this.cacheHandle = cacheHandle;
+        return new ArrayList<ComponentInstance>( activeInstances );
     }
 
 

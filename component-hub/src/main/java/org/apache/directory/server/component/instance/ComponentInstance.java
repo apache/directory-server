@@ -31,7 +31,7 @@ import org.apache.directory.server.component.hub.InstanceManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ADSComponentInstance
+public class ComponentInstance
 {
     /*
      * Actual instance reference.

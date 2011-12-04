@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultComponentInstanceGenerator implements ADSComponentInstanceGenerator
+public class DefaultComponentInstanceGenerator implements ComponentInstanceGenerator
 {
 
     private final Logger LOG = LoggerFactory.getLogger( DefaultComponentSchemaGenerator.class );
@@ -43,10 +43,10 @@ public class DefaultComponentInstanceGenerator implements ADSComponentInstanceGe
 
     /*
      * (non-Javadoc)
-     * @see org.apache.directory.server.component.instance.ADSComponentInstanceGenerator#createInstance(org.apache.directory.server.component.ADSComponent)
+     * @see org.apache.directory.server.component.instance.ComponentInstanceGenerator#createInstance(org.apache.directory.server.component.ADSComponent)
      */
     @Override
-    public ADSComponentInstance createInstance( ADSComponent component, Properties properties )
+    public ComponentInstance createInstance( ADSComponent component, Properties properties )
     {
         if ( properties == null && component.getDefaultConfiguration() == null )
         {
