@@ -22,28 +22,22 @@ package org.apache.directory.server.component.hub;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
+
 import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
-import org.apache.directory.server.component.instance.ComponentInstanceGenerator;
-import org.apache.directory.server.component.instance.DefaultComponentInstanceGenerator;
-import org.apache.directory.server.component.schema.ADSComponentSchema;
-import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
-import org.apache.directory.server.component.utilities.ADSComponentHelper;
-import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.IPojoFactoryHelper;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
-import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.parser.ManifestMetadataParser;
-import org.apache.felix.ipojo.parser.ParseException;
 import org.apache.felix.ipojo.whiteboard.Wbp;
 import org.apache.felix.ipojo.whiteboard.Whiteboards;
 import org.osgi.framework.ServiceReference;
@@ -70,14 +64,14 @@ import org.osgi.service.log.LogService;
 public class ComponentHub
 {
     /*
-     * boolean value to check for deferred writes to schema partition
+     * Schema Partition reference.
      */
-    private boolean schemaReady = false;
+    private SchemaPartition schemaPartition;
 
     /*
-     * boolean value to check for deferred writes to config partition
+     * Config Partition reference
      */
-    private boolean configReady = false;
+    private SingleFileLdifPartition configPartition;
 
     /*
      * Map to keep "component type" -> "components" mapping.
@@ -95,14 +89,24 @@ public class ComponentHub
     private ComponentEventManager eventManager = new ComponentEventManager();
 
     /*
-     * Used to manage instances' DIT hooks.
+     * Used to manage component's schemas.
      */
-    private InstanceManager configManager = new InstanceManager();
+    private ComponentSchemaManager compSchemaManager = new ComponentSchemaManager( schemaPartition );
 
     /*
-     * Used to manage components
+     * Used to manage config partition interactions.
      */
-    private ComponentManager componentManager = new ComponentManager( configManager );
+    private ConfigurationManager configManager = new ConfigurationManager( configPartition );
+
+    /*
+     * Used to manage instances' DIT hooks.
+     */
+    private InstanceManager instanceManager = new InstanceManager();
+
+    /*
+     * Used to manage components.
+     */
+    private ComponentManager componentManager = new ComponentManager( configManager, instanceManager );
 
     /*
      * Allowed interfaces for components.
@@ -117,10 +121,26 @@ public class ComponentHub
     private LogService logger;
 
 
+    /**
+     * Creates an IPojo component for the ComponentHub class.
+     *
+     * @param schemaPartition schema partition reference
+     * @param configPartition config partition reference
+     * @return reference to a wrapped ComponentHub IPojo component
+     */
+    public static ComponentHub createComponentHub( SchemaPartition schemaPartition,
+        SingleFileLdifPartition configPartition )
+    {
+        return null;
+    }
+
+
     public ComponentHub()
     {
         componentMap = new Hashtable<String, List<ADSComponent>>();
         components = new ArrayList<ADSComponent>();
+
+        compSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
     }
 
 
@@ -315,8 +335,8 @@ public class ComponentHub
 
         component.setFactory( factory );
         component.setComponentType( componentType );
-        component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
-        component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
+        component.setComponentName( IPojoFactoryHelper.getComponentName( component.getFactory() ) );
+        component.setComponentVersion( IPojoFactoryHelper.getComponentVersion( component.getFactory() ) );
 
         return component;
     }

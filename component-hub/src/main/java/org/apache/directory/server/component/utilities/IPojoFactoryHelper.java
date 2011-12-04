@@ -13,7 +13,7 @@ import org.apache.felix.ipojo.Factory;
  *
  * @author gokturk
  */
-public class ADSComponentHelper
+public class IPojoFactoryHelper
 {
     /**
      * Gets the component name of an IPojo Component. If IPojo Component does not define its factory name

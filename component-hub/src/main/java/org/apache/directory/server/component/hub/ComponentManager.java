@@ -55,11 +55,6 @@ public class ComponentManager
     private final Logger LOG = LoggerFactory.getLogger( ComponentManager.class );
 
     /*
-     * Schema generators
-     */
-    private Dictionary<String, ComponentSchemaGenerator> schemaGenerators;
-
-    /*
      * Instance Generators
      */
     private Dictionary<String, ComponentInstanceGenerator> instanceGenerators;
@@ -67,55 +62,20 @@ public class ComponentManager
     /*
      * Configuration Manager
      */
+    private ConfigurationManager configManager;
+
+    /*
+     * Instance Manager reference to pair with created instances.
+     */
     private InstanceManager instanceManager;
 
-    /*
-     * Ldif deferred writing queue.
-     */
-    private Queue<LdifEntry> ldifQueue = new LinkedBlockingQueue<LdifEntry>();
 
-    /*
-     * Connection reference to access ApacheDS
-     */
-    private LdapCoreSessionConnection ldapConn;
-
-
-    public ComponentManager( InstanceManager instanceManager )
+    public ComponentManager( ConfigurationManager configManager, InstanceManager instanceManager )
     {
-        schemaGenerators = new Hashtable<String, ComponentSchemaGenerator>();
         instanceGenerators = new Hashtable<String, ComponentInstanceGenerator>();
 
+        this.configManager = configManager;
         this.instanceManager = instanceManager;
-    }
-
-
-    /**
-     * Used to set internal connection. All write operations to the schema will be deferred
-     * until reference is set.
-     *
-     * @param conn LdapCoreSessionConnection reference to set.
-     */
-    public synchronized void setConnection( LdapCoreSessionConnection conn )
-    {
-        ldapConn = conn;
-
-        flushCache();
-    }
-
-
-    /**
-     * Adds new schema generator for specified component type.
-     * Keeps the first added generator as default.
-     *
-     * @param componentType component type to register schema generator
-     * @param generator schema generator instance
-     */
-    public void addSchemaGenerator( String componentType, ComponentSchemaGenerator generator )
-    {
-        if ( schemaGenerators.get( componentType ) == null )
-        {
-            schemaGenerators.put( componentType, generator );
-        }
     }
 
 
@@ -164,170 +124,6 @@ public class ComponentManager
             return null;
         }
     }
-
-
-    /**
-     * Loads the schema of the component into ApacheDS for
-     * further instance entry mappings and configuration hooks.
-     *
-     * @param component ADSComponent reference for schema loading
-     */
-    public void loadComponentSchema( ADSComponent component )
-    {
-        try
-        {
-            checkAndGenerateBaseSchema( component );
-            if ( component.getSchema().getSchemaElements() != null )
-            {
-                loadLdifs( component.getSchema().getSchemaElements() );
-            }
-        }
-        catch ( LdapException exc )
-        {
-            LOG.info( "An error occured while loading schema for component: " + component );
-        }
-    }
-
-
-    /**
-     * Load LdifEntry list into ApacheDS.
-     * Loads them into the cache if the connection is not set yet.
-     *
-     * @param ldifs LdifEntry list to load.
-     * @throws LdapException
-     */
-    private synchronized void loadLdifs( List<LdifEntry> ldifs ) throws LdapException
-    {
-        if ( ldapConn == null )
-        {
-            for ( LdifEntry ldif : ldifs )
-            {
-                ldifQueue.add( ldif );
-            }
-        }
-        else
-        {
-            for ( LdifEntry ldif : ldifs )
-            {
-                AddRequest addReq = new AddRequestImpl();
-                addReq.setEntry( ldif.getEntry() );
-
-                ldapConn.add( addReq );
-            }
-        }
-    }
-
-
-    /**
-     * Loads all the cached entries into ApacheDS
-     *
-     */
-    private void flushCache()
-    {
-        List<LdifEntry> cache = new ArrayList<LdifEntry>();
-
-        for ( LdifEntry ldif : ldifQueue )
-        {
-            cache.add( ldif );
-        }
-
-        try
-        {
-            loadLdifs( cache );
-        }
-        catch ( LdapException exc )
-        {
-            LOG.info( "Error while flushing the Ldif cache." );
-        }
-    }
-
-
-    /**
-     * Checks for the base schema which will hold the schema elements for the
-     * given component. 
-     * 
-     * Generates an empty one, if none is exist.
-     *
-     * @param component ADSComponent reference to check base schema against.
-     * @throws LdapException
-     */
-    private void checkAndGenerateBaseSchema( ADSComponent component ) throws LdapException
-    {
-        String parentSchemaDn = "cn=" + component.getSchema().getParentSchemaName() + ",ou=schema";
-        String attribsDn = "ou=attributeTypes," + parentSchemaDn;
-        String ocsDn = "ou=objectClasses," + parentSchemaDn;
-
-        boolean schemaExists = ldapConn.exists( parentSchemaDn );
-        boolean attribsExists = ldapConn.exists( attribsDn );
-        boolean ocsExists = ldapConn.exists( ocsDn );
-
-        if ( schemaExists && attribsExists && ocsExists )
-        {
-            return;
-        }
-
-        List<LdifEntry> ldifs = new ArrayList<LdifEntry>();
-
-        if ( !schemaExists )
-        {
-            ldifs.add( new LdifEntry( parentSchemaDn,
-                "objectClass:metaSchema",
-                "objectClass:top",
-                "cn:" + component.getSchema().getParentSchemaName(),
-                "m-dependencies: system",
-                "m-dependencies: core" ) );
-        }
-
-        if ( !attribsExists )
-        {
-            ldifs.add( new LdifEntry( attribsDn,
-                "objectclass:organizationalUnit",
-                "objectClass:top",
-                "ou:attributetypes" ) );
-        }
-
-        if ( ocsExists )
-        {
-            ldifs.add( new LdifEntry( ocsDn,
-                "objectclass:organizationalUnit",
-                "objectClass:top",
-                "ou:objectClasses" ) );
-        }
-
-        loadLdifs( ldifs );
-    }
-
-
-    /**
-     * Deletes the schema elements for the component.
-     *
-     * @param component ADSComponent reference to delete its schema elements from ApacheDS
-     */
-    public void deleteSchemaElements( ADSComponent component )
-    {
-        List<LdifEntry> schemaElements = component.getSchema().getSchemaElements();
-
-        //We reverse the order here for deletion.
-        //List was originally in add order.
-        Collections.reverse( schemaElements );
-
-        if ( ldapConn == null )
-        {
-            return;
-        }
-        try
-        {
-            for ( LdifEntry ldif : schemaElements )
-            {
-                ldapConn.delete( ldif.getDn() );
-            }
-        }
-        catch ( LdapException exc )
-        {
-            LOG.info( "Error occured while deleting component's schema elements" );
-        }
-    }
-
 
 
     /**

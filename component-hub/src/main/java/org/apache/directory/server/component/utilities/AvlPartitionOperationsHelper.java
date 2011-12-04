@@ -17,23 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.component.hub;
+package org.apache.directory.server.component.utilities;
 
-
-import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
-
-
-public class ConfigurationManager
+public class AvlPartitionOperationsHelper
 {
-    /*
-     * configuration Partition reference.
-     */
-    private SingleFileLdifPartition configPartition;
-
-
-    public ConfigurationManager( SingleFileLdifPartition configPartition )
-    {
-        this.configPartition = configPartition;
-    }
 
 }

@@ -23,7 +23,7 @@ package org.apache.directory.server.component.schema;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.component.utilities.ADSComponentHelper;
+import org.apache.directory.server.component.utilities.IPojoFactoryHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -48,7 +48,7 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
     {
         List<LdifEntry> schemaElements = new ArrayList<LdifEntry>();
 
-        String componentName = ADSComponentHelper.getComponentName( componentFactory );
+        String componentName = IPojoFactoryHelper.getComponentName( componentFactory );
 
         String attribsDn = "ou=attributeTypes," + ADS_USER_COMPONENTS_SCHEMA_DN;
         String ocsDn = "ou=objectClasses," + ADS_USER_COMPONENTS_SCHEMA_DN;
