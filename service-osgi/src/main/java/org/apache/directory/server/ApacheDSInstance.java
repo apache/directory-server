@@ -55,11 +55,52 @@ public class ApacheDSInstance
     /**
      * Will be called, when this component instance is validated,
      * Means all of its requirements are satisfied.
-     * 
      *
      */
     @Validate
     public void validated()
+    {
+        /**
+         * Calls the initialization and running on new thread
+         * to seperate the execution from the IPojo management thread.
+         */
+        new Thread( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                initAndStartADS();
+            }
+        } ).start();
+    }
+
+
+    /**
+     * Will be called when this component instance is invalidated,
+     * means one of its requirements is lost.
+     *
+     */
+    @Invalidate
+    public void invalidated()
+    {
+        new Thread( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                stopADS();
+            }
+        } ).start();
+    }
+
+
+    /**
+     * Inits and run()'s the ApacheDS blocking.
+     *
+     */
+    private void initAndStartADS()
     {
         service = new ApacheDsService();
 
@@ -80,13 +121,10 @@ public class ApacheDSInstance
     }
 
 
-    /**
-     * Will be called when this component instance is invalidated,
-     * means one of its requirements is lost.
-     *
+    /*
+     * Stops the ApacheDS instance.
      */
-    @Invalidate
-    public void invalidated()
+    private void stopADS()
     {
         //Stopping the service
         try
@@ -100,4 +138,5 @@ public class ApacheDSInstance
             System.exit( 1 );
         }
     }
+
 }
