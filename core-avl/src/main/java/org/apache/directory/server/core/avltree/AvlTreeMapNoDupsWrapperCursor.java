@@ -33,11 +33,11 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class AvlTreeMapNoDupsWrapperCursor<K,V> extends AbstractTupleCursor<K, V>
 {
-    private final AvlSingletonOrOrderedSetCursor<K, V> wrapped;
+    private final ConcurrentMapCursor<K, SingletonOrOrderedSet<V>> wrapped;
     private final Tuple<K,V> returnedTuple = new Tuple<K, V>();
     
     
-    public AvlTreeMapNoDupsWrapperCursor( AvlSingletonOrOrderedSetCursor<K, V> wrapped )
+    public AvlTreeMapNoDupsWrapperCursor( ConcurrentMapCursor<K, SingletonOrOrderedSet<V>> wrapped )
     {
         this.wrapped = wrapped;
     }
@@ -111,8 +111,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K,V> extends AbstractTupleCursor<K, V
             
             if ( tuple.getValue().isOrderedSet() )
             {
-                System.out.println( "tuple key = " + tuple.getKey() );
-                tuple.getValue().getOrderedSet().printTree();
+                throw new IllegalStateException( "Avl: No dups cursor has a set of elemets for its value" + tuple.getKey() );
             }
             
             returnedTuple.setBoth( tuple.getKey(), tuple.getValue().getSingleton() );

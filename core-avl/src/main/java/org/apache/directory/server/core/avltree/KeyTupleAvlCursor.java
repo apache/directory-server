@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
 {
-    private final AvlTreeCursor<V> wrapped;
+    private final OrderedSetCursor<V> wrapped;
     private final K key;
 
     private Tuple<K,V> returnedTuple = new Tuple<K,V>();
@@ -47,10 +47,10 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
      * @param avlTree the AvlTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      */
-    public KeyTupleAvlCursor( AvlTree<V> avlTree, K key )
+    public KeyTupleAvlCursor( OrderedSet<V> set, K key )
     {
         this.key = key;
-        this.wrapped = new AvlTreeCursor<V>( avlTree );
+        this.wrapped = new OrderedSetCursor<V>( set );
     }
 
 

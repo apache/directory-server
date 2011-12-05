@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.avltree;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,26 +29,14 @@ import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
-
-/**
- * Tests the AvlTreeCursor class.
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
-public class AvlTreeCursorTest
+public class OrderedSetCursorTest
 {
     @Test
     public void testEmptyCursor() throws Exception
     {
-        AvlTree<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
-        AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
+        OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
+        OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
@@ -96,9 +83,9 @@ public class AvlTreeCursorTest
     @Test
     public void testOneEntryCursor() throws Exception
     {
-        AvlTree<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
-        tree.insert( 7 );
-        AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
+        OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
+        set.insert( new Integer( 7 ) );
+        OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
@@ -118,7 +105,7 @@ public class AvlTreeCursorTest
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
         
         cursor.afterLast();
         assertFalse( cursor.next() );
@@ -140,7 +127,7 @@ public class AvlTreeCursorTest
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.before( 3 );
         assertFalse( cursor.previous() );
@@ -150,7 +137,7 @@ public class AvlTreeCursorTest
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.after( 3 );
         assertFalse( cursor.previous() );
@@ -160,7 +147,7 @@ public class AvlTreeCursorTest
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.before( 7 );
         assertFalse( cursor.previous() );
@@ -174,7 +161,7 @@ public class AvlTreeCursorTest
         cursor.after( 7 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.before( 9 );
         assertFalse( cursor.available() );
@@ -184,23 +171,23 @@ public class AvlTreeCursorTest
         cursor.before( 9 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
     }
     
     
     @Test
     public void testManyEntriesCursor() throws Exception
-    {
-        AvlTree<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
-        tree.insert( 3 );
-        tree.insert( 7 );
-        tree.insert( 10 );
-        tree.insert( 11 );
-        AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
+    {        
+        OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
+        set.insert( new Integer( 3 ) );
+        set.insert( new Integer( 7 ) );
+        set.insert( new Integer( 10 ) );
+        set.insert( new Integer( 11 ) );
+        OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
         
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        assertEquals( 4, tree.getSize() );
+        assertEquals( 4, set.getSize() );
         
         try
         {
@@ -216,16 +203,16 @@ public class AvlTreeCursorTest
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 10, ( int ) cursor.get() );
+        assertEquals( 10, cursor.get().intValue() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
         
@@ -234,16 +221,16 @@ public class AvlTreeCursorTest
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 10, ( int ) cursor.get() );
+        assertEquals( 10, cursor.get().intValue() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
         
@@ -263,7 +250,7 @@ public class AvlTreeCursorTest
         cursor.after( 2 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         cursor.after( 2 );
         assertFalse( cursor.previous() );
@@ -273,34 +260,34 @@ public class AvlTreeCursorTest
         cursor.after( 3 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.after( 3 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         // position after first object
         cursor.after( 5 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.after( 5 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         // position before last object
         cursor.after( 10 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
 
         cursor.after( 10 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 10, ( int ) cursor.get() );
+        assertEquals( 10, cursor.get().intValue() );
 
         // position on last object
         cursor.after( 11 );
@@ -310,7 +297,7 @@ public class AvlTreeCursorTest
         cursor.after( 11 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
 
         // position after last object
         cursor.after( 20 );
@@ -320,7 +307,7 @@ public class AvlTreeCursorTest
         cursor.after( 20 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
 
         // position after last object
         cursor.before( 20 );
@@ -330,46 +317,46 @@ public class AvlTreeCursorTest
         cursor.before( 20 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
 
         // position on last object
         cursor.before( 11 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 11, ( int ) cursor.get() );
+        assertEquals( 11, cursor.get().intValue() );
 
         cursor.before( 11 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 10, ( int ) cursor.get() );
+        assertEquals( 10, cursor.get().intValue() );
 
         // position before last object
         cursor.before( 10 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 10, ( int ) cursor.get() );
+        assertEquals( 10, cursor.get().intValue() );
 
         cursor.before( 10 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         // position after first object
         cursor.before( 5 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( int ) cursor.get() );
+        assertEquals( 7, cursor.get().intValue() );
 
         cursor.before( 5 );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         // position on first object
         cursor.before( 3 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         cursor.before( 3 );
         assertFalse( cursor.previous() );
@@ -379,7 +366,7 @@ public class AvlTreeCursorTest
         cursor.before( 2 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 3, ( int ) cursor.get() );
+        assertEquals( 3, cursor.get().intValue() );
 
         cursor.before( 2 );
         assertFalse( cursor.previous() );

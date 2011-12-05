@@ -19,18 +19,20 @@
  */
 package org.apache.directory.server.core.avltree;
 
+import java.util.concurrent.ConcurrentNavigableMap;
+
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * Stores either a single object or many of them in an AvlTree.
+ * Stores either a single object or many of them in a ConcurrentNavigableMap.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SingletonOrOrderedSet<V>
 {
     private V singleton;
-    private AvlTree<V> orderedSet;
+    private OrderedSet<V> orderedSet;
     
     
     /**
@@ -55,7 +57,7 @@ public class SingletonOrOrderedSet<V>
      *
      * @param orderedSet the set of ordered values
      */
-    public SingletonOrOrderedSet( AvlTree<V> orderedSet )
+    public SingletonOrOrderedSet( OrderedSet<V> orderedSet )
     {
         if ( orderedSet == null )
         {
@@ -137,7 +139,7 @@ public class SingletonOrOrderedSet<V>
      * @return the set of ordered values before nulling it out
      * @exception RuntimeException if already in singleton mode
      */
-    public AvlTree<V> switchToSingleton( V singleton )
+    public OrderedSet<V> switchToSingleton( V singleton )
     {
         if ( singleton == null )
         {
@@ -149,7 +151,7 @@ public class SingletonOrOrderedSet<V>
             throw new RuntimeException( I18n.err( I18n.ERR_451 ) );
         }
         
-        AvlTree<V> retval = this.orderedSet;
+        OrderedSet<V> retval = this.orderedSet;
         this.orderedSet = null;
         this.singleton = singleton;
         return retval;
@@ -162,7 +164,7 @@ public class SingletonOrOrderedSet<V>
      * @return the ordered set
      * @exception RuntimeException if in singleton mode
      */
-    public AvlTree<V> getOrderedSet()
+    public OrderedSet<V> getOrderedSet()
     {
         if ( orderedSet != null )
         {
@@ -180,7 +182,7 @@ public class SingletonOrOrderedSet<V>
      * @return the old set of ordered values
      * @exception RuntimeException if in singleton mode
      */
-    public AvlTree<V> setOrderedSet( AvlTree<V> orderedSet )
+    public OrderedSet<V> setOrderedSet( OrderedSet<V> orderedSet )
     {
         if ( orderedSet == null )
         {
@@ -192,7 +194,7 @@ public class SingletonOrOrderedSet<V>
             throw new RuntimeException( I18n.err( I18n.ERR_453 ) );
         }
         
-        AvlTree<V> retval = this.orderedSet;
+        OrderedSet<V> retval = this.orderedSet;
         this.orderedSet = orderedSet;
         return retval;
     }
@@ -206,7 +208,7 @@ public class SingletonOrOrderedSet<V>
      * @return the singleton to return before nulling it out
      * @throws RuntimeException if the mode is already in orderedSet mode.
      */
-    public V switchToOrderedSet( AvlTree<V> orderedSet )
+    public V switchToOrderedSet( OrderedSet<V> orderedSet )
     {
         if ( orderedSet == null )
         {
