@@ -20,9 +20,10 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
-import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
+import org.apache.directory.server.core.avltree.ConcurrentMapCursor;
+import org.apache.directory.server.core.avltree.OrderedSet;
+import org.apache.directory.server.core.avltree.OrderedSetCursor;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
 import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -51,7 +52,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
      * The underlying wrapped cursor which returns Tuples whose values are
      * either V objects or AvlTree objects.
      */
-    private final AvlSingletonOrOrderedSetCursor<K, V> wrappedCursor;
+    private final ConcurrentMapCursor<K, SingletonOrOrderedSet<V>> wrappedCursor;
     
     /**
      * A Cursor over a set of value objects for the current key held in the
@@ -84,7 +85,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     public AvlTableDupsCursor( AvlTable<K,V> table )
     {
         this.table = table;
-        this.wrappedCursor = new AvlSingletonOrOrderedSetCursor<K, V>( table.getAvlTreeMap() );
+        this.wrappedCursor = new ConcurrentMapCursor<K, SingletonOrOrderedSet<V>>( table.getBackingMap() );
         LOG.debug( "Created on table {}", table.getName() );
     }
 
@@ -121,13 +122,13 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             
             if ( wrappedTuple.getValue().isOrderedSet() )
             {
-                AvlTree<V> avlTree = wrappedTuple.getValue().getOrderedSet();
-                dupsCursor = new AvlTreeCursor<V>( avlTree );
+                OrderedSet<V> orderedSet = wrappedTuple.getValue().getOrderedSet();
+                dupsCursor = new OrderedSetCursor<V>( orderedSet );
             }
             else
             {
                 dupsCursor = new SingletonCursor<V>( 
-                    wrappedTuple.getValue().getSingleton(), wrappedCursor.getValuComparator() );
+                    wrappedTuple.getValue().getSingleton(), table.getValueComparator() );
             }
             
             if ( value == null )
@@ -209,12 +210,12 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
             if ( values.isOrderedSet() )
             {
-                AvlTree<V> set = values.getOrderedSet();
-                dupsCursor = new AvlTreeCursor<V>( set );
+                OrderedSet<V> set = values.getOrderedSet();
+                dupsCursor = new OrderedSetCursor<V>( set );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
             }
 
             if ( value == null )
@@ -301,11 +302,11 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
             if ( values.isOrderedSet() )
             {
-                dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
+                dupsCursor = new OrderedSetCursor<V>( values.getOrderedSet() );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
             }
 
             /*
@@ -356,11 +357,11 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
             if ( values.isOrderedSet() )
             {
-                dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
+                dupsCursor = new OrderedSetCursor<V>( values.getOrderedSet() );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
             }
 
             /*
@@ -402,11 +403,11 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
                 if ( values.isOrderedSet())
                 {
-                    dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
+                    dupsCursor = new OrderedSetCursor<V>( values.getOrderedSet() );
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
                 }
 
                 /*
@@ -462,11 +463,11 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
                 if ( values.isOrderedSet() )
                 {
-                    dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
+                    dupsCursor = new OrderedSetCursor<V>( values.getOrderedSet() );
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
                 }
 
                 /*
