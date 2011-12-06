@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.ConcurrentMapCursor;
 import org.apache.directory.server.core.avltree.OrderedSet;
 import org.apache.directory.server.core.avltree.OrderedSetCursor;

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsWrapperCursor;
 import org.apache.directory.server.core.avltree.ConcurrentMapCursor;
 import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
