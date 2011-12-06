@@ -350,6 +350,10 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             lastValue.setId( indexEntry.getId() );
             lastValue.setValue( indexEntry.getValue() );
         }
+        else
+        {
+            lastValue.setId( null );
+        }
         
         int idx;
         
@@ -460,6 +464,10 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             IndexEntry<Object> indexEntry = values.get( getIndex );
             lastValue.setId( indexEntry.getId() );
             lastValue.setValue( indexEntry.getValue() );
+        }
+        else
+        {
+            lastValue.setId( null );
         }
         
         int idx;
