@@ -51,7 +51,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     /**
      * test a search request perf.
      */
-    @Test
+   // @Test
     public void testSearchRequestPerf() throws Exception
     {
         //getLdapServer().getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );

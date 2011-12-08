@@ -2091,7 +2091,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             entry = originalEntry.clone();
         }
 
-        Dn updn = entry.getDn();
+        Dn updn = originalEntry.getDn();
 
         newRdn.apply( schemaManager );
 

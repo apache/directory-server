@@ -30,7 +30,7 @@ import java.util.Iterator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.util.Strings;
 
-public class OrderedSetMarshaller<V>
+public class OrderedSetMarshaller<V> implements Marshaller<OrderedSet<V>>
 {
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_SET = new byte[1];

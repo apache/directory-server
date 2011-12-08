@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import org.apache.directory.server.core.api.partition.index.Serializer;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
@@ -29,11 +29,13 @@ import org.apache.directory.server.core.api.log.LogAnchor;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -72,6 +74,30 @@ class DefaultTxnManager implements TxnManagerInternal
 
     /** Latest flushed txn's logical commit time */
     private AtomicLong latestFlushedTxnLSN = new AtomicLong( LogAnchor.UNKNOWN_LSN );
+    
+    /** Default flush interval in ms */
+    private final static int DEFAULT_FLUSH_INTERVAL = 100;
+    
+    /** Flush interval */
+    private int flushInterval;
+    
+    /** Flush lock */
+    private Lock flushLock = new ReentrantLock();
+    
+    /** Flush Condition object */
+    private Condition flushCondition = flushLock.newCondition();
+    
+    /** Whether flushing is failed */
+    private boolean flushFailed;
+    
+    /** partitions to be synced after applying changes */
+    private HashSet<Partition> flushedToPartitions = new HashSet<Partition>();
+    
+    /** Backgorund syncing thread */
+    LogSyncer syncer;
+    
+    /** Initial committed txn */
+    ReadWriteTxn dummyTxn = new ReadWriteTxn();
 
     /** Per thread txn context */
     static final ThreadLocal<Transaction> txnVar =
@@ -86,7 +112,10 @@ class DefaultTxnManager implements TxnManagerInternal
 
 
     /**
-     * TODO : doco
+     * Inits the txn manager. A dummy txn is put to the committed queue for read
+     * only txns to bump the ref count so that we can always keep track of the
+     * minimum existing txn.
+     * 
      * @param txnLogManager
      * @param idComparator
      * @param idSerializer
@@ -94,6 +123,16 @@ class DefaultTxnManager implements TxnManagerInternal
     public void init( TxnLogManager txnLogManager )
     {
         this.txnLogManager = txnLogManager;
+        flushInterval = DEFAULT_FLUSH_INTERVAL;
+        
+        dummyTxn.commitTxn( LogAnchor.UNKNOWN_LSN );
+        latestCommittedTxn.set( dummyTxn );
+        latestVerifiedTxn.set( dummyTxn );
+        committedQueue.offer( dummyTxn );
+        
+        syncer = new LogSyncer();
+        syncer.setDaemon( true );
+        syncer.start();
     }
 
 
@@ -131,6 +170,11 @@ class DefaultTxnManager implements TxnManagerInternal
         if ( txn == null )
         {
             throw new IllegalStateException( " trying to commit non existent txn " );
+        }
+        
+        if ( flushFailed )
+        {
+            throw new IOException( "Flushing of txns failed" );
         }
 
         prepareForEndingTxn( txn );
@@ -363,7 +407,7 @@ class DefaultTxnManager implements TxnManagerInternal
             {
                 toCheck = it.next();
 
-                if ( toCheck.commitTime <= flushedLSN )
+                if ( toCheck.commitTime <= flushedLSN && toCheck != lastTxnToCheck )
                 {
                     it.remove();
                 }
@@ -565,4 +609,105 @@ class DefaultTxnManager implements TxnManagerInternal
         logRecord.setData( data, data.length );
         txnLogManager.log( logRecord, false );
     }
+    
+   /**
+    *  Flush the changes of the txns in the committed queue. A txn is flushed
+    *  only if flushing it will not cause a pending txn to see changes beyond its
+    *  start time.
+    *  throws Exception thrown if anything goes wrong during flush.
+    *
+    */
+   private void flushTxns() throws Exception
+   {
+       // If flushing failed already, dont do anything anymore
+       if ( flushFailed )
+       {
+           return;
+       }
+       
+       /*
+        * First get the latest committed txn ref and then the iterator.
+        * Order is important.
+        */
+       ReadWriteTxn latestCommitted = latestCommittedTxn.get();
+       long latestFlushedLsn = latestFlushedTxnLSN.get();
+       flushedToPartitions.clear();
+       
+       Iterator<ReadWriteTxn> it = committedQueue.iterator();
+       ReadWriteTxn txnToFlush;
+       
+       while ( it.hasNext() )
+       {
+           txnToFlush = it.next();
+           
+           if ( txnToFlush.getCommitTime() > latestFlushedLsn )
+           {
+               // Apply changes
+               txnToFlush.flushLogEdits( flushedToPartitions );
+               
+               latestFlushedTxnLSN.set( txnToFlush.getCommitTime() );
+           }
+           
+           if ( txnToFlush == latestCommitted )
+           {
+               // leave latest committed txn in queue and dont go beyond it.
+               break;
+           }
+           
+           
+           /*
+            *  If the latest flushed txn has ref count > 0, then
+            *  following txns wont be flushed yet.
+            */
+           
+           if ( txnToFlush.getRefCount().get() >  0 )
+           {
+               break;
+           }
+           
+           // Remove from the queue
+           it.remove();
+       }
+       
+       // Sync each flushed to partition
+       Iterator<Partition> partitionIt = flushedToPartitions.iterator();
+       
+       while ( partitionIt.hasNext() )
+       {
+           partitionIt.next().sync();
+       }
+           
+   }
+    
+    class LogSyncer extends Thread 
+    {
+
+        @Override
+        public void run() 
+        {
+            try
+            {
+
+                flushLock.lock();
+
+                while ( !this.isInterrupted() )
+                {
+                    flushCondition.await( flushInterval, TimeUnit.MILLISECONDS );
+                    flushTxns();
+                }
+
+            }
+            catch ( InterruptedException e )
+            {
+                // Bail out
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                flushFailed = true;
+            }
+        }
+      }
+    
+    
 }

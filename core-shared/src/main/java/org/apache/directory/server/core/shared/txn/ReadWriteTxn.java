@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map;
 import java.util.HashMap;
@@ -31,29 +32,23 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Comparator;
 
-import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
 import org.apache.directory.server.core.api.txn.logedit.DataChange;
-import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
-import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
 import org.apache.directory.server.core.api.log.UserLogRecord;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
-import org.apache.directory.server.core.api.partition.index.IndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -676,5 +671,25 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
         } // end of outer while loop
 
         return result;
+    }
+    
+    
+    public void flushLogEdits( Set<Partition> affectedPartitions ) throws Exception
+    {
+        Iterator<LogEdit> it = logEdits.iterator();
+        LogEdit edit;
+        
+        
+        while ( it.hasNext() )
+        {
+            edit = it.next();
+            
+            edit.apply( false );
+            
+            if ( edit instanceof DataChangeContainer )
+            {
+                affectedPartitions.add( ( ( DataChangeContainer ) edit ).getPartition() );
+            }
+        }
     }
 }
