@@ -35,6 +35,8 @@ import jdbm.recman.SnapshotRecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
@@ -83,9 +85,10 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartition( SchemaManager schemaManager )
+    public JdbmPartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
 
         // Initialize the cache size
         if ( cacheSize < 0 )
@@ -111,10 +114,10 @@ public class JdbmPartition extends AbstractBTreePartition
             }
             else
             {
-                optimizer = new DefaultOptimizer( this );
+                optimizer = new DefaultOptimizer( this, txnManagerFactory, executionManagerFactory );
             }
     
-            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
+            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager, txnManagerFactory, executionManagerFactory );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
     
             searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );

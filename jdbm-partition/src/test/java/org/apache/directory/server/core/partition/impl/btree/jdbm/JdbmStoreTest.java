@@ -105,6 +105,10 @@ public class JdbmStoreTest
     
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -120,9 +124,9 @@ public class JdbmStoreTest
         
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -155,7 +159,7 @@ public class JdbmStoreTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
 
         // initialize the store
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -174,7 +178,7 @@ public class JdbmStoreTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager, executionManager );
         LOG.debug( "Created new store" );
     }
 
@@ -213,7 +217,7 @@ public class JdbmStoreTest
         wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
 
         // initialize the 2nd store
-        JdbmPartition store2 = new JdbmPartition( schemaManager );
+        JdbmPartition store2 = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
@@ -245,7 +249,7 @@ public class JdbmStoreTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager );
+        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
@@ -939,7 +943,7 @@ public class JdbmStoreTest
         assertTrue( uuidIndexDbFile.exists() );
         assertTrue( uuidIndexTxtFile.exists() );
 
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );

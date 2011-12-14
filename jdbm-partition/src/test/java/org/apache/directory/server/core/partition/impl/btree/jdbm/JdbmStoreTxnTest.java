@@ -1,6 +1,24 @@
 
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
-
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -54,6 +72,10 @@ public class JdbmStoreTxnTest
     
     /** log dir */
     private static File logDir;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -70,10 +92,10 @@ public class JdbmStoreTxnTest
         
         logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
-        txnManager = TxnManagerFactory.txnManagerInstance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
+        txnManager = txnManagerFactory.txnManagerInstance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -99,7 +121,7 @@ public class JdbmStoreTxnTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         
         // initialize the store
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -118,7 +140,7 @@ public class JdbmStoreTxnTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager, executionManager );
     }
 
 
