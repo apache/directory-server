@@ -66,6 +66,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public Tuple<K,V> get() throws Exception
     {
+        checkNotClosed( "get" );
+        
         if ( availableKey != null )
         {
             return returnedTuple;
@@ -88,7 +90,7 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      * {@inheritDoc}
      */
     public void before( Tuple<K,V> element ) throws Exception
-    {
+    {   
         beforeKey( element.getKey() );   
     }
     
@@ -98,6 +100,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public void afterKey( K key ) throws Exception
     {
+        checkNotClosed( "afterKey" );
+        
         availableKey = null;
         positioned = true;
         movingNext = true;
@@ -119,6 +123,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public void beforeKey( K key ) throws Exception
     {
+        checkNotClosed( "beforeKey" );
+        
         availableKey = null;
         positioned = true;
         movingNext = true;
@@ -157,6 +163,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public void beforeFirst() throws Exception
     {
+        checkNotClosed( "beforeFirst" );
+        
         positioned = true;
         availableKey = null;
         movingNext = true;
@@ -170,6 +178,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public void afterLast() throws Exception
     {
+        checkNotClosed( "afterLast" );
+        
         positioned = true;
         availableKey = null;
         movingNext = false;
@@ -206,6 +216,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public boolean previous() throws Exception
     {
+        checkNotClosed( "previous" );
+        
         if ( positioned == false )
         {
             afterLast();
@@ -262,6 +274,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public boolean next() throws Exception
     {
+        checkNotClosed( "next" );
+        
         if ( positioned == false )
         {
             beforeFirst();
