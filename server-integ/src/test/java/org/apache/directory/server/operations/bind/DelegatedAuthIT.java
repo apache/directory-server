@@ -38,6 +38,7 @@ import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,6 +90,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         @CreateTransport(protocol = "LDAP")
     })
     @Test
+    @Ignore
     public void testDelegatedAuthentication() throws Exception
     {
         assertTrue( getService().isStarted() );
@@ -162,6 +164,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
                     @CreateTransport(protocol = "LDAP")
                 })
     @Test
+    @Ignore
     public void testMultipleAuthenticators() throws Exception
     {
         assertTrue( getService().isStarted() );

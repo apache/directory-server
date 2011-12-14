@@ -1026,7 +1026,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     /**
      * Do a test with a paged search and send a wrong cookie in the middle
      */
-    @Test 
+    //@Test 
     public void testPagedSearchWrongCookie() throws Exception
     {
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
