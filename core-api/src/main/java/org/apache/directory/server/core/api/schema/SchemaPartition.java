@@ -27,7 +27,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -54,6 +53,12 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -68,13 +73,13 @@ import org.slf4j.LoggerFactory;
  * A special partition designed to contain the portion of the DIT where schema
  * information for the server is stored.
  * 
- * In an effort to make sure that all Partition implementations are equal 
- * citizens to ApacheDS we want to be able to swap in and out any kind of 
+ * In an effort to make sure that all Partition implementations are equal
+ * citizens to ApacheDS we want to be able to swap in and out any kind of
  * Partition to store schema.  This also has the added advantage of making
- * sure the core, and hence the server is not dependent on any specific 
+ * sure the core, and hence the server is not dependent on any specific
  * partition, which reduces coupling in the server's modules.
  * 
- * The SchemaPartition achieves this by not really being a backing store 
+ * The SchemaPartition achieves this by not really being a backing store
  * itself for the schema entries.  It instead delegates to another Partition
  * via containment.  It delegates all calls to this contained Partition. While
  * doing so it also manages certain things:
@@ -84,21 +89,21 @@ import org.slf4j.LoggerFactory;
  *   <li>Updates the schema Registries on valid schema changes making sure
  *       the schema on disk is in sync with the schema in memory.
  *   </li>
- *   <li>Will eventually manage transaction based changes to schema where 
+ *   <li>Will eventually manage transaction based changes to schema where
  *       between some sequence of operations the schema may be inconsistent.
  *   </li>
  *   <li>Delegates read/write operations to contained Partition.</li>
  *   <li>
  *       Responsible for initializing schema for the entire server.  ApacheDS
- *       cannot start up other partitions until this Partition is started 
+ *       cannot start up other partitions until this Partition is started
  *       without having access to the Registries.  This Partition supplies the
  *       Registries on initialization for the server.  That's one of it's core
  *       responsibilities.
  *   </li>
- *   
- * So by containing another Partition, we abstract the storage mechanism away 
+ * 
+ * So by containing another Partition, we abstract the storage mechanism away
  * from the management responsibilities while decoupling the server from a
- * specific partition implementation and removing complexity in the Schema 
+ * specific partition implementation and removing complexity in the Schema
  * interceptor service which before managed synchronization.
  * </ol>
  *
@@ -123,7 +128,9 @@ public final class SchemaPartition extends AbstractPartition
 
     /** A static Dn for the ou=schema partition */
     private static Dn SCHEMA_DN;
-
+    
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS_AT;
 
     public SchemaPartition( SchemaManager schemaManager )
     {
@@ -139,11 +146,12 @@ public final class SchemaPartition extends AbstractPartition
         id = SCHEMA_ID;
         suffixDn = SCHEMA_DN;
         this.schemaManager = schemaManager;
+        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
     
     
     /**
-     * Sets the wrapped {@link Partition} which must be supplied or 
+     * Sets the wrapped {@link Partition} which must be supplied or
      * {@link Partition#initialize()} will fail with a NullPointerException.
      *
      * @param wrapped the Partition being wrapped
@@ -263,13 +271,41 @@ public final class SchemaPartition extends AbstractPartition
         updateSchemaModificationAttributes( addContext );
     }
 
-
+   
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext bindContext ) throws LdapException
+    public final int getChildCount( DeleteOperationContext deleteContext ) throws LdapException
     {
-        wrapped.bind( bindContext );
+        try
+        {
+            Dn dn = deleteContext.getDn();
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBase( dn );
+            ExprNode node = new PresenceNode( OBJECT_CLASS_AT );
+            searchRequest.setFilter( node );
+            searchRequest.setTypesOnly( true );
+            searchRequest.setScope( SearchScope.ONELEVEL );
+            
+            SearchOperationContext searchContext = new SearchOperationContext( deleteContext.getSession(), searchRequest );
+            
+            EntryFilteringCursor cursor = wrapped.search( searchContext );
+            
+            cursor.beforeFirst();
+            int nbEntry = 0;
+            
+            while ( cursor.next() && ( nbEntry < 2 ) )
+            {
+                nbEntry++;
+            }
+            
+            return nbEntry;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
 
@@ -279,7 +315,15 @@ public final class SchemaPartition extends AbstractPartition
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         boolean cascade = deleteContext.hasRequestControl( Cascade.OID );
+        
+        // We have to check if the entry we want to delete has children, or not
+        int nbChild = getChildCount( deleteContext );
 
+        if ( nbChild > 1 )
+        {
+            throw new LdapUnwillingToPerformException();
+        }
+        
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
 
@@ -319,7 +363,7 @@ public final class SchemaPartition extends AbstractPartition
             modifyContext.setEntry( entry );
         }
 
-        Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( modifyContext.getModItems(), entry );
+        Entry targetEntry = SchemaUtils.getTargetEntry( modifyContext.getModItems(), entry );
 
         boolean cascade = modifyContext.hasRequestControl( Cascade.OID );
 
@@ -522,8 +566,8 @@ public final class SchemaPartition extends AbstractPartition
 
     /**
      * Updates the schemaModifiersName and schemaModifyTimestamp attributes of
-     * the schemaModificationAttributes entry for the global schema at 
-     * ou=schemaModifications,ou=schema.  This entry is hardcoded at that 
+     * the schemaModificationAttributes entry for the global schema at
+     * ou=schemaModifications,ou=schema.  This entry is hardcoded at that
      * position for now.
      * 
      * The current time is used to set the timestamp and the Dn of current user

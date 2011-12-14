@@ -465,16 +465,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        Partition partition = getPartition( bindContext.getDn() );
-        partition.bind( bindContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         Attribute attr = compareContext.getOriginalEntry().get( compareContext.getAttributeType() );

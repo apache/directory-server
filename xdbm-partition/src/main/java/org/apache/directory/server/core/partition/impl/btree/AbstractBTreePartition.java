@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -77,7 +76,6 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
-import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -693,20 +691,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     }
 
 
-    //---------------------------------------------------------------------------------------------
-    // The Bind operation
-    //---------------------------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public final void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        // does nothing
-        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, I18n
-            .err( I18n.ERR_702 ) );
-    }
-
-    
     //---------------------------------------------------------------------------------------------
     // The Delete operation
     //---------------------------------------------------------------------------------------------

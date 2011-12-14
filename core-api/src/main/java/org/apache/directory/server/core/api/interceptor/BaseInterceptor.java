@@ -157,7 +157,7 @@ public abstract class BaseInterceptor implements Interceptor
          */
         public void bind( BindOperationContext bindContext ) throws LdapException
         {
-            nexus.bind( bindContext );
+            // Do nothing here : there is no support for the Bind operation in Partition
         }
 
 
