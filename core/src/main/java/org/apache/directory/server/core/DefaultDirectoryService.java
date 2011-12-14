@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,11 +75,13 @@ import org.apache.directory.server.core.api.interceptor.context.HasEntryOperatio
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.journal.Journal;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
@@ -302,6 +306,12 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
+    
+    /** Txn Manager Factory */
+    TxnManagerFactory txnManagerFactory;
+    
+    /** Operation Execution Manager Factory */
+    OperationExecutionManagerFactory executionManagerFactory;
     
 
     /**
@@ -1144,7 +1154,7 @@ public class DefaultDirectoryService implements DirectoryService
             throw new IllegalArgumentException( I18n.err( I18n.ERR_314 ) );
         }
 
-        TxnManager txnManager = TxnManagerFactory.txnManagerInstance();
+        TxnManager txnManager = txnManagerFactory.txnManagerInstance();
         Cursor<ChangeLogEvent> cursor = null;
 
         /*
@@ -1170,19 +1180,67 @@ public class DefaultDirectoryService implements DirectoryService
 
             do
             {
-                txnManager.beginTransaction( false );
+                //TODO TODO
+                // THE followign revert was done in one txn. However, when then number
+                // of changes got close to 1000, it got really slow. For now doing this
+                // in small txns, but identify the cause of this perf problem.
                 
-                cursor = changeLog.getChangeLogStore().findAfter( revision );
-
+                //txnManager.beginTransaction( false );
+                
+                boolean startedTxn = false;
+                List<ChangeLogEvent> events = new LinkedList();
+                
                 try
                 {
+                    txnManager.beginTransaction( true );
+                    
+                    startedTxn = true;
+                    
+                    cursor = changeLog.getChangeLogStore().findAfter( revision );
                     cursor.afterLast();
-
-                    while ( cursor.previous() ) // apply ldifs in reverse order
+                    
+                    while ( cursor.previous() )
                     {
-                        ChangeLogEvent event = cursor.get();
+                        events.add( cursor.get() );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    if ( startedTxn )
+                    {
+                        txnManager.abortTransaction();
+                    }
+                }
+                finally
+                {
+                    try
+                    {
+                        if ( cursor != null )
+                        {
+                            cursor.close();
+                        }
+                    }
+                    catch( Exception e )
+                    {
+                        // ignore
+                    }
+                }
+                
+                txnManager.commitTransaction();
+                    
+                Iterator<ChangeLogEvent> it = events.iterator();
+                boolean inTxn = false;
+                 
+                try
+                {
+                    while ( it.hasNext() ) // apply ldifs in reverse order
+                    {                       
+                        ChangeLogEvent event = it.next();
                         List<LdifEntry> reverses = event.getReverseLdifs();
-
+                        
+                        txnManager.beginTransaction( false );
+                        inTxn = true;
+                        
                         for ( LdifEntry reverse : reverses )
                         {
                             switch ( reverse.getChangeType().getChangeType() )
@@ -1218,16 +1276,22 @@ public class DefaultDirectoryService implements DirectoryService
                                     throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
                             }
                         }
+                        
+                        inTxn = false;
+                        txnManager.commitTransaction();
                     }
                 }
                 catch ( Exception e )
                 {
-                    txnManager.abortTransaction();
+                    if ( inTxn )
+                    {
+                        txnManager.abortTransaction();
+                    }
 
                     throw e;
                 }
 
-                txnManager.commitTransaction();
+                //txn   Manager.commitTransaction();
                 done = true;
             }
             while ( !done );
@@ -1260,6 +1324,8 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
+        txnManager.applyPendingTxns();
+        
         return changeLog.getCurrentRevision();
     }
 
@@ -1307,16 +1373,27 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.warn( "ApacheDS shutdown hook has NOT been registered with the runtime."
                 + "  This default setting for standalone operation has been overriden." );
         }
+        
+        // Initialize the txn subsystem and the operation execution manager if not initialized aleady 
+        if ( txnManagerFactory == null )
+        {
+            txnManagerFactory = new TxnManagerFactory( getInstanceLayout().getTxnLogDirectory().getPath(), TXN_LOG_BUFFER_SIZE, TXN_LOG_FILE_SIZE );
+        }
+        
+        if ( executionManagerFactory == null )
+        {
+            executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        }
 
         initialize();
         showSecurityWarnings();
 
         // Start the sync thread if required
-        if ( syncPeriodMillis > 0 )
-        {
-            workerThread = new Thread( worker, "SynchWorkerThread" );
-            workerThread.start();
-        }
+//        if ( syncPeriodMillis > 0 )
+//        {
+//            //workerThread = new Thread( worker, "SynchWorkerThread" );
+//            //workerThread.start();
+//        }
 
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
@@ -1361,6 +1438,12 @@ public class DefaultDirectoryService implements DirectoryService
         {
             return;
         }
+        
+        // --------------------------------------------------------------------
+        // Shutdown the txnManager
+        //
+        txnManagerFactory.uninit();
+        executionManagerFactory.uninit();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog
@@ -1832,7 +1915,7 @@ public class DefaultDirectoryService implements DirectoryService
                 .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
 
             AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-            OperationExecutionManagerFactory.instance().add( system, addOperationContext );
+            executionManagerFactory.instance().add( system, addOperationContext );
         }
     }
 
@@ -1875,7 +1958,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), this );
 
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.ROOT_DSE ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.ROOT_DSE ), executionManagerFactory );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
 
@@ -2366,4 +2449,68 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return evaluator;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setTxnManagerFactory( TxnManagerFactory txnManagerFactory )
+    {
+        this.txnManagerFactory = txnManagerFactory;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setExecutionManagerFactory( OperationExecutionManagerFactory executionManagerFactory )
+    {
+        this.executionManagerFactory = executionManagerFactory;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public TxnManagerFactory getTxnManagerFactory()
+    {
+        return txnManagerFactory;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public OperationExecutionManagerFactory getOperationExecutionManagerFactory()
+    {
+        return executionManagerFactory;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public TxnManager getTxnManager()
+    {
+        return txnManagerFactory.txnManagerInstance();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public TxnLogManager getTxnLogManager()
+    {
+        return txnManagerFactory.txnLogManagerInstance();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public OperationExecutionManager getOperationExecutionManager()
+    {
+        return executionManagerFactory.instance();
+    }
+    
 }
