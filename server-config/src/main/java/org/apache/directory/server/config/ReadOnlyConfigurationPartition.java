@@ -32,6 +32,8 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -62,9 +64,10 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      * @param schemaManager
      *      the schema manager
      */
-    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager )
+    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager, 
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory)
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
         this.inputStream = inputStream;
         id = "config";
 

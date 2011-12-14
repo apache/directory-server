@@ -30,6 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
@@ -59,6 +61,9 @@ public class LdapServerConfigReaderTest
 
     private static SchemaManager schemaManager;
 
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @BeforeClass
     public static void readConfig() throws Exception
@@ -76,6 +81,11 @@ public class LdapServerConfigReaderTest
             FileUtils.deleteDirectory( schemaRepository );
         }
 
+        File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
 
@@ -102,7 +112,7 @@ public class LdapServerConfigReaderTest
         File configDir = new File( workDir, "ldapServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );

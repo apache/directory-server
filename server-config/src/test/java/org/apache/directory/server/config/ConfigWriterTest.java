@@ -34,6 +34,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
@@ -66,7 +68,10 @@ public class ConfigWriterTest
 
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
-
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
+    
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -81,6 +86,11 @@ public class ConfigWriterTest
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
+        
+        File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
+        logDir.mkdirs();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
@@ -110,7 +120,7 @@ public class ConfigWriterTest
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         // Creating of the config partition
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
