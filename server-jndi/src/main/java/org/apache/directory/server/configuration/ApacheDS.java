@@ -495,7 +495,7 @@ public class ApacheDS
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, null, null );
         ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
 
         schemaPartition.setWrappedPartition( ldifPartition );

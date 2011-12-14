@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.lang.model.element.ExecutableElement;
+
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -38,6 +40,7 @@ import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -47,6 +50,8 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -137,6 +142,8 @@ public class ApacheDsService
 
     private boolean isSchemaPartitionFirstExtraction = false;
 
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
     /**
      * starts various services configured according to the 
@@ -160,6 +167,10 @@ public class ApacheDsService
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
 
+        txnManagerFactory = new TxnManagerFactory( instanceLayout.getTxnLogDirectory().getPath(), 
+            DirectoryService.TXN_LOG_BUFFER_SIZE, DirectoryService.TXN_LOG_FILE_SIZE );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        
         initSchemaManager( instanceLayout );
         initSchemaLdifPartition( instanceLayout );
         initConfigPartition( instanceLayout );
@@ -247,7 +258,7 @@ public class ApacheDsService
         File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
 
         // Init the LdifPartition
-        schemaLdifPartition = new LdifPartition( schemaManager );
+        schemaLdifPartition = new LdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         schemaLdifPartition.setPartitionPath( schemaPartitionDirectory.toURI() );
     }
 
@@ -274,7 +285,7 @@ public class ApacheDsService
             isConfigPartitionFirstExtraction = true;
         }
 
-        configPartition = new SingleFileLdifPartition( schemaManager );
+        configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( confFile.toURI() );
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
@@ -290,9 +301,9 @@ public class ApacheDsService
         LOG.info( "Initializing the DirectoryService..." );
 
         long startTime = System.currentTimeMillis();
-
+ 
         DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean,
-            instanceLayout, schemaManager );
+            instanceLayout, schemaManager, txnManagerFactory, executionManagerFactory );
 
         // The schema partition
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );

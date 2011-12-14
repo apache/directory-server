@@ -77,6 +77,8 @@ import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.DefaultJournalStore;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -1132,14 +1134,14 @@ public class ServiceBuilder
      * @throws LdapInvalidDnException
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
+    public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean, TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
     {
         if ( ( jdbmPartitionBean == null ) || jdbmPartitionBean.isDisabled() )
         {
             return null;
         }
         
-        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager() );
+        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager(), txnManagerFactory, executionManagerFactory );
         
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
@@ -1198,7 +1200,8 @@ public class ServiceBuilder
      * @return The instantiated Partition
      * @throws ConfigurationException If we cannot process the Partition
      */
-    public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean ) throws ConfigurationException
+    public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean, 
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
     {
         if ( ( partitionBean == null ) || partitionBean.isDisabled() )
         {
@@ -1207,7 +1210,7 @@ public class ServiceBuilder
         
         if ( partitionBean instanceof JdbmPartitionBean )
         {
-            return createJdbmPartition( directoryService, (JdbmPartitionBean)partitionBean );
+            return createJdbmPartition( directoryService, (JdbmPartitionBean)partitionBean, txnManagerFactory, executionManagerFactory );
         }
         else
         {
@@ -1222,7 +1225,8 @@ public class ServiceBuilder
      * @return A Map of all the instantiated partitions
      * @throws ConfigurationException If we cannot process some Partition
      */
-    public static Map<String, Partition> createPartitions( DirectoryService directoryService, List<PartitionBean> partitionBeans ) throws ConfigurationException
+    public static Map<String, Partition> createPartitions( DirectoryService directoryService, List<PartitionBean> partitionBeans, 
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
     {
         Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
         
@@ -1233,7 +1237,7 @@ public class ServiceBuilder
                 continue;
             }
             
-            Partition partition = createPartition( directoryService, partitionBean );
+            Partition partition = createPartition( directoryService, partitionBean, txnManagerFactory, executionManagerFactory );
             
             if ( partition != null )
             {
@@ -1253,9 +1257,12 @@ public class ServiceBuilder
      * @return An instance of DirectoryService
      * @throws Exception
      */
-    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, InstanceLayout instanceLayout, SchemaManager schemaManager ) throws Exception
+    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, InstanceLayout instanceLayout, SchemaManager schemaManager,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
         DirectoryService directoryService = new DefaultDirectoryService();
+        ( ( DefaultDirectoryService ) directoryService ).setTxnManagerFactory( txnManagerFactory );
+        ( ( DefaultDirectoryService ) directoryService ).setExecutionManagerFactory( executionManagerFactory );
         
         // The schemaManager
         directoryService.setSchemaManager( schemaManager );
@@ -1275,7 +1282,7 @@ public class ServiceBuilder
         directoryService.setInterceptors( interceptors );
         
         // Partitions
-        Map<String, Partition> partitions = createPartitions( directoryService, directoryServiceBean.getPartitions() );
+        Map<String, Partition> partitions = createPartitions( directoryService, directoryServiceBean.getPartitions(), txnManagerFactory, executionManagerFactory );
 
         Partition systemPartition = partitions.remove( "system" );
 
