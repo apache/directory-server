@@ -39,6 +39,8 @@ import org.apache.directory.server.xdbm.impl.avl.AvlMasterTable;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -122,9 +124,10 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of LdifPartition.
      */
-    public LdifPartition( SchemaManager schemaManager )
+    public LdifPartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
     }
 
 

@@ -40,6 +40,8 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -84,9 +86,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of SingleFileLdifPartition.
      */
-    public SingleFileLdifPartition( SchemaManager schemaManager )
+    public SingleFileLdifPartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
     }
 
 

@@ -26,6 +26,7 @@ import java.net.URI;
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -50,15 +51,16 @@ public abstract class AbstractLdifPartition extends AvlPartition
     protected OperationExecutionManager executionManager;
 
 
-    public AbstractLdifPartition( SchemaManager schemaManager )
+    public AbstractLdifPartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
         
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
         
-        executionManager = OperationExecutionManagerFactory.instance();
+        executionManager = executionManagerFactory.instance();
     }
     
     

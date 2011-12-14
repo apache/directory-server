@@ -114,6 +114,10 @@ public class SingleFileLdifPartitionTest
     
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -133,9 +137,9 @@ public class SingleFileLdifPartitionTest
         
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -224,7 +228,7 @@ public class SingleFileLdifPartitionTest
             rf.setLength( 0 );
         }
 
-        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager,txnManagerFactory, executionManagerFactory );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
