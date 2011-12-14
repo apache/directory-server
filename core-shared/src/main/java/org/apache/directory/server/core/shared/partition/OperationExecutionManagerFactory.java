@@ -20,20 +20,27 @@
 package org.apache.directory.server.core.shared.partition;
 
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 
 public class OperationExecutionManagerFactory
 {
     /** Operation Manager instance */
-    private static OperationExecutionManager executionManager;
+    private OperationExecutionManager executionManager;
     
     
-    public static void init()
-    {
-        executionManager = new DefaultOperationExecutionManager();
+    public  OperationExecutionManagerFactory( TxnManagerFactory txnManagerFactory )
+    {    
+        executionManager = new DefaultOperationExecutionManager( txnManagerFactory );
     }
     
     
-    public static OperationExecutionManager instance()
+    public void uninit()
+    {
+        //do nothing;
+    }
+    
+    
+    public OperationExecutionManager instance()
     {
         return executionManager;
     }

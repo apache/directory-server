@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -118,9 +119,9 @@ public class IndexCursorWrapperTest
             dn = new Dn( "cn=Test", "ou=department" );
 
             // Init the txn manager
-            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.txnManagerInternalInstance();
-            txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+            TxnManagerFactory txnManagerFactory = new TxnManagerFactory( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = txnManagerFactory.txnManagerInternalInstance();
+            txnLogManager = txnManagerFactory.txnLogManagerInstance();
 
             // Prepare the to be wrapped cursor
             ForwardIndexEntry<Object> idxEntry;
@@ -215,6 +216,8 @@ public class IndexCursorWrapperTest
     @After
     public void teardown() throws IOException
     {
+        Utils.deleteDirectory( new File( getLogFolder() ) );
+        
         try
         {
             txnManager.commitTransaction();

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.shared.txn;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
 import org.apache.directory.server.core.api.log.LogAnchor;
@@ -39,6 +40,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -84,6 +86,9 @@ class DefaultTxnManager implements TxnManagerInternal
     /** Flush lock */
     private Lock flushLock = new ReentrantLock();
     
+    /** Number of flushes */
+    private int numFlushes;
+    
     /** Flush Condition object */
     private Condition flushCondition = flushLock.newCondition();
     
@@ -94,10 +99,12 @@ class DefaultTxnManager implements TxnManagerInternal
     private HashSet<Partition> flushedToPartitions = new HashSet<Partition>();
     
     /** Backgorund syncing thread */
-    LogSyncer syncer;
+    private LogSyncer syncer;
     
     /** Initial committed txn */
-    ReadWriteTxn dummyTxn = new ReadWriteTxn();
+    private ReadWriteTxn dummyTxn = new ReadWriteTxn();
+    
+    private AtomicInteger pending = new AtomicInteger();
 
     /** Per thread txn context */
     static final ThreadLocal<Transaction> txnVar =
@@ -133,6 +140,39 @@ class DefaultTxnManager implements TxnManagerInternal
         syncer = new LogSyncer();
         syncer.setDaemon( true );
         syncer.start();
+    }
+    
+    
+    public void uninit()
+    {
+        syncer.interrupt();
+        
+        try
+        {
+            syncer.join();
+        }
+        catch ( InterruptedException e )
+        {
+            // Ignore
+        }
+        
+        // Do a best effort last flush
+        flushLock.lock();
+        
+        try
+        {
+            flushTxns();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            flushLock.unlock();
+        }
+        
+        syncer = null;
     }
 
 
@@ -220,12 +260,68 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+    public TxnHandle suspendCurTxn()
+    {
+        Transaction curTxn = txnVar.get();
+        
+        txnVar.set( null );
+        
+        return curTxn;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resumeTxn( TxnHandle txnHandle)
+    {
+        if ( txnHandle == null )
+        {
+            throw new IllegalArgumentException( "Cannot accept a null handle when resuming a txn " );
+        }
+        
+        Transaction curTxn = txnVar.get();
+        
+        if ( curTxn != null )
+        {
+            throw new IllegalStateException( " Trying to resume txn" + txnHandle +" while there is already a txn running:" + curTxn  );
+        }
+        
+        txnVar.set( ( Transaction )txnHandle );
+    }
+  
+    
+    /**
+     * {@inheritDoc}
+     */
     public Transaction getCurTxn()
     {
         return ( Transaction ) txnVar.get();
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void applyPendingTxns()
+    {
+        flushLock.lock();
+        
+        try
+        {
+            flushTxns();
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            // Ignore
+        }
+        finally
+        {
+            flushLock.unlock();
+        }
+        
+    }
 
     /**
      * Begins a read only txn. A read only txn does not put any log edits
@@ -275,6 +371,10 @@ class DefaultTxnManager implements TxnManagerInternal
         }
 
         txn.startTxn( startTime );
+        
+//        int refCount = lastTxnToCheck.getRefCount().get();
+//        System.out.println("start time" + startTime + " " + refCount + 
+//            " pending " + pending.incrementAndGet() );
 
         buildCheckList( txn, lastTxnToCheck );
         txnVar.set( txn );
@@ -462,6 +562,13 @@ class DefaultTxnManager implements TxnManagerInternal
             }
 
             lastTxnToCheck.getRefCount().decrementAndGet();
+            
+//            if ( txn instanceof ReadOnlyTxn )
+//            {
+//                System.out.println(" txn end " + txn.getStartTime() + " " + 
+//                    lastTxnToCheck.getRefCount() 
+//                    + " pending " + pending.decrementAndGet() );
+//            }
         }
     }
 
@@ -634,7 +741,7 @@ class DefaultTxnManager implements TxnManagerInternal
        flushedToPartitions.clear();
        
        Iterator<ReadWriteTxn> it = committedQueue.iterator();
-       ReadWriteTxn txnToFlush;
+       ReadWriteTxn txnToFlush = null;
        
        while ( it.hasNext() )
        {
@@ -654,6 +761,15 @@ class DefaultTxnManager implements TxnManagerInternal
                break;
            }
            
+           numFlushes++;
+           
+//           if (  numFlushes % 100 == 0 )
+//           {
+//           System.out.println( "lastFlushed lsn: " + latestFlushedTxnLSN  + " " + committedQueue.size() );
+//           
+//           System.out.println( " last commit txn: " + latestCommitted.getCommitTime() );
+//           System.out.println( "txnToFlush: " + txnToFlush.getRefCount() + " " + txnToFlush.getCommitTime() ); 
+//           }
            
            /*
             *  If the latest flushed txn has ref count > 0, then
@@ -662,6 +778,7 @@ class DefaultTxnManager implements TxnManagerInternal
            
            if ( txnToFlush.getRefCount().get() >  0 )
            {
+          //     System.out.println( "breaking out: " + txnToFlush.getCommitTime()  + " " + committedQueue.size() );
                break;
            }
            
@@ -685,10 +802,9 @@ class DefaultTxnManager implements TxnManagerInternal
         @Override
         public void run() 
         {
+            flushLock.lock();
             try
             {
-
-                flushLock.lock();
 
                 while ( !this.isInterrupted() )
                 {
@@ -705,6 +821,10 @@ class DefaultTxnManager implements TxnManagerInternal
             {
                 e.printStackTrace();
                 flushFailed = true;
+            }
+            finally
+            {
+                flushLock.unlock();
             }
         }
       }

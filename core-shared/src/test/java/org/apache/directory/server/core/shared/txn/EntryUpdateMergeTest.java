@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -131,9 +132,9 @@ public class EntryUpdateMergeTest
             GN_AT = schemaManager.getAttributeType( "gn" );
 
             // Init the txn manager
-            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.txnManagerInternalInstance();
-            txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+            TxnManagerFactory txnManagerFactory = new TxnManagerFactory( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = txnManagerFactory.txnManagerInternalInstance();
+            txnLogManager = txnManagerFactory.txnLogManagerInstance();
 
             toUpdate = createEntry( updatedEntryId );
             toAdd = createEntry( addedEntryId );
@@ -209,6 +210,8 @@ public class EntryUpdateMergeTest
             e.printStackTrace();
             fail();
         }
+        
+        Utils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 

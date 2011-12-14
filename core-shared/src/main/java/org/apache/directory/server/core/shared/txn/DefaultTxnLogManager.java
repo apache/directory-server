@@ -55,6 +55,8 @@ public class DefaultTxnLogManager implements TxnLogManager
     /** Txn Manager */
     private TxnManagerInternal txnManager;
     
+    /** Txn Manager Factory */
+    TxnManagerFactory txnManagerFactory;
     
     /**
      * Inits the the txn log manager
@@ -62,10 +64,17 @@ public class DefaultTxnLogManager implements TxnLogManager
      * @param logger write ahead logger
      * @param txnManager txn Manager
      */
-    public void init( Log logger, TxnManagerInternal txnManager )
+    public DefaultTxnLogManager( Log logger, TxnManagerFactory txnManagerFactory )
     {
         wal = logger;
-        this.txnManager = txnManager;
+        this.txnManager = txnManagerFactory.txnManagerInternalInstance();
+        this.txnManagerFactory = txnManagerFactory;
+    }
+    
+    
+    public void uninit()
+    {
+       // Do nothing
     }
     
     
@@ -223,7 +232,7 @@ public class DefaultTxnLogManager implements TxnLogManager
             return wrappedCursor;
         }
         
-        return new IndexCursorWrapper( partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+        return new IndexCursorWrapper( txnManagerFactory, partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
     }
     
     
@@ -240,7 +249,7 @@ public class DefaultTxnLogManager implements TxnLogManager
             return ( Index<Object> )wrappedIndex;
         }
         
-        return new IndexWrapper( partitionDn, ( Index<Object> ) wrappedIndex );
+        return new IndexWrapper( txnManagerFactory, partitionDn, ( Index<Object> ) wrappedIndex );
     }
     
     
@@ -256,7 +265,7 @@ public class DefaultTxnLogManager implements TxnLogManager
             return wrappedTable;
         }
         
-        return new MasterTableWrapper( partitionDn, wrappedTable );
+        return new MasterTableWrapper( txnManagerFactory, partitionDn, wrappedTable );
     }
     
 

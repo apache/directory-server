@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
@@ -32,7 +33,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface Transaction
+/** Package protected */ interface Transaction extends TxnHandle
 {
 
     /**

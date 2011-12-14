@@ -84,10 +84,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
     /** Txn log manager kept for fast access */
     private TxnLogManager txnLogManager;
 
+    /** Txn manager Factory */
+    private TxnManagerFactory txnManagerFactory;
 
-    public DefaultOperationExecutionManager()
+    public DefaultOperationExecutionManager( TxnManagerFactory txnManagerFactory  )
     {
-        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        txnLogManager = txnManagerFactory.txnLogManagerInstance();
     }
     
     //---------------------------------------------------------------------------------------------
@@ -358,7 +361,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             master = txnLogManager.wrap( partition.getSuffixDn(), master );
 
             // First get the entry
-            Entry entry = master.get( id );
+            Entry entry = getEntry( partition, master, id );
 
             if ( entry == null )
             {
@@ -526,7 +529,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         UUID id = getEntryId( partition, dn );
         MasterTable master = partition.getMasterTable();
         master = txnLogManager.wrap( partition.getSuffixDn(), master );
-        Entry originalEntry = master.get( id );
+        Entry originalEntry = getEntry( partition, master, id );
         Entry entry = originalEntry.clone();
 
         DataChangeContainer changeContainer = new DataChangeContainer( partition );
@@ -1020,7 +1023,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn oldDn = renameContext.getDn();
             Rdn newRdn = renameContext.getNewRdn();
             boolean deleteOldRdn = renameContext.getDeleteOldRdn();
-            Entry originalEntry = ( ( ClonedServerEntry )renameContext.getOriginalEntry() ).getOriginalEntry();
+            Entry originalEntry = ( ( ClonedServerEntry )renameContext.getOriginalEntry() );
+            
+            if ( originalEntry != null )
+            {
+                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+            }
 
             if ( renameContext.getEntry() != null )
             {
@@ -1352,7 +1360,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn newSuperior = moveContext.getNewSuperior();
             Dn newDn = moveContext.getNewDn();
             Entry modifiedEntry = moveContext.getModifiedEntry();
-            Entry originalEntry = ( ( ClonedServerEntry )moveContext.getOriginalEntry() ).getOriginalEntry();
+            Entry originalEntry = ( ClonedServerEntry )moveContext.getOriginalEntry();
+            
+            if ( originalEntry != null )
+            {
+                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+            }
 
             move( partition, oldDn, newSuperior, newDn, modifiedEntry, originalEntry );
             
@@ -1414,7 +1427,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             master = txnLogManager.wrap( partition.getSuffixDn(), master );
 
             // First get the entry
-            originalEntry = master.get( entryId );
+            originalEntry = getEntry( partition, master, entryId );
         }
 
         if ( modifiedEntry == null )
@@ -1453,7 +1466,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Rdn newRdn = moveAndRenameContext.getNewRdn();
             boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
-            Entry originalEntry = ( ( ClonedServerEntry )moveAndRenameContext.getOriginalEntry() ).getOriginalEntry();
+            Entry originalEntry = ( ClonedServerEntry )moveAndRenameContext.getOriginalEntry();
+            
+            if ( originalEntry != null )
+            {
+                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+            }
 
             moveAndRename( partition, oldDn, newSuperiorDn, newRdn, modifiedEntry, originalEntry, deleteOldRdn );
         }
@@ -1520,7 +1538,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             master = txnLogManager.wrap( partition.getSuffixDn(), master );
 
             // First get the entry
-            originalEntry = master.get( oldId );
+            originalEntry = getEntry( partition, master, oldId );
         }
 
         if ( modifiedEntry == null )
@@ -1648,14 +1666,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             MasterTable master = partition.getMasterTable();
             master = txnLogManager.wrap( partition.getSuffixDn(), master );
-            Entry entry = master.get( id );
+            Entry entry = getEntry( partition, master, id );
 
             if ( entry != null )
             {
-                // We have to store the DN in this entry
-                Dn dn = buildEntryDn( partition, id );
-                entry.setDn( dn );
-
                 return new ClonedServerEntry( entry );
             }
 
@@ -1700,7 +1714,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
         return new BaseEntryFilteringCursor( 
             new EntryCursorAdaptor( partition, 
-                list( partition, getEntryId( partition, listContext.getDn() ) ) ), listContext );
+                list( partition, getEntryId( partition, listContext.getDn() ) ), 
+                txnManagerFactory ), listContext );
         }
         catch ( Exception e )
         {
@@ -1819,6 +1834,19 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         Dn dn = new Dn( schemaManager, upName.toString() );
 
         return dn;
+    }
+    
+    private Entry getEntry( Partition partition, MasterTable wrappedTable, UUID id ) throws Exception
+    {
+        Entry entry = wrappedTable.get( id );
+        
+        if ( entry != null )
+        {
+            Dn dn = buildEntryDn( partition, id );
+            entry.setDn( dn );
+        }
+        
+        return entry;
     }
 
 
@@ -2083,7 +2111,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             master = txnLogManager.wrap( partition.getSuffixDn(), master );
 
             // First get the entry
-            originalEntry = master.get( id );
+            originalEntry = getEntry( partition, master, id );
         }
         
         if ( entry == null )
@@ -2283,7 +2311,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     continue;
                 }
                 
-                childEntry = master.get( childId );
+                childEntry = getEntry( partition, master, childId );
                 clonedChildEntry = childEntry.clone();
                 
                 childDn = childEntry.getDn();                

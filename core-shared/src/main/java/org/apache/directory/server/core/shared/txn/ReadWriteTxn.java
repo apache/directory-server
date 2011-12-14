@@ -607,6 +607,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
         List<DnSet> txnWriteDns = txn.getWriteSet();
         Iterator<DnSet> writeIt = txnWriteDns.iterator();
         Iterator<DnSet> readIt = readDns.iterator();
+        
+        // If no write for any of the txns, then return
+        
+        if ( this.writeDns.size() == 0 || txnWriteDns.size() == 0 )
+        {
+            return false;
+        }
 
         DnSet readDnSet;
         SearchScope readScope;

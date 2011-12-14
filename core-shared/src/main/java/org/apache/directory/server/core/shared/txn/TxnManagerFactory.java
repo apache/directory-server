@@ -38,13 +38,15 @@ import java.io.IOException;
 public class TxnManagerFactory
 {
     /** The only txn manager */
-    private static TxnManagerInternal txnManager;
+    private TxnManagerInternal txnManager;
 
     /** The only txn log manager */
-    private static TxnLogManager txnLogManager;
+    private TxnLogManager txnLogManager;
 
     /** log suffix */
-    private static String LOG_SUFFIX = "log";
+    private String LOG_SUFFIX = "log";
+    
+    private boolean inited;
 
 
     /**
@@ -56,9 +58,9 @@ public class TxnManagerFactory
      * @param logFileSize max targer log file size for the log manager.
      * @throws IOException thrown if initialization fails.
      */
-    public static void init( String logFolderPath,
+    public TxnManagerFactory( String logFolderPath,
         int logBufferSize, long logFileSize ) throws IOException
-    {
+    {       
         Log log = new DefaultLog();
 
         try
@@ -72,27 +74,40 @@ public class TxnManagerFactory
 
         txnManager = new DefaultTxnManager();
 
-        txnLogManager = new DefaultTxnLogManager();
-        ( ( DefaultTxnLogManager )txnLogManager ).init( log, ( TxnManagerInternal ) txnManager );
+        txnLogManager = new DefaultTxnLogManager( log, this );
 
         ( ( DefaultTxnManager ) txnManager ).init( txnLogManager );
+        
+        inited = true;
 
     }
     
+    public void uninit()
+    {
+        if ( inited == false )
+        {
+            return;
+        }
+        
+        ( ( DefaultTxnManager ) txnManager ).uninit();
+        ( (DefaultTxnLogManager) txnLogManager).uninit();
+        inited = false;
+    }
     
-    public static TxnManager txnManagerInstance()
+    
+    public TxnManager txnManagerInstance()
     {
         return txnManager;
     }
 
 
-    public static TxnLogManager txnLogManagerInstance()
+    public TxnLogManager txnLogManagerInstance()
     {
         return txnLogManager;
     }
 
 
-    static TxnManagerInternal txnManagerInternalInstance()
+    TxnManagerInternal txnManagerInternalInstance()
     {
         return txnManager;
     }

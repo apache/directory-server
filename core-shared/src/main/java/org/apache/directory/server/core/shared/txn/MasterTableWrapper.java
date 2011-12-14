@@ -42,11 +42,15 @@ public class MasterTableWrapper implements MasterTable
     /** partition the table belongs to */
     private Dn partitionDn;
     
+    /** Txn log manager */
+    private TxnLogManager logManager;
     
-    public MasterTableWrapper( Dn partitionDn, MasterTable wrappedTable )
+    
+    public MasterTableWrapper( TxnManagerFactory txnManagerFactory, Dn partitionDn, MasterTable wrappedTable )
     {
         this.partitionDn = partitionDn;
         this.wrappedTable = wrappedTable;
+        logManager = txnManagerFactory.txnLogManagerInstance();
     }
     
     
@@ -170,7 +174,6 @@ public class MasterTableWrapper implements MasterTable
             return null;
         }
         
-        TxnLogManager logManager = TxnManagerFactory.txnLogManagerInstance();
         Entry originalEntry = wrappedTable.get( key );
         Entry entry = logManager.mergeUpdates( partitionDn, key, originalEntry );
         

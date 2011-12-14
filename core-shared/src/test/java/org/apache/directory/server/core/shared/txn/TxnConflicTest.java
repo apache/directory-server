@@ -20,12 +20,14 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,15 +76,21 @@ public class TxnConflicTest
         try
         {
             // Init the txn manager
-            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.txnManagerInternalInstance();
-            txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+            TxnManagerFactory txnManagerFactory = new TxnManagerFactory( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = txnManagerFactory.txnManagerInternalInstance();
+            txnLogManager = txnManagerFactory.txnLogManagerInstance();
         }
         catch ( Exception e )
         {
             e.printStackTrace();
             fail();
         }
+    }
+    
+    @After
+    public void teardown() throws IOException
+    {
+        Utils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 
@@ -117,7 +125,7 @@ public class TxnConflicTest
             checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
-            assertTrue( conflicted == true );
+            assertTrue( conflicted == false );
             txnManager.commitTransaction();
 
             txnManager.beginTransaction( false );
@@ -160,7 +168,7 @@ public class TxnConflicTest
             checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
-            assertTrue( conflicted == true );
+            assertTrue( conflicted == false );
             txnManager.commitTransaction();
 
             txnManager.beginTransaction( false );
@@ -176,7 +184,7 @@ public class TxnConflicTest
             checkedTxn = ( ReadWriteTxn ) txnManager.getCurTxn();
 
             conflicted = checkedTxn.hasConflict( firstTxn );
-            assertTrue( conflicted == true );
+            assertTrue( conflicted == false );
             txnManager.commitTransaction();
 
             txnManager.beginTransaction( false );

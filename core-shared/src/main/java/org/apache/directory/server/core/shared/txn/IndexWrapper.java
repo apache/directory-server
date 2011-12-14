@@ -53,11 +53,11 @@ public class IndexWrapper implements Index<Object>
     /** Txn log manager */
    private TxnLogManager txnLogManager;
     
-    public IndexWrapper( Dn partitionDn, Index<Object> wrappedIndex )
+    public IndexWrapper( TxnManagerFactory txnManagerFactory, Dn partitionDn, Index<Object> wrappedIndex )
     {
         this.partitionDn = partitionDn;
         this.wrappedIndex = wrappedIndex;
-        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        txnLogManager = txnManagerFactory.txnLogManagerInstance();
     }
 
     
@@ -468,7 +468,8 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean forwardGreaterOrEq( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object> cursor = forwardCursor();
+        // Lock down the index by the key
+        IndexCursor<Object> cursor = forwardCursor( attrVal );
         
         try
         {
@@ -518,7 +519,8 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean reverseGreaterOrEq( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object> cursor = reverseCursor();
+        // lock down the index by the key
+        IndexCursor<Object> cursor = reverseCursor( id );
         
         try
         {
@@ -568,7 +570,7 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean forwardLessOrEq( Object attrVal, UUID id ) throws Exception
     {
-        IndexCursor<Object> cursor = forwardCursor();
+        IndexCursor<Object> cursor = forwardCursor( attrVal );
         
         try
         {
@@ -618,7 +620,7 @@ public class IndexWrapper implements Index<Object>
      */
     public boolean reverseLessOrEq( UUID id, Object attrVal ) throws Exception
     {
-        IndexCursor<Object> cursor = reverseCursor();
+        IndexCursor<Object> cursor = reverseCursor( id );
         
         try
         {

@@ -158,10 +158,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * @param rootDse the root entry for the DSA
      * @throws javax.naming.Exception on failure to initialize
      */
-    public DefaultPartitionNexus( Entry rootDse ) throws Exception
+    public DefaultPartitionNexus( Entry rootDse, OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
         id = ID;
         suffixDn = null;
+        
+        operationExecutionManager = executionManagerFactory.instance();
             
         // setup that root DSE
         this.rootDse = rootDse;
@@ -203,9 +205,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( !initialized )
-        {
-            operationExecutionManager = OperationExecutionManagerFactory.instance();
-            
+        {  
             // Add the supported controls
             Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredControls();
             

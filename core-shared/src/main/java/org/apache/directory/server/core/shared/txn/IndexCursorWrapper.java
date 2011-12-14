@@ -92,15 +92,19 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
     
     /** Last value returned: here to keep memory overhead low */
     private ForwardIndexEntry<Object> lastValue = new ForwardIndexEntry<Object>();
+    
+    /** Txn Manager */
+    TxnManagerInternal txnManager;
      
-    public IndexCursorWrapper( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey )
+    public IndexCursorWrapper( TxnManagerFactory txnManagerFactory, Dn partitionDn, 
+            IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey )
     {
         this.partitionDn = partitionDn;
         this.forwardIndex = forwardIndex;
         this.attributeOid = attributeOid;
         this.comparator = comparator;
         
-        TxnManagerInternal txnManager = TxnManagerFactory.txnManagerInternalInstance();      
+        txnManager = txnManagerFactory.txnManagerInternalInstance();      
         Transaction curTxn = txnManager.getCurTxn();  
         List<ReadWriteTxn> toCheck = curTxn.getTxnsToCheck(); 
         
@@ -778,7 +782,7 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
             return null;
         }
         
-        Transaction curTxn = TxnManagerFactory.txnManagerInternalInstance().getCurTxn();
+        Transaction curTxn = txnManager.getCurTxn();
         
         if ( txn == curTxn )
         {

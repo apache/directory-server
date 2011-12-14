@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
@@ -71,8 +72,8 @@ public class DefaultTxnManagerTest
     {
         try
         {
-            TxnManagerFactory.init( getLogFolder(), logBufferSize, logFileSize );
-            txnManager = TxnManagerFactory.txnManagerInternalInstance();
+            TxnManagerFactory txnManagerFactory = new TxnManagerFactory( getLogFolder(), logBufferSize, logFileSize );
+            txnManager = txnManagerFactory.txnManagerInternalInstance();
         }
         catch ( IOException e )
         {
@@ -85,6 +86,7 @@ public class DefaultTxnManagerTest
     @After
     public void teardown() throws IOException
     {
+        Utils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 

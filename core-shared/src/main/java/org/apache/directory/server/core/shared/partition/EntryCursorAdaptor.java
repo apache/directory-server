@@ -52,11 +52,11 @@ public class EntryCursorAdaptor implements Cursor<Entry>
     /** Master table of the partition */
     MasterTable masterTable;
 
-    public EntryCursorAdaptor( Partition db, IndexCursor<UUID> indexCursor ) throws Exception
+    public EntryCursorAdaptor( Partition db, IndexCursor<UUID> indexCursor, TxnManagerFactory txnManagerFactory ) throws Exception
     {
         this.db = db;
         this.indexCursor = indexCursor;
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
     }
 
