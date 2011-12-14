@@ -27,11 +27,8 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -42,7 +39,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
+public class OneLevelScopeEvaluator extends AbstractEvaluator<ScopeNode>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -52,9 +49,6 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
-
-    /** the entry db storing entries */
-    private final Partition db;
     
     /** One level idx */
     private Index<UUID> oneLevelIdx;
@@ -73,8 +67,11 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception on db access failure
      */
     @SuppressWarnings("unchecked")
-    public OneLevelScopeEvaluator( Partition db, ScopeNode node ) throws Exception
+    public OneLevelScopeEvaluator( Partition db, ScopeNode node, TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
+        super(db, txnManagerFactory, executionManagerFactory );
+        
         this.node = node;
 
         if ( node.getScope() != SearchScope.ONELEVEL )
@@ -82,11 +79,9 @@ public class OneLevelScopeEvaluator implements Evaluator<ScopeNode>
             throw new IllegalStateException( I18n.err( I18n.ERR_720 ) );
         }
 
-        this.db = db;
-        baseId = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
+        baseId = executionManager.getEntryId( db, node.getBaseDn() );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
         
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         oneLevelIdx = ( Index<UUID> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         oneLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
         

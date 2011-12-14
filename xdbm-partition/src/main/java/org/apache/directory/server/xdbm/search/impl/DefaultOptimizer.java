@@ -28,6 +28,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -58,6 +59,9 @@ public class DefaultOptimizer implements Optimizer
     /** the database this optimizer operates on */
     private final Partition db;
     private UUID contextEntryId;
+    
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -65,8 +69,11 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Partition db ) throws Exception
+    public DefaultOptimizer( Partition db, 
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
         this.db = db;
     }
 
@@ -79,7 +86,7 @@ public class DefaultOptimizer implements Optimizer
         {
             try
             {
-                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
+                this.contextEntryId = executionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -378,7 +385,7 @@ public class DefaultOptimizer implements Optimizer
     {
         Index<?> idx;
         idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-        UUID id = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
+        UUID id = executionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
         switch ( node.getScope() )
         {
             case OBJECT:

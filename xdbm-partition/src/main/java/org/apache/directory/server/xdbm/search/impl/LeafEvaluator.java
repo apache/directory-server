@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
@@ -27,7 +29,9 @@ import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
@@ -40,13 +44,10 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
+public abstract class LeafEvaluator<T> extends AbstractEvaluator<SimpleNode<T>>
 {
     /** The ExprNode to evaluate */
     protected final SimpleNode<T> node;
-
-    /** The backend */
-    protected final Partition db;
     
     /** The SchemaManager instance */
     protected final SchemaManager schemaManager;
@@ -62,23 +63,17 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     
     /** The index to use if any */
     protected Index<T> idx;
-    
-    /** Txn log manager */
-    protected TxnLogManager txnLogManager;
-    
-    /** Master table */
-    protected MasterTable masterTable;
 
     @SuppressWarnings("unchecked")
-    public LeafEvaluator( SimpleNode<T> node, Partition db, SchemaManager schemaManager )
+    public LeafEvaluator( SimpleNode<T> node, Partition db, SchemaManager schemaManager, 
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     throws Exception
     {
-        this.db = db;
+        super(db, txnManagerFactory, executionManagerFactory );      
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
-        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
-        masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
     }
 
     
@@ -107,4 +102,5 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     {
         return ldapComparator;
     }
+    
 }

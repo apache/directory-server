@@ -30,6 +30,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -49,16 +51,24 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     private final List<Evaluator<? extends ExprNode>> evaluators;
     private final List<Set<UUID>> blacklists;
     private int cursorIndex = -1;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
     public OrCursor( List<IndexCursor<V>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
+      
         if ( cursors.size() <= 1 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_723 ) );
         }
+        
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
 
         this.cursors = cursors;
         this.evaluators = evaluators;

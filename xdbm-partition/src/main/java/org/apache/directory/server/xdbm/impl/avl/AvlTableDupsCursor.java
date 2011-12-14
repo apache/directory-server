@@ -115,6 +115,13 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         checkNotClosed( "beforeValue()" );
         wrappedCursor.beforeKey( key );
         
+        if ( value == null )
+        {
+            dupsCursor = null;
+            clearValue();
+            return;
+        }
+        
         if ( wrappedCursor.next() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
@@ -128,12 +135,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             {
                 dupsCursor = new SingletonCursor<V>( 
                     wrappedTuple.getValue().getSingleton(), table.getValueComparator() );
-            }
-            
-            if ( value == null )
-            {
-                clearValue();
-                return;
             }
     
             /* 
@@ -196,6 +197,10 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         if ( value == null )
         {
             wrappedCursor.afterKey( key );
+                     
+            dupsCursor = null;
+            clearValue();
+            return;
         }
         else
         {
@@ -215,12 +220,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             else
             {
                 dupsCursor = new SingletonCursor<V>( values.getSingleton(), table.getValueComparator() );
-            }
-
-            if ( value == null )
-            {
-                clearValue();
-                return;
             }
 
             // only advance the dupsCursor if we're on same key

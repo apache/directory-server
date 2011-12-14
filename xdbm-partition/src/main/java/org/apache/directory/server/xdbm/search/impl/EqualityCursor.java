@@ -29,6 +29,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -58,6 +59,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String> uuidIdxCursor;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -67,9 +72,13 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public EqualityCursor( Partition db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
+    public EqualityCursor( Partition db, EqualityEvaluator<V> equalityEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();

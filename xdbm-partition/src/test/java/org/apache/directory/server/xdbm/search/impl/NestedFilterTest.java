@@ -80,6 +80,10 @@ public class NestedFilterTest
     CursorBuilder cursorBuilder;
     Optimizer optimizer;
     static FilterNormalizingVisitor visitor;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
 
     @BeforeClass
@@ -131,11 +135,11 @@ public class NestedFilterTest
         
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         ((Partition)store).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -146,11 +150,11 @@ public class NestedFilterTest
         ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ((Partition)store).initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager, executionManagerFactory.instance() );
 
-        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager, txnManagerFactory, executionManagerFactory );
         cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
-        optimizer = new DefaultOptimizer( ( Partition )store );
+        optimizer = new DefaultOptimizer( ( Partition )store, txnManagerFactory, executionManagerFactory );
 
         LOG.debug( "Created new store" );
     }

@@ -91,6 +91,10 @@ public class PartitionTest
     
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -106,9 +110,9 @@ public class PartitionTest
         
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -135,7 +139,7 @@ public class PartitionTest
     {
         
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
@@ -146,7 +150,7 @@ public class PartitionTest
 
         partition.initialize();
         
-        XdbmStoreUtils.loadExampleData( partition, schemaManager );
+        XdbmStoreUtils.loadExampleData( partition, schemaManager, executionManagerFactory.instance() );
         LOG.debug( "Created new partition" );
     }
 
@@ -395,7 +399,7 @@ public class PartitionTest
         entry.add( "sn", "user sn" );
         
         // add
-        XdbmStoreUtils.injectEntryInStore( partition, entry, 12 );
+        XdbmStoreUtils.injectEntryInStore( partition, entry, 12, executionManagerFactory.instance() );
         verifyParentId( dn );
         
         // move

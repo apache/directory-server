@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.filter.OrNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OrEvaluator implements Evaluator<OrNode>
+public class OrEvaluator extends AbstractEvaluator<OrNode>
 {
     /** The list of evaluators associated with each of the children */
     private final List<Evaluator<? extends ExprNode>> evaluators;

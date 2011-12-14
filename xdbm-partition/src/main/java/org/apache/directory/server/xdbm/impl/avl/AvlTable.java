@@ -215,37 +215,20 @@ public class AvlTable<K, V> extends AbstractTable<K,V>
             return false;
         }
         
-        Map.Entry<K,SingletonOrOrderedSet<V>> entry = map.lastEntry();
+        SingletonOrOrderedSet<V> set = map.get( key );
         
-        if ( entry == null )
+        if ( set == null )
         {
             return false;
         }
         
-        K lastKey = entry.getKey();
-        SingletonOrOrderedSet<V> lastSet = entry.getValue();
-        
-        // Null values shouldnt be allowed 
-        if ( lastSet == null )
+        if ( set.isOrderedSet() )
         {
-            throw new RuntimeException( "AvlTable: Null value in map for key: " + lastKey );
+            return set.getOrderedSet().hasGreaterOrEqual( val );
         }
-        
-        if (  keyComparator.compare( lastKey, key ) > 0 )
-        {
-            return true;
-        }
-        else if ( keyComparator.compare( lastKey, key ) < 0 )
-        {
-            return false;
-        }
-        
-        if ( lastSet.isOrderedSet() )
-        {
-            return lastSet.getOrderedSet().hasGreaterOrEqual( val );
-        }
-        
-        return valueComparator.compare( lastSet.getSingleton(), val ) >= 0;
+
+                
+        return valueComparator.compare( set.getSingleton(), val ) >= 0;
     }
 
     
@@ -273,37 +256,20 @@ public class AvlTable<K, V> extends AbstractTable<K,V>
             return false;
         }
         
-        Map.Entry<K,SingletonOrOrderedSet<V>> entry = map.firstEntry();
+        SingletonOrOrderedSet<V> set = map.get( key );
         
-        if ( entry == null )
+        if ( set == null )
         {
             return false;
         }
         
-        K firstKey = entry.getKey();
-        SingletonOrOrderedSet<V> firstSet = entry.getValue();
-        
-        // Null values shouldnt be allowed 
-        if ( firstSet == null )
+        if ( set.isOrderedSet() )
         {
-            throw new RuntimeException( "AvlTable: Null value in map for key: " + firstKey );
+            return set.getOrderedSet().hasLessOrEqual( val );
         }
-        
-        if (  keyComparator.compare( firstKey, key ) < 0 )
-        {
-            return true;
-        }
-        else if ( keyComparator.compare( firstKey, key ) > 0 )
-        {
-            return false;
-        }
-        
-        if ( firstSet.isOrderedSet() )
-        {
-            return firstSet.getOrderedSet().hasLessOrEqual( val );
-        }
-        
-        return valueComparator.compare( firstSet.getSingleton(), val ) <= 0;
+
+                
+        return valueComparator.compare( set.getSingleton(), val ) <= 0;
     }
 
 

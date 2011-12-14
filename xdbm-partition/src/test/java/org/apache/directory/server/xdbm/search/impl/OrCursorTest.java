@@ -84,6 +84,10 @@ public class OrCursorTest
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
 
     @BeforeClass
@@ -131,11 +135,11 @@ public class OrCursorTest
         
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
         ( ( Store )store).setCacheSize( 10 );
         ( ( Store )store).setPartitionPath( wkdir.toURI() );
@@ -148,9 +152,9 @@ public class OrCursorTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager, executionManagerFactory.instance() );
 
-        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
+        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager, txnManagerFactory, executionManagerFactory );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
 
         LOG.debug( "Created new store" );
@@ -271,8 +275,8 @@ public class OrCursorTest
         OrNode orNode = new OrNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        Cursor subStrCursor1 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        Cursor subStrCursor1 = new SubstringCursor( store, ( SubstringEvaluator ) eval, txnManagerFactory, executionManagerFactory );
         cursors.add( subStrCursor1 );
         evaluators.add( eval );
         orNode.addNode( exprNode );
@@ -285,9 +289,9 @@ public class OrCursorTest
         //        catch( IllegalArgumentException ie ){ }
 
         exprNode = new SubstringNode( schemaManager.getAttributeType( "sn" ), "W", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
+        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager, txnManagerFactory, executionManagerFactory );
         evaluators.add( eval );
-        Cursor subStrCursor2 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor subStrCursor2 = new SubstringCursor( store, ( SubstringEvaluator ) eval, txnManagerFactory, executionManagerFactory );
         cursors.add( subStrCursor2 );
 
         orNode.addNode( exprNode );

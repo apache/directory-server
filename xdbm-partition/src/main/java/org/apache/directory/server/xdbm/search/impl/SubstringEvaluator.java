@@ -28,10 +28,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.partition.index.MasterTable;
-import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -49,11 +47,8 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringEvaluator implements Evaluator<SubstringNode>
+public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
 {
-    /** Database used while evaluating candidates */
-    private final Partition db;
-
     /** Reference to the SchemaManager */
     private final SchemaManager schemaManager;
 
@@ -71,9 +66,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
     /** The index to use if any */
     private final Index<String> idx;
-    
-    /** Master table */
-    private final MasterTable masterTable;
 
 
     /**
@@ -85,10 +77,12 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Partition db, SchemaManager schemaManager )
+    public SubstringEvaluator( SubstringNode node, Partition db, SchemaManager schemaManager, 
+                TxnManagerFactory txnManagerFactory,
+                OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        this.db = db;
+        super( db, txnManagerFactory, executionManagerFactory );
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
@@ -120,7 +114,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
             regex = null;
         }
 
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<?> index = db.getIndex( attributeType );
@@ -130,8 +123,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
         {
             idx = null;
         }
-        
-        masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
     }
 
 
@@ -261,7 +252,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     // wrapper or the raw normalized value
     private boolean evaluateWithoutIndex( UUID id ) throws Exception
     {
-        return evaluateWithoutIndex( masterTable.get( id ) );
+        return evaluateWithoutIndex( getEntry( id ) );
     }
 
 
@@ -348,7 +339,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = masterTable.get( indexEntry.getId() );
+            entry = getEntry( indexEntry.getId() );
             indexEntry.setEntry( entry );
         }
 

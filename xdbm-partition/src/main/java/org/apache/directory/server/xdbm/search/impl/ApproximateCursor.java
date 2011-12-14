@@ -29,6 +29,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -60,6 +61,10 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String> uuidIdxCursor;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
     /**
      * Creates a new instance of ApproximateCursor
@@ -68,9 +73,13 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Partition db, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
+    public ApproximateCursor( Partition db, ApproximateEvaluator<V> approximateEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.approximateEvaluator = approximateEvaluator;
 
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();

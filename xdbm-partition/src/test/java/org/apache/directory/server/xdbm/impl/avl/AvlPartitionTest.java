@@ -102,6 +102,10 @@ public class AvlPartitionTest
     
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -117,9 +121,9 @@ public class AvlPartitionTest
         
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -148,7 +152,7 @@ public class AvlPartitionTest
     public void createStore() throws Exception
     {
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
@@ -158,7 +162,7 @@ public class AvlPartitionTest
 
         partition.initialize();
 
-        XdbmStoreUtils.loadExampleData( partition, schemaManager );
+        XdbmStoreUtils.loadExampleData( partition, schemaManager, executionManagerFactory.instance() );
         LOG.debug( "Created new partition" );
     }
 
@@ -173,7 +177,7 @@ public class AvlPartitionTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        AvlPartition avlPartition = new AvlPartition( schemaManager );
+        AvlPartition avlPartition = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );

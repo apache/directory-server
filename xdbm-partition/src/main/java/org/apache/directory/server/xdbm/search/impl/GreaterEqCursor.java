@@ -30,6 +30,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -57,6 +58,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String> ndnIdxCursor;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
@@ -73,9 +78,13 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Partition db, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Partition db, GreaterEqEvaluator<V> greaterEqEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.greaterEqEvaluator = greaterEqEvaluator;
 
         AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();

@@ -26,6 +26,8 @@ import java.util.UUID;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -56,9 +58,10 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * Creates a store based on AVL Trees.
      */
-    public AvlPartition( SchemaManager schemaManager )
+    public AvlPartition( SchemaManager schemaManager,TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
     {
-        super( schemaManager );
+        super( schemaManager, txnManagerFactory, executionManagerFactory );
     }
 
 
@@ -69,7 +72,7 @@ public class AvlPartition extends AbstractBTreePartition
     {
         if ( !initialized )
         {
-            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
+            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager, txnManagerFactory, executionManagerFactory );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
     
             // setup optimizer and registries for parent
@@ -79,7 +82,7 @@ public class AvlPartition extends AbstractBTreePartition
             }
             else
             {
-                optimizer = new DefaultOptimizer( this );
+                optimizer = new DefaultOptimizer( this, txnManagerFactory, executionManagerFactory );
             }
     
             searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );

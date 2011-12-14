@@ -1,4 +1,22 @@
-
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
 package org.apache.directory.server.xdbm.impl.avl;
 
 import static org.junit.Assert.assertEquals;
@@ -51,6 +69,10 @@ public class AvlPartitionTxnTest
 {
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
     
     /** Operation execution manager */
@@ -76,10 +98,10 @@ public class AvlPartitionTxnTest
         
         logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
-        executionManager = OperationExecutionManagerFactory.instance();
-        txnManager = TxnManagerFactory.txnManagerInstance();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        executionManager = executionManagerFactory.instance();
+        txnManager = txnManagerFactory.txnManagerInstance();
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
@@ -101,7 +123,7 @@ public class AvlPartitionTxnTest
     public void createStore() throws Exception
     {
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
@@ -114,7 +136,7 @@ public class AvlPartitionTxnTest
         try
         {
             txnManager.beginTransaction( false );
-            XdbmStoreUtils.loadExampleData( partition, schemaManager );
+            XdbmStoreUtils.loadExampleData( partition, schemaManager, executionManagerFactory.instance() );
             txnManager.commitTransaction();
         }
         catch ( Exception e )

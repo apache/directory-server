@@ -29,6 +29,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
@@ -45,6 +46,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     
     /** The cursor on the EntryUUID index */
     private final IndexCursor<String> wrapped;
+     
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -62,9 +67,13 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public AllEntriesCursor( Partition db ) throws Exception
+    public AllEntriesCursor( Partition db, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
         entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
         

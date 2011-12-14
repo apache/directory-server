@@ -29,6 +29,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -45,13 +46,11 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceEvaluator implements Evaluator<PresenceNode>
+public class PresenceEvaluator extends AbstractEvaluator<PresenceNode>
 {
     /** The ExprNode to evaluate */
     private final PresenceNode node;
 
-    /** The backend */
-    private final Partition db;
 
     /** The AttributeType we will use for the evaluation */
     private final AttributeType attributeType;
@@ -61,16 +60,14 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
     /** The index to use if any */
     private final Index<String> idx;
-    
-    /** Master table */
-    private final MasterTable masterTable;
 
     @SuppressWarnings("unchecked")
-    public PresenceEvaluator( PresenceNode node, Partition db, SchemaManager schemaManager )
+    public PresenceEvaluator( PresenceNode node, Partition db, SchemaManager schemaManager,
+            TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
-        this.db = db;
+        super(db, txnManagerFactory, executionManagerFactory );
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
@@ -84,8 +81,6 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
         {
             idx = null;
         }
-        
-        masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
     }
 
 
@@ -115,7 +110,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = masterTable.get( indexEntry.getId() );
+            entry = getEntry( indexEntry.getId() );
             indexEntry.setEntry( entry );
         }
 
@@ -132,7 +127,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
             return idx.forward( attributeType.getOid(), id );
         }
 
-        return evaluateEntry( masterTable.get( id ) );
+        return evaluateEntry( getEntry( id ) );
     }
 
 

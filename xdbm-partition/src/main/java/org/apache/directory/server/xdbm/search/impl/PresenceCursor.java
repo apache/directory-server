@@ -30,6 +30,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -49,11 +50,19 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private final IndexCursor<String> uuidCursor;
     private final IndexCursor<String> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
     @SuppressWarnings("unchecked")
-    public PresenceCursor( Partition store, PresenceEvaluator presenceEvaluator ) throws Exception
+    public PresenceCursor( Partition store, PresenceEvaluator presenceEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 

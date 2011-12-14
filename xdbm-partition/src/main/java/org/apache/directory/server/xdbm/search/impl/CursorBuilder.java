@@ -27,6 +27,8 @@ import java.util.UUID;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -50,6 +52,9 @@ public class CursorBuilder
 
     /** Evaluator dependency on a EvaluatorBuilder */
     private EvaluatorBuilder evaluatorBuilder;
+    
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -62,6 +67,8 @@ public class CursorBuilder
     {
         this.db = db;
         this.evaluatorBuilder = evaluatorBuilder;
+        this.txnManagerFactory = evaluatorBuilder.getTxnManagerFactory();
+        this.executionManagerFactory = evaluatorBuilder.getExecutionManagerFactory();
     }
 
 
@@ -72,34 +79,41 @@ public class CursorBuilder
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateCursor<T>( db, ( ApproximateEvaluator<T> ) evaluatorBuilder.build( node ) );
+                return new ApproximateCursor<T>( db, ( ApproximateEvaluator<T> ) evaluatorBuilder.build( node ), 
+                    txnManagerFactory, executionManagerFactory );
 
             case EQUALITY:
-                return new EqualityCursor<T>( db, ( EqualityEvaluator<T> ) evaluatorBuilder.build( node ) );
+                return new EqualityCursor<T>( db, ( EqualityEvaluator<T> ) evaluatorBuilder.build( node ), 
+                    txnManagerFactory, executionManagerFactory );
 
             case GREATEREQ:
-                return new GreaterEqCursor<T>( db, ( GreaterEqEvaluator<T> ) evaluatorBuilder.build( node ) );
+                return new GreaterEqCursor<T>( db, ( GreaterEqEvaluator<T> ) evaluatorBuilder.build( node ), 
+                    txnManagerFactory, executionManagerFactory );
 
             case LESSEQ:
-                return new LessEqCursor<T>( db, ( LessEqEvaluator<T> ) evaluatorBuilder.build( node ) );
+                return new LessEqCursor<T>( db, ( LessEqEvaluator<T> ) evaluatorBuilder.build( node ), 
+                    txnManagerFactory, executionManagerFactory );
 
             case PRESENCE:
-                return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
+                return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ),
+                    txnManagerFactory, executionManagerFactory );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
                     return new OneLevelScopeCursor( db,
-                        ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ) );
+                        ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ), 
+                        txnManagerFactory, executionManagerFactory );
                 }
                 else
                 {
                     return new SubtreeScopeCursor( db, ( SubtreeScopeEvaluator ) evaluatorBuilder
-                        .build( node ) );
+                        .build( node ), txnManagerFactory, executionManagerFactory );
                 }
 
             case SUBSTRING:
-                return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ) );
+                return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ), 
+                    txnManagerFactory, executionManagerFactory );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
@@ -107,7 +121,8 @@ public class CursorBuilder
                 return buildAndCursor( ( AndNode ) node );
 
             case NOT:
-                return new NotCursor<UUID>( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotCursor<UUID>( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ), 
+                    txnManagerFactory, executionManagerFactory );
 
             case OR:
                 return buildOrCursor( ( OrNode ) node );

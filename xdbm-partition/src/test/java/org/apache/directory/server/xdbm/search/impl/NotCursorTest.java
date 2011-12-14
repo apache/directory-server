@@ -82,6 +82,10 @@ public class NotCursorTest
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
 
     @BeforeClass
@@ -130,11 +134,11 @@ public class NotCursorTest
         
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         ((Partition)store).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -147,9 +151,9 @@ public class NotCursorTest
 
         ((Partition)store).initialize();
         
-        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager );
+        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager, executionManagerFactory.instance() );
 
-        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager, txnManagerFactory, executionManagerFactory );
         cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
 
         LOG.debug( "Created new store" );
@@ -217,10 +221,11 @@ public class NotCursorTest
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         Evaluator<? extends ExprNode> eval = new SubstringEvaluator( (SubstringNode) exprNode, ( Partition )store,
-            schemaManager );
+            schemaManager, txnManagerFactory, executionManagerFactory );
         notNode.addNode( exprNode );
 
-        NotCursor<String> cursor = new NotCursor( ( Partition )store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( ( Partition )store, eval, 
+            txnManagerFactory, executionManagerFactory ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
         Set<UUID> set = new HashSet<UUID>();

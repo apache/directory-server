@@ -27,10 +27,8 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
@@ -43,7 +41,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
+public class SubtreeScopeEvaluator extends AbstractEvaluator<ScopeNode>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -65,9 +63,6 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
-
-    /** The entry database/store */
-    private final Partition db;
     
     /** One level idx */
     private final Index<UUID> subLevelIdx;
@@ -87,9 +82,11 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception on db access failure
      */
     @SuppressWarnings("unchecked")
-    public SubtreeScopeEvaluator( Partition db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( Partition db, ScopeNode node,
+            TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        this.db = db;
+        super( db, txnManagerFactory, executionManagerFactory );
         this.node = node;
 
         if ( node.getScope() != SearchScope.SUBTREE )
@@ -97,13 +94,12 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
             throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
         }
 
-        baseId = OperationExecutionManagerFactory.instance().getEntryId( db, node.getBaseDn() );
+        baseId = executionManager.getEntryId( db, node.getBaseDn() );
         baseIsContextEntry = ( getContextEntryId().compareTo( baseId ) == 0 );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
         
         Index<?> index;
         
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
         index = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
         subLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), index );
         
@@ -133,7 +129,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         {
             try
             {
-                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
+                this.contextEntryId = executionManager.getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {

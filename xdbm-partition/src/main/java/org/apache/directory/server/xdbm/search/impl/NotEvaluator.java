@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotEvaluator implements Evaluator<NotNode>
+public class NotEvaluator extends AbstractEvaluator<NotNode>
 {
     /** The ExprNode to evaluate */
     private final NotNode node;

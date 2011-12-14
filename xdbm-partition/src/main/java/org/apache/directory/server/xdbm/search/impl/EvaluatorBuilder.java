@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -51,6 +53,9 @@ public class EvaluatorBuilder
 {
     private final Partition db;
     private final SchemaManager schemaManager;
+    
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -59,12 +64,17 @@ public class EvaluatorBuilder
      *
      * @param db the database this evaluator operates upon
      * @param schemaManager the schema manager
+     * @param txnManagerFactory txn manager factory
+     * @param executionManagerFactory execution manager factory
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Partition db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Partition db, SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
     }
 
 
@@ -75,32 +85,40 @@ public class EvaluatorBuilder
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateEvaluator<T>( ( ApproximateNode<T> ) node, db, schemaManager );
+                return new ApproximateEvaluator<T>( ( ApproximateNode<T> ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
             case EQUALITY:
-                return new EqualityEvaluator<T>( ( EqualityNode<T> ) node, db, schemaManager );
+                return new EqualityEvaluator<T>( ( EqualityNode<T> ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
             case GREATEREQ:
-                return new GreaterEqEvaluator<T>( ( GreaterEqNode<T> ) node, db, schemaManager );
+                return new GreaterEqEvaluator<T>( ( GreaterEqNode<T> ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
             case LESSEQ:
-                return new LessEqEvaluator<T>( ( LessEqNode<T> ) node, db, schemaManager );
+                return new LessEqEvaluator<T>( ( LessEqNode<T> ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
             case PRESENCE:
-                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
+                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator( db, ( ScopeNode ) node, 
+                        txnManagerFactory, executionManagerFactory );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node, 
+                        txnManagerFactory, executionManagerFactory );
                 }
 
             case SUBSTRING:
-                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager );
+                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager, 
+                    txnManagerFactory, executionManagerFactory );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
@@ -148,5 +166,17 @@ public class EvaluatorBuilder
             evaluators.add( build( child ) );
         }
         return new OrEvaluator( node, evaluators );
+    }
+    
+    
+    TxnManagerFactory getTxnManagerFactory()
+    {
+        return txnManagerFactory;
+    }
+    
+    
+    OperationExecutionManagerFactory getExecutionManagerFactory()
+    {
+        return executionManagerFactory;
     }
 }

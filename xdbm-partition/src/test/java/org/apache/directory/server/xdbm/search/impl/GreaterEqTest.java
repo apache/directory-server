@@ -84,6 +84,10 @@ public class GreaterEqTest
     File wkdir;
     Partition store;
     static SchemaManager schemaManager = null;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
 
     @BeforeClass
@@ -98,7 +102,7 @@ public class GreaterEqTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-
+        
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
@@ -132,11 +136,11 @@ public class GreaterEqTest
         
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
         ( ( Store ) store ).setCacheSize( 10 );
         ( ( Store ) store ).setPartitionPath( wkdir.toURI() );
@@ -148,7 +152,7 @@ public class GreaterEqTest
         store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager, executionManagerFactory.instance() );
         LOG.debug( "Created new store" );
     }
 
@@ -176,8 +180,8 @@ public class GreaterEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator, txnManagerFactory, executionManagerFactory );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -225,7 +229,7 @@ public class GreaterEqTest
 
         // ---------- test first() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.first();
 
@@ -255,7 +259,7 @@ public class GreaterEqTest
 
         // ---------- test afterLast() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -287,7 +291,7 @@ public class GreaterEqTest
 
         // ---------- test last() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.last();
 
@@ -317,7 +321,7 @@ public class GreaterEqTest
 
         // ---------- test before() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "5" );
 
@@ -340,7 +344,7 @@ public class GreaterEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "7" );
         cursor.before( indexEntry );
@@ -350,7 +354,7 @@ public class GreaterEqTest
         assertEquals( "6", cursor.get().getValue() );
         cursor.close();
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "3" );
         cursor.before( indexEntry );
@@ -362,7 +366,7 @@ public class GreaterEqTest
 
         // ---------- test after() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "4" );
 
@@ -385,7 +389,7 @@ public class GreaterEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "7" );
         cursor.after( indexEntry );
@@ -395,7 +399,7 @@ public class GreaterEqTest
         assertEquals( "6", cursor.get().getValue() );
         cursor.close();
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "3" );
         cursor.after( indexEntry );
@@ -412,8 +416,10 @@ public class GreaterEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager,
+            txnManagerFactory, executionManagerFactory );
+        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator,
+            txnManagerFactory, executionManagerFactory );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -455,7 +461,7 @@ public class GreaterEqTest
         // ---------- test first() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.first();
 
         assertTrue( cursor.available() );
@@ -481,7 +487,7 @@ public class GreaterEqTest
         // ---------- test afterLast() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -502,7 +508,7 @@ public class GreaterEqTest
         // ---------- test last() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.last();
 
         assertTrue( cursor.available() );
@@ -524,7 +530,7 @@ public class GreaterEqTest
 
         // ---------- test before() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "2" );
         try
@@ -538,7 +544,7 @@ public class GreaterEqTest
 
         // ---------- test after() ----------
 
-        cursor = new GreaterEqCursor( store, evaluator );
+        cursor = new GreaterEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "2" );
         try
@@ -561,7 +567,7 @@ public class GreaterEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -606,7 +612,7 @@ public class GreaterEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
@@ -623,7 +629,7 @@ public class GreaterEqTest
         attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, attrs );
-        OperationExecutionManagerFactory.instance().add( store, addContext );
+        executionManagerFactory.instance().add( store, addContext );
 
         indexEntry.setId( Strings.getUUIDString( 12 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -636,7 +642,7 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
 
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -654,7 +660,7 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
 
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
@@ -709,7 +715,7 @@ public class GreaterEqTest
         try
         {
             GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
-            new GreaterEqEvaluator( node, store, schemaManager );
+            new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         }
         finally
         {
@@ -747,7 +753,7 @@ public class GreaterEqTest
         //schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
-        new GreaterEqEvaluator( node, store, schemaManager );
+        new GreaterEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         schemaManager.delete( at );
     }
 }

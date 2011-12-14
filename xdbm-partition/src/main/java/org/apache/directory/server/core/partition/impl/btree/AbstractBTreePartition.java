@@ -63,6 +63,8 @@ import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.shared.partition.EntryCursorAdaptor;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -180,6 +182,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected AttributeType ENTRY_CSN_AT;
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
+    
+    /** Txn and Operation manager factories */
+    protected TxnManagerFactory txnManagerFactory;
+    protected OperationExecutionManagerFactory executionManagerFactory;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -188,9 +194,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Creates a B-tree based context partition.
      */
-    protected AbstractBTreePartition( SchemaManager schemaManager )
+    protected AbstractBTreePartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory )
     {
         this.schemaManager = schemaManager;
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
 
         indexedAttributes = new HashSet<Index<?>>();
 
@@ -819,7 +828,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
         return new BaseEntryFilteringCursor( 
             new EntryCursorAdaptor( this, 
-                list( getEntryId( listContext.getDn() ) ) ), listContext );
+                list( getEntryId( listContext.getDn() ) ), txnManagerFactory ), listContext );
         }
         catch ( Exception e )
         {
@@ -868,7 +877,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             underlying = searchEngine.cursor( dn, derefMode, filter, searchCtls );
 
-            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, underlying ), searchContext );
+            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, underlying, txnManagerFactory ), searchContext );
         }
         catch ( LdapException le )
         {

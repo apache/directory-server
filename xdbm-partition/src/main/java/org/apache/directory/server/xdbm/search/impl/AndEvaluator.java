@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndEvaluator implements Evaluator<AndNode>
+public class AndEvaluator extends AbstractEvaluator<AndNode>
 {
     /** The list of evaluators associated with each of the children */
     private final List<Evaluator<? extends ExprNode>> evaluators;

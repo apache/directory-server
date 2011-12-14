@@ -69,6 +69,10 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     
     /** Alias idx set if dereferencing aliases */
     private Index<String> aliasIdx;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
  
 
     /**
@@ -79,10 +83,14 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
      * @throws Exception on db access failures
      */
     @SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Partition db, OneLevelScopeEvaluator evaluator )
+    public OneLevelScopeCursor( Partition db, OneLevelScopeEvaluator evaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.db = db;
         this.evaluator = evaluator;
         
@@ -303,8 +311,8 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
             
             if ( cursor == dereferencedCursor )
             {
-                Dn aliasTargetDn = OperationExecutionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
-                TxnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
+                Dn aliasTargetDn = executionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
+                txnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
             }
             
             return indexEntry;

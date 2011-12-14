@@ -27,6 +27,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -46,10 +48,12 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 public class LessEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
-    public LessEqEvaluator( LessEqNode<T> node, Partition db, SchemaManager schemaManager )
+    public LessEqEvaluator( LessEqNode<T> node, Partition db, SchemaManager schemaManager,
+            TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory    )
         throws Exception
     {
-        super( node, db, schemaManager );
+        super( node, db, schemaManager, txnManagerFactory, executionManagerFactory );
 
         if ( db.hasIndexOn( attributeType ) )
         {
@@ -97,7 +101,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
             return idx.reverseLessOrEq( id, node.getValue().getValue() );
         }
 
-        return evaluateEntry( masterTable.get( id ) );
+        return evaluateEntry( getEntry( id ) );
     }
 
 
@@ -113,7 +117,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = masterTable.get( indexEntry.getId() );
+            entry = getEntry( indexEntry.getId() );
             indexEntry.setEntry( entry );
         }
 

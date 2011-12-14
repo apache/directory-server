@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -60,7 +61,7 @@ public class XdbmStoreUtils
      */
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public static void loadExampleData( Partition store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Partition store, SchemaManager schemaManager, OperationExecutionManager executionManager ) throws Exception
     {
         int idx = 1;
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
@@ -71,7 +72,7 @@ public class XdbmStoreUtils
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #2
         Dn dn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
@@ -80,7 +81,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #3
         dn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
@@ -89,7 +90,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #4
         dn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
@@ -98,7 +99,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #5
         dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -109,7 +110,7 @@ public class XdbmStoreUtils
         entry.add( "sn", "WAlkeR" );
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #6
         dn = new Dn( schemaManager, "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -120,7 +121,7 @@ public class XdbmStoreUtils
         entry.add( "surName", "BEAN" );
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #7
         dn = new Dn( schemaManager, "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -129,7 +130,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #8
         dn = new Dn( schemaManager, "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -140,7 +141,7 @@ public class XdbmStoreUtils
         entry.add( "SN", "Daniels" );
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // aliases -------------
 
@@ -151,7 +152,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #10
         dn = new Dn( schemaManager, "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -159,7 +160,7 @@ public class XdbmStoreUtils
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
 
         // Entry #11
         dn = new Dn( schemaManager, "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -168,7 +169,7 @@ public class XdbmStoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3", "Johnny Walker" );
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry, idx++ );
+        injectEntryInStore( store, entry, idx++, executionManager );
     }
     
     
@@ -183,12 +184,13 @@ public class XdbmStoreUtils
      * @param idx index used to build the entry uuid
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Partition store, Entry entry, int idx ) throws Exception
+    public static void injectEntryInStore( Partition store, Entry entry, int idx, 
+        OperationExecutionManager executionManager ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( idx ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        OperationExecutionManagerFactory.instance().add( store, addContext );
+        executionManager.add( store, addContext );
     }
 }

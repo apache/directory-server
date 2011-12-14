@@ -84,6 +84,10 @@ public class LessEqTest
     File wkdir;
     Partition store;
     static SchemaManager schemaManager = null;
+    
+    /** txn and operation execution manager factories */
+    private static TxnManagerFactory txnManagerFactory;
+    private static OperationExecutionManagerFactory executionManagerFactory;
 
 
     @BeforeClass
@@ -132,11 +136,11 @@ public class LessEqTest
         
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
-        TxnManagerFactory.init( logDir.getPath(), 1 << 13, 1 << 14 );
-        OperationExecutionManagerFactory.init();
+        txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
+        executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         ((Partition)store).setId( "example" );
         ( ( Store ) store ).setCacheSize( 10 );
         ( ( Store ) store ).setPartitionPath( wkdir.toURI() );
@@ -150,7 +154,7 @@ public class LessEqTest
 
         store.initialize();
 
-        XdbmStoreUtils.loadExampleData( store, schemaManager );
+        XdbmStoreUtils.loadExampleData( store, schemaManager, executionManagerFactory.instance() );
         LOG.debug( "Created new store" );
     }
 
@@ -178,8 +182,8 @@ public class LessEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator, txnManagerFactory, executionManagerFactory );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -232,7 +236,7 @@ public class LessEqTest
 
         // ---------- test first() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.first();
 
@@ -267,7 +271,7 @@ public class LessEqTest
 
         // ---------- test afterLast() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -304,7 +308,7 @@ public class LessEqTest
 
         // ---------- test last() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         cursor.last();
 
@@ -339,7 +343,7 @@ public class LessEqTest
 
         // ---------- test before() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "2" );
 
@@ -362,7 +366,7 @@ public class LessEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "7" );
         cursor.before( indexEntry );
@@ -372,7 +376,7 @@ public class LessEqTest
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory);
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "3" );
         cursor.before( indexEntry );
@@ -384,7 +388,7 @@ public class LessEqTest
 
         // ---------- test after() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "1" );
 
@@ -407,7 +411,7 @@ public class LessEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "7" );
         cursor.after( indexEntry );
@@ -417,7 +421,7 @@ public class LessEqTest
         assertEquals( "3", cursor.get().getValue() );
         cursor.close();
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "3" );
         cursor.after( indexEntry );
@@ -434,8 +438,8 @@ public class LessEqTest
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator, txnManagerFactory, executionManagerFactory );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -478,7 +482,7 @@ public class LessEqTest
         // ---------- test beforeFirst() ----------
 
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.first();
 
         assertTrue( cursor.available() );
@@ -505,7 +509,7 @@ public class LessEqTest
         // ---------- test afterLast() ----------
 
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -527,7 +531,7 @@ public class LessEqTest
         // ---------- test last() ----------
 
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.last();
 
         assertTrue( cursor.available() );
@@ -550,7 +554,7 @@ public class LessEqTest
 
         // ---------- test before() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "2" );
         try
@@ -564,7 +568,7 @@ public class LessEqTest
 
         // ---------- test after() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setValue( "2" );
         try
@@ -588,7 +592,7 @@ public class LessEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -634,7 +638,7 @@ public class LessEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
@@ -651,7 +655,7 @@ public class LessEqTest
         attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
         AddOperationContext addContext = new AddOperationContext( null, attrs );
-        OperationExecutionManagerFactory.instance().add( store, addContext );
+        executionManagerFactory.instance().add( store, addContext );
 
         indexEntry.setId( Strings.getUUIDString( 12 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -664,7 +668,7 @@ public class LessEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -682,7 +686,7 @@ public class LessEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
@@ -738,7 +742,7 @@ public class LessEqTest
         {
             LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
-            new LessEqEvaluator( node, store, schemaManager );
+            new LessEqEvaluator( node, store, schemaManager , txnManagerFactory, executionManagerFactory );
         }
         finally
         {
@@ -776,7 +780,7 @@ public class LessEqTest
         desc.setObsolete( false );
 
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        new LessEqEvaluator( node, store, schemaManager );
+        new LessEqEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
         schemaManager.delete( at );
     }
 }

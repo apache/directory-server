@@ -27,6 +27,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -45,15 +46,23 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<String> uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Partition store, Evaluator<? extends ExprNode> childEvaluator )
+    public NotCursor( Partition store, Evaluator<? extends ExprNode> childEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
         this.childEvaluator = childEvaluator;
  
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
         entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
         uuidCursor = ( ( Index<String> )entryUuidIdx ).forwardCursor();

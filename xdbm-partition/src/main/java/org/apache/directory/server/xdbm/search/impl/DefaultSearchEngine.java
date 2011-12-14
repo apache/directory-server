@@ -98,8 +98,8 @@ public class DefaultSearchEngine implements SearchEngine
         this.optimizer = optimizer;
         this.cursorBuilder = cursorBuilder;
         this.evaluatorBuilder = evaluatorBuilder;
-        txnLogManager = TxnManagerFactory.txnLogManagerInstance();
-        executionManager = OperationExecutionManagerFactory.instance();
+        txnLogManager = evaluatorBuilder.getTxnManagerFactory().txnLogManagerInstance();       
+        executionManager = evaluatorBuilder.getExecutionManagerFactory().instance();
     }
 
 

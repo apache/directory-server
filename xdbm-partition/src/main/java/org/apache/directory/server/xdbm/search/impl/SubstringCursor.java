@@ -28,6 +28,7 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -47,13 +48,21 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     private final IndexCursor<String> wrapped;
     private final SubstringEvaluator evaluator;
     private final ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
+    
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Partition store, final SubstringEvaluator substringEvaluator )
+    public SubstringCursor( Partition store, final SubstringEvaluator substringEvaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 

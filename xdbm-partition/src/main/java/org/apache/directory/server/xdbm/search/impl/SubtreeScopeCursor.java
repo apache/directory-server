@@ -70,7 +70,10 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
     /** Alias idx if dereferencing aliases */
     private Index<String> aliasIdx;
     
-
+    /** Txn and Operation Execution Factories */
+    private TxnManagerFactory txnManagerFactory;
+    private OperationExecutionManagerFactory executionManagerFactory;
+    
 
     /**
      * Creates a Cursor over entries satisfying subtree level scope criteria.
@@ -80,16 +83,20 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
      * @throws Exception on db access failures
      */
     @SuppressWarnings("unchecked")
-    public SubtreeScopeCursor( Partition db, SubtreeScopeEvaluator evaluator )
+    public SubtreeScopeCursor( Partition db, SubtreeScopeEvaluator evaluator, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        TxnLogManager txnLogManager = TxnManagerFactory.txnLogManagerInstance();
+        this.txnManagerFactory = txnManagerFactory;
+        this.executionManagerFactory = executionManagerFactory;
+        
+        TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.db = db;
         this.evaluator = evaluator;
 
         if ( evaluator.getBaseId().compareTo( getContextEntryId() ) == 0 )
         {
-            scopeCursor = new AllEntriesCursor( db );
+            scopeCursor = new AllEntriesCursor( db, txnManagerFactory, executionManagerFactory );
         }
         else
         {
@@ -130,7 +137,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
         {
             try
             {
-                this.contextEntryId = OperationExecutionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
+                this.contextEntryId = executionManagerFactory.instance().getEntryId( db, db.getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -337,8 +344,8 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
             
             if ( cursor == dereferencedCursor )
             {
-                Dn aliasTargetDn = OperationExecutionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
-                TxnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
+                Dn aliasTargetDn = executionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
+                txnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
             }
             
             return indexEntry;
