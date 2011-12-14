@@ -23,6 +23,8 @@ import java.io.File;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -42,10 +44,14 @@ public interface PartitionFactory
      * @param suffix the suffix
      * @param cacheSize the cache size
      * @param workingDirectory the working directory
+     * @param txnManagerFactory  txn manager factory
+     * @param operationExecutionManagerFactory execution manager factory
      * @return the partition
      * @throws Exception the exception
      */
-    Partition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory ) throws Exception;
+    Partition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory,
+            TxnManagerFactory txnManagerFactory,
+            OperationExecutionManagerFactory executionManagerFactory ) throws Exception;
 
 
     /**

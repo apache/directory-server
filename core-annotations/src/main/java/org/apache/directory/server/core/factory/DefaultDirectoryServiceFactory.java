@@ -61,13 +61,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
     /** The partition factory. */
     private PartitionFactory partitionFactory;
-    
-    /** Default txn log file size */
-    private final static long TXN_LOG_FILE_SIZE = 1 << 27;
-    
-    /** Default txn log buffer size */
-    private final static int TXN_LOG_BUFFER_SIZE = 1 << 22;
-
 
     public DefaultDirectoryServiceFactory()
     {
@@ -184,7 +177,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, getTxnManagerFactory(), getOperationExecutionManagerFactory() );
         ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
         schemaPartition.setWrappedPartition( ldifPartition );
@@ -213,7 +206,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // Inject the System Partition
         Partition systemPartition = partitionFactory.createPartition( directoryService.getSchemaManager(),
             "system", ServerDNConstants.SYSTEM_DN, 500,
-            new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ) );
+            new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ),
+            getTxnManagerFactory(), getOperationExecutionManagerFactory() );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
 
         partitionFactory.addIndex( systemPartition, SchemaConstants.OBJECT_CLASS_AT, 100 );
@@ -233,8 +227,12 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         buildInstanceDirectory( name );
 
         // Initialize the txn subsystem and the operation execution manager
-        TxnManagerFactory.init( directoryService.getInstanceLayout().getTxnLogDirectory().getPath(), TXN_LOG_BUFFER_SIZE, TXN_LOG_FILE_SIZE );
-        OperationExecutionManagerFactory.init();
+        TxnManagerFactory txnManagerFactory = new TxnManagerFactory( directoryService.getInstanceLayout().getTxnLogDirectory().getPath(), 
+            DefaultDirectoryService.TXN_LOG_BUFFER_SIZE, DefaultDirectoryService.TXN_LOG_FILE_SIZE );
+        OperationExecutionManagerFactory  executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
+        
+        ( ( DefaultDirectoryService )directoryService ).setTxnManagerFactory( txnManagerFactory );
+        ( ( DefaultDirectoryService )directoryService ).setExecutionManagerFactory( executionManagerFactory );
         
         // Init the service now
         initSchema();
@@ -260,4 +258,24 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     {
         return partitionFactory;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public TxnManagerFactory getTxnManagerFactory()
+    {
+        return ( ( DefaultDirectoryService )directoryService ).getTxnManagerFactory();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public OperationExecutionManagerFactory getOperationExecutionManagerFactory()
+    {
+        return ( ( DefaultDirectoryService )directoryService ).getOperationExecutionManagerFactory();
+    }
+    
+    
 }

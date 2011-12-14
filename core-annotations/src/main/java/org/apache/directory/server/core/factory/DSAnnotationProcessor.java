@@ -43,6 +43,8 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -146,7 +148,9 @@ public class DSAnnotationProcessor
                         createPartition.name(), 
                         createPartition.suffix(), 
                         createPartition.cacheSize(), 
-                        new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
+                        new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ),
+                        dsf.getTxnManagerFactory() ,
+                        dsf.getOperationExecutionManagerFactory() );
 
                 CreateIndex[] indexes = createPartition.indexes();
                 
@@ -160,9 +164,9 @@ public class DSAnnotationProcessor
             {
                 // The annotation contains a specific partition type, we use
                 // that type.
-                Class<?> partypes[] = new Class[]{SchemaManager.class};
+                Class<?> partypes[] = new Class[]{SchemaManager.class, TxnManagerFactory.class, OperationExecutionManagerFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor(partypes);
-                partition = (Partition)constructor.newInstance( new Object[]{service.getSchemaManager()} );
+                partition = (Partition)constructor.newInstance( new Object[]{service.getSchemaManager(), dsf.getTxnManagerFactory(), dsf.getOperationExecutionManagerFactory() } );
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
 

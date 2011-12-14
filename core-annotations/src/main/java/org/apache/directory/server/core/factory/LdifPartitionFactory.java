@@ -24,6 +24,8 @@ import java.util.Set;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -42,10 +44,12 @@ public class LdifPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory )
+    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory,
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        LdifPartition partition = new LdifPartition( schemaManager );
+        LdifPartition partition = new LdifPartition( schemaManager, txnManagerFactory, executionManagerFactory  );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );

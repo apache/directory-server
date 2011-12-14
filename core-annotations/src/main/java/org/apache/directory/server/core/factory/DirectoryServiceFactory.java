@@ -19,7 +19,10 @@
 package org.apache.directory.server.core.factory;
 
 
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 
 
 /**
@@ -55,4 +58,10 @@ public interface DirectoryServiceFactory
      * @return the partition factory
      */
     PartitionFactory getPartitionFactory() throws Exception;
+    
+    
+    TxnManagerFactory getTxnManagerFactory();
+    
+    
+    OperationExecutionManagerFactory getOperationExecutionManagerFactory();
 }
