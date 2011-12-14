@@ -27,7 +27,7 @@ import java.util.Comparator;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface TxnManager<ID>
+public interface TxnManager
 {
     /**
      * Starts a new txn and associates it with the current thread.
@@ -53,5 +53,37 @@ public interface TxnManager<ID>
      * @throws Exception
      */
     void abortTransaction() throws Exception;
+    
+    
+    /**
+     * Suspends the execution of the current txn and returns 
+     * a handle to it.
+     * 
+     * @return handle for the current txn
+     */
+    TxnHandle suspendCurTxn();
+    
+    
+    /**
+     * Resumes the execution of the txn corresponding to the given
+     * handle
+     *
+     * @param txnHandle handle for the txn to resume.
+     */
+    void resumeTxn( TxnHandle txnHandle);
+    
+    
+    /**
+     * returns a handle for the current txn
+     *
+     * @return handle for the current txn
+     */
+    TxnHandle getCurTxn();
+    
+    
+    /**
+     * Flushes the committed txns to partitions.
+     */
+    void applyPendingTxns();
   
 }

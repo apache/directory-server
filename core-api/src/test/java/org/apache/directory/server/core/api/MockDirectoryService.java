@@ -36,11 +36,14 @@ import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -600,4 +603,23 @@ public class MockDirectoryService implements DirectoryService
     {
         // TODO Auto-generated method stub
     }
-}
+    
+    
+    public TxnManager getTxnManager()
+    {
+        return null;
+    }
+    
+    
+    public TxnLogManager getTxnLogManager()
+    {
+        return null;
+    }
+    
+    
+    public OperationExecutionManager getOperationExecutionManager()
+    {
+        return null;
+    }
+    
+ }

@@ -33,11 +33,14 @@ import org.apache.directory.server.core.api.entry.ServerEntryFactory;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
+import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -57,6 +60,12 @@ import org.apache.directory.shared.ldap.util.tree.DnNode;
 public interface DirectoryService extends ServerEntryFactory
 {
     String JNDI_KEY = DirectoryService.class.getName();
+    
+    /** Default txn log file size */
+    long TXN_LOG_FILE_SIZE = 1 << 27;
+    
+    /** Default txn log buffer size */
+    int TXN_LOG_BUFFER_SIZE = 1 << 22;
 
     /**
      * Reverts the server's state to an earlier revision.  Note that the revsion number
@@ -608,4 +617,13 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the Dn factory
      */
     DnFactory getDnFactory();
+    
+      
+    TxnManager getTxnManager();
+    
+    
+    TxnLogManager getTxnLogManager();   
+    
+    
+    OperationExecutionManager getOperationExecutionManager();
 }

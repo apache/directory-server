@@ -81,6 +81,7 @@ public abstract class AbstractPartition implements Partition
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new LdapOtherException( e.getMessage(), e );
         }
         finally
