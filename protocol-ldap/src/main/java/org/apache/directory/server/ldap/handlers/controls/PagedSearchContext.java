@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -56,6 +57,9 @@ public class PagedSearchContext
 
     /** The associated cursor for the current search request */
     private EntryFilteringCursor cursor;
+    
+    /** Suspended txn..Not null if a txn is suspended */
+    TxnHandle txnHandle;
 
     /**
      * Creates a new instance of this class, storing the SearchRequest into it.
@@ -304,6 +308,21 @@ public class PagedSearchContext
     public void setCursor( EntryFilteringCursor cursor )
     {
         this.cursor = cursor;
+    }
+    
+    
+    /**
+     * Set suspendedn txn Handle
+     */
+    public void setTxnHandle( TxnHandle handle )
+    {
+        txnHandle = handle;
+    }
+    
+    
+    public TxnHandle getTxnHandle()
+    {
+        return txnHandle;
     }
 
 

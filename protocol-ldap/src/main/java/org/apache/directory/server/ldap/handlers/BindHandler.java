@@ -622,6 +622,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             }
             catch ( Exception e )
             {
+                e.printStackTrace();
               txnManager.abortTransaction();
               
               // TODO Instead of rethrowing the exception here all the time, check

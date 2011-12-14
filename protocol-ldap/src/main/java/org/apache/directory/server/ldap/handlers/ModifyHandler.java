@@ -66,18 +66,21 @@ public class ModifyHandler extends LdapRequestHandler<ModifyRequest>
                 {
                   txnManager.abortTransaction();
                   
-                  // TODO Instead of rethrowing the exception here all the time, check
-                  // if the root cause if conflictexception and retry by going to he
-                  // beginning of the loop if necessary.
-                  
-                  e.printStackTrace();
-                  
                   throw ( e );
                 }
                 
                 // If here then we are done.
-                txnManager.commitTransaction();
                 done = true;
+                
+                try
+                {
+                    txnManager.commitTransaction();
+                }
+                catch( Exception e )
+                {
+                    // TODO check for conflict
+                    throw e;
+                }
             }
             while ( !done );
             

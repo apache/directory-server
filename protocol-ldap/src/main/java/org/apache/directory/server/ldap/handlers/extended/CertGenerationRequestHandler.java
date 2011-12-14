@@ -25,7 +25,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -77,16 +79,44 @@ public class CertGenerationRequestHandler
      */
     public void handleExtendedOperation( LdapSession session, CertGenerationRequest req ) throws Exception
     {
-        Entry entry = session.getCoreSession().lookup( new Dn( req.getTargetDN() ) );
+        TxnManager txnManager = session.getCoreSession().getDirectoryService().getTxnManager();
+        boolean done = false;
 
-        if ( entry != null )
+        do
         {
-            TlsKeyGenerator.addKeyPair( 
-                ( ( ClonedServerEntry ) entry ).getOriginalEntry(), 
-                req.getIssuerDN(),
-                req.getSubjectDN(), 
-                req.getKeyAlgorithm() );
+            txnManager.beginTransaction( false );
+
+            try
+            {
+                Entry entry = session.getCoreSession().lookup( new Dn( req.getTargetDN() ) );
+
+                if ( entry != null )
+                {
+                    TlsKeyGenerator.addKeyPair(
+                        ( ( ClonedServerEntry ) entry ).getOriginalEntry(),
+                        req.getIssuerDN(),
+                        req.getSubjectDN(),
+                        req.getKeyAlgorithm() );
+                }
+            }
+            catch ( Exception e )
+            {
+                txnManager.abortTransaction();
+
+                // TODO Instead of rethrowing the exception here all the time, check
+                // if the root cause if conflictexception and retry by going to he
+                // beginning of the loop if necessary.
+
+                e.printStackTrace();
+
+                throw ( e );
+            }
+
+            // If here then we are done.
+            txnManager.commitTransaction();
+            done = true;
         }
+        while ( !done );
     }
 
 

@@ -34,6 +34,7 @@ import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
@@ -207,7 +208,28 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // SearchResponseEntry elements instead of
             // SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl detected." );
-            handleIgnoringReferrals( session, req );
+            boolean txnStarted = false;
+            
+            try
+            {
+                beginTxnForSearch( session, req );
+                txnStarted = true;
+                
+                handleIgnoringReferrals( session, req );
+                
+            }
+            catch ( Exception e )
+            {
+                if  ( txnStarted )
+                {
+                    endTxnForSearch( true );
+                }
+                
+                throw e;
+            }
+            
+            // if here, we are done
+            endTxnForSearch( false );
         }
         else
         {
@@ -218,7 +240,29 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             switch ( req.getType() )
             {
                 case SEARCH_REQUEST:
-                    handleWithReferrals( session, req );
+                    
+                    boolean txnStarted = false;
+                    
+                    try
+                    {
+                        beginTxnForSearch( session, req );
+                        txnStarted = true;
+                    
+                        handleWithReferrals( session, req );
+                    }
+                    catch ( Exception e )
+                    {
+                        if  ( txnStarted )
+                        {
+                            endTxnForSearch( true );
+                        }
+                        
+                        throw e;
+                    }
+                    
+                    // if here, we are done
+                    endTxnForSearch( false );
+                    
                     break;
 
                 default:
@@ -401,7 +445,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             LOG.debug( "Sending {}", entry.getDn() );
             count++;
         }
-
+        
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
 
@@ -492,6 +536,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // Stores the cursor current position
                 pagedContext.incrementCurrentPosition( pageCount );
+                
+                // Suspend the current txn
+                TxnHandle txnHandle = txnManager.suspendCurTxn();
+                pagedContext.setTxnHandle( txnHandle );
+                
                 return;
             }
             else
@@ -787,44 +836,31 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         
         try
         {
-            txnManager.beginTransaction( true );
-            
-            try
-            {
-                // A normal search
-                // Check that we have a cursor or not.
-                // No cursor : do a search.
-                cursor = session.getCoreSession().search( req );
-        
-                // Position the cursor at the beginning
-                cursor.beforeFirst();
-        
-                /*
-                 * Iterate through all search results building and sending back responses
-                 * for each search result returned.
-                 */
-               
-                    // Get the size limits
-                    // Don't bother setting size limits for administrators that don't ask for it
-                    long serverLimit = getServerSizeLimit( session, req );
-        
-                    long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
-        
-                    req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
-                    setTimeLimitsOnCursor( req, session, cursor );
-                    LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
-                    long sizeLimit = min( requestLimit, serverLimit );
-        
-                    readResults( session, req, ldapResult, cursor, sizeLimit );
-            }
-            catch ( Exception e )
-            {
-                txnManager.abortTransaction();
-                throw ( e );
-            }
+            // A normal search
+            // Check that we have a cursor or not.
+            // No cursor : do a search.
+            cursor = session.getCoreSession().search( req );
 
-            // If here then we are done.
-            txnManager.commitTransaction();
+            // Position the cursor at the beginning
+            cursor.beforeFirst();
+
+            /*
+             * Iterate through all search results building and sending back responses
+             * for each search result returned.
+             */
+
+            // Get the size limits
+            // Don't bother setting size limits for administrators that don't ask for it
+            long serverLimit = getServerSizeLimit( session, req );
+
+            long requestLimit = req.getSizeLimit() == 0L ? Long.MAX_VALUE : req.getSizeLimit();
+
+            req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
+            setTimeLimitsOnCursor( req, session, cursor );
+            LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+            long sizeLimit = min( requestLimit, serverLimit );
+
+            readResults( session, req, ldapResult, cursor, sizeLimit );
         }
         finally
         {
@@ -1654,5 +1690,71 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     public void setReplicationReqHandler( ReplicationRequestHandler replicationReqHandler )
     {
         this.replicationReqHandler = replicationReqHandler;
+    }
+    
+    
+    private boolean checkPagedSearchTxnResume( LdapSession session, SearchRequest req )
+    {
+        boolean resumedTxn = false;
+        
+        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator )req.getControls().get( PagedResults.OID );
+        
+        if ( pagedSearchControl != null )
+        {
+            byte[] cookie = pagedSearchControl.getCookie();
+            
+            if ( !Strings.isEmpty( cookie ) )
+            {
+                int cookieValue = pagedSearchControl.getCookieValue();
+                PagedSearchContext pagedContext = session.getPagedSearchContext( cookieValue );
+                
+                if ( pagedContext != null )
+                {
+                    TxnHandle txnHandle = pagedContext.getTxnHandle();
+                    pagedContext.setTxnHandle( null );
+                    txnManager.resumeTxn( txnHandle );
+                    resumedTxn = true;
+                }
+            }
+        }
+        
+        return resumedTxn;
+    }
+    
+    
+    private void beginTxnForSearch( LdapSession session, SearchRequest req ) throws Exception
+    {
+        boolean resumedTxn = checkPagedSearchTxnResume( session, req );
+     
+        // If resumed an existing txn then just return
+        
+        if ( resumedTxn )
+        {
+            return;
+        }
+        
+        txnManager.beginTransaction( true );
+    }
+    
+    
+    private void endTxnForSearch( boolean abort ) throws Exception
+    {
+        // Paged search might have suspended the execution of the txn
+        TxnHandle txnHandle = txnManager.getCurTxn();
+        
+        if ( txnHandle == null )
+        {
+            return;
+        }
+        
+        if ( abort == false )
+        {
+            txnManager.commitTransaction();
+        }
+        else
+        {
+            txnManager.abortTransaction();
+        }
+        
     }
 }
