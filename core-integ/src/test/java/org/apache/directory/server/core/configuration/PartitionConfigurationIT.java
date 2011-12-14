@@ -26,7 +26,9 @@ import static junit.framework.Assert.assertNull;
 import java.util.UUID;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
@@ -35,6 +37,8 @@ import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
+import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -52,22 +56,39 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "PartitionConfigurationIT")
 public class PartitionConfigurationIT extends AbstractLdapTestUnit
 {
+    public TxnManagerFactory getTxnManagerFactory()
+    {
+        return ( ( DefaultDirectoryService )getService() ).getTxnManagerFactory();
+    }
+    
+    
+    public OperationExecutionManagerFactory getOperationExecutionManagerFactory()
+    {
+        return ( ( DefaultDirectoryService )getService() ).getOperationExecutionManagerFactory();
+    }
 
     @Test
     public void testAddAndRemove() throws Exception
     {
+        DirectoryService service = getService();
         DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
         PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
-        Partition partition = partitionFactory.createPartition( getService().getSchemaManager(), "removable", "ou=removable", 100, getService()
-            .getInstanceLayout().getPartitionsDirectory() );
+        Partition partition = partitionFactory.createPartition( 
+            service.getSchemaManager(), 
+            "removable", 
+            "ou=removable", 
+            100, 
+            service.getInstanceLayout().getPartitionsDirectory(),
+            getTxnManagerFactory(), 
+            getOperationExecutionManagerFactory());
 
         // Test AddContextPartition
-        getService().addPartition( partition );
+        service.addPartition( partition );
 
-        Dn suffixDn = new Dn( getService().getSchemaManager(), "ou=removable" );
+        Dn suffixDn = new Dn( service.getSchemaManager(), "ou=removable" );
 
         Entry ctxEntry = new DefaultEntry( 
-            getService().getSchemaManager(), 
+            service.getSchemaManager(), 
             suffixDn.toString(),
             "objectClass: top",
             "objectClass: organizationalUnit",
@@ -75,14 +96,14 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
             "entryUUID", UUID.randomUUID().toString() );
 
-        partition.add( new AddOperationContext( getService().getAdminSession(), ctxEntry ) );
+        service.getPartitionNexus().add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
 
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         assertNotNull( connection.lookup( "ou=removable" ) );
 
         // Test removeContextPartition
-        getService().removePartition( partition );
+        service.removePartition( partition );
 
         assertNull( connection.lookup( "ou=removable" ) );
     }
