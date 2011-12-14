@@ -28,6 +28,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
@@ -50,14 +51,32 @@ class MultiBaseSearch implements PrincipalStore
 {
     private final Catalog catalog;
     private final DirectoryService directoryService;
+    private TxnManager txnManager; 
 
 
     MultiBaseSearch( String catalogBaseDn, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
+        txnManager = directoryService.getTxnManager();
+        
         try
         {
-            catalog = new KerberosCatalog( ( Map<String, String> ) execute( directoryService.getSession(), new GetCatalog() ) );
+            txnManager.beginTransaction( true );
+            
+            try
+            {
+                catalog = new KerberosCatalog( ( Map<String, String> ) execute( directoryService.getSession(),
+                    new GetCatalog() ) );
+            }
+            catch ( Exception e )
+            {
+                txnManager.abortTransaction();
+
+                throw e;
+            }
+            
+            txnManager.commitTransaction();
+
         }
         catch ( Exception e )
         {
@@ -69,29 +88,81 @@ class MultiBaseSearch implements PrincipalStore
 
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
+        PrincipalStoreEntry entry = null;
+        
         try
         {
-            return ( PrincipalStoreEntry ) execute( directoryService.getSession(), new GetPrincipal( principal ) );
+            txnManager.beginTransaction( true );
+            
+            try
+            {
+                entry = ( PrincipalStoreEntry ) execute( directoryService.getSession(), new GetPrincipal( principal ) );
+            }
+            catch ( NamingException ne )
+            {
+                txnManager.abortTransaction();
+
+                throw ne;
+            }
+            
+            txnManager.commitTransaction();
+
         }
-        catch ( NamingException ne )
+        catch ( Exception e )
         {
             String message = I18n.err( I18n.ERR_625, principal.getRealm() );
-            throw new ServiceConfigurationException( message, ne );
+            throw new ServiceConfigurationException( message, e );
         }
+        
+        return entry;
     }
 
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
+        String result = null;
+        boolean done = false;
+        
         try
         {
-            return ( String ) execute( directoryService.getSession(), new ChangePassword( principal, newPassword ) );
+            do
+            {
+                txnManager.beginTransaction( false );
+            
+                try
+                {
+                    result = ( String ) execute( directoryService.getSession(), new ChangePassword( principal, newPassword ) );
+                }
+                catch ( NamingException ne )
+                {
+                    txnManager.abortTransaction();
+    
+                    throw ne;
+                }
+                
+                done = true;
+                
+                try
+                {
+                    txnManager.commitTransaction();
+                }
+                catch ( Exception e )
+                {
+                    // TODO check for conflict
+                    throw e;
+                }
+            }
+            while ( !done );
+
         }
-        catch ( NamingException ne )
+        catch ( Exception e )
         {
             String message = I18n.err( I18n.ERR_625, principal.getRealm() );
-            throw new ServiceConfigurationException( message, ne );
+            throw new ServiceConfigurationException( message, e );
         }
+        
+        return result;
+        
     }
 
 
