@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -72,10 +71,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The core session */
     protected CoreSession session;
-
-    protected OperationContext next;
-
-    protected OperationContext previous;
 
     /** A flag used to tell if we should consider referrals as standard entries */
     protected boolean throwReferral;
@@ -342,7 +337,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
     private void setup( AbstractOperationContext opContext )
     {
-        next = opContext;
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
 
@@ -363,11 +357,6 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        if ( lookupContext != next )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
-        }
-
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
 
