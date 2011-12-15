@@ -108,6 +108,7 @@ public class DefaultOperationManager implements OperationManager
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            
             Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )

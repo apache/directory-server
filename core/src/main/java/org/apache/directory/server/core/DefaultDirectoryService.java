@@ -276,7 +276,7 @@ public class DefaultDirectoryService implements DirectoryService
     private int maxPDUSize = Integer.MAX_VALUE;
 
     /** the value of last successful add/update operation's CSN */
-    private String contextCsn;
+    private volatile String contextCsn;
 
     /** lock file for directory service's working directory */
     private RandomAccessFile lockFile = null;
