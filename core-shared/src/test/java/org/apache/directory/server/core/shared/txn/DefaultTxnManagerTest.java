@@ -19,12 +19,9 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 
-import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +58,8 @@ public class DefaultTxnManagerTest
      */
     private String getLogFolder() throws IOException
     {
-        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        File newFolder = folder.newFolder( LOG_SUFFIX );
+        String file = newFolder.getAbsolutePath();
 
         return file;
     }

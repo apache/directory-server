@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import java.io.File;
-import java.io.IOException;
 import java.util.TreeSet;
 import java.util.UUID;
 

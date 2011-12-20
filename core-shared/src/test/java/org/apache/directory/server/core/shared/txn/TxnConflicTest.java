@@ -63,14 +63,14 @@ public class TxnConflicTest
      */
     private String getLogFolder() throws IOException
     {
-        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        File newFolder = folder.newFolder( LOG_SUFFIX );
+        String file = newFolder.getAbsolutePath();
 
         return file;
     }
 
 
     @Before
-    @SuppressWarnings("unchecked")
     public void setup() throws IOException, InvalidLogException
     {
         try
@@ -82,7 +82,6 @@ public class TxnConflicTest
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }

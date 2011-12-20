@@ -22,7 +22,6 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -51,8 +50,6 @@ import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.directory.server.core.api.partition.index.MasterTable;
-import org.apache.directory.server.core.api.partition.index.AbstractTable;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 
 
@@ -112,14 +109,14 @@ public class EntryUpdateMergeTest
      */
     private String getLogFolder() throws IOException
     {
-        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        File newFolder = folder.newFolder( LOG_SUFFIX );
+        String file = newFolder.getAbsolutePath();
 
         return file;
     }
 
 
     @Before
-    @SuppressWarnings("unchecked")
     public void setup() throws IOException, InvalidLogException
     {
         try
@@ -192,7 +189,6 @@ public class EntryUpdateMergeTest
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }

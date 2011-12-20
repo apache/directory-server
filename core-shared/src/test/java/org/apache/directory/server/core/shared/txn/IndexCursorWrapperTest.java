@@ -36,7 +36,6 @@ import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.log.InvalidLogException;
 
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -103,7 +102,8 @@ public class IndexCursorWrapperTest
      */
     private String getLogFolder() throws IOException
     {
-        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        File newFolder = folder.newFolder( LOG_SUFFIX );
+        String file = newFolder.getAbsolutePath();
 
         return file;
     }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.log;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -64,7 +65,8 @@ public class LogFlushScanTest
      */
     private String getLogFolder( ) throws IOException
     {
-        String file = folder.newFolder( LOG_SUFFIX ).getAbsolutePath();
+        File newFolder = folder.newFolder( LOG_SUFFIX );
+        String file = newFolder.getAbsolutePath();
         
         return file;
     }
