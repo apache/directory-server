@@ -131,6 +131,8 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         {
             results.add( cursor.get().getDn().getName() );
         }
+        
+        cursor.close();
 
         return results;
     }

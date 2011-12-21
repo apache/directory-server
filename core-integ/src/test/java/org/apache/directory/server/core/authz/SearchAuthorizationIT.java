@@ -320,6 +320,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             counter++;
         }
 
+        cursor.close();
+
         recursivelyDelete( base );
 
         return counter == resultSetSz;
@@ -962,16 +964,16 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     {
         LdapConnection userCtx = getConnectionAs( new Dn( "uid=" + uid + ",ou=users,ou=system" ), password );
         Entry result = null;
-        EntryCursor list = null;
+        EntryCursor cursor = null;
 
-        list = userCtx.search( dn.getName(), "(objectClass=*)", SearchScope.OBJECT, "*" );
+        cursor = userCtx.search( dn.getName(), "(objectClass=*)", SearchScope.OBJECT, "*" );
         
-        if ( list.next() )
+        if ( cursor.next() )
         {
-            result = list.get();
+            result = cursor.get();
         }
 
-        list.close();
+        cursor.close();
 
         return result;
     }

@@ -107,6 +107,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -145,6 +146,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -179,6 +181,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -212,6 +215,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         }
 
         assertTrue( "no entry found", entryFound );
+
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -250,6 +255,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -288,6 +294,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -326,6 +333,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }
@@ -363,6 +371,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertTrue( "entry found", entryFound );
 
+        cursor.close();
         connection.delete( dn );
         connection.close();
     }

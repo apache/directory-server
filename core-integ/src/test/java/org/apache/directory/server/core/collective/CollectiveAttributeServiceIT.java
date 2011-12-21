@@ -143,6 +143,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
             resultMap.put( entry.getDn().getName(), entry );
         }
+        
+        cursor.close();
 
         return resultMap;
     }
@@ -159,6 +161,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             Entry entry = cursor.get();
             resultMap.put( entry.getDn().getName(), entry );
         }
+
+        cursor.close();
 
         return resultMap;
     }
@@ -177,6 +181,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
             resultMap.put( entry.getDn().getName(), entry );
         }
+
+        cursor.close();
 
         return resultMap;
     }
@@ -345,6 +351,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             break;
         }
         
+        cursor.close();
+
         assertTrue( found );
     }
 
@@ -383,6 +391,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             assertTrue( entry.contains( "ou", "services" ) );
             assertTrue( entry.contains( "c-ou", "configuration" ) );
         }
+
+        responses.close();
 
         // ------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou,

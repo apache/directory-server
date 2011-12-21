@@ -226,6 +226,8 @@ public class AddAliasIT extends AbstractLdapTestUnit
             {
                 System.out.println( cursor.get().getDn() );
             }
+            
+            cursor.close();
         }
         finally
         {

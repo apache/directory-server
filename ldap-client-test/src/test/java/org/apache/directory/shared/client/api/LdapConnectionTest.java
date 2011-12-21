@@ -197,6 +197,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
             Entry result = cursor.get();
             map.put( result.getDn().getName(), result );
         }
+        
         cursor.close();
 
         assertEquals( 2, map.size() );

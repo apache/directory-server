@@ -1633,6 +1633,8 @@ public class SearchIT extends AbstractLdapTestUnit
                     asyncCnx.abandon( 1002 );
                 }
             }
+            
+            cursor.close();
 
             assertEquals( 10, count );
         }
@@ -1664,6 +1666,8 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult entry = result.next();
 
         assertEquals( "Kim Wilde", entry.getAttributes().get( "cn" ).get() );
+        
+        result.close();
     }
 
 
@@ -1688,6 +1692,8 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertEquals( sizeLimit, i );
+        
+        cursor.close();
         connection.close();
     }
 
@@ -1722,6 +1728,8 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertTrue( newCount < count );
+        
+        cursor.close();
         connection.close();
     }
 

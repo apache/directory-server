@@ -321,6 +321,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
             results.put( entry.getDn().getName(), entry );
         }
+        
+        responses.close();
 
         return results;
     }
