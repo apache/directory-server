@@ -20,7 +20,7 @@
 package org.apache.directory.server.component.schema;
 
 
-import org.apache.felix.ipojo.Factory;
+import org.apache.directory.server.component.ADSComponent;
 
 
 /**
@@ -34,12 +34,10 @@ public interface ComponentSchemaGenerator
      * Generates a schema for representing all of factory's configurables.
      * Returned schema is in right order to add it to LDAP without any sorting.
      * 
-     * If factory does not need a custom schema, it does not generate a schema for
-     * it, just returns the name of stock schema instead.
      *
-     * @param factory Factory reference to generate schema for.
+     * @param component ADSComponent reference to generate schema for.
      * @return Schema in the form of LdifEntry list.
      */
-    public ADSComponentSchema generateADSComponentSchema( Factory factory );
+    public ADSComponentSchema generateADSComponentSchema( ADSComponent component );
 
 }

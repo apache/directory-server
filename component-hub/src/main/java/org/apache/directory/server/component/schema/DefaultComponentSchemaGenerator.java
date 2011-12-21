@@ -23,7 +23,8 @@ package org.apache.directory.server.component.schema;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.component.utilities.IPojoFactoryHelper;
+import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -39,19 +40,20 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
 {
     private final Logger LOG = LoggerFactory.getLogger( DefaultComponentSchemaGenerator.class );
 
-    private final String ADS_USER_COMPONENTS_SCHEMA_DN = "cn=usercomponents,ou=schema";
-    private final String ADS_USER_COMPONENTS_SCHEMA_NAME = "usercomponents";
-
 
     @Override
-    public ADSComponentSchema generateADSComponentSchema( Factory componentFactory )
+    public ADSComponentSchema generateADSComponentSchema( ADSComponent component )
     {
+        Factory componentFactory = component.getFactory();
+
+        String ADS_COMPONENT_SCHEMA_DN = ADSComponentHelper.getSchemaBaseDn( component );
+
         List<LdifEntry> schemaElements = new ArrayList<LdifEntry>();
 
-        String componentName = IPojoFactoryHelper.getComponentName( componentFactory );
+        String componentName = ADSComponentHelper.getComponentName( componentFactory );
 
-        String attribsDn = "ou=attributeTypes," + ADS_USER_COMPONENTS_SCHEMA_DN;
-        String ocsDn = "ou=objectClasses," + ADS_USER_COMPONENTS_SCHEMA_DN;
+        String attribsDn = "ou=attributeTypes," + ADS_COMPONENT_SCHEMA_DN;
+        String ocsDn = "ou=objectClasses," + ADS_COMPONENT_SCHEMA_DN;
 
         //Will hold the m-must attributes while iterating over properties of the component
         List<String> ocAttribs = new ArrayList<String>();
@@ -148,8 +150,10 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
                 + componentFactory );
         }
 
-        ADSComponentSchema compSchema = new ADSComponentSchema( ADS_USER_COMPONENTS_SCHEMA_NAME,
-            schemaElements, componentName );
+        ADSComponentSchema compSchema = new ADSComponentSchema(
+            ADSComponentHelper.getSchemaBaseDn( component ),
+            schemaElements,
+            ADSComponentHelper.getComponentObjectClass( component ) );
 
         return compSchema;
     }

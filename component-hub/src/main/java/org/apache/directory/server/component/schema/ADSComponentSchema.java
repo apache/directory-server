@@ -42,7 +42,7 @@ public class ADSComponentSchema
     /*
      * Schema name which @schemaElements will go under.
      */
-    private String parentSchemaName = null;
+    private String parentSchemaDn = null;
 
     /*
      * The object class which will be used to represent instances of the component.
@@ -52,7 +52,7 @@ public class ADSComponentSchema
 
     public ADSComponentSchema( String parentSchema, List<LdifEntry> elements, String oc )
     {
-        parentSchemaName = parentSchema;
+        parentSchemaDn = parentSchema;
         schemaElements = elements;
         objectClassForComponent = oc;
     }
@@ -63,9 +63,9 @@ public class ADSComponentSchema
      *
      * @return name of the schema
      */
-    public String getParentSchemaName()
+    public String getParentSchemaDn()
     {
-        return parentSchemaName;
+        return parentSchemaDn;
     }
 
 
