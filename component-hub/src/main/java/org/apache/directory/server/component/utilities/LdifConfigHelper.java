@@ -19,25 +19,29 @@
  */
 package org.apache.directory.server.component.utilities;
 
+
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.ComponentInstance;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 
+
 public class LdifConfigHelper
 {
-    public LdifEntry componentToLdifEntry(ADSComponent component)
+    public static LdifEntry componentToLdifEntry( ADSComponent component )
     {
         return null;
     }
-    
-    public LdifEntry instanceToLdif(ComponentInstance instance)
+
+
+    public static LdifEntry instanceToLdif( ComponentInstance instance )
     {
         return null;
     }
-    
-    public Properties instanceEntryToConfiguration(LdifEntry entry)
+
+
+    public static Properties instanceEntryToConfiguration( LdifEntry entry )
     {
         return null;
     }

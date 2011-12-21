@@ -31,6 +31,10 @@ import java.util.Hashtable;
  */
 public class ADSConstants
 {
+    /*
+     * Component Hub factory name
+     */
+    public static final String ADS_HUB_FACTORY_NAME = "ADSComponentHub";
 
     /*
      * base directory path for component cache
@@ -53,34 +57,54 @@ public class ADSConstants
     public static final String ADS_CACHE_VERSION_FILE = "version";
 
     /*
-     * IPojo Handler name for ADSComponent annotation.
-     */
-    public static final String ADS_COMPONENT_HANDLER_NS = "org.apache.directory.server.component.handler";
-
-    /*
-     * IPojo Handler name for ADSComponent annotation.
-     */
-    public static final String ADS_COMPONENT_HANDLER_NAME = "ADSComponentHandler";
-
-    /*
-     * IPojo Handler name for ADSComponent annotation.
-     */
-    public static final String ADS_COMPONENT_HANDLER_FULLNAME = "org.apache.directory.server.component.handler:ADSComponentHandler";
-
-    /*
-     * iPOJO Component Type and Instance declaration header.
-     */
-    public static final String IPOJO_HEADER = "iPOJO-Components";
-
-    /*
      * Base OID value for ApacheDS component schemas.
      */
     public static final String ADS_COMPONENT_BASE_OID = "1.3.6.1.4.1.18060.0.4.4";
 
     /*
-     * Component type name of user defined components.
+     * Base schema name for holding component's elements
      */
-    public static final String ADS_COMPONENT_TYPE_USER = "user";
+    public static final String ADS_COMPONENT_BASE_SCHEMA_NAME = "componenthub";
+
+    /*
+     * OC name of the component OC.
+     */
+    public static final String ADS_COMPONENT_OC_NAME = "ads-component";
+
+    /*
+     * Attribute name of component name
+     */
+    public static final String ADS_COMPONENT_ATTRIB_NAME = "ads-componetname";
+
+    /*
+     * Attribute name of component type
+     */
+    public static final String ADS_COMPONENT_ATTRIB_TYPE = "ads-componenttype";
+
+    /*
+     * Attribute name of component object class
+     */
+    public static final String ADS_COMPONENT_ATTRIB_OC = "ads-ocname";
+
+    /*
+     * Attribute name of component purge count
+     */
+    public static final String ADS_COMPONENT_ATTRIB_PURGE = "ads-componentpurgecount";
+
+    /*
+     * Component type name of interceptors
+     */
+    public static final String ADS_COMPONENT_TYPE_INTERCEPTOR = "interceptor";
+
+    /*
+     * Component type name of partitions
+     */
+    public static final String ADS_COMPONENT_TYPE_PARTITION = "partition";
+
+    /*
+     * Component type name of servers
+     */
+    public static final String ADS_COMPONENT_TYPE_SERVER = "server";
 
     /*
      * Hash table for mapping property type name to its syntax in ApacheDS

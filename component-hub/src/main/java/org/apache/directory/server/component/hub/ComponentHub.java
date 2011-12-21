@@ -22,20 +22,27 @@ package org.apache.directory.server.component.hub;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Properties;
 
 import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
+import org.apache.directory.server.component.instance.DefaultComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
-import org.apache.directory.server.component.utilities.IPojoFactoryHelper;
+import org.apache.directory.server.component.utilities.ADSComponentHelper;
+import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.shared.ipojo.helpers.IPojoHelper;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Property;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.apache.felix.ipojo.whiteboard.Wbp;
@@ -51,7 +58,7 @@ import org.osgi.service.log.LogService;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@Component
+@Component(name = ADSConstants.ADS_HUB_FACTORY_NAME)
 @Whiteboards(whiteboards =
     {
         @Wbp(onArrival = "onFactoryArrival",
@@ -63,6 +70,11 @@ import org.osgi.service.log.LogService;
 })
 public class ComponentHub
 {
+    /*
+     * DirectoryService reference
+     */
+    private DirectoryService ads;
+
     /*
      * Schema Partition reference.
      */
@@ -91,12 +103,12 @@ public class ComponentHub
     /*
      * Used to manage component's schemas.
      */
-    private ComponentSchemaManager compSchemaManager = new ComponentSchemaManager( schemaPartition );
+    private ComponentSchemaManager componentSchemaManager = new ComponentSchemaManager( schemaPartition );
 
     /*
      * Used to manage config partition interactions.
      */
-    private ConfigurationManager configManager = new ConfigurationManager( configPartition );
+    private ConfigurationManager configManager = new ConfigurationManager( configPartition,componentSchemaManager );
 
     /*
      * Used to manage instances' DIT hooks.
@@ -106,7 +118,7 @@ public class ComponentHub
     /*
      * Used to manage components.
      */
-    private ComponentManager componentManager = new ComponentManager( configManager, instanceManager );
+    private ComponentManager componentManager = new ComponentManager( configManager );
 
     /*
      * Allowed interfaces for components.
@@ -128,19 +140,56 @@ public class ComponentHub
      * @param configPartition config partition reference
      * @return reference to a wrapped ComponentHub IPojo component
      */
-    public static ComponentHub createComponentHub( SchemaPartition schemaPartition,
+    public static ComponentHub createIPojoInstance( DirectoryService ads, SchemaPartition schemaPartition,
         SingleFileLdifPartition configPartition )
     {
-        return null;
+        String adsInstance = ads.getInstanceId();
+        String hubInstanceId = ADSConstants.ADS_HUB_FACTORY_NAME + "-" + adsInstance;
+        Properties conf = new Properties();
+
+        conf.put( "ads-hub-arg-ads", ads );
+        conf.put( "ads-hub-arg-schpart", schemaPartition );
+        conf.put( "ads-hub-arg-confpart", configPartition );
+
+        ComponentHub componentHubInstance = ( ComponentHub ) IPojoHelper.createIPojoComponent(
+            ADSConstants.ADS_HUB_FACTORY_NAME, hubInstanceId, null );
+
+        return componentHubInstance;
     }
 
 
-    public ComponentHub()
+    public ComponentHub(
+        @Property(name = "ads-hub-arg-ads") DirectoryService ads,
+
+        @Property(name = "ads-hub-arg-schpart") SchemaPartition schemaPartition,
+
+        @Property(name = "ads-hub-arg-confpart") SingleFileLdifPartition configPartition )
     {
+        this.ads = ads;
+        this.schemaPartition = schemaPartition;
+        this.configPartition = configPartition;
+
         componentMap = new Hashtable<String, List<ADSComponent>>();
         components = new ArrayList<ADSComponent>();
 
-        compSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
+        componentSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
+        componentSchemaManager.addSchemaGenerator( Partition.class.getName(), new DefaultComponentSchemaGenerator() );
+        
+        componentManager.addInstanceGenerator( Interceptor.class.getName(), new DefaultComponentInstanceGenerator() );
+        componentManager.addInstanceGenerator( Partition.class.getName(), new DefaultComponentInstanceGenerator() );
+        
+        //compSchemaManager.addSchemaGenerator( DirectoryBackedService.class.getName(), new DefaultComponentSchemaGenerator() );
+    }
+
+
+    /**
+     * Register the DirectoryListener of InstanceManager with ADS
+     *
+     * @param ads DirectoryService reference to register listener with.
+     */
+    public void RegisterWithDS( DirectoryService ads )
+    {
+        // TODO implement
     }
 
 
@@ -335,8 +384,8 @@ public class ComponentHub
 
         component.setFactory( factory );
         component.setComponentType( componentType );
-        component.setComponentName( IPojoFactoryHelper.getComponentName( component.getFactory() ) );
-        component.setComponentVersion( IPojoFactoryHelper.getComponentVersion( component.getFactory() ) );
+        component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
+        component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
 
         return component;
     }

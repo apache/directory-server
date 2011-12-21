@@ -981,6 +981,13 @@
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ipojo-manager</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      
       <!-- Mina dependencies -->
       
       <dependency>

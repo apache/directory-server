@@ -41,6 +41,8 @@ public interface ComponentInstanceGenerator
     /**
      * Extract default configuration from factory. This configuration is 
      * the map of default values of the published properties of a IPojo component.
+     * 
+     * If some mandatory property has no default value, then this method returns null !
      *
      * @param factory Factory reference to extract default configuration to instantiate it.
      * @return Default configuration

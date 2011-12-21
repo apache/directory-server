@@ -46,7 +46,7 @@ public class ADSComponent
     /*
      * Component's type
      */
-    private String componentType = "user";
+    private String componentType = "";
 
     /*
      * Name of the component(Its IPojo factory name in normalized form).
@@ -70,14 +70,9 @@ public class ADSComponent
     private List<CachedComponentInstance> cachedInstances;
 
     /*
-     * Generated/Choosed schema information
-     */
-    private ADSComponentSchema schema;
-
-    /*
      * Default configuration to instantiate instances of that component.
      */
-    private Properties defaultConfiguration;
+    private Properties defaultConfiguration = null;
 
     /*
      * internal component manager
@@ -127,6 +122,17 @@ public class ADSComponent
 
 
     /**
+     * Adds a CachedInstance to list
+     *
+     * @param cachedInstance CachedComponentReference to add.
+     */
+    public void addCachedInstance( CachedComponentInstance cachedInstance )
+    {
+        cachedInstances.add( cachedInstance );
+    }
+
+
+    /**
      * Gets the current instances of the component
      *
      * @return Cloned ComponentInstance list.
@@ -134,6 +140,17 @@ public class ADSComponent
     public List<ComponentInstance> getInstances()
     {
         return new ArrayList<ComponentInstance>( activeInstances );
+    }
+
+
+    /**
+     * Gets the current cached instances of the component
+     *
+     * @return Cloned CachedComponentInstance list.
+     */
+    public List<CachedComponentInstance> getCachedInstances()
+    {
+        return new ArrayList<CachedComponentInstance>( cachedInstances );
     }
 
 
@@ -170,24 +187,6 @@ public class ADSComponent
     public void setComponentType( String componentType )
     {
         this.componentType = componentType;
-    }
-
-
-    /**
-     * @return the schema
-     */
-    public ADSComponentSchema getSchema()
-    {
-        return schema;
-    }
-
-
-    /**
-     * @param schema the schema to set
-     */
-    public void setSchema( ADSComponentSchema schema )
-    {
-        this.schema = schema;
     }
 
 

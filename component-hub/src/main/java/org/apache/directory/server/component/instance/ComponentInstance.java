@@ -53,21 +53,6 @@ public class ComponentInstance
      */
     private String DITHookDn;
 
-    /*
-     * ConfigurationManager to manage instance's DIT hooks.
-     */
-    private InstanceManager instanceManager;
-
-    /*
-     * Specifies whether this instance's DIT hook will be watched for changes.
-     */
-    private boolean isReconfigurable;
-
-    /*
-     * Specifies whether instance is avtive or cached
-     */
-    private boolean isActive = false;
-
 
     /**
      * @return the instance
@@ -138,51 +123,6 @@ public class ComponentInstance
     public void setDITHookDn( String DITHookDn )
     {
         this.DITHookDn = DITHookDn;
-    }
-
-
-    /**
-     * @param configManager the configManager to set
-     */
-    public void setInstanceManager( InstanceManager instanceManager )
-    {
-        this.instanceManager = instanceManager;
-    }
-
-
-    /**
-     * @return the isActive
-     */
-    public boolean isActive()
-    {
-        return isActive;
-    }
-
-
-    /**
-     * Sets the instance active.
-     */
-    public void setActive()
-    {
-        this.isActive = true;
-    }
-
-
-    /**
-     * @return the isReconfigurable
-     */
-    public boolean isReconfigurable()
-    {
-        return isReconfigurable;
-    }
-
-
-    /**
-     * @param isReconfigurable the isReconfigurable to set
-     */
-    public void setReconfigurable( boolean isReconfigurable )
-    {
-        this.isReconfigurable = isReconfigurable;
     }
 
 }

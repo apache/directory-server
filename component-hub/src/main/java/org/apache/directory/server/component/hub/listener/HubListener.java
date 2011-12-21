@@ -21,6 +21,7 @@ package org.apache.directory.server.component.hub.listener;
 
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.instance.CachedComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.architecture.Architecture;
 
@@ -54,5 +55,8 @@ public interface HubListener
      * @return the overrided version of the ADSComponent or null if no change is intended.
      */
     public void onComponentDeletion( ADSComponent component );
+
+
+    public void onNewInstanceConfiguration( ADSComponent component, CachedComponentInstance createdConf );
 
 }
