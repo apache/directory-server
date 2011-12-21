@@ -23,6 +23,7 @@ package org.apache.directory.shared.client.api.operations.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -277,6 +278,18 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test(expected = LdapException.class)
     public void testSearchUTF8() throws Exception
     {
-        connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
+        EntryCursor cursor = null;
+
+        try
+        {
+            cursor = connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
+            fail();
+        }
+        catch ( Exception e )
+        {
+            cursor.close( e );
+
+            throw e;
+        }
     }
 }
