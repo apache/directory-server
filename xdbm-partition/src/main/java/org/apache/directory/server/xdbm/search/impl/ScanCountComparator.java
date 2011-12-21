@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Comparator;
 
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 /**
  * A helper class used to compare scan counts.

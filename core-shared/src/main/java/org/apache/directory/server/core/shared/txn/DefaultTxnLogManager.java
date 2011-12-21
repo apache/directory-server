@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
-import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 
 
 /**

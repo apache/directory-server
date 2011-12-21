@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 
-import javax.naming.NamingException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.api.CoreSession;

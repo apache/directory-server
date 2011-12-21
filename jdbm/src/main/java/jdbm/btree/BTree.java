@@ -47,14 +47,10 @@
 package jdbm.btree;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -67,7 +63,6 @@ import jdbm.helper.ActionContext;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-import jdbm.helper.WrappedRuntimeException;
 
 import org.apache.directory.server.i18n.I18n;
 

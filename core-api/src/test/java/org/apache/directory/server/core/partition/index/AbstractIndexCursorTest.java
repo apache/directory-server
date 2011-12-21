@@ -31,7 +31,6 @@ import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Before;
 import org.junit.Test;
 

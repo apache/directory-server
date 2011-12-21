@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.lang.model.element.ExecutableElement;
-
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -40,7 +38,6 @@ import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;

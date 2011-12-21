@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import java.util.Comparator;
-import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.shared.log.DefaultLog;

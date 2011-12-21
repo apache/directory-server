@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 import java.util.UUID;
 
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;

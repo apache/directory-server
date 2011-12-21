@@ -35,15 +35,11 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
-import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 import org.apache.directory.server.core.api.txn.logedit.DataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.server.core.api.txn.logedit.IndexModification;
-
-import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-import org.apache.directory.server.core.api.txn.TxnManager;
 
 
 /**

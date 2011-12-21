@@ -31,7 +31,6 @@ import javax.naming.NamingException;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.SnapshotRecordManager;
 
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;

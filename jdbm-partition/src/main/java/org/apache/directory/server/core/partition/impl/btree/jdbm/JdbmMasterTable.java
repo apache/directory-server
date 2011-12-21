@@ -22,17 +22,13 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.util.UUID;
 
 import jdbm.RecordManager;
-import jdbm.helper.LongSerializer;
 import jdbm.helper.Serializer;
-import jdbm.helper.StringComparator;
 
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 
 
 /**

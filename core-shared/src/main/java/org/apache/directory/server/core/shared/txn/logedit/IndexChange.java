@@ -27,12 +27,8 @@ import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.Serializer;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.IndexModification;
-import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-
-import org.apache.directory.shared.ldap.model.entry.Value;
 
 
 /**

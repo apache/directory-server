@@ -24,22 +24,13 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
-import org.apache.directory.server.core.api.partition.index.IndexNotFoundException;
-import org.apache.directory.server.core.api.partition.index.IndexCursor;
 
 
 /**

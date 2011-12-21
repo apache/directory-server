@@ -19,8 +19,6 @@
  */
 package org.apache.directory.server.core.avltree;
 
-import java.util.concurrent.ConcurrentNavigableMap;
-
 import org.apache.directory.server.i18n.I18n;
 
 

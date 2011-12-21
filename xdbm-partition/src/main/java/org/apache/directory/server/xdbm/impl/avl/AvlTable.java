@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.util.Comparator;
-import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 

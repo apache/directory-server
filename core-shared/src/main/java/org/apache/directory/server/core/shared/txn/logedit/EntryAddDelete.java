@@ -25,13 +25,10 @@ import java.io.ObjectOutput;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
-import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 /**
  * 

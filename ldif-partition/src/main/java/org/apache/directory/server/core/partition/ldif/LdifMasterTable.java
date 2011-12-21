@@ -1,7 +1,6 @@
 
 package org.apache.directory.server.core.partition.ldif;
 
-import java.util.Comparator;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.shared.txn;
 
 
 import java.net.URI;
-import java.util.Comparator;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
@@ -30,11 +29,9 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
-import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 

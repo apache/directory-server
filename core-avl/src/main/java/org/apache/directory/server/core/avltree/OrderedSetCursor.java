@@ -22,7 +22,6 @@ package org.apache.directory.server.core.avltree;
 import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 
 public class OrderedSetCursor<V> extends AbstractCursor<V>

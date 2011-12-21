@@ -19,19 +19,11 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
-import java.util.UUID;
-
-import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.MasterTable;
-import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
-import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;

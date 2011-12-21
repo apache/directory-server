@@ -21,7 +21,6 @@ package org.apache.directory.server.core.shared.txn;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -36,7 +35,6 @@ import org.apache.directory.server.i18n.I18n;
 
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.entry.Entry;;
 
 /**
  * Wraps an index's cursor and provides a transactionally consistent view.

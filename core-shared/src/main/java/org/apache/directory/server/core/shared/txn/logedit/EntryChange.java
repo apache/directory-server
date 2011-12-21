@@ -25,7 +25,6 @@ import java.io.ObjectOutput;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;

@@ -28,7 +28,6 @@ import org.apache.directory.server.core.api.partition.index.UUIDComparator;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 import java.util.Iterator;
 import java.util.NavigableSet;

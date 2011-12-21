@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search;
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;

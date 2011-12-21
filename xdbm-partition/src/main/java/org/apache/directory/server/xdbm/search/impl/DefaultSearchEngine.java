@@ -35,8 +35,6 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.SingletonIndexCursor;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
-import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
-import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
