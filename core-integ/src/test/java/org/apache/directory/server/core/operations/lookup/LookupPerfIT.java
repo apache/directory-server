@@ -61,7 +61,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         assertNotNull( entry );
 
-        int nbIterations = 150000;
+        int nbIterations = 1500000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;

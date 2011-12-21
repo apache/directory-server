@@ -73,11 +73,13 @@ public class AddPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
+        //Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
         Dn dn = new Dn( "cn=test,ou=system" );
-        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
-        entry.add( "ObjectClass", "top", "person" );
-        entry.add( "sn", "TEST" );
-        entry.add( "cn", "test" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
 
         connection.add( entry );
         int nbIterations = 15000;
