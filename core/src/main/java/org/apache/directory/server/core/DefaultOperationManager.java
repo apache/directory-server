@@ -283,8 +283,12 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the addContext Dn
         Dn dn = addContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
         
+        if ( !dn.isSchemaAware() )
+        {
+            dn.apply( directoryService.getSchemaManager() );
+        }
+       
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
         

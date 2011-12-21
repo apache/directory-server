@@ -481,7 +481,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
-        return _lookup( dn, null, attributes );
+        return lookup( dn, (Control[])null, attributes );
     }
 
 
@@ -489,34 +489,6 @@ public class LdapCoreSessionConnection implements LdapConnection
      * {@inheritDoc}
      */
     public Entry lookup( Dn dn, Control[] controls, String... attributes ) throws LdapException
-    {
-        return _lookup( dn, controls, attributes );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( String dn, String... attributes ) throws LdapException
-    {
-        return _lookup( new Dn( schemaManager, dn ), null, attributes );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
-    {
-        return _lookup( new Dn( schemaManager, dn ), controls, attributes );
-    }
-
-
-    /*
-     * this method exists solely for the purpose of calling from
-     * lookup(Dn dn) avoiding the varargs,
-     */
-    private Entry _lookup( Dn dn, Control[] controls, String... attributes )
     {
         messageId.incrementAndGet();
 
@@ -532,6 +504,24 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         return entry;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( String dn, String... attributes ) throws LdapException
+    {
+        return lookup( new Dn( schemaManager, dn ), (Control[])null, attributes );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
+    {
+        return lookup( new Dn( schemaManager, dn ), controls, attributes );
     }
 
 
@@ -590,7 +580,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( Dn dn ) throws LdapException
     {
-        return _lookup( dn, null );
+        return lookup( dn, (Control[])null );
     }
 
 
@@ -599,7 +589,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return _lookup( new Dn( schemaManager, dn ), null );
+        return lookup( new Dn( schemaManager, dn ), (Control[])null );
     }
 
 
