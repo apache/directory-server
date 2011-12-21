@@ -27,7 +27,6 @@ import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -45,13 +44,10 @@ import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
-import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -113,18 +109,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public void add( AddOperationContext addContext ) throws LdapException
-    {
-        addContext.getDn().apply( schemaManager );
-        addContext.getEntry().getDn().apply( schemaManager );
-        addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
-        next( addContext );
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -393,65 +377,5 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
 
         return normalizedAttrIds;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Normalize all Name based arguments for other interface operations
-    // ------------------------------------------------------------------------
-    /**
-     * Adds missing Rdn's attributes and values to the entry.
-     *
-     * @param dn the Dn
-     * @param entry the entry
-     */
-    private void addRdnAttributesToEntry( Dn dn, Entry entry ) throws LdapException
-    {
-        if ( dn == null || entry == null )
-        {
-            return;
-        }
-
-        Rdn rdn = dn.getRdn();
-
-        // Loop on all the AVAs
-        for ( Ava ava : rdn )
-        {
-            Value<?> value = ava.getNormValue();
-            Value<?> upValue = ava.getUpValue();
-            String upId = ava.getUpType();
-
-            // Check that the entry contains this Ava
-            if ( !entry.contains( upId, value ) )
-            {
-                String message = "The Rdn '" + upId + "=" + upValue + "' is not present in the entry";
-                LOG.warn( message );
-
-                // We don't have this attribute : add it.
-                // Two cases :
-                // 1) The attribute does not exist
-                if ( !entry.containsAttribute( upId ) )
-                {
-                    entry.add( upId, value );
-                }
-                // 2) The attribute exists
-                else
-                {
-                    AttributeType at = schemaManager.lookupAttributeTypeRegistry( upId );
-
-                    // 2.1 if the attribute is single valued, replace the value
-                    if ( at.isSingleValued() )
-                    {
-                        entry.removeAttributes( upId );
-                        entry.add( upId, value );
-                    }
-                    // 2.2 the attribute is multi-valued : add the missing value
-                    else
-                    {
-                        entry.add( upId, value );
-                    }
-                }
-            }
-        }
     }
 }

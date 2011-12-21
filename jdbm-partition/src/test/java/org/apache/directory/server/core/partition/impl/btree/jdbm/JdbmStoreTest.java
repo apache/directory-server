@@ -234,7 +234,7 @@ public class JdbmStoreTest
         entry.add( "dc", "example" );
         entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( 1 ).toString() );
-        executionManager.add( store2, new AddOperationContext( null, entry ) );
+        executionManager.add( store2, new AddOperationContext( schemaManager, entry ) );
 
         // lookup the context entry
         UUID id = store2.getEntryId( suffixDn );
@@ -548,7 +548,7 @@ public class JdbmStoreTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         executionManager.delete( store,  dn, Strings.getUUIDString( 12 ) ); // drops the alias indices
@@ -596,7 +596,7 @@ public class JdbmStoreTest
         entry.add( "cn", "Martin King" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
@@ -621,7 +621,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Marketing" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
-        addContext = new AddOperationContext( null, entry );
+        addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         // dn id 14
@@ -632,7 +632,7 @@ public class JdbmStoreTest
         entry.add( "cn", "Jimmy Wales" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 14 ).toString() );
-        addContext = new AddOperationContext( null, entry );
+        addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         newDn = newParentDn.add( marketingDn.getRdn() );
@@ -697,7 +697,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Not Present" );
         entry.add( "cn", "Martin King" );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
     }
 
@@ -710,7 +710,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
     }
 
@@ -740,7 +740,7 @@ public class JdbmStoreTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         Rdn rdn = new Rdn( "sn=James" );
@@ -765,7 +765,7 @@ public class JdbmStoreTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
@@ -791,7 +791,7 @@ public class JdbmStoreTest
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         childEntry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, childEntry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, childEntry );
         executionManager.add( store,  addContext );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
@@ -901,7 +901,7 @@ public class JdbmStoreTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( store,  addContext );
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );

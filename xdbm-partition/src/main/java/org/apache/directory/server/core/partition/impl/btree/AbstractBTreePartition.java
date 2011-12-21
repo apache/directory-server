@@ -981,7 +981,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 Dn dn = buildEntryDn( id );
                 entry.setDn( dn );
                 
-                return new ClonedServerEntry( entry );
+                return new ClonedServerEntry( schemaManager, entry );
             }
     
             return null;

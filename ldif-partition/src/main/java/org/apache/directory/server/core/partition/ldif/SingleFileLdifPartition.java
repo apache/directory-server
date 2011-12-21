@@ -152,7 +152,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             addMandatoryOpAt( contextEntry );
 
-            AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+            AddOperationContext addContext = new AddOperationContext( schemaManager, contextEntry );
             executionManager.add( this, addContext );
         }
         else
@@ -168,7 +168,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             addMandatoryOpAt( entry );
 
-            AddOperationContext addContext = new AddOperationContext( null, entry );
+            AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( this,  addContext );
         }
 

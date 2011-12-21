@@ -1064,7 +1064,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             handleDnChange( partition, dn, newDn, id );
         }
         
-        renameInternal( partition, dn, newRdn, deleteOldRdn, null, originalEntry );
+        renameInternal( partition, dn, newRdn, deleteOldRdn, entry, originalEntry );
     }
 
 
@@ -1669,7 +1669,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             if ( entry != null )
             {
-                return new ClonedServerEntry( entry );
+                return new ClonedServerEntry( partition.getSchemaManager(), entry );
             }
 
             return null;

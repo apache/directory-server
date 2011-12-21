@@ -242,7 +242,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
 
             // inject the entry
             Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-            AddOperationContext addContext = new AddOperationContext( null, entry );
+            AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
             partition.add( addContext );
         }
         catch ( LdapLdifException ne )

@@ -194,7 +194,7 @@ public class LdifPartition extends AbstractLdifPartition
                     }
         
                     // And add this entry to the underlying partition
-                    AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                    AddOperationContext addContext = new AddOperationContext( schemaManager, contextEntry );
                     add( addContext );
                 }
             }
@@ -267,7 +267,7 @@ public class LdifPartition extends AbstractLdifPartition
                     }
 
                     // call add on the wrapped partition not on the self
-                    AddOperationContext addContext = new AddOperationContext( null, serverEntry );
+                    AddOperationContext addContext = new AddOperationContext( schemaManager, serverEntry );
                     executionManager.add( this, addContext );
                 }
             }

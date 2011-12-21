@@ -133,7 +133,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+            SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
@@ -149,7 +149,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Check if we have to add an operational attribute, or if the admin has injected one
      */
-    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, String attribute ) throws LdapException
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute ) throws LdapException
     {
         if ( entry.containsAttribute( attribute ) )
         {
@@ -196,41 +196,41 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         // The EntryUUID attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_UUID_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_UUID_AT ) )
         {
-            entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+            entry.put( ENTRY_UUID_AT, UUID.randomUUID().toString() );
         }
 
         // The EntryCSN attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_CSN_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_CSN_AT ) )
         {
-            entry.put( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
+            entry.put( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATORS_NAME_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATORS_NAME_AT ) )
         {
-            entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+            entry.put( CREATORS_NAME_AT, principal );
         }
 
         // The CreateTimeStamp attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATE_TIMESTAMP_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATE_TIMESTAMP_AT ) )
         {
-            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            entry.put( CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
 
         // Now, check that the user does not add operational attributes
         // The accessControlSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, ACCESS_CONTROL_SUBENTRIES_AT );
 
         // The CollectiveAttributeSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         // The TriggerExecutionSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         // The SubSchemaSybentry attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        checkAddOperationalAttribute( isAdmin, entry, SUBSCHEMA_SUBENTRY_AT );
 
         next( addContext );
     }
@@ -418,8 +418,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
+        modifiedEntry.put( MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveContext.getNewDn() );
         moveContext.setModifiedEntry( modifiedEntry );
 
@@ -433,8 +433,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
+        modifiedEntry.put( MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
@@ -448,12 +448,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
-        entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
-        entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
+        entry.put( MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
-        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
+        modifiedEntry.put( MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         renameContext.setModifiedEntry( modifiedEntry );
 
         next( renameContext );
@@ -645,7 +645,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         if ( directoryService.isDenormalizeOpAttrsEnabled() )
         {
-            Attribute attr = entry.get( SchemaConstants.CREATORS_NAME_AT );
+            Attribute attr = entry.get( CREATORS_NAME_AT );
 
             if ( attr != null )
             {
@@ -655,7 +655,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 attr.add( denormalizeTypes( creatorsName ).getName() );
             }
 
-            attr = entry.get( SchemaConstants.MODIFIERS_NAME_AT );
+            attr = entry.get( MODIFIERS_NAME_AT );
 
             if ( attr != null )
             {

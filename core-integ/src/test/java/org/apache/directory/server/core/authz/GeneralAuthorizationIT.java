@@ -27,6 +27,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
@@ -63,11 +64,11 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
      *
      * @throws Exception if the test encounters an error
      */
-    @Test
+    @Test( expected = LdapInvalidAttributeValueException.class )
     public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
-        ResultCodeEnum result = createAccessControlSubentry( 
+        createAccessControlSubentry( 
             "anybodyAdd", 
             "{ " + 
             "  identificationTag \"addAci\", " + 
@@ -83,7 +84,5 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
             "        grantsAndDenials { grantAdd, grantBrowse } " +
             "      } " +
             "    }" );
-        
-        assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, result );
     }
 }

@@ -628,7 +628,7 @@ public class GreaterEqTest
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         attrs.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
         
-        AddOperationContext addContext = new AddOperationContext( null, attrs );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, attrs );
         executionManagerFactory.instance().add( store, addContext );
 
         indexEntry.setId( Strings.getUUIDString( 12 ) );

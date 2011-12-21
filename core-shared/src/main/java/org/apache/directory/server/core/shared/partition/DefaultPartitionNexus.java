@@ -557,13 +557,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            return new ClonedServerEntry( rootDse.clone() );
+            return new ClonedServerEntry( schemaManager, rootDse.clone() );
         }
 
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
         {
-            Entry retval = new ClonedServerEntry( rootDse );
+            Entry retval = new ClonedServerEntry( schemaManager, rootDse );
             
             return retval;
             

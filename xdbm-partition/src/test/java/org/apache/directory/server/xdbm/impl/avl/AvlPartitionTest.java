@@ -454,7 +454,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         executionManager.delete( partition, dn, Strings.getUUIDString( 12 ) );
@@ -502,7 +502,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         cursor = idx.forwardCursor( Strings.getUUIDString( 2 ) );
@@ -528,7 +528,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
 
-        addContext = new AddOperationContext( null, entry );
+        addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         // dn id 14
@@ -540,7 +540,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 14 ).toString() );
 
-        addContext = new AddOperationContext( null, entry );
+        addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         newDn = newParentDn.add( marketingDn.getRdn() );
@@ -598,7 +598,7 @@ public class AvlPartitionTest
         entry.add( "cn", "Martin King" );
         entry.add( "entryUUID", Strings.getUUIDString( 15 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
     }
 
@@ -612,7 +612,7 @@ public class AvlPartitionTest
         entry.add( "cn", "Martin King" );
         entry.add( "entryUUID", Strings.getUUIDString( 16 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
     }
 
@@ -642,7 +642,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 17 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         Rdn rdn = new Rdn( "sn=James" );
@@ -662,7 +662,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 18 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         Rdn rdn = new Rdn( "sn=Ja\\+es" );
@@ -688,7 +688,7 @@ public class AvlPartitionTest
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         childEntry.add( "entryUUID", Strings.getUUIDString( 19 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, childEntry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, childEntry );
         executionManager.add( partition, addContext );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
@@ -800,7 +800,7 @@ public class AvlPartitionTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 20 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );

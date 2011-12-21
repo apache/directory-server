@@ -227,7 +227,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: metaAttributeType",
             "m-oid: 1.3.6.1.4.1.8104.1.1.37",
             "m-name: versionNumber",
-            "m-description:: dmVyc2lvbk51bWJlciA=",
+            "m-description: versionNumber ",
             "m-equality: caseIgnoreMatch",
             "m-substr: caseIgnoreSubstringsMatch",
             "m-syntax: 1.3.6.1.4.1.1466.115.121.1.8",

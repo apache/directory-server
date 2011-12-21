@@ -186,7 +186,7 @@ public class XdbmStoreUtils
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUIDString( idx ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( store.getSchemaManager(), entry );
         executionManager.add( store, addContext );
     }
 }

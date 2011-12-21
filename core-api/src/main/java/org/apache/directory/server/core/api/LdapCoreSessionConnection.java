@@ -179,12 +179,19 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
+        
+        Entry entry = addRequest.getEntry();
 
-        if ( addRequest.getEntry() == null )
+        if ( entry == null )
         {
             String msg = "Cannot add a null entry";
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
+        }
+        
+        if ( !entry.isSchemaAware() )
+        {
+        	entry.apply( schemaManager );
         }
 
         int newId = messageId.incrementAndGet();
@@ -226,6 +233,11 @@ public class LdapCoreSessionConnection implements LdapConnection
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
         addRequest.setEntryDn( entry.getDn() );
+        
+        if ( !entry.isSchemaAware() )
+        {
+        	entry.apply( schemaManager );
+        }
 
         AddResponse addResponse = add( addRequest );
         

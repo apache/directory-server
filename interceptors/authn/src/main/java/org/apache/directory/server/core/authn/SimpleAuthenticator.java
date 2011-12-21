@@ -264,7 +264,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         Attribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 
-        bindContext.setEntry( new ClonedServerEntry( userEntry ) );
+        bindContext.setEntry( new ClonedServerEntry( getDirectoryService().getSchemaManager(), userEntry ) );
 
         // ---- assert that credentials match
         if ( userPasswordAttr == null )

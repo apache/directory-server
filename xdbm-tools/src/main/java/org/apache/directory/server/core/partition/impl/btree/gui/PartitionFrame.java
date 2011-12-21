@@ -473,7 +473,7 @@ public class PartitionFrame extends JFrame
 
                 if ( null == partition.getEntryId( ndn ) )
                 {
-                    partition.add( new AddOperationContext( null, attrs ) );
+                    partition.add( new AddOperationContext( schemaManager, attrs ) );
                     load();
                 }
             }

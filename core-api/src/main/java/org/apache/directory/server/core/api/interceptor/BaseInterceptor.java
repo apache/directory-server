@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.interceptor;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -83,6 +84,12 @@ public abstract class BaseInterceptor implements Interceptor
     /** The CollectiveExclusions AttributeType */
     protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
 
+    /** The CreateTimeStamp AttributeType */
+    protected static AttributeType CREATE_TIMESTAMP_AT;
+
+    /** The CreatorsName AttributeType */
+    protected static AttributeType CREATORS_NAME_AT;
+
     /** A storage for the entryACI attributeType */
     protected static AttributeType ENTRY_ACI_AT;
 
@@ -100,6 +107,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** The ObjectClass AttributeType */
     protected static AttributeType OBJECT_CLASS_AT;
+    
+    /** The SchemaModifiersName attribute type */
+    protected static AttributeType SCHEMA_MODIFIERS_NAME_AT;
 
     /** the subentry ACI attribute type */
     protected static AttributeType SUBENTRY_ACI_AT;
@@ -339,12 +349,15 @@ public abstract class BaseInterceptor implements Interceptor
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        CREATE_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT );
+        CREATORS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
         ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        SCHEMA_MODIFIERS_NAME_AT = schemaManager.getAttributeType(ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
         SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
         SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );

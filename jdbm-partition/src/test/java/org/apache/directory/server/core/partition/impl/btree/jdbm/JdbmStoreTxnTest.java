@@ -192,7 +192,7 @@ public class JdbmStoreTxnTest
             entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
             entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-            AddOperationContext addContext = new AddOperationContext( null, entry );
+            AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( store, addContext );
             
             // Sleep some
@@ -207,7 +207,7 @@ public class JdbmStoreTxnTest
             entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
             entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
             
-            addContext = new AddOperationContext( null, entry );
+            addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( store, addContext );
             
             txnManager.commitTransaction();

@@ -160,7 +160,7 @@ public class LdifPartitionTest
         entry.put( "objectClass", "top", "organizationalUnit" );
         entry.put(  "cn", "test" );
         
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManager.add( partition, addContext );
 
         LOG.debug( "Created new LDIF partition" );
@@ -173,7 +173,7 @@ public class LdifPartitionTest
             SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString(),
             SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        Entry clonedEntry = new ClonedServerEntry( entry );
+        Entry clonedEntry = new ClonedServerEntry( schemaManager, entry );
 
         return clonedEntry;
     }

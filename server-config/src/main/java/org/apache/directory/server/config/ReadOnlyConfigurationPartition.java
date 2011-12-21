@@ -126,7 +126,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             {
                 addMandatoryOpAt( contextEntry );
 
-                super.add( new AddOperationContext( null, contextEntry ) );
+                super.add( new AddOperationContext( schemaManager, contextEntry ) );
             }
             else
             {
@@ -139,7 +139,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
                 Entry entry = new DefaultEntry( schemaManager, itr.next().getEntry() );
                 addMandatoryOpAt( entry );
 
-                super.add( new AddOperationContext( null, entry ) );
+                super.add( new AddOperationContext( schemaManager, entry ) );
             }
 
             // Closing the reader

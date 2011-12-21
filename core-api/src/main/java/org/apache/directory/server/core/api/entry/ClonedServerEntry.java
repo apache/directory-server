@@ -36,6 +36,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,6 +49,9 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class ClonedServerEntry implements Entry
 {
+    /** logger used by this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ClonedServerEntry.class );
+
     /** The original entry as returned by the backend */
     protected Entry originalEntry;
     
@@ -67,8 +73,17 @@ public class ClonedServerEntry implements Entry
      *
      * @param originalEntry The original entry
      */
-    public ClonedServerEntry( Entry originalEntry )
+    public ClonedServerEntry( SchemaManager schemaManager, Entry originalEntry )
     {
+    	try
+    	{
+    		originalEntry.apply( schemaManager );
+    	}
+    	catch ( Exception e )
+    	{
+    		// Not supposed to happen
+    	}
+    	
         this.originalEntry = originalEntry;
         this.clonedEntry = ( Entry ) originalEntry.clone();
     }
@@ -127,6 +142,15 @@ public class ClonedServerEntry implements Entry
         clonedEntry.add( attributeType, values );
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public void apply( SchemaManager schemaManager ) throws LdapException
+    {
+        clonedEntry.apply( schemaManager );
+    }
+    
 
     public boolean contains( AttributeType attributeType, byte[]... values )
     {

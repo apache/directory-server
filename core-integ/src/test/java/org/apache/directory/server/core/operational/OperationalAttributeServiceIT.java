@@ -249,8 +249,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
             "telephoneNumber: +1 408 555 4798",
             "facsimileTelephoneNumber: +1 408 555 9751", 
             "roomnumber: 4612", 
-            "userPassword: test" );
-
+            "userPassword",  Strings.getBytesUtf8( "test" ) );
+        
         connection.add( entry );
 
         Entry result = connection.lookup( "uid=akarasulu,ou=users,ou=system", "creatorsName" );

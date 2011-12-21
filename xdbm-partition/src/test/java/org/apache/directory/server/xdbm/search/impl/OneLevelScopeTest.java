@@ -680,7 +680,7 @@ public class OneLevelScopeTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 12 ).toString() );
 
-        AddOperationContext addContext = new AddOperationContext( null, entry );
+        AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
         dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
@@ -693,7 +693,7 @@ public class OneLevelScopeTest
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
         
-        addContext = new AddOperationContext( null, entry );
+        addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID

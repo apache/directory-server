@@ -170,7 +170,7 @@ public class SingleFileLdifPartitionTest
 
         LdifEntry ldifEntry = reader.parseLdif( contextEntryStr ).get( 0 );
 
-        contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
+        contextEntry = new ClonedServerEntry( schemaManager, ldifEntry.getEntry() );
     }
 
 
@@ -188,7 +188,7 @@ public class SingleFileLdifPartitionTest
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        Entry clonedEntry = new ClonedServerEntry( entry );
+        Entry clonedEntry = new ClonedServerEntry( schemaManager, entry );
         
         return clonedEntry;
     }
@@ -395,7 +395,7 @@ public class SingleFileLdifPartitionTest
 
         // perform the above operation, this time without causing change to the entry's size
         modOpCtx = new ModifyOperationContext( mockSession );
-        modOpCtx.setEntry( new ClonedServerEntry( contextEntry ) );
+        modOpCtx.setEntry( new ClonedServerEntry( schemaManager, contextEntry ) );
 
         modItems = new ArrayList<Modification>();
 
@@ -431,7 +431,7 @@ public class SingleFileLdifPartitionTest
 
         // now perform a modification on the entry present in middle of LDIF file 
         modOpCtx = new ModifyOperationContext( mockSession );
-        modOpCtx.setEntry( new ClonedServerEntry( entry1 ) );
+        modOpCtx.setEntry( new ClonedServerEntry( schemaManager, entry1 ) );
         modOpCtx.setDn( entry1.getDn() );
 
         modItems = new ArrayList<Modification>();
@@ -473,7 +473,7 @@ public class SingleFileLdifPartitionTest
         //"description: desc of entry1\n"
 
         modOpCtx = new ModifyOperationContext( mockSession );
-        modOpCtx.setEntry( new ClonedServerEntry( entry1 ) );
+        modOpCtx.setEntry( new ClonedServerEntry( schemaManager, entry1 ) );
         modOpCtx.setDn( entry1.getDn() );
 
         modItems = new ArrayList<Modification>();

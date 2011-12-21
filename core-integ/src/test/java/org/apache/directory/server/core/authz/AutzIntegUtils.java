@@ -267,6 +267,7 @@ public class AutzIntegUtils
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( subEntry );
+        
         AddResponse addResponse = connection.add( addRequest );
 
         return addResponse.getLdapResult().getResultCode();

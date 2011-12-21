@@ -22,10 +22,20 @@ package org.apache.directory.server.core.api.entry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.List;
 
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +53,9 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class ClonedServerEntryTest
 {
+    private static LdifSchemaLoader loader;
+    private static SchemaManager schemaManager;
+
     private static Entry clonedServerEntryA;
     private static Entry clonedServerEntryACopy;
     private static Entry clonedServerEntryB;
@@ -52,11 +65,35 @@ public class ClonedServerEntryTest
     private static Entry clonedServerEntryC1;
 
     /**
-     * Initialize name instances
+     * Initialize the registries once for the whole test suite
      */
     @BeforeClass
-    public static void initNames() throws Exception
+    public static void setup() throws Exception
     {
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = SchemaAwareEntryTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        loader = new LdifSchemaLoader( schemaRepository );
+
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
+
+        List<Throwable> errors = schemaManager.getErrors();
+
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + Exceptions.printErrors(errors) );
+        }
+
         Entry eA = new DefaultEntry( "dc=example,dc=com" );
         Entry eB = new DefaultEntry( "dc=example,dc=com" );
         Entry eC = new DefaultEntry( "dc=test,dc=org" );
@@ -64,10 +101,10 @@ public class ClonedServerEntryTest
         clonedServerEntryA = new ClonedServerEntry();
         clonedServerEntryACopy = new ClonedServerEntry();
         clonedServerEntryB = new ClonedServerEntry();
-        clonedServerEntryA1 = new ClonedServerEntry( eA );
-        clonedServerEntryACopy1 = new ClonedServerEntry( eA );
-        clonedServerEntryB1 = new ClonedServerEntry( eB );
-        clonedServerEntryC1 = new ClonedServerEntry( eC );
+        clonedServerEntryA1 = new ClonedServerEntry( schemaManager, eA );
+        clonedServerEntryACopy1 = new ClonedServerEntry( schemaManager, eA );
+        clonedServerEntryB1 = new ClonedServerEntry( schemaManager, eB );
+        clonedServerEntryC1 = new ClonedServerEntry( schemaManager, eC );
     }
 
 

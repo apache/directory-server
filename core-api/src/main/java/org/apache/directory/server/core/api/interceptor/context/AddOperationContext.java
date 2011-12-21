@@ -21,6 +21,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
@@ -30,6 +31,7 @@ import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -82,11 +84,24 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Entry entry )
     {
         super( session, entry.getDn() );
-        this.entry = new ClonedServerEntry( entry );
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
-        }
+        
+        DirectoryService directoryService = session.getDirectoryService();
+        setInterceptors( directoryService.getInterceptors( OperationEnum.ADD ) );
+        this.entry = new ClonedServerEntry( directoryService.getSchemaManager(), entry );
+    }
+    
+    
+    /**
+     * Creates a new instance of AddOperationContext.
+     *
+     * @param session the current Session
+     * @param entry the entry being added
+     */
+    public AddOperationContext( SchemaManager schemaManager, Entry entry )
+    {
+        super( null, entry.getDn() );
+
+        this.entry = new ClonedServerEntry( schemaManager, entry );
     }
 
 
@@ -100,13 +115,10 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Dn dn, Entry entry )
     {
         super( session, dn );
-
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
-        }
-
-        this.entry = new ClonedServerEntry( entry );
+        
+        DirectoryService directoryService = session.getDirectoryService();
+        setInterceptors( directoryService.getInterceptors( OperationEnum.ADD ) );
+        this.entry = new ClonedServerEntry( directoryService.getSchemaManager(), entry );
     }
 
 
@@ -114,13 +126,9 @@ public class AddOperationContext extends AbstractChangeOperationContext
     {
         super( session );
 
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
-        }
-
-        entry = new ClonedServerEntry(
-            new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+        DirectoryService directoryService = session.getDirectoryService();
+        setInterceptors( directoryService.getInterceptors( OperationEnum.ADD ) );
+        entry = new ClonedServerEntry( directoryService.getSchemaManager(), addRequest.getEntry() );
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
 
