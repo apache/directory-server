@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
-import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;

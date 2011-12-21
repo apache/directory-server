@@ -65,9 +65,9 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
                 }
                 catch ( Exception e )
                 {
-                  txnManager.abortTransaction();
+                	txnManager.abortTransaction();
                    
-                  throw ( e );
+                	handleException( session, req, e );
                 }
                 
                 // If here then we are done.
@@ -79,8 +79,7 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
                 }
                 catch( Exception e )
                 {
-                    // TODO check for conflict
-                    throw e;
+                	handleException( session, req, e );
                 }
             }
             while ( !done );
