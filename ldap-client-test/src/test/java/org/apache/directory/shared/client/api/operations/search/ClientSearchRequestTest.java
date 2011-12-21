@@ -278,18 +278,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test(expected = LdapException.class)
     public void testSearchUTF8() throws Exception
     {
-        EntryCursor cursor = null;
-
-        try
-        {
-            cursor = connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
-            fail();
-        }
-        catch ( Exception e )
-        {
-            cursor.close( e );
-
-            throw e;
-        }
+        connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
+        fail();
     }
 }
