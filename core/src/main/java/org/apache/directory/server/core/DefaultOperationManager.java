@@ -340,7 +340,7 @@ public class DefaultOperationManager implements OperationManager
 
         ensureStarted();
 
-        // Call the Delete method
+        // Call the Bind method
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
         
         head.bind( bindContext );
@@ -514,6 +514,7 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
         
+        // Call the getRootDSE method
         Entry root = head.getRootDse( getRootDseContext );
         
         LOG.debug( "<< getRootDseOperation successful" );
@@ -533,6 +534,7 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( hasEntryContext.getNextInterceptor() );
         
+        // Call the hasEntry method
         boolean result = head.hasEntry( hasEntryContext );
         
         LOG.debug( "<< HasEntryOperation successful" );
@@ -552,6 +554,7 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
         
+        // Call the list method
         EntryFilteringCursor cursor = head.list( listContext );
         
         LOG.debug( "<< ListOperation successful" );
@@ -571,6 +574,7 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
         
+        // Call the lookup method
         Entry entry = head.lookup( lookupContext );
         
         LOG.debug( "<< LookupOperation successful" );
