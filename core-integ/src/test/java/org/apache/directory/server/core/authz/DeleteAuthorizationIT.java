@@ -113,7 +113,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         }
         catch ( LdapNoPermissionException lnpe )
         {
-            adminConnection.delete(entryDn);
+            adminConnection.delete( entryDn );
             return false;
         }
 

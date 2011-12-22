@@ -140,7 +140,7 @@ public class AutzIntegUtils
             "userPassword", password );
 
         connection.add( entry );
-        assertTrue( connection.exists(  entry.getDn() ) );
+        assertTrue( connection.exists( entry.getDn() ) );
 
         return entry.getDn();
     }

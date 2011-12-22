@@ -88,13 +88,15 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         connection = getConnectionAs( userName, password );
 
         String entryDn = entryRdn + ",ou=system";
-        Entry entry = new DefaultEntry( entryDn );
-        entry.add( "ou", "testou" );
-        entry.add( "ObjectClass", "top", "organizationalUnit" );
+        Entry entry = new DefaultEntry( entryDn,
+        		"ou: testou",
+        		"ObjectClass: top", 
+        		"ObjectClass: organizationalUnit" );
 
         try
         {
             connection.add( entry );
+            
             return true;
         }
         catch ( LdapException le )
