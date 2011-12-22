@@ -92,9 +92,10 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         Dn entryDn = new Dn( entryRdn + ",ou=system" );
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry(entryDn);
-        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
-        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        Entry testEntry = new DefaultEntry( 
+        		entryDn,
+        		"objectClass: organizationalUnit",
+        		"ou: testou" );
 
         LdapConnection adminConnection = getAdminConnection();
 
