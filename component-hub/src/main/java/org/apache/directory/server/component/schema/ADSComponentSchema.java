@@ -22,7 +22,6 @@ package org.apache.directory.server.component.schema;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 

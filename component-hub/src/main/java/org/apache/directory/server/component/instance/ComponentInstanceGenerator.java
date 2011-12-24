@@ -23,7 +23,6 @@ package org.apache.directory.server.component.instance;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.felix.ipojo.Factory;
 
 
 public interface ComponentInstanceGenerator

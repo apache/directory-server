@@ -27,7 +27,6 @@ import java.util.Properties;
 import org.apache.directory.server.component.hub.ComponentManager;
 import org.apache.directory.server.component.instance.CachedComponentInstance;
 import org.apache.directory.server.component.instance.ADSComponentInstance;
-import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.felix.ipojo.Factory;
 
 

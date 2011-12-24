@@ -24,10 +24,8 @@ import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
-import org.apache.directory.shared.ipojo.helpers.IPojoHelper;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
-import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.MissingHandlerException;
 import org.apache.felix.ipojo.UnacceptableConfiguration;

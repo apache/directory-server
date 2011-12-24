@@ -22,7 +22,6 @@ package org.apache.directory.server.component.utilities;
 
 import java.util.Properties;
 
-import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 

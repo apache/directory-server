@@ -21,7 +21,6 @@ package org.apache.directory.server.component.hub.listener;
 
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.felix.ipojo.Factory;
 
 
 /**

@@ -23,7 +23,6 @@ package org.apache.directory.server.component.schema;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 
 

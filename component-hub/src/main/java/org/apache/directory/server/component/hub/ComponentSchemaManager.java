@@ -29,8 +29,6 @@ import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.directory.server.component.schema.ComponentOIDGenerator;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
-import org.apache.directory.server.component.utilities.ADSComponentHelper;
-import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -39,10 +37,8 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
