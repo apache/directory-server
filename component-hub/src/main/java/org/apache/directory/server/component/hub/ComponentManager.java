@@ -30,6 +30,7 @@ import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.CachedComponentInstance;
 import org.apache.directory.server.component.instance.ComponentInstance;
 import org.apache.directory.server.component.instance.ComponentInstanceGenerator;
+import org.apache.directory.server.component.utilities.ADSConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,6 +130,11 @@ public class ComponentManager
      */
     public ComponentInstance generateInstance( ADSComponent component, Properties properties )
     {
+        if ( properties.get( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME ) == null )
+        {
+            properties.put( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME, generateInstanceName( component ) );
+        }
+
         ComponentInstanceGenerator generator = instanceGenerators.get( component.getComponentType() );
         if ( generator != null )
         {
@@ -187,6 +193,62 @@ public class ComponentManager
         component.addInstance( instance );
 
         return instance;
+    }
+
+
+    /**
+     * It generates the instance name for the given component.
+     * It always choose the correct sequence number for instance name even in case of user 
+     * interference with naming scheme. 
+     *
+     * @param component ADSComponent reference to generate an instance name.
+     * @return Generated instance name for the component in the form (componentName + "-" + choosenSequence)
+     */
+    private String generateInstanceName( ADSComponent component )
+    {
+        String componentSuffix = component.getComponentName() + "-";
+        int maxNumber = 0;
+
+        for ( CachedComponentInstance cachedIns : component.getCachedInstances() )
+        {
+            String cachedInstanceName = cachedIns.getCachedConfiguration().getProperty(
+                ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
+
+            try
+            {
+                int instanceNumber = Integer.parseInt( cachedInstanceName.substring( componentSuffix.length() ) );
+                if ( instanceNumber > maxNumber )
+                {
+                    maxNumber = instanceNumber;
+                }
+            }
+            catch ( NumberFormatException e )
+            {
+                continue;
+            }
+
+        }
+
+        for ( ComponentInstance ins : component.getInstances() )
+        {
+            String instanceName = ins.getInstanceConfiguration().getProperty(
+                ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
+
+            try
+            {
+                int instanceNumber = Integer.parseInt( instanceName.substring( componentSuffix.length() ) );
+                if ( instanceNumber > maxNumber )
+                {
+                    maxNumber = instanceNumber;
+                }
+            }
+            catch ( NumberFormatException e )
+            {
+                continue;
+            }
+        }
+
+        return componentSuffix + ( ++maxNumber );
     }
 
 }

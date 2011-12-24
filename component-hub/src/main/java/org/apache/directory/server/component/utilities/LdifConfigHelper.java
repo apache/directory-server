@@ -29,18 +29,25 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 
 public class LdifConfigHelper
 {
-    public static LdifEntry componentToLdifEntry( ADSComponent component )
-    {
-        return null;
-    }
 
-
+    /**
+     * Transforms a component instance into its corresponding entry in ldif format.
+     *
+     * @param instance ComponentInstance to transform into Ldif entry.
+     * @return Generated Ldif entry.
+     */
     public static LdifEntry instanceToLdif( ComponentInstance instance )
     {
         return null;
     }
 
 
+    /**
+     * It extracts the configuration information from Ldif entry.
+     *
+     * @param entry LdifEntry reference to extract instance configuration
+     * @return Extracted instance configuration
+     */
     public static Properties instanceEntryToConfiguration( LdifEntry entry )
     {
         return null;

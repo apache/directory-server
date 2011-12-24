@@ -55,6 +55,22 @@ public class ComponentInstance
 
 
     /**
+     * 
+     * Creates a new instance of ComponentInstance.
+     *
+     * @param component Parent component of the component instance
+     * @param pojo Underlying Pojo object if the component instance
+     * @param configuration Configuration of the Pojo
+     */
+    public ComponentInstance( ADSComponent component, Object pojo, Properties configuration )
+    {
+        this.parentComponent = component;
+        this.instance = pojo;
+        this.instanceConfiguration = configuration;
+    }
+
+
+    /**
      * @return the instance
      */
     public Object getInstance()

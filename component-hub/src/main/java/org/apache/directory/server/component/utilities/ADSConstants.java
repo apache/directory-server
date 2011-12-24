@@ -57,6 +57,11 @@ public class ADSConstants
     public static final String ADS_CACHE_VERSION_FILE = "version";
 
     /*
+     * IPojo instance name property
+     */
+    public static final String ADS_COMPONENT_INSTANCE_PROP_NAME = "instance.name";
+
+    /*
      * Component type name of interceptors
      */
     public static final String ADS_COMPONENT_TYPE_INTERCEPTOR = "interceptor";

@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
+import org.apache.directory.shared.ipojo.helpers.IPojoHelper;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.slf4j.Logger;
@@ -54,10 +55,14 @@ public class DefaultComponentInstanceGenerator implements ComponentInstanceGener
             properties = component.getDefaultConfiguration();
         }
 
-        // TODO Auto-generated method stub
+        // We create the IPojo instance using supplied configuration, 
+        // configuration have instance.name property at that point.
+        Object pojo = IPojoHelper.createIPojoComponent( component.getFactory().getName(), null, properties );
 
-        //Remember to set configuration of the instance here...
-        return null;
+        //Create the ComponentInstance reference using the pojo just created.
+        ComponentInstance instance = new ComponentInstance( component, pojo, properties );
+
+        return instance;
     }
 
 
