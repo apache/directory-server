@@ -28,7 +28,7 @@ import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.CachedComponentInstance;
-import org.apache.directory.server.component.instance.ComponentInstance;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.server.component.instance.ComponentInstanceGenerator;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class ComponentManager
      * @param component ADSComponent reference create new instance for.
      * @return created instance
      */
-    public ComponentInstance createInstance( ADSComponent component )
+    public ADSComponentInstance createInstance( ADSComponent component )
     {
         if ( component.getDefaultConfiguration() == null )
         {
@@ -111,7 +111,7 @@ public class ComponentManager
             }
         }
 
-        ComponentInstance instance = generateInstance( component, component.getDefaultConfiguration() );
+        ADSComponentInstance instance = generateInstance( component, component.getDefaultConfiguration() );
 
         component.addInstance( instance );
         configManager.injectInstance( instance );
@@ -126,9 +126,9 @@ public class ComponentManager
      *
      * @param component ADSComponent reference to instantiate
      * @param properties Configuration to create instance under.
-     * @return created ComponentInstance reference
+     * @return created ADSComponentInstance reference
      */
-    public ComponentInstance generateInstance( ADSComponent component, Properties properties )
+    public ADSComponentInstance generateInstance( ADSComponent component, Properties properties )
     {
         if ( properties.get( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME ) == null )
         {
@@ -138,7 +138,7 @@ public class ComponentManager
         ComponentInstanceGenerator generator = instanceGenerators.get( component.getComponentType() );
         if ( generator != null )
         {
-            ComponentInstance instance = generator.createInstance( component, properties );
+            ADSComponentInstance instance = generator.createInstance( component, properties );
 
             return instance;
         }
@@ -157,13 +157,13 @@ public class ComponentManager
      * @param component ADSComponent reference to load its cached instances.
      * @return loaded instances.
      */
-    public List<ComponentInstance> loadCachedInstances( ADSComponent component )
+    public List<ADSComponentInstance> loadCachedInstances( ADSComponent component )
     {
-        List<ComponentInstance> loadedInstances = new ArrayList<ComponentInstance>();
+        List<ADSComponentInstance> loadedInstances = new ArrayList<ADSComponentInstance>();
 
         for ( CachedComponentInstance cachedConf : component.getCachedInstances() )
         {
-            ComponentInstance instance = loadInstance( component, cachedConf );
+            ADSComponentInstance instance = loadInstance( component, cachedConf );
             if ( instance != null )
             {
                 loadedInstances.add( instance );
@@ -179,11 +179,11 @@ public class ComponentManager
      *
      * @param component ADSComponent reference owning cached instance
      * @param cachedInstance cached instance reference
-     * @return ComponentInstance which is loaded from cache.
+     * @return ADSComponentInstance which is loaded from cache.
      */
-    public ComponentInstance loadInstance( ADSComponent component, CachedComponentInstance cachedInstance )
+    public ADSComponentInstance loadInstance( ADSComponent component, CachedComponentInstance cachedInstance )
     {
-        ComponentInstance instance = generateInstance( component, cachedInstance.getCachedConfiguration() );
+        ADSComponentInstance instance = generateInstance( component, cachedInstance.getCachedConfiguration() );
 
         if ( instance == null )
         {
@@ -229,7 +229,7 @@ public class ComponentManager
 
         }
 
-        for ( ComponentInstance ins : component.getInstances() )
+        for ( ADSComponentInstance ins : component.getInstances() )
         {
             String instanceName = ins.getInstanceConfiguration().getProperty(
                 ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );

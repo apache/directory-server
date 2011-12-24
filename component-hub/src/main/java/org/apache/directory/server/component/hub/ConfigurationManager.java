@@ -28,7 +28,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.CachedComponentInstance;
-import org.apache.directory.server.component.instance.ComponentInstance;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
@@ -148,9 +148,9 @@ public class ConfigurationManager
     /**
      * Injects an instance's configuration into config partition.
      *
-     * @param instance ComponentInstance to set in config partition.
+     * @param instance ADSComponentInstance to set in config partition.
      */
-    public void injectInstance( ComponentInstance instance )
+    public void injectInstance( ADSComponentInstance instance )
     {
         LdifEntry instanceEntry = LdifConfigHelper.instanceToLdif( instance );
 

@@ -35,7 +35,7 @@ public interface ComponentInstanceGenerator
      * @param component ADSComponent reference to be instantiated
      * @return ADSInstance reference created from ADSComponent
      */
-    public ComponentInstance createInstance( ADSComponent component, Properties properties );
+    public ADSComponentInstance createInstance( ADSComponent component, Properties properties );
 
 
     /**

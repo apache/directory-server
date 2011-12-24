@@ -23,7 +23,7 @@ package org.apache.directory.server.component.utilities;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.directory.server.component.instance.ComponentInstance;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 
 
@@ -33,10 +33,10 @@ public class LdifConfigHelper
     /**
      * Transforms a component instance into its corresponding entry in ldif format.
      *
-     * @param instance ComponentInstance to transform into Ldif entry.
+     * @param instance ADSComponentInstance to transform into Ldif entry.
      * @return Generated Ldif entry.
      */
-    public static LdifEntry instanceToLdif( ComponentInstance instance )
+    public static LdifEntry instanceToLdif( ADSComponentInstance instance )
     {
         return null;
     }

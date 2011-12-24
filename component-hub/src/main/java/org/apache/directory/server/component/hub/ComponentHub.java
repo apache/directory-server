@@ -108,7 +108,7 @@ public class ComponentHub
     /*
      * Used to manage config partition interactions.
      */
-    private ConfigurationManager configManager = new ConfigurationManager( configPartition,componentSchemaManager );
+    private ConfigurationManager configManager = new ConfigurationManager( configPartition, componentSchemaManager );
 
     /*
      * Used to manage instances' DIT hooks.
@@ -174,10 +174,10 @@ public class ComponentHub
 
         componentSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
         componentSchemaManager.addSchemaGenerator( Partition.class.getName(), new DefaultComponentSchemaGenerator() );
-        
+
         componentManager.addInstanceGenerator( Interceptor.class.getName(), new DefaultComponentInstanceGenerator() );
         componentManager.addInstanceGenerator( Partition.class.getName(), new DefaultComponentInstanceGenerator() );
-        
+
         //compSchemaManager.addSchemaGenerator( DirectoryBackedService.class.getName(), new DefaultComponentSchemaGenerator() );
     }
 
@@ -386,6 +386,8 @@ public class ComponentHub
         component.setComponentType( componentType );
         component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
         component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
+
+        configManager.pairWithComponent( component );
 
         return component;
     }

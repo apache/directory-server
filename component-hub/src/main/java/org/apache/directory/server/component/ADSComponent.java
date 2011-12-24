@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import org.apache.directory.server.component.hub.ComponentManager;
 import org.apache.directory.server.component.instance.CachedComponentInstance;
-import org.apache.directory.server.component.instance.ComponentInstance;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
 import org.apache.felix.ipojo.Factory;
 
@@ -62,7 +62,7 @@ public class ADSComponent
     /*
      * List holding all the created instances.
      */
-    private List<ComponentInstance> activeInstances;
+    private List<ADSComponentInstance> activeInstances;
 
     /*
      * List holding all the cached instances.
@@ -84,7 +84,7 @@ public class ADSComponent
     {
         this.componentManager = componentManager;
 
-        activeInstances = new ArrayList<ComponentInstance>();
+        activeInstances = new ArrayList<ADSComponentInstance>();
     }
 
 
@@ -93,7 +93,7 @@ public class ADSComponent
      *
      * @param instance instance reference to add to a list
      */
-    public void addInstance( ComponentInstance instance )
+    public void addInstance( ADSComponentInstance instance )
     {
         activeInstances.add( instance );
     }
@@ -104,7 +104,7 @@ public class ADSComponent
      *
      * @param instance to remove from the list
      */
-    public void removeInstance( ComponentInstance instance )
+    public void removeInstance( ADSComponentInstance instance )
     {
         activeInstances.remove( instance );
     }
@@ -135,11 +135,11 @@ public class ADSComponent
     /**
      * Gets the current instances of the component
      *
-     * @return Cloned ComponentInstance list.
+     * @return Cloned ADSComponentInstance list.
      */
-    public List<ComponentInstance> getInstances()
+    public List<ADSComponentInstance> getInstances()
     {
-        return new ArrayList<ComponentInstance>( activeInstances );
+        return new ArrayList<ADSComponentInstance>( activeInstances );
     }
 
 

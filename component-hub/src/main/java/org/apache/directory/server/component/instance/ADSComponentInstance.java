@@ -31,7 +31,7 @@ import org.apache.directory.server.component.hub.InstanceManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ComponentInstance
+public class ADSComponentInstance
 {
     /*
      * Actual instance reference.
@@ -56,13 +56,13 @@ public class ComponentInstance
 
     /**
      * 
-     * Creates a new instance of ComponentInstance.
+     * Creates a new instance of ADSComponentInstance.
      *
      * @param component Parent component of the component instance
      * @param pojo Underlying Pojo object if the component instance
      * @param configuration Configuration of the Pojo
      */
-    public ComponentInstance( ADSComponent component, Object pojo, Properties configuration )
+    public ADSComponentInstance( ADSComponent component, Object pojo, Properties configuration )
     {
         this.parentComponent = component;
         this.instance = pojo;
