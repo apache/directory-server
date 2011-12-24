@@ -26,17 +26,26 @@ import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
+import org.apache.directory.server.component.schema.ComponentOIDGenerator;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
+import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +67,11 @@ public class ComponentSchemaManager
      * Schema generators
      */
     private Dictionary<String, ComponentSchemaGenerator> schemaGenerators;
+
+    /*
+     * Specify whether OID Generator is fed with largest component OID in schema.
+     */
+    private boolean OIDGeneratorFed = false;
 
 
     public ComponentSchemaManager( SchemaPartition schemaPartition )
@@ -90,8 +104,18 @@ public class ComponentSchemaManager
      * @param component ADSComponent reference
      * @throws LdapException
      */
-    public void setComponentSchema( ADSComponent component ) throws LdapException
+    public void generateAndInstallSchema( ADSComponent component ) throws LdapException
     {
+        if ( !schemaBaseExists() )
+        {
+            generateAndInstallBaseSchema();
+        }
+
+        if ( !OIDGeneratorFed )
+        {
+            feedOIDGenerator();
+        }
+
         ADSComponentSchema schema = generateComponentSchema( component );
         injectSchemaElements( schema );
     }
@@ -127,11 +151,6 @@ public class ComponentSchemaManager
      */
     private void injectSchemaElements( ADSComponentSchema schema ) throws LdapException
     {
-        if ( !schemaBaseExists( schema ) )
-        {
-            createSchemaBase( schema );
-        }
-
         List<LdifEntry> schemaElements = schema.getSchemaElements();
 
         for ( LdifEntry le : schemaElements )
@@ -148,12 +167,12 @@ public class ComponentSchemaManager
      * @param schema ADSComponentSchema reference to check its parent schema
      * @return whether base schema exists or not
      */
-    private boolean schemaBaseExists( ADSComponentSchema schema )
+    private boolean schemaBaseExists()
     {
         LookupOperationContext luc = new LookupOperationContext( null );
         try
         {
-            luc.setDn( new Dn( schema.getParentSchemaDn() ) );
+            luc.setDn( new Dn( "cn", ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA ) );
             Entry e = schemaPartition.lookup( luc );
 
             if ( e != null )
@@ -171,17 +190,12 @@ public class ComponentSchemaManager
 
 
     /**
-     * It install the base schema for the component.
-     * PS:(It is first considered to be unique for every component type,
-     * but now it is merged under one schema. So that's why we're using one resource for all of them.)
-     * 
-     * TODO Fix base schema related references later. Will be more meaningfull when we merge component-hubs schemas and constants
-     * into ApacheDS's own configuration.
+     * It install the base schema for the components.
      *  
      * @param schema ADSComponentSchema reference.
      * @throws LdapException
      */
-    private void createSchemaBase( ADSComponentSchema schema ) throws LdapException
+    private void generateAndInstallBaseSchema() throws LdapException
     {
         try
         {
@@ -201,5 +215,54 @@ public class ComponentSchemaManager
             throw e;
         }
 
+    }
+
+
+    /**
+     * Searchs the schema partition for component-hub elements, and
+     * sets the OIDGenerator's base to the largest component number's base.
+     * 
+     *
+     */
+    private void feedOIDGenerator()
+    {
+        try
+        {
+            Dn componentOCDn = new Dn( "m-oid", ADSSchemaConstants.ADS_COMPONENT, SchemaConstants.OBJECT_CLASSES_PATH,
+                "cn",
+                ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA );
+
+            SearchOperationContext soc = new SearchOperationContext( null );
+            soc.setDn( componentOCDn );
+            soc.setScope( SearchScope.ONELEVEL );
+            soc.setReturningAttributes( new String[]
+                { "m-oid" } );
+
+            EntryFilteringCursor cursor = schemaPartition.search( soc );
+
+            int baseOIDLen = ADSSchemaConstants.ADS_COMPONENT_BASE.length();
+            int maxComponentID = 0;
+
+            while ( cursor.next() )
+            {
+                String oid = cursor.get().get( "m-oid" ).get().getString();
+                String _componentID = oid.substring( baseOIDLen );
+                _componentID = _componentID.substring( 0, _componentID.indexOf( '.' ) );
+
+                int componentID = Integer.parseInt( _componentID );
+                if ( componentID > maxComponentID )
+                {
+                    maxComponentID = componentID;
+                }
+            }
+
+            ComponentOIDGenerator.feedGenerator( maxComponentID );
+            OIDGeneratorFed = true;
+        }
+        catch ( Exception e )
+        {
+            LOG.info( "Cursor threw exception while searching for max component oid in schema partition" );
+            e.printStackTrace();
+        }
     }
 }

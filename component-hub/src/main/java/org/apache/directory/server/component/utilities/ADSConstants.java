@@ -57,41 +57,6 @@ public class ADSConstants
     public static final String ADS_CACHE_VERSION_FILE = "version";
 
     /*
-     * Base OID value for ApacheDS component schemas.
-     */
-    public static final String ADS_COMPONENT_BASE_OID = "1.3.6.1.4.1.18060.0.4.4";
-
-    /*
-     * Base schema name for holding component's elements
-     */
-    public static final String ADS_COMPONENT_BASE_SCHEMA_NAME = "componenthub";
-
-    /*
-     * OC name of the component OC.
-     */
-    public static final String ADS_COMPONENT_OC_NAME = "ads-component";
-
-    /*
-     * Attribute name of component name
-     */
-    public static final String ADS_COMPONENT_ATTRIB_NAME = "ads-componetname";
-
-    /*
-     * Attribute name of component type
-     */
-    public static final String ADS_COMPONENT_ATTRIB_TYPE = "ads-componenttype";
-
-    /*
-     * Attribute name of component object class
-     */
-    public static final String ADS_COMPONENT_ATTRIB_OC = "ads-ocname";
-
-    /*
-     * Attribute name of component purge count
-     */
-    public static final String ADS_COMPONENT_ATTRIB_PURGE = "ads-componentpurgecount";
-
-    /*
      * Component type name of interceptors
      */
     public static final String ADS_COMPONENT_TYPE_INTERCEPTOR = "interceptor";

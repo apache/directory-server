@@ -45,6 +45,7 @@ public class ADSComponentHelper
 
     /**
      * Gets the base schema name which will hold this component's schema
+     * TODO: Make it fixed, remove the argument, discuss it first, it's effecting overall look of DIT !
      *
      * @param component ADSComponent reference to generate base schema name
      * @return generated base schema name for ADSComponent
@@ -52,7 +53,7 @@ public class ADSComponentHelper
     public static String getSchemaBaseName( ADSComponent component )
     {
         //return component.getComponentType() + "components";
-        return ADSConstants.ADS_COMPONENT_BASE_SCHEMA_NAME;
+        return ADSSchemaConstants.ADS_COMPONENT_BASE;
     }
 
 

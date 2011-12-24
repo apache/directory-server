@@ -117,7 +117,7 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
                 "objectClass:top",
                 "ou:objectClasses" ) );
 
-            String ocoid = ComponentOIDGenerator.generateOCOID( componentBaseOID );
+            String ocoid = ComponentOIDGenerator.getObjectClassOID( componentBaseOID );
             String ocDn = "m-oid=" + ocoid + "," + ocsDn;
 
             ocAttribs.add( 0, "m-may:cached" );

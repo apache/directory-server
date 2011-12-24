@@ -31,6 +31,7 @@ import org.apache.directory.server.component.instance.CachedComponentInstance;
 import org.apache.directory.server.component.instance.ComponentInstance;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 import org.apache.directory.server.component.utilities.LdifConfigHelper;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -98,7 +99,7 @@ public class ConfigurationManager
             try
             {
                 // Generate and install component's own schema elements first.
-                componentSchemaManager.setComponentSchema( component );
+                componentSchemaManager.generateAndInstallSchema( component );
             }
             catch ( LdapException e )
             {
@@ -178,7 +179,7 @@ public class ConfigurationManager
     {
         try
         {
-            Attribute purgeAttrib = new DefaultAttribute( ADSConstants.ADS_COMPONENT_ATTRIB_PURGE, "0" );
+            Attribute purgeAttrib = new DefaultAttribute( ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE, "0" );
             DefaultModification dm = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, purgeAttrib );
 
             String componentDn = ADSComponentHelper.getComponentDn( component );
@@ -244,12 +245,12 @@ public class ConfigurationManager
             ldifs.add( new LdifEntry( componentDn,
                 "objectClass:organizationalUnit",
                 "objectClass:top",
-                "objectClass:" + ADSConstants.ADS_COMPONENT_OC_NAME,
+                "objectClass:" + ADSSchemaConstants.ADS_COMPONENT,
                 "ou:" + componentName,
-                ADSConstants.ADS_COMPONENT_ATTRIB_NAME + ":" + componentName,
-                ADSConstants.ADS_COMPONENT_ATTRIB_TYPE + ":" + componentType,
-                ADSConstants.ADS_COMPONENT_ATTRIB_OC + ":" + componentOCName,
-                ADSConstants.ADS_COMPONENT_ATTRIB_PURGE + ":" + "0" ) );
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_NAME + ":" + componentName,
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_TYPE + ":" + componentType,
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_OC + ":" + componentOCName,
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE + ":" + "0" ) );
 
             ldifs.add( new LdifEntry( componentInstancesDn,
                 "objectClass:organizationalUnit",

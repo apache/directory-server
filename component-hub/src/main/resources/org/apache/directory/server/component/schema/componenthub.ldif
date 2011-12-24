@@ -12,12 +12,12 @@ objectclass: organizationalUnit
 objectclass: top
 ou: attributetypes
 
-dn: m-oid=1.3.6.1.4.1.18060.0.4.3.1.1, ou=attributeTypes, cn=componenthub, ou=sc
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.1.1, ou=attributeTypes, cn=componenthub, ou=sc
  hema
 objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
-m-oid: 1.3.6.1.4.1.18060.0.4.3.1.1
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.1
 m-name: ads-componentname
 m-description: The normalized factory name of an IPojo component
 m-equality: caseIgnoreMatch
@@ -28,12 +28,12 @@ m-length: 0
 m-singleValue: TRUE
 m-usage: directoryOperation
 
-dn: m-oid=1.3.6.1.4.1.18060.0.4.3.1.2, ou=attributeTypes, cn=componenthub, ou=sc
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.1.2, ou=attributeTypes, cn=componenthub, ou=sc
  hema
 objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
-m-oid: 1.3.6.1.4.1.18060.0.4.3.1.2
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.2
 m-name: ads-componenttype
 m-description: Describes the type of a IPojo component(eg: interceptor,partition
  ,...)
@@ -45,12 +45,12 @@ m-length: 0
 m-singleValue: TRUE
 m-usage: directoryOperation
 
-dn: m-oid=1.3.6.1.4.1.18060.0.4.3.1.3, ou=attributeTypes, cn=componenthub, ou=sc
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.1.3, ou=attributeTypes, cn=componenthub, ou=sc
  hema
 objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
-m-oid: 1.3.6.1.4.1.18060.0.4.3.1.3
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.3
 m-name: ads-ocname
 m-description: Object Class name which will be used to represent a component.
 m-equality: caseIgnoreMatch
@@ -61,12 +61,12 @@ m-length: 0
 m-singleValue: TRUE
 m-usage: directoryOperation
 
-dn: m-oid=1.3.6.1.4.1.18060.0.4.3.1.4, ou=attributeTypes, cn=componenthub, ou=sc
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.1.4, ou=attributeTypes, cn=componenthub, ou=sc
  hema
 objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
-m-oid: 1.3.6.1.4.1.18060.0.4.3.1.4
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.4
 m-name: ads-componentpurgecount
 m-description: The count which will be used as a feedback to house keeping proce
  dure for component.
@@ -118,12 +118,12 @@ objectclass: organizationalUnit
 objectclass: top
 ou: objectClasses
 
-dn: m-oid=1.3.6.1.4.1.18060.0.4.3.2.1, ou=objectClasses, cn=componenthub, ou=sch
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.2.1, ou=objectClasses, cn=componenthub, ou=sch
  ema
 objectclass: metaObjectClass
 objectclass: metaTop
 objectclass: top
-m-oid: 1.3.6.1.4.1.18060.0.4.3.2.1
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.2.1
 m-name: ads-component
 m-description: Describes the IPojo component extension to the ApacheDS
 m-supObjectClass: organizationalUnit

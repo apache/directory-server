@@ -20,7 +20,11 @@
 package org.apache.directory.server.component.schema;
 
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 
 
 /**
@@ -40,16 +44,27 @@ public class ComponentOIDGenerator
      * Counters to keep track.
      */
     private static int componentCounter;
-    private static int ocCounter;
-    private static int attribCounter;
+
+    private static Dictionary<String, Integer> attributeCountMapping;
 
     static
     {
-        baseOID = ADSConstants.ADS_COMPONENT_BASE_OID;
-
+        baseOID = ADSSchemaConstants.ADS_COMPONENT_BASE_OID;
         componentCounter = 0;
-        ocCounter = 0;
-        attribCounter = 0;
+        attributeCountMapping = new Hashtable<String, Integer>();
+    }
+
+
+    /**
+     * Feeds the generator with specified component number.
+     * All the schemas generated after this method will have 
+     * larger component base in their OID.
+     *
+     * @param largestComponentNumber An integer to feed the OIDGenerator to largest component number
+     */
+    public static void feedGenerator( int largestComponentNumber )
+    {
+        componentCounter = largestComponentNumber;
     }
 
 
@@ -69,9 +84,9 @@ public class ComponentOIDGenerator
      *
      * @return oid for object class
      */
-    public static synchronized String generateOCOID( String componentBase )
+    public static synchronized String getObjectClassOID( String componentBase )
     {
-        return componentBase + ".1." + ( ++ocCounter );
+        return componentBase + ".1.1";
     }
 
 
@@ -82,6 +97,20 @@ public class ComponentOIDGenerator
      */
     public static synchronized String generateAttribOID( String componentBase )
     {
-        return componentBase + ".2." + ( ++attribCounter );
+        Integer currentAttribCount = attributeCountMapping.get( componentBase );
+        String attribVal = null;
+
+        if ( currentAttribCount == null )
+        {
+            attributeCountMapping.put( componentBase, 1 );
+            attribVal = "1";
+        }
+        else
+        {
+            attribVal = ( ++currentAttribCount ).toString();
+            attributeCountMapping.put( componentBase, ++currentAttribCount );
+        }
+
+        return componentBase + ".2." + attribVal;
     }
 }
