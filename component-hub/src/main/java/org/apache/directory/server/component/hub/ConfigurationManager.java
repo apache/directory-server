@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -105,6 +106,8 @@ public class ConfigurationManager
                 e.printStackTrace();
                 return;
             }
+
+            checkAndCreateComponentParentEntry( component );
 
             List<LdifEntry> componentEntries = generateComponentEntries( component );
 
@@ -340,4 +343,40 @@ public class ConfigurationManager
 
     }
 
+
+    private void checkAndCreateComponentParentEntry( ADSComponent component )
+    {
+        try
+        {
+            Dn componentBaseDn = new Dn( ADSComponentHelper.getComponentParentRdn( component ) );
+
+            LookupOperationContext loc = new LookupOperationContext( null );
+            loc.setDn( componentBaseDn );
+
+            if ( null != configPartition.lookup( loc ) )
+            {
+                // We have parent entry for component.
+                return;
+            }
+
+            LdifEntry componentParentEntry = new LdifEntry( componentBaseDn,
+                "objectClass:organizationalUnit",
+                "objectClass:top"
+                );
+
+            AddOperationContext aoc = new AddOperationContext( null, componentParentEntry.getEntry() );
+            configPartition.add( aoc );
+        }
+        catch ( LdapInvalidDnException e )
+        {
+            e.printStackTrace();
+            return;
+        }
+        catch ( LdapException e )
+        {
+            LOG.info( "Error while installing base entry for component:" + component );
+            e.printStackTrace();
+            return;
+        }
+    }
 }
