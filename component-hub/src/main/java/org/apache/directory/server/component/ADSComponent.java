@@ -88,6 +88,41 @@ public class ADSComponent
 
 
     /**
+     * Creates and return an instance, and add it into internal instances list.
+     *
+     * @return Created instance as ADSComponentInstance reference
+     */
+    public ADSComponentInstance createInstance()
+    {
+        return componentManager.createInstance( this );
+    }
+
+
+    /**
+     * Loads all the cached instances of this component and return them in list.
+     *
+     * @return Loaded instances
+     */
+    public List<ADSComponentInstance> loadCachedInstances()
+    {
+        return componentManager.loadCachedInstances( this );
+    }
+
+
+    /**
+     * Loads the specified cached instance of this component and return it.
+     * TODO loadInstance.
+     *
+     * @param cachedInstance Cached instance reference to resurrect
+     * @return Resurrected instance reference
+     */
+    public ADSComponentInstance loadInstance( CachedComponentInstance cachedInstance )
+    {
+        return componentManager.loadInstance( this, cachedInstance );
+    }
+
+
+    /**
      * Adds an instance to a instances list
      *
      * @param instance instance reference to add to a list

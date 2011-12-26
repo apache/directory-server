@@ -71,12 +71,14 @@ public class LdifConfigHelper
         {
             if ( key.equals( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME ) )
             {
-                continue;
+                String dnAttrib = ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME + "=" + instanceName;
+                attributes.add( dnAttrib );
             }
 
             String attribute = ( String ) key + "=" + ( String ) instanceConfiguration.get( key );
             attributes.add( attribute );
         }
+        
         LdifEntry instanceEntry;
         try
         {
