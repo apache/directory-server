@@ -344,6 +344,12 @@ public class ConfigurationManager
     }
 
 
+    /**
+     * Every component entry needs a parent for its component type.
+     * This method checks and installs that parent entry for component.
+     *
+     * @param component ADSComponent to create parent entry on DIT.
+     */
     private void checkAndCreateComponentParentEntry( ADSComponent component )
     {
         try

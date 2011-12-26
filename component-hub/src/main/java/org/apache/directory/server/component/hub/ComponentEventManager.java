@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
+import org.apache.directory.server.component.instance.CachedComponentInstance;
 
 
 /**
@@ -156,6 +157,30 @@ public class ComponentEventManager
             for ( HubListener listener : listenersByType )
             {
                 listener.onComponentDeletion( component );
+            }
+        }
+
+        unCacheCreation( component );
+    }
+
+
+    /**
+     * Iterate through listeners for specified ADSComponent's component type.
+     * Calls their onNewInstanceConfiguration() method with supplied CachedComponentInstance parameter.
+     *
+     * @param component ADSComponent reference to be used for notification
+     * @param createdInstance Reference to a newly created configuration as CachedComponentInstance
+     */
+    public synchronized void fireConfigurationCreated( ADSComponent component, CachedComponentInstance createdInstance )
+    {
+        List<HubListener> listenersByType = listenersMap.get( component.getComponentType() );
+
+        // Iterate over listeners for 'new configuration' event
+        if ( listenersByType != null )
+        {
+            for ( HubListener listener : listenersByType )
+            {
+                listener.onNewInstanceConfiguration( component, createdInstance );
             }
         }
 

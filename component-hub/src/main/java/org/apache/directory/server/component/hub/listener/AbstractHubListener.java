@@ -21,6 +21,7 @@ package org.apache.directory.server.component.hub.listener;
 
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.instance.CachedComponentInstance;
 
 
 /**
@@ -48,6 +49,17 @@ public abstract class AbstractHubListener implements HubListener
     @Override
     public void onComponentDeletion( ADSComponent component )
     {
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.component.hub.listener.HubListener#onNewInstanceConfiguration(org.apache.directory.server.component.ADSComponent, org.apache.directory.server.component.instance.CachedComponentInstance)
+     */
+    @Override
+    public void onNewInstanceConfiguration( ADSComponent component, CachedComponentInstance createdInstance )
+    {
+
     }
 
 }

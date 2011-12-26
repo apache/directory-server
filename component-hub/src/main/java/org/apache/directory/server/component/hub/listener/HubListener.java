@@ -55,6 +55,13 @@ public interface HubListener
     public void onComponentDeletion( ADSComponent component );
 
 
-    public void onNewInstanceConfiguration( ADSComponent component, CachedComponentInstance createdConf );
+    /**
+     * Notified when new configuration is created by user in DIT.
+     * It is added to component's cached instances list automatically.
+     *
+     * @param component Parent component of the created configuration
+     * @param createdConf CachedComponentInstance reference generated from created configuration
+     */
+    public void onNewInstanceConfiguration( ADSComponent component, CachedComponentInstance createdInstance );
 
 }

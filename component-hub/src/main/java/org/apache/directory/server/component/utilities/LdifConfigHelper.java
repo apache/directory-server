@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
-import org.apache.directory.server.component.hub.ComponentManager;
 import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -35,8 +34,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class LdifConfigHelper
@@ -78,7 +75,7 @@ public class LdifConfigHelper
             String attribute = ( String ) key + "=" + ( String ) instanceConfiguration.get( key );
             attributes.add( attribute );
         }
-        
+
         LdifEntry instanceEntry;
         try
         {

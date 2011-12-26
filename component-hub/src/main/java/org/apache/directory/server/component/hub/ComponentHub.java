@@ -20,12 +20,7 @@
 package org.apache.directory.server.component.hub;
 
 
-import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.Properties;
-
-import java.util.Hashtable;
-import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
@@ -86,14 +81,9 @@ public class ComponentHub
     private SingleFileLdifPartition configPartition;
 
     /*
-     * Map to keep "component type" -> "components" mapping.
+     * Used to set and get ADSComponent references.
      */
-    private Dictionary<String, List<ADSComponent>> componentMap;
-
-    /*
-     * List to keep all active ApacheDS components.
-     */
-    private List<ADSComponent> components;
+    private ComponentRegistry componentRegistry = new ComponentRegistry();
 
     /*
      * Used to manage listeners.
@@ -169,9 +159,6 @@ public class ComponentHub
         this.schemaPartition = schemaPartition;
         this.configPartition = configPartition;
 
-        componentMap = new Hashtable<String, List<ADSComponent>>();
-        components = new ArrayList<ADSComponent>();
-
         componentSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
         componentSchemaManager.addSchemaGenerator( Partition.class.getName(), new DefaultComponentSchemaGenerator() );
 
@@ -233,23 +220,11 @@ public class ComponentHub
         //Actual ADSComponent creation
         ADSComponent component = generateADSComponent( componentType, arrivingFactory );
 
+        // Fire 'Component Created' event
         eventManager.fireComponentCreated( component );
 
-        //Keep the newly created ADSComponent reference.
-        components.add( component );
-
-        List<ADSComponent> componentsByType = componentMap.get( componentType );
-        if ( componentsByType == null )
-        {
-            List<ADSComponent> newCompList = new ArrayList<ADSComponent>();
-            newCompList.add( component );
-            componentMap.put( componentType, newCompList );
-        }
-        else
-        {
-            componentsByType.add( component );
-        }
-
+        // Add the newly created component reference to registries
+        componentRegistry.addComponent( component );
     }
 
 
@@ -269,7 +244,8 @@ public class ComponentHub
         String componentType = parseComponentType( leavingFactory );
 
         ADSComponent associatedComp = null;
-        for ( ADSComponent _comp : components )
+
+        for ( ADSComponent _comp : componentRegistry.getAllComponents() )
         {
             if ( _comp.getFactory().getName().equals( leavingFactory.getName() ) )
             {
@@ -285,11 +261,11 @@ public class ComponentHub
             return;
         }
 
-        // All clients are notified now cache and delete the ADSComponent existence on ApacheDS
-        cacheAndReleaseADSComponent( associatedComp );
-
         // Fire "Component Deleted" event
         eventManager.fireComponentDeleted( associatedComp );
+
+        // Remove the component reference from registries
+        componentRegistry.removeComponent( associatedComp );
 
     }
 
@@ -390,17 +366,6 @@ public class ComponentHub
         configManager.pairWithComponent( component );
 
         return component;
-    }
-
-
-    /**
-     * Cache the ADSComponent existence on ApacheDS with all of its DIT entries. And then release it from hub.
-     *
-     * @param leavingComp ADSComponent reference to cache and release.
-     */
-    private void cacheAndReleaseADSComponent( ADSComponent leavingComp )
-    {
-
     }
 
 
