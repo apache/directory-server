@@ -58,4 +58,10 @@ public class ADSSchemaConstants
      */
     public static final String ADS_COMPONENT_ATTRIB_PURGE = "ads-componentpurgecount";
     public static final String ADS_COMPONENT_ATTRIB_PURGE_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.4";
+
+    /*
+     * Attribute name of component instance name
+     */
+    public static final String ADS_COMPONENT_INSTANCE_ATTRIB_NAME = "ads-instance";
+    public static final String ADS_COMPONENT_INSTANCE_ATTRIB_NAME_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.5";
 }
