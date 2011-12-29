@@ -103,7 +103,7 @@ public class ComponentHub
     /*
      * Used to manage instances' DIT hooks.
      */
-    private InstanceManager instanceManager = new InstanceManager();
+    private InstanceManager instanceManager = new InstanceManager( componentRegistry, eventManager );
 
     /*
      * Used to manage components.
@@ -176,7 +176,7 @@ public class ComponentHub
      */
     public void RegisterWithDS( DirectoryService ads )
     {
-        // TODO implement
+        instanceManager.registerWithDirectoryService( ads );
     }
 
 

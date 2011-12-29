@@ -20,7 +20,15 @@
 package org.apache.directory.server.component.hub;
 
 
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
+import org.apache.directory.server.component.instance.CachedComponentInstance;
+import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.ADSSchemaConstants;
+import org.apache.directory.server.component.utilities.LdifConfigHelper;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
@@ -30,11 +38,16 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +60,48 @@ public class InstanceManager
      */
     private final Logger LOG = LoggerFactory.getLogger( InstanceManager.class );
 
+    /*
+     * Registry to access ADSComponent references by name.
+     */
+    private ComponentRegistry componentRegistry;
 
+    /*
+     * Event Manager to fire new configuration events.
+     */
+    private ComponentEventManager eventManager;
+
+    /*
+     * List of registered component names to be managed by InstaceManager
+     */
+    private List<String> registeredComponentNames;
+
+
+    public InstanceManager( ComponentRegistry componentRegistry, ComponentEventManager eventManager )
+    {
+        this.componentRegistry = componentRegistry;
+        this.eventManager = eventManager;
+    }
+
+
+    /**
+     * Registeres component under InstanceManager for instance entry management.
+     *
+     * @param component ADSComponent reference to register in InstanceManager
+     */
     public void registerComponent( ADSComponent component )
     {
-        
+        registeredComponentNames.add( component.getComponentName().toLowerCase() );
+    }
+
+
+    /**
+     * Unregisteres component from InstanceManager for instance entry management.
+     *
+     * @param component ADSComponent reference to unregister from InstanceManager
+     */
+    public void unregisterComponent( ADSComponent component )
+    {
+        registeredComponentNames.remove( component.getComponentName().toLowerCase() );
     }
 
 
@@ -85,13 +136,83 @@ public class InstanceManager
 
     }
 
+
+    /**
+     * Gets the component name in lower case from instance entr 
+     * by looking its parent component entry.
+     *
+     * @param instanceEntry Instance entry to look for its parent component's name
+     * @return instance's component name
+     */
+    private String getComponentName( Entry instanceEntry )
+    {
+        try
+        {
+            Rdn parentComponentRdn = instanceEntry.getDn().getParent().getParent().getRdn();
+            String componentName = parentComponentRdn.getNormValue().getString();
+
+            return componentName;
+        }
+        catch ( Exception e )
+        {
+            // Most probably the given Entry is not an instance entry.
+            return null;
+        }
+    }
+
+
+    /**
+     * Check if given Entry is a component entry.
+     *
+     * @param entry Entry to check
+     * @return true if it is a component entry
+     */
+    private boolean ifComponentEntry( Entry entry )
+    {
+        Attribute OCAttrib = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        if ( OCAttrib.contains( ADSSchemaConstants.ADS_COMPONENT ) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    /**
+     * Check if given Entry is a instance entry
+     *
+     * @param entry Entry to check
+     * @return true if it is a instance entry
+     */
+    private boolean ifInstanceEntry( Entry entry )
+    {
+        Dn instancesDn = entry.getDn().getParent();
+        if ( instancesDn == null )
+        {
+            return false;
+        }
+
+        if ( !instancesDn.getRdn().getName().equals( ADSConstants.ADS_COMPONENT_INSTANCES_RDN ) )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /*
+     * Internal DirectoryListener implementation to register with EventInterceptor
+     */
     private DirectoryListener listener = new DirectoryListener()
     {
 
         @Override
         public void entryRenamed( RenameOperationContext renameContext )
         {
-            // TODO Auto-generated method stub
+            // TODO Prevent instance entry renamings, thus IPojo instances can't be renamed. Reload the original
 
         }
 
@@ -99,7 +220,7 @@ public class InstanceManager
         @Override
         public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
         {
-            // TODO Auto-generated method stub
+            // TODO Prevent moves of entries in any circumstances here. Reload the original.
 
         }
 
@@ -107,7 +228,7 @@ public class InstanceManager
         @Override
         public void entryMoved( MoveOperationContext moveContext )
         {
-            // TODO Auto-generated method stub
+            // TODO Prevent moves of entries in any circumstances here. Reload the original.
 
         }
 
@@ -115,23 +236,80 @@ public class InstanceManager
         @Override
         public void entryModified( ModifyOperationContext modifyContext )
         {
-            // TODO Auto-generated method stub
+            Entry modifiedEntry = modifyContext.getModifiedEntry();
 
+            if ( ifInstanceEntry( modifiedEntry ) )
+            {
+                Properties instanceConfiguration = LdifConfigHelper.instanceEntryToConfiguration( modifiedEntry );
+                String componentName = getComponentName( modifiedEntry );
+
+                if ( registeredComponentNames.contains( componentName ) )
+                {
+                    ADSComponent component = componentRegistry.getComponentByName( componentName );
+
+                    String instanceName = ( String ) instanceConfiguration
+                        .remove( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
+
+                    ADSComponentInstance backedInstance = component.getInstance( instanceName );
+                    backedInstance.reconfigure( instanceConfiguration );
+                }
+            }
+            else if ( ifComponentEntry( modifiedEntry ) )
+            {
+                //TODO revert it back
+            }
         }
 
 
         @Override
         public void entryDeleted( DeleteOperationContext deleteContext )
         {
-            // TODO Auto-generated method stub
+            Entry deletedEntry = deleteContext.getEntry();
+            if ( ifInstanceEntry( deletedEntry ) )
+            {
+                String componentName = getComponentName( deletedEntry );
+                Properties instanceConfiguration = LdifConfigHelper.instanceEntryToConfiguration( deletedEntry );
 
+                if ( registeredComponentNames.contains( componentName ) )
+                {
+                    ADSComponent component = componentRegistry.getComponentByName( componentName );
+
+                    String instanceName = ( String ) instanceConfiguration
+                        .remove( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
+
+                    ADSComponentInstance backedInstance = component.getInstance( instanceName );
+
+                    backedInstance.stop();
+                }
+            }
         }
 
 
         @Override
         public void entryAdded( AddOperationContext addContext )
         {
-            // TODO Auto-generated method stub
+            Entry addedEntry = addContext.getEntry();
+
+            if ( ifInstanceEntry( addedEntry ) )
+            {
+                Properties conf = LdifConfigHelper.instanceEntryToConfiguration( addedEntry );
+                String componentName = getComponentName( addedEntry );
+
+                if ( registeredComponentNames.contains( componentName ) )
+                {
+                    ADSComponent component = componentRegistry.getComponentByName( componentName );
+                    CachedComponentInstance createdConf = new CachedComponentInstance( addedEntry.getDn().getName(),
+                        conf );
+
+                    component.addCachedInstance( createdConf );
+
+                    eventManager.fireConfigurationCreated( component, createdConf );
+                }
+            }
+            else if ( ifComponentEntry( addedEntry ) )
+            {
+                //TODO Revert it back
+            }
 
         }
     };
