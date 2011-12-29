@@ -63,10 +63,10 @@ public class DefaultComponentInstanceGenerator implements ComponentInstanceGener
         try
         {
             ComponentInstance comp = component.getFactory().createComponentInstance( properties );
-            Object pojo = ( ( InstanceManager ) comp ).getPojoObject();
+            InstanceManager instanceManager = ( ( InstanceManager ) comp );
 
-            //Create the ADSComponentInstance reference using the pojo just created.
-            ADSComponentInstance instance = new ADSComponentInstance( component, pojo, properties );
+            //Create the ADSComponentInstance reference using the  pojo manager just created.
+            ADSComponentInstance instance = new ADSComponentInstance( component, instanceManager, properties );
 
             return instance;
         }

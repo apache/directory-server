@@ -23,6 +23,8 @@ package org.apache.directory.server.component.instance;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.felix.ipojo.InstanceManager;
 
 
 /**
@@ -32,6 +34,16 @@ import org.apache.directory.server.component.ADSComponent;
  */
 public class ADSComponentInstance
 {
+    /*
+     * IPojo instance name
+     */
+    private String instanceName;
+
+    /*
+     * An IPojo instance manager reference
+     */
+    private InstanceManager instanceManager;
+
     /*
      * Actual instance reference.
      */
@@ -61,11 +73,22 @@ public class ADSComponentInstance
      * @param pojo Underlying Pojo object if the component instance
      * @param configuration Configuration of the Pojo
      */
-    public ADSComponentInstance( ADSComponent component, Object pojo, Properties configuration )
+    public ADSComponentInstance( ADSComponent component, InstanceManager instanceManager, Properties configuration )
     {
         this.parentComponent = component;
-        this.instance = pojo;
+        this.instanceManager = instanceManager;
         this.instanceConfiguration = configuration;
+        this.instance = instanceManager.getPojoObject();
+        this.instanceName = configuration.getProperty( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
+    }
+
+
+    /**
+     * @return the instance name
+     */
+    public String getInstanceName()
+    {
+        return instanceName;
     }
 
 
@@ -79,15 +102,6 @@ public class ADSComponentInstance
 
 
     /**
-     * @param instance the instance to set
-     */
-    public void setInstance( Object instance )
-    {
-        this.instance = instance;
-    }
-
-
-    /**
      * @return the parentComponent
      */
     public ADSComponent getParentComponent()
@@ -97,29 +111,11 @@ public class ADSComponentInstance
 
 
     /**
-     * @param parentComponent the parentComponent to set
-     */
-    public void setParentComponent( ADSComponent parentComponent )
-    {
-        this.parentComponent = parentComponent;
-    }
-
-
-    /**
      * @return the instanceConfiguration
      */
     public Properties getInstanceConfiguration()
     {
         return instanceConfiguration;
-    }
-
-
-    /**
-     * @param instanceConfiguration the instanceConfiguration to set
-     */
-    public void setInstanceConfiguration( Properties instanceConfiguration )
-    {
-        this.instanceConfiguration = instanceConfiguration;
     }
 
 
@@ -138,6 +134,33 @@ public class ADSComponentInstance
     public void setDITHookDn( String DITHookDn )
     {
         this.DITHookDn = DITHookDn;
+    }
+
+
+    /**
+     * Reconfigures the underlying IPojo instance with the supplied configuration.
+     * When called with null configuration, it reconfigures itself with the current configuration
+     *
+     * @param instanceConfiguration Instance configuration
+     */
+    public void reconfigure( Properties instanceConfiguration )
+    {
+        if ( instanceConfiguration != null )
+        {
+            this.instanceConfiguration = instanceConfiguration;
+        }
+
+        instanceManager.reconfigure( instanceConfiguration );
+    }
+
+
+    /**
+     * Stops the IPojo instance management for this instance
+     *
+     */
+    public void stop()
+    {
+        instanceManager.stop();
     }
 
 }

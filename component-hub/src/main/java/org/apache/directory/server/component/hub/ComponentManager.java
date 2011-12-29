@@ -190,6 +190,7 @@ public class ComponentManager
             return null;
         }
 
+        instance.setDITHookDn( cachedInstance.getCachedDn() );
         component.addInstance( instance );
 
         return instance;

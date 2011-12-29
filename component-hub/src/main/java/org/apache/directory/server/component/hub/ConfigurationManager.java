@@ -161,6 +161,8 @@ public class ConfigurationManager
         try
         {
             configPartition.add( ac );
+
+            instance.setDITHookDn( instanceEntry.getDn().getName() );
         }
         catch ( LdapException e )
         {
