@@ -86,12 +86,14 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
     /** Txn manager Factory */
     private TxnManagerFactory txnManagerFactory;
 
-    public DefaultOperationExecutionManager( TxnManagerFactory txnManagerFactory  )
+
+    public DefaultOperationExecutionManager( TxnManagerFactory txnManagerFactory )
     {
         this.txnManagerFactory = txnManagerFactory;
         txnLogManager = txnManagerFactory.txnLogManagerInstance();
     }
-    
+
+
     //---------------------------------------------------------------------------------------------
     // The Add operation
     //---------------------------------------------------------------------------------------------
@@ -269,20 +271,20 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             // Add the parentId in the entry
             entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
-            
+
             // Add the dn
             entry.setDn( entryDn );
 
             // And finally prepare the entry change
             EntryAddDelete entryAdd = new EntryAddDelete( entry, EntryAddDelete.Type.ADD );
             changeContainer.addChange( entryAdd );
-            
+
             // Set the modified entry
             addContext.setModifiedEntry( entry );
 
             // log the change
             txnLogManager.log( changeContainer, false );
-            
+
             //TODO TODO TODO REMOVE THIS
             partition.add( addContext );
         }
@@ -304,12 +306,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
      * {@inheritDoc}
      */
     public void delete( Partition partition, DeleteOperationContext deleteContext ) throws LdapException
-    {        
+    {
         Dn dn = deleteContext.getDn();
 
         //TODO TODO TODO REMOVE THIS
         partition.delete( deleteContext );
-        
+
         // Add write dependency on the dn
         txnLogManager.addWrite( dn, SearchScope.SUBTREE );
 
@@ -508,7 +510,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
             modifyContext.setAlteredEntry( modifiedEntry );
-            
+
             //TODO TODO TODO REMOVE THIS
             partition.modify( modifyContext );
 
@@ -558,14 +560,14 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     throw new LdapException( I18n.err( I18n.ERR_221 ) );
             }
         }
-        
+
         // For now use and EntryReplace change
         EntryReplace entryReplace = new EntryReplace( entry, originalEntry );
         changeContainer.addChange( entryReplace );
 
         // log the changes
         txnLogManager.log( changeContainer, false );
-        
+
         return entry;
     }
 
@@ -633,17 +635,17 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
         }
 
-//        // create log edit for the entry change
-//        Modification undo = null;
-//
-//        if ( prevValueExists )
-//        {
-//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
-//        }
-//
-//        EntryChange entryChange = new EntryChange( mod, null );
-//        changeContainer.addChange( entryChange );
-        
+        //        // create log edit for the entry change
+        //        Modification undo = null;
+        //
+        //        if ( prevValueExists )
+        //        {
+        //            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+        //        }
+        //
+        //        EntryChange entryChange = new EntryChange( mod, null );
+        //        changeContainer.addChange( entryChange );
+
         // add all the values in mods to the same attribute in the entry
         for ( Value<?> value : mods )
         {
@@ -794,17 +796,17 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             dropAliasIndices( partition, entryDn, id, null, changeContainer );
         }
 
-//        // create log edit for the entry change
-//        Modification undo = null;
-//
-//        if ( prevValueExists )
-//        {
-//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, replacedAttribute );
-//        }
-//
-//        EntryChange entryChange = new EntryChange( mod, undo );
-//        changeContainer.addChange( entryChange );
-        
+        //        // create log edit for the entry change
+        //        Modification undo = null;
+        //
+        //        if ( prevValueExists )
+        //        {
+        //            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, replacedAttribute );
+        //        }
+        //
+        //        EntryChange entryChange = new EntryChange( mod, undo );
+        //        changeContainer.addChange( entryChange );
+
         // replaces old attributes with new modified ones if they exist
         if ( mods.size() > 0 )
         {
@@ -964,17 +966,17 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
         }
 
-//        // Prepare the entry change
-//        Modification undo = null;
-//
-//        if ( prevValueExists )
-//        {
-//            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
-//        }
-//
-//        EntryChange entryChange = new EntryChange( mod, undo );
-//        changeContainer.addChange( entryChange );
-        
+        //        // Prepare the entry change
+        //        Modification undo = null;
+        //
+        //        if ( prevValueExists )
+        //        {
+        //            undo = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, changedAttribute );
+        //        }
+        //
+        //        EntryChange entryChange = new EntryChange( mod, undo );
+        //        changeContainer.addChange( entryChange );
+
         /*
          * If there are no attribute values in the modifications then this
          * implies the complete removal of the attribute from the entry. Else
@@ -1022,11 +1024,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn oldDn = renameContext.getDn();
             Rdn newRdn = renameContext.getNewRdn();
             boolean deleteOldRdn = renameContext.getDeleteOldRdn();
-            Entry originalEntry = ( ( ClonedServerEntry )renameContext.getOriginalEntry() );
-            
+            Entry originalEntry = ( ( ClonedServerEntry ) renameContext.getOriginalEntry() );
+
             if ( originalEntry != null )
             {
-                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+                originalEntry = ( ( ClonedServerEntry ) originalEntry ).getOriginalEntry();
             }
 
             if ( renameContext.getEntry() != null )
@@ -1038,7 +1040,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 rename( partition, oldDn, newRdn, deleteOldRdn, null, originalEntry );
             }
-            
+
             //TODO TODO TODO REMOVE THIS
             partition.rename( renameContext );
         }
@@ -1053,7 +1055,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry ) throws Exception
+    public void rename( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
+        throws Exception
     {
         if ( partition.updateEntryOnDnChange() )
         {
@@ -1063,7 +1066,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             newDn.apply( partition.getSchemaManager() );
             handleDnChange( partition, dn, newDn, id );
         }
-        
+
         renameInternal( partition, dn, newRdn, deleteOldRdn, entry, originalEntry );
     }
 
@@ -1359,15 +1362,15 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Dn newSuperior = moveContext.getNewSuperior();
             Dn newDn = moveContext.getNewDn();
             Entry modifiedEntry = moveContext.getModifiedEntry();
-            Entry originalEntry = ( ClonedServerEntry )moveContext.getOriginalEntry();
-            
+            Entry originalEntry = ( ClonedServerEntry ) moveContext.getOriginalEntry();
+
             if ( originalEntry != null )
             {
-                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+                originalEntry = ( ( ClonedServerEntry ) originalEntry ).getOriginalEntry();
             }
 
             move( partition, oldDn, newSuperior, newDn, modifiedEntry, originalEntry );
-            
+
             //TODO TODO TODO REMOVE THIS
             partition.move( moveContext );
 
@@ -1433,13 +1436,14 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             modifiedEntry = originalEntry.clone();
         }
-        
+
         if ( partition.updateEntryOnDnChange() )
         {
             handleDnChange( partition, oldDn, newDn, entryId );
         }
-        
-        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newParentId, entryId, oldParentId, false );
+
+        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newParentId, entryId,
+            oldParentId, false );
     }
 
 
@@ -1465,11 +1469,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             Rdn newRdn = moveAndRenameContext.getNewRdn();
             boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
-            Entry originalEntry = ( ClonedServerEntry )moveAndRenameContext.getOriginalEntry();
-            
+            Entry originalEntry = ( ClonedServerEntry ) moveAndRenameContext.getOriginalEntry();
+
             if ( originalEntry != null )
             {
-                originalEntry = ( ( ClonedServerEntry )originalEntry ).getOriginalEntry();
+                originalEntry = ( ( ClonedServerEntry ) originalEntry ).getOriginalEntry();
             }
 
             moveAndRename( partition, oldDn, newSuperiorDn, newRdn, modifiedEntry, originalEntry, deleteOldRdn );
@@ -1516,7 +1520,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
 
         Dn newDn = newSuperiorDn.add( newRdn );
-        
+
         UUID oldParentId = getParentId( partition, oldId );
 
         // Now check that the new entry does not exist
@@ -1544,19 +1548,20 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             modifiedEntry = originalEntry.clone();
         }
-        
+
         if ( partition.updateEntryOnDnChange() )
         {
             handleDnChange( partition, oldDn, newDn, oldId );
         }
-        
+
         renameInternal( partition, oldDn, newRdn, deleteOldRdn, modifiedEntry, originalEntry );
-        
+
         Dn parentDn = oldDn.getParent();
         oldDn = new Dn( newRdn, parentDn );
         oldDn.apply( partition.getSchemaManager() );
-        
-        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newSuperiorId, oldId, oldParentId, true );
+
+        moveInternal( partition, oldDn, newSuperiorDn, newDn, modifiedEntry, originalEntry, newSuperiorId, oldId,
+            oldParentId, true );
     }
 
 
@@ -1679,8 +1684,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1691,16 +1696,16 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             UUID id = getEntryId( partition, entryContext.getDn() );
 
             Entry entry = lookup( partition, id );
-            
-            return entry != null; 
+
+            return entry != null;
         }
         catch ( LdapException e )
         {
             return false;
         }
     }
-    
-    
+
+
     //---------------------------------------------------------------------------------------------
     // The List operation
     //---------------------------------------------------------------------------------------------
@@ -1711,10 +1716,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
     {
         try
         {
-        return new BaseEntryFilteringCursor( 
-            new EntryCursorAdaptor( partition, 
-                list( partition, getEntryId( partition, listContext.getDn() ) ), 
-                txnManagerFactory ), listContext );
+            return new BaseEntryFilteringCursor(
+                new EntryCursorAdaptor( partition,
+                    list( partition, getEntryId( partition, listContext.getDn() ) ),
+                    txnManagerFactory ), listContext );
         }
         catch ( Exception e )
         {
@@ -1722,28 +1727,29 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
     }
 
-    
+
     public IndexCursor<UUID> list( Partition partition, UUID id ) throws LdapException
     {
         try
         {
-            Index<UUID> oneLevelIdx = ( Index<UUID> )partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            oneLevelIdx = ( Index<UUID> )txnLogManager.wrap( partition.getSuffixDn(), oneLevelIdx );
-            
+            Index<UUID> oneLevelIdx = ( Index<UUID> ) partition
+                .getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            oneLevelIdx = ( Index<UUID> ) txnLogManager.wrap( partition.getSuffixDn(), oneLevelIdx );
+
             // We use the OneLevel index to get all the entries from a starting point
             // and below
             IndexCursor<UUID> cursor = oneLevelIdx.forwardCursor( id );
             cursor.beforeFirst();
-            
+
             return cursor;
-         }
+        }
         catch ( Exception e )
         {
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
 
-    
+
     //---------------------------------------------------------------------------------------------
     // ID and DN operations
     //---------------------------------------------------------------------------------------------
@@ -1834,17 +1840,18 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
         return dn;
     }
-    
+
+
     private Entry getEntry( Partition partition, MasterTable wrappedTable, UUID id ) throws Exception
     {
         Entry entry = wrappedTable.get( id );
-        
+
         if ( entry != null )
         {
             Dn dn = buildEntryDn( partition, id );
             entry.setDn( dn );
         }
-        
+
         return entry;
     }
 
@@ -1867,8 +1874,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
         return key.getParentId();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1880,15 +1887,15 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             Index<?> oneLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx = txnLogManager.wrap( partition.getSuffixDn(), oneLevelIdx );
-            cursor =  ( ( Index<Object> ) oneLevelIdx ).forwardCursor( id );
-            
+            cursor = ( ( Index<Object> ) oneLevelIdx ).forwardCursor( id );
+
             int count = 0;
-            
+
             while ( cursor.next() )
             {
                 count++;
             }
-            
+
             return count;
         }
         catch ( Exception e )
@@ -2016,7 +2023,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
 
     private void moveInternal( Partition partition, Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry,
-        Entry originalEntry, UUID newParentId, UUID entryId, UUID oldParentId, boolean afterRename  ) throws Exception
+        Entry originalEntry, UUID newParentId, UUID entryId, UUID oldParentId, boolean afterRename ) throws Exception
     {
         DataChangeContainer changeContainer = new DataChangeContainer( partition );
         changeContainer.setEntryID( entryId );
@@ -2091,9 +2098,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         // log the change
         txnLogManager.log( changeContainer, false );
     }
-    
+
+
     @SuppressWarnings("unchecked")
-    private void renameInternal( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry, Entry originalEntry )
+    private void renameInternal( Partition partition, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry,
+        Entry originalEntry )
         throws Exception
     {
         UUID id = getEntryId( partition, dn );
@@ -2112,7 +2121,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             // First get the entry
             originalEntry = getEntry( partition, master, id );
         }
-        
+
         if ( entry == null )
         {
             entry = originalEntry.clone();
@@ -2278,47 +2287,47 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         txnLogManager.log( changeContainer, false );
 
     }
-    
-    
+
+
     private void handleDnChange( Partition partition, Dn oldDn, Dn newDn, UUID baseId ) throws Exception
     {
-        Dn  suffixDn = partition.getSuffixDn();
+        Dn suffixDn = partition.getSuffixDn();
         SchemaManager schemaManager = partition.getSchemaManager();
         Index<?> subLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
         subLevelIdx = txnLogManager.wrap( suffixDn, subLevelIdx );
-        
+
         MasterTable master = partition.getMasterTable();
         master = txnLogManager.wrap( partition.getSuffixDn(), master );
-        
+
         Entry childEntry;
         Entry clonedChildEntry;
         UUID childId;
         Dn childDn;
         Dn childNewDn = null;
         IndexCursor<UUID> cursor = ( ( Index<UUID> ) subLevelIdx ).forwardCursor( baseId );
-        
+
         try
         {
             while ( cursor.next() )
             {
                 childId = cursor.get().getId();
-                
+
                 // Skip base entry
-                
+
                 if ( UUIDComparator.INSTANCE.compare( baseId, childId ) == 0 )
                 {
                     continue;
                 }
-                
+
                 childEntry = getEntry( partition, master, childId );
                 clonedChildEntry = childEntry.clone();
-                
-                childDn = childEntry.getDn();                
+
+                childDn = childEntry.getDn();
                 int startIdx = childDn.size() - oldDn.size() - 1;
-                
+
                 for ( int idx = startIdx; idx >= 0; idx-- )
                 {
-                    if (  idx == startIdx )
+                    if ( idx == startIdx )
                     {
                         childNewDn = new Dn( childDn.getRdn( idx ), newDn );
                         childNewDn.apply( schemaManager );
@@ -2328,9 +2337,9 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                         childNewDn = childNewDn.add( childDn.getRdn( idx ) );
                     }
                 }
-                
+
                 clonedChildEntry.setDn( childNewDn );
-                
+
                 /*
                  * Prepare the log edit for the entry change
                  */

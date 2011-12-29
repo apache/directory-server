@@ -19,17 +19,21 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
 import org.apache.directory.server.core.api.txn.TxnManager;
+
 
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface TxnManagerInternal extends TxnManager
+/** Package protected */
+interface TxnManagerInternal extends TxnManager
 {
     /**
      * Returns the current txn associated with the current thread.
      *
+     * @param readOnly whether the txn is read only
      * @return current txn
      */
     Transaction getCurTxn();

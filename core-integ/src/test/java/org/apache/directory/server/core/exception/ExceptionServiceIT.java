@@ -38,7 +38,10 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
@@ -68,21 +71,22 @@ import org.junit.runner.RunWith;
 public class ExceptionServiceIT extends AbstractLdapTestUnit
 {
 
-    private AddResponse createSubContext( String type, String value ) throws Exception
+    private AddResponse addEntry( String type, String value ) throws Exception
     {
-        return createSubContext( new Dn( ServerDNConstants.SYSTEM_DN ), type, value );
+        return addEntry( new Dn( ServerDNConstants.SYSTEM_DN ), type, value );
     }
 
 
-    private AddResponse createSubContext( Dn parent, String type, String value ) throws Exception
+    private AddResponse addEntry( Dn parent, String type, String value ) throws Exception
     {
         Dn dn = parent;
         dn = dn.add( "ou=" + value );
-        Entry entry = new DefaultEntry( dn );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalPerson" );
-        entry.add( SchemaConstants.CN_AT, value );
-        entry.add( SchemaConstants.SN_AT, value );
+        Entry entry = new DefaultEntry( dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: OrganizationalPerson",
+            "cn", value,
+            "sn", value );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
@@ -168,9 +172,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system" );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
-        entry.add( SchemaConstants.OU_AT, "users" );
+        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system",
+            "objectClass: OrganizationalUnit",
+            "ou: users" );
 
         connection.add( entry );
         
@@ -184,9 +188,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
 
-        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system" );
-        userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
-        userzEntry.add( SchemaConstants.OU_AT, "userz" );
+        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system",
+            "objectClass: OrganizationalUnit",
+            "ou: userz" );
 
         connection.add( userzEntry );
 
@@ -338,11 +342,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( new Dn( "ou=users,ou=system" ) );
-        modReq.add( SchemaConstants.OU_AT, "dummyValue" );
+        Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "ou", "dummyValue" ) ;        
 
-        connection.modify( modReq );
+        connection.modify( "ou=users,ou=system", mod );
         Entry entry = connection.lookup( "ou=users,ou=system" );
         Attribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "users" ) );
@@ -450,15 +452,16 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( "cn=toanother,ou=system" );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        entry.add( "aliasedObjectName", "ou=users,ou=system" );
+        Entry entry = new DefaultEntry( "cn=toanother,ou=system",
+            "objectClass: alias",
+            "objectClass: extensibleObject",
+            "aliasedObjectName: ou=users,ou=system" );
 
         connection.add( entry );
 
-        Entry aliasChild = new DefaultEntry( "ou=blah,cn=toanother,ou=system" );
-        aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
-        aliasChild.add( SchemaConstants.OU_AT, "blah" );
+        Entry aliasChild = new DefaultEntry( "ou=blah,cn=toanother,ou=system",
+            "objectClass: organizationalUnit",
+            "ou: blah" );
 
         connection.add( aliasChild );
     }
@@ -472,9 +475,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailAddEntryAlreadyExists() throws Exception
     {
-        createSubContext( "ou", "blah" );
+        addEntry( "ou", "blah" );
 
-        AddResponse resp = createSubContext( "ou", "blah" );
+        AddResponse resp = addEntry( "ou", "blah" );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
     }
 
@@ -489,8 +492,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        AddResponse resp = createSubContext( "ou", "blah" );
-        resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
+        addEntry( "ou", "blah" );
+        addEntry( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
         Entry entry = connection.lookup( "ou=subctx,ou=blah,ou=system" );
         assertNotNull( entry );
     }
@@ -510,8 +513,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        AddResponse resp = createSubContext( "ou", "blah" );
-        resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
+        addEntry( "ou", "blah" );
+        addEntry( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
 
         connection.delete( "ou=blah,ou=system" );
     }
@@ -542,7 +545,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        AddResponse resp = createSubContext( "ou", "blah" );
+        AddResponse resp = addEntry( "ou", "blah" );
 
         Entry entry = connection.lookup( "ou=blah,ou=system" );
         assertNotNull( entry );

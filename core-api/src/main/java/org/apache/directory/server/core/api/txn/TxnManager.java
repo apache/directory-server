@@ -29,7 +29,6 @@ public interface TxnManager
     /**
      * Starts a new txn and associates it with the current thread.
      *
-     * @param readOnly whether the txn is read only
      * @throws Exception
      */
     void beginTransaction( boolean readOnly ) throws Exception;
@@ -43,15 +42,16 @@ public interface TxnManager
      * @throws TxnConflictException
      */
     void commitTransaction() throws Exception, TxnConflictException;
-    
+
+
     /**
      * Aborts the current txn associated with the current thread.
      *
      * @throws Exception
      */
     void abortTransaction() throws Exception;
-    
-    
+
+
     /**
      * Suspends the execution of the current txn and returns 
      * a handle to it.
@@ -59,28 +59,27 @@ public interface TxnManager
      * @return handle for the current txn
      */
     TxnHandle suspendCurTxn();
-    
-    
+
+
     /**
      * Resumes the execution of the txn corresponding to the given
      * handle
      *
      * @param txnHandle handle for the txn to resume.
      */
-    void resumeTxn( TxnHandle txnHandle);
-    
-    
+    void resumeTxn( TxnHandle txnHandle );
+
+
     /**
      * returns a handle for the current txn
      *
      * @return handle for the current txn
      */
     TxnHandle getCurTxn();
-    
-    
+
+
     /**
      * Flushes the committed txns to partitions.
      */
     void applyPendingTxns();
-  
 }

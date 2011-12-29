@@ -159,6 +159,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 result.setDiagnosticMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+
                 return;
             }
 
@@ -602,40 +603,14 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             return;
         }
         
-        boolean done = false;
-        
-        do
+        // Deal with the two kinds of authentication : Simple and SASL
+        if ( bindRequest.isSimple() )
         {
-            txnManager.beginTransaction( false );
-            
-            try
-            {    
-             // Deal with the two kinds of authentication : Simple and SASL
-                if ( bindRequest.isSimple() )
-                {
-                    handleSimpleAuth( ldapSession, bindRequest );
-                }
-                else
-                {
-                    handleSaslAuth( ldapSession, bindRequest );
-                }
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-                txnManager.abortTransaction();
-              
-                // TODO Instead of rethrowing the exception here all the time, check
-                // if the root cause if conflictexception and retry by going to he
-                // beginning of the loop if necessary.
-              
-                throw ( e );
-            }
-            
-            // If here then we are done.
-            txnManager.commitTransaction();
-            done = true;
+            handleSimpleAuth( ldapSession, bindRequest );
         }
-        while ( !done );
+        else
+        {
+            handleSaslAuth( ldapSession, bindRequest );
+        }
     }
 }

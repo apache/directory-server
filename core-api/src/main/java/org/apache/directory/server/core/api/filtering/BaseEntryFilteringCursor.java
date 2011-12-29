@@ -51,29 +51,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BaseEntryFilteringCursor implements EntryFilteringCursor
+public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
 {
     /** the logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
     /** the underlying wrapped search results Cursor */
     private final Cursor<Entry> wrapped;
-    
-    /** the parameters associated with the search operation */
-    private final SearchingOperationContext operationContext;
-    
+
     /** the list of filters to be applied */
     private final List<EntryFilter> filters;
-    
+
     /** the first accepted search result that is pre fetched */
     private Entry prefetched;
 
-    
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * single filter initially: more can be added later after creation.
@@ -83,13 +79,13 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, EntryFilter filter )
     {
         this( wrapped, operationContext, Collections.singletonList( filter ) );
     }
 
-    
+
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * no filter initially: more can be added later after creation.
@@ -99,14 +95,14 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext searchContext )
     {
+        super( searchContext );
         this.wrapped = wrapped;
-        this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
     }
 
-    
+
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * list of filters initially: more can be added later after creation.
@@ -116,90 +112,51 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filters a list of filters to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
-        SearchingOperationContext operationContext, List<EntryFilter> filters )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
+        SearchingOperationContext searchContext, List<EntryFilter> filters )
     {
+        super( searchContext );
         this.wrapped = wrapped;
-        this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
         this.filters.addAll( filters );
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // Class Specific Methods
     // ------------------------------------------------------------------------
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isAbandoned()
-     */
-    public boolean isAbandoned()
-    {
-        return getOperationContext().isAbandoned();
-    }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#setAbandoned(boolean)
-     */
-    public void setAbandoned( boolean abandoned )
-    {
-        getOperationContext().setAbandoned( abandoned );
-        
-        if ( abandoned )
-        {
-            log.info( "Cursor has been abandoned." );
-        }
-    }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#addEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
+    /**
+     * {@inheritDoc}
      */
     public boolean addEntryFilter( EntryFilter filter )
     {
         return filters.add( filter );
     }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#removeEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
+
+
+    /**
+     * {@inheritDoc}
      */
     public boolean removeEntryFilter( EntryFilter filter )
     {
         return filters.remove( filter );
     }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getEntryFilters()
+
+
+    /**
+     * {@inheritDoc}
      */
     public List<EntryFilter> getEntryFilters()
     {
         return Collections.unmodifiableList( filters );
     }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getOperationContext()
-     */
-    public SearchingOperationContext getOperationContext()
-    {
-        return operationContext;
-    }
 
-    
+
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
-
-    
-    /* 
-     * @see Cursor#after(Object)
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#after(org.apache.directory.server.core.entry.ClonedServerEntry)
+    /**
+     * {@inheritDoc}
      */
     public void after( Entry element ) throws Exception
     {
@@ -207,11 +164,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#afterLast()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#afterLast()
+    /**
+     * {@inheritDoc}
      */
     public void afterLast() throws Exception
     {
@@ -220,11 +174,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#available()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#available()
+    /**
+     * {@inheritDoc}
      */
     public boolean available()
     {
@@ -232,11 +183,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#before(java.lang.Object)
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#before(org.apache.directory.server.core.entry.ClonedServerEntry)
+    /**
+     * {@inheritDoc}
      */
     public void before( Entry element ) throws Exception
     {
@@ -244,11 +192,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#beforeFirst()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#beforeFirst()
+    /**
+     * {@inheritDoc}
      */
     public void beforeFirst() throws Exception
     {
@@ -257,63 +202,64 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#close()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+    /**
+     * {@inheritDoc}
      */
     public void close() throws Exception
     {
         wrapped.close();
         prefetched = null;
+
+        if ( ( txnManager != null ) && ( txnManager.getCurTxn() != null ) )
+        {
+            txnManager.commitTransaction();
+        }
     }
 
 
-    /* 
-     * @see Cursor#close()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+    /**
+     * {@inheritDoc}
      */
     public void close( Exception reason ) throws Exception
     {
         wrapped.close( reason );
         prefetched = null;
+
+        if ( txnManager != null )
+        {
+            txnManager.abortTransaction();
+        }
     }
-    
-    
+
+
+    /**
+     * {@inheritDoc}
+     */
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         wrapped.setClosureMonitor( monitor );
     }
 
 
-    /* 
-     * @see Cursor#first()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#first()
+    /**
+     * {@inheritDoc}
      */
     public boolean first() throws Exception
     {
         if ( getOperationContext().isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
-        
+
         beforeFirst();
         return next();
     }
 
 
-    /* 
-     * @see Cursor#get()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#get()
+    /**
+     * {@inheritDoc}
      */
     public Entry get() throws Exception
     {
@@ -321,16 +267,13 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         {
             return prefetched;
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
 
-    /* 
-     * @see Cursor#isClosed()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isClosed()
+    /**
+     * {@inheritDoc}
      */
     public boolean isClosed() throws Exception
     {
@@ -338,17 +281,14 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#last()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#last()
+    /**
+     * {@inheritDoc}
      */
     public boolean last() throws Exception
     {
         if ( getOperationContext().isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
@@ -356,22 +296,23 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         afterLast();
         return previous();
     }
-    
-    
+
+
     private void filterContents( Entry entry ) throws Exception
     {
         boolean typesOnly = getOperationContext().isTypesOnly();
 
         boolean returnAll = ( getOperationContext().getReturningAttributes() == null ||
-            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) ) && ( ! typesOnly );
-        
+            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) )
+            && ( !typesOnly );
+
         if ( returnAll )
         {
             return;
         }
 
-        Entry originalEntry = ((ClonedServerEntry)entry).getOriginalEntry();
-        
+        Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+
         if ( getOperationContext().isNoAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
@@ -379,53 +320,52 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 AttributeType attributeType = attribute.getAttributeType();
                 entry.remove( entry.get( attributeType ) );
             }
-            
+
             return;
         }
-        
-        
+
         if ( getOperationContext().isAllUserAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
-                
+
                 boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
-                
-                if (  isNotRequested && isNotUserAttribute )
+
+                if ( isNotRequested && isNotUserAttribute )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
-            
+
             return;
         }
-        
+
         if ( getOperationContext().isAllOperationalAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
@@ -434,73 +374,70 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 }
 
                 boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
-                
+
                 if ( isNotRequested && isUserAttribute )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
-            
+
             return;
         }
-        
+
         if ( getOperationContext().getReturningAttributes() != null )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
-    
+
                 if ( isNotRequested )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
         }
     }
-    
-    
-    /* 
-     * @see Cursor#next()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#next()
+
+
+    /**
+     * {@inheritDoc}
      */
     public boolean next() throws Exception
     {
         if ( getOperationContext().isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
-        
+
         Entry tempResult = null;
-        
+
         outer: while ( wrapped.next() )
         {
             boolean accepted = true;
-            
+
             Entry tempEntry = wrapped.get();
-            
+
             if ( tempEntry instanceof ClonedServerEntry )
             {
                 tempResult = tempEntry;
@@ -509,7 +446,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             {
                 tempResult = new ClonedServerEntrySearch( tempEntry );
             }
-            
+
             /*
              * O P T I M I Z A T I O N
              * -----------------------
@@ -517,100 +454,97 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              * Don't want to waste cycles on enabling a loop for processing 
              * filters if we have zero or one filter.
              */
-            
+
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
-            if ( ( filters.size() == 1 ) &&  filters.get( 0 ).accept( getOperationContext(), tempResult ) )
-            {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-            
-            /* E N D   O P T I M I Z A T I O N */
-            for ( EntryFilter filter : filters )
-            {
-                // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
-                {
-                    continue outer;
-                }
-            }
-            
-            /*
-             * Here the entry has been accepted by all filters.
-             */
-            prefetched = tempResult;
-            filterContents( prefetched );
-            
-            return true;
-        }
-        
-        prefetched = null;
-        return false;
-    }
 
-
-    /* 
-     * @see Cursor#previous()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#previous()
-     */
-    public boolean previous() throws Exception
-    {
-        if ( getOperationContext().isAbandoned() )
-        {
-            log.info( "Cursor has been abandoned." );
-            close();
-            throw new OperationAbandonedException();
-        }
-        
-        Entry tempResult = null;
-        
-        outer: while ( wrapped.previous() )
-        {
-            boolean accepted = true;
-            tempResult = new ClonedServerEntrySearch( wrapped.get() );
-            
-            /*
-             * O P T I M I Z A T I O N
-             * -----------------------
-             * 
-             * Don't want to waste cycles on enabling a loop for processing 
-             * filters if we have zero or one filter.
-             */
-            
-            if ( filters.isEmpty() )
-            {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-            
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
+
             /* E N D   O P T I M I Z A T I O N */
-            
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
                     continue outer;
                 }
             }
-            
+
+            /*
+             * Here the entry has been accepted by all filters.
+             */
+            prefetched = tempResult;
+            filterContents( prefetched );
+
+            return true;
+        }
+
+        prefetched = null;
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws Exception
+    {
+        if ( getOperationContext().isAbandoned() )
+        {
+            LOG.info( "Cursor has been abandoned." );
+            close();
+            throw new OperationAbandonedException();
+        }
+
+        Entry tempResult = null;
+
+        outer: while ( wrapped.previous() )
+        {
+            boolean accepted = true;
+            tempResult = new ClonedServerEntrySearch( wrapped.get() );
+
+            /*
+             * O P T I M I Z A T I O N
+             * -----------------------
+             * 
+             * Don't want to waste cycles on enabling a loop for processing 
+             * filters if we have zero or one filter.
+             */
+
+            if ( filters.isEmpty() )
+            {
+                prefetched = tempResult;
+                filterContents( prefetched );
+                return true;
+            }
+
+            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+            {
+                prefetched = tempResult;
+                filterContents( prefetched );
+                return true;
+            }
+
+            /* E N D   O P T I M I Z A T I O N */
+
+            for ( EntryFilter filter : filters )
+            {
+                // if a filter rejects then short and continue with outer loop
+                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                {
+                    continue outer;
+                }
+            }
+
             /*
              * Here the entry has been accepted by all filters.
              */
@@ -618,18 +552,15 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             filterContents( prefetched );
             return true;
         }
-        
+
         prefetched = null;
-        
+
         return false;
     }
 
 
-    /* 
-     * @see Iterable#iterator()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#iterator()
+    /**
+     * {@inheritDoc}
      */
     public Iterator<Entry> iterator()
     {

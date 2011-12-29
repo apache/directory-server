@@ -190,11 +190,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.warn( "This server does not allow replication" );
                 // Replication is not allowed on this server. generate a error message
                 LdapResult result = req.getResultResponse().getLdapResult();
-                
+
                 result.setDiagnosticMessage( "Replicztion is not allowed on this server" );
                 result.setResultCode( ResultCodeEnum.OTHER );
                 session.getIoSession().write( req.getResultResponse() );
-                
+
                 return;
             }
         }
@@ -208,28 +208,28 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // SearchResponseEntry elements instead of
             // SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl detected." );
-            boolean txnStarted = false;
-            
+            //boolean txnStarted = false;
+
             try
             {
-                beginTxnForSearch( session, req );
-                txnStarted = true;
-                
+                //beginTxnForSearch( session, req );
+                //txnStarted = true;
+
                 handleIgnoringReferrals( session, req );
-                
+
             }
             catch ( Exception e )
             {
-                if  ( txnStarted )
-                {
-                    endTxnForSearch( true );
-                }
-                
+                //if  ( txnStarted )
+                //{
+                //    endTxnForSearch( true );
+                //}
+
                 throw e;
             }
-            
+
             // if here, we are done
-            endTxnForSearch( false );
+            //endTxnForSearch( false );
         }
         else
         {
@@ -240,29 +240,29 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             switch ( req.getType() )
             {
                 case SEARCH_REQUEST:
-                    
-                    boolean txnStarted = false;
-                    
+
+                    //boolean txnStarted = false;
+
                     try
                     {
-                        beginTxnForSearch( session, req );
-                        txnStarted = true;
-                    
+                        //beginTxnForSearch( session, req );
+                        //txnStarted = true;
+
                         handleWithReferrals( session, req );
                     }
                     catch ( Exception e )
                     {
-                        if  ( txnStarted )
-                        {
-                            endTxnForSearch( true );
-                        }
-                        
+                        //if  ( txnStarted )
+                        //{
+                        //    endTxnForSearch( true );
+                        //}
+
                         throw e;
                     }
-                    
+
                     // if here, we are done
-                    endTxnForSearch( false );
-                    
+                    //endTxnForSearch( false );
+
                     break;
 
                 default:
@@ -445,7 +445,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             LOG.debug( "Sending {}", entry.getDn() );
             count++;
         }
-        
+
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
 
@@ -536,11 +536,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // Stores the cursor current position
                 pagedContext.incrementCurrentPosition( pageCount );
-                
+
                 // Suspend the current txn
                 TxnHandle txnHandle = txnManager.suspendCurTxn();
                 pagedContext.setTxnHandle( txnHandle );
-                
+
                 return;
             }
             else
@@ -567,10 +567,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private SearchResultDone abandonPagedSearch( LdapSession session, SearchRequest req ) throws Exception
     {
-        PagedResults pagedSearchControl = (PagedResults)req.getControls().get( PagedResults.OID );
+        PagedResults pagedSearchControl = ( PagedResults ) req.getControls().get( PagedResults.OID );
         byte[] cookie = pagedSearchControl.getCookie();
 
-        if ( !Strings.isEmpty(cookie) )
+        if ( !Strings.isEmpty( cookie ) )
         {
             // If the cookie is not null, we have to destroy the associated
             // cursor stored into the session (if any)
@@ -664,7 +664,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         byte[] cookie = pagedSearchControl.getCookie();
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
 
-        if ( Strings.isEmpty(cookie) )
+        if ( Strings.isEmpty( cookie ) )
         {
             // This is a new search. We have a special case when the paged size
             // is above the server size limit : in this case, we default to a
@@ -697,6 +697,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
+
                 return ( SearchResultDone ) req.getResultResponse();
             }
             else
@@ -833,7 +834,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
 
         EntryFilteringCursor cursor = null;
-        
+
         try
         {
             // A normal search
@@ -915,7 +916,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
 
                 LdapUrl ldapUrl = null;
-                
+
                 try
                 {
                     ldapUrl = new LdapUrl( url );
@@ -1085,7 +1086,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearch psearch = (PersistentSearch)req.getControls().get( PersistentSearch.OID );
+            PersistentSearch psearch = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
 
             if ( psearch != null )
             {
@@ -1122,7 +1123,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              *
              * SO DON'T SEND BACK ANYTHING!!!!!
              */
-            if ( e instanceof OperationAbandonedException)
+            if ( e instanceof OperationAbandonedException )
             {
                 return;
             }
@@ -1300,7 +1301,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         result.setDiagnosticMessage( "Encountered referral attempting to handle request." );
         result.setMatchedDn( req.getBase() );
 
-        Attribute refAttr = ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
 
         for ( Value<?> refval : refAttr )
         {
@@ -1315,7 +1316,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // parse the ref value and normalize the Dn
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( refstr );
@@ -1361,7 +1362,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             if ( filter.isSchemaAware() )
             {
-                AttributeType attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
+                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
                 isRootDseFilter = attributeType.equals( OBJECT_CLASS_AT );
             }
             else
@@ -1427,7 +1428,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1445,7 +1446,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // Parse the ref value
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( ref );
@@ -1475,7 +1476,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              */
             Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
             Dn refDn = urlDn.add( suffix );
-            
+
             ldapUrl.setDn( refDn );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
@@ -1500,7 +1501,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1518,7 +1519,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // parse the ref value and normalize the Dn
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( ref );
@@ -1589,7 +1590,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         if ( e instanceof LdapOperationException )
         {
-            code = ( (LdapOperationException) e ).getResultCode();
+            code = ( ( LdapOperationException ) e ).getResultCode();
         }
         else
         {
@@ -1691,23 +1692,23 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         this.replicationReqHandler = replicationReqHandler;
     }
-    
-    
+
+
     private boolean checkPagedSearchTxnResume( LdapSession session, SearchRequest req )
     {
         boolean resumedTxn = false;
-        
-        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator )req.getControls().get( PagedResults.OID );
-        
+
+        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator ) req.getControls().get( PagedResults.OID );
+
         if ( pagedSearchControl != null )
         {
             byte[] cookie = pagedSearchControl.getCookie();
-            
+
             if ( !Strings.isEmpty( cookie ) )
             {
                 int cookieValue = pagedSearchControl.getCookieValue();
                 PagedSearchContext pagedContext = session.getPagedSearchContext( cookieValue );
-                
+
                 if ( pagedContext != null )
                 {
                     TxnHandle txnHandle = pagedContext.getTxnHandle();
@@ -1717,36 +1718,36 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
             }
         }
-        
+
         return resumedTxn;
     }
-    
-    
+
+
     private void beginTxnForSearch( LdapSession session, SearchRequest req ) throws Exception
     {
         boolean resumedTxn = checkPagedSearchTxnResume( session, req );
-     
+
         // If resumed an existing txn then just return
-        
+
         if ( resumedTxn )
         {
             return;
         }
-        
+
         txnManager.beginTransaction( true );
     }
-    
-    
+
+
     private void endTxnForSearch( boolean abort ) throws Exception
     {
         // Paged search might have suspended the execution of the txn
         TxnHandle txnHandle = txnManager.getCurTxn();
-        
+
         if ( txnHandle == null )
         {
             return;
         }
-        
+
         if ( abort == false )
         {
             txnManager.commitTransaction();
@@ -1755,6 +1756,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         {
             txnManager.abortTransaction();
         }
-        
+
     }
 }

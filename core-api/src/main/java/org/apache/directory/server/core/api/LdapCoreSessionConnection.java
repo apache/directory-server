@@ -138,7 +138,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         messageId.incrementAndGet();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -179,7 +179,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
-        
+
         Entry entry = addRequest.getEntry();
 
         if ( entry == null )
@@ -188,10 +188,10 @@ public class LdapCoreSessionConnection implements LdapConnection
             LOG.debug( msg );
             throw new IllegalArgumentException( msg );
         }
-        
+
         if ( !entry.isSchemaAware() )
         {
-        	entry.apply( schemaManager );
+            entry.apply( schemaManager );
         }
 
         int newId = messageId.incrementAndGet();
@@ -233,14 +233,14 @@ public class LdapCoreSessionConnection implements LdapConnection
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
         addRequest.setEntryDn( entry.getDn() );
-        
+
         if ( !entry.isSchemaAware() )
         {
-        	entry.apply( schemaManager );
+            entry.apply( schemaManager );
         }
 
         AddResponse addResponse = add( addRequest );
-        
+
         processResponse( addResponse );
     }
 
@@ -493,7 +493,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
-        return lookup( dn, (Control[])null, attributes );
+        return lookup( dn, ( Control[] ) null, attributes );
     }
 
 
@@ -524,7 +524,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
-        return lookup( new Dn( schemaManager, dn ), (Control[])null, attributes );
+        return lookup( new Dn( schemaManager, dn ), ( Control[] ) null, attributes );
     }
 
 
@@ -553,9 +553,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         try
         {
-            Entry entry = lookup( dn, SchemaConstants.NO_ATTRIBUTE );
-
-            return entry != null;
+            return session.exists( dn );
         }
         catch ( LdapNoPermissionException lnpe )
         {
@@ -592,7 +590,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( Dn dn ) throws LdapException
     {
-        return lookup( dn, (Control[])null );
+        return lookup( dn, ( Control[] ) null );
     }
 
 
@@ -601,7 +599,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return lookup( new Dn( schemaManager, dn ), (Control[])null );
+        return lookup( new Dn( schemaManager, dn ), ( Control[] ) null );
     }
 
 
@@ -668,13 +666,12 @@ public class LdapCoreSessionConnection implements LdapConnection
         modifyRequest.setName( entry.getDn() );
 
         Iterator<Attribute> itr = entry.iterator();
-        
+
         while ( itr.hasNext() )
         {
             modifyRequest.addModification( new DefaultModification( modOp, itr.next() ) );
         }
 
-        
         ModifyResponse modifyResponse = modify( modifyRequest );
 
         processResponse( modifyResponse );
@@ -712,7 +709,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         addResponseControls( modRequest, resp );
-        
+
         return resp;
     }
 
@@ -741,6 +738,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setDiagnosticMessage( msg );
+
             return resp;
         }
 
@@ -791,6 +789,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         addResponseControls( modDnRequest, resp );
+
         return resp;
     }
 
@@ -1061,7 +1060,9 @@ public class LdapCoreSessionConnection implements LdapConnection
     public EntryCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
-        return search( new Dn( schemaManager, baseDn ), filter, scope, attributes );
+        Dn dn = new Dn( schemaManager, baseDn );
+
+        return search( dn, filter, scope, attributes );
     }
 
 
@@ -1167,7 +1168,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public void bind() throws LdapException, IOException
     {
         throw new UnsupportedOperationException(
-        "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
+            "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
     }
 
 
@@ -1256,7 +1257,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public void bind( Dn name, String credentials ) throws LdapException, IOException
     {
-        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
+        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8( credentials ) );
 
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setName( name );

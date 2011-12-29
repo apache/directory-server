@@ -24,7 +24,6 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareHandler.class );
 
-    
+
     /**
      * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.model.message.Request)
      */
@@ -47,31 +46,17 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
     {
         LOG.debug( "Handling compare request while ignoring referrals: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
-        
+
         try
-        {   
-            txnManager.beginTransaction( true );
-
-            try
+        {
+            if ( session.getCoreSession().compare( req ) )
             {
-                if ( session.getCoreSession().compare( req ) )
-                {
-                    result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
-                }
-                else
-                {
-                    result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
-                }
+                result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
             }
-            catch ( Exception e )
+            else
             {
-                txnManager.abortTransaction();
-                throw ( e );
+                result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
             }
-
-            // If here then we are done.
-            txnManager.commitTransaction();
-            
 
             result.setMatchedDn( req.getName() );
             session.getIoSession().write( req.getResultResponse() );

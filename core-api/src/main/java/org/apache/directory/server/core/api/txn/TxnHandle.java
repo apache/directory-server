@@ -19,10 +19,12 @@
  */
 package org.apache.directory.server.core.api.txn;
 
-/*
+
+/**
  * A handle for clients to use to communicate with txn layer.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface TxnHandle
 {
-
 }

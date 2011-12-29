@@ -19,10 +19,10 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
@@ -31,63 +31,80 @@ import org.apache.directory.server.core.api.partition.index.ReverseIndexEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 abstract class AbstractTransaction implements Transaction
 {
-    /** Logical time(LSN in the wal) when the txn began */ 
-    long startTime;
-    
+    /** Logical time(LSN in the wal) when the txn began */
+    private long startTime;
+
     /** logical commit time, set when txn commits */
-    long commitTime;
-    
+    protected long commitTime;
+
     /** State of the transaction */
-    State txnState;
-    
-    /** List of txns that this txn depends */
-    List<ReadWriteTxn> txnsToCheck = new ArrayList<ReadWriteTxn>();
- 
-    
+    private State txnState;
+
+    /** List of txns that this txn depends on */
+    private List<ReadWriteTxn> txnsToCheck = new ArrayList<ReadWriteTxn>();
+
+    /** The number of operations using this transaction */
+    private int nbRef;
+
+
     /**
      * TODO : doco
      */
-    public AbstractTransaction( )
+    public AbstractTransaction()
     {
         txnState = State.INITIAL;
+        nbRef = 0;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void startTxn( long startTime )
+    protected void startTxn( long startTime )
     {
         this.startTime = startTime;
         setState( State.READ );
+        nbRef++;
     }
-    
-    
+
+
+    public void reuseTxn()
+    {
+        nbRef++;
+    }
+
+
     /**
      * {@inheritDoc}
-     */  
+     */
     public long getStartTime()
     {
         return startTime;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void commitTxn( long commitTime )
     {
         this.commitTime = commitTime;
-        setState( State.COMMIT );
+        nbRef--;
+
+        if ( nbRef == 0 )
+        {
+            setState( State.COMMIT );
+        }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -95,132 +112,117 @@ abstract class AbstractTransaction implements Transaction
     {
         return commitTime;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void abortTxn()
     {
-       setState( State.ABORT ); 
+        setState( State.ABORT );
     }
 
-    
+
     /**
      * {@inheritDoc}
-     */  
+     */
     public List<ReadWriteTxn> getTxnsToCheck()
     {
         return txnsToCheck;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
-     */  
+     */
     public State getState()
     {
         return txnState;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
-     */  
+     */
     public void setState( State newState )
     {
         txnState = newState;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry )
     {
-        Entry prevEntry  = entry;
+        Entry prevEntry = entry;
         Entry curEntry = entry;
-        ReadWriteTxn curTxn;
         boolean cloneOnChange = true;
-        
-        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
-        
-        while ( it.hasNext() )
+
+        for ( ReadWriteTxn curTxn : txnsToCheck )
         {
-            curTxn = it.next();
             curEntry = curTxn.applyUpdatesToEntry( partitionDn, entryID, curEntry, cloneOnChange );
-            
+
             if ( curEntry != prevEntry )
             {
                 cloneOnChange = false;
             }
         }
-        
+
         return curEntry;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public UUID mergeForwardLookup(Dn partitionDn, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator )
+    public UUID mergeForwardLookup( Dn partitionDn, String attributeOid, Object key, UUID curId,
+        Comparator<Object> valueComparator )
     {
         ForwardIndexEntry<Object> indexEntry = new ForwardIndexEntry<Object>();
         indexEntry.setId( curId );
         indexEntry.setValue( key );
-        
-        ReadWriteTxn curTxn;
-        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
-        
-        while ( it.hasNext() )
+
+        for ( ReadWriteTxn curTxn : txnsToCheck )
         {
-            curTxn = it.next();
-            curTxn.updateForwardLookup( partitionDn, attributeOid, indexEntry, valueComparator );   
+            curTxn.updateForwardLookup( partitionDn, attributeOid, indexEntry, valueComparator );
         }
-        
+
         return indexEntry.getId();
     }
-   
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public Object mergeReverseLookup(Dn partitionDn, String attributeOid,  UUID id, Object curValue )
+    public Object mergeReverseLookup( Dn partitionDn, String attributeOid, UUID id, Object curValue )
     {
         ReverseIndexEntry<Object> indexEntry = new ReverseIndexEntry<Object>();
         indexEntry.setId( id );
         indexEntry.setValue( curValue );
-        
-        ReadWriteTxn curTxn;
-        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
-        
-        while ( it.hasNext() )
+
+        for ( ReadWriteTxn curTxn : txnsToCheck )
         {
-            curTxn = it.next();
             curTxn.updateReverseLookup( partitionDn, attributeOid, indexEntry );
         }
-        
+
         return indexEntry.getValue();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists )
+    public boolean mergeExistence( Dn partitionDN, String attributeOid, IndexEntry<?> indexEntry,
+        boolean currentlyExists )
     {
-        ReadWriteTxn curTxn;
         boolean forward = ( indexEntry instanceof ForwardIndexEntry );
-        
-        Iterator<ReadWriteTxn> it = txnsToCheck.iterator();
-        
-        while ( it.hasNext() )
+
+        for ( ReadWriteTxn curTxn : txnsToCheck )
         {
-            curTxn = it.next();
             currentlyExists = curTxn.updateExistence( partitionDN, attributeOid, indexEntry, currentlyExists, forward );
-          
         }
-        
+
         return currentlyExists;
     }
 }

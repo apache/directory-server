@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CursorList implements EntryFilteringCursor
+public class CursorList extends AbstractEntryFilteringCursor
 {
     /** The inner List */
     private final List<EntryFilteringCursor> list;
@@ -57,9 +57,6 @@ public class CursorList implements EntryFilteringCursor
 
     /** The current position in the list */
     private int index = -1;
-
-    /** the operation context */
-    private SearchingOperationContext searchContext;
 
     /** flag to detect the closed cursor */
     private boolean closed;
@@ -81,6 +78,8 @@ public class CursorList implements EntryFilteringCursor
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
+        super( searchContext );
+
         if ( list != null )
         {
             this.list = list;
@@ -109,7 +108,6 @@ public class CursorList implements EntryFilteringCursor
 
         this.start = start;
         this.end = end;
-        this.searchContext = searchContext;
     }
 
 
@@ -130,7 +128,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean available()
     {
-        if ( index >= 0 && index < end )
+        if ( ( index >= 0 ) && ( index < end ) )
         {
             return list.get( index ).available();
         }
@@ -375,11 +373,14 @@ public class CursorList implements EntryFilteringCursor
         {
             return list.get( index ).get();
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean addEntryFilter( EntryFilter filter )
     {
         for ( EntryFilteringCursor efc : list )
@@ -392,51 +393,43 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public List<EntryFilter> getEntryFilters()
     {
         throw new UnsupportedOperationException( "CursorList doesn't support this operation" );
     }
 
 
-    public SearchingOperationContext getOperationContext()
-    {
-        return searchContext;
-    }
-
-
-    public boolean isAbandoned()
-    {
-        return getOperationContext().isAbandoned();
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeEntryFilter( EntryFilter filter )
     {
         return false;
     }
 
 
-    public void setAbandoned( boolean abandoned )
-    {
-        getOperationContext().setAbandoned( abandoned );
-
-        if ( abandoned )
-        {
-            LOG.info( "Cursor has been abandoned." );
-        }
-    }
-
-
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
         close( null );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    /**
+     * {@inheritDoc}
+     */
     public void close( Exception reason ) throws Exception
     {
         closed = true;
-        
+
         for ( Cursor<?> c : list )
         {
             try
@@ -455,21 +448,42 @@ public class CursorList implements EntryFilteringCursor
                 LOG.warn( "Failed to close the cursor" );
             }
         }
+
+        if ( txnManager != null )
+        {
+            if ( reason == null )
+            {
+                txnManager.commitTransaction();
+            }
+            else
+            {
+                txnManager.abortTransaction();
+            }
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isClosed() throws Exception
     {
         return closed;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<Entry> iterator()
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setClosureMonitor( ClosureMonitor monitor )
     {
         for ( Cursor c : list )
@@ -477,5 +491,4 @@ public class CursorList implements EntryFilteringCursor
             c.setClosureMonitor( monitor );
         }
     }
-
 }

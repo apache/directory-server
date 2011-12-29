@@ -51,38 +51,9 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
         
         try
         {
-            boolean done = false;
-            
-            do
-            {
-                txnManager.beginTransaction( false );
-                
-                try
-                {    
-                    // Call the underlying layer to inject the new entry
-                    CoreSession coreSession = session.getCoreSession();
-                    coreSession.add( req );
-                }
-                catch ( Exception e )
-                {
-                	txnManager.abortTransaction();
-                   
-                	handleException( session, req, e );
-                }
-                
-                // If here then we are done.
-                done = true;
-                
-                try
-                {
-                    txnManager.commitTransaction();
-                }
-                catch( Exception e )
-                {
-                	handleException( session, req, e );
-                }
-            }
-            while ( !done );
+            // Call the underlying layer to inject the new entry
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.add( req );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );

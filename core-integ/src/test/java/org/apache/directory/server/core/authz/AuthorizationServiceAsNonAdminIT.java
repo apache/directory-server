@@ -30,6 +30,7 @@ import java.util.Arrays;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
@@ -48,6 +49,9 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,10 +62,30 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "AuthorizationServiceAsNonAdminIT")
-public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit 
+public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 {
+    private CoreSession session;
+    private CoreSession userSession;
+    private SchemaManager schemaManager;
+
+
+    @Before
+    public void setup() throws Exception
+    {
+        LdifEntry akarasulu = getUserAddLdif();
+
+        session = getService().getAdminSession();
+        schemaManager = getService().getSchemaManager();
+
+        session.add( new DefaultEntry( schemaManager, akarasulu.getEntry() ) );
+        Dn userDn = new Dn( schemaManager, "uid=akarasulu,ou=users,ou=system" );
+        LdapPrincipal principal = new LdapPrincipal( schemaManager, userDn,
+            AuthenticationLevel.SIMPLE );
+        userSession = getService().getSession( principal );
+    }
+
 
     /**
      * Makes sure a non-admin user cannot delete the admin account.
@@ -71,14 +95,29 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     @Test
     public void testNoDeleteOnAdminByNonAdmin() throws Exception
     {
-        LdifEntry akarasulu = getUserAddLdif();
-
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
-
         try
         {
-            getService().getAdminSession().delete( new Dn( "uid=admin,ou=system") );
+            userSession.delete( new Dn( "uid=admin,ou=system" ) );
+            fail( "User 'admin' should not be able to delete his account" );
+        }
+        catch ( LdapNoPermissionException e )
+        {
+            assertNotNull( e );
+        }
+    }
+
+
+    /**
+     * Makes sure the admin user cannot delete the admin account.
+     *
+     * @throws Exception if there are problems
+     */
+    @Test
+    public void testNoDeleteOnAdminByAdmin() throws Exception
+    {
+        try
+        {
+            session.delete( new Dn( "uid=admin,ou=system" ) );
             fail( "User 'admin' should not be able to delete his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -96,14 +135,9 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     @Test
     public void testNoRdnChangesOnAdminByNonAdmin() throws Exception
     {
-        LdifEntry akarasulu = getUserAddLdif();
-
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
-
         try
         {
-            getService().getAdminSession().rename( 
+            userSession.rename(
                 new Dn( "uid=admin,ou=system" ),
                 new Rdn( "uid=alex" ),
                 false );
@@ -124,27 +158,21 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     @Test
     public void testModifyOnAdminByNonAdmin() throws Exception
     {
-        LdifEntry akarasulu = getUserAddLdif();
-        
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
-        
+        LdifEntry user = getUserAddLdif();
+
         // Read the entry we just created using the akarasuluSession
-        Entry readEntry = getService().getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
-        
-        assertTrue( Arrays.equals( akarasulu.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" ).getBytes() ) );
+        Entry readEntry = session.lookup( user.getDn(), "userPassword" );
+
+        assertTrue( Arrays.equals( user.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" )
+            .getBytes() ) );
 
         Attribute attribute = new DefaultAttribute( "userPassword", "replaced" );
 
         Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-      
-        Dn userDn = new Dn( getService().getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
-        LdapPrincipal principal = new LdapPrincipal( getService().getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
-        CoreSession akarasuluSession = getService().getSession( principal );
 
         try
         {
-            akarasuluSession.modify( new Dn( "uid=admin,ou=system" ), mod );
+            userSession.modify( new Dn( "uid=admin,ou=system" ), mod );
             fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         }
         catch ( Exception e )
@@ -159,21 +187,28 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
      * @throws Exception if there are problems
      */
     @Test
+    @Ignore
+    // This test is blantantly wrong
     public void testNoSearchByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+
+        session.add(
+            new DefaultEntry( schemaManager, akarasulu.getEntry() ) );
+
+        ExprNode filter = FilterParser.parse( schemaManager, "(objectClass=*)" );
+        EntryFilteringCursor cursor = userSession.search( new Dn( "ou=system" ), SearchScope.OBJECT, filter,
+            AliasDerefMode.DEREF_ALWAYS, null );
+        cursor.next();
 
         try
         {
-            ExprNode filter = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
-            getService().getAdminSession().search( new Dn( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            cursor.get();
         }
         catch ( LdapNoPermissionException e )
         {
             assertNotNull( e );
+            cursor.close();
         }
     }
 }

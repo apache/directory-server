@@ -19,11 +19,13 @@
  */
 package org.apache.directory.server.core.shared.txn.logedit;
 
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
+
 
 /**
  * 
@@ -33,42 +35,43 @@ public class TxnStateChange extends AbstractLogEdit
 {
     /** ID of the txn associated with this change */
     long txnID;
-    
+
     /** State to record for the txn */
-    State txnState;
-    
+    ChangeState txnState;
+
     private static final long serialVersionUID = 1;
-    
+
+
     // For deserialization
     public TxnStateChange()
     {
     }
-    
-    
-    public TxnStateChange( long txnID, State txnState )
+
+
+    public TxnStateChange( long txnID, ChangeState txnState )
     {
         this.txnID = txnID;
         this.txnState = txnState;
     }
-    
-    
+
+
     public long getTxnID()
     {
         return txnID;
     }
-    
-    
-    public State getTxnState()
+
+
+    public ChangeState getTxnState()
     {
         return txnState;
     }
-    
-    
+
+
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         txnID = in.readLong();
-        txnState = State.values()[in.readInt()];
+        txnState = ChangeState.values()[in.readInt()];
     }
 
 
@@ -78,9 +81,8 @@ public class TxnStateChange extends AbstractLogEdit
         out.writeLong( txnID );
         out.writeInt( txnState.ordinal() );
     }
-    
-    
-    public enum State
+
+    public enum ChangeState
     {
         TXN_BEGIN,
         TXN_COMMIT,

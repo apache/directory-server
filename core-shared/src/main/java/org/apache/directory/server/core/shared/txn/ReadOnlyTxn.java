@@ -19,11 +19,31 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ class ReadOnlyTxn extends AbstractTransaction
+/** Package protected */
+class ReadOnlyTxn extends AbstractTransaction
 {
+    private int nbRef = 0;
 
+
+    public void releaseTxn()
+    {
+        nbRef--;
+    }
+
+
+    public void acquireTxn()
+    {
+        nbRef++;
+    }
+
+
+    public boolean isReused()
+    {
+        return nbRef > 1;
+    }
 }

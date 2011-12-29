@@ -57,8 +57,8 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListSystemAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
         HashSet<String> set = new HashSet<String>();
@@ -80,7 +80,7 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListUsersAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
+        getService().getAdminSession().add(
             new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
@@ -123,17 +123,18 @@ public class ListIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
         HashSet<String> set = new HashSet<String>();
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
-                
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
-        
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = list.next();
             set.add( ncp.getName() );
         }
+
+        list.close();
 
         assertTrue( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
     }

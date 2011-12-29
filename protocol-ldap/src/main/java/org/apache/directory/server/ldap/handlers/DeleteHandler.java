@@ -50,39 +50,9 @@ public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
 
         try
         {   
-            boolean done = false;
-            
-            do
-            {
-                txnManager.beginTransaction( false );
-                
-                try
-                {    
-                    // Call the underlying layer to delete the entry 
-                    CoreSession coreSession = session.getCoreSession();
-                    coreSession.delete( req );
-                }
-                catch ( Exception e )
-                {
-                  txnManager.abortTransaction();
-                  
-                  throw ( e );
-                }
-                
-                // If here then we are done.
-                done = true;
-                
-                try
-                {
-                    txnManager.commitTransaction();
-                }
-                catch( Exception e )
-                {
-                    // TODO check for conflict
-                    throw e;
-                }
-            }
-            while ( !done );
+            // Call the underlying layer to delete the entry 
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.delete( req );
             
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );

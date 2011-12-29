@@ -20,33 +20,28 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
-import org.apache.directory.server.core.api.log.LogAnchor;
-
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.directory.server.core.api.log.UserLogRecord;
-
-import java.io.IOException;
 
 
 /**
@@ -76,34 +71,34 @@ class DefaultTxnManager implements TxnManagerInternal
 
     /** Latest flushed txn's logical commit time */
     private AtomicLong latestFlushedTxnLSN = new AtomicLong( LogAnchor.UNKNOWN_LSN );
-    
+
     /** Default flush interval in ms */
     private final static int DEFAULT_FLUSH_INTERVAL = 100;
-    
+
     /** Flush interval */
     private int flushInterval;
-    
+
     /** Flush lock */
     private Lock flushLock = new ReentrantLock();
-    
+
     /** Number of flushes */
     private int numFlushes;
-    
+
     /** Flush Condition object */
     private Condition flushCondition = flushLock.newCondition();
-    
+
     /** Whether flushing is failed */
     private boolean flushFailed;
-    
+
     /** partitions to be synced after applying changes */
     private HashSet<Partition> flushedToPartitions = new HashSet<Partition>();
-    
+
     /** Backgorund syncing thread */
     private LogSyncer syncer;
-    
+
     /** Initial committed txn */
     private ReadWriteTxn dummyTxn = new ReadWriteTxn();
-    
+
     private AtomicInteger pending = new AtomicInteger();
 
     /** Per thread txn context */
@@ -131,22 +126,22 @@ class DefaultTxnManager implements TxnManagerInternal
     {
         this.txnLogManager = txnLogManager;
         flushInterval = DEFAULT_FLUSH_INTERVAL;
-        
+
         dummyTxn.commitTxn( LogAnchor.UNKNOWN_LSN );
         latestCommittedTxn.set( dummyTxn );
         latestVerifiedTxn.set( dummyTxn );
         committedQueue.offer( dummyTxn );
-        
+
         syncer = new LogSyncer();
         syncer.setDaemon( true );
         syncer.start();
     }
-    
-    
+
+
     public void uninit()
     {
         syncer.interrupt();
-        
+
         try
         {
             syncer.join();
@@ -155,10 +150,10 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             // Ignore
         }
-        
+
         // Do a best effort last flush
         flushLock.lock();
-        
+
         try
         {
             flushTxns();
@@ -171,7 +166,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             flushLock.unlock();
         }
-        
+
         syncer = null;
     }
 
@@ -268,8 +263,8 @@ class DefaultTxnManager implements TxnManagerInternal
         
         return curTxn;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -289,8 +284,8 @@ class DefaultTxnManager implements TxnManagerInternal
         
         txnVar.set( ( Transaction )txnHandle );
     }
-  
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -299,19 +294,19 @@ class DefaultTxnManager implements TxnManagerInternal
         return ( Transaction ) txnVar.get();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void applyPendingTxns()
     {
         flushLock.lock();
-        
+
         try
         {
             flushTxns();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             // Ignore
@@ -320,8 +315,9 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             flushLock.unlock();
         }
-        
+
     }
+
 
     /**
      * Begins a read only txn. A read only txn does not put any log edits
@@ -371,10 +367,10 @@ class DefaultTxnManager implements TxnManagerInternal
         }
 
         txn.startTxn( startTime );
-        
-//        int refCount = lastTxnToCheck.getRefCount().get();
-//        System.out.println("start time" + startTime + " " + refCount + 
-//            " pending " + pending.incrementAndGet() );
+
+        //        int refCount = lastTxnToCheck.getRefCount().get();
+        //        System.out.println("start time" + startTime + " " + refCount + 
+        //            " pending " + pending.incrementAndGet() );
 
         buildCheckList( txn, lastTxnToCheck );
         txnVar.set( txn );
@@ -393,7 +389,7 @@ class DefaultTxnManager implements TxnManagerInternal
         UserLogRecord logRecord = txn.getUserLogRecord();
 
         TxnStateChange txnRecord = new TxnStateChange( LogAnchor.UNKNOWN_LSN,
-            TxnStateChange.State.TXN_BEGIN );
+            TxnStateChange.ChangeState.TXN_BEGIN );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
         byte[] data;
@@ -562,13 +558,13 @@ class DefaultTxnManager implements TxnManagerInternal
             }
 
             lastTxnToCheck.getRefCount().decrementAndGet();
-            
-//            if ( txn instanceof ReadOnlyTxn )
-//            {
-//                System.out.println(" txn end " + txn.getStartTime() + " " + 
-//                    lastTxnToCheck.getRefCount() 
-//                    + " pending " + pending.decrementAndGet() );
-//            }
+
+            //            if ( txn instanceof ReadOnlyTxn )
+            //            {
+            //                System.out.println(" txn end " + txn.getStartTime() + " " + 
+            //                    lastTxnToCheck.getRefCount() 
+            //                    + " pending " + pending.decrementAndGet() );
+            //            }
         }
     }
 
@@ -602,7 +598,7 @@ class DefaultTxnManager implements TxnManagerInternal
         UserLogRecord logRecord = txn.getUserLogRecord();
 
         TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
-            TxnStateChange.State.TXN_COMMIT );
+            TxnStateChange.ChangeState.TXN_COMMIT );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
         byte[] data;
@@ -687,7 +683,7 @@ class DefaultTxnManager implements TxnManagerInternal
         UserLogRecord logRecord = txn.getUserLogRecord();
 
         TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
-            TxnStateChange.State.TXN_ABORT );
+            TxnStateChange.ChangeState.TXN_ABORT );
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
         byte[] data;
@@ -716,96 +712,97 @@ class DefaultTxnManager implements TxnManagerInternal
         logRecord.setData( data, data.length );
         txnLogManager.log( logRecord, false );
     }
-    
-   /**
-    *  Flush the changes of the txns in the committed queue. A txn is flushed
-    *  only if flushing it will not cause a pending txn to see changes beyond its
-    *  start time.
-    *  throws Exception thrown if anything goes wrong during flush.
-    *
-    */
-   private void flushTxns() throws Exception
-   {
-       // If flushing failed already, dont do anything anymore
-       if ( flushFailed )
-       {
-           return;
-       }
-       
-       /*
-        * First get the latest committed txn ref and then the iterator.
-        * Order is important.
-        */
-       ReadWriteTxn latestCommitted = latestCommittedTxn.get();
-       long latestFlushedLsn = latestFlushedTxnLSN.get();
-       flushedToPartitions.clear();
-       
-       Iterator<ReadWriteTxn> it = committedQueue.iterator();
-       ReadWriteTxn txnToFlush = null;
-       
-       while ( it.hasNext() )
-       {
-           txnToFlush = it.next();
-           
-           if ( txnToFlush.getCommitTime() > latestFlushedLsn )
-           {
-               // Apply changes
-               txnToFlush.flushLogEdits( flushedToPartitions );
-               
-               latestFlushedTxnLSN.set( txnToFlush.getCommitTime() );
-           }
-           
-           if ( txnToFlush == latestCommitted )
-           {
-               // leave latest committed txn in queue and dont go beyond it.
-               break;
-           }
-           
-           numFlushes++;
-           
-//           if (  numFlushes % 100 == 0 )
-//           {
-//           System.out.println( "lastFlushed lsn: " + latestFlushedTxnLSN  + " " + committedQueue.size() );
-//           
-//           System.out.println( " last commit txn: " + latestCommitted.getCommitTime() );
-//           System.out.println( "txnToFlush: " + txnToFlush.getRefCount() + " " + txnToFlush.getCommitTime() ); 
-//           }
-           
-           /*
-            *  If the latest flushed txn has ref count > 0, then
-            *  following txns wont be flushed yet.
-            */
-           
-           if ( txnToFlush.getRefCount().get() >  0 )
-           {
-          //     System.out.println( "breaking out: " + txnToFlush.getCommitTime()  + " " + committedQueue.size() );
-               break;
-           }
-           
-           // Remove from the queue
-           it.remove();
-       }
-       
-       // Sync each flushed to partition
-       Iterator<Partition> partitionIt = flushedToPartitions.iterator();
-       
-       while ( partitionIt.hasNext() )
-       {
-           partitionIt.next().sync();
-       }
-           
-   }
-    
-    class LogSyncer extends Thread 
+
+
+    /**
+     *  Flush the changes of the txns in the committed queue. A txn is flushed
+     *  only if flushing it will not cause a pending txn to see changes beyond its
+     *  start time.
+     *  throws Exception thrown if anything goes wrong during flush.
+     *
+     */
+    private void flushTxns() throws Exception
+    {
+        // If flushing failed already, dont do anything anymore
+        if ( flushFailed )
+        {
+            return;
+        }
+
+        /*
+         * First get the latest committed txn ref and then the iterator.
+         * Order is important.
+         */
+        ReadWriteTxn latestCommitted = latestCommittedTxn.get();
+        long latestFlushedLsn = latestFlushedTxnLSN.get();
+        flushedToPartitions.clear();
+
+        Iterator<ReadWriteTxn> it = committedQueue.iterator();
+        ReadWriteTxn txnToFlush = null;
+
+        while ( it.hasNext() )
+        {
+            txnToFlush = it.next();
+
+            if ( txnToFlush.getCommitTime() > latestFlushedLsn )
+            {
+                // Apply changes
+                txnToFlush.flushLogEdits( flushedToPartitions );
+
+                latestFlushedTxnLSN.set( txnToFlush.getCommitTime() );
+            }
+
+            if ( txnToFlush == latestCommitted )
+            {
+                // leave latest committed txn in queue and dont go beyond it.
+                break;
+            }
+
+            numFlushes++;
+
+            //           if (  numFlushes % 100 == 0 )
+            //           {
+            //           System.out.println( "lastFlushed lsn: " + latestFlushedTxnLSN  + " " + committedQueue.size() );
+            //           
+            //           System.out.println( " last commit txn: " + latestCommitted.getCommitTime() );
+            //           System.out.println( "txnToFlush: " + txnToFlush.getRefCount() + " " + txnToFlush.getCommitTime() ); 
+            //           }
+
+            /*
+             *  If the latest flushed txn has ref count > 0, then
+             *  following txns wont be flushed yet.
+             */
+
+            if ( txnToFlush.getRefCount().get() > 0 )
+            {
+                //     System.out.println( "breaking out: " + txnToFlush.getCommitTime()  + " " + committedQueue.size() );
+                break;
+            }
+
+            // Remove from the queue
+            it.remove();
+        }
+
+        // Sync each flushed to partition
+        Iterator<Partition> partitionIt = flushedToPartitions.iterator();
+
+        while ( partitionIt.hasNext() )
+        {
+            partitionIt.next().sync();
+        }
+
+    }
+
+    class LogSyncer extends Thread
     {
 
         @Override
-        public void run() 
+        public void run()
         {
             flushLock.lock();
+
             try
             {
-
                 while ( !this.isInterrupted() )
                 {
                     flushCondition.await( flushInterval, TimeUnit.MILLISECONDS );
@@ -827,7 +824,6 @@ class DefaultTxnManager implements TxnManagerInternal
                 flushLock.unlock();
             }
         }
-      }
-    
-    
+    }
+
 }

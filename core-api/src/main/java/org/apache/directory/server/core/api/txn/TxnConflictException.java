@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.txn;
 
+
 /** 
  * An exception used when the txn conflict is detected.
  *
@@ -47,5 +48,4 @@ public class TxnConflictException extends Exception
     {
         super( s, cause );
     }
-
 }

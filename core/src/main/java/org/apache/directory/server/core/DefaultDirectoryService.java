@@ -1154,7 +1154,6 @@ public class DefaultDirectoryService implements DirectoryService
             throw new IllegalArgumentException( I18n.err( I18n.ERR_314 ) );
         }
 
-        TxnManager txnManager = txnManagerFactory.txnManagerInstance();
         Cursor<ChangeLogEvent> cursor = null;
 
         /*
@@ -1189,26 +1188,15 @@ public class DefaultDirectoryService implements DirectoryService
                 
                 boolean startedTxn = false;
                 List<ChangeLogEvent> events = new LinkedList();
-                
+
                 try
                 {
-                    txnManager.beginTransaction( true );
-                    
-                    startedTxn = true;
-                    
                     cursor = changeLog.getChangeLogStore().findAfter( revision );
                     cursor.afterLast();
                     
                     while ( cursor.previous() )
                     {
                         events.add( cursor.get() );
-                    }
-                }
-                catch ( Exception e )
-                {
-                    if ( startedTxn )
-                    {
-                        txnManager.abortTransaction();
                     }
                 }
                 finally
@@ -1226,8 +1214,6 @@ public class DefaultDirectoryService implements DirectoryService
                     }
                 }
                 
-                txnManager.commitTransaction();
-                    
                 Iterator<ChangeLogEvent> it = events.iterator();
                 boolean inTxn = false;
                  
@@ -1237,9 +1223,6 @@ public class DefaultDirectoryService implements DirectoryService
                     {                       
                         ChangeLogEvent event = it.next();
                         List<LdifEntry> reverses = event.getReverseLdifs();
-                        
-                        txnManager.beginTransaction( false );
-                        inTxn = true;
                         
                         for ( LdifEntry reverse : reverses )
                         {
@@ -1276,18 +1259,10 @@ public class DefaultDirectoryService implements DirectoryService
                                     throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
                             }
                         }
-                        
-                        inTxn = false;
-                        txnManager.commitTransaction();
                     }
                 }
                 catch ( Exception e )
                 {
-                    if ( inTxn )
-                    {
-                        txnManager.abortTransaction();
-                    }
-
                     throw e;
                 }
 
@@ -1324,8 +1299,6 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
-        txnManager.applyPendingTxns();
-        
         return changeLog.getCurrentRevision();
     }
 

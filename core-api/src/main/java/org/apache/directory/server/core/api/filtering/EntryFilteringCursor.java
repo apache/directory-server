@@ -23,6 +23,8 @@ package org.apache.directory.server.core.api.filtering;
 import java.util.List;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.txn.TxnHandle;
+import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -35,13 +37,12 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public interface EntryFilteringCursor extends Cursor<Entry>
 {
-
     /**
      * Gets whether or not this BaseEntryFilteringCursor has been abandoned.
      *
      * @return true if abandoned, false if not
      */
-    public abstract boolean isAbandoned();
+    boolean isAbandoned();
 
 
     /**
@@ -49,7 +50,7 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      *
      * @param abandoned true if abandoned, false if not
      */
-    public abstract void setAbandoned( boolean abandoned );
+    void setAbandoned( boolean abandoned );
 
 
     /**
@@ -59,7 +60,7 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      * @param filter a filter to apply to the entries
      * @return the result of {@link List#add(Object)}
      */
-    public abstract boolean addEntryFilter( EntryFilter filter );
+    boolean addEntryFilter( EntryFilter filter );
 
 
     /**
@@ -69,7 +70,7 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      * @param filter a filter to remove from the filter list
      * @return the result of {@link List#remove(Object)}
      */
-    public abstract boolean removeEntryFilter( EntryFilter filter );
+    boolean removeEntryFilter( EntryFilter filter );
 
 
     /**
@@ -77,11 +78,24 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      *
      * @return an unmodifiable list of EntryFilters applied
      */
-    public abstract List<EntryFilter> getEntryFilters();
+    List<EntryFilter> getEntryFilters();
 
 
     /**
      * @return the operationContext
      */
-    public abstract SearchingOperationContext getOperationContext();
+    SearchingOperationContext getOperationContext();
+
+
+    /**
+     * Associate the transaction manager to this cursor
+     * @param txnManager The associated TxnManager
+     */
+    void setTxnManager( TxnManager txnManager );
+
+
+    /**
+     * @return the associated transaction to this cursor
+     */
+    TxnHandle getTransaction();
 }

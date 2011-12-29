@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,8 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/** Package protected */ interface Transaction extends TxnHandle
+/** Package protected */
+interface Transaction extends TxnHandle
 {
 
     /**
@@ -59,7 +61,9 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      *
      * @param startTime start time of the txn
      */
-    void startTxn( long startTime );
+    //void startTxn( long startTime );
+
+    void reuseTxn();
 
 
     /**
@@ -103,8 +107,8 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      * @return
      */
     Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry );
-    
-    
+
+
     /**
      * Checks all the updates done on the given index for the given key and returns 
      * the latest version of the coressponding id
@@ -115,9 +119,10 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      * @param valueComp value comparator
      * @return id corresponding to the key
      */
-    UUID mergeForwardLookup(Dn partitionDN, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator );
-    
-    
+    UUID mergeForwardLookup( Dn partitionDN, String attributeOid, Object key, UUID curId,
+        Comparator<Object> valueComparator );
+
+
     /**
      * Checks all the updates done on the given index for the given id and returns 
      * the latest version of the corressponding value
@@ -127,9 +132,9 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      * @param id key to do the lookup on 
      * @return value corresponding to the id
      */
-    Object mergeReverseLookup(Dn partitionDN, String attributeOid,  UUID id, Object curValue );
-    
-    
+    Object mergeReverseLookup( Dn partitionDN, String attributeOid, UUID id, Object curValue );
+
+
     /**
      * Checks all the updates on the given index entry and returns whether the it exists or not
      *
@@ -139,8 +144,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
      * @param currentlyExists true if the index entry currently exists in the underlying partition
      * @return true if the given index entry exists
      */
-    boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists );
-
+    boolean mergeExistence( Dn partitionDN, String attributeOid, IndexEntry<?> indexEntry, boolean currentlyExists );
 
     enum State
     {
