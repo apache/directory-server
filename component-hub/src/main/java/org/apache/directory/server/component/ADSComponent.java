@@ -178,6 +178,26 @@ public class ADSComponent
 
 
     /**
+     * Gets the component instance reference by name
+     *
+     * @param instanceName Instance name
+     * @return ADSComponentInstance reference by its name
+     */
+    public ADSComponentInstance getInstance( String instanceName )
+    {
+        for ( ADSComponentInstance instance : activeInstances )
+        {
+            if ( instance.getInstanceName().equals( instanceName ) )
+            {
+                return instance;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
      * Gets the current cached instances of the component
      *
      * @return Cloned CachedComponentInstance list.

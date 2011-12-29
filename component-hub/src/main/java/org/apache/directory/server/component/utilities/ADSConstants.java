@@ -37,24 +37,9 @@ public class ADSConstants
     public static final String ADS_HUB_FACTORY_NAME = "ADSComponentHub";
 
     /*
-     * base directory path for component cache
+     * Parent RDN for some component's instances
      */
-    public static final String ADS_CACHE_BASE_DIR = "adscache";
-
-    /*
-     * default file name for caching schemas inside for components
-     */
-    public static final String ADS_CACHE_SCHEMA_FILE = "schema-elements.ldif";
-
-    /*
-     * default file name for caching instance entries inside for components
-     */
-    public static final String ADS_CACHE_INSTANCES_DIR = "instance-configs";
-
-    /*
-     * default file name for caching version information for components
-     */
-    public static final String ADS_CACHE_VERSION_FILE = "version";
+    public static final String ADS_COMPONENT_INSTANCES_RDN = "ou=instances";
 
     /*
      * IPojo instance name property
