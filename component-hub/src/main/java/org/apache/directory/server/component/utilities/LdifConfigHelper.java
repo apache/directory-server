@@ -68,11 +68,11 @@ public class LdifConfigHelper
         {
             if ( key.equals( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME ) )
             {
-                String dnAttrib = ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME + "=" + instanceName;
+                String dnAttrib = ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME + ":" + instanceName;
                 attributes.add( dnAttrib );
             }
 
-            String attribute = ( String ) key + "=" + ( String ) instanceConfiguration.get( key );
+            String attribute = ( String ) key + ":" + ( String ) instanceConfiguration.get( key );
             attributes.add( attribute );
         }
 
@@ -113,7 +113,8 @@ public class LdifConfigHelper
 
         try
         {
-            String instanceName = instanceEntry.get( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME ).getString();
+            String instanceName = instanceEntry.get( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME )
+                .getString();
             if ( instanceName == null )
             {
                 //Entry is not instance entry.

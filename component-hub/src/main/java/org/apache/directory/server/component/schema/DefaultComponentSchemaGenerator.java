@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
+import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
@@ -120,8 +121,7 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
             String ocoid = ComponentOIDGenerator.getObjectClassOID( componentBaseOID );
             String ocDn = "m-oid=" + ocoid + "," + ocsDn;
 
-            ocAttribs.add( 0, "m-may:cached" );
-            ocAttribs.add( 0, "m-must:ins" );
+            ocAttribs.add( 0, "m-must:" + ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME );
             ocAttribs.add( 0, "m-must:active" );
             ocAttribs.add( 0, "m-supObjectClass: top" );
             ocAttribs.add( 0, "m-description:Object Class for generating instances of:" + componentName );
