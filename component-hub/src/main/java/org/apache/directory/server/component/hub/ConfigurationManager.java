@@ -92,7 +92,7 @@ public class ConfigurationManager
      */
     public void pairWithComponent( ADSComponent component )
     {
-        LdifEntry componentEntry = getComponentEntry( component );
+        Entry componentEntry = getComponentEntry( component );
         if ( componentEntry == null )
         {
             try
@@ -127,17 +127,17 @@ public class ConfigurationManager
             return;
         }
 
-        List<LdifEntry> instanceEntries = getCachedInstances( component );
+        List<Entry> instanceEntries = getCachedInstances( component );
         if ( instanceEntries == null )
         {
             return;
         }
 
         List<CachedComponentInstance> cachedInstances = new ArrayList<CachedComponentInstance>();
-        for ( LdifEntry le : instanceEntries )
+        for ( Entry e : instanceEntries )
         {
-            Properties conf = LdifConfigHelper.instanceEntryToConfiguration( le );
-            cachedInstances.add( new CachedComponentInstance( le.getDn().getName(), conf ) );
+            Properties conf = LdifConfigHelper.instanceEntryToConfiguration( e );
+            cachedInstances.add( new CachedComponentInstance( e.getDn().getName(), conf ) );
         }
 
         component.setCachedInstances( cachedInstances );
@@ -200,27 +200,26 @@ public class ConfigurationManager
      * Return null if none exists.
      *
      * @param component ADSComponent reference to get its entry
-     * @return LdifEntry of component on config partition.
+     * @return Entry of component on config partition.
      */
-    private LdifEntry getComponentEntry( ADSComponent component )
+    private Entry getComponentEntry( ADSComponent component )
     {
         String componentDn = ADSComponentHelper.getComponentDn( component );
         LookupOperationContext luc = new LookupOperationContext( null );
-        LdifEntry le = null;
         try
         {
             luc.setDn( new Dn( componentDn ) );
             Entry e = configPartition.lookup( luc );
 
-            le = new LdifEntry( e );
+            return e;
         }
         catch ( LdapException e )
         {
             LOG.info( "Error while fetching component entry for component:" + component );
             e.printStackTrace();
-        }
 
-        return le;
+            return null;
+        }
     }
 
 
@@ -275,12 +274,12 @@ public class ConfigurationManager
      * Gets the entries of component's instances on config partition.
      *
      * @param component ADSComponent reference to get its cached instance entries
-     * @return List of LdifEntry references representing cached instances.
+     * @return List of Entry references representing cached instances.
      */
-    private List<LdifEntry> getCachedInstances( ADSComponent component )
+    private List<Entry> getCachedInstances( ADSComponent component )
     {
         String componentInstancesDn = ADSComponentHelper.getComponentInstancesDn( component );
-        List<LdifEntry> instances = new ArrayList<LdifEntry>();
+        List<Entry> instances = new ArrayList<Entry>();
 
         SearchEngine<Entry, Long> se = configPartition.getSearchEngine();
         SchemaManager schemaManager = configPartition.getSchemaManager();
@@ -311,7 +310,7 @@ public class ConfigurationManager
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
 
-                instances.add( new LdifEntry( entry ) );
+                instances.add( entry );
             }
         }
         catch ( Exception e )

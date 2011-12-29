@@ -107,14 +107,13 @@ public class LdifConfigHelper
      * @param entry LdifEntry reference to extract instance configuration
      * @return Extracted instance configuration
      */
-    public static Properties instanceEntryToConfiguration( LdifEntry instanceEntry )
+    public static Properties instanceEntryToConfiguration( Entry instanceEntry )
     {
-        Entry entry = instanceEntry.getEntry();
         Properties configuration = new Properties();
 
         try
         {
-            String instanceName = entry.get( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME ).getString();
+            String instanceName = instanceEntry.get( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME ).getString();
             if ( instanceName == null )
             {
                 //Entry is not instance entry.
@@ -123,7 +122,7 @@ public class LdifConfigHelper
 
             configuration.put( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME, instanceName );
 
-            Collection<Attribute> attributes = entry.getAttributes();
+            Collection<Attribute> attributes = instanceEntry.getAttributes();
             for ( Attribute attribute : attributes )
             {
                 String attribName = attribute.getId();
