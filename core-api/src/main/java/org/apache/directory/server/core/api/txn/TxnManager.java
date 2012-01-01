@@ -31,8 +31,9 @@ public interface TxnManager
      *
      * @throws Exception
      */
-    void beginTransaction( boolean readOnly ) throws Exception;
-   
+    TxnHandle beginTransaction( boolean readOnly ) throws Exception;
+
+
     /**
      * Tries to commit the current txn associated with the current thread. ReadWrite txns have to be verified against txns
      * that committed after they started for any conflicting change and conflicting
@@ -76,6 +77,14 @@ public interface TxnManager
      * @return handle for the current txn
      */
     TxnHandle getCurTxn();
+
+
+    /**
+     * Sets a handle as the current txn
+     *
+     * @param the new current txn
+     */
+    TxnHandle setCurTxn( TxnHandle txn );
 
 
     /**

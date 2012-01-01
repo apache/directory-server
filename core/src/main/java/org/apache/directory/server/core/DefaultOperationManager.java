@@ -44,6 +44,7 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -282,11 +283,11 @@ public class DefaultOperationManager implements OperationManager
     /**
      * Starts a Read only transaction
      */
-    private void beginTransactionR( TxnManager txnManager ) throws LdapException
+    private TxnHandle beginTransactionR( TxnManager txnManager ) throws LdapException
     {
         try
         {
-            txnManager.beginTransaction( true );
+            return txnManager.beginTransaction( true );
         }
         catch ( Exception e )
         {
@@ -298,11 +299,11 @@ public class DefaultOperationManager implements OperationManager
     /**
      * Starts a RW transaction
      */
-    private void beginTransactionRW( TxnManager txnManager ) throws LdapException
+    private TxnHandle beginTransactionRW( TxnManager txnManager ) throws LdapException
     {
         try
         {
-            txnManager.beginTransaction( false );
+            return txnManager.beginTransaction( false );
         }
         catch ( Exception e )
         {

@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -210,9 +211,23 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         wrapped.close();
         prefetched = null;
 
-        if ( ( txnManager != null ) && ( txnManager.getCurTxn() != null ) )
+        if ( txnManager != null )
         {
-            txnManager.commitTransaction();
+            TxnHandle curTxn = txnManager.getCurTxn();
+
+            if ( curTxn != null )
+            {
+                if ( transaction != curTxn )
+                {
+                    TxnHandle previousTransaction = txnManager.setCurTxn( transaction );
+                    txnManager.commitTransaction();
+                    txnManager.setCurTxn( previousTransaction );
+                }
+                else
+                {
+                    txnManager.commitTransaction();
+                }
+            }
         }
     }
 
@@ -227,7 +242,9 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
 
         if ( txnManager != null )
         {
+            TxnHandle previousTransaction = txnManager.setCurTxn( transaction );
             txnManager.abortTransaction();
+            txnManager.setCurTxn( previousTransaction );
         }
     }
 
@@ -432,60 +449,71 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
 
         Entry tempResult = null;
 
-        outer: while ( wrapped.next() )
+        // Switch the current transaction
+        TxnHandle previousTxn = txnManager.setCurTxn( transaction );
+
+        try
         {
-            boolean accepted = true;
-
-            Entry tempEntry = wrapped.get();
-
-            if ( tempEntry instanceof ClonedServerEntry )
+            outer: while ( wrapped.next() )
             {
-                tempResult = tempEntry;
-            }
-            else
-            {
-                tempResult = new ClonedServerEntrySearch( tempEntry );
-            }
+                boolean accepted = true;
 
-            /*
-             * O P T I M I Z A T I O N
-             * -----------------------
-             * 
-             * Don't want to waste cycles on enabling a loop for processing 
-             * filters if we have zero or one filter.
-             */
+                Entry tempEntry = wrapped.get();
 
-            if ( filters.isEmpty() )
-            {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-
-            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
-            {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-
-            /* E N D   O P T I M I Z A T I O N */
-            for ( EntryFilter filter : filters )
-            {
-                // if a filter rejects then short and continue with outer loop
-                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( tempEntry instanceof ClonedServerEntry )
                 {
-                    continue outer;
+                    tempResult = tempEntry;
                 }
+                else
+                {
+                    tempResult = new ClonedServerEntrySearch( tempEntry );
+                }
+
+                /*
+                 * O P T I M I Z A T I O N
+                 * -----------------------
+                 * 
+                 * Don't want to waste cycles on enabling a loop for processing 
+                 * filters if we have zero or one filter.
+                 */
+
+                if ( filters.isEmpty() )
+                {
+                    prefetched = tempResult;
+                    filterContents( prefetched );
+                    return true;
+                }
+
+                if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+                {
+                    prefetched = tempResult;
+                    filterContents( prefetched );
+                    return true;
+                }
+
+                /* E N D   O P T I M I Z A T I O N */
+                for ( EntryFilter filter : filters )
+                {
+                    // if a filter rejects then short and continue with outer loop
+                    if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                    {
+                        continue outer;
+                    }
+                }
+
+                /*
+                 * Here the entry has been accepted by all filters.
+                 */
+                prefetched = tempResult;
+                filterContents( prefetched );
+
+                return true;
             }
-
-            /*
-             * Here the entry has been accepted by all filters.
-             */
-            prefetched = tempResult;
-            filterContents( prefetched );
-
-            return true;
+        }
+        finally
+        {
+            // Switch back the previous transaction
+            txnManager.setCurTxn( previousTxn );
         }
 
         prefetched = null;

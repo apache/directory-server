@@ -174,23 +174,34 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public void beginTransaction( boolean readOnly ) throws Exception
+    public Transaction beginTransaction( boolean readOnly ) throws Exception
     {
         Transaction curTxn = getCurTxn();
 
         if ( curTxn != null )
         {
+            if ( curTxn instanceof ReadOnlyTxn )
+            {
+                Transaction transaction = beginReadOnlyTxn();
+
+                return transaction;
+            }
+
             throw new IllegalStateException( "Cannot begin a txn when txn is already running: " +
                 curTxn );
         }
 
         if ( readOnly )
         {
-            beginReadOnlyTxn();
+            Transaction transaction = beginReadOnlyTxn();
+
+            return transaction;
         }
         else
         {
-            beginReadWriteTxn();
+            Transaction transaction = beginReadWriteTxn();
+
+            return transaction;
         }
     }
 
@@ -206,7 +217,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             throw new IllegalStateException( " trying to commit non existent txn " );
         }
-        
+
         if ( flushFailed )
         {
             throw new IOException( "Flushing of txns failed" );
@@ -223,7 +234,7 @@ class DefaultTxnManager implements TxnManagerInternal
             commitReadWriteTxn( ( ReadWriteTxn ) txn );
         }
 
-        txnVar.set( null );
+        setCurTxn( null );
     }
 
 
@@ -248,7 +259,7 @@ class DefaultTxnManager implements TxnManagerInternal
         }
 
         txn.abortTxn();
-        txnVar.set( null );
+        setCurTxn( null );
     }
 
 
@@ -258,9 +269,9 @@ class DefaultTxnManager implements TxnManagerInternal
     public TxnHandle suspendCurTxn()
     {
         Transaction curTxn = txnVar.get();
-        
-        txnVar.set( null );
-        
+
+        setCurTxn( null );
+
         return curTxn;
     }
 
@@ -268,21 +279,22 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
-    public void resumeTxn( TxnHandle txnHandle)
+    public void resumeTxn( TxnHandle txnHandle )
     {
         if ( txnHandle == null )
         {
             throw new IllegalArgumentException( "Cannot accept a null handle when resuming a txn " );
         }
-        
+
         Transaction curTxn = txnVar.get();
-        
+
         if ( curTxn != null )
         {
-            throw new IllegalStateException( " Trying to resume txn" + txnHandle +" while there is already a txn running:" + curTxn  );
+            throw new IllegalStateException( " Trying to resume txn" + txnHandle
+                + " while there is already a txn running:" + curTxn );
         }
-        
-        txnVar.set( ( Transaction )txnHandle );
+
+        setCurTxn( ( Transaction ) txnHandle );
     }
 
 
@@ -292,6 +304,19 @@ class DefaultTxnManager implements TxnManagerInternal
     public Transaction getCurTxn()
     {
         return ( Transaction ) txnVar.get();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Transaction setCurTxn( TxnHandle transaction )
+    {
+        Transaction previousTransaction = ( Transaction ) txnVar.get();
+
+        txnVar.set( ( Transaction ) transaction );
+
+        return previousTransaction;
     }
 
 
@@ -323,7 +348,7 @@ class DefaultTxnManager implements TxnManagerInternal
      * Begins a read only txn. A read only txn does not put any log edits
      * to the txn log.Its start time is the latest committed txn's commit time. 
      */
-    private void beginReadOnlyTxn()
+    private Transaction beginReadOnlyTxn()
     {
         ReadOnlyTxn txn = new ReadOnlyTxn();
         ReadWriteTxn lastTxnToCheck = null;
@@ -373,7 +398,10 @@ class DefaultTxnManager implements TxnManagerInternal
         //            " pending " + pending.incrementAndGet() );
 
         buildCheckList( txn, lastTxnToCheck );
-        txnVar.set( txn );
+
+        setCurTxn( txn );
+
+        return txn;
     }
 
 
@@ -382,7 +410,7 @@ class DefaultTxnManager implements TxnManagerInternal
      * into the txn log and the lsn of that log record is the
      * start time.
      */
-    private void beginReadWriteTxn() throws Exception
+    private Transaction beginReadWriteTxn() throws Exception
     {
 
         ReadWriteTxn txn = new ReadWriteTxn();
@@ -456,7 +484,9 @@ class DefaultTxnManager implements TxnManagerInternal
         // Finally build the check list
         buildCheckList( txn, lastTxnToCheck );
 
-        txnVar.set( txn );
+        setCurTxn( txn );
+
+        return txn;
     }
 
 
