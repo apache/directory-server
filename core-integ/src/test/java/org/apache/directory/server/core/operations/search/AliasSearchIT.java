@@ -573,10 +573,11 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> nextResults = new ArrayList<String>();
 
-        ExprNode exprNode = FilterParser.parse(getService().getSchemaManager(), filter);
+        ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), filter );
         EntryFilteringCursor cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();
+
         while ( cursor.next() )
         {
             nextResults.add( cursor.get().getDn().getName() );
@@ -586,6 +587,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             List<String> prevResults = new ArrayList<String>();
             cursor.afterLast();
+
             while ( cursor.previous() )
             {
                 prevResults.add( 0, cursor.get().getDn().getName() );
@@ -598,6 +600,8 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             LOG.warn( "Partition doesn't support previous test" );
         }
+
+        cursor.close();
 
         return nextResults;
     }
