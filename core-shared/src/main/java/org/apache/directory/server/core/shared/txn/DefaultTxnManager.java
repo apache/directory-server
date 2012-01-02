@@ -177,12 +177,20 @@ class DefaultTxnManager implements TxnManagerInternal
     public Transaction beginTransaction( boolean readOnly ) throws Exception
     {
         Transaction curTxn = getCurTxn();
+        Transaction transaction = null;
 
         if ( curTxn != null )
         {
             if ( curTxn instanceof ReadOnlyTxn )
             {
-                Transaction transaction = beginReadOnlyTxn();
+                if ( readOnly )
+                {
+                    transaction = beginReadOnlyTxn();
+                }
+                else
+                {
+                    transaction = beginReadWriteTxn();
+                }
 
                 return transaction;
             }
@@ -193,16 +201,14 @@ class DefaultTxnManager implements TxnManagerInternal
 
         if ( readOnly )
         {
-            Transaction transaction = beginReadOnlyTxn();
-
-            return transaction;
+            transaction = beginReadOnlyTxn();
         }
         else
         {
-            Transaction transaction = beginReadWriteTxn();
-
-            return transaction;
+            transaction = beginReadWriteTxn();
         }
+
+        return transaction;
     }
 
 
