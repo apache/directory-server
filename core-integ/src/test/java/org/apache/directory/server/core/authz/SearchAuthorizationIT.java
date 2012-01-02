@@ -67,7 +67,6 @@ import org.junit.runner.RunWith;
 @CreateDS(enableAccessControl = true, name = "SearchAuthorizationIT")
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
-
     // to avoid creating too many connections during recursive operations
     private LdapConnection reusableAdminCon;
 
@@ -760,7 +759,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         deleteAccessControlSubentry( "excludeOUValue" );
 
         // now add a subentry that enables anyone to search an entry below ou=system
-        // down two more rdns for DNs of a max size of 3.  This time we should be able
+        // down two more rdns for DNs of a max size of 2.  This time we should be able
         // to see the telephoneNumber attribute
         createAccessControlSubentry( "includeAllAttributeTypesAndValues", "{ maximum 2 }",
             "{ " +
@@ -783,7 +782,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // again we should find four entries
         assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
 
-        // check now to make sure the telephoneNumber attribute is present in results
+        // check now to make sure the ou=testEntry entry is present in results
         for ( Entry result : results.values() )
         {
             assertTrue( result.get( "ou" ).contains( "testEntry" ) );
