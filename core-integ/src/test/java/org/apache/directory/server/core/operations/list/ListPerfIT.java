@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.list;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -38,7 +39,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class ListPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -47,30 +48,31 @@ public class ListPerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfList() throws Exception
     {
-        ListOperationContext listContext = new ListOperationContext( getService().getAdminSession(), new Dn( "ou=system" ) );
+        ListOperationContext listContext = new ListOperationContext( getService().getAdminSession(), new Dn(
+            "ou=system" ) );
         EntryFilteringCursor cursor = getService().getOperationManager().list( listContext );
 
         assertNotNull( cursor );
         int nb = 0;
-        
+
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
             nb++;
-            
+
             assertNotNull( entry );
         }
-        
+
         cursor.close();
-        
+
         assertEquals( 5, nb );
-        
+
         int nbIterations = 150000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 1000 == 0 )
@@ -87,24 +89,26 @@ public class ListPerfIT extends AbstractLdapTestUnit
             }
 
             nb = 0;
+            listContext.setCurrentInterceptor( 0 );
             cursor = getService().getOperationManager().list( listContext );
 
             while ( cursor.next() )
             {
                 Entry entry = cursor.get();
                 nb++;
-                
+
                 assertNotNull( entry );
             }
-            
+
             cursor.close();
-            
+
             assertEquals( 5, nb );
         }
-            
+
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta list: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta list: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
     }
 }

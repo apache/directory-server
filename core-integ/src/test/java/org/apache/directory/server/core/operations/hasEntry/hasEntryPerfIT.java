@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.hasEntry;
 
+
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.api.OperationEnum;
@@ -35,7 +36,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class hasEntryPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -45,7 +46,8 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
     public void testPerfHasEntry() throws Exception
     {
         Dn adminDn = new Dn( "uid=admin, ou=system" );
-        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( getService().getAdminSession(), adminDn );
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( getService().getAdminSession(),
+            adminDn );
         hasEntryContext.setInterceptors( getService().getInterceptors( OperationEnum.HAS_ENTRY ) );
         boolean hasEntry = getService().getOperationManager().hasEntry( hasEntryContext );
 
@@ -55,7 +57,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 1000 == 0 )
@@ -71,12 +73,14 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
+            hasEntryContext.setCurrentInterceptor( 0 );
             hasEntry = getService().getOperationManager().hasEntry( hasEntryContext );
         }
-        
+
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta hasEntry: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta hasEntry: " + deltaWarmed + "( "
+            + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
     }
 }
