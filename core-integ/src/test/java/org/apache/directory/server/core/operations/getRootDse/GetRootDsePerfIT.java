@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.getRootDse;
 
+
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
@@ -34,7 +35,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class GetRootDsePerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -52,7 +53,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 1000 == 0 )
@@ -68,12 +69,14 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
+            getRootDseContext.setCurrentInterceptor( 0 );
             rootDse = getService().getOperationManager().getRootDse( getRootDseContext );
         }
-        
+
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta getRootDSE: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta getRootDSE: " + deltaWarmed + "( "
+            + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
     }
 }
