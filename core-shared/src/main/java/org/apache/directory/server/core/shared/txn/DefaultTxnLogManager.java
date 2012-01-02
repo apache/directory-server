@@ -19,27 +19,26 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.UUID;
 
-import org.apache.directory.server.core.api.log.UserLogRecord;
-import org.apache.directory.server.core.api.log.Log;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
-
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-
-import org.apache.directory.server.core.api.txn.TxnLogManager;
-import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 
 
 /**
@@ -50,13 +49,14 @@ public class DefaultTxnLogManager implements TxnLogManager
 {
     /** Write ahead log */
     private Log wal;
-    
+
     /** Txn Manager */
     private TxnManagerInternal txnManager;
-    
+
     /** Txn Manager Factory */
     TxnManagerFactory txnManagerFactory;
-    
+
+
     /**
      * Inits the the txn log manager
      * 
@@ -69,21 +69,21 @@ public class DefaultTxnLogManager implements TxnLogManager
         this.txnManager = txnManagerFactory.txnManagerInternalInstance();
         this.txnManagerFactory = txnManagerFactory;
     }
-    
-    
+
+
     public void uninit()
     {
-       // Do nothing
+        // Do nothing
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void log( LogEdit logEdit, boolean sync ) throws Exception
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( curTxn == null )
         {
             /*
@@ -92,18 +92,18 @@ public class DefaultTxnLogManager implements TxnLogManager
              *  partitions directly
              */
             logEdit.apply( false );
-            
+
             return;
         }
-       
-        if ( ! ( curTxn instanceof ReadWriteTxn ) )
+
+        if ( !( curTxn instanceof ReadWriteTxn ) )
         {
             throw new IllegalStateException( "Trying to log logedit without ReadWriteTxn" );
         }
-       
-        ReadWriteTxn txn = (ReadWriteTxn)curTxn;
+
+        ReadWriteTxn txn = ( ReadWriteTxn ) curTxn;
         UserLogRecord logRecord = txn.getUserLogRecord();
-       
+
         ObjectOutputStream out = null;
         ByteArrayOutputStream bout = null;
         byte[] data;
@@ -122,22 +122,22 @@ public class DefaultTxnLogManager implements TxnLogManager
             {
                 bout.close();
             }
-           
+
             if ( out != null )
             {
                 out.close();
             }
         }
-       
+
         logRecord.setData( data, data.length );
-       
+
         log( logRecord, sync );
-       
+
         logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
         txn.addLogEdit( logEdit );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -149,92 +149,96 @@ public class DefaultTxnLogManager implements TxnLogManager
         }
         catch ( InvalidLogException e )
         {
-            throw new IOException(e);
+            throw new IOException( e );
         }
     }
-   
-   
+
+
     /**
      * {@inheritDoc}
      */
-    public Entry mergeUpdates(Dn partitionDn, UUID entryID,  Entry entry )
+    public Entry mergeUpdates( Dn partitionDn, UUID entryID, Entry entry )
     {
-         Transaction curTxn = txnManager.getCurTxn();
-         
-         if ( ( curTxn == null ) )
-         {
-             throw new IllegalStateException( "Trying to merge with log wihout txn" );
-         }
-        
+        Transaction curTxn = txnManager.getCurTxn();
+
+        if ( ( curTxn == null ) )
+        {
+            throw new IllegalStateException( "Trying to merge with log wihout txn" );
+        }
+
         return curTxn.mergeUpdates( partitionDn, entryID, entry );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public UUID mergeForwardLookup(Dn partitionDN, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator )
+    public UUID mergeForwardLookup( Dn partitionDN, String attributeOid, Object key, UUID curId,
+        Comparator<Object> valueComparator )
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
             throw new IllegalStateException( "Trying to merge with log wihout txn" );
         }
-        
+
         return curTxn.mergeForwardLookup( partitionDN, attributeOid, key, curId, valueComparator );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public Object mergeReversLookup(Dn partitionDN, String attributeOid,  UUID id, Object curValue )
+    public Object mergeReversLookup( Dn partitionDN, String attributeOid, UUID id, Object curValue )
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
             throw new IllegalStateException( "Trying to merge with log wihout txn" );
         }
-        
+
         return curTxn.mergeReverseLookup( partitionDN, attributeOid, id, curValue );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists )
+    public boolean mergeExistence( Dn partitionDN, String attributeOid, IndexEntry<?> indexEntry,
+        boolean currentlyExists )
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
             throw new IllegalStateException( "Trying to merge with log wihout txn" );
         }
-        
-      
+
         return curTxn.mergeExistence( partitionDN, attributeOid, indexEntry, currentlyExists );
     }
-    
-   
+
+
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception
+    public IndexCursor<Object> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor,
+        IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey,
+        UUID onlyIDKey ) throws Exception
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
             return wrappedCursor;
         }
-        
-        return new IndexCursorWrapper( txnManagerFactory, partitionDn, wrappedCursor, comparator, attributeOid, forwardIndex, onlyValueKey, onlyIDKey );
+
+        return new IndexCursorWrapper( txnManagerFactory, partitionDn, wrappedCursor, comparator, attributeOid,
+            forwardIndex, onlyValueKey, onlyIDKey );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -242,31 +246,31 @@ public class DefaultTxnLogManager implements TxnLogManager
     public Index<Object> wrap( Dn partitionDn, Index<?> wrappedIndex ) throws Exception
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
-            return ( Index<Object> )wrappedIndex;
+            return ( Index<Object> ) wrappedIndex;
         }
-        
+
         return new IndexWrapper( txnManagerFactory, partitionDn, ( Index<Object> ) wrappedIndex );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public MasterTable wrap( Dn partitionDn, MasterTable wrappedTable ) throws Exception
     {
         Transaction curTxn = txnManager.getCurTxn();
-        
+
         if ( ( curTxn == null ) )
         {
             return wrappedTable;
         }
-        
+
         return new MasterTableWrapper( txnManagerFactory, partitionDn, wrappedTable );
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -314,7 +318,7 @@ public class DefaultTxnLogManager implements TxnLogManager
         else
         {
             txn.addWrite( dnSet );
-            
+
             // Every written dn set is also read
             txn.addRead( dnSet );
         }
