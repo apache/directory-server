@@ -203,7 +203,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             register( authenticator, directoryService );
         }
 
-        loadPwdPolicyStateAtributeTypes();
+        loadPwdPolicyStateAttributeTypes();
     }
 
 
@@ -1184,7 +1184,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * 
      * @throws LdapException If the initialization failed
      */
-    public void loadPwdPolicyStateAtributeTypes() throws LdapException
+    public void loadPwdPolicyStateAttributeTypes() throws LdapException
     {
         if ( directoryService.isPwdPolicyEnabled() )
         {
