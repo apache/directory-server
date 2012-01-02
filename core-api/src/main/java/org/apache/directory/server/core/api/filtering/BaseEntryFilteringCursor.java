@@ -450,7 +450,12 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         Entry tempResult = null;
 
         // Switch the current transaction
-        TxnHandle previousTxn = txnManager.setCurTxn( transaction );
+        TxnHandle previousTxn = null;
+
+        if ( txnManager != null )
+        {
+            previousTxn = txnManager.setCurTxn( transaction );
+        }
 
         try
         {
@@ -513,7 +518,10 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         finally
         {
             // Switch back the previous transaction
-            txnManager.setCurTxn( previousTxn );
+            if ( txnManager != null )
+            {
+                txnManager.setCurTxn( previousTxn );
+            }
         }
 
         prefetched = null;
