@@ -51,10 +51,11 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( name = "SearchWithIndicesIT" )
+@CreateDS(name = "SearchWithIndicesIT")
 public class SearchWithIndicesIT extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
+
 
     @Before
     public void createData() throws Exception
@@ -73,7 +74,8 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            connection.modify( "cn=nis,ou=schema", new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled", "TRUE" ) );
+            connection.modify( "cn=nis,ou=schema", new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                "m-disabled", "TRUE" ) );
         }
 
         nisEntry = connection.lookup( "cn=nis,ou=schema" );
@@ -82,7 +84,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         Partition systemPartition = getService().getSystemPartition();
         DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
         dsFactory.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
-        
+
         // Restart the service so that the index is created
         getService().shutdown();
         getService().startup();
@@ -102,13 +104,13 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     private void addNisPosixGroup( String name, int gid ) throws Exception
     {
         connection.add(
-            new DefaultEntry( 
-                "cn=" + name + ",ou=groups, ou=system",
+            new DefaultEntry(
+                "cn=" + name + ",ou=groups,ou=system",
                 "objectClass: top",
                 "objectClass: posixGroup",
                 "cn", name,
                 "gidNumber", Integer.toString( gid )
-                ) );
+            ) );
     }
 
 
@@ -129,9 +131,10 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
 
         while ( cursor.next() )
         {
-            results.add( cursor.get().getDn().getName() );
+            String group = cursor.get().getDn().getName();
+            results.add( group );
         }
-        
+
         cursor.close();
 
         return results;
@@ -141,20 +144,13 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     @Test
     public void testLessThanSearchWithIndices() throws Exception
     {
-        Set<String> results = searchGroups( "(gidNumber<=5)" );
-        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
-        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=4)" );
+        Set<String> results = searchGroups( "(gidNumber<=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
-        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
         results = searchGroups( "(gidNumber<=3)" );
@@ -165,13 +161,21 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=0)" );
+        results = searchGroups( "(gidNumber<=4)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
-        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
-        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
-        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=5)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
         results = searchGroups( "(gidNumber<=-1)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
