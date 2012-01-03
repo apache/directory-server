@@ -1369,12 +1369,11 @@ public class AddIT extends AbstractLdapTestUnit
 
         Dn dn = new Dn( "cn=Kate Bush," + BASE );
 
-        Entry personEntry = new DefaultEntry();
-        personEntry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
-        personEntry.add( SchemaConstants.CN_AT, "Kate Bush" );
-        personEntry.add( SchemaConstants.SN_AT, "Bush" );
-        personEntry.add( "nonExistingAttribute", "value" );
-        personEntry.setDn( dn );
+        Entry personEntry = new DefaultEntry( dn,
+            "objectClass: person",
+            "cn: Kate Bush",
+            "sn: Bush",
+            "nonExistingAttribute: value" );
 
         try
         {
