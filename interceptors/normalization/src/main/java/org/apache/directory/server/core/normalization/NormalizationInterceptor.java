@@ -27,6 +27,7 @@ import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -75,6 +76,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** a filter node value normalizer and undefined node remover */
     private FilterNormalizingVisitor normVisitor;
 
+
     /**
      * Creates a new instance of a NormalizationInterceptor.
      */
@@ -82,7 +84,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.NORMALIZATION_INTERCEPTOR );
     }
-    
+
 
     /**
      * Initialize the registries, normalizers.
@@ -109,6 +111,22 @@ public class NormalizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
+    public void add( AddOperationContext addContext ) throws LdapException
+    {
+        Entry entry = addContext.getEntry();
+
+        if ( !entry.isSchemaAware() )
+        {
+            entry.apply( schemaManager );
+        }
+
+        next( addContext );
+    }
+
+
     /**
      * {@inheritDoc}
      */

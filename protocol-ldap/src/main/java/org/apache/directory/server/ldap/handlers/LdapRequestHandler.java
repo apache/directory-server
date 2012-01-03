@@ -65,8 +65,8 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
     /** Txn Manager */
     protected TxnManager txnManager;
-    
-    
+
+
     /**
      * @return The associated ldap server instance
      */
@@ -83,9 +83,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     public final void setLdapServer( LdapServer ldapServer )
     {
         this.ldapServer = ldapServer;
-        
+
         DirectoryService service = ldapServer.getDirectoryService();
-        
+
         if ( service != null )
         {
             txnManager = ldapServer.getDirectoryService().getTxnManager();
@@ -257,6 +257,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
+
         if ( e instanceof LdapOperationException )
         {
             code = ( ( LdapOperationException ) e ).getResultCode();
@@ -284,7 +285,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         result.setDiagnosticMessage( msg );
 
-        if ( e instanceof LdapOperationException)
+        if ( e instanceof LdapOperationException )
         {
             LdapOperationException ne = ( LdapOperationException ) e;
 
@@ -294,7 +295,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( (Dn) ne.getResolvedDn() );
+                result.setMatchedDn( ( Dn ) ne.getResolvedDn() );
             }
 
             // Add the referrals if necessary
@@ -304,7 +305,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
                 do
                 {
-                    String ref = ( (LdapReferralException) e ).getReferralInfo();
+                    String ref = ( ( LdapReferralException ) e ).getReferralInfo();
                     referrals.addLdapUrl( ref );
                 }
                 while ( ( ( LdapReferralException ) e ).skipReferral() );

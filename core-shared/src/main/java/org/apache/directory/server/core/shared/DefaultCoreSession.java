@@ -89,13 +89,13 @@ public class DefaultCoreSession implements CoreSession
 {
     /** The DirectoryService we are connected to */
     private final DirectoryService directoryService;
-    
+
     /** The Principal used to process operations */
     private final LdapPrincipal authenticatedPrincipal;
-    
+
     /** The anonymous principal, if we have to process operation as anonymous */
     private final LdapPrincipal anonymousPrincipal;
-    
+
     /** The authorized principal, which will be used when a user has been authorized */
     private LdapPrincipal authorizedPrincipal;
 
@@ -198,6 +198,7 @@ public class DefaultCoreSession implements CoreSession
         addContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+
         try
         {
             operationManager.add( addContext );
@@ -226,7 +227,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else if ( value instanceof byte[] )
             {
-                val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
+                val = new StringValue( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
             }
             else
             {
@@ -237,7 +238,7 @@ public class DefaultCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
+                val = new BinaryValue( attributeType, Strings.getBytesUtf8( ( String ) value ) );
             }
             else if ( value instanceof byte[] )
             {
@@ -445,7 +446,7 @@ public class DefaultCoreSession implements CoreSession
     public boolean isAdministrator()
     {
         String normName = getEffectivePrincipal().getName();
-        
+
         return normName.equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
 
@@ -535,7 +536,7 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
         LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
-        
+
         if ( controls != null )
         {
             lookupContext.addRequestControls( controls );
@@ -889,7 +890,7 @@ public class DefaultCoreSession implements CoreSession
         deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        
+
         try
         {
             operationManager.delete( deleteContext );
@@ -902,8 +903,8 @@ public class DefaultCoreSession implements CoreSession
 
         deleteRequest.getResultResponse().addAllControls( deleteContext.getResponseControls() );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -920,7 +921,7 @@ public class DefaultCoreSession implements CoreSession
     {
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
-        
+
         return operationManager.hasEntry( hasEntryContext );
     }
 
@@ -1090,7 +1091,7 @@ public class DefaultCoreSession implements CoreSession
     public void unbind() throws LdapException
     {
         UnbindOperationContext unbindContext = new UnbindOperationContext( this );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.unbind( unbindContext );
     }
@@ -1102,7 +1103,7 @@ public class DefaultCoreSession implements CoreSession
     public void unbind( UnbindRequest unbindRequest ) throws LdapException
     {
         UnbindOperationContext unbindContext = new UnbindOperationContext( this, unbindRequest );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.unbind( unbindContext );
     }
