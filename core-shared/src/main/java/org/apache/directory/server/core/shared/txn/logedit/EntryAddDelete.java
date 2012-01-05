@@ -26,17 +26,17 @@ import java.io.ObjectOutput;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
+ * A Change class for entry addition or deletion
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryAddDelete extends AbstractDataChange implements EntryModification
+public class EntryAddDelete implements EntryModification
 {
     /** Added or deleted entry */
     private Entry entry;
@@ -76,7 +76,7 @@ public class EntryAddDelete extends AbstractDataChange implements EntryModificat
      */
     public Entry applyModification( Partition partition, Entry curEntry, UUID entryId, long changeLsn, boolean recovery )
     {
-        if ( type == EntryAddDelete.Type.ADD )
+        if ( type == Type.ADD )
         {
             if ( curEntry != null )
             {
@@ -139,11 +139,14 @@ public class EntryAddDelete extends AbstractDataChange implements EntryModificat
     }
 
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "EntryAddDelete change : " );
+        sb.append( "EntryAddDelete : " );
         sb.append( type );
 
         if ( type == Type.ADD )

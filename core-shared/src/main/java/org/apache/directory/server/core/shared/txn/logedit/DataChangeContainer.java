@@ -41,8 +41,9 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
- * A container for index and entry changes. If any entry change is contained, then they are for a single entry.All changes 
- * contained for an entry belong to a single version and can be atomically applied to the entry in question.
+ * A container for index and entry changes. If any entry change is contained, then they are 
+ * for a single entry. All changes contained for an entry belong to a single version and 
+ * can be atomically applied to the entry in question.
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -143,7 +144,7 @@ public class DataChangeContainer extends AbstractLogEdit
         boolean entryExisted = false;
         Entry originalEntry = null;
 
-        // TODO find the partition from the dn if changeContainer doesnt have it.
+        // TODO find the partition from the dn if changeContainer doesn't have it.
 
         if ( entryID != null )
         {
@@ -157,22 +158,17 @@ public class DataChangeContainer extends AbstractLogEdit
             }
         }
 
-        Iterator<DataChange> dit = changes.iterator();
-        DataChange nextChange;
-
-        while ( dit.hasNext() )
+        for ( DataChange change : changes )
         {
-            nextChange = dit.next();
-
-            if ( ( nextChange instanceof EntryModification ) )
+            if ( ( change instanceof EntryModification ) )
             {
-                EntryModification entryModification = ( EntryModification ) nextChange;
+                EntryModification entryModification = ( EntryModification ) change;
 
                 curEntry = entryModification.applyModification( partition, curEntry, entryID, changeLsn, false );
             }
             else
             {
-                IndexModification indexModification = ( IndexModification ) nextChange;
+                IndexModification indexModification = ( IndexModification ) change;
                 indexModification.applyModification( partition, false );
             }
         }
@@ -194,7 +190,8 @@ public class DataChangeContainer extends AbstractLogEdit
 
 
     /**
-     * Applies the updates made by this log edit to the entry identified by the entryID and partition dn. 
+     * Applies the updates made by this log edit to the entry identified by the entryID 
+     * and partition dn. 
      *
      * @param entryPartitionDn dn of the partition of the entry
      * @param id id of the entry
@@ -230,16 +227,12 @@ public class DataChangeContainer extends AbstractLogEdit
         if ( applyChanges )
         {
             long changeLsn = getLogAnchor().getLogLSN();
-            Iterator<DataChange> dit = changes.iterator();
-            DataChange nextChange;
 
-            while ( dit.hasNext() )
+            for ( DataChange change : changes )
             {
-                nextChange = dit.next();
-
-                if ( nextChange instanceof EntryModification )
+                if ( change instanceof EntryModification )
                 {
-                    EntryModification entryModification = ( EntryModification ) nextChange;
+                    EntryModification entryModification = ( EntryModification ) change;
 
                     if ( needToCloneOnChange )
                     {

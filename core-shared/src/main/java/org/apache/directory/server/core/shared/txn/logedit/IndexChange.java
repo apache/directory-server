@@ -27,15 +27,15 @@ import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.IndexModification;
 
 
 /**
+ * A Change class for index modification
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexChange extends AbstractDataChange implements IndexModification
+public class IndexChange implements IndexModification
 {
     /** Index this change is done on */
     private transient Index<?> index;
@@ -117,7 +117,8 @@ public class IndexChange extends AbstractDataChange implements IndexModification
 
         if ( type == Type.ADD )
         {
-            // During recovery, idex might have already been added. But it should not hurt to readd the index entry.
+            // During recovery, index might have already been added.
+            // But it should not hurt to read the index entry.
             index.add( key, id );
         }
         else
@@ -135,7 +136,7 @@ public class IndexChange extends AbstractDataChange implements IndexModification
 
                 if ( forwardExists != reverseExists )
                 {
-                    // We assume readding the same entry to an index wont hurt
+                    // We assume reading the same entry to an index wont hurt
                     index.add( key, id );
 
                     index.drop( key, id );
@@ -151,7 +152,6 @@ public class IndexChange extends AbstractDataChange implements IndexModification
 
 
     @Override
-    @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         oid = in.readUTF();
@@ -177,6 +177,9 @@ public class IndexChange extends AbstractDataChange implements IndexModification
     }
 
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

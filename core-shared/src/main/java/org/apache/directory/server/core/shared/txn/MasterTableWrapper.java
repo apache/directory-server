@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
 import java.util.Comparator;
 import java.util.UUID;
 
@@ -26,9 +27,9 @@ import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+
 
 /**
  * 
@@ -38,22 +39,22 @@ public class MasterTableWrapper implements MasterTable
 {
     /** Wrapped master table */
     private MasterTable wrappedTable;
-    
+
     /** partition the table belongs to */
     private Dn partitionDn;
-    
+
     /** Txn log manager */
     private TxnLogManager logManager;
-    
-    
+
+
     public MasterTableWrapper( TxnManagerFactory txnManagerFactory, Dn partitionDn, MasterTable wrappedTable )
     {
         this.partitionDn = partitionDn;
         this.wrappedTable = wrappedTable;
         logManager = txnManagerFactory.txnLogManagerInstance();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -70,8 +71,8 @@ public class MasterTableWrapper implements MasterTable
     {
         wrappedTable.resetCounter();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -95,7 +96,7 @@ public class MasterTableWrapper implements MasterTable
      */
     public String getName()
     {
-       return wrappedTable.getName(); 
+        return wrappedTable.getName();
     }
 
 
@@ -123,7 +124,7 @@ public class MasterTableWrapper implements MasterTable
     public boolean has( UUID key, Entry value ) throws Exception
     {
         Entry stored = get( key );
-        
+
         return ( ( stored != null ) && stored.equals( value ) );
     }
 
@@ -173,10 +174,10 @@ public class MasterTableWrapper implements MasterTable
         {
             return null;
         }
-        
+
         Entry originalEntry = wrappedTable.get( key );
         Entry entry = logManager.mergeUpdates( partitionDn, key, originalEntry );
-        
+
         return entry;
     }
 
@@ -186,7 +187,7 @@ public class MasterTableWrapper implements MasterTable
      */
     public void put( UUID key, Entry value ) throws Exception
     {
-        wrappedTable.put( key, value ); 
+        wrappedTable.put( key, value );
     }
 
 
@@ -195,7 +196,7 @@ public class MasterTableWrapper implements MasterTable
      */
     public void remove( UUID key ) throws Exception
     {
-        wrappedTable.remove( key ); 
+        wrappedTable.remove( key );
     }
 
 
@@ -215,7 +216,7 @@ public class MasterTableWrapper implements MasterTable
     {
         return wrappedTable.cursor();
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -251,7 +252,7 @@ public class MasterTableWrapper implements MasterTable
     {
         return wrappedTable.count( key );
     }
-    
+
 
     /**
      * {@inheritDoc}

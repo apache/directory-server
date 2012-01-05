@@ -19,9 +19,22 @@
  */
 package org.apache.directory.server.core.api.txn.logedit;
 
+
 import org.apache.directory.server.core.api.partition.Partition;
 
+
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface IndexModification extends DataChange
 {
+    /**
+     * Apply the modification to the index for a given partition. 
+     * 
+     * @param partition The partition for which we must update the index
+     * @param recovery Tells if we will update the forward and reverse index
+     * @throws Exception If the operation failed
+     */
     void applyModification( Partition partition, boolean recovery ) throws Exception;
 }

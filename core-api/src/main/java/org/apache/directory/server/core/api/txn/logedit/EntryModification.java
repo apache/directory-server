@@ -19,12 +19,29 @@
  */
 package org.apache.directory.server.core.api.txn.logedit;
 
+
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
+
+/**
+ * An interface to expose the applyModification method for all the Entry Change instances.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public interface EntryModification extends DataChange
 {
+    /**
+     * Apply the modification to the ChangeEntry
+     * 
+     * @param partition The partition in which the entry is stored
+     * @param curEntry The current entry which will be modified
+     * @param entrId The entry UUID
+     * @param changeLsn The LSN 
+     * @param recovery If we are in recovery mode
+     * @return The modified entry
+     */
     Entry applyModification( Partition partition, Entry curEntry, UUID entrId, long changeLsn, boolean recovery );
 }

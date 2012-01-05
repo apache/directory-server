@@ -19,22 +19,22 @@
  */
 package org.apache.directory.server.core.api.txn;
 
-import org.apache.directory.server.core.api.partition.index.Index;
-import org.apache.directory.server.core.api.partition.index.IndexCursor;
-import org.apache.directory.server.core.api.partition.index.IndexComparator;
-import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.partition.index.MasterTable;
-import org.apache.directory.server.core.api.txn.logedit.LogEdit;
-
-import org.apache.directory.server.core.api.log.UserLogRecord;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
-
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.UUID;
+
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.IndexComparator;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.MasterTable;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
+
 
 /**
  * 
@@ -50,8 +50,8 @@ public interface TxnLogManager
      * @throws IOException 
      */
     void log( LogEdit logEdit, boolean sync ) throws Exception;
-    
-    
+
+
     /**
      * Logs the given log record for the txn associated with the current thread
      *
@@ -60,19 +60,20 @@ public interface TxnLogManager
      * @throws Exception 
      */
     void log( UserLogRecord logRecord, boolean sync ) throws Exception;
-    
+
+
     /**
      * Provide a transactionally consistent view on the entry identified
      * by the partitionDn+entryID by applying the necessary updates from the txn log
      * to the entry. 
      *
      * @param partitionDN dn of the partition the entry lives in
-     * @param entryID id of the entry
      * @param entry current version of the entry the txn has
      * @return
      */
     Entry mergeUpdates(Dn partitionDN, UUID entryID,  Entry entry );
     
+
 
     /**
      * Checks all the updates done on the given index for the given key and returns 
@@ -84,9 +85,10 @@ public interface TxnLogManager
      * @param valueComp value comparator
      * @return id corresponding to the key
      */
-    UUID mergeForwardLookup(Dn partitionDN, String attributeOid,  Object key, UUID curId, Comparator<Object> valueComparator );
-    
-    
+    UUID mergeForwardLookup( Dn partitionDN, String attributeOid, Object key, UUID curId,
+        Comparator<Object> valueComparator );
+
+
     /**
      * Checks all the updates done on the given index for the given id and returns 
      * the latest version of the corressponding value
@@ -96,9 +98,9 @@ public interface TxnLogManager
      * @param id key to do the lookup on 
      * @return value corresponding to the id
      */
-    Object mergeReversLookup(Dn partitionDN, String attributeOid,  UUID id, Object curValue );
-    
-    
+    Object mergeReversLookup( Dn partitionDN, String attributeOid, UUID id, Object curValue );
+
+
     /**
      * Checks all the updates on the given index entry and returns whether the it exists or not
      *
@@ -108,9 +110,9 @@ public interface TxnLogManager
      * @param currentlyExists true if the index entry currently exists in the underlying partition
      * @return true if the given index entry exists
      */
-    boolean mergeExistence(Dn partitionDN, String attributeOid,  IndexEntry<?> indexEntry, boolean currentlyExists );
+    boolean mergeExistence( Dn partitionDN, String attributeOid, IndexEntry<?> indexEntry, boolean currentlyExists );
 
-    
+
     /**
      * Returns a cursor which provides a transactionally consistent view of the wrapped cursor.
      *
@@ -124,8 +126,10 @@ public interface TxnLogManager
      * @return a cursor which provides a transactionally consistent view of the wrapped cursor 
      * @throws Exception
      */
-    IndexCursor<?> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator, String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
-    
+    IndexCursor<?> wrap( Dn partitionDn, IndexCursor<Object> wrappedCursor, IndexComparator<Object> comparator,
+        String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
+
+
     /**
      * Returns an index which a provides a transactionally consistent view over the given index
      *
@@ -135,8 +139,8 @@ public interface TxnLogManager
      * @throws Exception
      */
     Index<?> wrap( Dn partitionDn, Index<?> wrappedIndex ) throws Exception;
-    
-    
+
+
     /**
      * Returns a transactionally consistent view of the master table
      *
@@ -147,7 +151,7 @@ public interface TxnLogManager
      */
     MasterTable wrap( Dn partitionDn, MasterTable wrappedTable ) throws Exception;
 
-    
+
     /**
      * Adds a dn and a scope on which the current txn depens
      *
@@ -155,8 +159,8 @@ public interface TxnLogManager
      * @param scope scope of the dependency
      */
     void addRead( Dn baseDn, SearchScope scope );
-    
-    
+
+
     /**
      * Adds a dn and a scope which the current txn affected through
      * a modification
