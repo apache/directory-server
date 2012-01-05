@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.txn.logedit;
 
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -27,8 +28,9 @@ import java.util.UUID;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.txn.logedit.AbstractDataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+
 
 /**
  * 
@@ -38,35 +40,37 @@ public class EntryAddDelete extends AbstractDataChange implements EntryModificat
 {
     /** Added or deleted entry */
     private Entry entry;
-    
+
     /** Type of change */
     Type type;
-    
+
+
     // For externalizable
-    public EntryAddDelete(  )
+    public EntryAddDelete()
     {
-        
+
     }
-    
+
+
     public EntryAddDelete( Entry entry, Type type )
     {
         this.entry = entry;
         this.type = type;
     }
-    
-    
+
+
     public Entry getChangedEntry()
     {
         return entry;
     }
-    
-    
+
+
     public Type getType()
     {
         return type;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -110,27 +114,47 @@ public class EntryAddDelete extends AbstractDataChange implements EntryModificat
 
         return curEntry;
     }
-    
-    
+
+
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-     entry = new DefaultEntry();
-     entry.readExternal( in );
-     type = Type.values()[in.readInt()];
+        entry = new DefaultEntry();
+        entry.readExternal( in );
+        type = Type.values()[in.readInt()];
     }
 
 
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-       entry.writeExternal( out );
-       out.writeInt( type.ordinal() );
+        entry.writeExternal( out );
+        out.writeInt( type.ordinal() );
     }
-    
+
     public enum Type
     {
         ADD,
         DELETE
+    }
+
+
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "EntryAddDelete change : " );
+        sb.append( type );
+
+        if ( type == Type.ADD )
+        {
+            sb.append( '\n' ).append( entry );
+        }
+        else
+        {
+            sb.append( entry.getDn() );
+        }
+
+        return sb.toString();
     }
 }

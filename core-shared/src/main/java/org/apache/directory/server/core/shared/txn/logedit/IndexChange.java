@@ -55,6 +55,7 @@ public class IndexChange extends AbstractDataChange implements IndexModification
     /** Whether the index is a system index. False is user index */
     private boolean isSystemIndex;
 
+
     // For externalizable
     public IndexChange()
     {
@@ -101,25 +102,26 @@ public class IndexChange extends AbstractDataChange implements IndexModification
         return type;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void applyModification( Partition partition, boolean recovery ) throws Exception
     {
-        Index<Object> index = ( Index<Object> )partition.getIndex( oid );
-        
+        Index<Object> index = ( Index<Object> ) partition.getIndex( oid );
+
         if ( index == null )
         {
             // TODO decide how to handle index add drop
         }
-        
+
         if ( type == Type.ADD )
         {
             // During recovery, idex might have already been added. But it should not hurt to readd the index entry.
             index.add( key, id );
         }
-        else // delete
+        else
+        // delete
         {
             if ( recovery == false )
             {
@@ -130,12 +132,12 @@ public class IndexChange extends AbstractDataChange implements IndexModification
                 //If forward or reverse index entry existence diffes, first add the index entry and then delete it.
                 boolean forwardExists = index.forward( key, id );
                 boolean reverseExists = index.reverse( id, key );
-                
+
                 if ( forwardExists != reverseExists )
                 {
                     // We assume readding the same entry to an index wont hurt
                     index.add( key, id );
-                    
+
                     index.drop( key, id );
                 }
                 else if ( forwardExists )
@@ -146,8 +148,8 @@ public class IndexChange extends AbstractDataChange implements IndexModification
             }
         }
     }
-    
-    
+
+
     @Override
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -172,5 +174,28 @@ public class IndexChange extends AbstractDataChange implements IndexModification
     {
         ADD,
         DELETE
+    }
+
+
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "IndexChange '" );
+        // The index's name
+        sb.append( index.getAttribute().getName() ).append( "': " );
+
+        // The change' type
+        sb.append( "<" ).append( type ).append( ", " );
+
+        // The entry's UUID
+        sb.append( id ).append( ", " );
+
+        // The key
+        sb.append( key );
+
+        sb.append( ">" );
+
+        return sb.toString();
     }
 }

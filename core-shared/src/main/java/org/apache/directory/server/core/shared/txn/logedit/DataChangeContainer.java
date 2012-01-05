@@ -23,15 +23,11 @@ package org.apache.directory.server.core.shared.txn.logedit;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
 import java.util.Comparator;
-import java.util.List;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
-
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
@@ -40,6 +36,8 @@ import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 import org.apache.directory.server.core.api.txn.logedit.DataChange;
 import org.apache.directory.server.core.api.txn.logedit.EntryModification;
 import org.apache.directory.server.core.api.txn.logedit.IndexModification;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -58,7 +56,7 @@ public class DataChangeContainer extends AbstractLogEdit
 
     /** Partition stored for fast access */
     private transient Partition partition;
-    
+
     /** partition this change applies to */
     private Dn partitionDn;
 
@@ -79,10 +77,12 @@ public class DataChangeContainer extends AbstractLogEdit
         this.partition = partition;
     }
 
+
     public DataChangeContainer( Dn partitionDn )
     {
         this.partitionDn = partitionDn;
     }
+
 
     public long getTxnID()
     {
@@ -100,7 +100,8 @@ public class DataChangeContainer extends AbstractLogEdit
     {
         return partitionDn;
     }
-    
+
+
     public Partition getPartition()
     {
         return partition;
@@ -250,7 +251,7 @@ public class DataChangeContainer extends AbstractLogEdit
                         needToCloneOnChange = false;
                     }
 
-                   curEntry = entryModification.applyModification( partition, curEntry, id, changeLsn, true );
+                    curEntry = entryModification.applyModification( partition, curEntry, id, changeLsn, true );
                 }
             }
 
@@ -263,9 +264,9 @@ public class DataChangeContainer extends AbstractLogEdit
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        
+
         boolean hasID = in.readBoolean();
-        
+
         if ( hasID )
         {
             entryID = UUID.fromString( in.readUTF() );
@@ -274,7 +275,7 @@ public class DataChangeContainer extends AbstractLogEdit
         {
             entryID = null;
         }
-        
+
         txnID = in.readLong();
 
         partitionDn = new Dn();
@@ -295,7 +296,7 @@ public class DataChangeContainer extends AbstractLogEdit
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         DataChange change;
-        
+
         if ( entryID != null )
         {
             out.writeBoolean( true );
@@ -305,7 +306,7 @@ public class DataChangeContainer extends AbstractLogEdit
         {
             out.writeBoolean( false );
         }
-        
+
         out.writeLong( txnID );
 
         partitionDn.writeExternal( out );
