@@ -144,8 +144,8 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
         reverse = new JdbmTable<UUID, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
             recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, null );
         
-        fIndexEntryComparator = new ForwardIndexComparator( comp );
-        rIndexEntryComparator = new ReverseIndexComparator( comp );
+        forwardIndexEntryComparator = new ForwardIndexComparator( comp );
+        reverseIndexEntryComparator = new ReverseIndexComparator( comp );
     }
 
 
