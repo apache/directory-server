@@ -50,6 +50,11 @@
     </dependency>
     
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-component-hub</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
@@ -100,6 +105,7 @@
           <manifestLocation>META-INF</manifestLocation>
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.service.osgi</Bundle-SymbolicName>
+            <Bundle-Activator>org.apache.directory.server.Activator</Bundle-Activator>
           </instructions>
         </configuration>
       </plugin>
