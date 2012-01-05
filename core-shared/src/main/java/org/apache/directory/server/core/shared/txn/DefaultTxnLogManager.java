@@ -54,7 +54,7 @@ public class DefaultTxnLogManager implements TxnLogManager
     private TxnManagerInternal txnManager;
 
     /** Txn Manager Factory */
-    TxnManagerFactory txnManagerFactory;
+    private TxnManagerFactory txnManagerFactory;
 
 
     /**
