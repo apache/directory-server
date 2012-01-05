@@ -665,14 +665,10 @@ class DefaultTxnManager implements TxnManagerInternal
         verifyLock.lock();
 
         //Verify txn and throw conflict exception if necessary
-        Iterator<ReadWriteTxn> it = committedQueue.iterator();
-        ReadWriteTxn toCheckTxn;
         long startTime = txn.getStartTime();
 
-        while ( it.hasNext() )
+        for ( ReadWriteTxn toCheckTxn : committedQueue )
         {
-            toCheckTxn = it.next();
-
             // Check txns that committed after we started 
             if ( toCheckTxn.getCommitTime() < startTime )
             {
@@ -831,7 +827,6 @@ class DefaultTxnManager implements TxnManagerInternal
 
     class LogSyncer extends Thread
     {
-
         @Override
         public void run()
         {
@@ -844,7 +839,6 @@ class DefaultTxnManager implements TxnManagerInternal
                     flushCondition.await( flushInterval, TimeUnit.MILLISECONDS );
                     flushTxns();
                 }
-
             }
             catch ( InterruptedException e )
             {
@@ -861,5 +855,4 @@ class DefaultTxnManager implements TxnManagerInternal
             }
         }
     }
-
 }

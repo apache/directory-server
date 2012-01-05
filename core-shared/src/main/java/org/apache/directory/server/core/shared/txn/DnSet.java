@@ -20,8 +20,10 @@
 
 package org.apache.directory.server.core.shared.txn;
 
-import org.apache.directory.shared.ldap.model.name.Dn;
+
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
+
 
 /**
  * A class representing the set of Dns a read operation depends or the set of Dns a write 
@@ -38,6 +40,12 @@ public class DnSet
     SearchScope dnScope;
 
 
+    /**
+     * Create a new instance of DnSet.
+     * 
+     * @param base The base DN
+     * @param scope The scope
+     */
     public DnSet( Dn base, SearchScope scope )
     {
         baseDn = base;
@@ -45,14 +53,29 @@ public class DnSet
     }
 
 
+    /**
+     * @return The base DN
+     */
     public Dn getBaseDn()
     {
         return baseDn;
     }
 
 
+    /**
+     * @return The scope
+     */
     public SearchScope getScope()
     {
         return dnScope;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "DnSet[" + baseDn + '/' + dnScope + ']';
     }
 }

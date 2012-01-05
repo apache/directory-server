@@ -294,18 +294,10 @@ public class DefaultTxnLogManager implements TxnLogManager
     {
         Transaction curTxn = txnManager.getCurTxn();
 
-        if ( ( curTxn == null ) )
+        // No txn, or read only txn, return without doing anything.
+        if ( ( curTxn == null ) || ( curTxn instanceof ReadOnlyTxn ) )
         {
-            // NO txn, return without doing anything.
             return;
-        }
-
-        // No need to do anything for read only txns
-        if ( !( curTxn instanceof ReadWriteTxn ) )
-        {
-
-            return;
-
         }
 
         DnSet dnSet = new DnSet( baseDn, scope );
