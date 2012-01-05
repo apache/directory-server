@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.shared.ldap.model.schema.comparators.LongComparator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +42,7 @@ import org.junit.Test;
 public class TxnIndexCursorTest
 {
     /** index entry comparator */
-    private ForwardIndexComparator<?> comparator = new ForwardIndexComparator<Long>( LongComparator.INSTANCE );
+    private ForwardIndexComparator<?> comparator = new ForwardIndexComparator<Long>( new LongComparator( null ) );
 
     /** sorted change set for the cursor */
     private TreeSet<IndexEntry<Object>> changedSet;

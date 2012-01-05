@@ -20,21 +20,24 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import java.util.Comparator;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
- * 
+ * A base class used by the tests which need a partition.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LongComparator implements Comparator<Long>
+public class AbstractPartitionTest
 {
-    public static final LongComparator INSTANCE = new LongComparator();
+    /** A partition for this test */
+    protected Partition partition;
 
 
-    public int compare( Long l1, Long l2 )
+    public void setup( Dn dn ) throws LdapInvalidDnException
     {
-        return ( l1 < l2 ? -1 : ( l1.equals( l2 ) ? 0 : 1 ) );
+        partition = new MockPartition( dn );
     }
-
 }

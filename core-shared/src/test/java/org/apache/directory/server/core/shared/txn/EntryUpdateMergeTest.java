@@ -52,10 +52,11 @@ import org.junit.rules.TemporaryFolder;
 
 
 /**
- * 
+ * TODO Add header
+ *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryUpdateMergeTest
+public class EntryUpdateMergeTest extends AbstractPartitionTest
 {
     /** Test partition Dn */
     private Dn dn;
@@ -118,15 +119,36 @@ public class EntryUpdateMergeTest
     }
 
 
+    /**
+     * Utility method to create a new entry
+     */
+    private Entry createEntry( UUID id ) throws Exception
+    {
+        String user = id.toString();
+
+        String dn = "cn=" + user + ",ou=department";
+
+        DefaultEntry entry = new DefaultEntry(
+            schemaManager,
+            dn,
+            "objectClass: person",
+            "cn", user,
+            "sn", user );
+
+        return entry;
+    }
+
+
     @Before
     public void setup() throws IOException, InvalidLogException
     {
         try
         {
-            // Init the partition dn
-            dn = new Dn( "ou=department" );
-
             schemaManager = new DefaultSchemaManager();
+
+            // Init the partition dn
+            dn = new Dn( schemaManager, "ou=department" );
+
             SN_AT = schemaManager.getAttributeType( "sn" );
             GN_AT = schemaManager.getAttributeType( "gn" );
 
@@ -139,54 +161,75 @@ public class EntryUpdateMergeTest
             toAdd = createEntry( addedEntryId );
             toDelete = createEntry( deletedEntryId );
 
-            // Begin a txn and do some entry changes.
-            DataChangeContainer changeContainer = new DataChangeContainer( dn );
+            super.setup( dn );
+
+            // Inject the entries in the Master table (except the entry that we will add)
+            partition.getMasterTable().put( updatedEntryId, toUpdate );
+            partition.getMasterTable().put( deletedEntryId, toDelete );
+
+            // Begin a txn and do some entry changes on the UpdatedEntry
+            DataChangeContainer changeContainer = new DataChangeContainer( partition );
             changeContainer.setEntryID( updatedEntryId );
-            txnManager.beginTransaction( false );
 
-            Attribute attribute = new DefaultAttribute( "sn", SN_AT );
-            attribute.add( "test2" );
+            {
+                txnManager.beginTransaction( false );
 
-            Modification redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
-            Modification undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
-            EntryChange eChange = new EntryChange( redo, undo );
+                // Add a SN value on an existing SN attribute
+                Attribute attribute = new DefaultAttribute( "sn", SN_AT );
+                attribute.add( "test2" );
 
-            changeContainer.getChanges().add( eChange );
+                Modification redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+                Modification undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
+                EntryChange eChange = new EntryChange( redo, undo );
 
-            txnLogManager.log( changeContainer, false );
-            txnManager.commitTransaction();
+                changeContainer.getChanges().add( eChange );
 
-            txnManager.beginTransaction( false );
+                txnLogManager.log( changeContainer, false );
+                txnManager.commitTransaction();
+            }
 
-            changeContainer = new DataChangeContainer( dn );
-            changeContainer.setEntryID( updatedEntryId );
-            attribute = new DefaultAttribute( "gn", GN_AT );
-            attribute.add( "test3" );
+            // Do a second change on the UpdatedEntry
+            {
+                txnManager.beginTransaction( false );
 
-            redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
-            undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
-            eChange = new EntryChange( redo, undo );
+                changeContainer = new DataChangeContainer( partition );
+                changeContainer.setEntryID( updatedEntryId );
 
-            changeContainer.getChanges().add( eChange );
-            txnLogManager.log( changeContainer, false );
+                // Add a GN attribute
+                Attribute attribute = new DefaultAttribute( "gn", GN_AT );
+                attribute.add( "test3" );
 
-            changeContainer = new DataChangeContainer( dn );
-            changeContainer.setEntryID( addedEntryId );
-            EntryAddDelete eAdd = new EntryAddDelete( toAdd, EntryAddDelete.Type.ADD );
+                Modification redo = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+                Modification undo = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
+                EntryChange eChange = new EntryChange( redo, undo );
 
-            changeContainer.getChanges().add( eAdd );
-            txnLogManager.log( changeContainer, false );
+                changeContainer.getChanges().add( eChange );
+                txnLogManager.log( changeContainer, false );
 
-            txnManager.commitTransaction();
+                // Now, add a new entry (AddEntry)
+                changeContainer = new DataChangeContainer( partition );
+                changeContainer.setEntryID( addedEntryId );
+                EntryAddDelete eAdd = new EntryAddDelete( toAdd, EntryAddDelete.Type.ADD );
 
-            txnManager.beginTransaction( false );
+                changeContainer.getChanges().add( eAdd );
+                txnLogManager.log( changeContainer, false );
 
-            changeContainer = new DataChangeContainer( dn );
-            changeContainer.setEntryID( deletedEntryId );
-            EntryAddDelete eDelete = new EntryAddDelete( toDelete, EntryAddDelete.Type.DELETE );
+                txnManager.commitTransaction();
+            }
 
-            changeContainer.getChanges().add( eDelete );
-            txnLogManager.log( changeContainer, false );
+            // Do a third change : delete an entry
+            {
+                txnManager.beginTransaction( false );
+
+                changeContainer = new DataChangeContainer( partition );
+                changeContainer.setEntryID( deletedEntryId );
+                EntryAddDelete eDelete = new EntryAddDelete( toDelete, EntryAddDelete.Type.DELETE );
+
+                changeContainer.getChanges().add( eDelete );
+                txnLogManager.log( changeContainer, false );
+            }
+
+            // Note : the transaction remains open. It will be committed by the teardown method.
 
         }
         catch ( Exception e )
@@ -205,7 +248,6 @@ public class EntryUpdateMergeTest
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
 
@@ -220,18 +262,11 @@ public class EntryUpdateMergeTest
         {
             Entry updated = txnLogManager.mergeUpdates( dn, updatedEntryId, toUpdate );
 
-            String value = updated.get( SN_AT ).getString();
-
-            assertTrue( value.equals( "test2" ) );
-
-            value = updated.get( GN_AT ).getString();
-
-            assertTrue( value.equals( "test3" ) );
-
+            assertTrue( updated.contains( SN_AT, "test2", updatedEntryId.toString() ) );
+            assertTrue( updated.contains( GN_AT, "test3" ) );
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -248,7 +283,6 @@ public class EntryUpdateMergeTest
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -265,22 +299,7 @@ public class EntryUpdateMergeTest
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
-    }
-
-
-    private Entry createEntry( UUID id ) throws Exception
-    {
-        String user = id.toString();
-
-        String dn = "cn=" + user + ",ou=department";
-
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass", "person",
-            "cn", user );
-
-        return entry;
     }
 }

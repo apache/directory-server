@@ -37,6 +37,7 @@ import org.junit.rules.TemporaryFolder;
 
 
 /**
+ * A test for the TxnManager class
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -54,6 +55,7 @@ public class DefaultTxnManagerTest
     /** Txn manager */
     private TxnManagerInternal txnManager;
 
+    /** Creates a temporary folder for each test */
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
@@ -100,19 +102,19 @@ public class DefaultTxnManagerTest
         {
             txnManager.beginTransaction( true );
 
-            assertTrue( txnManager.getCurTxn() != null );
-            assertTrue( txnManager.getCurTxn() instanceof ReadOnlyTxn );
+            Transaction transaction = txnManager.getCurTxn();
+
+            assertTrue( transaction != null );
+            assertTrue( transaction instanceof ReadOnlyTxn );
 
             txnManager.commitTransaction();
         }
         catch ( TxnConflictException e )
         {
-            e.printStackTrace();
             fail();
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -125,14 +127,15 @@ public class DefaultTxnManagerTest
         {
             txnManager.beginTransaction( true );
 
-            assertTrue( txnManager.getCurTxn() != null );
-            assertTrue( txnManager.getCurTxn() instanceof ReadOnlyTxn );
+            Transaction transaction = txnManager.getCurTxn();
+
+            assertTrue( transaction != null );
+            assertTrue( transaction instanceof ReadOnlyTxn );
 
             txnManager.abortTransaction();
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -145,19 +148,19 @@ public class DefaultTxnManagerTest
         {
             txnManager.beginTransaction( false );
 
-            assertTrue( txnManager.getCurTxn() != null );
-            assertTrue( txnManager.getCurTxn() instanceof ReadWriteTxn );
+            Transaction transaction = txnManager.getCurTxn();
+
+            assertTrue( transaction != null );
+            assertTrue( transaction instanceof ReadWriteTxn );
 
             txnManager.commitTransaction();
         }
         catch ( TxnConflictException e )
         {
-            e.printStackTrace();
             fail();
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -170,14 +173,15 @@ public class DefaultTxnManagerTest
         {
             txnManager.beginTransaction( false );
 
-            assertTrue( txnManager.getCurTxn() != null );
-            assertTrue( txnManager.getCurTxn() instanceof ReadWriteTxn );
+            Transaction transaction = txnManager.getCurTxn();
+
+            assertTrue( transaction != null );
+            assertTrue( transaction instanceof ReadWriteTxn );
 
             txnManager.abortTransaction();
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
@@ -189,49 +193,44 @@ public class DefaultTxnManagerTest
         List<ReadWriteTxn> dependentTxns;
         try
         {
-            Transaction txn1 = null;
             txnManager.beginTransaction( false );
-            txn1 = txnManager.getCurTxn();
+            Transaction txn1 = txnManager.getCurTxn();
             txnManager.commitTransaction();
 
-            Transaction txn2 = null;
             txnManager.beginTransaction( false );
-            txn2 = txnManager.getCurTxn();
+            Transaction txn2 = txnManager.getCurTxn();
             txnManager.commitTransaction();
 
-            Transaction txn3 = null;
             txnManager.beginTransaction( true );
-            txn3 = txnManager.getCurTxn();
+            Transaction txn3 = txnManager.getCurTxn();
 
             dependentTxns = txn3.getTxnsToCheck();
+
             assertTrue( dependentTxns.contains( txn1 ) );
             assertTrue( dependentTxns.contains( txn2 ) );
             assertTrue( dependentTxns.contains( txn3 ) == false );
 
             txnManager.commitTransaction();
 
-            Transaction txn4 = null;
             txnManager.beginTransaction( false );
-            txn4 = txnManager.getCurTxn();;
+            Transaction txn4 = txnManager.getCurTxn();
+
             dependentTxns = txn4.getTxnsToCheck();
+
             assertTrue( dependentTxns.contains( txn1 ) );
             assertTrue( dependentTxns.contains( txn2 ) );
             assertTrue( dependentTxns.contains( txn3 ) == false );
             assertTrue( dependentTxns.contains( txn4 ) );
 
             txnManager.commitTransaction();
-
         }
         catch ( TxnConflictException e )
         {
-            e.printStackTrace();
             fail();
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             fail();
         }
     }
-
 }

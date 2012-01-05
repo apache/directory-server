@@ -68,7 +68,6 @@ public class DataChangeContainer extends AbstractLogEdit
     //For externalizable
     public DataChangeContainer()
     {
-
     }
 
 
@@ -76,12 +75,6 @@ public class DataChangeContainer extends AbstractLogEdit
     {
         this.partitionDn = partition.getSuffixDn();
         this.partition = partition;
-    }
-
-
-    public DataChangeContainer( Dn partitionDn )
-    {
-        this.partitionDn = partitionDn;
     }
 
 

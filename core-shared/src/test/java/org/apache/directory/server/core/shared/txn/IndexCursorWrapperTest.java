@@ -32,14 +32,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
-import org.apache.directory.server.core.api.partition.index.GenericIndex;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.comparators.LongComparator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,10 +47,11 @@ import org.junit.rules.TemporaryFolder;
 
 
 /**
+ * TODO Add header
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorWrapperTest
+public class IndexCursorWrapperTest extends AbstractPartitionTest
 {
     /** Test partition Dn */
     private Dn dn;
@@ -60,7 +60,7 @@ public class IndexCursorWrapperTest
     private String attributeOid = "mockOid";
 
     /** Mock index with the mock attributeoid */
-    private MockIndex mockIndex = new MockIndex();
+    private MockIndex mockIndex;
 
     /** Log buffer size : 4096 bytes */
     private int logBufferSize = 1 << 12;
@@ -79,7 +79,7 @@ public class IndexCursorWrapperTest
 
     /** index entry comparator */
     private ForwardIndexComparator<?> comparator = new ForwardIndexComparator<Long>(
-        LongComparator.INSTANCE );
+        new LongComparator( null ) );
 
     /** sorted change set for the cursor */
     private TreeSet<IndexEntry<Object>> changedSet;
@@ -123,6 +123,11 @@ public class IndexCursorWrapperTest
             txnManager = txnManagerFactory.txnManagerInternalInstance();
             txnLogManager = txnManagerFactory.txnLogManagerInstance();
 
+            super.setup( dn );
+
+            MockIndex mockIndex = new MockIndex( attributeOid );
+            ( ( MockPartition ) partition ).addIndex( new MockIndex( attributeOid ) );
+
             // Prepare the to be wrapped cursor
             ForwardIndexEntry<Object> idxEntry;
             changedSet = new TreeSet<IndexEntry<Object>>( ( ForwardIndexComparator<Object> ) comparator );
@@ -151,7 +156,7 @@ public class IndexCursorWrapperTest
             IndexChange idxChange;
 
             // Begin a txn and do some index changes.
-            DataChangeContainer changeContainer = new DataChangeContainer( dn );
+            DataChangeContainer changeContainer = new DataChangeContainer( partition );
             txnManager.beginTransaction( false );
 
             // Add (5,5) missing in the original index 
@@ -175,7 +180,7 @@ public class IndexCursorWrapperTest
             txnManager.commitTransaction();
 
             // Begin another txn and do some more index changes
-            changeContainer = new DataChangeContainer( dn );
+            changeContainer = new DataChangeContainer( partition );
             txnManager.beginTransaction( false );
 
             // Add (4,5) already existing in the original index 
@@ -240,23 +245,23 @@ public class IndexCursorWrapperTest
     {
         try
         {
-            cursorWrapper.afterValue( getUUIDString( 0 ), new Long( 0 ) );
+            cursorWrapper.afterValue( getUUIDString( 0 ), 0L );
             assertTrue( cursorWrapper.next() );
 
             IndexEntry<?> next = cursorWrapper.get();
-            assertTrue( next.getValue().equals( new Long( 0 ) ) );
+            assertTrue( next.getValue().equals( 0L ) );
             assertTrue( next.getId().equals( getUUIDString( 1 ) ) );
 
             assertTrue( cursorWrapper.next() );
             next = cursorWrapper.get();
-            assertTrue( next.getValue().equals( new Long( 1 ) ) );
+            assertTrue( next.getValue().equals( 1L ) );
             assertTrue( next.getId().equals( getUUIDString( 1 ) ) );
 
-            cursorWrapper.afterValue( getUUIDString( 5 ), new Long( 4 ) );
+            cursorWrapper.afterValue( getUUIDString( 5 ), 4L );
             assertTrue( cursorWrapper.next() );
 
             next = cursorWrapper.get();
-            assertTrue( next.getValue().equals( new Long( 5 ) ) );
+            assertTrue( next.getValue().equals( 5L ) );
             assertTrue( next.getId().equals( getUUIDString( 5 ) ) );
         }
         catch ( Exception e )
@@ -394,25 +399,4 @@ public class IndexCursorWrapperTest
 
         return new UUID( high, low );
     }
-
-    class MockIndex extends GenericIndex<Long>
-    {
-        public MockIndex()
-        {
-            super( attributeOid );
-        }
-
-
-        public ForwardIndexComparator<Long> getForwardIndexEntryComparator()
-        {
-            return new ForwardIndexComparator<Long>( LongComparator.INSTANCE );
-        }
-
-
-        public ReverseIndexComparator<Long> getReverseIndexEntryComparator()
-        {
-            return new ReverseIndexComparator<Long>( LongComparator.INSTANCE );
-        }
-    }
-
 }
