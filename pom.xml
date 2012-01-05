@@ -871,6 +871,12 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-component-hub</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
       <!-- Shared dependencies -->
       
       <dependency>
