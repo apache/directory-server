@@ -31,14 +31,14 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndex;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.UUIDComparator;
+import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
@@ -65,7 +65,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
      * default duplicate limit before duplicate keys switch to using a btree for values
      */
     public static final int DEFAULT_DUPLICATE_LIMIT = 512;
-    
+
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
 
@@ -105,12 +105,12 @@ public class JdbmIndex<K> extends AbstractIndex<K>
 
     /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
-    
+
     /** Forward index entry comparator */
-    protected ForwardIndexComparator<K> fIndexEntryComparator;
-    
+    protected ForwardIndexComparator<K> forwardIndexEntryComparator;
+
     /** Reverse index entry comparator */
-    protected ReverseIndexComparator<K> rIndexEntryComparator;
+    protected ReverseIndexComparator<K> reverseIndexEntryComparator;
 
 
     /*
@@ -164,7 +164,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
+
         keyCache = new SynchronizedLRUMap( cacheSize );
         this.attributeType = attributeType;
 
@@ -176,7 +176,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            
+
             e.printStackTrace();
             throw e;
         }
@@ -203,7 +203,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
-        
+
         initialized = true;
     }
 
@@ -234,7 +234,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
          * different entries so the forward map can have more than one value.
          */
         String attributeOid = attributeType.getOid();
-        
+
         if ( attributeOid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) ||
             attributeOid.equals( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) ||
             attributeOid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) ||
@@ -242,7 +242,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
         {
             comp = UUIDComparator.INSTANCE;
         }
-        
+
         comp.setSchemaManager( schemaManager );
 
         forward = new JdbmTable<K, UUID>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
@@ -261,12 +261,13 @@ public class JdbmIndex<K> extends AbstractIndex<K>
         }
         else
         {
-            reverse = new JdbmTable<UUID, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit, recMan,
+            reverse = new JdbmTable<UUID, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                recMan,
                 UUIDComparator.INSTANCE, comp, UUIDSerializer.INSTANCE, null );
         }
-        
-        fIndexEntryComparator = new ForwardIndexComparator( comp );
-        rIndexEntryComparator = new ReverseIndexComparator( comp );
+
+        forwardIndexEntryComparator = new ForwardIndexComparator( comp );
+        reverseIndexEntryComparator = new ReverseIndexComparator( comp );
     }
 
 
@@ -405,7 +406,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
     public synchronized void drop( K attrVal, UUID id ) throws Exception
     {
         K normalizedValue = getNormalized( attrVal );
-        
+
         // The pair to be removed must exists
         if ( forward.has( normalizedValue, id ) )
         {
@@ -455,7 +456,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
     @SuppressWarnings("unchecked")
     public IndexCursor<K> reverseCursor( UUID id ) throws Exception
     {
-        return new IndexCursorAdaptor<K>( (Cursor) reverse.cursor( id ), false );
+        return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor( id ), false );
     }
 
 
@@ -665,17 +666,20 @@ public class JdbmIndex<K> extends AbstractIndex<K>
     {
         return reverse.isDupsEnabled();
     }
-    
+
+
     public ForwardIndexComparator<K> getForwardIndexEntryComparator()
     {
-        return this.fIndexEntryComparator;
+        return forwardIndexEntryComparator;
     }
-    
+
+
     public ReverseIndexComparator<K> getReverseIndexEntryComparator()
     {
-        return this.rIndexEntryComparator;
+        return reverseIndexEntryComparator;
     }
-    
+
+
     /**
      * @see Object#toString()
      */
