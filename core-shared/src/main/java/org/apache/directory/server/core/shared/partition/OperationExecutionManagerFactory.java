@@ -19,27 +19,34 @@
  */
 package org.apache.directory.server.core.shared.partition;
 
+
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
 
+
+/**
+ * @TODO add doc
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class OperationExecutionManagerFactory
 {
     /** Operation Manager instance */
     private OperationExecutionManager executionManager;
-    
-    
-    public  OperationExecutionManagerFactory( TxnManagerFactory txnManagerFactory )
-    {    
+
+
+    public OperationExecutionManagerFactory( TxnManagerFactory txnManagerFactory )
+    {
         executionManager = new DefaultOperationExecutionManager( txnManagerFactory );
     }
-    
-    
+
+
     public void uninit()
     {
         //do nothing;
     }
-    
-    
+
+
     public OperationExecutionManager instance()
     {
         return executionManager;

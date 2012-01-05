@@ -20,34 +20,30 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
-import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.GenericIndex;
-import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
+import org.apache.directory.server.core.api.partition.index.ReverseIndexComparator;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
-
-import org.apache.directory.server.core.api.log.InvalidLogException;
-
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
+import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
 import org.apache.directory.shared.ldap.model.name.Dn;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
-
-import org.apache.directory.server.core.shared.txn.logedit.IndexChange;
-import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.rules.TemporaryFolder;
 
 
 public class IndexCursorWrapperTest
@@ -91,10 +87,9 @@ public class IndexCursorWrapperTest
 
     /** UUID string */
     UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
-    
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-   
 
 
     /**
@@ -146,7 +141,7 @@ public class IndexCursorWrapperTest
                 }
             }
 
-            cursor = new TxnIndexCursor( changedSet, true, null, null, ( ForwardIndexComparator<Object> )comparator );
+            cursor = new TxnIndexCursor( changedSet, true, null, null, ( ForwardIndexComparator<Object> ) comparator );
 
             IndexChange idxChange;
 
@@ -155,17 +150,17 @@ public class IndexCursorWrapperTest
             txnManager.beginTransaction( false );
 
             // Add (5,5) missing in the original index 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 5 ), getUUIDString( 5 ),
+            idxChange = new IndexChange( mockIndex, new Long( 5 ), getUUIDString( 5 ),
                 IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Add (10,11) missing in the original index 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 10 ), getUUIDString( 11 ),
+            idxChange = new IndexChange( mockIndex, new Long( 10 ), getUUIDString( 11 ),
                 IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Delete (6,6) existing in the original index 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 6 ), getUUIDString( 6 ),
+            idxChange = new IndexChange( mockIndex, new Long( 6 ), getUUIDString( 6 ),
                 IndexChange.Type.DELETE, true );
             changeContainer.getChanges().add( idxChange );
 
@@ -179,17 +174,17 @@ public class IndexCursorWrapperTest
             txnManager.beginTransaction( false );
 
             // Add (4,5) already existing in the original index 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 4 ), getUUIDString( 5 ),
+            idxChange = new IndexChange( mockIndex, new Long( 4 ), getUUIDString( 5 ),
                 IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Re add (0,1) missing in the original index 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 0 ), getUUIDString( 1 ),
+            idxChange = new IndexChange( mockIndex, new Long( 0 ), getUUIDString( 1 ),
                 IndexChange.Type.ADD, true );
             changeContainer.getChanges().add( idxChange );
 
             // Delete (10,11) added by the previous txn 
-            idxChange = new IndexChange( mockIndex, attributeOid, new Long( 10 ), getUUIDString( 11 ),
+            idxChange = new IndexChange( mockIndex, new Long( 10 ), getUUIDString( 11 ),
                 IndexChange.Type.DELETE, true );
             changeContainer.getChanges().add( idxChange );
 
@@ -200,7 +195,8 @@ public class IndexCursorWrapperTest
             // Begin a read only txn and prepare the cursor wrapper 
             txnManager.beginTransaction( true );
 
-            cursorWrapper = ( IndexCursor<Object> ) txnLogManager.wrap( dn, cursor, ( ForwardIndexComparator<Object> ) comparator,
+            cursorWrapper = ( IndexCursor<Object> ) txnLogManager.wrap( dn, cursor,
+                ( ForwardIndexComparator<Object> ) comparator,
                 attributeOid, true, null, null );
 
         }
@@ -217,7 +213,7 @@ public class IndexCursorWrapperTest
     public void teardown() throws IOException
     {
         Utils.deleteDirectory( new File( getLogFolder() ) );
-        
+
         try
         {
             txnManager.commitTransaction();
@@ -256,7 +252,7 @@ public class IndexCursorWrapperTest
 
             next = cursorWrapper.get();
             assertTrue( next.getValue().equals( new Long( 5 ) ) );
-            assertTrue( next.getId().equals( getUUIDString(  5 ) ) );
+            assertTrue( next.getId().equals( getUUIDString( 5 ) ) );
         }
         catch ( Exception e )
         {
@@ -383,13 +379,14 @@ public class IndexCursorWrapperTest
             fail();
         }
     }
-    
+
+
     private UUID getUUIDString( int idx )
     {
         long low = baseUUID.getLeastSignificantBits();
         long high = baseUUID.getMostSignificantBits();
         low = low + idx;
-        
+
         return new UUID( high, low );
     }
 
@@ -407,7 +404,7 @@ public class IndexCursorWrapperTest
         }
 
 
-        public ReverseIndexComparator<Long > getReverseIndexEntryComparator()
+        public ReverseIndexComparator<Long> getReverseIndexEntryComparator()
         {
             return new ReverseIndexComparator<Long>( LongComparator.INSTANCE );
         }

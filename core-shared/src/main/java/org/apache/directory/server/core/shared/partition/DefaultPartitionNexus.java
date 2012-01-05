@@ -143,7 +143,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     private Dn subschemSubentryDn;
 
     /** Operation Execution Manager */
-    OperationExecutionManager operationExecutionManager;
+    private OperationExecutionManager operationExecutionManager;
 
 
     /**

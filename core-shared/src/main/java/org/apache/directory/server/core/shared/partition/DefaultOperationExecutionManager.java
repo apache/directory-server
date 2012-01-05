@@ -152,12 +152,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             UUID id = master.getNextId( entry );
             DataChangeContainer changeContainer = new DataChangeContainer( partition );
             changeContainer.setEntryID( id );
-            IndexChange indexChange;
 
             // Update the RDN index
             Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-            indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, key, id,
-                IndexChange.Type.ADD, true );
+            IndexChange indexChange = new IndexChange( rdnIdx, key, id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
 
             // Update the ObjectClass index
@@ -176,7 +174,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : objectClass )
             {
-                indexChange = new IndexChange( objectClassIdx, SchemaConstants.OBJECT_CLASS_AT_OID, value.getString(),
+                indexChange = new IndexChange( objectClassIdx, value.getString(),
                     id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
@@ -189,8 +187,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             // Update the OneLevel index
             Index<?> oneLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            indexChange = new IndexChange( oneLevelIdx, ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, parentId, id,
-                IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( oneLevelIdx, parentId, id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
 
             // Update the SubLevel index
@@ -200,15 +197,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             while ( ( tempId != null ) && ( !tempId.equals( Partition.rootID ) ) && ( !tempId.equals( suffixId ) ) )
             {
-                indexChange = new IndexChange( subLevelIdx, ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, tempId, id,
-                    IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( subLevelIdx, tempId, id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
                 tempId = getParentId( partition, tempId );
             }
 
             // making entry an ancestor/descendent of itself in sublevel index
-            indexChange = new IndexChange( subLevelIdx, ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, id, id,
-                IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( subLevelIdx, id, id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
 
             // Update the EntryCsn index
@@ -221,8 +216,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
 
             Index<?> entryCsnIdx = partition.getSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID );
-            indexChange = new IndexChange( entryCsnIdx, SchemaConstants.ENTRY_CSN_AT_OID, entryCsn.getString(), id,
-                IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( entryCsnIdx, entryCsn.getString(), id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
 
             // Update the EntryUuid index
@@ -235,8 +229,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
 
             Index<?> entryUuidIdx = partition.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
-            indexChange = new IndexChange( entryUuidIdx, SchemaConstants.ENTRY_UUID_AT_OID, entryUuid.getString(), id,
-                IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( entryUuidIdx, entryUuid.getString(), id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
 
             // Now work on the user defined userIndices
@@ -257,14 +250,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
                     for ( Value<?> value : attribute )
                     {
-                        indexChange = new IndexChange( index, attributeOid, value.getValue(), id,
+                        indexChange = new IndexChange( index, value.getValue(), id,
                             IndexChange.Type.ADD, false );
                         changeContainer.addChange( indexChange );
                     }
 
                     // Adds only those attributes that are indexed
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                        attributeOid, id, IndexChange.Type.ADD, true );
+                    indexChange = new IndexChange( presenceIdx, attributeOid, id, IndexChange.Type.ADD, true );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -387,7 +379,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : objectClass )
             {
-                indexChange = new IndexChange( objectClassIdx, SchemaConstants.OBJECT_CLASS_AT_OID, value.getString(),
+                indexChange = new IndexChange( objectClassIdx, value.getString(),
                     id, IndexChange.Type.DELETE, true );
                 changeContainer.addChange( indexChange );
             }
@@ -407,14 +399,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             }
 
             Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-            indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, key, id,
+            indexChange = new IndexChange( rdnIdx, key, id,
                 IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
 
             // Handle one level idx
             Index<?> oneLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            indexChange = new IndexChange( oneLevelIdx, ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, parentId, id,
-                IndexChange.Type.DELETE, true );
+            indexChange = new IndexChange( oneLevelIdx, parentId, id, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
 
             // Handle Sublevel idx
@@ -430,8 +421,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 while ( indexCursor.next() )
                 {
                     indexEntry = indexCursor.get();
-                    indexChange = new IndexChange( subLevelIdx, ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
-                        indexEntry.getValue(), id, IndexChange.Type.DELETE, true );
+                    indexChange = new IndexChange( subLevelIdx, indexEntry.getValue(), id, IndexChange.Type.DELETE,
+                        true );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -442,14 +433,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             // Handle the csn index
             String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
             Index<?> entryCsnIdx = partition.getSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID );
-            indexChange = new IndexChange( entryCsnIdx, SchemaConstants.ENTRY_CSN_AT_OID, entryCsn, id,
-                IndexChange.Type.DELETE, true );
+            indexChange = new IndexChange( entryCsnIdx, entryCsn, id, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
 
             // Handle the uuid idx
             Index<?> entryUuidIdx = partition.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
-            indexChange = new IndexChange( entryUuidIdx, SchemaConstants.ENTRY_UUID_AT_OID, id.toString(), id,
-                IndexChange.Type.DELETE, true );
+            indexChange = new IndexChange( entryUuidIdx, id.toString(), id, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
 
             // Update the user indexes
@@ -469,14 +458,12 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     // the entry via the enumeration - it's in there as is for sure
                     for ( Value<?> value : attribute )
                     {
-                        indexChange = new IndexChange( index, attributeOid, value.getValue(), id,
-                            IndexChange.Type.DELETE, false );
+                        indexChange = new IndexChange( index, value.getValue(), id, IndexChange.Type.DELETE, false );
                         changeContainer.addChange( indexChange );
                     }
 
                     // Adds only those attributes that are indexed
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                        attributeOid, id, IndexChange.Type.DELETE, true );
+                    indexChange = new IndexChange( presenceIdx, attributeOid, id, IndexChange.Type.DELETE, true );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -608,9 +595,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
         {
             index = partition.getSystemIndex( attributeType );
+
             for ( Value<?> value : mods )
             {
-                indexChange = new IndexChange( index, modsOid, value.getString(), id, IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( index, value.getString(), id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
         }
@@ -621,7 +609,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             for ( Value<?> value : mods )
             {
                 ( ( Index<Object> ) index ).add( value.getValue(), id );
-                indexChange = new IndexChange( index, modsOid, value, id, IndexChange.Type.ADD, false );
+                indexChange = new IndexChange( index, value, id, IndexChange.Type.ADD, false );
             }
 
             // If the attr didn't exist for this id then created a log edit for an add for the presence index
@@ -629,8 +617,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 Index<?> presenceIdx;
                 presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, modsOid, id,
-                    IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( presenceIdx, modsOid, id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
         }
@@ -708,7 +695,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 while ( indexCursor.next() )
                 {
                     indexEntry = indexCursor.get();
-                    indexChange = new IndexChange( objectClassIdx, modsOid, indexEntry.getValue(), id,
+                    indexChange = new IndexChange( objectClassIdx, indexEntry.getValue(), id,
                         IndexChange.Type.DELETE, true );
                     changeContainer.addChange( indexChange );
                 }
@@ -720,7 +707,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : mods )
             {
-                indexChange = new IndexChange( objectClassIdx, modsOid, value.getString(), id, IndexChange.Type.ADD,
+                indexChange = new IndexChange( objectClassIdx, value.getString(), id, IndexChange.Type.ADD,
                     true );
                 changeContainer.addChange( indexChange );
             }
@@ -740,7 +727,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 while ( indexCursor.next() )
                 {
                     indexEntry = indexCursor.get();
-                    indexChange = new IndexChange( index, modsOid, indexEntry.getValue(), id, IndexChange.Type.DELETE,
+                    indexChange = new IndexChange( index, indexEntry.getValue(), id, IndexChange.Type.DELETE,
                         false );
                     changeContainer.addChange( indexChange );
                 }
@@ -752,7 +739,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : mods )
             {
-                indexChange = new IndexChange( index, modsOid, value.getValue(), id, IndexChange.Type.ADD, false );
+                indexChange = new IndexChange( index, value.getValue(), id, IndexChange.Type.ADD, false );
                 changeContainer.addChange( indexChange );
             }
             /*
@@ -763,16 +750,14 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 Index<?> presenceIdx;
                 presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, modsOid, id,
-                    IndexChange.Type.DELETE, true );
+                indexChange = new IndexChange( presenceIdx, modsOid, id, IndexChange.Type.DELETE, true );
                 changeContainer.addChange( indexChange );
             }
             else if ( ( mods.size() > 0 ) && prevValueExists == false )
             {
                 Index<?> presenceIdx;
                 presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, modsOid, id,
-                    IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( presenceIdx, modsOid, id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
         }
@@ -780,11 +765,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             Index<?> entryCsnIdx;
             entryCsnIdx = partition.getSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID );
-            indexChange = new IndexChange( entryCsnIdx, modsOid, entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(),
+            indexChange = new IndexChange( entryCsnIdx, entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(),
                 id, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
 
-            indexChange = new IndexChange( entryCsnIdx, modsOid, mods.getString(), id, IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( entryCsnIdx, mods.getString(), id, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
         }
 
@@ -880,7 +865,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     while ( indexCursor.next() )
                     {
                         indexEntry = indexCursor.get();
-                        indexChange = new IndexChange( objectClassIdx, modsOid, indexEntry.getValue(), id,
+                        indexChange = new IndexChange( objectClassIdx, indexEntry.getValue(), id,
                             IndexChange.Type.DELETE, true );
                         changeContainer.addChange( indexChange );
                     }
@@ -894,7 +879,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 for ( Value<?> value : mods )
                 {
-                    indexChange = new IndexChange( objectClassIdx, modsOid, value.getString(), id,
+                    indexChange = new IndexChange( objectClassIdx, value.getString(), id,
                         IndexChange.Type.DELETE, true );
                     changeContainer.addChange( indexChange );
                 }
@@ -922,7 +907,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     while ( indexCursor.next() )
                     {
                         indexEntry = indexCursor.get();
-                        indexChange = new IndexChange( index, modsOid, indexEntry.getValue(), id,
+                        indexChange = new IndexChange( index, indexEntry.getValue(), id,
                             IndexChange.Type.DELETE, false );
                         changeContainer.addChange( indexChange );
                     }
@@ -936,9 +921,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 {
                     Index<?> presenceIdx;
                     presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, modsOid,
-                        id,
-                        IndexChange.Type.DELETE, true );
+                    indexChange = new IndexChange( presenceIdx, modsOid, id, IndexChange.Type.DELETE, true );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -946,7 +929,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             {
                 for ( Value<?> value : mods )
                 {
-                    indexChange = new IndexChange( index, modsOid, value.getValue(), id, IndexChange.Type.DELETE, false );
+                    indexChange = new IndexChange( index, value.getValue(), id, IndexChange.Type.DELETE, false );
                     changeContainer.addChange( indexChange );
                 }
 
@@ -958,9 +941,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 {
                     Index<?> presenceIdx;
                     presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, modsOid,
-                        id,
-                        IndexChange.Type.DELETE, true );
+                    indexChange = new IndexChange( presenceIdx, modsOid, id, IndexChange.Type.DELETE, true );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -1163,8 +1144,8 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
 
         // Add the alias to the simple alias index
-        indexChange = new IndexChange( aliasIdx, ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
-            normalizedAliasTargetDn.getNormName(), aliasId, IndexChange.Type.ADD, true );
+        indexChange = new IndexChange( aliasIdx, normalizedAliasTargetDn.getNormName(), aliasId, IndexChange.Type.ADD,
+            true );
         changeContainer.addChange( indexChange );
 
         /*
@@ -1183,8 +1164,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         if ( !aliasDn.isDescendantOf( normalizedAliasTargetParentDn ) )
         {
             Index<?> oneAliasIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            indexChange = new IndexChange( oneAliasIdx, ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, ancestorId,
-                targetId, IndexChange.Type.ADD, true );
+            indexChange = new IndexChange( oneAliasIdx, ancestorId, targetId, IndexChange.Type.ADD, true );
             changeContainer.addChange( indexChange );
         }
 
@@ -1205,8 +1185,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             if ( !normalizedAliasTargetDn.isDescendantOf( ancestorDn ) )
             {
-                indexChange = new IndexChange( subAliasIdx, ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, ancestorId,
-                    targetId, IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( subAliasIdx, ancestorId, targetId, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
 
@@ -1274,8 +1253,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
         if ( ( ( Index<Object> ) oneAliasIdx ).forward( ancestorId, targetId ) )
         {
-            indexChange = new IndexChange( oneAliasIdx, ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, ancestorId,
-                targetId, IndexChange.Type.DELETE, true );
+            indexChange = new IndexChange( oneAliasIdx, ancestorId, targetId, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
         }
 
@@ -1285,8 +1263,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
         if ( ( ( Index<Object> ) subAliasIdx ).forward( ancestorId, targetId ) )
         {
-            indexChange = new IndexChange( subAliasIdx, ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, ancestorId,
-                targetId, IndexChange.Type.DELETE, true );
+            indexChange = new IndexChange( subAliasIdx, ancestorId, targetId, IndexChange.Type.DELETE, true );
             changeContainer.addChange( indexChange );
         }
 
@@ -1299,15 +1276,13 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             if ( ( ( Index<Object> ) subAliasIdx ).forward( ancestorId, targetId ) )
             {
-                indexChange = new IndexChange( subAliasIdx, ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, ancestorId,
-                    targetId, IndexChange.Type.DELETE, true );
+                indexChange = new IndexChange( subAliasIdx, ancestorId, targetId, IndexChange.Type.DELETE, true );
                 changeContainer.addChange( indexChange );
             }
         }
 
         // Drops the alias index entry
-        indexChange = new IndexChange( aliasIdx, ApacheSchemaConstants.APACHE_ALIAS_AT_OID, targetDn, aliasId,
-            IndexChange.Type.DELETE, true );
+        indexChange = new IndexChange( aliasIdx, targetDn, aliasId, IndexChange.Type.DELETE, true );
         changeContainer.addChange( indexChange );
     }
 
@@ -1993,8 +1968,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             for ( UUID cid : childIds )
             {
-                indexChange = new IndexChange( subLevelIdx, ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, pid, cid,
-                    IndexChange.Type.DELETE, true );
+                indexChange = new IndexChange( subLevelIdx, pid, cid, IndexChange.Type.DELETE, true );
                 changeContainer.addChange( indexChange );
             }
         }
@@ -2014,8 +1988,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         {
             for ( UUID cid : childIds )
             {
-                indexChange = new IndexChange( subLevelIdx, ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, id, cid,
-                    IndexChange.Type.ADD, true );
+                indexChange = new IndexChange( subLevelIdx, id, cid, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
             }
         }
@@ -2045,14 +2018,10 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
          */
         Index<?> oneLevelIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
 
-        indexChange = new IndexChange( oneLevelIdx, ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oldParentId,
-            entryId,
-            IndexChange.Type.DELETE, true );
+        indexChange = new IndexChange( oneLevelIdx, oldParentId, entryId, IndexChange.Type.DELETE, true );
         changeContainer.addChange( indexChange );
 
-        indexChange = new IndexChange( oneLevelIdx, ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, newParentId,
-            entryId,
-            IndexChange.Type.ADD, true );
+        indexChange = new IndexChange( oneLevelIdx, newParentId, entryId, IndexChange.Type.ADD, true );
         changeContainer.addChange( indexChange );
 
         updateSubLevelIndex( partition, entryId, oldParentId, newParentId, changeContainer );
@@ -2061,13 +2030,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         Index<?> rdnIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID );
 
         ParentIdAndRdn oldKey = new ParentIdAndRdn( oldParentId, newDn.getRdn() );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, oldKey, entryId,
-            IndexChange.Type.DELETE, true );
+        indexChange = new IndexChange( rdnIdx, oldKey, entryId, IndexChange.Type.DELETE, true );
         changeContainer.addChange( indexChange );
 
         ParentIdAndRdn newKey = new ParentIdAndRdn( newParentId, newDn.getRdn() );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, newKey, entryId,
-            IndexChange.Type.ADD, true );
+        indexChange = new IndexChange( rdnIdx, newKey, entryId, IndexChange.Type.ADD, true );
         changeContainer.addChange( indexChange );
 
         /*
@@ -2162,8 +2129,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
                 if ( !( ( Index<Object> ) index ).forward( newNormValue, id ) )
                 {
-                    indexChange = new IndexChange( index, newNormType, newNormValue, id,
-                        IndexChange.Type.ADD, true );
+                    indexChange = new IndexChange( index, newNormValue, id, IndexChange.Type.ADD, true );
                     changeContainer.addChange( indexChange );
                 }
 
@@ -2174,9 +2140,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 {
                     Index<?> presenceIdx;
                     presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                    indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                        newNormType, id,
-                        IndexChange.Type.ADD, false );
+                    indexChange = new IndexChange( presenceIdx, newNormType, id, IndexChange.Type.ADD, false );
                     changeContainer.addChange( indexChange );
                 }
             }
@@ -2232,8 +2196,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     if ( partition.hasUserIndexOn( oldRdnAttrType ) )
                     {
                         Index<?> index = partition.getUserIndex( oldRdnAttrType );
-                        indexChange = new IndexChange( index, oldNormType, oldNormValue, id,
-                            IndexChange.Type.DELETE, false );
+                        indexChange = new IndexChange( index, oldNormValue, id, IndexChange.Type.DELETE, false );
                         changeContainer.addChange( indexChange );
 
                         /*
@@ -2246,9 +2209,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                         {
                             Index<?> presenceIdx;
                             presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                            indexChange = new IndexChange( presenceIdx, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-                                oldNormType, id,
-                                IndexChange.Type.DELETE, true );
+                            indexChange = new IndexChange( presenceIdx, oldNormType, id, IndexChange.Type.DELETE, true );
                             changeContainer.addChange( indexChange );
                         }
                     }
@@ -2267,13 +2228,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         UUID parentId = UUID.fromString( entry.get( SchemaConstants.ENTRY_PARENT_ID_AT ).getString() );
 
         ParentIdAndRdn oldKey = new ParentIdAndRdn( parentId, updn.getRdn() );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, oldKey, id,
-            IndexChange.Type.DELETE, true );
+        indexChange = new IndexChange( rdnIdx, oldKey, id, IndexChange.Type.DELETE, true );
         changeContainer.addChange( indexChange );
 
         ParentIdAndRdn key = new ParentIdAndRdn( parentId, newRdn );
-        indexChange = new IndexChange( rdnIdx, ApacheSchemaConstants.APACHE_RDN_AT_OID, key, id,
-            IndexChange.Type.ADD, true );
+        indexChange = new IndexChange( rdnIdx, key, id, IndexChange.Type.ADD, true );
         changeContainer.addChange( indexChange );
 
         /*

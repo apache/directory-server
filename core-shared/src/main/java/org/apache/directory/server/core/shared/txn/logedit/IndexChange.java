@@ -62,10 +62,10 @@ public class IndexChange implements IndexModification
     }
 
 
-    public IndexChange( Index<?> index, String oid, Object key, UUID id, Type type, boolean isSystemIndex )
+    public IndexChange( Index<?> index, Object key, UUID id, Type type, boolean isSystemIndex )
     {
         this.index = index;
-        this.oid = oid;
+        this.oid = index.getAttributeId();
         this.key = key;
         this.id = id;
         this.type = type;
