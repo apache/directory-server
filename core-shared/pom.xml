@@ -43,12 +43,12 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
     </dependency>
     
@@ -77,6 +77,11 @@
        <artifactId>ehcache-core</artifactId>
    </dependency>
 
+    <dependency>
+       <groupId>commons.io</groupId>
+       <artifactId>commons-io</artifactId>
+       <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
