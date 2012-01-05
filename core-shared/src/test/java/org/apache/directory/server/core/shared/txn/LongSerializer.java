@@ -21,9 +21,14 @@ package org.apache.directory.server.core.shared.txn;
 
 
 import java.io.IOException;
+
 import org.apache.directory.server.core.api.partition.index.Serializer;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class LongSerializer implements Serializer
 {
     public static final LongSerializer INSTANCE = new LongSerializer();

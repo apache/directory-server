@@ -19,9 +19,15 @@
  */
 package org.apache.directory.server.core.shared.txn;
 
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.junit.After;
 import org.junit.Before;
@@ -29,12 +35,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class DefaultTxnManagerTest
 {
     /** Log buffer size : 4096 bytes */
@@ -84,7 +89,7 @@ public class DefaultTxnManagerTest
     @After
     public void teardown() throws IOException
     {
-        Utils.deleteDirectory( new File( getLogFolder() ) );
+        FileUtils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 

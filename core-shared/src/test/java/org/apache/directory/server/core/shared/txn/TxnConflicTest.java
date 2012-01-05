@@ -20,11 +20,15 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
@@ -33,10 +37,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TxnConflicTest
 {
     /** Log buffer size : 4096 bytes */
@@ -85,11 +90,12 @@ public class TxnConflicTest
             fail();
         }
     }
-    
+
+
     @After
     public void teardown() throws IOException
     {
-        Utils.deleteDirectory( new File( getLogFolder() ) );
+        FileUtils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 

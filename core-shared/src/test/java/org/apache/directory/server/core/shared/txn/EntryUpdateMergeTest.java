@@ -20,13 +20,19 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
+import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
+import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -34,25 +40,21 @@ import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
-
-import org.apache.directory.server.core.api.log.InvalidLogException;
-import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
-import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
-import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.junit.rules.TemporaryFolder;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class EntryUpdateMergeTest
 {
     /** Test partition Dn */
@@ -206,8 +208,8 @@ public class EntryUpdateMergeTest
             e.printStackTrace();
             fail();
         }
-        
-        Utils.deleteDirectory( new File( getLogFolder() ) );
+
+        FileUtils.deleteDirectory( new File( getLogFolder() ) );
     }
 
 

@@ -23,6 +23,10 @@ package org.apache.directory.server.core.shared.txn;
 import java.util.Comparator;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class LongComparator implements Comparator<Long>
 {
     public static final LongComparator INSTANCE = new LongComparator();

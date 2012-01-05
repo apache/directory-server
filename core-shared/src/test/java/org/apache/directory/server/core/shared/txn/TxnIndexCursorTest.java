@@ -20,21 +20,24 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
-
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class TxnIndexCursorTest
 {
     /** index entry comparator */
@@ -51,6 +54,7 @@ public class TxnIndexCursorTest
 
     /** UUID string */
     UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
+
 
     @Before
     public void setup()
@@ -77,7 +81,7 @@ public class TxnIndexCursorTest
             }
         }
 
-        cursor = new TxnIndexCursor( changedSet, true, null, null, ( ForwardIndexComparator<Object> )comparator );
+        cursor = new TxnIndexCursor( changedSet, true, null, null, ( ForwardIndexComparator<Object> ) comparator );
 
     }
 
@@ -223,7 +227,8 @@ public class TxnIndexCursorTest
     @Test
     public void testLockDownByExistingKey()
     {
-        onlyKeyCursor = new TxnIndexCursor( changedSet, true, new Long( 7 ), null, ( ForwardIndexComparator<Object> )comparator );
+        onlyKeyCursor = new TxnIndexCursor( changedSet, true, new Long( 7 ), null,
+            ( ForwardIndexComparator<Object> ) comparator );
         try
         {
             onlyKeyCursor.beforeFirst();
@@ -275,7 +280,8 @@ public class TxnIndexCursorTest
     @Test
     public void testLockDownByNonExistingKey()
     {
-        onlyKeyCursor = new TxnIndexCursor( changedSet, true, new Long( 5 ), null, ( ForwardIndexComparator<Object> )comparator );
+        onlyKeyCursor = new TxnIndexCursor( changedSet, true, new Long( 5 ), null,
+            ( ForwardIndexComparator<Object> ) comparator );
         try
         {
             onlyKeyCursor.beforeFirst();
@@ -288,13 +294,14 @@ public class TxnIndexCursorTest
             fail();
         }
     }
-    
+
+
     private UUID getUUIDString( int idx )
     {
         long low = baseUUID.getLeastSignificantBits();
         long high = baseUUID.getMostSignificantBits();
         low = low + idx;
-        
+
         return new UUID( high, low );
     }
 }

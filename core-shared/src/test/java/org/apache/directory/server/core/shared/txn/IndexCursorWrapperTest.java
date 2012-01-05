@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexComparator;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
@@ -46,6 +47,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 
+/**
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class IndexCursorWrapperTest
 {
     /** Test partition Dn */
@@ -212,7 +217,7 @@ public class IndexCursorWrapperTest
     @After
     public void teardown() throws IOException
     {
-        Utils.deleteDirectory( new File( getLogFolder() ) );
+        FileUtils.deleteDirectory( new File( getLogFolder() ) );
 
         try
         {
