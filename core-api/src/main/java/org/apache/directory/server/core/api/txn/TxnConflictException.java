@@ -27,7 +27,10 @@ package org.apache.directory.server.core.api.txn;
  */
 public class TxnConflictException extends Exception
 {
-    public TxnConflictException()
+	private static final long serialVersionUID = -339941830264899889L;
+
+
+	public TxnConflictException()
     {
     }
 

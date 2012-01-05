@@ -232,7 +232,7 @@ public class MockDirectoryService implements DirectoryService
 
     public List<Interceptor> getInterceptors()
     {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
 

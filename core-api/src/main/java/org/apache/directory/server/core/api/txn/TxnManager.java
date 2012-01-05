@@ -21,7 +21,10 @@ package org.apache.directory.server.core.api.txn;
 
 
 /**
+ * The transaction manager interface.
  * 
+ * @TODO Don't we have this interface available in the transaction API? why are
+ *       we recreating this when we can reuse? 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface TxnManager
@@ -34,10 +37,11 @@ public interface TxnManager
     TxnHandle beginTransaction( boolean readOnly ) throws Exception;
 
 
+    
     /**
      * Tries to commit the current txn associated with the current thread. ReadWrite txns have to be verified against txns
      * that committed after they started for any conflicting change and conflicting
-     * exception is thrown if verificatin fails.
+     * exception is thrown if verification fails.
      *
      * @throws Exception
      * @throws TxnConflictException
@@ -45,6 +49,7 @@ public interface TxnManager
     void commitTransaction() throws Exception, TxnConflictException;
 
 
+    
     /**
      * Aborts the current txn associated with the current thread.
      *

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 /** 
  * An exception used when the log content could be invalid.
  *
@@ -29,11 +30,15 @@ public class InvalidLogException extends Exception
     /** The serial version UID */
     private static final long serialVersionUID = 1L;
 
+    
     /**
      * Creates a new instance of InvalidLogException 
      */
-    public InvalidLogException() {}
+    public InvalidLogException() 
+    {
+    }
 
+    
     /**
      * Creates a new instance of InvalidLogException with a message
      * 

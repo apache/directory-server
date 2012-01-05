@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -77,7 +78,7 @@ public interface TxnLogManager
 
     /**
      * Checks all the updates done on the given index for the given key and returns 
-     * the latest version of the coressponding id
+     * the latest version of the corresponding id
      *
      * @param partitionDN dn of the partition the entry lives in
      * @param attributeOid oid of the indexed attribute
@@ -91,7 +92,7 @@ public interface TxnLogManager
 
     /**
      * Checks all the updates done on the given index for the given id and returns 
-     * the latest version of the corressponding value
+     * the latest version of the corresponding value
      *
      * @param partitionDN dn of the partition the entry lives in
      * @param attributeOid oid of the indexed attribute
@@ -130,6 +131,7 @@ public interface TxnLogManager
         String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
 
 
+    
     /**
      * Returns an index which a provides a transactionally consistent view over the given index
      *

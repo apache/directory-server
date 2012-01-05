@@ -19,8 +19,9 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 /** 
- * A user log record that can be used to pass user record between the clients and the logger
+ * A user log record that can be used to pass user record between the clients and the logger.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

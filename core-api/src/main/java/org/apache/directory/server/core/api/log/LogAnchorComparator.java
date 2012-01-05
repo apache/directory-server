@@ -19,18 +19,21 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 
+
 /**
+ * A {@link Comparator} that compares {@link LogAnchor} objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LogAnchorComparator implements Comparator<LogAnchor>
 {
     /**
-     * Compare two log anchors.
+     * Compare two {@link LogAnchor} objects.
      *
      * @param obj1 First object
      * @param obj2 Second object
@@ -39,11 +42,13 @@ public class LogAnchorComparator implements Comparator<LogAnchor>
      */
      public int compare( LogAnchor obj1, LogAnchor obj2 )
      {
-        if ( obj1 == null ) {
+        if ( obj1 == null ) 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null ) 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 

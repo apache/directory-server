@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -32,7 +33,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
- * This interface represent the context passed as an argument to each interceptor.
+ * This interface represent the context passed as an argument to each {@link Interceptor} operation.
  * It will contain data used by all the operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

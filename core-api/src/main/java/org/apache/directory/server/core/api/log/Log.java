@@ -19,12 +19,13 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 import java.io.IOException;
+
 
 /**
  * An interface for the Log sub-system.<br/>
- * The log subsystem is used to log some records on disk, allowing the users to read back them
- * if needed.
+ * The log subsystem is used to log any kind of record on disk, allowing records to be read back if needed.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -81,10 +82,11 @@ public interface Log
     
     
     /**
-     * Syncs the log upto the given lsn. If lsn is equal to unknow lsn, then the log is 
-     * flushed upto the latest logged lsn.
+     * Synchronizes the log up to the given LSN. If LSN is equal to unknown 
+     * LSN, then the log is flushed up to the latest logged LSN.
      *
-     * @param uptoLSN lsn to flush upto. Unkown lsn if caller just wants to sync the log upto the latest logged lsn.
+     * @param uptoLSN LSN to flush up to. Unknown LSN if caller just wants to 
+     * sync the log up to the latest logged LSN.
      * @throws IOException If we can't flush the data on disk
      * @throws InvalidLogException If the log contains some bad records
      */

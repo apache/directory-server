@@ -19,10 +19,13 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 import org.apache.directory.server.i18n.I18n;
 
+
 /**
- * Implements a pointer in to the log files
+ * Implements a pointer in to the log files.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LogAnchor

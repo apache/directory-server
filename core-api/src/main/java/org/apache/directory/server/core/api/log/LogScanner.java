@@ -19,20 +19,22 @@
  */
 package org.apache.directory.server.core.api.log;
 
+
 import java.io.IOException;
 
+
 /**
- * A utility class used to scan a Log file. We can only rea records forward,
- * there is no way we can go backward. In order to start to read logs from
- * a given position, the user must have set this position when requesting
- * for a LogScanner (@see Log#beginScan(LogAnchor))
+ * A utility class used to scan a Log file. We can only advance the scanner 
+ * forward, there is no way we can advance backward. In order to start to read
+ * log records from a given position, the user must specify the start position 
+ * when requesting a new LogScanner (@see Log#beginScan(LogAnchor))
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface LogScanner
 {
     /**
-     * Reads and returns the next user record from the log into a backing byte array 
+     * Reads and returns the next user record from the log into a byte array
      * and returns a reference to it. Returned array can be overwritten 
      * after the next call to getNextRecord()
      *
