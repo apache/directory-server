@@ -268,12 +268,13 @@ public class GenericIndex<K> extends AbstractIndex<K>
         throw new UnsupportedOperationException();
     }
 
+
     public ReverseIndexComparator<K> getReverseIndexEntryComparator()
     {
         throw new UnsupportedOperationException();
     }
 
-    
+
     public void setWkDirPath( URI wkDirPath )
     {
         this.wkDirPath = wkDirPath;
@@ -285,7 +286,7 @@ public class GenericIndex<K> extends AbstractIndex<K>
         throw new UnsupportedOperationException();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

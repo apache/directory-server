@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -37,7 +38,7 @@ public class ForwardIndexEntry<V> extends AbstractIndexEntry<V>
     /** The underlying Tuple */
     private final Tuple<V, UUID> tuple = new Tuple<V, UUID>();
 
-    
+
     /**
      * Creates a ForwardIndexEntry instance
      */
@@ -45,8 +46,8 @@ public class ForwardIndexEntry<V> extends AbstractIndexEntry<V>
     {
         super( null );
     }
-    
-    
+
+
     /**
      * Sets the key value tuple represented by this ForwardIndexEntry optionally
      * setting the Entry associated with the id if one was loaded from the
@@ -141,7 +142,7 @@ public class ForwardIndexEntry<V> extends AbstractIndexEntry<V>
         buf.append( ", " );
         buf.append( tuple.getValue() );
         buf.append( " ]" );
-        
+
         return buf.toString();
     }
 }

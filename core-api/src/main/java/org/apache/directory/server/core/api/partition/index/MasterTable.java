@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -47,8 +48,8 @@ public interface MasterTable extends Table<UUID, Entry>
      * @throws Exception on any failure
      */
     UUID getNextId( Entry entry ) throws Exception;
-    
-    
+
+
     /**
      * Resets the root ID to 0, this method should be called after deleting the
      * context entry of the partition

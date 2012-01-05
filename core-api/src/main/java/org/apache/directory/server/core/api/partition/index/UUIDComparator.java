@@ -19,10 +19,12 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
+
 
 public class UUIDComparator extends SerializableComparator<UUID>
 {
@@ -32,10 +34,12 @@ public class UUIDComparator extends SerializableComparator<UUID>
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
 
+
     public UUIDComparator()
     {
         super( SchemaConstants.UUID_ORDERING_MATCH_MR_OID );
     }
+
 
     public int compare( UUID uuid1, UUID uuid2 )
     {
@@ -43,13 +47,12 @@ public class UUIDComparator extends SerializableComparator<UUID>
         {
             return ( uuid2 == null ) ? 0 : -1;
         }
-        
+
         if ( uuid2 == null )
         {
             return 1;
         }
-        
+
         return uuid1.compareTo( uuid2 );
     }
 }
-

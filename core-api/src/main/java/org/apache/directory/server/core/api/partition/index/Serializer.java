@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.io.IOException;
+
 
 public interface Serializer
 {

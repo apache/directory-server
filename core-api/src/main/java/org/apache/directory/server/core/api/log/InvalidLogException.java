@@ -30,36 +30,36 @@ public class InvalidLogException extends Exception
     /** The serial version UID */
     private static final long serialVersionUID = 1L;
 
-    
+
     /**
      * Creates a new instance of InvalidLogException 
      */
-    public InvalidLogException() 
+    public InvalidLogException()
     {
     }
 
-    
+
     /**
      * Creates a new instance of InvalidLogException with a message
      * 
      *  @param message The associated error message
      */
-    public InvalidLogException( String message ) 
+    public InvalidLogException( String message )
     {
         super( message );
     }
-    
+
 
     /**
      * Creates a new instance of InvalidLogException with an original cause
      * 
      *  @param cause The associated error cause
      */
-    public InvalidLogException( Throwable cause ) 
+    public InvalidLogException( Throwable cause )
     {
         super( cause );
     }
-    
+
 
     /**
      * Creates a new instance of InvalidLogException with a message
@@ -68,7 +68,7 @@ public class InvalidLogException extends Exception
      *  @param message The associated error message
      *  @param cause The associated error cause
      */
-    public InvalidLogException( String message, Throwable cause ) 
+    public InvalidLogException( String message, Throwable cause )
     {
         super( message, cause );
     }

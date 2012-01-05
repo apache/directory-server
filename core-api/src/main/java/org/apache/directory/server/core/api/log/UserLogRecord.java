@@ -29,14 +29,14 @@ public class UserLogRecord
 {
     /** array used to hold user log records */
     private byte[] recordHolder;
-    
+
     /** length of the user record in the byte array */
     private int length;
-    
+
     /** Position of the log record in the log */
     private LogAnchor logAnchor = new LogAnchor();
-    
-    
+
+
     /**
      * Store some data into the record. The buffer may be bigger than the 
      * data it contains, the length gives the real size of the stored data.
@@ -49,8 +49,8 @@ public class UserLogRecord
         this.recordHolder = data;
         this.length = length;
     }
-    
-    
+
+
     /**
      * @return The stored buffer, containing the data
      */
@@ -58,8 +58,8 @@ public class UserLogRecord
     {
         return recordHolder;
     }
-    
-    
+
+
     /**
      * @return The data length
      */
@@ -67,8 +67,8 @@ public class UserLogRecord
     {
         return length;
     }
-    
-    
+
+
     /**
      * @return The position in the buffer
      */
@@ -76,8 +76,8 @@ public class UserLogRecord
     {
         return logAnchor;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

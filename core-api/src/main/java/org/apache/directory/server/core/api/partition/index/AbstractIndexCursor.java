@@ -41,6 +41,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /** The message used for unsupported operations */
     protected static final String UNSUPPORTED_MSG = "Unsupported operation";
 
+
     /**
      * {@inheritDoc}
      */
@@ -48,8 +49,8 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     {
         return available;
     }
-    
-    
+
+
     /**
      * Gets the message to return for operations that are not supported
      * 
@@ -75,7 +76,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

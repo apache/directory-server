@@ -32,9 +32,9 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public abstract class AbstractIndex<K> implements Index<K>
 {
-    /** The attribute identifier for this index */ 
+    /** The attribute identifier for this index */
     protected String attributeId;
-    
+
     /** the attribute type resolved for this JdbmIndex */
     protected AttributeType attributeType;
 
@@ -43,6 +43,7 @@ public abstract class AbstractIndex<K> implements Index<K>
 
     /** whether or not this index has been initialized */
     protected boolean initialized;
+
 
     /**
      * Creates a new instance of AbstractIndex.
@@ -53,7 +54,7 @@ public abstract class AbstractIndex<K> implements Index<K>
     {
     }
 
-    
+
     /**
      * Creates a new instance of AbstractIndex.
      * 
@@ -94,8 +95,8 @@ public abstract class AbstractIndex<K> implements Index<K>
     {
         return !attributeType.isSingleValued();
     }
-    
-    
+
+
     /**
      * Gets the size of the index cache in terms of the number of index entries to be cached.
      *
@@ -117,8 +118,8 @@ public abstract class AbstractIndex<K> implements Index<K>
         protect( "cacheSize" );
         this.cacheSize = cacheSize;
     }
-    
-    
+
+
     /**
      * Protects configuration properties from being set after initialization.
      *

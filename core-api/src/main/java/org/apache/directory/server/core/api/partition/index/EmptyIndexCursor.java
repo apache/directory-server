@@ -49,7 +49,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

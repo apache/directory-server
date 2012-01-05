@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -46,8 +47,7 @@ public class ReverseIndexEntry<V> extends AbstractIndexEntry<V>
     {
         super( null );
     }
-    
-    
+
 
     /**
      * Sets the Tuple value represented by this ReverseIndexEntry optionally

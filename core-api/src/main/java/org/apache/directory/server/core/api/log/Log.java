@@ -41,8 +41,10 @@ public interface Log
      * @throws IOException If we can't initialize the Log
      * @throws InvalidLogException If the log contains some bad records
      */
-    void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException;
-    
+    void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException,
+        InvalidLogException;
+
+
     /**
      * Logs the given user record to the log. Position in the log files where the record is logged is returned as part of
      * userRecord.
@@ -53,8 +55,8 @@ public interface Log
      * @throws InvalidLogException If the record is not valid
      */
     void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException;
-    
-    
+
+
     /**
      * Starts a scan in the logs starting from the given log position
      *
@@ -62,16 +64,16 @@ public interface Log
      * @return A scanner to read the logs one by one
      */
     LogScanner beginScan( LogAnchor startPoint );
-    
-    
+
+
     /**
      * Starts a scan in the logs starting from the last checkpoint.
      *
      * @return A scanner to read the logs one by one
      */
     LogScanner beginScan();
-    
-    
+
+
     /**
      * Advances the min needed position in the logs. Logging subsystem uses this
      * information to get rid of unneeded
@@ -79,8 +81,8 @@ public interface Log
      * @param newAnchor The new position
      */
     void advanceMinNeededLogPosition( LogAnchor newAnchor );
-    
-    
+
+
     /**
      * Synchronizes the log up to the given LSN. If LSN is equal to unknown 
      * LSN, then the log is flushed up to the latest logged LSN.

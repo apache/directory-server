@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.api.partition.index;
 
+
 import java.util.Comparator;
 import java.util.UUID;
+
 
 public class ReverseIndexComparator<V> implements IndexComparator<V>
 {

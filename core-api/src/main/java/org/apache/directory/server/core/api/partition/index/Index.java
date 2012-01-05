@@ -257,18 +257,19 @@ public interface Index<K>
 
     boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception;
 
-    
+
     ForwardIndexComparator<K> getForwardIndexEntryComparator();
 
-    
+
     ReverseIndexComparator<K> getReverseIndexEntryComparator();
+
 
     void close() throws Exception;
 
 
     void sync() throws Exception;
 
-    
+
     /**
      * tells whether the Index implementation supports storing duplicate keys
      *

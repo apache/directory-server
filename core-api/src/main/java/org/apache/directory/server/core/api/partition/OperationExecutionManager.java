@@ -223,19 +223,18 @@ public interface OperationExecutionManager
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
     Entry lookup( Partition partition, UUID id ) throws LdapException;
-    
-    
-   /**
-    * Looksups the entry identified in entryContext.
-    *
-    * @param partition partition lookup will be done
-    * @param entryContext operation parameters
-    * @return true if the entry can be found
-    * @throws LdapException
-    */
+
+
+    /**
+     * Looksups the entry identified in entryContext.
+     *
+     * @param partition partition lookup will be done
+     * @param entryContext operation parameters
+     * @return true if the entry can be found
+     * @throws LdapException
+     */
     boolean hasEntry( Partition partition, HasEntryOperationContext entryContext ) throws LdapException;
-    
-    
+
 
     /**
      * A specialized form of one level search used to return a minimal set of 
@@ -249,11 +248,11 @@ public interface OperationExecutionManager
      * @throws Exception if there are any problems
      */
     EntryFilteringCursor list( Partition partition, ListOperationContext listContext ) throws LdapException;
-    
-    
+
+
     IndexCursor<UUID> list( Partition partition, UUID id ) throws LdapException;
-    
-    
+
+
     /**
      * Returns the entry id for the given dn
      *
@@ -263,8 +262,8 @@ public interface OperationExecutionManager
      * @throws LdapException
      */
     UUID getEntryId( Partition partition, Dn dn ) throws LdapException;
-    
-    
+
+
     /**
      * builds the Dn of the entry identified by the given id
      *
@@ -274,8 +273,8 @@ public interface OperationExecutionManager
      * @throws Exception
      */
     Dn buildEntryDn( Partition partition, UUID id ) throws Exception;
-    
-    
+
+
     /**
      * Gets the parent id of the given child id.
      *
@@ -285,8 +284,8 @@ public interface OperationExecutionManager
      * @throws Exception
      */
     public UUID getParentId( Partition partition, UUID childId ) throws Exception;
-    
-    
+
+
     /**
      * Returns the child count of the corresponding to the id
      *
