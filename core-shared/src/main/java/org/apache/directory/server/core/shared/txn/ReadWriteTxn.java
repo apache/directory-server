@@ -670,4 +670,44 @@ class ReadWriteTxn extends AbstractTransaction
             }
         }
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "RWTxn[" );
+
+        // The state
+        sb.append( "state:" ).append( getState() );
+
+        // The ref count
+        sb.append( ", nbRef:" ).append( getRefCount() );
+
+        // The start time
+        sb.append( ", start:" ).append( getStartTime() );
+
+        // The commit time
+        sb.append( ", commit:" ).append( getCommitTime() );
+
+        sb.append( "]\n" );
+        List<LogEdit> edits = getEdits();
+
+        if ( ( edits != null ) && ( edits.size() > 0 ) )
+        {
+            sb.append( "{\n" );
+
+            for ( LogEdit logEdit : edits )
+            {
+                sb.append( logEdit ).append( "\n" );
+            }
+
+            sb.append( "\n}" );
+        }
+
+        return sb.toString();
+    }
 }
