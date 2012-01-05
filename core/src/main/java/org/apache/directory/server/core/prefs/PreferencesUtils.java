@@ -19,8 +19,6 @@
  */
 package org.apache.directory.server.core.prefs;
 
- 
-
 
 /**
  * Document this class.

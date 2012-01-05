@@ -37,19 +37,19 @@ public class ServerSystemPreferenceException extends RuntimeException
     }
 
 
-    public ServerSystemPreferenceException(String message)
+    public ServerSystemPreferenceException( String message )
     {
         super( message );
     }
 
 
-    public ServerSystemPreferenceException(String message, Throwable cause)
+    public ServerSystemPreferenceException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
 
-    public ServerSystemPreferenceException(Throwable cause)
+    public ServerSystemPreferenceException( Throwable cause )
     {
         super( cause );
     }
