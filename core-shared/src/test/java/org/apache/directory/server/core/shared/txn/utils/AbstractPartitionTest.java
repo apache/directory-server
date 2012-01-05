@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.shared.txn;
+package org.apache.directory.server.core.shared.txn.utils;
 
 
 import org.apache.directory.server.core.api.partition.Partition;

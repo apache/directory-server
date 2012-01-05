@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.shared.txn;
+package org.apache.directory.server.core.shared.txn.utils;
 
 
 import java.util.UUID;
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.LongComparator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class MockIndex extends GenericIndex<Long>
+public class MockIndex extends GenericIndex<Long>
 {
     public MockIndex( String attributeOid )
     {

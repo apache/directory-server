@@ -33,6 +33,7 @@ import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.shared.txn.logedit.EntryAddDelete;
 import org.apache.directory.server.core.shared.txn.logedit.EntryChange;
+import org.apache.directory.server.core.shared.txn.utils.AbstractPartitionTest;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
