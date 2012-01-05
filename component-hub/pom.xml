@@ -94,6 +94,7 @@
           <manifestLocation>META-INF</manifestLocation>
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.component.hub</Bundle-SymbolicName>
+            <Bundle-Activator>org.apache.directory.server.component.hub.Activator</Bundle-Activator>
           </instructions>
         </configuration>
       </plugin>

@@ -20,6 +20,7 @@
 package org.apache.directory.server.component.hub;
 
 
+import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -195,7 +196,8 @@ public class ComponentSchemaManager
     {
         try
         {
-            LdifReader reader = new LdifReader( this.getClass().getResourceAsStream( "componenthub.ldif" ) );
+            InputStream is  = this.getClass().getResourceAsStream( "componenthub.ldif" );
+            LdifReader reader = new LdifReader( is );
 
             for ( LdifEntry le : reader )
             {
