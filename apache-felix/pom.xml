@@ -81,6 +81,12 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
+                  <artifactId>org.apache.felix.eventadmin</artifactId>
+                  <version>1.2.14</version>
+                  <overWrite>true</overWrite>                  
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.ipojo</artifactId>
                   <version>1.8.0</version>
                   <overWrite>true</overWrite>                  
