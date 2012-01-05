@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.log;
 
+
 import java.io.IOException;
 import org.apache.directory.server.core.api.log.Log;
 import org.apache.directory.server.core.api.log.LogScanner;
@@ -26,6 +27,7 @@ import org.apache.directory.server.core.api.log.LogAnchor;
 
 import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+
 
 /**
  * Log interface default Implementation. 
@@ -36,47 +38,49 @@ public class DefaultLog implements Log
 {
     /** Log manager */
     LogManager logManager;
-    
+
     /** Log File Manager */
     LogFileManager logFileManager;
-    
+
     /** LogFlushManager */
     LogFlushManager logFlushManager;
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException, InvalidLogException
+    public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException,
+        InvalidLogException
     {
-       logFileManager = new DefaultLogFileManager( logFilepath, suffix );
-       
-       logManager = new LogManager( logFileManager );
-       logManager.initLogManager();
-       
-       logFlushManager = new LogFlushManager( logManager, logBufferSize, logFileSize );
+        logFileManager = new DefaultLogFileManager( logFilepath, suffix );
+
+        logManager = new LogManager( logFileManager );
+        logManager.initLogManager();
+
+        logFlushManager = new LogFlushManager( logManager, logBufferSize, logFileSize );
     }
-    
-    
-   /**
-    * {@inheritDoc}
-    */
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
     {
         logFlushManager.append( userRecord, sync );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public LogScanner beginScan( LogAnchor startPoint )
     {
         LogScanner logScanner = new DefaultLogScanner( startPoint, logFileManager );
-        
+
         return logScanner;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -84,29 +88,29 @@ public class DefaultLog implements Log
     {
         LogAnchor startPoint = new LogAnchor();
         LogScanner logScanner = new DefaultLogScanner( startPoint, logFileManager );
-        
+
         return logScanner;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void advanceMinNeededLogPosition( LogAnchor newAnchor )
     {
-       logManager.advanceMinLogAnchor( newAnchor ); 
+        logManager.advanceMinLogAnchor( newAnchor );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void sync( long uptoLSN ) throws IOException, InvalidLogException
     {
-       logFlushManager.sync( uptoLSN ); 
+        logFlushManager.sync( uptoLSN );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

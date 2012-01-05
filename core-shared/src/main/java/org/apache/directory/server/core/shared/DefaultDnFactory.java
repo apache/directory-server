@@ -92,7 +92,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCacheEntry != null )
             {
-                cachedDn = (Dn) dnCacheEntry.getObjectValue();
+                cachedDn = ( Dn ) dnCacheEntry.getObjectValue();
             }
         }
 
@@ -104,7 +104,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCache != null )
             {
-                dnCache.put( new Element( dn, cachedDn) );
+                dnCache.put( new Element( dn, cachedDn ) );
             }
 
             if ( enableStats )

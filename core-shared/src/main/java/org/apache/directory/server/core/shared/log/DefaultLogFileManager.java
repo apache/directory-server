@@ -19,12 +19,14 @@
  */
 package org.apache.directory.server.core.shared.log;
 
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.io.RandomAccessFile;
+
 
 /**
  * Creates and manages a LogFile on disk. The file name is the concatenation of a 
@@ -33,14 +35,15 @@ import java.io.RandomAccessFile;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/* Package protected */ class DefaultLogFileManager implements LogFileManager 
+/* Package protected */class DefaultLogFileManager implements LogFileManager
 {
     /** The Log file path */
     private String logFilePath;
-    
+
     /** The Log file suffix */
     private String suffix;
-    
+
+
     /**
      * Creates a log file manager to use the given logfile path and the suffix. Each log file
      * has name logFileName_<logFileNumber>.suffix 
@@ -53,44 +56,44 @@ import java.io.RandomAccessFile;
         this.logFilePath = logFilePath;
         this.suffix = suffix;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
     {
         File logFile = makeLogFileName( logFileNumber );
-        
+
         return new LogFileReader( logFile, logFileNumber );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
     {
         File logFile = makeLogFileName( logFileNumber );
-        
+
         return new LogFileWriter( logFile, logFileNumber );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean createLogFile( long logFileNumber ) throws IOException
     {
         File logFile = makeLogFileName( logFileNumber );
-        
+
         // Create the files, unless it already exists.
         boolean fileAlreadyExists = !logFile.createNewFile();
-        
+
         return fileAlreadyExists;
     }
-    
-       
+
+
     /**
      * {@inheritDoc}
      */
@@ -98,52 +101,54 @@ import java.io.RandomAccessFile;
     {
         if ( size < 0 )
         {
-            throw new IllegalArgumentException( "Invalid file size is specified for the log file: " + logFileNumber + " " + size );
+            throw new IllegalArgumentException( "Invalid file size is specified for the log file: " + logFileNumber
+                + " " + size );
         }
-        
+
         File logFile = makeLogFileName( logFileNumber );
-        
+
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
-        
+
         // Now, truncate the file for real
         raf.setLength( size );
         raf.getFD().sync();
         raf.close();
     }
-    
-   
+
+
     /**
      * {@inheritDoc}
      */
     public void deleteLogFile( long logFileNumber )
     {
         File logFile = makeLogFileName( logFileNumber );
-        
+
         logFile.delete();
     }
-    
-   
+
+
     /**
      * {@inheritDoc}
      */
-    public boolean rename(long originalLogFileNumber, long newLongFileNumber)
+    public boolean rename( long originalLogFileNumber, long newLongFileNumber )
     {
-        File oldLogFile = makeLogFileName( originalLogFileNumber );  
+        File oldLogFile = makeLogFileName( originalLogFileNumber );
         boolean result = oldLogFile.renameTo( makeLogFileName( newLongFileNumber ) );
-        
+
         return result;
     }
-    
+
+
     /**
      * Creates a log file name using the path, the prefix and the suffix
      */
     private File makeLogFileName( long logFileNumber )
     {
-        return new File( logFilePath + File.separatorChar + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "." + suffix );
+        return new File( logFilePath + File.separatorChar + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "."
+            + suffix );
     }
-    
-    
+
     /**
      * An implementation of the {@link LogFileManager.LogFileReader} interface.
      */
@@ -151,20 +156,20 @@ import java.io.RandomAccessFile;
     {
         /** Underlying log file */
         RandomAccessFile raf;
-        
+
         /** Log file identifier */
         long logFileNumber;
-        
-  
+
+
         public LogFileReader( File logFile, long logFileNumber ) throws FileNotFoundException
         {
             // This will throw a file not found exception if file does not exist
             raf = new RandomAccessFile( logFile, "r" );
-            
+
             this.logFileNumber = logFileNumber;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -174,8 +179,8 @@ import java.io.RandomAccessFile;
             // it does not span across blocks of data
             raf.readFully( buffer, offset, length );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -183,8 +188,8 @@ import java.io.RandomAccessFile;
         {
             raf.seek( position );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -192,8 +197,8 @@ import java.io.RandomAccessFile;
         {
             raf.close();
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -201,8 +206,8 @@ import java.io.RandomAccessFile;
         {
             return logFileNumber;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -210,8 +215,8 @@ import java.io.RandomAccessFile;
         {
             return raf.length();
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -219,8 +224,8 @@ import java.io.RandomAccessFile;
         {
             return raf.getFilePointer();
         }
-        
-        
+
+
         /**
          * @see Object#toString()
          */
@@ -229,8 +234,7 @@ import java.io.RandomAccessFile;
             return "FileReader(" + raf + ", " + logFileNumber + ")";
         }
     }
-    
-    
+
     /**
      * An implementation of the {@link LogFileManager.LogFileWriter} interface.
      */
@@ -238,11 +242,11 @@ import java.io.RandomAccessFile;
     {
         /** Underlying log file */
         RandomAccessFile raf;
-        
+
         /** Log file identifier */
         long logFileNumber;
-        
-  
+
+
         /**
          * Creates an instance of a LogFileWriter
          * 
@@ -255,11 +259,11 @@ import java.io.RandomAccessFile;
         {
             // This will throw a file not found exception if file does not exist
             raf = new RandomAccessFile( logFile, "rw" );
-            
+
             this.logFileNumber = logFileNumber;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -267,17 +271,17 @@ import java.io.RandomAccessFile;
         {
             raf.write( buffer, offset, length );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
         public void sync() throws IOException
         {
-             raf.getFD().sync();
+            raf.getFD().sync();
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -285,17 +289,17 @@ import java.io.RandomAccessFile;
         {
             raf.close();
         }
-        
-        
-         /**
-          * {@inheritDoc}
-          */
+
+
+        /**
+         * {@inheritDoc}
+         */
         public long logFileNumber()
         {
             return logFileNumber;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -303,8 +307,8 @@ import java.io.RandomAccessFile;
         {
             return raf.length();
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -312,8 +316,8 @@ import java.io.RandomAccessFile;
         {
             raf.seek( position );
         }
-        
-        
+
+
         /**
          * @see Object#toString()
          */

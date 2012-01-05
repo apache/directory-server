@@ -81,7 +81,8 @@ public class ReferralManagerImpl implements ReferralManager
         Set<String> suffixes = nexus.listSuffixes();
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
-        init( directoryService, suffixes.toArray( new String[]{} ) );
+        init( directoryService, suffixes.toArray( new String[]
+            {} ) );
 
         unlock();
     }
@@ -161,12 +162,13 @@ public class ReferralManagerImpl implements ReferralManager
         CoreSession adminSession = directoryService.getAdminSession();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
-        for ( String suffix:suffixes )
+        for ( String suffix : suffixes )
         {
             // We will store each entry's Dn into the Referral tree
             Dn suffixDn = directoryService.getDnFactory().create( suffix );
 
-            SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, referralFilter, searchControl );
+            SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn,
+                referralFilter, searchControl );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             EntryFilteringCursor cursor = nexus.search( searchOperationContext );
 

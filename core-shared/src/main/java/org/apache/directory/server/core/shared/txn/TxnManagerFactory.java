@@ -43,7 +43,7 @@ public class TxnManagerFactory
 
     /** log suffix */
     private String LOG_SUFFIX = "log";
-    
+
     private boolean inited;
 
 
@@ -58,7 +58,7 @@ public class TxnManagerFactory
      */
     public TxnManagerFactory( String logFolderPath,
         int logBufferSize, long logFileSize ) throws IOException
-    {       
+    {
         Log log = new DefaultLog();
 
         try
@@ -75,24 +75,25 @@ public class TxnManagerFactory
         txnLogManager = new DefaultTxnLogManager( log, this );
 
         ( ( DefaultTxnManager ) txnManager ).init( txnLogManager );
-        
+
         inited = true;
 
     }
-    
+
+
     public void uninit()
     {
         if ( inited == false )
         {
             return;
         }
-        
+
         ( ( DefaultTxnManager ) txnManager ).uninit();
-        ( (DefaultTxnLogManager) txnLogManager).uninit();
+        ( ( DefaultTxnLogManager ) txnLogManager ).uninit();
         inited = false;
     }
-    
-    
+
+
     public TxnManager txnManagerInstance()
     {
         return txnManager;

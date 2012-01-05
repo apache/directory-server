@@ -44,15 +44,17 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 public class EntryCursorAdaptor implements Cursor<Entry>
 {
     /** Underlying partition */
-    private  Partition db;
-    
+    private Partition db;
+
     /** Wrapped cursor */
-    private  IndexCursor<UUID> indexCursor;
+    private IndexCursor<UUID> indexCursor;
 
     /** Master table of the partition */
     MasterTable masterTable;
 
-    public EntryCursorAdaptor( Partition db, IndexCursor<UUID> indexCursor, TxnManagerFactory txnManagerFactory ) throws Exception
+
+    public EntryCursorAdaptor( Partition db, IndexCursor<UUID> indexCursor, TxnManagerFactory txnManagerFactory )
+        throws Exception
     {
         this.db = db;
         this.indexCursor = indexCursor;

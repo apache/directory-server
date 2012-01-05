@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.shared.log;
 
+
 import java.io.IOException;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -29,11 +30,12 @@ import java.io.FileNotFoundException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-/* Package protected */ interface LogFileManager
+/* Package protected */interface LogFileManager
 {
     /** The log file prefix */
-    final static String LOG_NAME_PREFIX = "log_"; 
-  
+    final static String LOG_NAME_PREFIX = "log_";
+
+
     /**
      * Returns a reader for the given log file number
      *
@@ -43,8 +45,8 @@ import java.io.FileNotFoundException;
      * @throws FileNotFoundException If the log file can't be found
      */
     LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
-    
-  
+
+
     /**
      * Returns a writer for the given log file number
      *
@@ -54,8 +56,8 @@ import java.io.FileNotFoundException;
      * @throws FileNotFoundException If the log file can't be found
      */
     LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
-    
-    
+
+
     /**
      * Create a log file with the given identifier
      * 
@@ -64,8 +66,8 @@ import java.io.FileNotFoundException;
      * @throws IOException If there is an issue creating the LogFile
      */
     boolean createLogFile( long logFileNumber ) throws IOException;
-    
-       
+
+
     /**
      * Truncates the file to the given size. Mostly used for throwing away
      * junk at the end of log file after a log replay after a crash.
@@ -75,16 +77,16 @@ import java.io.FileNotFoundException;
      * @throws IOException If there is an issue truncating the LogFile
      */
     void truncateLogFile( long logFileNumber, long size ) throws IOException;
-    
-    
+
+
     /**
      * Deletes the underlying log file.
      *
      * @param logFileNumber identifier of the log file
      */
-    void deleteLogFile( long logFileNumber ); 
-    
-    
+    void deleteLogFile( long logFileNumber );
+
+
     /**
      * Moves the old log file to a new name
      *
@@ -93,8 +95,7 @@ import java.io.FileNotFoundException;
      * @return true if the rename succeeded
      */
     boolean rename( long orignalLogFileNumber, long newLongFileNumber );
-    
-    
+
     /**
      * An interface defining all the operations a reader can do on a File
      */
@@ -110,7 +111,7 @@ import java.io.FileNotFoundException;
          * @throws EOFException If the file does not contain enough data
          */
         void read( byte[] buffer, int offset, int length ) throws IOException, EOFException;
-        
+
 
         /**
          * Repositions the reader at the given offset
@@ -119,16 +120,16 @@ import java.io.FileNotFoundException;
          * @throws IOException If the seek operation failed
          */
         void seek( long position ) throws IOException;
-        
-        
+
+
         /**
          * Close the log file reader and releases the resources 
          *
          * @throws IOException If the close failed
          */
         void close() throws IOException;
-        
-        
+
+
         /**
          * Each log file is assigned a sequence number. This method
          * returns that number
@@ -136,23 +137,22 @@ import java.io.FileNotFoundException;
          * @return number assigned to this log file
          */
         long logFileNumber();
-        
-        
+
+
         /**
          * @return the length of the file
          * @throws IOException If the operation failed
          */
         long getLength() throws IOException;
-        
-        
+
+
         /**
          * @return the offset of the next read
          * @throws IOException If the operation failed
          */
         long getOffset() throws IOException;
     }
-    
-    
+
     /**
      * An interface defining all the operations a writer can do on a File
      */
@@ -167,24 +167,24 @@ import java.io.FileNotFoundException;
          * @throws IOException If we cannot append data to the file
          */
         void append( byte[] buffer, int offset, int length ) throws IOException;
-        
-        
+
+
         /**
          * Sync the file contents to media
          * 
          * @throws IOException If we cannot sync on disk
          */
         void sync() throws IOException;
-        
-        
+
+
         /**
          * Close the log file reader and releases the resources 
          * 
          * @throws IOException If we cannot close the file
          */
         void close() throws IOException;
-        
-        
+
+
         /**
          * Each log file is assigned a sequence number. This method
          * returns that number
@@ -192,16 +192,16 @@ import java.io.FileNotFoundException;
          * @return number assigned to this log file
          */
         long logFileNumber();
-        
-        
+
+
         /**
          * @return the length of the file
          * 
          * @throws IOException If we cannot return the length
          */
         long getLength() throws IOException;
-        
-        
+
+
         /**
          * Repositions the reader at the given offset.
          *
