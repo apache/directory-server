@@ -36,6 +36,7 @@ import org.apache.directory.server.component.hub.client.HubClientPartitions;
 import org.apache.directory.server.component.hub.client.HubClientServers;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.component.utilities.ADSOSGIEventsHelper;
+import org.apache.directory.server.component.utilities.EntryNormalizer;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -117,6 +118,9 @@ public class ApacheDS implements EventHandler
 
     /** DirectoryService reference */
     private DirectoryService directoryService;
+
+    /** DirectoryServiceBean reference */
+    private DirectoryServiceBean directoryServiceBean;
 
     /** The SchemaPartition */
     private SchemaPartition schemaPartition;
@@ -237,22 +241,30 @@ public class ApacheDS implements EventHandler
      */
     private void initiateComponentManagement() throws Exception
     {
+
         // Init SchemaPartition and 'Config Partition' for ComponentHub use.
         initSchemaManagerAndPartition();
         initConfigPartition();
 
-        new Thread(new Runnable()
+        // Read the configuration
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
+        ConfigBean configBean = cpReader.readConfig();
+
+        directoryServiceBean = configBean.getDirectoryServiceBean();
+        
+        EntryNormalizer.init( schemaManager, directoryServiceBean.getDsReplicaId() );
+
+        new Thread( new Runnable()
         {
-            
+
             @Override
             public void run()
             {
                 // Create the Component Hub object for component management.
                 componentHub = ComponentHub.createIPojoInstance( instanceDir, schemaPartition, configPartition );
-                
+
             }
-        }).start();
-        
+        } ).start();
 
         // Instantiate HubClients for Interceptors and Partitions
         interceptorsManager = new HubClientInterceptors();
@@ -340,15 +352,9 @@ public class ApacheDS implements EventHandler
 
     private void initDirectoryService() throws Exception
     {
-        // Read the configuration
-        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        ConfigBean configBean = cpReader.readConfig();
-
         LOG.info( "Initializing the DirectoryService..." );
 
         long startTime = System.currentTimeMillis();
-
-        DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
 
         // Get the core interceptor and partitions list from HubClients.
         // Core ones must be set at the timt this method is called.

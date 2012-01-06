@@ -31,6 +31,7 @@ import org.apache.directory.server.component.schema.ComponentOIDGenerator;
 import org.apache.directory.server.component.schema.ComponentSchemaGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
+import org.apache.directory.server.component.utilities.EntryNormalizer;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -38,12 +39,17 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +158,9 @@ public class ComponentSchemaManager
 
         for ( LdifEntry le : schemaElements )
         {
-            AddOperationContext addContext = new AddOperationContext( null, le.getEntry() );
+            Entry normalizedEntry = EntryNormalizer.normalizeEntry( le.getEntry() );
+            AddOperationContext addContext = new AddOperationContext( null, normalizedEntry );
+
             schemaPartition.add( addContext );
         }
     }
@@ -196,12 +204,15 @@ public class ComponentSchemaManager
     {
         try
         {
-            InputStream is  = this.getClass().getResourceAsStream( "componenthub.ldif" );
-            LdifReader reader = new LdifReader( is );
+            LdifReader reader = new LdifReader( this.getClass().getResourceAsStream( "componenthub.ldif" ) );
 
             for ( LdifEntry le : reader )
             {
-                AddOperationContext addContext = new AddOperationContext( null, le.getEntry() );
+
+                Entry normalizedEntry = EntryNormalizer.normalizeEntry( le.getEntry() );
+                
+                AddOperationContext addContext = new AddOperationContext( null, normalizedEntry );
+
                 schemaPartition.add( addContext );
             }
         }

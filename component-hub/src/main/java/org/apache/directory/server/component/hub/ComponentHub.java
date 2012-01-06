@@ -31,6 +31,7 @@ import org.apache.directory.server.component.schema.DefaultComponentSchemaGenera
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSConstants;
 import org.apache.directory.server.component.utilities.ADSOSGIEventsHelper;
+import org.apache.directory.server.component.utilities.EntryNormalizer;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.partition.Partition;
