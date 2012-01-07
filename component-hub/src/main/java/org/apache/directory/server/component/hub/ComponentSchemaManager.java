@@ -21,9 +21,12 @@ package org.apache.directory.server.component.hub;
 
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.schema.ADSComponentSchema;
@@ -33,18 +36,27 @@ import org.apache.directory.server.component.schema.DefaultComponentSchemaGenera
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
 import org.apache.directory.server.component.utilities.EntryNormalizer;
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.filter.AssertionType;
+import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.filter.FilterVisitor;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -161,7 +173,9 @@ public class ComponentSchemaManager
             Entry normalizedEntry = EntryNormalizer.normalizeEntry( le.getEntry() );
             AddOperationContext addContext = new AddOperationContext( null, normalizedEntry );
 
-            schemaPartition.add( addContext );
+            // Add schema element to registries and underlying partition.
+            schemaPartition.getRegistrySynchronizerAdaptor().add( addContext );
+            schemaPartition.getWrappedPartition().add( addContext );
         }
     }
 
@@ -177,7 +191,8 @@ public class ComponentSchemaManager
         LookupOperationContext luc = new LookupOperationContext( null );
         try
         {
-            luc.setDn( new Dn( "cn", ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA ) );
+            luc.setDn( EntryNormalizer.normalizeDn( new Dn( "cn", ADSSchemaConstants.ADS_COMPONENT_BASE,
+                SchemaConstants.OU_SCHEMA ) ) );
             Entry e = schemaPartition.lookup( luc );
 
             if ( e != null )
@@ -210,10 +225,14 @@ public class ComponentSchemaManager
             {
 
                 Entry normalizedEntry = EntryNormalizer.normalizeEntry( le.getEntry() );
-                
+
                 AddOperationContext addContext = new AddOperationContext( null, normalizedEntry );
 
-                schemaPartition.add( addContext );
+                // Add schema element to registries and underlying partition.
+                schemaPartition.getRegistrySynchronizerAdaptor().add( addContext );
+                schemaPartition.getWrappedPartition().add( addContext );
+
+                //schemaPartition.add( addContext );
             }
         }
         catch ( LdapException e )
@@ -235,27 +254,36 @@ public class ComponentSchemaManager
      */
     private void feedOIDGenerator()
     {
+
         try
         {
-            Dn componentOCDn = new Dn( "m-oid", ADSSchemaConstants.ADS_COMPONENT, SchemaConstants.OBJECT_CLASSES_PATH,
-                "cn",
-                ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA );
+            Dn componentOCDn = EntryNormalizer.normalizeDn(
+                new Dn( "m-oid", ADSSchemaConstants.ADS_COMPONENT_OID,
+                    SchemaConstants.OBJECT_CLASSES_PATH,
+                    "cn",
+                    ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA ) );
 
             SearchOperationContext soc = new SearchOperationContext( null );
             soc.setDn( componentOCDn );
-            soc.setScope( SearchScope.ONELEVEL );
+            soc.setScope( SearchScope.OBJECT );
+            AttributeType moidat = schemaPartition.getSchemaManager().getAttributeType( "m-oid" );
+            soc.setFilter( new PresenceNode( moidat ) );
+
+            // Set to all, because individual names will require CoreSession in OperationContext
             soc.setReturningAttributes( new String[]
-                { "m-oid" } );
+                { SchemaConstants.NO_ATTRIBUTE } );
 
             EntryFilteringCursor cursor = schemaPartition.search( soc );
 
-            int baseOIDLen = ADSSchemaConstants.ADS_COMPONENT_BASE.length();
+            int baseOIDLen = ADSSchemaConstants.ADS_COMPONENT_BASE_OID.length();
             int maxComponentID = 0;
 
             while ( cursor.next() )
             {
-                String oid = cursor.get().get( "m-oid" ).get().getString();
-                String _componentID = oid.substring( baseOIDLen );
+                Entry currentEntry = cursor.get();
+                String oid = currentEntry.getDn().getRdn().getNormValue().getString();
+
+                String _componentID = oid.substring( baseOIDLen + 1 );
                 _componentID = _componentID.substring( 0, _componentID.indexOf( '.' ) );
 
                 int componentID = Integer.parseInt( _componentID );
