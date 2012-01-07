@@ -71,7 +71,7 @@ public class DefaultTxnLogManager implements TxnLogManager
     }
 
 
-    public void uninit()
+    public void shutdown()
     {
         // Do nothing
     }

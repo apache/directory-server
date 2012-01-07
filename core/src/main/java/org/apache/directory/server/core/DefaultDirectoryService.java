@@ -1416,8 +1416,8 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Shutdown the txnManager
         //
-        txnManagerFactory.uninit();
-        executionManagerFactory.uninit();
+        txnManagerFactory.shutdown();
+        executionManagerFactory.shutdown();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog

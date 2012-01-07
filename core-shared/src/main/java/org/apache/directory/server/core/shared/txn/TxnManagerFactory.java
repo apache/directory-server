@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.IOException;
+
+import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.Log;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.shared.log.DefaultLog;
-import org.apache.directory.server.core.api.log.Log;
-import org.apache.directory.server.core.api.log.InvalidLogException;
-
-import java.io.IOException;
 
 
 /**
@@ -81,15 +81,15 @@ public class TxnManagerFactory
     }
 
 
-    public void uninit()
+    public void shutdown()
     {
         if ( inited == false )
         {
             return;
         }
 
-        ( ( DefaultTxnManager ) txnManager ).uninit();
-        ( ( DefaultTxnLogManager ) txnLogManager ).uninit();
+        ( ( DefaultTxnManager ) txnManager ).shutdown();
+        ( ( DefaultTxnLogManager ) txnLogManager ).shutdown();
         inited = false;
     }
 

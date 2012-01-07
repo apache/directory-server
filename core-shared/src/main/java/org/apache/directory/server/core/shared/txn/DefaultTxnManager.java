@@ -138,7 +138,7 @@ class DefaultTxnManager implements TxnManagerInternal
     }
 
 
-    public void uninit()
+    public void shutdown()
     {
         syncer.interrupt();
 

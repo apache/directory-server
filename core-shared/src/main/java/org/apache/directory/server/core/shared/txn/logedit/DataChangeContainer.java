@@ -247,6 +247,15 @@ public class DataChangeContainer extends AbstractLogEdit
     }
 
 
+    /**
+     * Read back a DataChange container from a stream. The format is : <br/>
+     * <ul>
+     * <li>entryId if we have stored an Entry change, null if it's an Index change</li>
+     * <li>the transaction id</li>
+     * <li>the partition DN</li>
+     * <li>the changes if any</li>
+     * </ul>
+     */
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
@@ -266,6 +275,8 @@ public class DataChangeContainer extends AbstractLogEdit
 
         partitionDn = new Dn();
         partitionDn.readExternal( in );
+
+        // Here, we must find a way to find the Partition from its Dn
 
         DataChange change;
         int numChanges = in.readInt();

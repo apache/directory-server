@@ -41,7 +41,7 @@ public class OperationExecutionManagerFactory
     }
 
 
-    public void uninit()
+    public void shutdown()
     {
         //do nothing;
     }

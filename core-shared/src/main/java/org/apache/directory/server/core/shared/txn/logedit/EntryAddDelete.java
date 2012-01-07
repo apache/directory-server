@@ -32,7 +32,8 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
- * A Change class for entry addition or deletion
+ * A Change class for entry addition or deletion. Every time we add or delete an entry, we
+ * used this class to store the added or deleted entry.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -44,14 +45,30 @@ public class EntryAddDelete implements EntryModification
     /** Type of change */
     Type type;
 
-
-    // For externalizable
-    public EntryAddDelete()
+    /**
+     * The change type : ADD or DELETE
+     */
+    public enum Type
     {
-
+        ADD,
+        DELETE
     }
 
 
+    /**
+     * A default constructor used for deserialisation only
+     */
+    public EntryAddDelete()
+    {
+    }
+
+
+    /**
+     * Create a new Add/Del change instance
+     * 
+     * @param entry The entry being added or deleted
+     * @param type ADD for an addition, DELETE for a deletion
+     */
     public EntryAddDelete( Entry entry, Type type )
     {
         this.entry = entry;
@@ -59,12 +76,18 @@ public class EntryAddDelete implements EntryModification
     }
 
 
+    /**
+     * @return The stored entry
+     */
     public Entry getChangedEntry()
     {
         return entry;
     }
 
 
+    /**
+     * @return The type, ADD or DELETE
+     */
     public Type getType()
     {
         return type;
@@ -116,26 +139,30 @@ public class EntryAddDelete implements EntryModification
     }
 
 
+    /**
+     * Read back the entry from the stream.
+     */
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
+        type = Type.values()[in.readInt()];
         entry = new DefaultEntry();
         entry.readExternal( in );
-        type = Type.values()[in.readInt()];
     }
 
 
+    /**
+     * Write the change in a stream. The format is : <br/>
+     * <ul>
+     * <li>type (0 for ADD, 1 for DELETE</li>
+     * <li>entry</li>
+     * </ul>
+     */
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        entry.writeExternal( out );
         out.writeInt( type.ordinal() );
-    }
-
-    public enum Type
-    {
-        ADD,
-        DELETE
+        entry.writeExternal( out );
     }
 
 
