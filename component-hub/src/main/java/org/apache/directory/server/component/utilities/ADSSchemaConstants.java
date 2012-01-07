@@ -50,8 +50,8 @@ public class ADSSchemaConstants
     /*
      * Attribute name of component object class
      */
-    public static final String ADS_COMPONENT_ATTRIB_OC = "ads-ocname";
-    public static final String ADS_COMPONENT_ATTRIB_OC_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.3";
+    public static final String ADS_COMPONENT_ATTRIB_OCNAME = "ads-ocname";
+    public static final String ADS_COMPONENT_ATTRIB_OCNAME_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.3";
 
     /*
      * Attribute name of component purge count

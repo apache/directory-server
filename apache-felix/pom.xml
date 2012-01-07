@@ -172,6 +172,7 @@
                 <include>bin/</include>
                 <include>bundle/</include>
                 <include>felix-cache/</include>
+                <include>default</include>
               </includes>
             </fileset>
           </filesets>

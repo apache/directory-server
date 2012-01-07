@@ -251,7 +251,7 @@ public class ConfigurationManager
                 "ou:" + componentName,
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_NAME + ":" + componentName,
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_TYPE + ":" + componentType,
-                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_OC + ":" + componentOCName,
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_OCNAME + ":" + componentOCName,
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE + ":" + "0" ) );
 
             ldifs.add( new LdifEntry( componentInstancesDn,

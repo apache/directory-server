@@ -9,6 +9,8 @@ import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.DateUtils;
 
@@ -55,7 +57,7 @@ public class EntryNormalizer
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         // This will cause the Dn and attribute names to be normalized,
-        Entry normalizedEntry;
+        Entry normalizedEntry = null;
         try
         {
             normalizedEntry = new DefaultEntry( schemaManager, entry );
@@ -63,9 +65,28 @@ public class EntryNormalizer
         catch ( LdapException e )
         {
             e.printStackTrace();
-            return null;
         }
 
         return normalizedEntry;
+    }
+
+
+    /**
+     * Normalizes the given Dn.
+     *
+     * @param dn Dn reference to normalize
+     * @return Normalized Dn, null if failed.
+     */
+    public static Dn normalizeDn( Dn dn )
+    {
+        try
+        {
+            return dn.apply( schemaManager );
+        }
+        catch ( LdapInvalidDnException e )
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
