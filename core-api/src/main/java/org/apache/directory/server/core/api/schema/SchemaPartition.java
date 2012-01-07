@@ -23,6 +23,8 @@ package org.apache.directory.server.core.api.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.WrappedPlainView;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -163,6 +165,16 @@ public final class SchemaPartition extends AbstractPartition
     public Partition getWrappedPartition()
     {
         return wrapped;
+    }
+    
+    /**
+     * Gets the {@link RegistrySynchronizerAdaptor} reference.
+     *
+     * @return the registry synchronizer
+     */
+    public RegistrySynchronizerAdaptor getRegistrySynchronizerAdaptor()
+    {
+        return synchronizer;
     }
 
 
