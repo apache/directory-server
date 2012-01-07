@@ -72,8 +72,12 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
                 String propname = prop.getName();
 
                 String proptype = prop.getType();
+
                 String propoid = ComponentOIDGenerator.generateAttribOID( componentBaseOID );
+
                 String propdn = "m-oid=" + propoid + "," + attribsDn;
+
+                String propdesc = componentName + "-" + propname;
 
                 if ( !( proptype.equals( "int" ) || proptype.equals( "java.lang.String" ) || proptype
                     .equals( "boolean" ) ) )
@@ -94,7 +98,7 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
                     "objectclass:top",
                     "m-oid:" + propoid,
                     "m-name:" + propname,
-                    "m-description:Property of component type " + componentName,
+                    "m-description:" + propdesc,
                     "m-equality:" + equality,
                     "m-ordering:" + ordering,
                     "m-substr:" + substr,
@@ -110,19 +114,13 @@ public class DefaultComponentSchemaGenerator implements ComponentSchemaGenerator
                 {
                     ocAttribs.add( "m-may:" + propname );
                 }
-
             }
 
-            schemaElements.add( new LdifEntry( ocsDn,
-                "objectclass:organizationalUnit",
-                "objectClass:top",
-                "ou:objectClasses" ) );
 
             String ocoid = ComponentOIDGenerator.getObjectClassOID( componentBaseOID );
             String ocDn = "m-oid=" + ocoid + "," + ocsDn;
 
             ocAttribs.add( 0, "m-must:" + ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME );
-            ocAttribs.add( 0, "m-must:active" );
             ocAttribs.add( 0, "m-supObjectClass: top" );
             ocAttribs.add( 0, "m-description:Object Class for generating instances of:" + componentName );
             ocAttribs.add( 0, "m-name:" + componentName );
