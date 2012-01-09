@@ -90,6 +90,8 @@
               <exclude>src/main/resources/org/apache/directory/server/installers/macosxpkg/License.rtf</exclude>
               <exclude>src/main/resources/org/apache/directory/server/installers/solarispkg/pkginfo</exclude>
               <exclude>src/main/resources/org/apache/directory/server/installers/solarispkg/Prototype</exclude>
+              <!-- BMP_IMAGES_EXCLUDES -->
+              <exclude>**/*.bmp</exclude>
             </excludes>
           </configuration>
          </plugin>
