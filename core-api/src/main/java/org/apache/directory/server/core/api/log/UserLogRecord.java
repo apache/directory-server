@@ -85,7 +85,7 @@ public class UserLogRecord implements Externalizable
 
 
     /**
-     * Read back the entry from the stream.
+     * Read back the UserLogRecord from the stream.
      */
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -102,7 +102,7 @@ public class UserLogRecord implements Externalizable
 
 
     /**
-     * Write the logRecord in a stream. The format is : <br/>
+     * Write the UserLogRecord in a stream. The format is : <br/>
      * <ul>
      * <li>length of the stored data</li>
      * <li>data</li>
