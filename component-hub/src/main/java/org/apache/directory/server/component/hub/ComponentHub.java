@@ -284,18 +284,8 @@ public class ComponentHub implements EventHandler
             return;
         }
 
-        String componentType = parseComponentType( leavingFactory );
-
-        ADSComponent associatedComp = null;
-
-        for ( ADSComponent _comp : componentRegistry.getAllComponents() )
-        {
-            if ( _comp.getFactory().getName().equals( leavingFactory.getName() ) )
-            {
-                associatedComp = _comp;
-                break;
-            }
-        }
+        // Gets the associated ADSComponent reference with IPojo Factory.
+        ADSComponent associatedComp = componentRegistry.getCompoentByFactory( leavingFactory );
 
         if ( associatedComp == null )
         {
@@ -309,7 +299,6 @@ public class ComponentHub implements EventHandler
 
         // Remove the component reference from registries
         componentRegistry.removeComponent( associatedComp );
-
     }
 
 
