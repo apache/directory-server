@@ -84,8 +84,24 @@ objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
 m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.5
+m-name: ads-adscomponentversion
+m-description: Component's bundle version
+m-equality: caseIgnoreMatch
+m-ordering: caseExactOrderingMatch
+m-substr: caseIgnoreSubstringsMatch
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+m-length: 0
+m-singleValue: TRUE
+m-usage: directoryOperation
+
+dn: m-oid=1.3.6.1.4.1.18060.0.4.4.0.1.0, ou=attributeTypes, cn=componenthub, ou=sc
+ hema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.4.0.1.0
 m-name: ads-instance
-m-description: The normalized factory name of an IPojo component
+m-description: The attribute for component instantiation
 m-equality: caseIgnoreMatch
 m-ordering: caseExactOrderingMatch
 m-substr: caseIgnoreSubstringsMatch
