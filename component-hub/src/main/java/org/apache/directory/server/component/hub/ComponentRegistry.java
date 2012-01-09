@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.directory.server.component.ADSComponent;
+import org.apache.felix.ipojo.Factory;
 
 
 /*
@@ -37,6 +38,11 @@ public class ComponentRegistry
      * Used to map component name to ADSComponent
      */
     private Dictionary<String, ADSComponent> nameToComponentMap;
+
+    /*
+     * Used to map IPojo factory to ADSComponent
+     */
+    private Dictionary<Factory, ADSComponent> factoryToComponentMap;
 
     /*
      * Used to map component type to all ADSComponents of that type
@@ -52,6 +58,7 @@ public class ComponentRegistry
     public ComponentRegistry()
     {
         nameToComponentMap = new Hashtable<String, ADSComponent>();
+        factoryToComponentMap = new Hashtable<Factory, ADSComponent>();
         typeToComponentsMap = new Hashtable<String, List<ADSComponent>>();
         components = new ArrayList<ADSComponent>();
     }
@@ -77,6 +84,7 @@ public class ComponentRegistry
         }
 
         nameToComponentMap.put( component.getComponentName().toLowerCase(), component );
+        factoryToComponentMap.put( component.getFactory(), component );
     }
 
 
@@ -97,6 +105,7 @@ public class ComponentRegistry
         }
 
         nameToComponentMap.remove( component.getComponentName().toLowerCase() );
+        factoryToComponentMap.remove( component.getFactory() );
     }
 
 
@@ -120,6 +129,18 @@ public class ComponentRegistry
     public ADSComponent getComponentByName( String componentName )
     {
         return nameToComponentMap.get( componentName.toLowerCase() );
+    }
+
+
+    /**
+     * Retrieve the component by its IPojo Factory
+     *
+     * @param componentFactory IPojo component factory to fetch its component.
+     * @return ADSComponent reference.
+     */
+    public ADSComponent getCompoentByFactory( Factory componentFactory )
+    {
+        return factoryToComponentMap.get( componentFactory );
     }
 
 
