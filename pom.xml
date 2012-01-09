@@ -195,7 +195,7 @@
               <exclude>**/.project</exclude>
               <exclude>**/.settings/**/*</exclude>
               <!-- ECLIPSE_LAUNCH_EXCLUDES -->
-              <exclude>**/ApacheDS.launch</exclude>
+              <exclude>**/*.launch</exclude>
               <!-- IDEA_DEFAULT_EXCLUDES -->
               <exclude>**/*.iml</exclude>
               <exclude>**/*.ipr</exclude>
@@ -220,6 +220,10 @@
               <exclude>osgi/src/main/resources/META-INF/spring.schemas</exclude>
               <!-- LOG_FILES_EXCLUDES -->
               <exclude>**/*.log</exclude>
+              <!-- BYTECODE_EXCLUDES -->
+              <exclude>**/*.bytecode</exclude>
+              <!-- BMP_IMAGES_EXCLUDES -->
+              <exclude>**/*.bmp</exclude>
             </excludes>
           </configuration>
         </plugin>
