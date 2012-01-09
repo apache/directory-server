@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.instance.ADSComponentInstance;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -50,7 +51,7 @@ public class LdifConfigHelper
         ADSComponent parentComponent = instance.getParentComponent();
         Properties instanceConfiguration = instance.getInstanceConfiguration();
 
-        String instanceName = ( String ) instanceConfiguration.get(
+        String instanceName = ( String ) instanceConfiguration.remove(
             ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME );
 
         if ( instanceName == null )
@@ -64,14 +65,12 @@ public class LdifConfigHelper
 
         List<String> attributes = new ArrayList<String>();
 
+        attributes.add( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME + ":" + instanceName );
+        attributes.add( SchemaConstants.OBJECT_CLASS_AT + ":"
+            + ADSComponentHelper.getComponentObjectClass( parentComponent ) );
+
         for ( Object key : instanceConfiguration.keySet() )
         {
-            if ( key.equals( ADSConstants.ADS_COMPONENT_INSTANCE_PROP_NAME ) )
-            {
-                String dnAttrib = ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME + ":" + instanceName;
-                attributes.add( dnAttrib );
-            }
-
             String attribute = ( String ) key + ":" + ( String ) instanceConfiguration.get( key );
             attributes.add( attribute );
         }
@@ -115,6 +114,7 @@ public class LdifConfigHelper
         {
             String instanceName = instanceEntry.get( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME )
                 .getString();
+
             if ( instanceName == null )
             {
                 //Entry is not instance entry.
@@ -127,12 +127,19 @@ public class LdifConfigHelper
             for ( Attribute attribute : attributes )
             {
                 String attribName = attribute.getId();
-                String attribVal = attribute.getString();
 
-                if ( attribName.equals( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME ) )
+                if ( attribName.equals( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME_OID ) ||
+                    attribName.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) ||
+                    attribName.equals( SchemaConstants.ENTRY_PARENT_ID_OID ) ||
+                    attribName.equals( SchemaConstants.ENTRY_UUID_AT_OID ) ||
+                    attribName.equals( SchemaConstants.CREATE_TIMESTAMP_AT_OID ) ||
+                    attribName.equals( SchemaConstants.CREATORS_NAME_AT_OID ) ||
+                    attribName.equals( SchemaConstants.ENTRY_CSN_AT_OID ) )
                 {
                     continue;
                 }
+
+                String attribVal = attribute.getString();
 
                 configuration.put( attribName, attribVal );
             }

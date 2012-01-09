@@ -52,13 +52,12 @@ public class ADSComponentHelper
      * Gets the version of the component. This version is the bundle version of the bundle that
      * contains specified component. 
      *
-     * @param componentFactory An IPojo Component Factory reference
+     * @param component An ADSComponent reference with its factory reference set.
      * @return version of an IPojo Component
      */
-    public static String getComponentVersion( Factory componentFactory )
+    public static String getComponentVersion( ADSComponent component )
     {
-        return ( String ) componentFactory.getBundleContext().getBundle().getHeaders().get( "Bundle-Version" );
-
+        return ( String ) component.getFactory().getBundleContext().getBundle().getHeaders().get( "Bundle-Version" );
     }
 
 

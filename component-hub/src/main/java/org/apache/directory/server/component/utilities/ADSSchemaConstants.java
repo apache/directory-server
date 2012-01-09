@@ -60,8 +60,15 @@ public class ADSSchemaConstants
     public static final String ADS_COMPONENT_ATTRIB_PURGE_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.4";
 
     /*
+     * Attribute name of component version
+     */
+    public static final String ADS_COMPONENT_ATTRIB_VERSION = "ads-instance";
+    public static final String ADS_COMPONENT_ATTRIB_VERSION_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.5";
+
+    /*
      * Attribute name of component instance name
      */
     public static final String ADS_COMPONENT_INSTANCE_ATTRIB_NAME = "ads-instance";
-    public static final String ADS_COMPONENT_INSTANCE_ATTRIB_NAME_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.5";
+    public static final String ADS_COMPONENT_INSTANCE_ATTRIB_NAME_OID = "1.3.6.1.4.1.18060.0.4.4.0.1.0";
+    
 }

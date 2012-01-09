@@ -223,7 +223,7 @@ public class ComponentManager
                     maxNumber = instanceNumber;
                 }
             }
-            catch ( NumberFormatException e )
+            catch ( Exception e )
             {
                 continue;
             }
@@ -243,7 +243,7 @@ public class ComponentManager
                     maxNumber = instanceNumber;
                 }
             }
-            catch ( NumberFormatException e )
+            catch ( Exception e )
             {
                 continue;
             }
