@@ -31,6 +31,7 @@ import org.apache.directory.server.component.instance.CachedComponentInstance;
 import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
 import org.apache.directory.server.component.utilities.ADSSchemaConstants;
+import org.apache.directory.server.component.utilities.EntryNormalizer;
 import org.apache.directory.server.component.utilities.LdifConfigHelper;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -66,6 +68,11 @@ public class ConfigurationManager
     private final Logger LOG = LoggerFactory.getLogger( ConfigurationManager.class );
 
     /*
+     * SchemaManager reference.
+     */
+    private SchemaManager schemaManager;
+
+    /*
      * Config Partition reference.
      */
     private SingleFileLdifPartition configPartition;
@@ -80,6 +87,7 @@ public class ConfigurationManager
     {
         this.configPartition = configPartition;
         this.componentSchemaManager = componentSchemaManager;
+        this.schemaManager = configPartition.getSchemaManager();
     }
 
 
@@ -107,13 +115,14 @@ public class ConfigurationManager
                 return;
             }
 
-            checkAndCreateComponentParentEntry( component );
+            checkAndCreateComponentTypeEntry( component );
 
             List<LdifEntry> componentEntries = generateComponentEntries( component );
 
             for ( LdifEntry le : componentEntries )
             {
-                AddOperationContext ac = new AddOperationContext( null, le.getEntry() );
+                Entry normalizedComponentEntry = EntryNormalizer.normalizeEntry( le.getEntry() );
+                AddOperationContext ac = new AddOperationContext( null, normalizedComponentEntry );
                 try
                 {
                     configPartition.add( ac );
@@ -128,19 +137,17 @@ public class ConfigurationManager
         }
 
         List<Entry> instanceEntries = getCachedInstances( component );
-        if ( instanceEntries == null )
+        if ( instanceEntries != null )
         {
-            return;
-        }
+            List<CachedComponentInstance> cachedInstances = new ArrayList<CachedComponentInstance>();
+            for ( Entry e : instanceEntries )
+            {
+                Properties conf = LdifConfigHelper.instanceEntryToConfiguration( e );
+                cachedInstances.add( new CachedComponentInstance( e.getDn().getName(), conf ) );
+            }
 
-        List<CachedComponentInstance> cachedInstances = new ArrayList<CachedComponentInstance>();
-        for ( Entry e : instanceEntries )
-        {
-            Properties conf = LdifConfigHelper.instanceEntryToConfiguration( e );
-            cachedInstances.add( new CachedComponentInstance( e.getDn().getName(), conf ) );
+            component.setCachedInstances( cachedInstances );
         }
-
-        component.setCachedInstances( cachedInstances );
 
         setActiveOnHouseKeeping( component );
     }
@@ -154,9 +161,9 @@ public class ConfigurationManager
     public void injectInstance( ADSComponentInstance instance )
     {
         LdifEntry instanceEntry = LdifConfigHelper.instanceToLdif( instance );
+        Entry normalizedInstanceEntry = EntryNormalizer.normalizeEntry( instanceEntry.getEntry() );
 
-        AddOperationContext ac = new AddOperationContext( null );
-        ac.setEntry( instanceEntry.getEntry() );
+        AddOperationContext ac = new AddOperationContext( null, normalizedInstanceEntry );
 
         try
         {
@@ -182,12 +189,15 @@ public class ConfigurationManager
     {
         try
         {
-            Attribute purgeAttrib = new DefaultAttribute( ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE, "0" );
+            AttributeType purgeAttribType = schemaManager
+                .getAttributeType( ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE_OID );
+            Attribute purgeAttrib = new DefaultAttribute( purgeAttribType, "0" );
+
             DefaultModification dm = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, purgeAttrib );
 
-            String componentDn = ADSComponentHelper.getComponentDn( component );
+            Dn componentDn = EntryNormalizer.normalizeDn( new Dn( ADSComponentHelper.getComponentDn( component ) ) );
 
-            configPartition.modify( new Dn( componentDn ), dm );
+            configPartition.modify( componentDn, dm );
         }
         catch ( Exception e )
         {
@@ -206,11 +216,13 @@ public class ConfigurationManager
      */
     private Entry getComponentEntry( ADSComponent component )
     {
-        String componentDn = ADSComponentHelper.getComponentDn( component );
-        LookupOperationContext luc = new LookupOperationContext( null );
         try
         {
-            luc.setDn( new Dn( componentDn ) );
+            Dn componentDn = EntryNormalizer.normalizeDn( new Dn( ADSComponentHelper.getComponentDn( component ) ) );
+
+            LookupOperationContext luc = new LookupOperationContext( null );
+            luc.setDn( componentDn );
+
             Entry e = configPartition.lookup( luc );
 
             return e;
@@ -241,6 +253,7 @@ public class ConfigurationManager
         String componentName = component.getComponentName();
         String componentType = component.getComponentType();
         String componentOCName = ADSComponentHelper.getComponentObjectClass( component );
+        String componentVersion = ADSComponentHelper.getComponentVersion( component );
 
         try
         {
@@ -252,7 +265,8 @@ public class ConfigurationManager
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_NAME + ":" + componentName,
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_TYPE + ":" + componentType,
                 ADSSchemaConstants.ADS_COMPONENT_ATTRIB_OCNAME + ":" + componentOCName,
-                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE + ":" + "0" ) );
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_PURGE + ":" + "0",
+                ADSSchemaConstants.ADS_COMPONENT_ATTRIB_TYPE + ":" + componentVersion ) );
 
             ldifs.add( new LdifEntry( componentInstancesDn,
                 "objectClass:organizationalUnit",
@@ -284,27 +298,24 @@ public class ConfigurationManager
         List<Entry> instances = new ArrayList<Entry>();
 
         SearchEngine<Entry, Long> se = configPartition.getSearchEngine();
-        SchemaManager schemaManager = configPartition.getSchemaManager();
 
-        AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( "organizationalUnit" ) );
+        AttributeType adsInstanceAttrib = schemaManager
+            .getAttributeType( ADSSchemaConstants.ADS_COMPONENT_INSTANCE_ATTRIB_NAME_OID );
+
+        PresenceNode filter = new PresenceNode( adsInstanceAttrib );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchScope.SUBTREE.ordinal() );
+
         IndexCursor<Long, Entry, Long> cursor = null;
 
         try
         {
+            // Get the normalized search base Dn
+            Dn normalizedBaseDn = EntryNormalizer.normalizeDn( new Dn( componentInstancesDn ) );
+
             // Do the search
-            cursor = se.cursor( new Dn( componentInstancesDn ), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+            cursor = se.cursor( normalizedBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
-            // First, check if we have some entries to process.
-            if ( !cursor.next() )
-            {
-                LOG.error( "No instances found for component:" + component );
-                return null;
-            }
-
-            // Skip the first Entry by invoking cursor.next() in while clause.
             while ( cursor.next() )
             {
                 ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
@@ -351,11 +362,12 @@ public class ConfigurationManager
      *
      * @param component ADSComponent to create parent entry on DIT.
      */
-    private void checkAndCreateComponentParentEntry( ADSComponent component )
+    private void checkAndCreateComponentTypeEntry( ADSComponent component )
     {
         try
         {
-            Dn componentBaseDn = new Dn( ADSComponentHelper.getComponentParentRdn( component ) );
+            Dn componentBaseDn = EntryNormalizer.normalizeDn( new Dn( ADSComponentHelper
+                .getComponentParentRdn( component ) ) );
 
             LookupOperationContext loc = new LookupOperationContext( null );
             loc.setDn( componentBaseDn );
@@ -366,12 +378,15 @@ public class ConfigurationManager
                 return;
             }
 
-            LdifEntry componentParentEntry = new LdifEntry( componentBaseDn,
+            Entry componentParentEntry = new LdifEntry( componentBaseDn,
                 "objectClass:organizationalUnit",
-                "objectClass:top"
-                );
+                "objectClass:top",
+                componentBaseDn.getRdn().getUpType() + ":" + componentBaseDn.getRdn().getUpValue()
+                ).getEntry();
 
-            AddOperationContext aoc = new AddOperationContext( null, componentParentEntry.getEntry() );
+            AddOperationContext aoc = new AddOperationContext( null,
+                EntryNormalizer.normalizeEntry( componentParentEntry ) );
+
             configPartition.add( aoc );
         }
         catch ( LdapInvalidDnException e )

@@ -22,10 +22,12 @@ package org.apache.directory.server.component.hub;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.directory.server.component.ADSComponent;
 import org.apache.directory.server.component.hub.listener.HubListener;
+import org.apache.directory.server.component.instance.ADSComponentInstance;
 import org.apache.directory.server.component.instance.DefaultComponentInstanceGenerator;
 import org.apache.directory.server.component.schema.DefaultComponentSchemaGenerator;
 import org.apache.directory.server.component.utilities.ADSComponentHelper;
@@ -177,19 +179,26 @@ public class ComponentHub implements EventHandler
         this.instanceDir = instanceDir;
         this.schemaPartition = schemaPartition;
         this.configPartition = configPartition;
-        
+
         componentSchemaManager = new ComponentSchemaManager( schemaPartition );
         configManager = new ConfigurationManager( configPartition, componentSchemaManager );
-
-        // Initialized here because of the IPojo's object initialization routine !
-        componentSchemaManager.addSchemaGenerator( Interceptor.class.getName(), new DefaultComponentSchemaGenerator() );
-        componentSchemaManager.addSchemaGenerator( Partition.class.getName(), new DefaultComponentSchemaGenerator() );
         componentManager = new ComponentManager( configManager );
 
-        componentManager.addInstanceGenerator( Interceptor.class.getName(), new DefaultComponentInstanceGenerator() );
-        componentManager.addInstanceGenerator( Partition.class.getName(), new DefaultComponentInstanceGenerator() );
+        // Adding default schema generators for component types those will be managed
+        componentSchemaManager.addSchemaGenerator( ADSConstants.ADS_COMPONENT_TYPE_INTERCEPTOR,
+            new DefaultComponentSchemaGenerator() );
+        componentSchemaManager.addSchemaGenerator( ADSConstants.ADS_COMPONENT_TYPE_PARTITION,
+            new DefaultComponentSchemaGenerator() );
+        componentSchemaManager.addSchemaGenerator( ADSConstants.ADS_COMPONENT_TYPE_SERVER,
+            new DefaultComponentSchemaGenerator() );
 
-        //compSchemaManager.addSchemaGenerator( DirectoryBackedService.class.getName(), new DefaultComponentSchemaGenerator() );
+        // Adding default instance generators for component types those will be managed
+        componentManager.addInstanceGenerator( ADSConstants.ADS_COMPONENT_TYPE_INTERCEPTOR,
+            new DefaultComponentInstanceGenerator() );
+        componentManager.addInstanceGenerator( ADSConstants.ADS_COMPONENT_TYPE_PARTITION,
+            new DefaultComponentInstanceGenerator() );
+        componentManager.addInstanceGenerator( ADSConstants.ADS_COMPONENT_TYPE_SERVER,
+            new DefaultComponentInstanceGenerator() );
     }
 
 
@@ -395,7 +404,7 @@ public class ComponentHub implements EventHandler
         component.setFactory( factory );
         component.setComponentType( componentType );
         component.setComponentName( ADSComponentHelper.getComponentName( component.getFactory() ) );
-        component.setComponentVersion( ADSComponentHelper.getComponentVersion( component.getFactory() ) );
+        component.setComponentVersion( ADSComponentHelper.getComponentVersion( component ) );
 
         configManager.pairWithComponent( component );
 

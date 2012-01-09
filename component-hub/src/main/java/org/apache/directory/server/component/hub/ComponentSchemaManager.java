@@ -132,6 +132,11 @@ public class ComponentSchemaManager
         }
 
         ADSComponentSchema schema = generateComponentSchema( component );
+        if ( schema == null )
+        {
+            throw new LdapException( "Notregistered component type in schema generator." );
+        }
+        
         injectSchemaElements( schema );
     }
 
@@ -149,7 +154,8 @@ public class ComponentSchemaManager
         ComponentSchemaGenerator generator = schemaGenerators.get( componentType );
         if ( generator == null )
         {
-            generator = new DefaultComponentSchemaGenerator();
+            LOG.error( "No schema generator is registered for component type :" + componentType );
+            return null;
         }
 
         ADSComponentSchema schema = generator.generateADSComponentSchema( component );
