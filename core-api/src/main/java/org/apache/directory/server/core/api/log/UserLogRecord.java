@@ -20,12 +20,18 @@
 package org.apache.directory.server.core.api.log;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+
 /** 
  * A user log record that can be used to pass user record between the clients and the logger.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class UserLogRecord
+public class UserLogRecord implements Externalizable
 {
     /** array used to hold user log records */
     private byte[] recordHolder;
@@ -75,6 +81,41 @@ public class UserLogRecord
     public LogAnchor getLogAnchor()
     {
         return logAnchor;
+    }
+
+
+    /**
+     * Read back the entry from the stream.
+     */
+    @Override
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        length = in.readInt();
+        int dataSize = in.readInt();
+
+        recordHolder = new byte[dataSize];
+        in.readFully( recordHolder );
+
+        logAnchor = new LogAnchor();
+        logAnchor.readExternal( in );
+    }
+
+
+    /**
+     * Write the logRecord in a stream. The format is : <br/>
+     * <ul>
+     * <li>length of the stored data</li>
+     * <li>data</li>
+     * <li>The logAnchor</li>
+     * </ul>
+     */
+    @Override
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        out.writeInt( length );
+        out.write( recordHolder.length );
+        out.write( recordHolder );
+        logAnchor.writeExternal( out );
     }
 
 

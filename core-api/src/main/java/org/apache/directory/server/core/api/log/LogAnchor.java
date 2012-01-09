@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.api.log;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -28,7 +33,7 @@ import org.apache.directory.server.i18n.I18n;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LogAnchor
+public class LogAnchor implements Externalizable
 {
     // TODO move this to logger 
     /** Invalid/unknown lsn. Log LSN starts at UNKNOWN_LSN + 1 and is ever increasing */
@@ -100,6 +105,35 @@ public class LogAnchor
     public long getLogLSN()
     {
         return logLSN;
+    }
+
+
+    /**
+     * Read back the LogAnchor from the stream.
+     */
+    @Override
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        logFileNumber = in.readLong();
+        logFileOffset = in.readLong();
+        logLSN = in.readLong();
+    }
+
+
+    /**
+     * Write the logAnchor in a stream. The format is : <br/>
+     * <ul>
+     * <li>logFileNumber</li>
+     * <li>logFileOffset</li>
+     * <li>logLSN</li>
+     * </ul>
+     */
+    @Override
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        out.writeLong( logFileNumber );
+        out.writeLong( logFileOffset );
+        out.writeLong( logLSN );
     }
 
 
