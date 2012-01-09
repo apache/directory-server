@@ -136,7 +136,7 @@ public class ComponentSchemaManager
         {
             throw new LdapException( "Notregistered component type in schema generator." );
         }
-        
+
         injectSchemaElements( schema );
     }
 
@@ -264,14 +264,13 @@ public class ComponentSchemaManager
         try
         {
             Dn componentOCDn = EntryNormalizer.normalizeDn(
-                new Dn( "m-oid", ADSSchemaConstants.ADS_COMPONENT_OID,
-                    SchemaConstants.OBJECT_CLASSES_PATH,
-                    "cn",
-                    ADSSchemaConstants.ADS_COMPONENT_BASE, SchemaConstants.OU_SCHEMA ) );
+                new Dn( SchemaConstants.OBJECT_CLASSES_PATH,
+                    "cn", ADSSchemaConstants.ADS_COMPONENT_BASE,
+                    SchemaConstants.OU_SCHEMA ) );
 
             SearchOperationContext soc = new SearchOperationContext( null );
             soc.setDn( componentOCDn );
-            soc.setScope( SearchScope.OBJECT );
+            soc.setScope( SearchScope.SUBTREE );
             AttributeType moidat = schemaPartition.getSchemaManager().getAttributeType( "m-oid" );
             soc.setFilter( new PresenceNode( moidat ) );
 
