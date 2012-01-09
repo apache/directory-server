@@ -148,10 +148,11 @@
     -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
-    <module>apache-felix</module>
-    <module>dependencies</module>
-    <module>service-osgi</module>
-    <module>component-hub</module>
+    <!--Uncomment to build OSGi-related bundles-->
+    <!--<module>apache-felix</module>-->
+    <!--<module>dependencies</module>-->
+    <!--<module>service-osgi</module>-->
+    <!--<module>component-hub</module>-->
   </modules>
 
   <build>
