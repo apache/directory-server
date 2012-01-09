@@ -267,6 +267,20 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <dependencies>
+          <!-- Add support for 'scp'/'sftp' -->
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh</artifactId>
+            <version>2.1</version>
+          </dependency>
+          <!-- Add support for 'scpexe' -->
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh-external</artifactId>
+            <version>2.1</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>attach-descriptor</id>
