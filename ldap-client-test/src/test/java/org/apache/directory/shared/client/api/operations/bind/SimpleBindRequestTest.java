@@ -130,7 +130,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         for ( ; i < nbLoop; i++ )
         {
             BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
+            bindRequest.setDn( new Dn( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );
@@ -151,7 +151,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testSimpleBindRequest() throws Exception
     {
         BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
+        bindRequest.setDn( new Dn( "uid=admin,ou=system" ) );
         bindRequest.setCredentials( "secret" );
 
         BindResponse bindResponse = connection.bind( bindRequest );
@@ -409,7 +409,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testDoubleSimpleBindValid() throws Exception
     {
         BindRequest br1 = new BindRequestImpl();
-        br1.setName( new Dn( "uid=admin,ou=system" ) );
+        br1.setDn( new Dn( "uid=admin,ou=system" ) );
         br1.setCredentials( Strings.getBytesUtf8( "secret" ) );
 
         BindResponse response1 = connection.bind( br1 );
@@ -418,7 +418,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         // The messageId must have been incremented
         BindRequest br2 = new BindRequestImpl();
-        br2.setName( new Dn( "uid=admin,ou=system" ) );
+        br2.setDn( new Dn( "uid=admin,ou=system" ) );
         br2.setCredentials( Strings.getBytesUtf8( "secret" ) );
 
         BindResponse response2 = connection.bind( br2 );
@@ -434,7 +434,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         // And Bind again. The messageId should be 1 
         BindRequest br3 = new BindRequestImpl();
-        br3.setName( new Dn( "uid=admin,ou=system" ) );
+        br3.setDn( new Dn( "uid=admin,ou=system" ) );
         br3.setCredentials( Strings.getBytesUtf8( "secret" ) );
 
         BindResponse response3 = connection.bind( br3 );
@@ -479,7 +479,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
             // Send another BindRequest
             BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setName( new Dn( "uid=admin,ou=system" ) );
+            bindRequest.setDn( new Dn( "uid=admin,ou=system" ) );
             bindRequest.setCredentials( "secret" );
 
             BindFuture bindFuture = connection.bindAsync( bindRequest );

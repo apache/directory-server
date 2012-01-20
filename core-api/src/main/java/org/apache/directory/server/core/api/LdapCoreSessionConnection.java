@@ -1175,7 +1175,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public void anonymousBind() throws LdapException, IOException
     {
         BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( Dn.EMPTY_DN );
+        bindRequest.setName( "" );
         bindRequest.setCredentials( ( byte[] ) null );
 
         BindResponse bindResponse = bind( bindRequest );
@@ -1200,7 +1200,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -1240,7 +1240,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         byte[] credBytes = StringConstants.EMPTY_BYTES;
 
         BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
+        bindRequest.setDn( name );
         bindRequest.setCredentials( credBytes );
 
         BindResponse bindResponse = bind( bindRequest );
@@ -1257,7 +1257,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
 
         BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
+        bindRequest.setDn( name );
         bindRequest.setCredentials( credBytes );
 
         BindResponse bindResponse = bind( bindRequest );

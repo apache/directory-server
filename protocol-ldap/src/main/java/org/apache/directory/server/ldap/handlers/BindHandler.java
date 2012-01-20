@@ -109,7 +109,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         BindOperationContext bindContext = new BindOperationContext( null );
 
         // Stores the Dn of the user to check, and its password
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );
         bindContext.setInterceptors( ldapServer.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
@@ -140,7 +140,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
             try
             {
-                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getName() );
+                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getDn() );
             }
             catch ( LdapException le )
             {

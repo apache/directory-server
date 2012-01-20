@@ -240,7 +240,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setCredentials( "secret" );
-        bindReq.setName( userDn );
+        bindReq.setDn( userDn );
         bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
 
         BindResponse resp = connection.bind( bindReq );
@@ -264,7 +264,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setCredentials( "secret" );
-        bindReq.setName( userDn );
+        bindReq.setDn( userDn );
         bindReq.setSaslMechanism( "" ); // invalid mechanism
         bindReq.setSimple( false );
 
@@ -688,7 +688,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Setup the bind request
             BindRequestImpl request = new BindRequestImpl();
             request.setMessageId( 1 );
-            request.setName( new Dn( "uid=admin,ou=system" ) );
+            request.setDn( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type1response );
             request.setSaslMechanism( mechanism );
@@ -728,7 +728,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Setup the bind request
             BindRequestImpl request = new BindRequestImpl();
             request.setMessageId( 2 );
-            request.setName( new Dn( "uid=admin,ou=system" ) );
+            request.setDn( new Dn( "uid=admin,ou=system" ) );
             request.setSimple( false );
             request.setCredentials( type3response );
             request.setSaslMechanism( mechanism );

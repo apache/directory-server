@@ -212,7 +212,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         catch ( InvalidNameException ine )
         {
             // Error code 34 : LDAP_INVALID_DN_SYNTAX
-            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect Dn given" ) );
+            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect DN given" ) );
         }
         catch ( NamingException e )
         {

@@ -59,7 +59,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         BindOperationContext bindContext = new BindOperationContext( null );
         
         // Stores the Dn of the user to check, and its password
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setInterceptors( ldapSession.getLdapServer().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
