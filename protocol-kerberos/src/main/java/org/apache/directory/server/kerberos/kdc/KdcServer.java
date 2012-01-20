@@ -85,7 +85,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** The default encryption types */
     private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
-        { "des-cbc-md5" };
+           { "aes128-cts-hmac-sha1-96", "des3-cbc-sha1-kd", "des-cbc-md5" };
 
     /** The default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -557,12 +557,11 @@ public class KdcServer extends DirectoryBackedService
 
         for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.getEncryptionTypes() )
+            EncryptionType type = EncryptionType.getByName(enc);
+
+            if ( ! EncryptionType.UNKNOWN.equals(type) ) 
             {
-                if ( type.getName().equalsIgnoreCase( enc ) )
-                {
-                    encryptionTypes.add( type );
-                }
+                encryptionTypes.add( type );
             }
         }
     }
