@@ -275,7 +275,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
         Set<EncryptionType> requestedEncryptionTypes = new HashSet<EncryptionType>();
-        requestedEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        requestedEncryptionTypes.add( EncryptionType.RC4_MD4 );
 
         kdcReqBody.setEType( requestedEncryptionTypes );
         kdcReqBody.setNonce( random.nextInt() );
