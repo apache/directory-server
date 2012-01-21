@@ -94,9 +94,9 @@ public abstract class AbstractTicketGrantingServiceTest
      */
     protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase )
     {
-        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "DES" );
+        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "AES128" );
         byte[] keyBytes = kerberosKey.getEncoded();
-        return new EncryptionKey( EncryptionType.DES_CBC_MD5, keyBytes );
+        return new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyBytes );
     }
 
 

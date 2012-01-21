@@ -23,6 +23,8 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -32,6 +34,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -67,7 +70,13 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Before
     public void setUp()
     {
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        
         config = new KdcServer();
+        
+        config.setEncryptionTypes( encryptionTypes );
+        
         store  = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new KrbDummySession();
