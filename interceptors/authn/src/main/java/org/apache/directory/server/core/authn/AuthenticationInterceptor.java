@@ -96,6 +96,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Provides;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -231,7 +233,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         this.authenticators.clear();
 
-        for (Authenticator authenticator : authenticators)
+        for ( Authenticator authenticator : authenticators )
         {
             this.authenticators.add( authenticator );
         }
@@ -312,7 +314,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-
         if ( !directoryService.isPwdPolicyEnabled() )
         {
             next( addContext );
@@ -342,7 +343,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     PasswordPolicyDecorator responseControl =
                         new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
+                    responseControl.getResponse().setPasswordPolicyError(
+                        PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
                     addContext.addResponseControl( responseControl );
                 }
 
@@ -808,8 +810,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( modifyContext );
 
-
-        if ( ! directoryService.isPwdPolicyEnabled() )
+        if ( !directoryService.isPwdPolicyEnabled() )
         {
             next( modifyContext );
             invalidateAuthenticatorCaches( modifyContext.getDn() );
@@ -836,7 +837,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         PasswordPolicyDecorator responseControl =
                             new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
+                        responseControl.getResponse().setPasswordPolicyError(
+                            PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
                         modifyContext.addResponseControl( responseControl );
                     }
 
@@ -854,7 +856,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         PasswordPolicyDecorator responseControl =
                             new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
+                        responseControl.getResponse().setPasswordPolicyError(
+                            PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
                         modifyContext.addResponseControl( responseControl );
                     }
 
@@ -868,7 +871,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     PasswordPolicyDecorator responseControl =
                         new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
+                    responseControl.getResponse().setPasswordPolicyError(
+                        PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
                     modifyContext.addResponseControl( responseControl );
                 }
 
@@ -908,7 +912,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         PasswordPolicyDecorator responseControl =
                             new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
+                        responseControl.getResponse().setPasswordPolicyError(
+                            PasswordPolicyErrorEnum.get( e.getErrorCode() ) );
                         modifyContext.addResponseControl( responseControl );
                     }
 
@@ -933,7 +938,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
 
-                for ( Value<?> value : pwdHistoryAt  )
+                for ( Value<?> value : pwdHistoryAt )
                 {
                     PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
 
@@ -945,7 +950,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                         {
                             PasswordPolicyDecorator responseControl =
                                 new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                            responseControl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
+                            responseControl.getResponse().setPasswordPolicyError(
+                                PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
                             modifyContext.addResponseControl( responseControl );
                         }
 
@@ -1181,14 +1187,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
             PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
-            
+
             PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT ) );
         }
     }
 
 
     // ---------- private methods ----------------
-    private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig ) throws LdapException
+    private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig )
+        throws LdapException
     {
         final int qualityVal = policyConfig.getPwdCheckQuality();
 
@@ -1214,7 +1221,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
 
-        String strPassword = Strings.utf8ToString(password);
+        String strPassword = Strings.utf8ToString( password );
 
         // perform the length validation
         validatePasswordLength( strPassword, policyConfig );
@@ -1226,7 +1233,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * validates the length of the password
      */
-    private void validatePasswordLength( String password, PasswordPolicyConfiguration policyConfig ) throws PasswordPolicyException
+    private void validatePasswordLength( String password, PasswordPolicyConfiguration policyConfig )
+        throws PasswordPolicyException
     {
         int maxLen = policyConfig.getPwdMaxLength();
         int minLen = policyConfig.getPwdMinLength();
@@ -1253,7 +1261,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private int getPwdTimeBeforeExpiry( Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
+    private int getPwdTimeBeforeExpiry( Entry userEntry, PasswordPolicyConfiguration policyConfig )
+        throws LdapException
     {
         if ( policyConfig.getPwdMaxAge() == 0 )
         {
@@ -1268,7 +1277,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         Attribute pwdChangedTimeAt = userEntry.get( PWD_CHANGED_TIME_AT );
-        long changedTime = DateUtils.getDate(pwdChangedTimeAt.getString()).getTime();
+        long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
 
         long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
         int pwdAge = ( int ) ( currentTime - changedTime ) / 1000;
@@ -1344,7 +1353,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private PwdModDetailsHolder getPwdModDetails( ModifyOperationContext modifyContext, PasswordPolicyConfiguration policyConfig ) throws LdapException
+    private PwdModDetailsHolder getPwdModDetails( ModifyOperationContext modifyContext,
+        PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
         PwdModDetailsHolder pwdModDetails = new PwdModDetailsHolder();
 
@@ -1388,7 +1398,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void checkPwdReset( OperationContext opContext ) throws LdapException
     {
-        if ( ! directoryService.isPwdPolicyEnabled() )
+        if ( !directoryService.isPwdPolicyEnabled() )
         {
             CoreSession session = opContext.getSession();
 
@@ -1410,7 +1420,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
     }
-
 
     private static class PwdModDetailsHolder
     {
@@ -1537,8 +1546,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     public boolean isPwdPolicyEnabled()
     {
         return ( ( pwdPolicyContainer != null )
-            && ( ( pwdPolicyContainer.getDefaultPolicy() != null )
-                || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
+        && ( ( pwdPolicyContainer.getDefaultPolicy() != null )
+        || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
     }
 
 

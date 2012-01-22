@@ -95,8 +95,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@Component
-@Provides(specifications={Interceptor.class})
 public class AdministrativePointInterceptor extends BaseInterceptor
 {
     /** A {@link Logger} for this class */

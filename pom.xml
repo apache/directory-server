@@ -153,8 +153,6 @@
     <module>installers</module>
     <module>apache-felix</module>
     <module>dependencies</module>
-    <module>service-osgi</module>
-    <module>component-hub</module>
   </modules>
 
   <build>
