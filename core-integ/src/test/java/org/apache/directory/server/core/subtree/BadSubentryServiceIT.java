@@ -53,8 +53,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( name="BadSubentryServiceIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "BadSubentryServiceIT-class")
 public class BadSubentryServiceIT extends AbstractLdapTestUnit
 {
 
@@ -84,8 +84,8 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
         subentry.put( "cn", cn );
         return subentry;
     }
-    
-    
+
+
     public Attributes getAccessControlTestSubentry( String cn )
     {
         Attributes subentry = new BasicAttributes( true );
@@ -97,34 +97,34 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
         subentry.put( "subtreeSpecification", "{ }" );
         subentry.put( "prescriptiveACI",
             "{ " +
-            "identificationTag \"alllUsersFullAccessACI\", " +
-            "precedence 14, " +
-            "authenticationLevel none, " +
-            "itemOrUserFirst userFirst: " +
-            "{ " +
-              "userClasses " +
-              "{ " +
-                "allUsers " +
-              "}, " +
-              "userPermissions " +
-              "{ " + 
+                "identificationTag \"alllUsersFullAccessACI\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: " +
                 "{ " +
-                  "protectedItems " +
-                  "{ " +
-                    "entry, allUserAttributeTypesAndValues " +
-                  "}, " +
-                  "grantsAndDenials " +
-                  "{ " +
-                    "grantAdd, grantDiscloseOnError, grantRead, " +
-                    "grantRemove, grantBrowse, grantExport, grantImport, " +
-                    "grantModify, grantRename, grantReturnDN, " +
-                    "grantCompare, grantFilterMatch, grantInvoke " +
-                  "} " + 
+                "userClasses " +
+                "{ " +
+                "allUsers " +
+                "}, " +
+                "userPermissions " +
+                "{ " +
+                "{ " +
+                "protectedItems " +
+                "{ " +
+                "entry, allUserAttributeTypesAndValues " +
+                "}, " +
+                "grantsAndDenials " +
+                "{ " +
+                "grantAdd, grantDiscloseOnError, grantRead, " +
+                "grantRemove, grantBrowse, grantExport, grantImport, " +
+                "grantModify, grantRename, grantReturnDN, " +
+                "grantCompare, grantFilterMatch, grantInvoke " +
                 "} " +
-              "} " +
-            "} " + 
-          "} "
-           );
+                "} " +
+                "} " +
+                "} " +
+                "} "
+            );
         subentry.put( "cn", cn );
         return subentry;
     }
@@ -137,7 +137,8 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
         attribute.add( "collectiveAttributeSpecificArea" );
         attribute.add( "accessControlSpecificArea" );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItem[] { item } );
+        sysRoot.modifyAttributes( "", new ModificationItem[]
+            { item } );
     }
 
 
@@ -147,18 +148,19 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "+", "*" } );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
-        
+
         return resultMap;
     }
-    
+
 
     @Test
     public void testTrackingOfSubentryOperationals() throws Exception
@@ -170,33 +172,33 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
         sysRoot.createSubcontext( "cn=accessControlTestSubentry",
             getAccessControlTestSubentry( "accessControlTestSubentry" ) );
         sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
-        
+
         Map<String, Attributes> results = getAllEntries();
         Attributes testEntry = results.get( "cn=testEntry,ou=system" );
-        
+
         //----------------------------------------------------------------------
-        
+
         Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-        
+
         assertTrue( collectiveAttributeSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
-        
-        assertFalse( "'collectiveAttributeSubentries' operational attribute SHOULD NOT " + 
-            "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's", 
+
+        assertFalse( "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
+            "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's",
             collectiveAttributeSubentries.contains( "2.5.4.3=accesscontroltestsubentry,2.5.4.11=system" ) );
-        
+
         assertEquals( 1, collectiveAttributeSubentries.size() );
-        
+
         //----------------------------------------------------------------------
-        
+
         Attribute accessControlSubentries = testEntry.get( "accessControlSubentries" );
-        
+
         assertTrue( accessControlSubentries.contains( "2.5.4.3=accesscontroltestsubentry,2.5.4.11=system" ) );
-        
-        assertFalse( "'accessControlSubentries' operational attribute SHOULD NOT " + 
-            "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's", 
+
+        assertFalse( "'accessControlSubentries' operational attribute SHOULD NOT " +
+            "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's",
             accessControlSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
-        
+
         assertEquals( 1, accessControlSubentries.size() );
-        
+
     }
 }

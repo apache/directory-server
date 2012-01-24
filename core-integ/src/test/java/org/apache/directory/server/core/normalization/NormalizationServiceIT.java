@@ -37,13 +37,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
-
 /**
  * Test cases for the normalization service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "NormalizationServiceIT")
 public final class NormalizationServiceIT extends AbstractLdapTestUnit
 {
@@ -55,13 +54,13 @@ public final class NormalizationServiceIT extends AbstractLdapTestUnit
 
         Use @Ldif to load this data but for now we can do it with code.
 
-dn: ou=direct report view,ou=system
-objectClass: organizationalUnit
-ou: direct report view
+        dn: ou=direct report view,ou=system
+        objectClass: organizationalUnit
+        ou: direct report view
 
-dn: ou=corporate category\, operations,ou=direct report view,ou=system
-objectClass: organizationalUnit
-ou: corporate category\, operations
+        dn: ou=corporate category\, operations,ou=direct report view,ou=system
+        objectClass: organizationalUnit
+        ou: corporate category\, operations
 
          */
 

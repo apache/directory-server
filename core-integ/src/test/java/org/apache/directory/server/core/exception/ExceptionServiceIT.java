@@ -87,7 +87,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
         addRequest.setEntryDn( dn );
-        
+
         AddResponse resp = getAdminConnection( getService() ).add( addRequest );
 
         return resp;
@@ -154,13 +154,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.OU_AT, "users" );
 
         connection.add( entry );
-        
+
         try
         {
             connection.rename( entry.getDn(), new Rdn( "ou=users" ) );
             fail();
         }
-        catch( LdapEntryAlreadyExistsException leaee )
+        catch ( LdapEntryAlreadyExistsException leaee )
         {
             assertTrue( true );
         }
@@ -176,7 +176,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             connection.rename( "ou=userz,ou=groups,ou=system", "ou=users", true );
             fail();
         }
-        catch( LdapEntryAlreadyExistsException leaee )
+        catch ( LdapEntryAlreadyExistsException leaee )
         {
             assertTrue( true );
         }
@@ -244,7 +244,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapEntryAlreadyExistsException.class )
+    @Test(expected = LdapEntryAlreadyExistsException.class)
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -258,7 +258,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test(expected = LdapNoSuchObjectException.class)
     public void testFailModifyRdnNoSuchObject() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -426,7 +426,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapAliasException.class )
+    @Test(expected = LdapAliasException.class)
     public void testFailAddOnAlias() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -486,7 +486,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapContextNotEmptyException.class )
+    @Test(expected = LdapContextNotEmptyException.class)
     public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -504,7 +504,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test(expected = LdapNoSuchObjectException.class)
     public void testFailDeleteNoSuchObject() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );

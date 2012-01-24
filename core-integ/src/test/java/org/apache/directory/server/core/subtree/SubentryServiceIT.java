@@ -178,15 +178,19 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     {
         private static final long serialVersionUID = -5773336005348321396L;
 
+
         public boolean isCritical()
         {
             return false;
         }
 
+
         public byte[] getEncodedValue()
         {
-            return new byte[]{0x01, 0x01, (byte)0xFF};
+            return new byte[]
+                { 0x01, 0x01, ( byte ) 0xFF };
         }
+
 
         public String getID()
         {
@@ -225,13 +229,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getSubentry( String dn ) throws Exception
     {
-        Entry subentry = new DefaultEntry( 
-            dn, 
-            "objectClass: top", 
+        Entry subentry = new DefaultEntry(
+            dn,
+            "objectClass: top",
             "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", 
+            "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: { base \"ou=configuration\" }",
-            "c-o: Test Org", 
+            "c-o: Test Org",
             "cn: testsubentry" );
 
         return subentry;
@@ -256,7 +260,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
     public Entry getTestSubentryWithExclusion( String dn ) throws LdapException
     {
-        Entry subentry = new DefaultEntry( 
+        Entry subentry = new DefaultEntry(
             dn,
             "objectClass: top",
             "objectClass: subentry",
@@ -264,7 +268,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             "subtreeSpecification: { base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }",
             "c-o: Test Org",
             "cn: testsubentry" );
-        
+
         return subentry;
     }
 
@@ -408,13 +412,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         // Add the subentry
-        Entry subEntryA = new DefaultEntry( 
+        Entry subEntryA = new DefaultEntry(
             "cn=testsubentryA,dc=AP-A,dc=test,ou=system",
-            "objectClass: top", 
-            "objectClass: subentry", 
+            "objectClass: top",
+            "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
-            "c-o: Test Org", 
+            "c-o: Test Org",
             "cn: testsubentryA" );
 
         connection.add( subEntryA );
@@ -456,12 +460,12 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // Add the subentry
         Entry subEntryB = new DefaultEntry(
             "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system",
-            "objectClass: top", 
-            "objectClass: subentry", 
+            "objectClass: top",
+            "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
             "subtreeSpecification: {}", // All the entry from the AP, including the AP
-            "c-o: Test Org", 
-            "cn: testsubentryB");
+            "c-o: Test Org",
+            "cn: testsubentryB" );
 
         connection.add( subEntryB );
         assertTrue( connection.exists( "cn=testsubentryB,dc=AP-B,cn=A2,dc=AP-A,dc=test,ou=system" ) );
@@ -537,7 +541,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Entry subEntry = getSubentry( "cn=testsubentry,ou=system" );
-        
+
         try
         {
             connection.add( subEntry );
@@ -1297,13 +1301,13 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // now add the control with visibility set to true where all entries
         // except subentries disappear
         LdapApiService codec = LdapApiServiceFactory.getSingleton();
-        
+
         SubentriesDecorator decorator = new SubentriesDecorator( codec );
         Subentries ctl = ( Subentries ) decorator.getDecorated();
         ctl.setVisibility( true );
         decorator.getValue();
-        sysRoot.setRequestControls( JndiUtils.toJndiControls(codec, new Control[]
-                {ctl}) );
+        sysRoot.setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
+            { ctl } ) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = list.next();
         assertFalse( list.hasMore() );
@@ -1369,7 +1373,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        sysRoot.setRequestControls( new javax.naming.ldap.Control[]{ new JndiSubentriesControl() } );
+        sysRoot.setRequestControls( new javax.naming.ldap.Control[]
+            { new JndiSubentriesControl() } );
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
         NamingEnumeration<SearchResult> list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)",
             searchControls );
@@ -1392,9 +1397,11 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        
-        sysRoot.setRequestControls( new javax.naming.ldap.Control[]{ new JndiSubentriesControl() } );
-        Attributes attributes = sysRoot.getAttributes( "cn=testsubentry", new String[]{"subtreeSpecification"} );
+
+        sysRoot.setRequestControls( new javax.naming.ldap.Control[]
+            { new JndiSubentriesControl() } );
+        Attributes attributes = sysRoot.getAttributes( "cn=testsubentry", new String[]
+            { "subtreeSpecification" } );
 
         assertNotNull( attributes );
         javax.naming.directory.Attribute ss = attributes.get( "SubtreeSpecification" );
@@ -1410,9 +1417,10 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
-        
-        Entry result = connection.lookup( "cn=testsubentry,ou=system", new Control[]{ 
-            new SubentriesDecorator(connection.getCodecService())},"subtreeSpecification" );
+
+        Entry result = connection.lookup( "cn=testsubentry,ou=system", new Control[]
+            {
+            new SubentriesDecorator( connection.getCodecService() ) }, "subtreeSpecification" );
 
         assertNotNull( result );
         String ss = result.get( "SubtreeSpecification" ).getString();
@@ -1428,7 +1436,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
-        
+
         Entry result = connection.lookup( "cn=testsubentry,ou=system", "subtreeSpecification" );
 
         assertNotNull( result );
@@ -1437,7 +1445,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test( expected = LdapNoPermissionException.class )
+    @Test(expected = LdapNoPermissionException.class)
     @Ignore
     public void testUserInjectAccessControlSubentries() throws Exception
     {

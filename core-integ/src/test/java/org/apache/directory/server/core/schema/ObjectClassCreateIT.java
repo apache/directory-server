@@ -61,7 +61,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         // The accountStatus AT
         //--------------------------------------------------------------------
         Attributes attributes = new BasicAttributes( true );
-        Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
+        Attribute objectClassAttribute = new BasicAttribute( "objectClass" );
 
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
@@ -114,7 +114,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         // The extendPerson OC
         //--------------------------------------------------------------------
         attributes = new BasicAttributes( true );
-         objectClassAttribute = new BasicAttribute( "objectClass" );
+        objectClassAttribute = new BasicAttribute( "objectClass" );
 
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
@@ -149,6 +149,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         getSchemaContext( getService() ).createSubcontext( JndiUtils.toName( dn ), attributes );
     }
 
+
     /**
      * Gets relative Dn to ou=schema.
      *
@@ -169,7 +170,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
     public void testCannotCreateObjectClassWithInvalidNameAttribute() throws Exception
     {
         Attributes attributes = new BasicAttributes( true );
-        Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
+        Attribute objectClassAttribute = new BasicAttribute( "objectClass" );
 
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
@@ -196,6 +197,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         }
     }
 
+
     /*
      * Test that I canotn create an ObjectClass entry with an invalid name
      */
@@ -203,7 +205,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
     public void testCannotCreateObjectClassWithNoObjectClass() throws Exception
     {
         Attributes attributes = new BasicAttributes( true );
-        Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
+        Attribute objectClassAttribute = new BasicAttribute( "objectClass" );
 
         objectClassAttribute.add( "top" );
         objectClassAttribute.add( "metaTop" );
@@ -258,7 +260,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         entry.put( "cn", "test" );
         entry.put( "displayName", "test-test" );
         entry.put( "initials", "tt" );
-        entry.put(  "accountStatus", "test" );
+        entry.put( "accountStatus", "test" );
 
         // Create the context
         DirContext system = getSystemContext( getService() );

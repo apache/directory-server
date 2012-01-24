@@ -53,17 +53,17 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "CreateContextIT")
 public class CreateContextIT extends AbstractLdapTestUnit
 {
     protected Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
         Attributes attrs = LdifUtils.createJndiAttributes(
-                "objectClass: top",
-                "objectClass: person",
-                "cn", cn,
-                "sn", sn);
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn );
 
         return attrs;
     }
@@ -90,7 +90,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
         String base = "";
 
         NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-        
+
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
@@ -266,8 +266,8 @@ public class CreateContextIT extends AbstractLdapTestUnit
 
         assertNull( ctx );
     }
-    
-    
+
+
     @Test
     public void testCreateContextWithCompositeName() throws Exception
     {
@@ -301,10 +301,10 @@ public class CreateContextIT extends AbstractLdapTestUnit
          * create ou=testing00,ou=system
          */
         Attributes attributes = new BasicAttributes( true );
-        attributes.put("objectClass", "organizationalUnit");
-        attributes.put("description", "Test OU");
-        attributes.put("OU", "Test");
-        
+        attributes.put( "objectClass", "organizationalUnit" );
+        attributes.put( "description", "Test OU" );
+        attributes.put( "OU", "Test" );
+
         DirContext ctx = sysRoot.createSubcontext( "ou=Test", attributes );
         assertNotNull( ctx );
 
@@ -403,7 +403,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
         try
         {
             sysRoot.createSubcontext( "ou=subtest", attrs );// should Fails!
-            fail( "It is not allowed to create a context with a bad entry");
+            fail( "It is not allowed to create a context with a bad entry" );
         }
         catch ( NamingException e )
         {
@@ -416,13 +416,13 @@ public class CreateContextIT extends AbstractLdapTestUnit
     public void testCreateJavaContainer() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
-        
-        DirContext ctx = (DirContext)sysRoot.createSubcontext( "cn=subtest" );
+
+        DirContext ctx = ( DirContext ) sysRoot.createSubcontext( "cn=subtest" );
         assertNotNull( ctx );
-        
+
         Attributes attributes = ctx.getAttributes( "" );
         assertNotNull( attributes );
-        
+
         assertEquals( "subtest", attributes.get( "cn" ).get() );
         Attribute attribute = attributes.get( "objectClass" );
         assertNotNull( attribute );
@@ -439,7 +439,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
         try
         {
             sysRoot.createSubcontext( "ou=subtest" );
-            fail( "It is not allowed to create a context with a bad Rdn. CN is mandatory");
+            fail( "It is not allowed to create a context with a bad Rdn. CN is mandatory" );
         }
         catch ( NamingException ne )
         {

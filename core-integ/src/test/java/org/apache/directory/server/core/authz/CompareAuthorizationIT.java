@@ -93,7 +93,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         Dn entryDn = new Dn( service.getSchemaManager(), entryRdn + ",ou=system" );
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry( 
+        Entry testEntry = new DefaultEntry(
             service.getSchemaManager(),
             entryDn.toString(),
             "ObjectClass: top",
@@ -110,9 +110,9 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
         boolean result = true;
-        
+
         try
-        {  
+        {
             // don't set based on compare result success/failure but based on whether the op was permitted or not
             result = userConnection.compare( entryDn, "telephoneNumber", number );
         }
@@ -144,24 +144,24 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantCompare, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( 
-            "administratorAdd", 
-            "{ " + 
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " + 
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " + 
-            "  { " +
-            "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," + 
-            "    userPermissions " +
-            "    { " + 
-            "      { " + 
-            "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
-            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " + 
-            "      } " + 
-            "    } " + 
-            "  } " +
-            "}" );
+        createAccessControlSubentry(
+            "administratorAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }," +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
+                "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -269,9 +269,9 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
             "uid=bob,ou=users,ou=system",
             "uid: bob",
             "userPassword: bobspassword",
-            "ObjectClass: top", 
-            "ObjectClass: person", 
-            "ObjectClass: organizationalPerson", 
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: organizationalPerson",
             "ObjectClass: inetOrgPerson",
             "sn: bob",
             "cn: bob" );

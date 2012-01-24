@@ -46,9 +46,10 @@ import org.junit.runners.Suite;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkSuite.class )
-@CreateDS( enableAccessControl=true, name="MigratedStockCoreISuite-DS" )
-@Suite.SuiteClasses ( {
+@RunWith(FrameworkSuite.class)
+@CreateDS(enableAccessControl = true, name = "MigratedStockCoreISuite-DS")
+@Suite.SuiteClasses(
+    {
 
         // authn
         SimpleAuthenticationIT.class,
@@ -72,7 +73,7 @@ import org.junit.runners.Suite;
         // exception
         ExceptionServiceIT.class
 
-        } )
+})
 public class MigratedStockCoreISuite
 {
 }

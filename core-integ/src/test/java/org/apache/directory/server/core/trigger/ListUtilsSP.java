@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.trigger;
 
+
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
@@ -43,8 +44,8 @@ public class ListUtilsSP
     public static void subscribeToGroup( Dn addedEntryName, LdapContext groupCtx ) throws NamingException
     {
         LOG.info( "User \"" + addedEntryName + "\" will be subscribed to \"" + groupCtx + "\"" );
-        groupCtx.modifyAttributes("", DirContext.ADD_ATTRIBUTE,
-                new BasicAttributes( SchemaConstants.UNIQUE_MEMBER_AT, addedEntryName.toString(), true ) );
+        groupCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE,
+            new BasicAttributes( SchemaConstants.UNIQUE_MEMBER_AT, addedEntryName.toString(), true ) );
         LOG.info( "Subscription OK." );
     }
 }

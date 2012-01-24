@@ -33,9 +33,10 @@ import org.slf4j.LoggerFactory;
 public class LoggingUtilities
 {
     private static final Logger LOG = LoggerFactory.getLogger( LoggingUtilities.class );
-    
+
+
     public static void logWarningForDeletedEntry( Name deletedEntryName,
-                                                  Name operationPrincipal ) throws NamingException
+        Name operationPrincipal ) throws NamingException
     {
         LOG.info( "User \"" + operationPrincipal + "\" is about to delete entry \"" + deletedEntryName + "\"." );
     }

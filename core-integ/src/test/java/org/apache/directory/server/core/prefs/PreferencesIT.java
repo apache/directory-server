@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "PreferencesIT")
 public class PreferencesIT extends AbstractLdapTestUnit
 {
@@ -117,7 +117,6 @@ public class PreferencesIT extends AbstractLdapTestUnit
         testNode = prefs.node( "testNode" );
     }
     */
-
 
     /**
      * Tests the creation and use of a new preferences node.

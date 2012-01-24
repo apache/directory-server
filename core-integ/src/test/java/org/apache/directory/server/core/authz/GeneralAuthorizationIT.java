@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "GeneralAuthorizationIT")
-public class GeneralAuthorizationIT extends AbstractLdapTestUnit 
+public class GeneralAuthorizationIT extends AbstractLdapTestUnit
 {
 
     @Before
@@ -49,14 +49,15 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     {
         AutzIntegUtils.service = getService();
     }
-    
+
+
     @After
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Checks to make sure we cannot create a malformed ACI missing two
      * last brackets.
@@ -67,23 +68,23 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
-        ResultCodeEnum result = createAccessControlSubentry( 
-            "anybodyAdd", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantAdd, grantBrowse } " +
-            "      } " +
-            "    }" );
-        
+        ResultCodeEnum result = createAccessControlSubentry(
+            "anybodyAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { allUsers }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    }" );
+
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, result );
     }
 }

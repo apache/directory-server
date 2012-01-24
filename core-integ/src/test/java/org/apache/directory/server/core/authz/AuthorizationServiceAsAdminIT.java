@@ -79,7 +79,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test( expected=LdapNoPermissionException.class )
+    @Test(expected = LdapNoPermissionException.class)
     public void testNoDeleteOnAdminByAdmin() throws Exception
     {
         getAdminConnection().delete( "uid=admin,ou=system" );
@@ -91,7 +91,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test( expected=LdapNoPermissionException.class )
+    @Test(expected = LdapNoPermissionException.class)
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
         getAdminConnection().rename( new Dn( "uid=admin,ou=system" ), new Rdn( "uid=alex" ) );
@@ -117,7 +117,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 
         connection = getConnectionAs( adminDn, newPwd );
         Entry entry = connection.lookup( adminDn.getName() );
-        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8(newPwd), entry.get( "userPassword" ).get()
+        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
             .getBytes() ) );
     }
 

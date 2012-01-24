@@ -93,14 +93,15 @@ import org.junit.runners.Suite;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkSuite.class )
-@Suite.SuiteClasses ( {
+@RunWith(FrameworkSuite.class)
+@Suite.SuiteClasses(
+    {
 
         // ap
         //AdministrativePointServiceIT.class,
 
         // changelog
-        DefaultChangeLogIT.class,        
+        DefaultChangeLogIT.class,
 
         // collective
         CollectiveAttributeServiceIT.class,
@@ -178,7 +179,7 @@ import org.junit.runners.Suite;
 
         // prefs
         PreferencesIT.class,
-        
+
         // schema
         MetaAttributeTypeHandlerIT.class,
         MetaComparatorHandlerIT.class,
@@ -206,7 +207,7 @@ import org.junit.runners.Suite;
         SubentryServiceForTriggersIT.class,
         TriggerInterceptorIT.class
 
-        } )
+})
 public class StockCoreISuite
 {
 }

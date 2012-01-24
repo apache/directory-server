@@ -57,11 +57,11 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "UniqueMemeberIT")
 public class UniqueMemberIT extends AbstractLdapTestUnit
 {
-    
+
     /**
      * Test a valid entry
      *
@@ -79,7 +79,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey";
 
@@ -92,40 +92,40 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         {
             fail();
         }
-        
+
         Attributes returned = sysRoot.getAttributes( "cn=kevin Spacey" );
-      
+
         NamingEnumeration<? extends Attribute> attrList = returned.getAll();
-        
+
         while ( attrList.hasMore() )
         {
             Attribute attr = attrList.next();
-          
+
             if ( attr.getID().equalsIgnoreCase( "cn" ) )
             {
                 assertEquals( "kevin Spacey", attr.get() );
                 continue;
             }
-          
+
             if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
             {
                 NamingEnumeration<?> values = attr.getAll();
                 Set<String> expectedValues = new HashSet<String>();
-                
+
                 expectedValues.add( "top" );
                 expectedValues.add( "groupofuniquenames" );
-                
+
                 while ( values.hasMoreElements() )
                 {
-                    String value = Strings.toLowerCase( ( (String)values.nextElement() ) );
+                    String value = Strings.toLowerCase( ( ( String ) values.nextElement() ) );
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
-                
+
                 assertEquals( 0, expectedValues.size() );
                 continue;
             }
-          
+
             if ( attr.getID().equalsIgnoreCase( "uniqueMember" ) )
             {
                 assertEquals( "cn=kevin spacey, dc=example, dc=org", attr.get() );
@@ -151,7 +151,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey 2, dc=example, dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey 2";
 
@@ -164,40 +164,40 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         {
             fail();
         }
-        
+
         Attributes returned = sysRoot.getAttributes( "cn=kevin Spacey 2" );
-      
+
         NamingEnumeration<? extends Attribute> attrList = returned.getAll();
-        
+
         while ( attrList.hasMore() )
         {
             Attribute attr = attrList.next();
-          
+
             if ( attr.getID().equalsIgnoreCase( "cn" ) )
             {
                 assertEquals( "kevin Spacey 2", attr.get() );
                 continue;
             }
-          
+
             if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
             {
                 NamingEnumeration<?> values = attr.getAll();
                 Set<String> expectedValues = new HashSet<String>();
-                
+
                 expectedValues.add( "top" );
                 expectedValues.add( "groupofuniquenames" );
-                
+
                 while ( values.hasMoreElements() )
                 {
-                    String value = Strings.toLowerCase( ( (String)values.nextElement() ) );
+                    String value = Strings.toLowerCase( ( ( String ) values.nextElement() ) );
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
-                
+
                 assertEquals( 0, expectedValues.size() );
                 continue;
             }
-          
+
             if ( attr.getID().equalsIgnoreCase( "uniqueMember" ) )
             {
                 assertEquals( "cn=kevin spacey 2, dc=example, dc=org#'010101'B", attr.get() );
@@ -223,7 +223,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "kevin spacey bad, dc=example, dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey bad";
 
@@ -257,7 +257,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey bad 2, dc=example, dc=org#'010101'" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey bad 2";
 
@@ -272,7 +272,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
-    
+
 
     @Test
     public void testSearchUniqueMemberFilter() throws Exception
@@ -286,7 +286,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey";
 
@@ -303,13 +303,15 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[] { "*" } );
+        controls.setReturningAttributes( new String[]
+            { "*" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+            AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
-        
+        NamingEnumeration<SearchResult> list = sysRoot.search( "",
+            "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
@@ -317,9 +319,9 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
-        
+
         attrs = map.get( "cn=kevin spacey,ou=system" );
-        
+
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "uniqueMember" ) );
@@ -338,7 +340,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey";
 
@@ -355,13 +357,15 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[] { "*" } );
+        controls.setReturningAttributes( new String[]
+            { "*" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+            AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
-        
+        NamingEnumeration<SearchResult> list = sysRoot.search( "",
+            "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
@@ -369,9 +373,9 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
-        
+
         attrs = map.get( "cn=kevin spacey,ou=system" );
-        
+
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "uniqueMember" ) );
@@ -390,7 +394,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey";
 
@@ -407,12 +411,14 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[] { "*" } );
+        controls.setReturningAttributes( new String[]
+            { "*" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+            AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)", controls );
-        
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)",
+            controls );
+
         assertFalse( list.hasMore() );
     }
 
@@ -429,7 +435,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "cn=kevin Spacey";
 
@@ -446,13 +452,15 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[] { "*" } );
+        controls.setReturningAttributes( new String[]
+            { "*" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+            AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );
-        
+        NamingEnumeration<SearchResult> list = sysRoot.search( "",
+            "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
@@ -460,9 +468,9 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
         }
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
-        
+
         attrs = map.get( "cn=kevin spacey,ou=system" );
-        
+
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "uniqueMember" ) );

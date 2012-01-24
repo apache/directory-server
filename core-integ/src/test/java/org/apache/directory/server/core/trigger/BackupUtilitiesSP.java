@@ -51,7 +51,7 @@ public class BackupUtilitiesSP
         LOG.info( "User \"" + session.getEffectivePrincipal() + "\" has deleted entry \"" + deletedEntry + "\"" );
         Dn backupDn = new Dn( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntry.getDn().getRdn().getName();
-        Entry entry = (( ClonedServerEntry ) deletedEntry).getOriginalEntry().clone();
+        Entry entry = ( ( ClonedServerEntry ) deletedEntry ).getOriginalEntry().clone();
         backupDn = backupDn.add( deletedEntryRdn );
         entry.setDn( backupDn );
         session.add( deletedEntry );

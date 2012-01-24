@@ -58,16 +58,18 @@ public class PartitionSchemaLoaderTest
     private static InstanceLayout instanceLayout;
 
 
-    @BeforeClass public static void setUp() throws Exception
+    @BeforeClass
+    public static void setUp() throws Exception
     {
         // setup working directory
         directoryService = new DefaultDirectoryService();
         String tmpDirPath = System.getProperty( "workingDirectory", System.getProperty( "java.io.tmpdir" ) );
-        File workingDirectory = new File( tmpDirPath + "/server-work-" + PartitionSchemaLoaderTest.class.getSimpleName() );
+        File workingDirectory = new File( tmpDirPath + "/server-work-"
+            + PartitionSchemaLoaderTest.class.getSimpleName() );
         instanceLayout = new InstanceLayout( workingDirectory );
         directoryService.setInstanceLayout( instanceLayout );
 
-        if ( ! workingDirectory.exists() )
+        if ( !workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
@@ -88,7 +90,7 @@ public class PartitionSchemaLoaderTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         directoryService.setSchemaManager( schemaManager );
@@ -100,8 +102,8 @@ public class PartitionSchemaLoaderTest
     {
         FileUtils.deleteDirectory( instanceLayout.getInstanceDirectory() );
     }
-    
-    
+
+
     @Test
     public void testGetSchemas() throws Exception
     {

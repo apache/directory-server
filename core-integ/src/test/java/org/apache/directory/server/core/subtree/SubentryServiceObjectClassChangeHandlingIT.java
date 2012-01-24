@@ -54,9 +54,9 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceObjectClassChangeHandlingIT-class" )
-public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTestUnit 
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "SubentryServiceObjectClassChangeHandlingIT-class")
+public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTestUnit
 {
 
     public Attributes getTestEntry( String cn )
@@ -107,7 +107,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
@@ -115,7 +115,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
         }
         return resultMap;
     }
-    
+
 
     @Test
     public void testTrackingOfOCChangesInSubentryServiceModifyRoutine() throws Exception
@@ -133,7 +133,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
         Attributes testEntry = results.get( "cn=testEntry,ou=system" );
 
         Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-        
+
         assertNull( collectiveAttributeSubentries );
 
         //----------------------------------------------------------------------
@@ -142,7 +142,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
         modItems[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, objectClass );
         Attribute ou = new BasicAttribute( "ou", "Test Organizational Unit" );
         modItems[1] = new ModificationItem( DirContext.ADD_ATTRIBUTE, ou );
-        
+
         sysRoot.modifyAttributes( "cn=testEntry", modItems );
 
         results = getAllEntries();

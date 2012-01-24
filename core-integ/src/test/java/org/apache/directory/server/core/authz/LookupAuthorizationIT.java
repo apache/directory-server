@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.authz;
 
+
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,71 +43,72 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(allowAnonAccess = true, name = "LookupAuthorizationIT")
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: cn=test,ou=system",
-    "objectClass: person",
-    "cn: test",
-    "sn: sn_test" 
+@ApplyLdifs(
+    {
+        // Entry # 1
+        "dn: cn=test,ou=system",
+        "objectClass: person",
+        "cn: test",
+        "sn: sn_test"
 })
 public class LookupAuthorizationIT extends AbstractLdapTestUnit
 {
-    @Before
-    public void init()
+@Before
+public void init()
+{
+    AutzIntegUtils.service = getService();
+}
+
+
+/**
+ * Test a lookup( Dn ) operation with the ACI subsystem enabled
+ */
+@Test
+public void testLookupACIEnabled() throws Exception
+{
+    getService().setAccessControlEnabled( true );
+    Dn dn = new Dn( "cn=test,ou=system" );
+
+    try
     {
-        AutzIntegUtils.service = getService();
+        Entry entry = getService().getSession().lookup( dn );
+        fail();
+    }
+    catch ( LdapNoPermissionException lnpe )
+    {
     }
 
-    
-    /**
-     * Test a lookup( Dn ) operation with the ACI subsystem enabled
-     */
-    @Test
-    public void testLookupACIEnabled() throws Exception
-    {
-        getService().setAccessControlEnabled( true );
-        Dn dn = new Dn( "cn=test,ou=system" );
-        
-        try
-        {      
-            Entry entry = getService().getSession().lookup( dn );
-            fail();
-        }
-        catch ( LdapNoPermissionException lnpe )
-        {
-        }
-        
-        createAccessControlSubentry( 
-            "anybodySearch", 
-            "{ " + 
-            "  identificationTag \"searchAci\", " + 
+    createAccessControlSubentry(
+        "anybodySearch",
+        "{ " +
+            "  identificationTag \"searchAci\", " +
             "  precedence 14, " +
-            "  authenticationLevel none, " + 
+            "  authenticationLevel none, " +
             "  itemOrUserFirst userFirst: " +
-            "  { " + 
+            "  { " +
             "    userClasses { allUsers }, " +
             "    userPermissions " +
             "    { " +
-            "      { " + 
+            "      { " +
             "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
             "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
             "      } " +
             "    } " +
             "  } " +
             "}" );
-        
-        Entry entry = getService().getSession().lookup( dn );
-        
-        assertNotNull( entry );
-        
-        // We should have 3 attributes
-        assertEquals( 3, entry.size() ); 
 
-        // Check that all the user attributes are present
-        assertEquals( "test", entry.get( "cn" ).getString() );
-        assertEquals( "sn_test", entry.get( "sn" ).getString() );
-        assertTrue( entry.contains( "objectClass", "top", "person" ) );
-    }
+    Entry entry = getService().getSession().lookup( dn );
+
+    assertNotNull( entry );
+
+    // We should have 3 attributes
+    assertEquals( 3, entry.size() );
+
+    // Check that all the user attributes are present
+    assertEquals( "test", entry.get( "cn" ).getString() );
+    assertEquals( "sn_test", entry.get( "sn" ).getString() );
+    assertTrue( entry.contains( "objectClass", "top", "person" ) );
+}
 }

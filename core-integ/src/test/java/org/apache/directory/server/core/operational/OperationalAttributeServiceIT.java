@@ -75,12 +75,12 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // add this entry before each test because we want 
         // to check that operational attributes are added
         Entry entry = new DefaultEntry(
-            DN_KATE_BUSH, 
-            "objectClass: top", 
-            "objectClass: person", 
-            "cn: Kate Bush", 
-            "sn: Bush");
-        
+            DN_KATE_BUSH,
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Kate Bush",
+            "sn: Bush" );
+
         connection.add( entry );
     }
 
@@ -102,14 +102,14 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testBinaryAttributeFilterExtension() throws Exception
     {
-        Entry entry = new DefaultEntry( 
-            "ou=test,ou=system", 
-            "objectClass: top", 
+        Entry entry = new DefaultEntry(
+            "ou=test,ou=system",
+            "objectClass: top",
             "objectClass: person",
-            "objectClass: organizationalPerson", 
-            "objectClass: inetOrgPerson", 
-            "ou", "test", 
-            "cn", "test", 
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "ou", "test",
+            "cn", "test",
             "sn", "test" );
 
         connection.add( entry );
@@ -136,7 +136,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         value = jpegPhoto.getBytes();
         assertTrue( value instanceof byte[] );
         assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", Strings
-            .dumpBytes((byte[]) value) );
+            .dumpBytes( ( byte[] ) value ) );
     }
 
 
@@ -146,10 +146,10 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         /*
          * create ou=testing00,ou=system
          */
-        Entry entry = new DefaultEntry( 
-            "ou=testing00,ou=system", 
+        Entry entry = new DefaultEntry(
+            "ou=testing00,ou=system",
             "objectClass: top",
-            "objectClass: organizationalUnit", 
+            "objectClass: organizationalUnit",
             "ou", "testing00" );
 
         connection.add( entry );
@@ -229,23 +229,23 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
-        Entry entry = new DefaultEntry( 
-            "uid=akarasulu,ou=users,ou=system", 
+        Entry entry = new DefaultEntry(
+            "uid=akarasulu,ou=users,ou=system",
             "objectClass: top",
-            "objectClass: person", 
-            "objectClass: organizationalPerson", 
+            "objectClass: person",
+            "objectClass: organizationalPerson",
             "objectClass: inetOrgPerson",
-            "ou: Engineering", 
-            "ou: People", 
-            "uid: akarasulu", 
-            "l", "Bogusville", 
-            "cn: Alex Karasulu", 
+            "ou: Engineering",
+            "ou: People",
+            "uid: akarasulu",
+            "l", "Bogusville",
+            "cn: Alex Karasulu",
             "sn: Karasulu",
-            "givenName: Alex", 
-            "mail: akarasulu@apache.org", 
+            "givenName: Alex",
+            "mail: akarasulu@apache.org",
             "telephoneNumber: +1 408 555 4798",
-            "facsimileTelephoneNumber: +1 408 555 9751", 
-            "roomnumber: 4612", 
+            "facsimileTelephoneNumber: +1 408 555 9751",
+            "roomnumber: 4612",
             "userPassword: test" );
 
         connection.add( entry );
@@ -344,7 +344,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test( expected = LdapNoPermissionException.class )
+    @Test(expected = LdapNoPermissionException.class)
     public void testModifyOperationalAttributeRemove() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
@@ -359,7 +359,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test( expected = LdapNoPermissionException.class )
+    @Test(expected = LdapNoPermissionException.class)
     public void testModifyOperationalAttributeReplace() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
@@ -392,7 +392,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "modifyTimestamp" ) );
 
         connection.rename( DN_KB, "cn=Kate Bush" );
-}
+    }
 
 
     /**
@@ -416,9 +416,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "createTimestamp" ) );
         assertNotNull( entry.get( "modifiersName" ) );
         assertNotNull( entry.get( "modifyTimestamp" ) );
-        
+
         connection.delete( "cn=Kate Bush,ou=users,ou=system" );
-        }
+    }
 
 
     /**
@@ -442,7 +442,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "createTimestamp" ) );
         assertNotNull( entry.get( "modifiersName" ) );
         assertNotNull( entry.get( "modifyTimestamp" ) );
-        
+
         connection.delete( "cn=KB,ou=users,ou=system" );
     }
 

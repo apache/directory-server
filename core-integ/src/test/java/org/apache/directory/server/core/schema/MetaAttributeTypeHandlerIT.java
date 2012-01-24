@@ -57,7 +57,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "MetaAttributeTypeHandlerIT")
 public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -71,7 +71,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
     private SchemaManager schemaManager;
 
-    
+
     @Before
     public void init() throws Exception
     {
@@ -79,6 +79,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = getService().getSchemaManager();
     }
+
 
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
@@ -103,7 +104,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-name: attributeCertificateAttribute",
             "m-syntax: 1.3.6.1.4.1.1466.115.121.1.8",
             "m-description: attribute certificate use ;binary"
-         );
+            );
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
@@ -170,7 +171,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( LdapException nnfe )
+        catch ( LdapException nnfe )
         {
             // Expected result.
         }
@@ -233,7 +234,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-syntax: 1.3.6.1.4.1.1466.115.121.1.8",
             "m-length: 0",
             "m-singleValue: TRUE"
-         );
+            );
 
         // Pre-checks
         assertFalse( isOnDisk( dn ) );
@@ -323,7 +324,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.delete( dn );
             fail( "should not be able to delete a attributeType in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -382,7 +383,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             new DefaultAttribute( "m-description", DESCRIPTION1 ) );
 
         Modification mod2 = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultAttribute( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX  ) );
+            new DefaultAttribute( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX ) );
 
         connection.modify( dn, mod1, mod2 );
 
@@ -410,7 +411,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn dn = new Dn( "m-oid=" + OID + ",ou=attributeTypes,cn=apachemeta,ou=schema" );
 
         Rdn rdn = new Rdn( "m-oid=" + NEW_OID + ",ou=attributeTypes,cn=apachemeta,ou=schema" );
-        
+
         connection.rename( dn, rdn );
 
         assertFalse( "old attributeType OID should be removed from the registry after being renamed",
@@ -439,7 +440,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.rename( dn, rdn );
             fail( "should not be able to rename a attributeType in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -465,7 +466,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.move( dn, newDn );
 
         assertTrue( "attributeType OID should still be present",
-                schemaManager.getAttributeTypeRegistry().contains( OID ) );
+            schemaManager.getAttributeTypeRegistry().contains( OID ) );
 
         assertEquals( "attributeType schema should be set to apache not apachemeta",
             schemaManager.getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
@@ -511,7 +512,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, top );
             fail( "should not be able to move a attributeType up to ou=schema" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -536,7 +537,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a attributeType into comparators container" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -580,7 +581,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a attributeType in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -606,7 +607,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a attributeType in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -640,7 +641,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
         assertEquals( schemaManager.getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
     }
-
 
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
