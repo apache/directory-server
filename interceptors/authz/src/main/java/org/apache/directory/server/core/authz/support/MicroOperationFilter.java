@@ -38,7 +38,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public class MicroOperationFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( aciContext.getAciTuples().size() == 0 )
         {
@@ -56,8 +57,8 @@ public class MicroOperationFilter implements ACITupleFilter
              */
 
             boolean retain = true;
-            
-            for ( MicroOperation microOp:aciContext.getMicroOperations() )
+
+            for ( MicroOperation microOp : aciContext.getMicroOperations() )
             {
                 if ( !tuple.getMicroOperations().contains( microOp ) )
                 {

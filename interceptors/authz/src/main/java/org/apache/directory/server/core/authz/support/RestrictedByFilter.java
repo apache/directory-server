@@ -42,7 +42,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class RestrictedByFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
         {
@@ -54,10 +55,10 @@ public class RestrictedByFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        for ( Iterator<ACITuple> ii = aciContext.getAciTuples().iterator() ; ii.hasNext(); )
+        for ( Iterator<ACITuple> ii = aciContext.getAciTuples().iterator(); ii.hasNext(); )
         {
             ACITuple tuple = ii.next();
-            
+
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -73,23 +74,24 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value<?> attrValue, Entry entry ) throws LdapException
+    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value<?> attrValue, Entry entry )
+        throws LdapException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {
             if ( item instanceof RestrictedByItem )
             {
                 RestrictedByItem rb = ( RestrictedByItem ) item;
-            
+
                 for ( Iterator<RestrictedByElem> k = rb.iterator(); k.hasNext(); )
                 {
                     RestrictedByElem rbItem = k.next();
-                
+
                     // TODO Fix DIRSEVER-832 
                     if ( attributeType.equals( rbItem.getAttributeType() ) )
                     {
                         Attribute attr = entry.get( rbItem.getValuesIn() );
-                        
+
                         // TODO Fix DIRSEVER-832
                         if ( ( attr == null ) || !attr.contains( attrValue ) )
                         {

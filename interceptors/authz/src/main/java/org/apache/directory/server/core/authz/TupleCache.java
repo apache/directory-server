@@ -125,14 +125,15 @@ public class TupleCache
         // add that subentry to the hash
         Set<String> suffixes = nexus.listSuffixes();
 
-        for ( String suffix:suffixes )
+        for ( String suffix : suffixes )
         {
             Dn baseDn = parseNormalized( suffix );
             ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            ctls.setReturningAttributes( new String[]{ "*", "+" } );
+            ctls.setReturningAttributes( new String[]
+                { "*", "+" } );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
@@ -282,12 +283,12 @@ public class TupleCache
     public List<ACITuple> getACITuples( String subentryDn )
     {
         List<ACITuple> aciTuples = tuples.get( subentryDn );
-        
+
         if ( aciTuples == null )
         {
             return Collections.EMPTY_LIST;
         }
-        
+
         return Collections.unmodifiableList( aciTuples );
     }
 

@@ -45,13 +45,14 @@ public class RelatedUserClassFilter implements ACITupleFilter
     private final SubtreeEvaluator subtreeEvaluator;
 
 
-    public RelatedUserClassFilter(SubtreeEvaluator subtreeEvaluator)
+    public RelatedUserClassFilter( SubtreeEvaluator subtreeEvaluator )
     {
         this.subtreeEvaluator = subtreeEvaluator;
     }
 
 
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( aciContext.getAciTuples().size() == 0 )
         {
@@ -61,14 +62,14 @@ public class RelatedUserClassFilter implements ACITupleFilter
         for ( Iterator<ACITuple> ii = aciContext.getAciTuples().iterator(); ii.hasNext(); )
         {
             ACITuple tuple = ii.next();
-            
+
             if ( tuple.isGrant() )
             {
-                if ( !isRelated( aciContext.getUserGroupNames(), 
-                                 aciContext.getUserDn(), 
-                                 userEntry, 
-                                 aciContext.getEntryDn(), 
-                                 tuple.getUserClasses() )
+                if ( !isRelated( aciContext.getUserGroupNames(),
+                    aciContext.getUserDn(),
+                    userEntry,
+                    aciContext.getEntryDn(),
+                    tuple.getUserClasses() )
                     || aciContext.getAuthenticationLevel().compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
                     ii.remove();
@@ -77,11 +78,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else
             // Denials
             {
-                if ( !isRelated( aciContext.getUserGroupNames(), 
-                                 aciContext.getUserDn(), 
-                                 userEntry, 
-                                 aciContext.getEntryDn(), 
-                                 tuple.getUserClasses() )
+                if ( !isRelated( aciContext.getUserGroupNames(),
+                    aciContext.getUserDn(),
+                    userEntry,
+                    aciContext.getEntryDn(),
+                    tuple.getUserClasses() )
                     && aciContext.getAuthenticationLevel().compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
                     ii.remove();
@@ -127,11 +128,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if ( userClass instanceof UserClass.UserGroup )
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
-                
+
                 for ( Dn userGroupName : userGroupNames )
                 {
                     Set<Dn> dns = userGroupUserClass.getNames();
-                    
+
                     if ( userGroupName != null )
                     {
                         for ( Dn dn : dns )

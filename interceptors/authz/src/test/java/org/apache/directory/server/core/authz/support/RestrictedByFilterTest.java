@@ -60,9 +60,12 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class RestrictedByFilterTest
 {
-    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
     private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
@@ -70,15 +73,15 @@ public class RestrictedByFilterTest
 
     /** A reference to the schemaManager */
     private static SchemaManager schemaManager;
-    
+
     /** The CN attribute Type */
     private static AttributeType CN_AT;
 
     /** The SN attribute Type */
     private static AttributeType SN_AT;
 
-    
-    @BeforeClass 
+
+    @BeforeClass
     public static void setup() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
@@ -97,12 +100,13 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test 
+    @Test
     public void testWrongScope() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -118,7 +122,7 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test 
+    @Test
     public void testZeroTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
@@ -130,12 +134,13 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test 
+    @Test
     public void testDenialTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, false, 0 ) );
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, false,
+            0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -148,12 +153,13 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test 
+    @Test
     public void testGrantTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
+        tuples
+            .add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
 
         AciContext aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );

@@ -45,7 +45,7 @@ public class OperationScope
     private final String name;
 
 
-    private OperationScope(String name)
+    private OperationScope( String name )
     {
         this.name = name;
     }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.authz.support;
 
+
 import java.util.Collection;
 
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
@@ -31,6 +32,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
+
 /**
  * A container used to pass parameters to the ACDF engine
  *
@@ -41,40 +43,41 @@ public class AciContext
 {
     /** The schema manager */
     private SchemaManager schemaManager;
-    
+
     /** The operation context */
     private OperationContext operationContext;
-    
+
     /** The Users belonging to a group */
     private Collection<Dn> userGroupNames;
 
     /** The user's Dn */
     private Dn userDn;
-    
+
     /** The requested Authentication level (default to NONE) */
     private AuthenticationLevel authenticationLevel = AuthenticationLevel.NONE;
-    
+
     /** the entry's Dn */
     private Dn entryDn;
-    
+
     /** The AttributeType */
     private AttributeType attributeType;
-    
+
     /** The attribute's values */
     private Value<?> attrValue;
-    
+
     /** The allowed operations */
     private Collection<MicroOperation> microOperations;
-    
+
     /** The resulting tuples */
     private Collection<ACITuple> aciTuples;
-    
+
     /** The entry */
     private Entry entry;
-    
+
     /** ??? */
     private Entry entryView;
-    
+
+
     /**
      * Creates a new instance of AciContext.
      *
@@ -86,8 +89,8 @@ public class AciContext
         this.schemaManager = schemaManager;
         this.operationContext = operationContext;
     }
-    
-    
+
+
     /**
      * @return the schemaManager
      */
@@ -95,6 +98,7 @@ public class AciContext
     {
         return schemaManager;
     }
+
 
     /**
      * @param schemaManager the schemaManager to set
@@ -104,6 +108,7 @@ public class AciContext
         this.schemaManager = schemaManager;
     }
 
+
     /**
      * @return the operationContext
      */
@@ -111,6 +116,7 @@ public class AciContext
     {
         return operationContext;
     }
+
 
     /**
      * @param operationContext the operationContext to set
@@ -120,6 +126,7 @@ public class AciContext
         this.operationContext = operationContext;
     }
 
+
     /**
      * @return the userGroupNames
      */
@@ -127,6 +134,7 @@ public class AciContext
     {
         return userGroupNames;
     }
+
 
     /**
      * @param userGroupNames the userGroupNames to set
@@ -136,6 +144,7 @@ public class AciContext
         this.userGroupNames = userGroupNames;
     }
 
+
     /**
      * @return the user Dn
      */
@@ -143,6 +152,7 @@ public class AciContext
     {
         return userDn;
     }
+
 
     /**
      * @param userDn the user Dn to set
@@ -152,6 +162,7 @@ public class AciContext
         this.userDn = userDn;
     }
 
+
     /**
      * @return the authenticationLevel
      */
@@ -159,6 +170,7 @@ public class AciContext
     {
         return authenticationLevel;
     }
+
 
     /**
      * @param authenticationLevel the authenticationLevel to set
@@ -168,6 +180,7 @@ public class AciContext
         this.authenticationLevel = authenticationLevel;
     }
 
+
     /**
      * @return the entry Dn
      */
@@ -175,6 +188,7 @@ public class AciContext
     {
         return entryDn;
     }
+
 
     /**
      * @param entryDn the entry Dn to set
@@ -184,6 +198,7 @@ public class AciContext
         this.entryDn = entryDn;
     }
 
+
     /**
      * @return the attributeType
      */
@@ -191,6 +206,7 @@ public class AciContext
     {
         return attributeType;
     }
+
 
     /**
      * @param attributeType the attributeType to set
@@ -200,6 +216,7 @@ public class AciContext
         this.attributeType = attributeType;
     }
 
+
     /**
      * @return the attrValue
      */
@@ -207,6 +224,7 @@ public class AciContext
     {
         return attrValue;
     }
+
 
     /**
      * @param attrValue the attrValue to set
@@ -216,6 +234,7 @@ public class AciContext
         this.attrValue = attrValue;
     }
 
+
     /**
      * @return the microOperations
      */
@@ -223,6 +242,7 @@ public class AciContext
     {
         return microOperations;
     }
+
 
     /**
      * @param microOperations the microOperations to set
@@ -232,6 +252,7 @@ public class AciContext
         this.microOperations = microOperations;
     }
 
+
     /**
      * @return the aciTuples
      */
@@ -239,6 +260,7 @@ public class AciContext
     {
         return aciTuples;
     }
+
 
     /**
      * @param aciTuples the aciTuples to set
@@ -248,6 +270,7 @@ public class AciContext
         this.aciTuples = aciTuples;
     }
 
+
     /**
      * @return the entry
      */
@@ -255,6 +278,7 @@ public class AciContext
     {
         return entry;
     }
+
 
     /**
      * @param entry the entry to set
@@ -264,6 +288,7 @@ public class AciContext
         this.entry = entry;
     }
 
+
     /**
      * @return the entryView
      */
@@ -271,6 +296,7 @@ public class AciContext
     {
         return entryView;
     }
+
 
     /**
      * @param entryView the entryView to set

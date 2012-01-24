@@ -48,9 +48,12 @@ import org.junit.runner.RunWith;
 @Concurrency()
 public class MicroOperationFilterTest
 {
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
 
     private static final Set<MicroOperation> USER_OPERATIONS_A = new HashSet<MicroOperation>();
     private static final Set<MicroOperation> USER_OPERATIONS_B = new HashSet<MicroOperation>();
@@ -85,8 +88,9 @@ public class MicroOperationFilterTest
     {
         MicroOperationFilter filter = new MicroOperationFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            EMPTY_PROTECTED_ITEM_COLLECTION,
             TUPLE_OPERATIONS, true, 0 ) );
 
         AciContext aciContext = new AciContext( null, null );
