@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.factory;
 
+
 import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.io.FileUtils;
@@ -32,6 +33,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 
+
 /**
  * Test the Kerberos Server annotation processing
  *
@@ -39,36 +41,37 @@ import org.junit.Test;
  */
 @CreateDS(name = "CreateKdcServerAnnotationTest-class")
 @CreateKdcServer(primaryRealm = "apache.org",
-                 kdcPrincipal = "krbtgt/apache.org@apache.org",
-                 maxTicketLifetime = 1000,
-                 maxRenewableLifetime = 2000,
-                 transports = 
-                 { 
-                     @CreateTransport(protocol = "TCP"),
-                     @CreateTransport(protocol = "UDP")
-                 })
+    kdcPrincipal = "krbtgt/apache.org@apache.org",
+    maxTicketLifetime = 1000,
+    maxRenewableLifetime = 2000,
+    transports =
+        {
+            @CreateTransport(protocol = "TCP"),
+            @CreateTransport(protocol = "UDP")
+    })
 public class CreateKdcServerAnnotationTest
 {
     @Test
     public void testCreateKdcServer() throws Exception
     {
         DirectoryService directoryService = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertEquals( "CreateKdcServerAnnotationTest-class", directoryService.getInstanceId() );
-        
-        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService, AvailablePortFinder.getNextAvailable( 1024 ) );
+
+        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService,
+            AvailablePortFinder.getNextAvailable( 1024 ) );
 
         assertEquals( 2, server.getTransports().length );
-        
+
         assertEquals( directoryService, server.getDirectoryService() );
         assertEquals( "apache.org", server.getPrimaryRealm() );
         assertEquals( "krbtgt/apache.org@apache.org", server.getServicePrincipal().getName() );
         assertEquals( 1000, server.getMaximumTicketLifetime() );
         assertEquals( 2000, server.getMaximumRenewableLifetime() );
-        
+
         server.stop();
         directoryService.shutdown();
-        
+
         FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
     }
 }

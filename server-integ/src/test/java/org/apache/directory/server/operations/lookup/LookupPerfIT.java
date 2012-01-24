@@ -94,7 +94,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
-        return new InitialLdapContext( env, JndiUtils.toJndiControls( 
+        return new InitialLdapContext( env, JndiUtils.toJndiControls(
             ldapServer.getDirectoryService().getLdapCodecService(),
             controls ) );
     }

@@ -72,150 +72,156 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
+@RunWith(FrameworkRunner.class)
 //@CreateDS( name="ModifyReferralIT-class", enableChangeLog=false )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
     })
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: person",
-    "objectClass: top",
-    "uid: akarasulu",
-    "cn: Alex Karasulu",
-    "sn: karasulu", 
-    // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: computers",
-    "description: Computers for Alex",
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
-    // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "uid: akarasuluref",
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
-    }
-)
-public class ModifyReferralIT extends AbstractLdapTestUnit 
+@ApplyLdifs(
+    {
+        // Entry # 1
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
+        "objectClass: top",
+        "uid: akarasulu",
+        "cn: Alex Karasulu",
+        "sn: karasulu",
+        // Entry # 2
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
+        "ou: computers",
+        "description: Computers for Alex",
+        "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
+        // Entry # 3
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
+})
+public class ModifyReferralIT extends AbstractLdapTestUnit
 {
-    private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
-    
+private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
 
-    /**
-     * Tests modify operation on referral entry with the ManageDsaIT control.
-     */
-    @Test
-    public void testOnReferralWithManageDsaITControl() throws Exception
+
+/**
+ * Tests modify operation on referral entry with the ManageDsaIT control.
+ */
+@Test
+public void testOnReferralWithManageDsaITControl() throws Exception
+{
+    LdapConnection conn = getWiredConnection( getLdapServer() );
+
+    ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+    manageDSAIT.setCritical( true );
+
+    // modify success
+    ModifyRequest modifyRequest = new ModifyRequestImpl();
+    modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+    modifyRequest.add( "description", "referral to akarasulu" );
+    modifyRequest.addControl( manageDSAIT );
+
+    conn.modify( modifyRequest );
+
+    assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "description", "referral to akarasulu" ) );
+
+    conn.close();
+}
+
+
+/**
+ * Tests modify operation on referral entries without the 
+ * ManageDsaIT control. Referrals are sent back to the client with a
+ * non-success result code.
+ */
+@Test
+public void testOnReferral() throws Exception
+{
+    LdapConnection conn = getWiredConnection( getLdapServer() );
+
+    // referrals failure
+    // modify success
+    ModifyRequest modifyRequest = new ModifyRequestImpl();
+    modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+    modifyRequest.add( "description", "referral to akarasulu" );
+
+    ModifyResponse modifyResponse = conn.modify( modifyRequest );
+
+    assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
+
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
+
+    conn.close();
+}
+
+
+/**
+ * Tests modify operation on normal and referral entries without the 
+ * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+ * are sent back to the client with a non-success result code.
+ */
+@Test
+public void testThrowOnReferralWithJndi() throws Exception
+{
+    LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
+
+    // modify failure
+    Attribute attr = new BasicAttribute( "description", "referral to akarasulu" );
+    ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+
+    try
     {
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-        
-        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
-        manageDSAIT.setCritical( true );
-
-        
-        // modify success
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
-        modifyRequest.add( "description", "referral to akarasulu" );
-        modifyRequest.addControl( manageDSAIT );
-        
-        conn.modify( modifyRequest );
-        
-        assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "description", "referral to akarasulu" ) );
-        
-        conn.close();
+        ctx.modifyAttributes( "uid=akarasuluref,ou=users,ou=system", new ModificationItem[]
+            { mod } );
     }
-    
-    
-    /**
-     * Tests modify operation on referral entries without the 
-     * ManageDsaIT control. Referrals are sent back to the client with a
-     * non-success result code.
-     */
-    @Test
-    public void testOnReferral() throws Exception
+    catch ( ReferralException e )
     {
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-        
-        // referrals failure
-        // modify success
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
-        modifyRequest.add( "description", "referral to akarasulu" );
-        
-        ModifyResponse modifyResponse = conn.modify( modifyRequest );
-
-        assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
-
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
-
-        conn.close();
+        // seems JNDI only returns the first referral URL and not all so we test for it
+        assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
     }
-    
-    
-    /**
-     * Tests modify operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
-     * are sent back to the client with a non-success result code.
-     */
-    @Test
-    public void testThrowOnReferralWithJndi() throws Exception
-    {
-        LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
-        
-        // modify failure
-        Attribute attr = new BasicAttribute( "description", "referral to akarasulu" );
-        ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-        
-        try
-        {
-            ctx.modifyAttributes( "uid=akarasuluref,ou=users,ou=system", new ModificationItem[] { mod } );
-        }
-        catch ( ReferralException e )
-        {
-            // seems JNDI only returns the first referral URL and not all so we test for it
-            assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
-        }
 
-        ctx.close();
-    }
-    
-    
-    /**
-     * Tests referral handling when an ancestor is a referral.
-     */
-    @Test 
-    public void testAncestorReferral() throws Exception
-    {
-        LOG.debug( "" );
+    ctx.close();
+}
 
-        LdapConnection conn = getWiredConnection( getLdapServer() );
 
-        // referrals failure
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
-        modifyRequest.add( "ou", "Machines" );
-        
-        ModifyResponse modifyResponse = conn.modify( modifyRequest );
+/**
+ * Tests referral handling when an ancestor is a referral.
+ */
+@Test
+public void testAncestorReferral() throws Exception
+{
+    LOG.debug( "" );
 
-        assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
+    LdapConnection conn = getWiredConnection( getLdapServer() );
 
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+    // referrals failure
+    ModifyRequest modifyRequest = new ModifyRequestImpl();
+    modifyRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
+    modifyRequest.add( "ou", "Machines" );
 
-        conn.close();
-    }
+    ModifyResponse modifyResponse = conn.modify( modifyRequest );
+
+    assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
+
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+    assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
+        .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+
+    conn.close();
+}
 }

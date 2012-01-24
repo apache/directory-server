@@ -39,7 +39,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private String directoryServiceId;
 
     /** The directory instance replication ID */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_DS_REPLICA_ID )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_DS_REPLICA_ID)
     private int dsReplicaId;
 
     /** The flag that tells if the AccessControl system is activated */
@@ -89,6 +89,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /** The set of associated partitions */
     @ConfigurationElement(attributeType = "ads-partitions", container = "partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
+
 
     /**
      * Create a new DnsServerBean instance

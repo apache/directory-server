@@ -76,12 +76,11 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-    @CreateDS( 
-        name = "TestDS",
-        enableAccessControl = true
-        )
-    @CreateLdapServer(transports =
-        { @CreateTransport(protocol = "LDAP") })
+@CreateDS(
+    name = "TestDS",
+    enableAccessControl = true)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
         // Entry # 1
@@ -129,119 +128,120 @@ import org.junit.runner.RunWith;
         "ObjectClass: organizationalUnit",
         "ou: noAP4",
         ""
-    })
+})
 public class AdministrativePointPersistentIT extends AbstractLdapTestUnit
 {
-    // The shared LDAP connection
-    private static LdapConnection connection;
+// The shared LDAP connection
+private static LdapConnection connection;
 
-    // A reference to the schema manager
-    private static SchemaManager schemaManager;
-
-    @Before
-    public void init() throws Exception
-    {
-        getService().setAccessControlEnabled( true ); 
-        connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = getService().getSchemaManager();
-    }
+// A reference to the schema manager
+private static SchemaManager schemaManager;
 
 
-    @After
-    public void shutdown() throws Exception
-    {
-        connection.close();
-    }
+@Before
+public void init() throws Exception
+{
+    getService().setAccessControlEnabled( true );
+    connection = IntegrationUtils.getAdminConnection( getService() );
+    schemaManager = getService().getSchemaManager();
+}
 
 
-    private Attribute getAdminRole( String dn ) throws Exception
-    {
-        Entry lookup = connection.lookup( dn, "administrativeRole" );
-
-        assertNotNull( lookup );
-
-        return lookup.get( "administrativeRole" );
-    }
+@After
+public void shutdown() throws Exception
+{
+    connection.close();
+}
 
 
-    // -------------------------------------------------------------------
-    // Test the Add operation
-    // -------------------------------------------------------------------
-    /**
-     * Test the persistence of autonomous areas across a server stop and start
-     */
-    @Test
-    public void testPersistAutonomousArea() throws Exception
-    {
-        assertTrue( getLdapServer().isStarted() );
+private Attribute getAdminRole( String dn ) throws Exception
+{
+    Entry lookup = connection.lookup( dn, "administrativeRole" );
 
-        // Stop the server now, we will restart it immediately 
-        getLdapServer().stop();
-        assertFalse( getLdapServer().isStarted() );
+    assertNotNull( lookup );
 
-        // And shutdown the DS too
-        getLdapServer().getDirectoryService().shutdown();
-        assertFalse( getLdapServer().getDirectoryService().isStarted() );
+    return lookup.get( "administrativeRole" );
+}
 
-        // And restart
-        getLdapServer().getDirectoryService().startup();
-        getLdapServer().start();
-        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
 
-        assertTrue( getService().isStarted() );
-        assertTrue( getLdapServer().getDirectoryService().isStarted() );
-        
-        // Check that the roles are present
-        assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );
-        assertEquals( "autonomousArea", getAdminRole( "ou=AAP2,ou=system" ).getString() );
-        assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
+// -------------------------------------------------------------------
+// Test the Add operation
+// -------------------------------------------------------------------
+/**
+ * Test the persistence of autonomous areas across a server stop and start
+ */
+@Test
+public void testPersistAutonomousArea() throws Exception
+{
+    assertTrue( getLdapServer().isStarted() );
 
-        // Check the caches
-        DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
-        DnNode<CollectiveAttributeAdministrativePoint> caCache = getLdapServer().getDirectoryService()
-            .getCollectiveAttributeAPCache();
-        DnNode<TriggerExecutionAdministrativePoint> teCache = getLdapServer().getDirectoryService()
-            .getTriggerExecutionAPCache();
-        DnNode<SubschemaAdministrativePoint> ssCache = getLdapServer().getDirectoryService().getSubschemaAPCache();
+    // Stop the server now, we will restart it immediately 
+    getLdapServer().stop();
+    assertFalse( getLdapServer().isStarted() );
 
-        // The ACs
-        AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
-        assertNotNull( aap1 );
+    // And shutdown the DS too
+    getLdapServer().getDirectoryService().shutdown();
+    assertFalse( getLdapServer().getDirectoryService().isStarted() );
 
-        AdministrativePoint aap2 = acCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
-        assertNotNull( aap2 );
+    // And restart
+    getLdapServer().getDirectoryService().startup();
+    getLdapServer().start();
+    schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
 
-        AdministrativePoint subAap1 = acCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
-        assertNotNull( subAap1 );
+    assertTrue( getService().isStarted() );
+    assertTrue( getLdapServer().getDirectoryService().isStarted() );
 
-        // The ACs
-        aap1 = caCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
-        assertNotNull( aap1 );
+    // Check that the roles are present
+    assertEquals( "autonomousArea", getAdminRole( "ou=AAP1,ou=noAP1,ou=system" ).getString() );
+    assertEquals( "autonomousArea", getAdminRole( "ou=AAP2,ou=system" ).getString() );
+    assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
-        aap2 = caCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
-        assertNotNull( aap2 );
+    // Check the caches
+    DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
+    DnNode<CollectiveAttributeAdministrativePoint> caCache = getLdapServer().getDirectoryService()
+        .getCollectiveAttributeAPCache();
+    DnNode<TriggerExecutionAdministrativePoint> teCache = getLdapServer().getDirectoryService()
+        .getTriggerExecutionAPCache();
+    DnNode<SubschemaAdministrativePoint> ssCache = getLdapServer().getDirectoryService().getSubschemaAPCache();
 
-        subAap1 = caCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
-        assertNotNull( subAap1 );
+    // The ACs
+    AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    assertNotNull( aap1 );
 
-        // The TEs
-        aap1 = teCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
-        assertNotNull( aap1 );
+    AdministrativePoint aap2 = acCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
+    assertNotNull( aap2 );
 
-        aap2 = teCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
-        assertNotNull( aap2 );
+    AdministrativePoint subAap1 = acCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
+    assertNotNull( subAap1 );
 
-        subAap1 = teCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
-        assertNotNull( subAap1 );
+    // The ACs
+    aap1 = caCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    assertNotNull( aap1 );
 
-        // The SSs
-        aap1 = ssCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
-        assertNotNull( aap1 );
+    aap2 = caCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
+    assertNotNull( aap2 );
 
-        aap2 = ssCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
-        assertNotNull( aap2 );
+    subAap1 = caCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
+    assertNotNull( subAap1 );
 
-        subAap1 = ssCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
-        assertNotNull( subAap1 );
-    }
+    // The TEs
+    aap1 = teCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    assertNotNull( aap1 );
+
+    aap2 = teCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
+    assertNotNull( aap2 );
+
+    subAap1 = teCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
+    assertNotNull( subAap1 );
+
+    // The SSs
+    aap1 = ssCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    assertNotNull( aap1 );
+
+    aap2 = ssCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );
+    assertNotNull( aap2 );
+
+    subAap1 = ssCache.getElement( new Dn( schemaManager, "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ) );
+    assertNotNull( subAap1 );
+}
 }

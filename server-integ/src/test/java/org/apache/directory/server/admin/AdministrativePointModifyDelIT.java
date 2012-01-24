@@ -112,83 +112,83 @@ import org.junit.runner.RunWith;
         "ou: SAP-AC",
         "administrativeRole: accessControlSpecificArea",
         "",
-          // Entry # 2
-          "dn: ou=SAP-CA,ou=SAP-AC,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: SAP-CA",
-          "administrativeRole: collectiveAttributeSpecificArea",
-          "",
-            // Entry # 3
-            "dn: ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: AAP",
-            "administrativeRole: autonomousArea",
-            "",
-              // Entry # 4
-              "dn: ou=IAP-CA,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
-              "ObjectClass: top",
-              "ObjectClass: organizationalUnit",
-              "ou: IAP-CA",
-              "administrativeRole: collectiveAttributeInnerArea",
-              "",
-              // Entry # 5
-              "dn: ou=IAP-AC,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
-              "ObjectClass: top",
-              "ObjectClass: organizationalUnit",
-              "ou: IAP-AC",
-              "administrativeRole: accessControlInnerArea",
-              "",
-              // Entry # 6
-              "dn: ou=IAP-TE,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
-              "ObjectClass: top",
-              "ObjectClass: organizationalUnit",
-              "ou: IAP-TE",
-              "administrativeRole: triggerExecutionInnerArea",
-              "",
-          // Entry # 7
-          "dn: ou=AAP,ou=SAP-AC,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: AAP",
-          "administrativeRole: autonomousArea",
-          "",
-            // Entry # 8
-            "dn: ou=AAP,ou=AAP,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: AAP",
-            "administrativeRole: autonomousArea",
-            "",
-            // Entry # 9
-            "dn: ou=SAP-AC,ou=AAP,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: SAP-AC",
-            "administrativeRole: accessControlSpecificArea",
-            "",
-            // Entry # 10
-            "dn: ou=SAP-CA,ou=AAP,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: SAP-CA",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "",
-            // Entry # 11
-            "dn: ou=IAP-AC,ou=AAP,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: IAP-AC",
-            "administrativeRole: accessControlInnerArea",
-            "",
-            // Entry # 12
-            "dn: ou=IAP-CA,ou=AAP,ou=SAP-AC,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: IAP-CA",
-            "administrativeRole: collectiveAttributeInnerArea",
-            "",
+        // Entry # 2
+        "dn: ou=SAP-CA,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: SAP-CA",
+        "administrativeRole: collectiveAttributeSpecificArea",
+        "",
+        // Entry # 3
+        "dn: ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 4
+        "dn: ou=IAP-CA,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-CA",
+        "administrativeRole: collectiveAttributeInnerArea",
+        "",
+        // Entry # 5
+        "dn: ou=IAP-AC,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-AC",
+        "administrativeRole: accessControlInnerArea",
+        "",
+        // Entry # 6
+        "dn: ou=IAP-TE,ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-TE",
+        "administrativeRole: triggerExecutionInnerArea",
+        "",
+        // Entry # 7
+        "dn: ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 8
+        "dn: ou=AAP,ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 9
+        "dn: ou=SAP-AC,ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: SAP-AC",
+        "administrativeRole: accessControlSpecificArea",
+        "",
+        // Entry # 10
+        "dn: ou=SAP-CA,ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: SAP-CA",
+        "administrativeRole: collectiveAttributeSpecificArea",
+        "",
+        // Entry # 11
+        "dn: ou=IAP-AC,ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-AC",
+        "administrativeRole: accessControlInnerArea",
+        "",
+        // Entry # 12
+        "dn: ou=IAP-CA,ou=AAP,ou=SAP-AC,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-CA",
+        "administrativeRole: collectiveAttributeInnerArea",
+        "",
         // Entry # 13
         "dn: ou=AAP,ou=system",
         "ObjectClass: top",
@@ -196,34 +196,34 @@ import org.junit.runner.RunWith;
         "ou: AAP",
         "administrativeRole: autonomousArea",
         "",
-          // Entry # 14
-          "dn: ou=AAP,ou=AAP,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: AAP",
-          "administrativeRole: autonomousArea",
-          "",
-            // Entry # 15
-            "dn: ou=AAP,ou=AAP,ou=AAP,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: AAP",
-            "administrativeRole: autonomousArea",
-            "",
-            // Entry # 16
-            "dn: ou=SAP-CA,ou=AAP,ou=AAP,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: SAP-CA",
-            "administrativeRole: collectiveAttributeSpecificArea",
-            "",
-            // Entry # 17
-            "dn: ou=IAP-CA,ou=AAP,ou=AAP,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: organizationalUnit",
-            "ou: IAP-CA",
-            "administrativeRole: collectiveAttributeInnerArea",
-            "",
+        // Entry # 14
+        "dn: ou=AAP,ou=AAP,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 15
+        "dn: ou=AAP,ou=AAP,ou=AAP,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 16
+        "dn: ou=SAP-CA,ou=AAP,ou=AAP,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: SAP-CA",
+        "administrativeRole: collectiveAttributeSpecificArea",
+        "",
+        // Entry # 17
+        "dn: ou=IAP-CA,ou=AAP,ou=AAP,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-CA",
+        "administrativeRole: collectiveAttributeInnerArea",
+        "",
         // Entry # 18
         "dn: ou=AAP1,ou=system",
         "ObjectClass: top",
@@ -231,106 +231,107 @@ import org.junit.runner.RunWith;
         "ou: AAP1",
         "administrativeRole: autonomousArea",
         "",
-          // Entry # 19
-          "dn: ou=AAP,ou=AAP1,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: AAP",
-          "administrativeRole: autonomousArea",
-          "",
-          // Entry # 20
-          "dn: ou=SAP-CA,ou=AAP1,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: SAP-CA",
-          "administrativeRole: collectiveAttributeSpecificArea",
-          "",
-          "",
-          // Entry # 21
-          "dn: ou=IAP-CA,ou=AAP1,ou=system",
-          "ObjectClass: top",
-          "ObjectClass: organizationalUnit",
-          "ou: IAP-CA",
-          "administrativeRole: collectiveAttributeInnerArea",
-          ""
-    })
+        // Entry # 19
+        "dn: ou=AAP,ou=AAP1,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: AAP",
+        "administrativeRole: autonomousArea",
+        "",
+        // Entry # 20
+        "dn: ou=SAP-CA,ou=AAP1,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: SAP-CA",
+        "administrativeRole: collectiveAttributeSpecificArea",
+        "",
+        "",
+        // Entry # 21
+        "dn: ou=IAP-CA,ou=AAP1,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: IAP-CA",
+        "administrativeRole: collectiveAttributeInnerArea",
+        ""
+})
 public class AdministrativePointModifyDelIT extends AbstractLdapTestUnit
 {
-    // The shared LDAP connection
-    private static LdapConnection connection;
+// The shared LDAP connection
+private static LdapConnection connection;
 
-    // A reference to the schema manager
-    private static SchemaManager schemaManager;
+// A reference to the schema manager
+private static SchemaManager schemaManager;
 
-    @Before
-    public void init() throws Exception
+
+@Before
+public void init() throws Exception
+{
+    connection = IntegrationUtils.getAdminConnection( getService() );
+    schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
+}
+
+
+@After
+public void shutdown() throws Exception
+{
+    connection.close();
+}
+
+
+private Attribute getAdminRole( String dn ) throws Exception
+{
+    Entry lookup = connection.lookup( dn, "administrativeRole" );
+
+    assertNotNull( lookup );
+
+    return lookup.get( "administrativeRole" );
+}
+
+
+// -------------------------------------------------------------------
+// Test the Delete operation
+// -------------------------------------------------------------------
+/**
+ * Test the deletion of the AAP role
+ */
+@Test
+@Ignore
+public void testModifyRemoveAAP() throws Exception
+{
+    assertTrue( getLdapServer().isStarted() );
+
+    // Remove the AAP
+    Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+        new DefaultAttribute( "administrativeRole" ) );
+
+    try
     {
-        connection = IntegrationUtils.getAdminConnection( getService() );
-        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
+        connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modification );
+        fail();
     }
-
-
-    @After
-    public void shutdown() throws Exception
+    catch ( LdapUnwillingToPerformException lutpe )
     {
-        connection.close();
+        assertTrue( true );
     }
+}
 
 
-    private Attribute getAdminRole( String dn ) throws Exception
-    {
-        Entry lookup = connection.lookup( dn, "administrativeRole" );
-
-        assertNotNull( lookup );
-
-        return lookup.get( "administrativeRole" );
-    }
-
-
-    // -------------------------------------------------------------------
-    // Test the Delete operation
-    // -------------------------------------------------------------------
-    /**
-     * Test the deletion of the AAP role
-     */
-    @Test
-    @Ignore
-    public void testModifyRemoveAAP() throws Exception
-    {
-        assertTrue( getLdapServer().isStarted() );
-
-        // Remove the AAP
-        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultAttribute( "administrativeRole" ) );
-        
-        try
-        {
-            connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modification );
-            fail();
-        }
-        catch ( LdapUnwillingToPerformException lutpe )
-        {
-            assertTrue( true );
-        }
-    }
+/**
+ * Test the addition of SAPs
+ */
+@Test
+public void testDeleteSAP() throws Exception
+{
+    assertTrue( getLdapServer().isStarted() );
+}
 
 
-    /**
-     * Test the addition of SAPs
-     */
-    @Test
-    public void testDeleteSAP() throws Exception
-    {
-        assertTrue( getLdapServer().isStarted() );
-    }
-
-
-    /**
-     * Test the deletion of IAPs
-     */
-    @Test
-    public void testDeleteIAP() throws Exception
-    {
-        assertTrue( getLdapServer().isStarted() );
-    }
+/**
+ * Test the deletion of IAPs
+ */
+@Test
+public void testDeleteIAP() throws Exception
+{
+    assertTrue( getLdapServer().isStarted() );
+}
 }

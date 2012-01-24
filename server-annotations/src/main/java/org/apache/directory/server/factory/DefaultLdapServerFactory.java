@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.factory;
 
+
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.LdapServer;
+
 
 /**
  * The default LdapServer factory
@@ -30,26 +32,27 @@ import org.apache.directory.server.ldap.LdapServer;
 public class DefaultLdapServerFactory implements LdapServerFactory
 {
     private LdapServer ldapServer;
-    
+
     /** The DirectoryService instance */
     private DirectoryService directoryService = null;
-    
-    
+
+
     public DefaultLdapServerFactory() throws Exception
     {
     }
+
 
     public void init()
     {
     }
 
-    
+
     public LdapServer getLdapServer()
     {
         return ldapServer;
     }
-    
-    
+
+
     /**
      * @return the directoryService
      */
@@ -57,6 +60,7 @@ public class DefaultLdapServerFactory implements LdapServerFactory
     {
         return directoryService;
     }
+
 
     public void setDirectoryService( DirectoryService directoryService )
     {

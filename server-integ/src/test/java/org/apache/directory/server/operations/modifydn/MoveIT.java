@@ -55,16 +55,29 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person", "objectClass: top",
-        "uid: akarasulu", "cn: Alex Karasulu",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
+        "objectClass: top",
+        "uid: akarasulu",
+        "cn: Alex Karasulu",
         "sn: karasulu",
         // Entry # 2
-        "dn: ou=NewSuperior,ou=system", "objectClass: organizationalUnit", "objectClass: top", "ou: NewSuperior",
+        "dn: ou=NewSuperior,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
+        "ou: NewSuperior",
 
-        "dn: ou=parent,ou=system", "changetype: add", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=parent,ou=system",
+        "changetype: add",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: parent",
 
-        "dn: ou=child,ou=parent,ou=system", "changetype: add", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=child,ou=parent,ou=system",
+        "changetype: add",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: child" })
 public class MoveIT extends AbstractLdapTestUnit
 {
@@ -131,7 +144,7 @@ public class MoveIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
-        
+
         con.close();
     }
 

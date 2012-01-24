@@ -62,8 +62,8 @@ import org.junit.runner.RunWith;
 @CreateDS(allowAnonAccess = true, name = "DelegatedAuthIT-class")
 @CreateLdapServer(
     transports =
-    {
-        @CreateTransport(protocol = "LDAP", port = 10200)
+        {
+            @CreateTransport(protocol = "LDAP", port = 10200)
     })
 public class DelegatedAuthIT extends AbstractLdapTestUnit
 {
@@ -79,27 +79,28 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         name = "DelegatedAuthIT-method",
         authenticators =
             {
-            @CreateAuthenticator(
-                type = DelegatingAuthenticator.class,
-                delegateHost = "localhost",
-                delegatePort = 10200) })
+                @CreateAuthenticator(
+                    type = DelegatingAuthenticator.class,
+                    delegateHost = "localhost",
+                    delegatePort = 10200) })
     @CreateLdapServer(
         transports =
-    {
-        @CreateTransport(protocol = "LDAP")
-    })
+            {
+                @CreateTransport(protocol = "LDAP")
+        })
     @Test
     public void testDelegatedAuthentication() throws Exception
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer()
+            .getPort() );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
-        
+
         assertTrue( ldapConnection.isAuthenticated() );
-        
+
         ldapConnection.unBind();
-        
+
         try
         {
             ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
@@ -109,9 +110,9 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
-        
+
         ldapConnection.unBind();
-        
+
         try
         {
             ldapConnection.bind( "uid=ivanhoe,ou=users,ou=system", "secret" );
@@ -121,12 +122,12 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
-        
+
         ldapConnection.unBind();
         ldapConnection.close();
     }
-    
-    
+
+
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
@@ -138,39 +139,40 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         name = "DelegatedAuthIT-MultipleAuthenticators-method",
         authenticators =
             {
-            @CreateAuthenticator(type = AnonymousAuthenticator.class),
-            @CreateAuthenticator(type = SimpleAuthenticator.class),
-            @CreateAuthenticator(
-                type = DelegatingAuthenticator.class,
-                delegateHost = "localhost",
-                delegatePort = 10200),
-            @CreateAuthenticator(type = StrongAuthenticator.class)})
-            @ApplyLdifs(
-                {
-                    // Entry # 1
-                    "dn: uid=emmanuel,ou=users,ou=system",
-                    "objectClass: uidObject",
-                    "objectClass: person",
-                    "objectClass: top",
-                    "uid: emmanuel",
-                    "cn: Emmanuel Lecharny",
-                    "sn: Lecharny",
-                    "userPassword: sesame" })
-                @CreateLdapServer(
-                    transports =
-                {
-                    @CreateTransport(protocol = "LDAP")
-                })
+                @CreateAuthenticator(type = AnonymousAuthenticator.class),
+                @CreateAuthenticator(type = SimpleAuthenticator.class),
+                @CreateAuthenticator(
+                    type = DelegatingAuthenticator.class,
+                    delegateHost = "localhost",
+                    delegatePort = 10200),
+                @CreateAuthenticator(type = StrongAuthenticator.class) })
+    @ApplyLdifs(
+        {
+            // Entry # 1
+            "dn: uid=emmanuel,ou=users,ou=system",
+            "objectClass: uidObject",
+            "objectClass: person",
+            "objectClass: top",
+            "uid: emmanuel",
+            "cn: Emmanuel Lecharny",
+            "sn: Lecharny",
+            "userPassword: sesame" })
+    @CreateLdapServer(
+        transports =
+            {
+                @CreateTransport(protocol = "LDAP")
+        })
     @Test
     public void testMultipleAuthenticators() throws Exception
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer()
+            .getPort() );
         ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
         assertTrue( ldapConnection.isAuthenticated() );
-        
+
         ldapConnection.unBind();
 
         try
@@ -182,19 +184,19 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
-        
+
         ldapConnection.unBind();
         ldapConnection.bind();
-        
+
         assertTrue( ldapConnection.isAuthenticated() );
-        
+
         ldapConnection.unBind();
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
-        
+
         assertTrue( ldapConnection.isAuthenticated() );
-        
+
         ldapConnection.unBind();
-        
+
         try
         {
             ldapConnection.bind( "uid=antoine,ou=users,ou=system", "sesame" );
@@ -203,9 +205,9 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
-        
+
         ldapConnection.unBind();
-        
+
         try
         {
             try
@@ -216,7 +218,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
             {
                 assertTrue( true );
             }
-        
+
             ldapConnection.unBind();
         }
         catch ( Exception exc )

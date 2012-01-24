@@ -82,11 +82,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             for ( int j = 0; j < 10000; j++ )
             {
                 cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
-                
+
                 while ( cursor.next() )
                 {
                 }
-                
+
                 cursor.close();
             }
 

@@ -71,8 +71,12 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
-    // Entry # 1
-        "dn: cn=Kate Bush,ou=system", "objectClass: person", "objectClass: top", "cn: Kate Bush", "sn: Bush" })
+        // Entry # 1
+        "dn: cn=Kate Bush,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Kate Bush",
+        "sn: Bush" })
 public class IllegalModificationIT extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=Kate Bush,ou=system";
@@ -103,7 +107,8 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         LdapConnection con = getWiredConnection( getLdapServer() );
 
         // first a valid attribute
-        Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description", "The description" );
+        Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description",
+            "The description" );
         // then an invalid one without any value
         Modification mod2 = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "displayName" );
 

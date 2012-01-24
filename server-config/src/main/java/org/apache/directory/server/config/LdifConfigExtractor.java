@@ -64,7 +64,7 @@ public class LdifConfigExtractor
 
     // java.util.regex.Pattern is immutable so only one instance is needed for all uses.
     private static final Pattern EXTRACT_PATTERN = Pattern.compile( ".*config"
-                            + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
+        + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
 
 
     /**
@@ -80,7 +80,7 @@ public class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             if ( !outputDirectory.mkdir() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
             }
         }
 
@@ -91,7 +91,7 @@ public class LdifConfigExtractor
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
             if ( !configDirectory.mkdir() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
             }
         }
         else if ( !overwrite )
@@ -134,7 +134,7 @@ public class LdifConfigExtractor
         {
             if ( !destination.getParentFile().mkdirs() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
             }
         }
 
@@ -185,7 +185,8 @@ public class LdifConfigExtractor
             {
                 if ( !destination.getParentFile().mkdirs() )
                 {
-                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                        destination.getParentFile() ) );
                 }
             }
 
@@ -268,7 +269,7 @@ public class LdifConfigExtractor
         return destinationFile;
     }
 
-    
+
     /**
      * extracts or overwrites the configuration LDIF file and returns the absolute path of this file
      *
@@ -282,7 +283,7 @@ public class LdifConfigExtractor
         {
             file = LDIF_CONFIG_FILE;
         }
-        
+
         File configFile = new File( configDir, file );
 
         if ( !configDir.exists() )
@@ -291,48 +292,48 @@ public class LdifConfigExtractor
             if ( !configDir.mkdir() )
             {
                 throw new RuntimeException(
-                        new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
+                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
             }
         }
         else
         {
-            if( configFile.exists() && !overwrite )
+            if ( configFile.exists() && !overwrite )
             {
                 LOG.warn( "config file already exists, returning, cause overwrite flag was set to false" );
                 return configFile.getAbsolutePath();
             }
         }
-        
+
         try
         {
-            
+
             URL configUrl = LdifConfigExtractor.class.getClassLoader().getResource( file );
 
             LOG.debug( "URL of the config ldif file {}", configUrl );
 
             InputStream in = configUrl.openStream();
-            byte[] buf = new byte[1024*1024];
-            
+            byte[] buf = new byte[1024 * 1024];
+
             FileWriter fw = new FileWriter( configFile );
-            
-            while( true )
+
+            while ( true )
             {
                 int read = in.read( buf );
-                
-                if( read <= 0 )
+
+                if ( read <= 0 )
                 {
                     break;
                 }
-                
-                String s = Strings.utf8ToString(buf, 0, read);
+
+                String s = Strings.utf8ToString( buf, 0, read );
                 fw.write( s );
             }
-            
+
             fw.close();
             in.close();
-            
+
             LOG.info( "successfully extracted the config file {}", configFile.getAbsoluteFile() );
-            
+
             return configFile.getAbsolutePath();
         }
         catch ( Exception e )

@@ -42,11 +42,11 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
     })
 public class ExtendedIT extends AbstractLdapTestUnit
 {
@@ -73,7 +73,6 @@ public class ExtendedIT extends AbstractLdapTestUnit
         }
     }
 
-    
     /**
      * Class for the request of an extended operation which does not exist.
      */

@@ -81,8 +81,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( allowAnonAccess=true, name="MiscBindIT-class",
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "MiscBindIT-class",
     partitions =
         {
             @CreatePartition(
@@ -90,21 +90,21 @@ import org.junit.runner.RunWith;
                 suffix = "dc=aPache,dc=org",
                 contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=aPache,dc=org\n" +
+                    "dn: dc=aPache,dc=org\n" +
                         "dc: aPache\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
+                        "objectClass: domain\n\n"),
                 indexes =
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        })
-@CreateLdapServer (
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
+    })
+@CreateLdapServer(
     transports =
-    {
-        @CreateTransport( protocol = "LDAP" )
+        {
+            @CreateTransport(protocol = "LDAP")
     })
 public class MiscBindIT extends AbstractLdapTestUnit
 {
@@ -113,14 +113,15 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
     private boolean oldAnnonymousAccess;
 
+
     @Before
     public void init() throws Exception
     {
         getLdapServer().addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
         // Setup SASL Mechanisms
-        
-        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+
+        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String, MechanismHandler>();
         mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
@@ -139,15 +140,15 @@ public class MiscBindIT extends AbstractLdapTestUnit
         getLdapServer().setSaslMechanismHandlers( mechanismHandlerMap );
         oldAnnonymousAccess = getLdapServer().getDirectoryService().isAllowAnonymousAccess();
     }
-    
-    
+
+
     @After
     public void revertAnonnymous()
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );
     }
 
-    
+
     /**
      * Test to make sure anonymous binds are disabled when going through
      * the wire protocol.
@@ -158,7 +159,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     public void testDisableAnonymousBinds() throws Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        
+
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
@@ -180,7 +181,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "ou=system", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "ou=system", new String[]
+                { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPConnection.search( url );
 
             fail();
@@ -214,14 +216,14 @@ public class MiscBindIT extends AbstractLdapTestUnit
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
         NamingEnumeration<SearchResult> list = ctx.search( "", "(objectClass=*)", cons );
-        
+
         SearchResult result = null;
-        
+
         if ( list.hasMore() )
         {
             result = list.next();
         }
-        
+
         assertFalse( list.hasMore() );
         list.close();
 
@@ -253,12 +255,12 @@ public class MiscBindIT extends AbstractLdapTestUnit
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
         NamingEnumeration<SearchResult> list = ctx.search( "dc=apache,dc=org", "(objectClass=*)", cons );
         SearchResult result = null;
-        
+
         if ( list.hasMore() )
         {
             result = list.next();
         }
-        
+
         assertFalse( list.hasMore() );
         list.close();
 
@@ -297,7 +299,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
-                {"+"} );
+            { "+" } );
         NamingEnumeration<SearchResult> list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
         SearchResult result = list.next();
         list.close();
@@ -356,9 +358,9 @@ public class MiscBindIT extends AbstractLdapTestUnit
     {
         Control unsupported = new OpaqueControl( "1.1.1.1" );
         unsupported.setCritical( true );
-        
+
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
-        
+
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/ou=system" );
@@ -379,7 +381,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
         ctx.setRequestControls( JndiUtils.toJndiControls( getLdapServer().getDirectoryService().getLdapCodecService(),
-            new Control[] {unsupported} ) );
+            new Control[]
+                { unsupported } ) );
 
         try
         {
@@ -392,12 +395,13 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         unsupported.setCritical( false );
         ctx.setRequestControls( JndiUtils.toJndiControls( getLdapServer().getDirectoryService().getLdapCodecService(),
-            new Control[]{unsupported} ) );
-        
+            new Control[]
+                { unsupported } ) );
+
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );
         assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(
-                "userPassword" ).get() ) );
+            "userPassword" ).get() ) );
 
         ctx.destroySubcontext( "cn=Kate Bush" );
     }

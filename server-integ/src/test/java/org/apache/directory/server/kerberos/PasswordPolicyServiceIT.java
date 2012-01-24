@@ -62,53 +62,53 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="PasswordPolicyServiceIT-class",
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "PasswordPolicyServiceIT-class",
     partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        })
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
-    },
-    saslHost="localhost",
-    saslMechanisms = 
-    {
-        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-        @SaslMechanism( name= SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
-    },
-    extendedOpHandlers = 
-    {
-        StoredProcedureExtendedOperationHandler.class
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
     })
-@Ignore( "This test case is no loger useful cause we removed PasswordPolicyInterceptor, instead look at PasswordPolicyTest" )
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    },
+    saslHost = "localhost",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers =
+        {
+            StoredProcedureExtendedOperationHandler.class
+    })
+@Ignore("This test case is no loger useful cause we removed PasswordPolicyInterceptor, instead look at PasswordPolicyTest")
 //WARN: this test class will be removed soon
 public class PasswordPolicyServiceIT extends AbstractLdapTestUnit
 {
     private DirContext ctx;
     private DirContext users;
-    
-    
+
+
     /**
      * Set up a partition for EXAMPLE.COM
      */
@@ -128,7 +128,7 @@ public class PasswordPolicyServiceIT extends AbstractLdapTestUnit
         users = ctx.createSubcontext( "ou=users", attrs );
     }
 
-    
+
     /**
      * Tests that passwords that are too short are properly rejected. 
      */

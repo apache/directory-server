@@ -66,21 +66,29 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
         "objectClass: top",
         "uid: akarasulu",
         "cn: Alex Karasulu",
         "sn: karasulu",
 
         // Entry # 2
-        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: computers",
         "description: Computers for Alex",
         "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
 
         // Entry # 3
-        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
-        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class DeleteIT extends AbstractLdapTestUnit
@@ -127,7 +135,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         // delete failure non-existant entry
         try
-        { 
+        {
             conn.delete( "uid=elecharny,ou=users,ou=system" );
             fail();
         }
@@ -152,7 +160,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         // delete failure non-existent entry
         try
-        { 
+        {
             conn.delete( "uid=elecharny,ou=users,ou=system" );
             fail();
         }
@@ -183,7 +191,8 @@ public class DeleteIT extends AbstractLdapTestUnit
         deleteRequest.addControl( manageDSAIT );
         conn.delete( deleteRequest );
 
-        assertNull( conn.lookup( "uid=akarasuluref,ou=users,ou=system", new Control[]{ manageDSAIT } ) );
+        assertNull( conn.lookup( "uid=akarasuluref,ou=users,ou=system", new Control[]
+            { manageDSAIT } ) );
 
         conn.close();
     }
@@ -206,9 +215,12 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         assertEquals( ResultCodeEnum.REFERRAL, deleteResponse.getLdapResult().getResultCode() );
 
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }
@@ -269,9 +281,12 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         assertEquals( ResultCodeEnum.REFERRAL, deleteResponse.getLdapResult().getResultCode() );
 
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system") );
-        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( deleteResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }
@@ -295,7 +310,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         {
             // expected
         }
-        
+
         conn.close();
     }
 }

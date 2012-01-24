@@ -64,14 +64,15 @@ public class ChangePasswordConfigReaderTest
     @BeforeClass
     public static void readConfig() throws Exception
     {
-        workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work-" + ChangePasswordConfigReaderTest.class.getSimpleName() );
+        workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work-"
+            + ChangePasswordConfigReaderTest.class.getSimpleName() );
         FileUtils.deleteDirectory( workDir );
         workDir.mkdir();
 
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
@@ -92,18 +93,18 @@ public class ChangePasswordConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
-    
+
     @AfterClass
     public static void cleanup() throws Exception
     {
         FileUtils.deleteDirectory( workDir );
     }
 
-    
+
     @Test
     public void testChangePasswordServer() throws Exception
     {
@@ -115,14 +116,17 @@ public class ChangePasswordConfigReaderTest
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_CHANGE_PASSWORD_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager,
+            "ou=servers,ads-directoryServiceId=default,ou=config" ),
+            ConfigSchemaConstants.ADS_CHANGE_PASSWORD_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
-        ChangePasswordServerBean changePasswordServerBean = (ChangePasswordServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        ChangePasswordServerBean changePasswordServerBean = ( ChangePasswordServerBean ) configBean
+            .getDirectoryServiceBeans().get( 0 );
         assertNotNull( changePasswordServerBean );
 
         configPartition.destroy();

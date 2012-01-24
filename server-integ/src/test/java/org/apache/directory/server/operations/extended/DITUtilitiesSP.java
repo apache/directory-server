@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.operations.extended;
 
+
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -29,7 +30,8 @@ import org.slf4j.LoggerFactory;
 public class DITUtilitiesSP
 {
     private static final Logger log = LoggerFactory.getLogger( DITUtilitiesSP.class );
-    
+
+
     /**
      * Recursively deletes a subtree including the apex given.
      * 

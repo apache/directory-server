@@ -51,6 +51,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
  * Tests the initial refresh of a client
  *
@@ -61,18 +62,19 @@ public class ClientInitialRefreshIT
     private static LdapServer providerServer;
 
     private static SchemaManager schemaManager;
-    
+
     private static CoreSession providerSession;
-    
+
     private static AtomicInteger entryCount = new AtomicInteger();
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
         Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
-        
+
         startProvider();
-        
+
         // Load 1000 entries
         for ( int i = 0; i < 1000; i++ )
         {
@@ -89,7 +91,7 @@ public class ClientInitialRefreshIT
         providerServer.stop();
     }
 
-    
+
     /**
      * Check that the entry exists in the target server. We wait up to 10 seconds, by
      * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
@@ -97,74 +99,74 @@ public class ClientInitialRefreshIT
     private boolean checkEntryExistence( CoreSession session, Dn entryDn ) throws Exception
     {
         boolean replicated = false;
-        
+
         for ( int i = 0; i < 100; i++ )
         {
             Thread.sleep( 100 );
-            
+
             if ( session.exists( entryDn ) )
             {
                 replicated = true;
                 break;
             }
         }
-        
+
         return replicated;
     }
-    
-    
+
+
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
         // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
         Entry providerEntry = providerSession.lookup( dn, "*", "+" );
-        
+
         //Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
         //assertEquals( providerEntry, consumerEntry );
     }
-    
-    
+
+
     private static Entry createEntry() throws Exception
     {
-        String user = "user"+ entryCount.incrementAndGet();
-        
+        String user = "user" + entryCount.incrementAndGet();
+
         String dn = "cn=" + user + ",dc=example,dc=com";
-        
+
         DefaultEntry entry = new DefaultEntry( schemaManager, dn,
             "objectClass", "person",
             "cn", user,
             "sn", user );
-        
+
         return entry;
     }
-    
-    
+
+
     @CreateDS(allowAnonAccess = true, name = "provider-replication", partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
                 indexes =
-                {
-                    @CreateIndex(attribute = "objectClass"),
-                    @CreateIndex(attribute = "dc"),
-                    @CreateIndex(attribute = "ou")
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
                 },
-                contextEntry=@ContextEntry( entryLdif = 
+                contextEntry = @ContextEntry(entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "objectClass: domain\n" +
-                    "dc: example" ) )
-             })
+                        "objectClass: domain\n" +
+                        "dc: example"))
+    })
     @CreateLdapServer(transports =
-        { @CreateTransport( port=16000, protocol = "LDAP") })
+        { @CreateTransport(port = 16000, protocol = "LDAP") })
     public static void startProvider() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
         providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
-        
+
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         providerServer.startReplicationProducer();
-        
+
         Runnable r = new Runnable()
         {
             public void run()
@@ -174,7 +176,7 @@ public class ClientInitialRefreshIT
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                 }
@@ -186,8 +188,8 @@ public class ClientInitialRefreshIT
         t.start();
         t.join();
     }
-    
-    
+
+
     /**
      * Wait for the expected number of entries to be added into the client
      */
@@ -195,11 +197,11 @@ public class ClientInitialRefreshIT
     {
         System.out.println( "\nNbAdded every 100ms : " );
         boolean isFirst = true;
-        
+
         for ( int i = 0; i < 50; i++ )
         {
-            int nbAdded = ((MockSyncReplConsumer)consumer).getNbAdded();
-            
+            int nbAdded = ( ( MockSyncReplConsumer ) consumer ).getNbAdded();
+
             if ( isFirst )
             {
                 isFirst = false;
@@ -208,20 +210,20 @@ public class ClientInitialRefreshIT
             {
                 System.out.print( ", " );
             }
-            
+
             System.out.print( nbAdded );
-            
+
             if ( nbAdded == expected )
             {
                 return true;
             }
-            
+
             Thread.sleep( 100 );
         }
-        
+
         return false;
     }
-    
+
 
     /**
      * Wait for the expected number of entries to be added into the client
@@ -233,34 +235,34 @@ public class ClientInitialRefreshIT
         int nbConsumers = consumers.length;
         int[] nbAddeds = new int[nbConsumers];
         int nbCompleted = 0;
-        
+
         for ( int i = 0; i < 50; i++ )
         {
             for ( int j = 0; j < nbConsumers; j++ )
             {
                 if ( nbAddeds[j] != limit )
                 {
-                    nbAddeds[j] = ((MockSyncReplConsumer)consumers[j]).getNbAdded();
-                    
+                    nbAddeds[j] = ( ( MockSyncReplConsumer ) consumers[j] ).getNbAdded();
+
                     if ( nbAddeds[j] >= limit )
                     {
-                        nbCompleted ++;
+                        nbCompleted++;
                         System.out.println( "(consumer" + ( j + 1 ) + " completed) " );
                     }
                 }
             }
 
-            if ( nbCompleted  == nbConsumers )
+            if ( nbCompleted == nbConsumers )
             {
                 return true;
             }
-            
+
             Thread.sleep( 100 );
         }
-        
+
         return false;
     }
-    
+
 
     private ReplicationConsumer createConsumer() throws Exception
     {
@@ -273,7 +275,7 @@ public class ClientInitialRefreshIT
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
         config.setRefreshInterval( 1000 );
-        
+
         syncreplClient.setConfig( config );
 
         assertTrue( true );
@@ -301,7 +303,7 @@ public class ClientInitialRefreshIT
 
                     DirectoryService directoryService = new MockDirectoryService();
                     directoryService.setSchemaManager( schemaManager );
-                    ((MockSyncReplConsumer)syncreplClient).init( directoryService );
+                    ( ( MockSyncReplConsumer ) syncreplClient ).init( directoryService );
                     syncreplClient.start();
                 }
                 catch ( Exception e )
@@ -314,11 +316,11 @@ public class ClientInitialRefreshIT
         Thread consumerThread = new Thread( consumerTask );
         consumerThread.setDaemon( true );
         consumerThread.start();
-        
+
         return syncreplClient;
     }
-    
-    
+
+
     /**
      * Launch the consumer in a separated thread.
      */
@@ -343,7 +345,7 @@ public class ClientInitialRefreshIT
         consumerThread.setDaemon( true );
         consumerThread.start();
     }
-    
+
 
     /**
      * First test : create a consumer, and see if it gets the 1000 entries
@@ -351,18 +353,18 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoad() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshLoad");
-        
+        System.out.println( "\n---> Running testInitialRefreshLoad" );
+
         ReplicationConsumer consumer = createConsumer();
-        
+
         // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( consumer, 1001 ) ); 
+        assertTrue( waitForSyncReplClient( consumer, 1001 ) );
         consumer.stop();
-        
+
         System.out.println( "\n<-- Done" );
     }
-    
-    
+
+
     /**
      * Test that we can load entries, then add one entry in the producer
      * and see this entry present in the consumer
@@ -370,31 +372,31 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoadAndAdd() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshLoadAndAdd");
+        System.out.println( "\n---> Running testInitialRefreshLoadAndAdd" );
 
         ReplicationConsumer consumer = createConsumer();
-        
+
         // We should have 1000 entries plus the base entry = 1001
         assertTrue( waitForSyncReplClient( consumer, 1001 ) );
-        
+
         // Inject a new intry in the producer
         Entry addedEntry = createEntry();
         providerSession.add( addedEntry );
-        
+
         // Reset the added counter
-        ((MockSyncReplConsumer)consumer).resetNbAdded();
+        ( ( MockSyncReplConsumer ) consumer ).resetNbAdded();
 
         // Now check that the entry has been copied in the consumer
         assertTrue( waitForSyncReplClient( consumer, 1 ) );
-        
+
         // Removed the added entry
         providerSession.delete( addedEntry.getDn() );
         consumer.stop();
-        
+
         System.out.println( "\n<-- Done" );
     }
-    
-    
+
+
     /**
      * Test that we can load entries, kill the consumer in the middle of the load, 
      * restart the consumer and still get all the entries.
@@ -402,43 +404,43 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshStopAndGo() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshStopAndGo");
+        System.out.println( "\n---> Running testInitialRefreshStopAndGo" );
 
         ReplicationConsumer consumer = createConsumer();
-        
+
         // Load but stop after 200 entries have been loaded
         waitUntilLimitSyncReplClient( 200, consumer );
-        
+
         // Stop the consumer
         consumer.stop();
-        
+
         // Start it again
         runConsumer( consumer );
-        
+
         // We should have 1000 entries plus the base entry = 1001
         assertTrue( waitForSyncReplClient( consumer, 1001 ) );
         consumer.stop();
-        
+
         System.out.println( "\n<-- Done" );
     }
-    
-    
+
+
     /**
      * Test with 2 consumers
      */
     @Test
     public void testInitialRefresh4Consumers() throws Exception
     {
-        System.out.println( "\n--->Running testInitialRefresh4Consumers");
+        System.out.println( "\n--->Running testInitialRefresh4Consumers" );
 
         ReplicationConsumer consumer1 = createConsumer();
         ReplicationConsumer consumer2 = createConsumer();
         ReplicationConsumer consumer3 = createConsumer();
         ReplicationConsumer consumer4 = createConsumer();
-        
+
         // Load but stop after 200 entries have been loaded
         assertTrue( waitUntilLimitSyncReplClient( 1001, consumer1, consumer2, consumer3, consumer4 ) );
-        
+
         consumer1.stop();
         consumer2.stop();
         consumer3.stop();
