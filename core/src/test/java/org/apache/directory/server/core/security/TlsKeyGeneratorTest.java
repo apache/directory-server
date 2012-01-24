@@ -77,7 +77,7 @@ public class TlsKeyGeneratorTest
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
         */
-        
+
         schemaManager = new DefaultSchemaManager();
     }
 
