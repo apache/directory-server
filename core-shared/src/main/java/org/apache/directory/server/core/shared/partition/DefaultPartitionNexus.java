@@ -107,7 +107,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     /** the fixed id: 'NEXUS' */
     private static final String ID = "NEXUS";
-    
+
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
@@ -138,10 +138,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     private final List<Modification> mods = new ArrayList<Modification>( 2 );
 
     private String lastSyncedCtxCsn = null;
-    
+
     /** The cn=schema Dn */
     private Dn subschemSubentryDn;
-
 
 
     /**
@@ -158,7 +157,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         id = ID;
         suffixDn = null;
-            
+
         // setup that root DSE
         this.rootDse = rootDse;
 
@@ -186,7 +185,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         rootDse.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
-        
+
         // The rootDSE uuid has been randomly created
         rootDse.put( SchemaConstants.ENTRY_UUID_AT, "f290425c-8272-4e62-8a67-92b06f38dbf5" );
     }
@@ -202,30 +201,30 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             // Add the supported controls
             Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredControls();
-            
+
             while ( ctrlOidItr.hasNext() )
             {
                 rootDse.add( SchemaConstants.SUPPORTED_CONTROL_AT, ctrlOidItr.next() );
             }
-    
+
             schemaManager = directoryService.getSchemaManager();
             ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
             OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-    
+
             // Initialize and normalize the localy used DNs
             Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
             adminDn.apply( schemaManager );
-    
+
             Value<?> attr = rootDse.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
             subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
-    
+
             //initializeSystemPartition( directoryService );
-    
+
             List<Partition> initializedPartitions = new ArrayList<Partition>();
-            
+
             initializedPartitions.add( 0, directoryService.getSystemPartition() );
             addContextPartition( directoryService.getSystemPartition() );
-    
+
             try
             {
                 for ( Partition partition : directoryService.getPartitions() )
@@ -233,9 +232,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                     addContextPartition( partition );
                     initializedPartitions.add( partition );
                 }
-    
+
                 createContextCsnModList();
-    
+
                 initialized = true;
             }
             finally
@@ -243,12 +242,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 if ( !initialized )
                 {
                     Iterator<Partition> i = initializedPartitions.iterator();
-                    
+
                     while ( i.hasNext() )
                     {
                         Partition partition = i.next();
                         i.remove();
-                        
+
                         try
                         {
                             partition.destroy();
@@ -280,11 +279,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
         {
             Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
-            
+
             // Add the ObjectClasses
             systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            
+
             // Add some operational attributes
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -292,7 +291,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
             systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
                 .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-            
+
             AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
             system.add( addOperationContext );
         }
@@ -342,7 +341,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                removeContextPartition(  directoryService.getDnFactory().create( suffix ) );
+                removeContextPartition( directoryService.getDnFactory().create( suffix ) );
             }
             catch ( Exception e )
             {
@@ -527,7 +526,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition partition = getPartition( dn );
-        
+
         return partition.hasEntry( hasEntryContext );
     }
 
@@ -538,7 +537,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         Partition partition = getPartition( listContext.getDn() );
-        
+
         return partition.list( listContext );
     }
 
@@ -559,9 +558,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( dn.size() == 0 )
         {
             Entry retval = new ClonedServerEntry( rootDse );
-            
+
             return retval;
-            
+
             /*
             if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
             {
@@ -586,8 +585,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition partition = getPartition( dn );
-        Entry entry =  partition.lookup( lookupContext );
-        
+        Entry entry = partition.lookup( lookupContext );
+
         if ( entry == null )
         {
             LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
@@ -614,9 +613,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition partition = getPartition( modifyContext.getDn() );
 
         partition.modify( modifyContext );
-        
+
         Entry alteredEntry = modifyContext.getAlteredEntry();
-        
+
         if ( alteredEntry != null )
         {
             directoryService.setContextCsn( alteredEntry.get( ENTRY_CSN_AT ).getString() );
@@ -766,7 +765,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             boolean isSearchAll = false;
 
             // We have to be careful, as we may have a filter which is not a PresenceFilter
-            if ( filter instanceof PresenceNode)
+            if ( filter instanceof PresenceNode )
             {
                 isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
             }
@@ -790,10 +789,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 for ( Partition partition : partitions.values() )
                 {
                     Dn contextDn = partition.getSuffixDn();
-                    HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( searchContext.getSession(), contextDn );
-                    
+                    HasEntryOperationContext hasEntryContext = new HasEntryOperationContext(
+                        searchContext.getSession(), contextDn );
+
                     // search only if the context entry exists
-                    if( partition.hasEntry( hasEntryContext ) )
+                    if ( partition.hasEntry( hasEntryContext ) )
                     {
                         searchContext.setDn( contextDn );
                         searchContext.setScope( SearchScope.OBJECT );
@@ -948,7 +948,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             partitionLookupTree.remove( partition.getSuffixDn() );
         }
-        
+
         partitions.remove( key );
 
         try
@@ -968,7 +968,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public Partition getPartition( Dn dn ) throws LdapException
     {
         Partition parent = null;
-        
+
         synchronized ( partitionLookupTree )
         {
             parent = partitionLookupTree.getElement( dn );
@@ -1013,7 +1013,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( supportedExtension == null )
         {
-            rootDse.put( SchemaConstants.SUPPORTED_EXTENSION_AT, (String)null );
+            rootDse.put( SchemaConstants.SUPPORTED_EXTENSION_AT, ( String ) null );
             supportedExtension = rootDse.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
         }
 
@@ -1031,13 +1031,14 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Attribute supportedSaslMechanismsAt = null;
 
-        supportedSaslMechanismsAt = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT ) );
+        supportedSaslMechanismsAt = new DefaultAttribute(
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT ) );
 
         for ( String saslMechanism : supportedSaslMechanisms )
         {
             supportedSaslMechanismsAt.add( saslMechanism );
         }
-        
+
         rootDse.add( supportedSaslMechanismsAt );
     }
 

@@ -88,7 +88,7 @@ public class HttpDirectoryService
 
             LdapResult result = resp.getLdapResult();
             result.setDiagnosticMessage( e.getMessage() );
-            result.setResultCode( ResultCodeEnum.getResultCode(e) );
+            result.setResultCode( ResultCodeEnum.getResultCode( e ) );
 
             holder = new BindResponseHolder( resp, null );
         }

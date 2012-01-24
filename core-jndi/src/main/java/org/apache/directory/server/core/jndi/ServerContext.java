@@ -155,8 +155,8 @@ public abstract class ServerContext implements EventContext
     private final Dn dn;
 
     /** The set of registered NamingListeners */
-    private final Map<NamingListener,DirectoryListener> listeners =
-        new HashMap<NamingListener,DirectoryListener>();
+    private final Map<NamingListener, DirectoryListener> listeners =
+        new HashMap<NamingListener, DirectoryListener>();
 
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
@@ -186,7 +186,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( SyncRequestValue.OID, ControlEnum.SYNC_REQUEST_VALUE_CONTROL );
         ADS_CONTROLS.put( SyncStateValue.OID, ControlEnum.SYNC_STATE_VALUE_CONTROL );
     }
-    
+
 
     // ------------------------------------------------------------------------
     // Constructors
@@ -224,8 +224,8 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
 
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
-        
-        if ( ! operationManager.hasEntry( hasEntryContext ) )
+
+        if ( !operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -259,8 +259,8 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
 
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
-        
-        if ( ! operationManager.hasEntry( hasEntryContext ) )
+
+        if ( !operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -283,8 +283,8 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
 
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, dn );
-        
-        if ( ! operationManager.hasEntry( hasEntryContext ) )
+
+        if ( !operationManager.hasEntry( hasEntryContext ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -302,11 +302,11 @@ public abstract class ServerContext implements EventContext
      */
     protected void injectReferralControl( OperationContext opCtx )
     {
-        if ( "ignore".equalsIgnoreCase( (String)env.get( Context.REFERRAL ) ) )
+        if ( "ignore".equalsIgnoreCase( ( String ) env.get( Context.REFERRAL ) ) )
         {
             opCtx.ignoreReferral();
         }
-        else if ( "throw".equalsIgnoreCase( (String)env.get( Context.REFERRAL ) ) )
+        else if ( "throw".equalsIgnoreCase( ( String ) env.get( Context.REFERRAL ) ) )
         {
             opCtx.throwReferral();
         }
@@ -316,6 +316,8 @@ public abstract class ServerContext implements EventContext
             opCtx.throwReferral();
         }
     }
+
+
     // ------------------------------------------------------------------------
     // Protected Methods for Operations
     // ------------------------------------------------------------------------
@@ -389,17 +391,17 @@ public abstract class ServerContext implements EventContext
         {
             case CASCADE_CONTROL:
                 control = new CascadeDecorator( getDirectoryService().getLdapCodecService(), new CascadeImpl() );
-                
+
                 break;
 
             case ENTRY_CHANGE_CONTROL:
                 control = new EntryChangeDecorator( getDirectoryService().getLdapCodecService() );
-                
+
                 break;
 
             case MANAGE_DSA_IT_CONTROL:
                 control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService(), new ManageDsaITImpl() );
-                
+
                 break;
 
             case PAGED_RESULTS_CONTROL:
@@ -428,12 +430,12 @@ public abstract class ServerContext implements EventContext
 
             case SUBENTRIES_CONTROL:
                 control = new SubentriesDecorator( getDirectoryService().getLdapCodecService() );
-                
+
                 break;
 
             case SYNC_DONE_VALUE_CONTROL:
                 control = new SyncDoneValueDecorator( getDirectoryService().getLdapCodecService() );
-                
+
                 break;
 
             case SYNC_INFO_VALUE_CONTROL:
@@ -454,9 +456,9 @@ public abstract class ServerContext implements EventContext
 
         control.setCritical( jndiControl.isCritical() );
         control.setValue( jndiControl.getEncodedValue() );
-        
+
         byte[] value = jndiControl.getEncodedValue();
-        
+
         if ( !Strings.isEmpty( value ) )
         {
             control.decode( value );
@@ -464,6 +466,7 @@ public abstract class ServerContext implements EventContext
 
         return control;
     }
+
 
     /**
      * Convert the JNDI controls to ADS controls
@@ -510,7 +513,7 @@ public abstract class ServerContext implements EventContext
         Object typesOnlyObj = getEnvironment().get( "java.naming.ldap.typesOnly" );
         boolean typesOnly = false;
 
-        if( typesOnlyObj != null )
+        if ( typesOnlyObj != null )
         {
             typesOnly = Boolean.parseBoolean( typesOnlyObj.toString() );
         }
@@ -523,10 +526,11 @@ public abstract class ServerContext implements EventContext
         // should be asked to be returned.
         if ( ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE )
             && ( ( searchControls.getReturningAttributes() != null )
-                && ( searchControls.getReturningAttributes().length == 0 ) )
+            && ( searchControls.getReturningAttributes().length == 0 ) )
             && ( filter instanceof EqualityNode ) )
         {
-            CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode <?>)filter).getAttribute(), ((EqualityNode)filter).getValue() );
+            CompareOperationContext compareContext = new CompareOperationContext( session, dn,
+                ( ( EqualityNode<?> ) filter ).getAttribute(), ( ( EqualityNode ) filter ).getValue() );
 
             // Inject the referral handling into the operation context
             injectReferralControl( compareContext );
@@ -540,7 +544,7 @@ public abstract class ServerContext implements EventContext
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( convertControls( true, requestControls ) );
 
-            searchContext.setTypesOnly(  typesOnly );
+            searchContext.setTypesOnly( typesOnly );
 
             if ( result )
             {
@@ -560,7 +564,7 @@ public abstract class ServerContext implements EventContext
             searchContext = new SearchOperationContext( session, dn, filter, searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( convertControls( true, requestControls ) );
-            searchContext.setTypesOnly(  typesOnly );
+            searchContext.setTypesOnly( typesOnly );
 
             // Inject the referral handling into the operation context
             injectReferralControl( searchContext );
@@ -604,11 +608,11 @@ public abstract class ServerContext implements EventContext
     {
         GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( session, target );
         getRootDseContext.addRequestControls( convertControls( true, requestControls ) );
-        
+
         // do not reset request controls since this is not an external
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
-        
+
         return operationManager.getRootDse( getRootDseContext );
     }
 
@@ -654,7 +658,7 @@ public abstract class ServerContext implements EventContext
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( lookupContext.getAttrsId() != null ) && ( lookupContext.getAttrsId().size() != 0 ) &&
             ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
-                && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
+            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
         {
             serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
         }
@@ -697,8 +701,9 @@ public abstract class ServerContext implements EventContext
         throws Exception
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent, new Rdn(
-            newRdn ), delOldDn );
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent,
+            new Rdn(
+                newRdn ), delOldDn );
         moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
@@ -824,7 +829,6 @@ public abstract class ServerContext implements EventContext
     // Protected Accessor Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the distinguished name of the entry associated with this Context.
      *
@@ -930,7 +934,7 @@ public abstract class ServerContext implements EventContext
         }
         catch ( LdapException le )
         {
-            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
+            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
         }
 
         // Now add the CN attribute, which is mandatory
@@ -945,13 +949,13 @@ public abstract class ServerContext implements EventContext
             else
             {
                 // No CN in the rdn, this is an error
-                throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
+                throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
             }
         }
         else
         {
             // No CN in the rdn, this is an error
-            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
+            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
         }
 
         /*
@@ -1060,8 +1064,8 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive(res
-                    .getAttributes()), target, service.getSchemaManager() );
+            outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
+                .getAttributes() ), target, service.getSchemaManager() );
         }
         catch ( LdapInvalidAttributeTypeException liate )
         {
@@ -1232,7 +1236,6 @@ public abstract class ServerContext implements EventContext
 
         newParent = newParent.getParent();
 
-
         Rdn oldRdn = oldDn.getRdn();
         Rdn newRdn = newDn.getRdn();
         boolean delOldRdn = true;
@@ -1315,7 +1318,7 @@ public abstract class ServerContext implements EventContext
         try
         {
             HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( session, target );
-            
+
             if ( operationManager.hasEntry( hasEntryContext ) )
             {
                 doDeleteOperation( target );
@@ -1360,7 +1363,7 @@ public abstract class ServerContext implements EventContext
      */
     public Object lookup( String name ) throws NamingException
     {
-        if ( Strings.isEmpty(name) )
+        if ( Strings.isEmpty( name ) )
         {
             return lookup( new LdapName( "" ) );
         }
@@ -1530,7 +1533,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            return new NamingEnumerationAdapter( doListOperation( buildTarget( JndiUtils.fromName(name) ) ) );
+            return new NamingEnumerationAdapter( doListOperation( buildTarget( JndiUtils.fromName( name ) ) ) );
         }
         catch ( Exception e )
         {
@@ -1614,7 +1617,7 @@ public abstract class ServerContext implements EventContext
 
         // 1). Find the Dn for name and walk it from the head to tail
         Dn fqn = buildTarget( JndiUtils.fromName( name ) );
-        
+
         try
         {
             return JndiUtils.toName( JndiUtils.fromName( prefix ).add( fqn ) );
@@ -1717,7 +1720,7 @@ public abstract class ServerContext implements EventContext
             target = target.add( relativeName );
             target.apply( schemaManager );
         }
-        catch (LdapInvalidDnException lide )
+        catch ( LdapInvalidDnException lide )
         {
             throw new InvalidNameException( lide.getMessage() );
         }

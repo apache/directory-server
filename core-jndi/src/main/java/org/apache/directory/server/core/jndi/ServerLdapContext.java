@@ -204,16 +204,16 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
 
         // make sure we add the request controls to operation
         try
-        { 
+        {
             if ( attributeType.getSyntax().isHumanReadable() )
             {
                 if ( value instanceof String )
                 {
-                    val = new StringValue( attributeType, (String)value );
+                    val = new StringValue( attributeType, ( String ) value );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
+                    val = new StringValue( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
                 }
                 else
                 {
@@ -224,11 +224,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             {
                 if ( value instanceof String )
                 {
-                    val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
+                    val = new BinaryValue( attributeType, Strings.getBytesUtf8( ( String ) value ) );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    val = new BinaryValue( attributeType, (byte[])value );
+                    val = new BinaryValue( attributeType, ( byte[] ) value );
                 }
                 else
                 {
@@ -242,10 +242,10 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
 
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
-        
+
         try
         {
-            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 
+            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(),
                 requestControls ) );
         }
         catch ( DecoderException e1 )
@@ -264,7 +264,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         catch ( Exception e )
         {
-            JndiUtils.wrap(e);
+            JndiUtils.wrap( e );
         }
 
         // extract the response controls from the operation and return
@@ -285,10 +285,10 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         UnbindOperationContext opCtx = new UnbindOperationContext( getSession() );
-        
+
         try
         {
-            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(), 
+            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(),
                 requestControls ) );
         }
         catch ( DecoderException e1 )

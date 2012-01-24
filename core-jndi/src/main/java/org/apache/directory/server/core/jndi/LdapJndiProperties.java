@@ -75,7 +75,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
+            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(),
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -163,7 +163,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
+            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(),
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -180,14 +180,14 @@ public class LdapJndiProperties
             {
                 props.level = AuthenticationLevel.STRONG;
                 props.saslMechanism = ( String ) authentication;
-//                String[] mechList = ( ( String ) authentication ).trim().split( " " );
-//                for ( String mech : mechList )
-//                {
-//                    if ( !mech.trim().equals( "" ) )
-//                    {
-//                        props.mechanisms.add( mech );
-//                    }
-//                }
+                //                String[] mechList = ( ( String ) authentication ).trim().split( " " );
+                //                for ( String mech : mechList )
+                //                {
+                //                    if ( !mech.trim().equals( "" ) )
+                //                    {
+                //                        props.mechanisms.add( mech );
+                //                    }
+                //                }
             }
         }
 
@@ -224,7 +224,6 @@ public class LdapJndiProperties
             }
 
         }
-        
 
         if ( env.get( SASL_AUTHID ) != null && props.level == AuthenticationLevel.STRONG )
         {
@@ -252,7 +251,7 @@ public class LdapJndiProperties
         {
             if ( credobj instanceof String )
             {
-                props.credentials = Strings.getBytesUtf8((String) credobj);
+                props.credentials = Strings.getBytesUtf8( ( String ) credobj );
             }
             else if ( credobj instanceof byte[] )
             {
@@ -260,7 +259,8 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new ConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
+                throw new ConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(),
+                    Context.SECURITY_CREDENTIALS ) );
             }
         }
 

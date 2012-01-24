@@ -85,7 +85,7 @@ class JavaLdapSupport
     {
         ObjectInputStream in = null;
         String className = null;
-        
+
         try
         {
             className = ( String ) serverEntry.get( JCLASSNAME_ATTR ).getString();
@@ -101,7 +101,7 @@ class JavaLdapSupport
         {
             byte[] data = ( byte[] ) serverEntry.get( JSERIALDATA_ATTR ).getBytes();
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-            
+
             return in.readObject();
         }
         catch ( Exception e )
@@ -186,10 +186,10 @@ class JavaLdapSupport
          * objectClass: javaSerializedObject
          */
         entry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                JOBJECT_ATTR,
-                JCONTAINER_ATTR,
-                JSERIALIZEDOBJ_ATTR );
+            SchemaConstants.TOP_OC,
+            JOBJECT_ATTR,
+            JCONTAINER_ATTR,
+            JSERIALIZEDOBJ_ATTR );
 
         // Add the javaClassName and javaSerializedData attributes
         entry.put( JCLASSNAME_ATTR, obj.getClass().getName() );

@@ -37,6 +37,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+
 /**
  * Tests the LdapJndiProperties.
  *
@@ -51,7 +52,7 @@ public class LdapJndiPropertiesTest
     {
         try
         {
-            LdapJndiProperties.getLdapJndiProperties( new Hashtable<String,Object>() );
+            LdapJndiProperties.getLdapJndiProperties( new Hashtable<String, Object>() );
             fail( "should never get here" );
         }
         catch ( ConfigurationException e )
@@ -77,20 +78,20 @@ public class LdapJndiPropertiesTest
     @Test
     public void testNoAuthWithCredsEnv() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "asdf" );
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.SIMPLE, props.getAuthenticationLevel() );
-        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8("asdf"), props.getCredentials() ) );
+        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8( "asdf" ), props.getCredentials() ) );
     }
 
 
     @Test
     public void testNoAuthWithNoCredsEnv() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
@@ -102,7 +103,7 @@ public class LdapJndiPropertiesTest
     @Test
     public void testAuthWithNoCredsEnv() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         try
@@ -119,7 +120,7 @@ public class LdapJndiPropertiesTest
     @Test
     public void testAuthWithNoCredsStrong() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5 CRAM-MD5" );
         env.put( Context.PROVIDER_URL, "" );
@@ -132,13 +133,13 @@ public class LdapJndiPropertiesTest
     @Test
     public void testAuthWithCredsStrong() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "asdf" );
         env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5 CRAM-MD5" );
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.STRONG, props.getAuthenticationLevel() );
-        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8("asdf"), props.getCredentials() ) );
+        assertTrue( ArrayUtils.isEquals( Strings.getBytesUtf8( "asdf" ), props.getCredentials() ) );
     }
 }

@@ -67,25 +67,26 @@ public class EventListenerAdapter implements DirectoryListener
     private static final Logger LOG = LoggerFactory.getLogger( EventListenerAdapter.class );
     private final NamingListener listener;
     private final ServerLdapContext source;
-    
+
+
     public EventListenerAdapter( ServerLdapContext source, NamingListener listener )
     {
         this( source, listener, new SearchControls() );
     }
-    
-    
+
+
     public EventListenerAdapter( ServerLdapContext source, NamingListener listener, SearchControls controls )
     {
         this.source = source;
         this.listener = listener;
     }
-    
-    
+
+
     private void deliverNamingExceptionEvent( Exception e )
     {
         LOG.error( I18n.err( I18n.ERR_118 ), e );
         NamingExceptionEvent evt = null;
-        
+
         if ( e instanceof NamingException )
         {
             evt = new NamingExceptionEvent( source, ( NamingException ) e );
@@ -96,10 +97,10 @@ public class EventListenerAdapter implements DirectoryListener
             ne.setRootCause( e );
             evt = new NamingExceptionEvent( source, ne );
         }
-        
+
         listener.namingExceptionThrown( evt );
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.event.DirectoryListener#entryAdded(org.apache.directory.server.core.interceptor.context.AddOperationContext)
@@ -108,9 +109,9 @@ public class EventListenerAdapter implements DirectoryListener
     {
         try
         {
-            Binding binding = new Binding( addContext.getDn().getName(), 
+            Binding binding = new Binding( addContext.getDn().getName(),
                 ServerEntryUtils.toBasicAttributes( addContext.getEntry() ), false );
-            NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_ADDED, 
+            NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_ADDED,
                 binding, null, addContext );
 
             if ( listener instanceof NamespaceChangeListener )
@@ -134,9 +135,9 @@ public class EventListenerAdapter implements DirectoryListener
         {
             if ( listener instanceof NamespaceChangeListener )
             {
-                Binding binding = new Binding( deleteContext.getDn().getName(), 
+                Binding binding = new Binding( deleteContext.getDn().getName(),
                     ServerEntryUtils.toBasicAttributes( deleteContext.getEntry() ), false );
-                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_REMOVED, null, 
+                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_REMOVED, null,
                     binding, deleteContext );
                 ( ( NamespaceChangeListener ) listener ).objectAdded( evt );
             }
@@ -155,11 +156,12 @@ public class EventListenerAdapter implements DirectoryListener
     {
         try
         {
-            Binding newBinding = new Binding( modifyContext.getDn().getName(), 
+            Binding newBinding = new Binding( modifyContext.getDn().getName(),
                 ServerEntryUtils.toBasicAttributes( modifyContext.getEntry() ), false );
-            Binding oldBinding = new Binding( modifyContext.getDn().getName(), 
-                ServerEntryUtils.toBasicAttributes( ((ClonedServerEntry)modifyContext.getEntry()).getOriginalEntry() ),  false );
-            NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_CHANGED, 
+            Binding oldBinding = new Binding( modifyContext.getDn().getName(),
+                ServerEntryUtils.toBasicAttributes( ( ( ClonedServerEntry ) modifyContext.getEntry() )
+                    .getOriginalEntry() ), false );
+            NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_CHANGED,
                 newBinding, oldBinding, modifyContext );
 
             if ( listener instanceof ObjectChangeListener )
@@ -183,11 +185,12 @@ public class EventListenerAdapter implements DirectoryListener
         {
             if ( listener instanceof NamespaceChangeListener )
             {
-                Binding newBinding = new Binding( moveContext.getDn().getName(), 
+                Binding newBinding = new Binding( moveContext.getDn().getName(),
                     ServerEntryUtils.toBasicAttributes( moveContext.getEntry() ), false );
-                Binding oldBinding = new Binding( moveContext.getDn().getName(), 
-                    ServerEntryUtils.toBasicAttributes( ((ClonedServerEntry)moveContext.getEntry()).getOriginalEntry() ), false );
-                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
+                Binding oldBinding = new Binding( moveContext.getDn().getName(),
+                    ServerEntryUtils.toBasicAttributes( ( ( ClonedServerEntry ) moveContext.getEntry() )
+                        .getOriginalEntry() ), false );
+                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED,
                     newBinding, oldBinding, moveContext );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );
             }
@@ -208,11 +211,12 @@ public class EventListenerAdapter implements DirectoryListener
         {
             if ( listener instanceof NamespaceChangeListener )
             {
-                Binding newBinding = new Binding( moveAndRenameContext.getDn().getName(), 
+                Binding newBinding = new Binding( moveAndRenameContext.getDn().getName(),
                     ServerEntryUtils.toBasicAttributes( moveAndRenameContext.getEntry() ), false );
-                Binding oldBinding = new Binding( moveAndRenameContext.getDn().getName(), 
-                    ServerEntryUtils.toBasicAttributes( ((ClonedServerEntry)moveAndRenameContext.getEntry()).getOriginalEntry() ), false );
-                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
+                Binding oldBinding = new Binding( moveAndRenameContext.getDn().getName(),
+                    ServerEntryUtils.toBasicAttributes( ( ( ClonedServerEntry ) moveAndRenameContext.getEntry() )
+                        .getOriginalEntry() ), false );
+                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED,
                     newBinding, oldBinding, moveAndRenameContext );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );
             }
@@ -233,11 +237,12 @@ public class EventListenerAdapter implements DirectoryListener
         {
             if ( listener instanceof NamespaceChangeListener )
             {
-                Binding newBinding = new Binding( renameContext.getDn().getName(), 
+                Binding newBinding = new Binding( renameContext.getDn().getName(),
                     ServerEntryUtils.toBasicAttributes( renameContext.getEntry() ), false );
-                Binding oldBinding = new Binding( renameContext.getDn().getName(), 
-                    ServerEntryUtils.toBasicAttributes( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() ), false );
-                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
+                Binding oldBinding = new Binding( renameContext.getDn().getName(),
+                    ServerEntryUtils.toBasicAttributes( ( ( ClonedServerEntry ) renameContext.getEntry() )
+                        .getOriginalEntry() ), false );
+                NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED,
                     newBinding, oldBinding, null );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );
             }
