@@ -62,17 +62,17 @@ public class DefaultChangeLog implements ChangeLog
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLog.class );
 
-    /** Tells if the service is activated or not */ 
+    /** Tells if the service is activated or not */
     private boolean enabled;
-    
+
     /** The latest tag set */
     private Tag latest;
-    
+
     /** 
      * The default store is a InMemory store.
      **/
     private ChangeLogStore store;
-    
+
     /** A volatile flag used to avoid store switching when in use */
     private volatile boolean storeInitialized = false;
 
@@ -89,7 +89,7 @@ public class DefaultChangeLog implements ChangeLog
     private String revContainerName = DEFAULT_REV_CONTAINER_NAME;
     private String tagContainerName = DEFAULT_TAG_CONTAINER_NAME;
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -122,7 +122,7 @@ public class DefaultChangeLog implements ChangeLog
      */
     public long getCurrentRevision() throws LdapException
     {
-        synchronized( store )
+        synchronized ( store )
         {
             return store.getCurrentRevision();
         }
@@ -142,7 +142,7 @@ public class DefaultChangeLog implements ChangeLog
         try
         {
             ChangeLogEvent event = store.log( principal, forward, reverse );
-            
+
             return event;
         }
         catch ( Exception e )
@@ -155,7 +155,8 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
-    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws LdapException
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses )
+        throws LdapException
     {
         if ( !enabled )
         {
@@ -328,22 +329,22 @@ public class DefaultChangeLog implements ChangeLog
                 // If no store has been defined, create an In Memory store
                 store = new MemoryChangeLogStore();
             }
-            
+
             store.init( service );
 
             if ( exposed && isTagSearchSupported() )
             {
                 TaggableSearchableChangeLogStore tmp = ( TaggableSearchableChangeLogStore ) store;
-                
+
                 tmp.createPartition( partitionSuffix, revContainerName, tagContainerName );
-                
+
                 Partition partition = tmp.getPartition();
-                partition.initialize( );
+                partition.initialize();
 
                 service.addPartition( partition );
             }
         }
-        
+
         // Flip the protection flag
         storeInitialized = true;
     }
@@ -370,7 +371,7 @@ public class DefaultChangeLog implements ChangeLog
         {
             store.destroy();
         }
-        
+
         storeInitialized = false;
     }
 
@@ -419,17 +420,17 @@ public class DefaultChangeLog implements ChangeLog
         this.tagContainerName = tagContainerName;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "ChangeLog tag[" ).append( latest ).append( "]\n" );
         sb.append( "    store : \n" ).append( store );
-        
+
         return sb.toString();
     }
 }

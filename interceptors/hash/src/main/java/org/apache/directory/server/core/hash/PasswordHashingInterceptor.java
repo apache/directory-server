@@ -48,6 +48,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
     /** the hashing algorithm to be used, if null then the password won't be changed */
     private LdapSecurityConstants algorithm;
 
+
     /**
      * 
      * Creates a new instance of PasswordHashingInterceptor which hashes the

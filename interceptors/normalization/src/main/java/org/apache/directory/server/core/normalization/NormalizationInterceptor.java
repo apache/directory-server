@@ -79,6 +79,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** a filter node value normalizer and undefined node remover */
     private FilterNormalizingVisitor normVisitor;
 
+
     /**
      * Creates a new instance of a NormalizationInterceptor.
      */
@@ -86,7 +87,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.NORMALIZATION_INTERCEPTOR );
     }
-    
+
 
     /**
      * Initialize the registries, normalizers.

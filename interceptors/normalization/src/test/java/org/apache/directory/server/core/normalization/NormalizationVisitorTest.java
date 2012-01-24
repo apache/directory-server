@@ -75,7 +75,7 @@ public class NormalizationVisitorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
@@ -87,10 +87,10 @@ public class NormalizationVisitorTest
     public void testSimpleFilter() throws ParseException
     {
         ExprNode filter = FilterParser.parse( schemaManager, "(ou=  test  1 )" );
-        ExprNode result = (ExprNode) filter.accept( normVisitor );
+        ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         assertNotNull( result );
-        assertTrue( result instanceof EqualityNode<?>);
+        assertTrue( result instanceof EqualityNode<?> );
         EqualityNode<?> equalityNode = ( EqualityNode<?> ) result;
 
         assertEquals( "test 1", equalityNode.getValue().getNormValue() );
@@ -105,7 +105,7 @@ public class NormalizationVisitorTest
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         assertNotNull( result );
-        assertTrue( result instanceof PresenceNode);
+        assertTrue( result instanceof PresenceNode );
         PresenceNode presenceNode = ( PresenceNode ) result;
 
         assertEquals( "2.5.4.11", presenceNode.getAttributeType().getOid() );

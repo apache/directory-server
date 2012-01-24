@@ -81,10 +81,10 @@ public class TriggerSpecCache
 
     /** a map of strings to TriggerSpecification collections */
     private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
-    
+
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
-    
+
     /** a normalizing TriggerSpecification parser */
     private final TriggerSpecificationParser triggerSpecParser;
 
@@ -101,12 +101,12 @@ public class TriggerSpecCache
         final SchemaManager schemaManager = directoryService.getSchemaManager();
 
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
+        {
+            public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
             {
-                public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
-                {
-                    return schemaManager.getNormalizerMapping();
-                }
-            });
+                return schemaManager.getNormalizerMapping();
+            }
+        } );
 
         initialize( directoryService );
     }
@@ -122,17 +122,18 @@ public class TriggerSpecCache
         AttributeType objectClassAt = directoryService.getSchemaManager().
             getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
-        for ( String suffix:suffixes )
+        for ( String suffix : suffixes )
         {
             Dn baseDn = directoryService.getDnFactory().create( suffix );
             ExprNode filter = new EqualityNode<String>( objectClassAt,
-                    new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
+                new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
             Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( directoryService.getSchemaManager(), adminDn, AuthenticationLevel.STRONG ), directoryService );
+                new LdapPrincipal( directoryService.getSchemaManager(), adminDn, AuthenticationLevel.STRONG ),
+                directoryService );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );
@@ -150,7 +151,8 @@ public class TriggerSpecCache
 
                     if ( triggerSpec == null )
                     {
-                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
+                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any "
+                            + PRESCRIPTIVE_TRIGGER_ATTR );
                         continue;
                     }
 
@@ -189,7 +191,7 @@ public class TriggerSpecCache
 
         List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
 
-        for ( Value<?> value:triggerSpec )
+        for ( Value<?> value : triggerSpec )
         {
             TriggerSpecification item = null;
 

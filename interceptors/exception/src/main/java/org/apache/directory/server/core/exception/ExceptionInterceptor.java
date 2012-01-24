@@ -92,6 +92,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
+
     /**
      * Creates an interceptor that is also the exception handling service.
      */
@@ -421,7 +422,6 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw e;
         }
     }
-
 
     /**
      * Asserts that an entry is present and as a side effect if it is not, creates a LdapNoSuchObjectException, which is

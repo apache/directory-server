@@ -96,6 +96,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
 
+
     /**
      * Creates a new instance of a TriggerInterceptor.
      */
@@ -103,7 +104,7 @@ public class TriggerInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.TRIGGER_INTERCEPTOR );
     }
-    
+
 
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
@@ -416,7 +417,8 @@ public class TriggerInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         CoreSession session = moveContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -480,7 +482,7 @@ public class TriggerInterceptor extends BaseInterceptor
         Dn newDn = moveAndRenameContext.getNewDn();
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveAndRenameContext,
-            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDN, newDn);
+            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDN, newDn );
 
         // Gather Trigger Specifications which apply to the entry being exported.
         List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
@@ -493,7 +495,8 @@ public class TriggerInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         CoreSession session = moveAndRenameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -502,7 +505,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        Entry fakeImportedEntry = subentryUtils.getSubentryAttributes(newDn, importedEntry );
+        Entry fakeImportedEntry = subentryUtils.getSubentryAttributes( newDn, importedEntry );
 
         for ( Attribute attribute : importedEntry )
         {
@@ -521,7 +524,7 @@ public class TriggerInterceptor extends BaseInterceptor
             importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
 
         next( moveAndRenameContext );
-        triggerSpecCache.subentryRenamed( oldDN, newDn);
+        triggerSpecCache.subentryRenamed( oldDN, newDn );
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterExportTriggerSpecs = exportTriggerMap.get( ActionTime.AFTER );
@@ -548,7 +551,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         // Gather supplementary data.
-        Entry renamedEntry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
+        Entry renamedEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
         Rdn oldRdn = name.getRdn();
@@ -559,7 +562,7 @@ public class TriggerInterceptor extends BaseInterceptor
         newDn = newDn.add( newRdn );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( renameContext,
-            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDn, newDn);
+            deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDn, newDn );
 
         // Gather Trigger Specifications which apply to the entry being renamed.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
@@ -570,7 +573,7 @@ public class TriggerInterceptor extends BaseInterceptor
             triggerSpecs, LdapOperation.MODIFYDN_RENAME );
 
         next( renameContext );
-        triggerSpecCache.subentryRenamed( name, newDn);
+        triggerSpecCache.subentryRenamed( name, newDn );
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
@@ -627,7 +630,8 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    private Object executeProcedure( OperationContext opContext, String procedure, Object[] values ) throws LdapException
+    private Object executeProcedure( OperationContext opContext, String procedure, Object[] values )
+        throws LdapException
     {
         try
         {

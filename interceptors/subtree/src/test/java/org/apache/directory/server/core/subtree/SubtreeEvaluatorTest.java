@@ -73,6 +73,7 @@ public class SubtreeEvaluatorTest
     private static FilterNormalizingVisitor visitor;
     private static ConcreteNameComponentNormalizer ncn;
 
+
     @BeforeClass
     public static void init() throws Exception
     {
@@ -95,13 +96,13 @@ public class SubtreeEvaluatorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         CacheManager.getInstance().addCacheIfAbsent( "dnCache" );
         Cache dnCache = CacheManager.getInstance().getCache( "dnCache" );
         dnFactory = new DefaultDnFactory( schemaManager, dnCache );
-        
+
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );

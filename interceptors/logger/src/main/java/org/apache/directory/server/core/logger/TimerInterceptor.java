@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.logger;
 
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -43,6 +44,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * An interceptor used to log times to process each operation.
@@ -124,6 +126,7 @@ public class TimerInterceptor extends BaseInterceptor
     private static AtomicLong totalUnbind = new AtomicLong( 0 );
     private static AtomicInteger nbUnbindCalls = new AtomicInteger( 0 );
 
+
     /**
      * 
      * Creates a new instance of TimerInterceptor.
@@ -168,8 +171,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbAddCalls.get() % 1000 == 0 )
             {
-                long average = totalAdd.get()/(nbAddCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average add = {} microseconds, nb adds = {}", average, nbAddCalls.get() );
+                long average = totalAdd.get() / ( nbAddCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average add = {} microseconds, nb adds = {}", average,
+                    nbAddCalls.get() );
             }
         }
 
@@ -196,8 +200,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbBindCalls.get() % 1000 == 0 )
             {
-                long average = totalBind.get()/(nbBindCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average bind = {} microseconds, nb binds = {}", average, nbBindCalls.get() );
+                long average = totalBind.get() / ( nbBindCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average bind = {} microseconds, nb binds = {}", average,
+                    nbBindCalls.get() );
             }
         }
 
@@ -224,8 +229,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbCompareCalls.get() % 1000 == 0 )
             {
-                long average = totalCompare.get()/(nbCompareCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average compare = {} microseconds, nb compares = {}", average, nbCompareCalls.get() );
+                long average = totalCompare.get() / ( nbCompareCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average compare = {} microseconds, nb compares = {}", average,
+                    nbCompareCalls.get() );
             }
         }
 
@@ -254,8 +260,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbDeleteCalls.get() % 1000 == 0 )
             {
-                long average = totalDelete.get()/(nbDeleteCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average delete = {} microseconds, nb deletes = {}", average, nbDeleteCalls.get() );
+                long average = totalDelete.get() / ( nbDeleteCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average delete = {} microseconds, nb deletes = {}", average,
+                    nbDeleteCalls.get() );
             }
         }
 
@@ -282,8 +289,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbGetRootDseCalls.get() % 1000 == 0 )
             {
-                long average = totalGetRootDse.get()/(nbGetRootDseCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}", average, nbGetRootDseCalls.get() );
+                long average = totalGetRootDse.get() / ( nbGetRootDseCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average getRootDSE = {} microseconds, nb getRootDSEs = {}",
+                    average, nbGetRootDseCalls.get() );
             }
         }
 
@@ -312,8 +320,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbHasEntryCalls.get() % 1000 == 0 )
             {
-                long average = totalHasEntry.get()/(nbHasEntryCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average hasEntry = {} microseconds, nb hasEntrys = {}", average, nbHasEntryCalls.get() );
+                long average = totalHasEntry.get() / ( nbHasEntryCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average hasEntry = {} microseconds, nb hasEntrys = {}", average,
+                    nbHasEntryCalls.get() );
             }
         }
 
@@ -342,8 +351,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbListCalls.get() % 1000 == 0 )
             {
-                long average = totalList.get()/(nbListCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average list = {} microseconds, nb lists = {}", average, nbListCalls.get() );
+                long average = totalList.get() / ( nbListCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average list = {} microseconds, nb lists = {}", average,
+                    nbListCalls.get() );
             }
         }
 
@@ -372,8 +382,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbLookupCalls.get() % 1000 == 0 )
             {
-                long average = totalLookup.get()/(nbLookupCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average lookup = {} microseconds, nb lookups = {}", average, nbLookupCalls.get() );
+                long average = totalLookup.get() / ( nbLookupCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average lookup = {} microseconds, nb lookups = {}", average,
+                    nbLookupCalls.get() );
             }
         }
 
@@ -402,8 +413,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbModifyCalls.get() % 1000 == 0 )
             {
-                long average = totalModify.get()/(nbModifyCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average modify = {} microseconds, nb modifys = {}", average, nbModifyCalls.get() );
+                long average = totalModify.get() / ( nbModifyCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average modify = {} microseconds, nb modifys = {}", average,
+                    nbModifyCalls.get() );
             }
         }
 
@@ -430,8 +442,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbMoveCalls.get() % 1000 == 0 )
             {
-                long average = totalMove.get()/(nbMoveCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average move = {} microseconds, nb moves = {}", average, nbMoveCalls.get() );
+                long average = totalMove.get() / ( nbMoveCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average move = {} microseconds, nb moves = {}", average,
+                    nbMoveCalls.get() );
             }
         }
 
@@ -458,8 +471,10 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbMoveAndRenameCalls.get() % 1000 == 0 )
             {
-                long average = totalMoveAndRename.get()/(nbMoveAndRenameCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average moveAndRename = {} microseconds, nb moveAndRenames = {}", average, nbMoveAndRenameCalls.get() );
+                long average = totalMoveAndRename.get() / ( nbMoveAndRenameCalls.get() * 1000 );
+                OPERATION_STATS.debug(
+                    getName() + " : Average moveAndRename = {} microseconds, nb moveAndRenames = {}", average,
+                    nbMoveAndRenameCalls.get() );
             }
         }
 
@@ -486,8 +501,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbRenameCalls.get() % 1000 == 0 )
             {
-                long average = totalRename.get()/(nbRenameCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average rename = {} microseconds, nb renames = {}", average, nbRenameCalls.get() );
+                long average = totalRename.get() / ( nbRenameCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average rename = {} microseconds, nb renames = {}", average,
+                    nbRenameCalls.get() );
             }
         }
 
@@ -514,8 +530,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbSearchCalls.get() % 1000 == 0 )
             {
-                long average = totalSearch.get()/(nbSearchCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average search = {} microseconds, nb searches = {}", average, nbSearchCalls.get() );
+                long average = totalSearch.get() / ( nbSearchCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average search = {} microseconds, nb searches = {}", average,
+                    nbSearchCalls.get() );
             }
         }
 
@@ -544,8 +561,9 @@ public class TimerInterceptor extends BaseInterceptor
 
             if ( nbUnbindCalls.get() % 1000 == 0 )
             {
-                long average = totalUnbind.get()/(nbUnbindCalls.get() * 1000);
-                OPERATION_STATS.debug( getName() + " : Average unbind = {} microseconds, nb unbinds = {}", average, nbUnbindCalls.get() );
+                long average = totalUnbind.get() / ( nbUnbindCalls.get() * 1000 );
+                OPERATION_STATS.debug( getName() + " : Average unbind = {} microseconds, nb unbinds = {}", average,
+                    nbUnbindCalls.get() );
             }
         }
 

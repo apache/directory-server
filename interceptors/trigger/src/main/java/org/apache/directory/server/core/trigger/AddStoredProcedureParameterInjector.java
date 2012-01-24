@@ -34,8 +34,8 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
 {
     private Dn addedEntryName;
     private Entry addedEntry;
-    
-    
+
+
     public AddStoredProcedureParameterInjector( OperationContext opContext, Dn addedEntryName,
         Entry addedEntry )
     {
@@ -47,17 +47,16 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, $attributesInjector );
     }
 
-    
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( addedEntryName.getName() );
         }
     };
-    
-    
+
     MicroInjector $attributesInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
