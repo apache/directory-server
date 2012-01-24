@@ -59,11 +59,11 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
 
     /** The encryption type */
     private EncryptionType etype;
-    
+
     /** The salt */
     private String salt;
     private byte[] saltBytes;
-    
+
     /** The s2k params */
     private byte[] s2kparams;
 
@@ -72,6 +72,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
     private int saltTagLength;
     private int s2kparamsTagLength;
     private int etypeInfo2EntrySeqLength;
+
 
     /**
      * Creates a new instance of ETypeInfo2Entry.
@@ -100,7 +101,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
         this.salt = salt;
     }
 
-    
+
     /**
      * Returns the s2kparams.
      *
@@ -120,7 +121,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
         this.s2kparams = s2kparams;
     }
 
-    
+
     /**
      * Returns the {@link EncryptionType}.
      *
@@ -179,7 +180,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
         // Compute the salt
         if ( salt != null )
         {
-            saltBytes = Strings.getBytesUtf8(salt);
+            saltBytes = Strings.getBytesUtf8( salt );
             saltTagLength = 1 + TLV.getNbBytes( saltBytes.length ) + saltBytes.length;
             etypeInfo2EntrySeqLength += 1 + TLV.getNbBytes( saltTagLength ) + saltTagLength;
         }
@@ -236,7 +237,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
                 // The tag
                 buffer.put( ( byte ) KerberosConstants.ETYPE_INFO2_ENTRY_SALT_TAG );
                 buffer.put( TLV.getBytes( saltTagLength ) );
-                
+
                 // The value
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
                 buffer.put( TLV.getBytes( saltBytes.length ) );
@@ -260,14 +261,14 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -285,7 +286,7 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
 
         if ( salt != null )
         {
-            sb.append( "    s2kparams: " ).append( Strings.dumpBytes(s2kparams) ).append( '\n' );
+            sb.append( "    s2kparams: " ).append( Strings.dumpBytes( s2kparams ) ).append( '\n' );
         }
 
         sb.append( "}\n" );

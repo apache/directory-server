@@ -46,11 +46,13 @@
 
 package jdbm.helper;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 
 /**
  * Serialization-related utility methods.
@@ -66,8 +68,8 @@ public final class Serialization
     public static byte[] serialize( Object obj )
         throws IOException
     {
-        ByteArrayOutputStream  baos;
-        ObjectOutputStream     oos;
+        ByteArrayOutputStream baos;
+        ObjectOutputStream oos;
 
         baos = new ByteArrayOutputStream();
         oos = new ObjectOutputStream( baos );
@@ -75,7 +77,7 @@ public final class Serialization
         oos.close();
 
         byte[] res = baos.toByteArray();
-        
+
         return res;
     }
 
@@ -86,8 +88,8 @@ public final class Serialization
     public static Object deserialize( byte[] buf )
         throws ClassNotFoundException, IOException
     {
-        ByteArrayInputStream  bais;
-        ObjectInputStream     ois;
+        ByteArrayInputStream bais;
+        ObjectInputStream ois;
 
         bais = new ByteArrayInputStream( buf );
         ois = new ObjectInputStream( bais );

@@ -65,7 +65,7 @@ public class ReplConsumerManager
 {
     /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplConsumerManager.class );
-    
+
     /** A logger for the replication provider */
     private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
 
@@ -81,13 +81,13 @@ public class ReplConsumerManager
     /** The replication factory DN */
     private static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
     private static Dn REPL_CONSUMER_DN;
-    
+
     /** The consumers' ou value */
-    private static final String CONSUMERS = "consumers"; 
+    private static final String CONSUMERS = "consumers";
 
     /** An ObjectClass AT instance */
     private static AttributeType OBJECT_CLASS_AT;
-    
+
     /** An AdsReplLastSentCsn AT instance */
     private static AttributeType ADS_REPL_LAST_SENT_CSN_AT;
 
@@ -109,7 +109,7 @@ public class ReplConsumerManager
         REPL_CONSUMER_DN = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
         OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
-        
+
         PROVIDER_LOG.debug( "Starting the replication consumer manager" );
         createConsumersBranch();
     }
@@ -123,9 +123,10 @@ public class ReplConsumerManager
         if ( !adminSession.exists( REPL_CONSUMER_DN ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
-            PROVIDER_LOG.debug( "Creating the entry for storing replication consumers' details in {}", REPL_CONSUMER_DN );
+            PROVIDER_LOG
+                .debug( "Creating the entry for storing replication consumers' details in {}", REPL_CONSUMER_DN );
 
-            Entry entry = new DefaultEntry( schemaManager , REPL_CONSUMER_DN,
+            Entry entry = new DefaultEntry( schemaManager, REPL_CONSUMER_DN,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.OU_AT, CONSUMERS );
 
@@ -147,12 +148,13 @@ public class ReplConsumerManager
             // No consumer ? Get out...
             return;
         }
-        
+
         PROVIDER_LOG.debug( "Adding a consumer for replica {}", replica.toString() );
 
         // Check that we don't already have an entry for this consumer
-        Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
-        
+        Dn consumerDn = directoryService.getDnFactory().create(
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+
         if ( adminSession.exists( consumerDn ) )
         {
             // Error...
@@ -174,9 +176,9 @@ public class ReplConsumerManager
             SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter() );
 
         adminSession.add( entry );
-        
+
         // Last, create a 
-        
+
         LOG.debug( "stored replication consumer entry {}", consumerDn );
     }
 
@@ -194,10 +196,11 @@ public class ReplConsumerManager
             // No consumer ? Get out...
             return;
         }
-        
+
         // Check that we have an entry for this consumer
-        Dn consumerDn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
-        
+        Dn consumerDn = directoryService.getDnFactory().create(
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+
         PROVIDER_LOG.debug( "Deleting the {} consumer", consumerDn );
 
         if ( !adminSession.exists( consumerDn ) )
@@ -211,7 +214,7 @@ public class ReplConsumerManager
 
         // Delete the consumer entry
         adminSession.delete( consumerDn );
-        
+
         LOG.debug( "Deleted replication consumer entry {}", consumerDn );
     }
 
@@ -226,13 +229,13 @@ public class ReplConsumerManager
     {
         Modification mod = modMap.get( replica.getId() );
         Attribute lastSentCsnAt = null;
-        
+
         if ( mod == null )
         {
             lastSentCsnAt = new DefaultAttribute( ADS_REPL_LAST_SENT_CSN_AT, replica.getLastSentCsn() );
 
             mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, lastSentCsnAt );
-            
+
             modMap.put( replica.getId(), mod );
         }
         else
@@ -242,9 +245,10 @@ public class ReplConsumerManager
             lastSentCsnAt.add( replica.getLastSentCsn() );
         }
 
-        Dn dn = directoryService.getDnFactory().create( SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+        Dn dn = directoryService.getDnFactory().create(
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
         adminSession.modify( dn, mod );
-        
+
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
         PROVIDER_LOG.debug( "updated the LastSentCSN of consumer entry {}", dn );
     }
@@ -261,13 +265,14 @@ public class ReplConsumerManager
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
         // Search for all the consumers
-        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ADS_REPL_EVENT_LOG ) );
+        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
+            SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( REPL_CONSUMER_DN );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.setFilter( filter );
         searchRequest.addAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
-        
+
         EntryFilteringCursor cursor = adminSession.search( searchRequest );
 
         // Now loop on each consumer configuration
@@ -277,7 +282,7 @@ public class ReplConsumerManager
             ReplicaEventLog replica = convertEntryToReplica( entry );
             replicas.add( replica );
         }
-        
+
         cursor.close();
 
         // Now, we can return the list of replicas
@@ -302,7 +307,7 @@ public class ReplConsumerManager
         searchCriteria.setBase( new Dn( schemaManager, baseDn ) );
 
         Attribute lastSentCsnAt = entry.get( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
-        
+
         if ( lastSentCsnAt != null )
         {
             replica.setLastSentCsn( lastSentCsnAt.getString() );
@@ -316,8 +321,9 @@ public class ReplConsumerManager
         searchCriteria.setFilter( filter );
         replica.setSearchFilter( filter );
 
-        replica.setRefreshNPersist( Boolean.parseBoolean( entry.get( SchemaConstants.ADS_REPL_REFRESH_N_PERSIST ).getString() ) );
-        
+        replica.setRefreshNPersist( Boolean.parseBoolean( entry.get( SchemaConstants.ADS_REPL_REFRESH_N_PERSIST )
+            .getString() ) );
+
         searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         replica.setSearchCriteria( searchCriteria );
 

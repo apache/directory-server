@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.dhcp.options.dhcp;
 
+
 import org.apache.directory.server.dhcp.options.DhcpOption;
+
 
 /**
  * This pseudo option represents all options which have not been recognized and
@@ -28,21 +30,28 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class UnrecognizedOption extends DhcpOption {
+public class UnrecognizedOption extends DhcpOption
+{
     private final byte tag;
 
-    public UnrecognizedOption() {
+
+    public UnrecognizedOption()
+    {
         tag = -1;
     }
+
 
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public byte getTag() {
+    public byte getTag()
+    {
         return tag;
     }
 
-    public UnrecognizedOption(byte tag) {
+
+    public UnrecognizedOption( byte tag )
+    {
         this.tag = tag;
     }
 }

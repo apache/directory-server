@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.partition.tree;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,15 +77,15 @@ public class PartitionTreeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
+
     /**
      * Test the addition of a single partition
      */
-    @Test 
+    @Test
     public void testNewPartitionTree() throws LdapException
     {
         /** A structure to hold all the partitions */
@@ -112,7 +113,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two disjointed partition
      */
-    @Test 
+    @Test
     public void testNewPartitionTree2Nodes() throws LdapException
     {
         /** A structure to hold all the partitions */
@@ -152,7 +153,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two partitions with the same root
      */
-    @Test 
+    @Test
     public void testNewPartitionTree2NodesWithSameRoot() throws LdapException
     {
         /** A structure to hold all the partitions */

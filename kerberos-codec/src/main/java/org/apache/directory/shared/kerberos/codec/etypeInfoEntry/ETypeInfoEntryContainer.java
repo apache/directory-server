@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.etypeInfoEntry;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
 
@@ -32,6 +33,7 @@ public class ETypeInfoEntryContainer extends AbstractContainer
 {
     /** holds ETypeInfoEntry */
     private ETypeInfoEntry etypeInfoEntry;
+
 
     /**
      * Creates a new ETypeInfoEntryContainer object.
@@ -53,7 +55,7 @@ public class ETypeInfoEntryContainer extends AbstractContainer
         return etypeInfoEntry;
     }
 
-    
+
     /**
      * Set a ETypeInfoEntry Object into the container
      * 

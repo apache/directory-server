@@ -51,7 +51,7 @@ package jdbm.recman;
  * This interface contains magic cookies.
  * Final reference -> class shouldn't be extended
  */
-public final class Magic 
+public final class Magic
 {
     /**
      *  Ensures no construction of this class, also ensures there is no need for final keyword above
@@ -62,7 +62,6 @@ public final class Magic
     {
     }
 
-    
     /** Magic cookie at start of file */
     public final static short FILE_HEADER = 0x1350;
 

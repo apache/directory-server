@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.authenticator;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class AuthenticatorContainer extends AbstractContainer
 {
     /** An Authenticator container */
     private Authenticator authenticator;
-    
+
+
     /**
      * Creates a new AuthenticatorContainer object.
      * @param stream The stream containing the data to decode
@@ -56,7 +58,7 @@ public class AuthenticatorContainer extends AbstractContainer
         return authenticator;
     }
 
-    
+
     /**
      * Set a Authenticator Object into the container. It will be completed by the
      * KerberosDecoder.

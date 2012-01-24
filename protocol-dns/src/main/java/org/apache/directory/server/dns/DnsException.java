@@ -44,7 +44,7 @@ public class DnsException extends Exception
      *
      * @param responseCode the response code associated with this DnsException
      */
-    public DnsException(ResponseCode responseCode)
+    public DnsException( ResponseCode responseCode )
     {
         super( responseCode.name() );
 

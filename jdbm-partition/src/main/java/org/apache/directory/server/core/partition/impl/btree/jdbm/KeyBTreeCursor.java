@@ -105,7 +105,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
             {
                 // just continue
             }
-            else 
+            else
             {
                 /*
                  * If we just have values greater than the element argument
@@ -158,7 +158,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( browser == null )
         {
             browser = btree.browse( null );
@@ -179,7 +179,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( browser == null )
         {
             browser = btree.browse();
@@ -192,7 +192,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         else
         {
             clearValue();
-            
+
             return false;
         }
     }
@@ -202,7 +202,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public E get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( valueAvailable )
         {
             return ( E ) tuple.getKey();
@@ -210,7 +210,8 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
         throw new InvalidCursorPositionException();
     }
- 
+
+
     /**
      * {@inheritDoc}
      */
@@ -231,9 +232,9 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         super.close( cause );
         this.closeBrowser( browser );
     }
-    
-    
-    private void closeBrowser(TupleBrowser browser)
+
+
+    private void closeBrowser( TupleBrowser browser )
     {
         if ( browser != null )
         {

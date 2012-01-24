@@ -74,7 +74,8 @@ public class DomainNameService
             monitorReply( dnsContext );
         }
     }
-    
+
+
     private static void monitorRequest( DnsMessage request ) throws Exception
     {
         try
@@ -87,7 +88,7 @@ public class DomainNameService
             LOG.error( I18n.err( I18n.ERR_153 ), e );
         }
     }
-    
+
 
     private static void getResourceRecords( DnsContext dnsContext, DnsMessage request ) throws Exception
     {
@@ -102,8 +103,8 @@ public class DomainNameService
             dnsContext.addResourceRecords( getEntry( store, it.next() ) );
         }
     }
-    
-    
+
+
     /**
      * Returns a set of {@link ResourceRecord}s from a {@link RecordStore}, given a DNS {@link QuestionRecord}.
      *
@@ -127,8 +128,8 @@ public class DomainNameService
 
         return records;
     }
-    
-    
+
+
     private static void monitorContext( DnsContext dnsContext ) throws Exception
     {
         try
@@ -149,8 +150,8 @@ public class DomainNameService
             LOG.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
-    
-    
+
+
     private static void buildReply( DnsContext dnsContext, DnsMessage request ) throws Exception
     {
         List<ResourceRecord> records = dnsContext.getResourceRecords();
@@ -175,8 +176,8 @@ public class DomainNameService
 
         dnsContext.setReply( modifier.getDnsMessage() );
     }
- 
-    
+
+
     private static void monitorReply( DnsContext dnsContext ) throws Exception
     {
         try
@@ -191,8 +192,8 @@ public class DomainNameService
             LOG.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
-    
-    
+
+
     private static String monitorMessage( DnsMessage message, String direction )
     {
         MessageType messageType = message.getMessageType();

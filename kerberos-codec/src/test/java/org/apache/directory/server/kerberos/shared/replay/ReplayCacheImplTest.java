@@ -65,24 +65,24 @@ public class ReplayCacheImplTest
     public void testCacheSetting() throws Exception
     {
         CacheManager cacheManager = null;
-        
+
         try
         {
             long clockSkew = 1000; // 1 sec
-    
+
             cacheManager = new CacheManager( ReplayCacheImplTest.class.getClassLoader().getResource(
                 "directory-cacheservice.xml" ) );
-    
+
             Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
             ehCache.getCacheConfiguration().setMaxElementsInMemory( 2 );
             ehCache.getCacheConfiguration().setTimeToLiveSeconds( 1 );
             ehCache.getCacheConfiguration().setTimeToIdleSeconds( 1 );
             ehCache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds( 1 );
-    
+
             ReplayCacheImpl cache = new ReplayCacheImpl( ehCache, clockSkew );
-    
+
             int i = 0;
-    
+
             // Inject 4 entries
             while ( i < 4 )
             {
@@ -90,26 +90,26 @@ public class ReplayCacheImplTest
                     PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
                 KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i + "@APACHE.ORG",
                     PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
-    
+
                 cache.save( serverPrincipal, clientPrincipal, new KerberosTime( System.currentTimeMillis() ), 0 );
-    
+
                 i++;
             }
-    
+
             List<?> keys = ehCache.getKeys();
-    
+
             // We should have 4 entries
             assertTrue( keys.size() != 0 );
-    
+
             // Wait till the timetolive time exceeds
             Thread.sleep( 1200 );
-    
+
             // then access the cache so that the objects present in the cache will be expired
             for ( Object k : keys )
             {
                 assertNull( ehCache.get( k ) );
             }
-    
+
             assertEquals( 0, ehCache.getKeys().size() );
         }
         finally

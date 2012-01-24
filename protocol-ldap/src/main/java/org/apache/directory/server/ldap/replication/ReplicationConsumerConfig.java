@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.ldap.replication;
 
+
 /**
  * A marker interface for the configuration used in implementations of ReplicationConsumer.
  *

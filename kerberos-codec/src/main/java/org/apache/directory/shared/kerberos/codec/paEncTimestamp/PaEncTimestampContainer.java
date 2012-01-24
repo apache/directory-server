@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.paEncTimestamp;
 
+
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTimestamp;
 
@@ -36,7 +37,7 @@ public class PaEncTimestampContainer extends EncryptedDataContainer
     public PaEncTimestampContainer()
     {
         super();
-        
+
         setEncryptedData( new PaEncTimestamp() );
     }
 
@@ -46,6 +47,6 @@ public class PaEncTimestampContainer extends EncryptedDataContainer
      */
     public PaEncTimestamp getPaEncTimestamp()
     {
-        return (PaEncTimestamp)getEncryptedData();
+        return ( PaEncTimestamp ) getEncryptedData();
     }
 }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.encTgsRepPart;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,6 +35,7 @@ public class EncTgsRepPartContainer extends AbstractContainer
 {
     /** An EncTgsRepPart container */
     private EncTgsRepPart encTgsRepPart = new EncTgsRepPart();
+
 
     /**
      * Creates a new EncTgsRepPartContainer object.
@@ -56,7 +58,7 @@ public class EncTgsRepPartContainer extends AbstractContainer
         return encTgsRepPart;
     }
 
-    
+
     /**
      * Set an EncTgsRepPart Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -49,6 +49,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
     /** The msgType to decode */
     private KerberosMessageType msgType = null;
 
+
     /**
      * Instantiates a new StoreMsgType action.
      */
@@ -99,7 +100,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
                     return;
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -111,20 +112,20 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
 
                 if ( container instanceof KdcReqContainer )
                 {
-                    if ( ((KdcReqContainer)container).getKdcReq().getMessageType() == messageType )
+                    if ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType )
                     {
                         return;
                     }
                 }
                 else if ( container instanceof KdcRepContainer )
                 {
-                    if ( ((KdcRepContainer)container).getKdcRep().getMessageType() == messageType )
+                    if ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType )
                     {
                         return;
                     }
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -133,7 +134,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

@@ -102,7 +102,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_528 ) );
         }
-        
+
         this.max = max;
     }
 
@@ -113,7 +113,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
     public void put( K key, V value ) throws CacheEvictionException
     {
         CacheEntry entry = map.get( key );
-        
+
         if ( entry != null )
         {
             entry.setValue( value );
@@ -133,7 +133,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
             {
                 entry = new CacheEntry( key, value );
             }
-            
+
             addEntry( entry );
             map.put( entry.getKey(), entry );
         }
@@ -146,11 +146,11 @@ public class MRU<K, V> implements CachePolicy<K, V>
     public V get( K key )
     {
         CacheEntry entry = map.get( key );
-        
+
         if ( entry != null )
         {
             touchEntry( entry );
-            return (V)entry.getValue();
+            return ( V ) entry.getValue();
         }
         else
         {
@@ -165,7 +165,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
     public void remove( K key )
     {
         CacheEntry entry = map.get( key );
-        
+
         if ( entry != null )
         {
             removeEntry( entry );
@@ -205,7 +205,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_539_BAD_BLOCK_ID ) );
         }
-        
+
         if ( !listeners.contains( listener ) )
         {
             listeners.add( listener );
@@ -252,7 +252,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         if ( entry == first )
         {
             first = entry.getNext();
-            
+
             if ( first != null )
             {
                 first.setPrevious( null );
@@ -261,7 +261,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         else if ( last == entry )
         {
             last = entry.getPrevious();
-            
+
             if ( last != null )
             {
                 last.setNext( null );
@@ -284,7 +284,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         {
             return;
         }
-        
+
         removeEntry( entry );
         addEntry( entry );
     }
@@ -303,7 +303,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         // eviction exception, then the internal data structure
         // remains untouched.
         CachePolicyListener listener;
-        
+
         for ( int i = 0; i < listeners.size(); i++ )
         {
             listener = listeners.get( i );
@@ -313,7 +313,7 @@ public class MRU<K, V> implements CachePolicy<K, V>
         removeEntry( entry );
         map.remove( entry.getKey() );
         entry.setValue( null );
-        
+
         return entry;
     }
 
@@ -386,7 +386,6 @@ class CacheEntry
     }
 }
 
-
 /**
  * Enumeration wrapper to return actual user objects instead of
  * CacheEntries.
@@ -411,7 +410,7 @@ class MRUEnumeration<V> implements Enumeration<V>
     public V nextElement()
     {
         CacheEntry entry = elements.next();
-        
-        return (V)entry.getValue();
+
+        return ( V ) entry.getValue();
     }
 }

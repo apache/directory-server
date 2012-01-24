@@ -32,37 +32,37 @@ public enum LastReqType
     /**
      * Constant for the "none" last request type.
      */
-    NONE ( 0, AuthenticationLevel.NONE.toString() ),
+    NONE(0, AuthenticationLevel.NONE.toString()),
 
     /**
      * Constant for the "time of initial ticket" last request type.
      */
-    TIME_OF_INITIAL_TGT ( 1, "time of initial ticket" ),
+    TIME_OF_INITIAL_TGT(1, "time of initial ticket"),
 
     /**
      * Constant for the "time of initial request" last request type.
      */
-    TIME_OF_INITIAL_REQ ( 2, "time of initial request" ),
+    TIME_OF_INITIAL_REQ(2, "time of initial request"),
 
     /**
      * Constant for the "time of newest ticket" last request type.
      */
-    TIME_OF_NEWEST_TGT ( 3, "time of newest ticket" ),
+    TIME_OF_NEWEST_TGT(3, "time of newest ticket"),
 
     /**
      * Constant for the "time of last renewal" last request type.
      */
-    TIME_OF_LAST_RENEWAL ( 4, "time of last renewal" ),
+    TIME_OF_LAST_RENEWAL(4, "time of last renewal"),
 
     /**
      * Constant for the "time of last request" last request type.
      */
-    TIME_OF_LAST_REQ ( 5, "time of last request" ),
+    TIME_OF_LAST_REQ(5, "time of last request"),
 
     /**
      * Constant for the "time of password expiration" last request type.
      */
-    TIME_OF_PASSWORD_EXP ( 6, "time of password expiration" );
+    TIME_OF_PASSWORD_EXP(6, "time of password expiration");
 
     /**
      * The name of the checksum type.

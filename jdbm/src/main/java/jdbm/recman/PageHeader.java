@@ -65,62 +65,62 @@ import org.apache.directory.server.i18n.I18n;
  * 
  * The page header block view hence sees 18 bytes of page header data.
  */
-public class PageHeader implements BlockView 
+public class PageHeader implements BlockView
 {
     // offsets into page header's (BlockIo's) buffer
     /** the page (BlockIo's type code) short magic code */
-    private static final short O_MAGIC = 0; 
-    
+    private static final short O_MAGIC = 0;
+
     /** the long block id of the next block in the block list */
-    private static final short O_NEXT = Magic.SZ_SHORT;  
-    
+    private static final short O_NEXT = Magic.SZ_SHORT;
+
     /** the long block id of the previous block in the block list */
-    private static final short O_PREV = O_NEXT + Magic.SZ_LONG; 
-    
+    private static final short O_PREV = O_NEXT + Magic.SZ_LONG;
+
     /** the size of this page header */
     protected static final short SIZE = O_PREV + Magic.SZ_LONG;
 
     /** the page header block this view is associated with */
     protected BlockIo blockIo;
 
-    
+
     /**
      * Constructs a PageHeader object from a block
      *
      * @param blockIo The block that contains the page header
      * @throws IOException if the block is too short to keep the page header.
      */
-    protected PageHeader( BlockIo blockIo ) 
+    protected PageHeader( BlockIo blockIo )
     {
         this.blockIo = blockIo;
         blockIo.setView( this );
-        
-        if ( ! magicOk() )
+
+        if ( !magicOk() )
         {
             throw new Error( I18n.err( I18n.ERR_546, blockIo.getBlockId(), getMagic() ) );
         }
     }
-    
-    
+
+
     /**
      * Constructs a new PageHeader of the indicated type. Used for newly
      * created pages.
      */
-    PageHeader( BlockIo blockIo, short type ) 
+    PageHeader( BlockIo blockIo, short type )
     {
         this.blockIo = blockIo;
         blockIo.setView( this );
         setType( type );
     }
-    
-    
+
+
     /**
      * Factory method to create or return a page header for the indicated block.
      */
-    static PageHeader getView ( BlockIo blockIo ) 
+    static PageHeader getView( BlockIo blockIo )
     {
         BlockView view = blockIo.getView();
-        
+
         if ( view != null && view instanceof PageHeader )
         {
             return ( PageHeader ) view;
@@ -130,91 +130,91 @@ public class PageHeader implements BlockView
             return new PageHeader( blockIo );
         }
     }
-    
-    
+
+
     /**
      * Returns true if the magic corresponds with the fileHeader magic.
      */
-    private boolean magicOk() 
+    private boolean magicOk()
     {
         int magic = getMagic();
-        
+
         return magic >= Magic.BLOCK
             && magic <= ( Magic.BLOCK + Magic.FREEPHYSIDS_PAGE );
     }
-    
-    
+
+
     /**
      * For paranoia mode
      */
-    protected void paranoiaMagicOk() 
+    protected void paranoiaMagicOk()
     {
-        if ( ! magicOk() )
+        if ( !magicOk() )
         {
             throw new Error( I18n.err( I18n.ERR_547, getMagic() ) );
         }
     }
-    
-    
+
+
     /** 
      * @return The magic code (ie, the 2 first bytes of the inner BlockIo) 
      */
-    short getMagic() 
+    short getMagic()
     {
         return blockIo.readShort( O_MAGIC );
     }
 
-    
+
     /**
      * @return the next block (ie the long at position 2 in the BlockIo)
      */
-    long getNext() 
+    long getNext()
     {
         paranoiaMagicOk();
-        
+
         return blockIo.readLong( O_NEXT );
     }
-    
-    
+
+
     /** 
      * Sets the next blockIo.
      * 
      * @param The next Block ID
      */
-    void setNext( long next ) 
+    void setNext( long next )
     {
         paranoiaMagicOk();
         blockIo.writeLong( O_NEXT, next );
     }
-    
-    
+
+
     /** 
      * @return the previous block (ie the long at position 10 in the BlockIo)
      */
-    long getPrev() 
+    long getPrev()
     {
         paranoiaMagicOk();
-        
+
         return blockIo.readLong( O_PREV );
     }
-    
-    
+
+
     /** 
      * Sets the previous block. 
      */
-    void setPrev( long prev ) 
+    void setPrev( long prev )
     {
         paranoiaMagicOk();
         blockIo.writeLong( O_PREV, prev );
     }
-    
-    
+
+
     /** 
      * Sets the type of the page header
      * 
      *  @param type The PageHeader type to store at position 0
      */
-    void setType( short type ) 
+    void setType( short type )
     {
         blockIo.writeShort( O_MAGIC, ( short ) ( Magic.BLOCK + type ) );
     }
@@ -223,18 +223,18 @@ public class PageHeader implements BlockView
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "PageHeader ( " );
-        
+
         // The blockIO
         sb.append( "BlockIO ( " );
-        
+
         // The blockID
         sb.append( blockIo.getBlockId() ).append( ", " );
-        
+
         // Is it dirty ?
         if ( blockIo.isDirty() )
         {
@@ -244,7 +244,7 @@ public class PageHeader implements BlockView
         {
             sb.append( "clean, " );
         }
-        
+
         // The transaction count
         if ( blockIo.isInTransaction() )
         {
@@ -256,40 +256,40 @@ public class PageHeader implements BlockView
         }
 
         sb.append( " ), " );
-        
+
         // The Type
         int magic = getMagic();
-        
+
         switch ( magic - Magic.BLOCK )
         {
-            case Magic.FREE_PAGE :
+            case Magic.FREE_PAGE:
                 sb.append( "FREE_PAGE" ).append( ", " );
                 break;
-                
-            case Magic.USED_PAGE :
+
+            case Magic.USED_PAGE:
                 sb.append( "USED_PAGE" ).append( ", " );
                 break;
-                
-            case Magic.TRANSLATION_PAGE :
+
+            case Magic.TRANSLATION_PAGE:
                 sb.append( "TRANSLATION_PAGE" ).append( ", " );
                 break;
-                
-            case Magic.FREELOGIDS_PAGE :
+
+            case Magic.FREELOGIDS_PAGE:
                 sb.append( "FREELOGIDS_PAGE" ).append( ", " );
                 break;
-                
-            case Magic.FREEPHYSIDS_PAGE :
+
+            case Magic.FREEPHYSIDS_PAGE:
                 sb.append( "FREEPHYSIDS_PAGE" ).append( ", " );
                 break;
-                
+
         }
-        
+
         // The previous page
         sb.append( "[p:" ).append( getPrev() ).append( ", " );
-        
+
         // The next page
         sb.append( "n:" ).append( getNext() ).append( "] )" );
-        
+
         return sb.toString();
     }
 }

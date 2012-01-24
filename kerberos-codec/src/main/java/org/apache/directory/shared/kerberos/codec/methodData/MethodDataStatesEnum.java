@@ -33,13 +33,12 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum MethodDataStatesEnum implements States
 {
     // Start
-    START_STATE,                         // 0
+    START_STATE, // 0
 
-    METHOD_DATA_SEQ_STATE,               // 1
+    METHOD_DATA_SEQ_STATE, // 1
 
     // End
-    LAST_METHOD_DATA_STATE;              // 2
-
+    LAST_METHOD_DATA_STATE; // 2
 
     /**
      * Get the grammar name

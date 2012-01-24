@@ -47,99 +47,98 @@
 package jdbm.recman;
 
 
-
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
  * Class describing a page that holds data.
  */
-final class DataPage extends PageHeader 
+final class DataPage extends PageHeader
 {
     // offsets
     /** first short in the file after the page header info: 18 byte offset */
     private static final short O_FIRST = PageHeader.SIZE; // short firstrowid
-    
+
     /** start of the data in this block: 20 byte offset */
     static final short O_DATA = ( short ) ( O_FIRST + Magic.SZ_SHORT );
-    
+
     /** total amount of data in this page/block: BLOCK_SIZE - 20 bytes */
     static final short DATA_PER_PAGE = ( short ) ( RecordFile.BLOCK_SIZE - O_DATA );
 
-    
+
     /**
      * Constructs a data page view from the indicated block.
      */
-    DataPage( BlockIo block ) 
+    DataPage( BlockIo block )
     {
         super( block );
     }
 
-    
+
     /**
      * Factory method to create or return a data page for the indicated block.
      */
-    static DataPage getDataPageView( BlockIo blockIo ) 
+    static DataPage getDataPageView( BlockIo blockIo )
     {
         BlockView view = blockIo.getView();
-        
+
         if ( ( view != null ) && ( view instanceof DataPage ) )
         {
             return ( DataPage ) view;
         }
         else
-        { 
+        {
             return new DataPage( blockIo );
         }
     }
-    
+
 
     /** 
      * @return the first rowid's offset 
      */
-    short getFirst() 
+    short getFirst()
     {
         return blockIo.readShort( O_FIRST );
     }
-    
-    
+
+
     /** 
      * Sets the first rowid's offset 
      */
-    void setFirst( short value ) 
+    void setFirst( short value )
     {
         paranoiaMagicOk();
-        
+
         if ( value > 0 && value < O_DATA )
         {
             throw new Error( I18n.err( I18n.ERR_543, value ) );
         }
-  
+
         blockIo.writeShort( O_FIRST, value );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "DataPage ( " );
-        
+
         // The blockIO
         sb.append( super.toString() ).append( ", " );
-        
+
         // The first rowId
         sb.append( "first rowId: " ).append( getFirst() ).append( ", " );
-        
+
         // The data per page 
         sb.append( "[p:" ).append( getPrev() ).append( ", " );
-        
+
         // The next page
         sb.append( "n:" ).append( getNext() ).append( "] )" );
-        
+
         return sb.toString();
     }
 }

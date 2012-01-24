@@ -33,26 +33,25 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum EncApRepPartStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- EncApRepPart message --------------------------------------
-    ENC_AP_REP_PART_STATE,                  // 1
-    ENC_AP_REP_PART_SEQ_STATE,              // 2
+    ENC_AP_REP_PART_STATE, // 1
+    ENC_AP_REP_PART_SEQ_STATE, // 2
 
-    ENC_AP_REP_PART_CTIME_TAG_STATE,        // 3
-    ENC_AP_REP_PART_CTIME_STATE,            // 4
+    ENC_AP_REP_PART_CTIME_TAG_STATE, // 3
+    ENC_AP_REP_PART_CTIME_STATE, // 4
 
-    ENC_AP_REP_PART_CUSEC_TAG_STATE,        // 5
-    ENC_AP_REP_PART_CUSEC_STATE,            // 6
+    ENC_AP_REP_PART_CUSEC_TAG_STATE, // 5
+    ENC_AP_REP_PART_CUSEC_STATE, // 6
 
-    ENC_AP_REP_PART_SUBKEY_STATE,           // 7
+    ENC_AP_REP_PART_SUBKEY_STATE, // 7
 
-    ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE,   // 8
-    ENC_AP_REP_PART_SEQ_NUMBER_STATE,       // 9
+    ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE, // 8
+    ENC_AP_REP_PART_SEQ_NUMBER_STATE, // 9
 
     // End
-    LAST_ENC_AP_REP_PART_STATE;             // 10
-
+    LAST_ENC_AP_REP_PART_STATE; // 10
 
     /**
      * Get the grammar name

@@ -46,6 +46,7 @@
 
 package jdbm.helper;
 
+
 import java.io.IOException;
 
 
@@ -64,13 +65,12 @@ public final class ByteArraySerializer
      */
     final static long serialVersionUID = 1L;
 
-
     /**
      * Static instance.
      */
     public static final ByteArraySerializer INSTANCE = new ByteArraySerializer();
-    
-    
+
+
     /** 
      * Serialize the content of an object into a byte array.
      *
@@ -78,13 +78,13 @@ public final class ByteArraySerializer
      * @return a byte array representing the object's state
      *
      */
-    public byte[] serialize( Object obj ) 
+    public byte[] serialize( Object obj )
         throws IOException
     {
-        return (byte[]) obj;
+        return ( byte[] ) obj;
     }
 
-    
+
     /**
      * Deserialize the content of an object from a byte array.
      *
@@ -92,10 +92,10 @@ public final class ByteArraySerializer
      * @return deserialized object
      *
      */
-    public Object deserialize( byte[] serialized ) 
+    public Object deserialize( byte[] serialized )
         throws IOException
     {
         return serialized;
-    }    
+    }
 
 }

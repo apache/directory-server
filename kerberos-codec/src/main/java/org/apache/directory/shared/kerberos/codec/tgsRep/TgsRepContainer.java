@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.tgsRep;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
@@ -34,6 +35,7 @@ public class TgsRepContainer extends KdcRepContainer
 {
     /** An TGS-REP container */
     private TgsRep tgsRep;
+
 
     /**
      * Creates a new TgsRepContainer object.
@@ -56,7 +58,7 @@ public class TgsRepContainer extends KdcRepContainer
         return tgsRep;
     }
 
-    
+
     /**
      * Set an TgsRep Object into the container. It will be completed by the
      * KerberosDecoder.

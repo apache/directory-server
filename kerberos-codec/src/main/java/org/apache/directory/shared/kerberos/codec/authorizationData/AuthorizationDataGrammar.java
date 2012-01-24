@@ -81,7 +81,8 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
         // Transition from AuthorizationData SEQ OF to SEQ
         // --------------------------------------------------------------------------------------------
         // AuthorizationData  ::= SEQUENCE OF SEQUENCE {
-        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE
+            .getValue()] =
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_SEQ_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE,
@@ -105,7 +106,8 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
         // --------------------------------------------------------------------------------------------
         // AuthorizationData  ::= SEQUENCE OF SEQUENCE {
         //         ad-type     [0] Int32,
-        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_TAG_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADTYPE_STATE,
@@ -131,7 +133,8 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
         // AuthorizationData   ::= SEQUENCE OF SEQUENCE {
         //         ...
         //         ad-data     [1] (OCTET STRING)
-        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] =
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING
+            .getValue()] =
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_TAG_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE,
@@ -144,7 +147,8 @@ public final class AuthorizationDataGrammar extends AbstractGrammar<Authorizatio
         // AuthorizationData   ::= SEQUENCE {
         //         ...
         //         ad-data     [1] (OCTET STRING)
-        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
+        super.transitions[AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE.ordinal()][UniversalTag.SEQUENCE
+            .getValue()] =
             new GrammarTransition<AuthorizationDataContainer>(
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_ADDATA_STATE,
                 AuthorizationDataStatesEnum.AUTHORIZATION_DATA_SEQ_STATE,

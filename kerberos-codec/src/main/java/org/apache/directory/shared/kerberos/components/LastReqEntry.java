@@ -19,8 +19,10 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
+
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
+
 
 /**
  * The data structure hold into the LastReq element 
@@ -41,8 +43,8 @@ public class LastReqEntry
     public LastReqEntry()
     {
     }
-    
-    
+
+
     /**
      * Creates a new instance of LastReqEntry
      * @param lrType The LastRequest type
@@ -53,8 +55,8 @@ public class LastReqEntry
         this.lrType = lrType;
         this.lrValue = lrValue;
     }
-    
-    
+
+
     /**
      * @return the LastReqType
      */
@@ -72,7 +74,7 @@ public class LastReqEntry
         this.lrType = lrType;
     }
 
-    
+
     /**
      * @return the lr-value
      */
@@ -90,23 +92,23 @@ public class LastReqEntry
         this.lrValue = lrValue;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
-        sb.append( tabs ) .append( "LastRequestEntry : {\n" );
-        sb.append( tabs ) .append(  "    lrType : " ).append( lrType ).append( "\n" );
-        sb.append( tabs ) .append(  "    lrValue : " ).append( lrValue ).append( "\n" );
-        sb.append( tabs ) .append(  "}" );
-        
+
+        sb.append( tabs ).append( "LastRequestEntry : {\n" );
+        sb.append( tabs ).append( "    lrType : " ).append( lrType ).append( "\n" );
+        sb.append( tabs ).append( "    lrValue : " ).append( lrValue ).append( "\n" );
+        sb.append( tabs ).append( "}" );
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

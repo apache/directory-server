@@ -46,11 +46,13 @@
 
 package jdbm.helper;
 
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Comparator for objects which have been serialized into byte arrays.
@@ -68,7 +70,6 @@ public final class ObjectBAComparator
      */
     final static long serialVersionUID = 1L;
 
-
     /**
      * Wrapped comparator.
      */
@@ -82,7 +83,8 @@ public final class ObjectBAComparator
      */
     public ObjectBAComparator( Comparator comparator )
     {
-        if ( comparator == null ) {
+        if ( comparator == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_518 ) );
         }
 
@@ -97,27 +99,34 @@ public final class ObjectBAComparator
      * @param obj2 Second object
      * @return 1 if obj1 > obj2, 0 if obj1 == obj2, -1 if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( Object obj1, Object obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
-        try {
-            obj1 = Serialization.deserialize( (byte[]) obj1 );
-            obj2 = Serialization.deserialize( (byte[]) obj2 );
+        try
+        {
+            obj1 = Serialization.deserialize( ( byte[] ) obj1 );
+            obj2 = Serialization.deserialize( ( byte[] ) obj2 );
 
             return _comparator.compare( obj1, obj2 );
-        } catch ( IOException except ) {
-            throw new WrappedRuntimeException( except );
-        } catch ( ClassNotFoundException except ) {
+        }
+        catch ( IOException except )
+        {
             throw new WrappedRuntimeException( except );
         }
-     }
+        catch ( ClassNotFoundException except )
+        {
+            throw new WrappedRuntimeException( except );
+        }
+    }
 
 
     /**
@@ -128,37 +137,55 @@ public final class ObjectBAComparator
         int len = Math.min( thisKey.length, otherKey.length );
 
         // compare the byte arrays
-        for ( int i=0; i<len; i++ ) {
-            if ( thisKey[i] >= 0 ) {
-                if ( otherKey[i] >= 0 ) {
+        for ( int i = 0; i < len; i++ )
+        {
+            if ( thisKey[i] >= 0 )
+            {
+                if ( otherKey[i] >= 0 )
+                {
                     // both positive
-                    if ( thisKey[i] < otherKey[i] ) {
+                    if ( thisKey[i] < otherKey[i] )
+                    {
                         return -1;
-                    } else if ( thisKey[i] > otherKey[i] ) {
+                    }
+                    else if ( thisKey[i] > otherKey[i] )
+                    {
                         return 1;
                     }
-                } else {
+                }
+                else
+                {
                     // otherKey is negative => greater (because MSB is 1)
                     return -1;
                 }
-            } else {
-                if ( otherKey[i] >= 0 ) {
+            }
+            else
+            {
+                if ( otherKey[i] >= 0 )
+                {
                     // thisKey is negative => greater (because MSB is 1)
                     return 1;
-                } else {
+                }
+                else
+                {
                     // both negative
-                    if ( thisKey[i] < otherKey[i] ) {
+                    if ( thisKey[i] < otherKey[i] )
+                    {
                         return -1;
-                    } else if ( thisKey[i] > otherKey[i] ) {
+                    }
+                    else if ( thisKey[i] > otherKey[i] )
+                    {
                         return 1;
                     }
                 }
             }
         }
-        if ( thisKey.length == otherKey.length) {
+        if ( thisKey.length == otherKey.length )
+        {
             return 0;
         }
-        if ( thisKey.length < otherKey.length ) {
+        if ( thisKey.length < otherKey.length )
+        {
             return -1;
         }
         return 1;

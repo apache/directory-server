@@ -42,7 +42,7 @@ public class Host extends DhcpConfigElement
     private InetAddress address;
 
 
-    public Host(String name, InetAddress address, HardwareAddress hardwareAddress)
+    public Host( String name, InetAddress address, HardwareAddress hardwareAddress )
     {
         this.name = name;
         this.address = address;

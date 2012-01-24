@@ -57,7 +57,7 @@ import java.util.Enumeration;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  */
-public interface CachePolicy<K,V>
+public interface CachePolicy<K, V>
 {
     /**
      * Place an object in the cache. If the cache does not currently contain
@@ -128,7 +128,7 @@ public interface CachePolicy<K,V>
      */
     public void addListener( CachePolicyListener<V> listener ) throws IllegalArgumentException;
 
-    
+
     /**
      * Remove a listener from this cache policy. The listener is found
      * using object equality, not identity.

@@ -67,7 +67,7 @@ public class ETypeInfo extends AbstractAsn1Object
     {
         this.etypeInfoEntries = new ArrayList<ETypeInfoEntry>();
     }
-    
+
 
     /**
      * Creates a new instance of ETypeInfo.
@@ -121,17 +121,17 @@ public class ETypeInfo extends AbstractAsn1Object
     public int hashCode()
     {
         int hash = 37;
-        
+
         if ( etypeInfoEntries != null )
         {
             hash = hash * 17 + etypeInfoEntries.size();
-            
+
             for ( ETypeInfoEntry etypeInfoEntry : etypeInfoEntries )
             {
                 hash = hash * 17 + etypeInfoEntry.hashCode();
             }
         }
-        
+
         return hash;
     }
 
@@ -144,11 +144,11 @@ public class ETypeInfo extends AbstractAsn1Object
      */
     public boolean equals( ETypeInfo that )
     {
-        if ( that == null ) 
+        if ( that == null )
         {
             return false;
         }
-        
+
         // infoEntries can't be null after creation
         if ( etypeInfoEntries.size() != that.etypeInfoEntries.size() )
         {
@@ -260,7 +260,7 @@ public class ETypeInfo extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "ETYPE-INFO encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "ETYPE-INFO initial value : {}", toString() );
         }
 

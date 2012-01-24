@@ -47,7 +47,7 @@ public class DnsServer extends DirectoryBackedService
 
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DnsServer.class.getName() );
-    
+
     /** The default IP port. */
     private static final int DEFAULT_IP_PORT = 53;
 
@@ -81,45 +81,45 @@ public class DnsServer extends DirectoryBackedService
             // We have to create a DatagramAcceptor
             UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
             setTransports( transport );
-            
-            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
+            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
 
             // Set the handler
             acceptor.setHandler( new DnsProtocolHandler( this, store ) );
-    
+
             // Allow the port to be reused even if the socket is in TIME_WAIT state
-            ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
-            
+            ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
+
             // Start the listener
             acceptor.bind();
         }
         else
         {
-            for ( Transport transport:transports )
+            for ( Transport transport : transports )
             {
                 // Get the acceptor
                 IoAcceptor acceptor = transport.getAcceptor();
-    
+
                 // Set the handler
                 acceptor.setHandler( new DnsProtocolHandler( this, store ) );
-        
+
                 if ( transport instanceof UdpTransport )
                 {
-                // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
                 }
                 else
                 {
                     // Disable the disconnection of the clients on unbind
                     acceptor.setCloseOnDeactivation( false );
-                    
+
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((NioSocketAcceptor)acceptor).setReuseAddress( true );
-                    
+                    ( ( NioSocketAcceptor ) acceptor ).setReuseAddress( true );
+
                     // No Nagle's algorithm
-                    ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                    ( ( NioSocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
                 }
-        
+
                 // Start the listener
                 acceptor.bind();
             }
@@ -129,38 +129,39 @@ public class DnsServer extends DirectoryBackedService
     }
 
 
-    public void stop() {
-        for ( Transport transport :getTransports() )
+    public void stop()
+    {
+        for ( Transport transport : getTransports() )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             if ( acceptor != null )
             {
                 acceptor.dispose();
             }
         }
-        
+
         LOG.info( "DNS service stopped." );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "DNSServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }

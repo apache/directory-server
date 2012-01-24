@@ -41,6 +41,7 @@ public class StoreNameType extends AbstractReadInteger<PrincipalNameContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Instantiates a new PrincipalNameInit action.
      */

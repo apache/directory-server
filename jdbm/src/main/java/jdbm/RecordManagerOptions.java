@@ -69,14 +69,11 @@ public final class RecordManagerOptions
     /** Option to create a thread-safe record manager. */
     public final static String PROVIDER_FACTORY = "jdbm.provider";
 
-
     /** Option to create a thread-safe record manager. */
     public final static String THREAD_SAFE = "jdbm.threadSafe";
 
-
     /** Option to automatically commit data after each operation. */
     public final static String AUTO_COMMIT = "jdbm.autoCommit";
-
 
     /**
      * Option to disable transaction (to increase performance at the cost of
@@ -84,18 +81,14 @@ public final class RecordManagerOptions
      */
     public final static String DISABLE_TRANSACTIONS = "jdbm.disableTransactions";
 
-
     /** Cache type. */
     public final static String CACHE_TYPE = "jdbm.cache.type";
-
 
     /** Cache size (when applicable) */
     public final static String CACHE_SIZE = "jdbm.cache.size";
 
-
     /** Use normal (strong) object references for the record cache. */
     public final static String NORMAL_CACHE = "normal";
-
 
     /**
      * Use soft references {$link java.lang.ref.SoftReference} for the record
@@ -105,7 +98,6 @@ public final class RecordManagerOptions
      * in response to memory demand.
      */
     public final static String SOFT_REF_CACHE = "soft";
-
 
     /**
      * Use weak references {$link java.lang.ref.WeakReference} for the record

@@ -93,23 +93,23 @@ public final class RecordManagerFactory
      */
     public static RecordManager createRecordManager( String name, Properties options ) throws IOException
     {
-        String                 provider;
-        Class<?>               clazz;
-        RecordManagerProvider  factory;
+        String provider;
+        Class<?> clazz;
+        RecordManagerProvider factory;
 
         provider = options.getProperty( RecordManagerOptions.PROVIDER_FACTORY, "jdbm.recman.Provider" );
 
-        try 
+        try
         {
             clazz = Thread.currentThread().getContextClassLoader().loadClass( provider );
             factory = ( RecordManagerProvider ) clazz.newInstance();
-        } 
-        catch ( Exception except ) 
+        }
+        catch ( Exception except )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_567, provider, except.getClass().getName(),
                 except.getLocalizedMessage() ) );
         }
-        
+
         return factory.createRecordManager( name, options );
     }
 }

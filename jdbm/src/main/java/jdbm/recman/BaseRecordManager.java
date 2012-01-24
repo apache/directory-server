@@ -48,6 +48,7 @@
 
 package jdbm.recman;
 
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +64,7 @@ import jdbm.helper.Serializer;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *  This class manages records, which are uninterpreted blobs of data. The
@@ -90,7 +92,7 @@ public final class BaseRecordManager implements RecordManager
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( BaseRecordManager.class.getSimpleName() );
-    
+
     /** Underlying record recordFile. */
     private RecordFile recordFile;
 
@@ -114,8 +116,8 @@ public final class BaseRecordManager implements RecordManager
      * directory, stored as a Hashtable.  It can be retrieved by using
      * the NAME_DIRECTORY_ROOT.
      */
-    private Map<String,Long> nameDirectory;
-    
+    private Map<String, Long> nameDirectory;
+
     private static enum IOType
     {
         READ_IO,
@@ -205,7 +207,6 @@ public final class BaseRecordManager implements RecordManager
         }
     }
 
-    
     /**
      * Map used to synchronize reads and writes on the same logical
      * recid.
@@ -235,7 +236,7 @@ public final class BaseRecordManager implements RecordManager
     public TransactionManager getTransactionManager() throws IOException
     {
         checkIfClosed();
-        
+
         return recordFile.getTxnMgr();
     }
 
@@ -255,7 +256,7 @@ public final class BaseRecordManager implements RecordManager
         recordFile.disableTransactions();
     }
 
-    
+
     /**
      * Closes the record manager.
      *
@@ -285,7 +286,7 @@ public final class BaseRecordManager implements RecordManager
         return insert( obj, DefaultSerializer.INSTANCE );
     }
 
-    
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -296,22 +297,22 @@ public final class BaseRecordManager implements RecordManager
      */
     public long insert( Object obj, Serializer serializer ) throws IOException
     {
-        byte[]    data;
-        long      recid;
-        Location  physRowId;
-        
+        byte[] data;
+        long recid;
+        Location physRowId;
+
         checkIfClosed();
 
         data = serializer.serialize( obj );
         physRowId = physMgr.insert( data, 0, data.length );
         recid = logMgr.insert( physRowId ).toLong();
-     
-        LOG.debug( "BaseRecordManager.insert() recid {} length {}", recid, data.length ) ;
-        
+
+        LOG.debug( "BaseRecordManager.insert() recid {} length {}", recid, data.length );
+
         return recid;
     }
 
-    
+
     /**
      * Deletes a record.
      *
@@ -322,17 +323,16 @@ public final class BaseRecordManager implements RecordManager
     {
         LockElement element;
         checkIfClosed();
-        
-        if ( recid <= 0 ) 
+
+        if ( recid <= 0 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
-        LOG.debug( "BaseRecordManager.delete() recid {}", recid ) ;
+        LOG.debug( "BaseRecordManager.delete() recid {}", recid );
 
-        
         element = beginIO( recid, IOType.WRITE_IO );
-        
+
         try
         {
             Location logRowId = new Location( recid );
@@ -358,7 +358,7 @@ public final class BaseRecordManager implements RecordManager
     {
         update( recid, obj, DefaultSerializer.INSTANCE );
     }
-    
+
 
     /**
      * Updates a record using a custom serializer.
@@ -371,38 +371,38 @@ public final class BaseRecordManager implements RecordManager
     public void update( long recid, Object obj, Serializer serializer ) throws IOException
     {
         LockElement element;
-        
+
         checkIfClosed();
 
-        if ( recid <= 0 ) 
+        if ( recid <= 0 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
         element = this.beginIO( recid, IOType.WRITE_IO );
-         
+
         try
         {
             Location logRecid = new Location( recid );
             Location physRecid = logMgr.fetch( logRecid );
 
             byte[] data = serializer.serialize( obj );
-            
-            LOG.debug( "BaseRecordManager.update() recid {} length {}", recid, data.length ) ;
-            
+
+            LOG.debug( "BaseRecordManager.update() recid {} length {}", recid, data.length );
+
             Location newRecid = physMgr.update( physRecid, data, 0, data.length );
-            
-            if ( ! newRecid.equals( physRecid ) ) 
+
+            if ( !newRecid.equals( physRecid ) )
             {
                 logMgr.update( logRecid, newRecid );
             }
-         }
-         finally
-         {
-             endIO( recid, element, IOType.WRITE_IO );
-         } 
+        }
+        finally
+        {
+            endIO( recid, element, IOType.WRITE_IO );
+        }
     }
-    
+
 
     /**
      * Fetches a record using standard java object serialization.
@@ -416,7 +416,7 @@ public final class BaseRecordManager implements RecordManager
         return fetch( recid, DefaultSerializer.INSTANCE );
     }
 
-    
+
     /**
      * Fetches a record using a custom serializer.
      *
@@ -429,32 +429,32 @@ public final class BaseRecordManager implements RecordManager
     {
         Object result;
         LockElement element;
-        
+
         checkIfClosed();
-        
-        if ( recid <= 0 ) 
+
+        if ( recid <= 0 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
-        
-        element = this.beginIO(recid, IOType.READ_IO);
-        
+
+        element = this.beginIO( recid, IOType.READ_IO );
+
         try
         {
-            byte[] data; 
-            
-            Location location = logMgr.fetch( new Location( recid ) ) ;
+            byte[] data;
+
+            Location location = logMgr.fetch( new Location( recid ) );
             data = physMgr.fetch( location );
-            
-            LOG.debug( "BaseRecordManager.fetch() recid {} length {}", recid, data.length ) ;
-            
+
+            LOG.debug( "BaseRecordManager.fetch() recid {} length {}", recid, data.length );
+
             result = serializer.deserialize( data );
         }
         finally
         {
-            endIO(recid, element, IOType.READ_IO);
+            endIO( recid, element, IOType.READ_IO );
         }
-        
+
         return result;
     }
 
@@ -470,7 +470,7 @@ public final class BaseRecordManager implements RecordManager
         return FileHeader.NROOTS;
     }
 
-    
+
     /**
      *  Returns the indicated root rowid.
      *
@@ -505,17 +505,17 @@ public final class BaseRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        Map<String,Long> nameDirectory = getNameDirectory();
+        Map<String, Long> nameDirectory = getNameDirectory();
         Long recid = nameDirectory.get( name );
 
-        if ( recid == null ) 
+        if ( recid == null )
         {
             return 0;
         }
-        
+
         return recid;
     }
-    
+
 
     /**
      * Set the record id of a named object.
@@ -524,17 +524,17 @@ public final class BaseRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        if ( recid == 0 ) 
+        if ( recid == 0 )
         {
             // remove from hashtable
             getNameDirectory().remove( name );
-        } 
-        else 
+        }
+        else
         {
             getNameDirectory().put( name, recid );
         }
-        
-        saveNameDirectory( );
+
+        saveNameDirectory();
     }
 
 
@@ -564,35 +564,35 @@ public final class BaseRecordManager implements RecordManager
      * Load name directory
      */
     @SuppressWarnings("unchecked")
-    private Map<String,Long> getNameDirectory() throws IOException
+    private Map<String, Long> getNameDirectory() throws IOException
     {
         // retrieve directory of named hashtable
         long nameDirectory_recid = getRoot( NAME_DIRECTORY_ROOT );
-        
-        if ( nameDirectory_recid == 0 ) 
+
+        if ( nameDirectory_recid == 0 )
         {
             nameDirectory = new HashMap<String, Long>();
             nameDirectory_recid = insert( nameDirectory );
             setRoot( NAME_DIRECTORY_ROOT, nameDirectory_recid );
-        } 
-        else 
+        }
+        else
         {
             nameDirectory = ( Map<String, Long> ) fetch( nameDirectory_recid );
         }
-        
+
         return nameDirectory;
     }
 
 
-    private void saveNameDirectory( ) throws IOException
+    private void saveNameDirectory() throws IOException
     {
         long recid = getRoot( NAME_DIRECTORY_ROOT );
-        
-        if ( recid == 0 ) 
+
+        if ( recid == 0 )
         {
             throw new IOException( I18n.err( I18n.ERR_537 ) );
         }
-        
+
         update( recid, nameDirectory );
     }
 
@@ -602,12 +602,12 @@ public final class BaseRecordManager implements RecordManager
      */
     private void checkIfClosed() throws IllegalStateException
     {
-        if ( recordFile == null ) 
+        if ( recordFile == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
-    
+
 
     /**
      * Used to serialize reads/write on a given logical rowid. Checks if there is a 
@@ -624,96 +624,96 @@ public final class BaseRecordManager implements RecordManager
         LockElement element = null;
 
         // loop until we successfully verify that there is no concurrent writer
-/*
-        element = lockElements.get( recid );
-        
-        do
-        {
-            if ( element == null )
-            {
-                element = new LockElement();
-
-                if ( io == IOType.READ_IO )
-                {
-                    element.bumpReaders();
-                }
-                else
-                {
-                    element.setWritten();
-                }
-
-                LockElement existingElement = lockElements.putIfAbsent( recid, element );
-
-                if ( existingElement == null )
-                {
-                    lockVerified = true;
-                }
-                else
-                {
-                    element = existingElement;
-                }
-            }
-            else
-            {
-                Lock lock = element.getLock();
-                lock.lock();
+        /*
+                element = lockElements.get( recid );
                 
-                if ( element.anyUser() )
+                do
                 {
-                    if ( this.conflictingIOPredicate( io, element ) )
+                    if ( element == null )
                     {
-                        element.bumpWaiters();
-                        
-                        do
+                        element = new LockElement();
+
+                        if ( io == IOType.READ_IO )
                         {
-                            element.getNoConflictingIOCondition()
-                                .awaitUninterruptibly();
+                            element.bumpReaders();
                         }
-                        while ( this.conflictingIOPredicate( io, element ) );
+                        else
+                        {
+                            element.setWritten();
+                        }
 
-                        element.decrementWaiters();
-                    }
+                        LockElement existingElement = lockElements.putIfAbsent( recid, element );
 
-                    // no conflicting IO anymore..done
-                    if ( io == IOType.READ_IO )
-                    {
-                        element.bumpReaders();
+                        if ( existingElement == null )
+                        {
+                            lockVerified = true;
+                        }
+                        else
+                        {
+                            element = existingElement;
+                        }
                     }
                     else
                     {
-                        element.setWritten();
+                        Lock lock = element.getLock();
+                        lock.lock();
+                        
+                        if ( element.anyUser() )
+                        {
+                            if ( this.conflictingIOPredicate( io, element ) )
+                            {
+                                element.bumpWaiters();
+                                
+                                do
+                                {
+                                    element.getNoConflictingIOCondition()
+                                        .awaitUninterruptibly();
+                                }
+                                while ( this.conflictingIOPredicate( io, element ) );
+
+                                element.decrementWaiters();
+                            }
+
+                            // no conflicting IO anymore..done
+                            if ( io == IOType.READ_IO )
+                            {
+                                element.bumpReaders();
+                            }
+                            else
+                            {
+                                element.setWritten();
+                            }
+                            
+                            lockVerified = true;
+                        }
+                        else
+                        {
+                            if ( io == IOType.READ_IO )
+                            {
+                                element.bumpReaders();
+                            }
+                            else
+                            {
+                                element.setWritten();
+                            }
+
+                            LockElement existingElement = lockElements.get( recid );
+
+                            if ( element != existingElement )
+                            {
+                                element = existingElement;
+                            }
+                            else
+                            {
+                                lockVerified = true; // done
+                            }
+                        }
+                        
+                        lock.unlock();
                     }
-                    
-                    lockVerified = true;
                 }
-                else
-                {
-                    if ( io == IOType.READ_IO )
-                    {
-                        element.bumpReaders();
-                    }
-                    else
-                    {
-                        element.setWritten();
-                    }
-
-                    LockElement existingElement = lockElements.get( recid );
-
-                    if ( element != existingElement )
-                    {
-                        element = existingElement;
-                    }
-                    else
-                    {
-                        lockVerified = true; // done
-                    }
-                }
-                
-                lock.unlock();
-            }
-        }
-        while ( !lockVerified );
-*/
+                while ( !lockVerified );
+        */
         return element;
     }
 
@@ -758,7 +758,7 @@ public final class BaseRecordManager implements RecordManager
     private boolean conflictingIOPredicate( IOType io, LockElement element )
     {
         if ( io == IOType.READ_IO )
-        { 
+        {
             return element.beingWritten();
         }
         else

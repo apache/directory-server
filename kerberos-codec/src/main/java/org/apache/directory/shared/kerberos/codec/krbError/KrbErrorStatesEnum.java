@@ -33,53 +33,52 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbErrorStatesEnum implements States
 {
     // Start
-    START_STATE,                        // 0
+    START_STATE, // 0
 
     // ----- KRB-ERROR component --------------------------------------
-    KRB_ERR_TAG,                        // 1
+    KRB_ERR_TAG, // 1
 
-    KRB_ERR_SEQ_STATE,                  // 2
+    KRB_ERR_SEQ_STATE, // 2
 
-    KRB_ERR_PVNO_TAG_STATE,             // 3
-    KRB_ERR_PVNO_STATE,                 // 4
+    KRB_ERR_PVNO_TAG_STATE, // 3
+    KRB_ERR_PVNO_STATE, // 4
 
-    KRB_ERR_MSG_TYPE_TAG_STATE,         // 5
-    KRB_ERR_MSG_TYPE_STATE,             // 6
+    KRB_ERR_MSG_TYPE_TAG_STATE, // 5
+    KRB_ERR_MSG_TYPE_STATE, // 6
 
-    KRB_ERR_CTIME_TAG_STATE,            // 7
-    KRB_ERR_CTIME_STATE,                // 8
+    KRB_ERR_CTIME_TAG_STATE, // 7
+    KRB_ERR_CTIME_STATE, // 8
 
-    KRB_ERR_CUSEC_TAG_STATE,            // 9
-    KRB_ERR_CUSEC_STATE,                // 10
+    KRB_ERR_CUSEC_TAG_STATE, // 9
+    KRB_ERR_CUSEC_STATE, // 10
 
-    KRB_ERR_STIME_TAG_STATE,            // 11
-    KRB_ERR_STIME_STATE,                // 12
+    KRB_ERR_STIME_TAG_STATE, // 11
+    KRB_ERR_STIME_STATE, // 12
 
-    KRB_ERR_SUSEC_TAG_STATE,            // 13
-    KRB_ERR_SUSEC_STATE,                // 14
+    KRB_ERR_SUSEC_TAG_STATE, // 13
+    KRB_ERR_SUSEC_STATE, // 14
 
-    KRB_ERR_ERROR_CODE_TAG_STATE,       // 15
-    KRB_ERR_ERROR_CODE_STATE,           // 16
+    KRB_ERR_ERROR_CODE_TAG_STATE, // 15
+    KRB_ERR_ERROR_CODE_STATE, // 16
 
-    KRB_ERR_CREALM_TAG_STATE,           // 17
-    KRB_ERR_CREALM_STATE,               // 18
+    KRB_ERR_CREALM_TAG_STATE, // 17
+    KRB_ERR_CREALM_STATE, // 18
 
-    KRB_ERR_CNAME_STATE,                // 19
+    KRB_ERR_CNAME_STATE, // 19
 
-    KRB_ERR_REALM_TAG_STATE,            // 20
-    KRB_ERR_REALM_STATE,                // 21
+    KRB_ERR_REALM_TAG_STATE, // 20
+    KRB_ERR_REALM_STATE, // 21
 
-    KRB_ERR_SNAME_STATE,                // 22
+    KRB_ERR_SNAME_STATE, // 22
 
-    KRB_ERR_ETEXT_TAG_STATE,            // 23
-    KRB_ERR_ETEXT_STATE,                // 24
+    KRB_ERR_ETEXT_TAG_STATE, // 23
+    KRB_ERR_ETEXT_STATE, // 24
 
-    KRB_ERR_EDATA_TAG_STATE,            // 25
-    KRB_ERR_EDATA_STATE,                // 26
+    KRB_ERR_EDATA_TAG_STATE, // 25
+    KRB_ERR_EDATA_STATE, // 26
 
     // End
-    LAST_KRB_ERR_STATE;                 // 27
-
+    LAST_KRB_ERR_STATE; // 27
 
     /**
      * Get the grammar name

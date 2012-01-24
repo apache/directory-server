@@ -158,8 +158,8 @@ public class TypedData extends AbstractAsn1Object
     {
         return typedDataList;
     }
-    
-    
+
+
     /**
      * Compute the TypedData length
      * <pre>
@@ -190,7 +190,7 @@ public class TypedData extends AbstractAsn1Object
             int adTypeLen = Value.getNbBytes( td.dataType );
             dataTypeTagLength[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
             typedDataSeqLength[i] = 1 + TLV.getNbBytes( dataTypeTagLength[i] ) + dataTypeTagLength[i];
-            
+
             if ( td.dataValue != null )
             {
                 dataValueTagLength[i] = 1 + TLV.getNbBytes( td.dataValue.length ) + td.dataValue.length;
@@ -240,7 +240,7 @@ public class TypedData extends AbstractAsn1Object
                     buffer.put( TLV.getBytes( dataValueTagLength[i] ) );
                     Value.encode( buffer, td.dataValue );
                 }
-                
+
                 i++;
             }
         }
@@ -253,7 +253,7 @@ public class TypedData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "TypedData encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "TypedData encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "TypedData initial value : {}", toString() );
         }
 
@@ -285,7 +285,8 @@ public class TypedData extends AbstractAsn1Object
             sb.append( tabs ).append( "        tdType: " ).append( td.dataType ).append( '\n' );
             if ( td.dataValue != null )
             {
-                sb.append( tabs ).append( "        tdData: " ).append( Strings.dumpBytes(td.dataValue) ).append( '\n' );
+                sb.append( tabs ).append( "        tdData: " ).append( Strings.dumpBytes( td.dataValue ) )
+                    .append( '\n' );
             }
             sb.append( tabs ).append( "    }\n" );
         }

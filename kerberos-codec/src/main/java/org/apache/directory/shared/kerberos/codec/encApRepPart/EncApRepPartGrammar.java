@@ -107,7 +107,8 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
         // --------------------------------------------------------------------------------------------
         // EncAPRepPart    ::= [APPLICATION 27] SEQUENCE {
         //         ctime           [0] KerberosTime,
-        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CTIME_STATE,
@@ -133,7 +134,8 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
         // EncAPRepPart    ::= [APPLICATION 27] SEQUENCE {
         //         ...
         //         cusec           [1] Microseconds,
-        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_CUSEC_STATE,
@@ -186,7 +188,8 @@ public final class EncApRepPartGrammar extends AbstractGrammar<EncApRepPartConta
         //         ...
         //         seq-number      [3] UInt32 OPTIONAL
         // }
-        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<EncApRepPartContainer>(
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_TAG_STATE,
                 EncApRepPartStatesEnum.ENC_AP_REP_PART_SEQ_NUMBER_STATE,

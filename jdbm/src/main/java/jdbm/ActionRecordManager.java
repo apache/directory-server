@@ -19,7 +19,9 @@
  */
 package jdbm;
 
+
 import jdbm.helper.ActionContext;
+
 
 /**
  * Extends the RecordManager to allow callers to group their RecordManager interface
@@ -41,8 +43,8 @@ public interface ActionRecordManager extends RecordManager
      * @return The created action context
      */
     ActionContext beginAction( boolean readOnly, String whoStarted );
-    
-    
+
+
     /**
      * Ends the action associated with the context. 
      * ReadWrite actions' changes are made visible
@@ -51,8 +53,8 @@ public interface ActionRecordManager extends RecordManager
      * @param context identifies the action to end
      */
     void endAction( ActionContext context );
-    
-    
+
+
     /**
      * Aborts the given action. For write actions, actions's changes
      * should not be made visible to readers.
@@ -60,8 +62,8 @@ public interface ActionRecordManager extends RecordManager
      * @param context identifies the action to abort
      */
     void abortAction( ActionContext context );
-    
-    
+
+
     /**
      * Set the context as the current action context for
      * the given thread
@@ -69,8 +71,8 @@ public interface ActionRecordManager extends RecordManager
      * @param context identifies the context
      */
     public void setCurrentActionContext( ActionContext context );
-    
-    
+
+
     /**
      * Unsets the context as the current action context. 
      * Given context should be current action context for the 

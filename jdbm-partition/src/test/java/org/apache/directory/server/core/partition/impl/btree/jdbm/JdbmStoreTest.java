@@ -99,6 +99,7 @@ public class JdbmStoreTest
     /** The SN AttributeType instance */
     private static AttributeType SN_AT;
 
+
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -121,7 +122,7 @@ public class JdbmStoreTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
@@ -151,7 +152,7 @@ public class JdbmStoreTest
         JdbmIndex ouIndex = new JdbmIndex( SchemaConstants.OU_AT_OID );
         ouIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( ouIndex );
-        
+
         JdbmIndex uidIndex = new JdbmIndex( SchemaConstants.UID_AT_OID );
         uidIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( uidIndex );
@@ -237,7 +238,7 @@ public class JdbmStoreTest
 
         assertNull( jdbmPartition.getAliasIndex() );
         Index<String, Entry, Long> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( index );
+        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
 
         assertEquals( JdbmPartition.DEFAULT_CACHE_SIZE, jdbmPartition.getCacheSize() );
@@ -249,11 +250,13 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getPresenceIndex() );
 
         assertNull( jdbmPartition.getOneLevelIndex() );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
+        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
         assertNotNull( jdbmPartition.getOneLevelIndex() );
 
         assertNull( jdbmPartition.getSubLevelIndex() );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
+        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+            ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         assertNotNull( jdbmPartition.getSubLevelIndex() );
 
         assertNull( jdbmPartition.getId() );
@@ -265,7 +268,8 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
-        ((Store<Entry, Long>)jdbmPartition).addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+            ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( jdbmPartition.getOneAliasIndex() );
 
         assertNull( jdbmPartition.getSubAliasIndex() );
@@ -433,13 +437,13 @@ public class JdbmStoreTest
 
         Iterator<String> userIndices = store.getUserIndices();
         int count = 0;
-        
+
         while ( userIndices.hasNext() )
         {
             userIndices.next();
             count++;
         }
-        
+
         assertEquals( 2, count );
         assertFalse( store.hasUserIndexOn( DC_AT ) );
         assertTrue( store.hasUserIndexOn( OU_AT ) );
@@ -530,7 +534,7 @@ public class JdbmStoreTest
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
-        
+
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
@@ -727,7 +731,7 @@ public class JdbmStoreTest
         Rdn rdn = new Rdn( "sn=James" );
 
         store.rename( dn, rdn, true, null );
-        
+
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
         Entry renamed = store.lookup( new LookupOperationContext( null, dn ) );
         assertNotNull( renamed );

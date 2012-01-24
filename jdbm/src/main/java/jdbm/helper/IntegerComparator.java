@@ -46,10 +46,12 @@
 
 package jdbm.helper;
 
+
 import java.io.Serializable;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Comparator for Integer objects.
@@ -76,15 +78,18 @@ public final class IntegerComparator
      */
     public int compare( Integer obj1, Integer obj2 )
     {
-        if ( obj1 == obj2 ) {
+        if ( obj1 == obj2 )
+        {
             return 0;
         }
 
-        if ( obj1 == null ) {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
@@ -92,14 +97,18 @@ public final class IntegerComparator
         // method is Java 1.2 only!
         int int1 = obj1.intValue();
         int int2 = obj2.intValue();
-        if ( int1 == int2 ) {
+        if ( int1 == int2 )
+        {
             return 0;
         }
 
-        if ( int1 < int2 ) {
-          return -1;
-        } else {
-          return 1;
+        if ( int1 < int2 )
+        {
+            return -1;
+        }
+        else
+        {
+            return 1;
         }
     }
 

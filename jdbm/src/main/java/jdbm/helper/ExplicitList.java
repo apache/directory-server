@@ -34,7 +34,7 @@ public class ExplicitList<T>
     private Link<T> head = new Link<T>( null );
 
     private int listSize = 0;
-    
+
     public static class Link<V>
     {
         private V element;
@@ -79,7 +79,7 @@ public class ExplicitList<T>
             {
                 throw new IllegalStateException( "Trying to remove from list an unlinked link" );
             }
- 
+
             this.getPrev().setNext( this.getNext() );
             this.getNext().setPrev( this.getPrev() );
             this.reset();
@@ -92,7 +92,7 @@ public class ExplicitList<T>
             {
                 throw new IllegalStateException( "Trying to add to list already linked link: " + this );
             }
-            
+
             after.getNext().setPrev( this );
             this.setNext( after.getNext() );
             after.setNext( this );
@@ -106,7 +106,7 @@ public class ExplicitList<T>
             {
                 throw new IllegalStateException( "Trying to add to list already linked link: " + this );
             }
-  
+
             before.getPrev().setNext( this );
             this.setPrev( before.getPrev() );
             before.setPrev( this );
@@ -154,7 +154,7 @@ public class ExplicitList<T>
             {
                 throw new IllegalStateException( " Unitializing a still linked entry" + this );
             }
-   
+
             element = null;
         }
 
@@ -163,16 +163,17 @@ public class ExplicitList<T>
         {
             return this.element;
         }
-        
+
+
         @Override
         public String toString()
         {
             StringBuilder sb = new StringBuilder();
             sb.append( "Link: " ).append( this ).append( " " );
             sb.append( "(next: " ).append( next );
-            sb.append( ",prev: " ).append( prev ).append(")");            
+            sb.append( ",prev: " ).append( prev ).append( ")" );
             sb.append( "\n" );
-            
+
             return sb.toString();
         }
     }
@@ -214,12 +215,14 @@ public class ExplicitList<T>
     {
         return head;
     }
-    
+
+
     public int size()
     {
         return listSize;
     }
-    
+
+
     @Override
     public String toString()
     {
@@ -227,7 +230,7 @@ public class ExplicitList<T>
         sb.append( "List: " );
         sb.append( "(size: " ).append( listSize ).append( ")" );
         sb.append( "\n" );
-        
+
         return sb.toString();
     }
 

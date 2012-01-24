@@ -19,10 +19,10 @@
  */
 package org.apache.directory.shared.kerberos.messages;
 
+
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
-
 
 
 /**
@@ -32,7 +32,7 @@ public abstract class KerberosMessage extends AbstractAsn1Object
 {
     /** The protocol version (should be 5) */
     private int protocolVersionNumber = KerberosConstants.KERBEROS_V5;
-    
+
     /** The message type */
     private KerberosMessageType messageType;
 

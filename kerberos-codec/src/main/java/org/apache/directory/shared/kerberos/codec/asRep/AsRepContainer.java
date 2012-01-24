@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.asRep;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
@@ -34,6 +35,7 @@ public class AsRepContainer extends KdcRepContainer
 {
     /** An AS-REP container */
     private AsRep asRep;
+
 
     /**
      * Creates a new AsRepContainer object.
@@ -56,7 +58,7 @@ public class AsRepContainer extends KdcRepContainer
         return asRep;
     }
 
-    
+
     /**
      * Set an AsRep Object into the container. It will be completed by the
      * KerberosDecoder.

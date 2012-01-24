@@ -38,7 +38,7 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareHandler.class );
 
-    
+
     /**
      * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.model.message.Request)
      */
@@ -47,7 +47,7 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
     {
         LOG.debug( "Handling compare request while ignoring referrals: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
-        
+
         try
         {
             if ( session.getCoreSession().compare( req ) )

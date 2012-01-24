@@ -52,7 +52,8 @@ package jdbm.helper;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
-public final class Tuple<K, V> {
+public final class Tuple<K, V>
+{
 
     /** Key */
     private K key;
@@ -64,7 +65,7 @@ public final class Tuple<K, V> {
     /**
      * Construct an empty Tuple.
      */
-    public Tuple() 
+    public Tuple()
     {
         // empty
     }
@@ -76,7 +77,7 @@ public final class Tuple<K, V> {
      * @param key The key.
      * @param value The value.
      */
-    public Tuple( K key, V value ) 
+    public Tuple( K key, V value )
     {
         this.key = key;
         this.value = value;
@@ -86,7 +87,7 @@ public final class Tuple<K, V> {
     /**
      * Get the key.
      */
-    public K getKey() 
+    public K getKey()
     {
         return this.key;
     }
@@ -95,7 +96,7 @@ public final class Tuple<K, V> {
     /**
      * Set the key.
      */
-    public void setKey( K key ) 
+    public void setKey( K key )
     {
         this.key = key;
     }
@@ -104,7 +105,7 @@ public final class Tuple<K, V> {
     /**
      * Get the value.
      */
-    public V getValue() 
+    public V getValue()
     {
         return value;
     }
@@ -113,12 +114,12 @@ public final class Tuple<K, V> {
     /**
      * Set the value.
      */
-    public void setValue( V value ) 
+    public void setValue( V value )
     {
         this.value = value;
     }
-    
-    
+
+
     public String toString()
     {
         return "<" + key + "," + value + ">";

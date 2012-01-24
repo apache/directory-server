@@ -61,7 +61,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
-    
+
     /** A logger for the replication provider */
     private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
 
@@ -117,10 +117,11 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         journalFile = new File( logDir, "journalRepl." + replicaId );
         recman = new BaseRecordManager( journalFile.getAbsolutePath() );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        
-        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "replication", recman, comparator, 
+
+        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "replication", recman, comparator,
             new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
     }
 
@@ -134,8 +135,10 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     {
         try
         {
-            LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getChangeType() );
-            PROVIDER_LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(), message.getChangeType() );
+            LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(),
+                message.getChangeType() );
+            PROVIDER_LOG.debug( "logging entry with Dn {} with the event {}", message.getEntry().getDn(),
+                message.getChangeType() );
 
             String entryCsn = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
             journal.put( entryCsn, message );
@@ -178,7 +181,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     public void stop() throws Exception
     {
         PROVIDER_LOG.debug( "Stopping the EventLog for replicaId {}", replicaId );
-        
+
         // Close the producer and session, DO NOT close connection 
         if ( journal != null )
         {
@@ -227,7 +230,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         int result = 17;
         result = 31 * result + searchFilter.hashCode();
         result = 31 * result + hostName.hashCode();
-        
+
         return result;
     }
 

@@ -53,10 +53,10 @@ public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
             // Call the underlying layer to delete the entry 
             CoreSession coreSession = session.getCoreSession();
             coreSession.delete( req );
-            
+
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            
+
             // Write the DeleteResponse message
             session.getIoSession().write( req.getResultResponse() );
         }

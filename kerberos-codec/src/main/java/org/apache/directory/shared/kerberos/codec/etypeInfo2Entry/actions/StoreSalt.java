@@ -70,7 +70,7 @@ public class StoreSalt extends GrammarAction<ETypeInfo2EntryContainer>
             // The encrypted data may be null
             if ( value.getData() != null )
             {
-                String salt = Strings.utf8ToString(value.getData());
+                String salt = Strings.utf8ToString( value.getData() );
                 etypeInfo2Entry.setSalt( salt );
             }
         }

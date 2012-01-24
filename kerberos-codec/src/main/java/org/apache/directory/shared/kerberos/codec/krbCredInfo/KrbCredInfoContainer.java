@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbCredInfo;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.KrbCredInfo;
 
@@ -32,7 +33,8 @@ public class KrbCredInfoContainer extends AbstractContainer
 {
     /** An KrbCredInfo container */
     private KrbCredInfo krbCredInfo;
-    
+
+
     /**
      * Creates a new KrbCredInfoContainer object.
      */
@@ -53,7 +55,7 @@ public class KrbCredInfoContainer extends AbstractContainer
         return krbCredInfo;
     }
 
-    
+
     /**
      * Set a KrbCredInfo Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.paEncTsEnc;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 
@@ -32,6 +33,7 @@ public class PaEncTsEncContainer extends AbstractContainer
 {
     /** An PA-ENC-TS-ENC container */
     private PaEncTsEnc paEncTsEnc = new PaEncTsEnc();
+
 
     /**
      * Creates a new PaEncTsEncContainer object.
@@ -53,7 +55,7 @@ public class PaEncTsEncContainer extends AbstractContainer
         return paEncTsEnc;
     }
 
-    
+
     /**
      * Set an PaEncTsEnc Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -291,7 +291,7 @@ public class KerberosTestUtils
 
         // Obtain TGT
         LoginContext lc = new LoginContext( KerberosUdpITest.class.getName(), subject, new
-                CallbackHandlerBean( userName, password ) );
+            CallbackHandlerBean( userName, password ) );
         lc.login();
     }
 
@@ -379,15 +379,15 @@ public class KerberosTestUtils
                 GSSManager manager = GSSManager.getInstance();
                 GSSName clientName = manager.createName( userName, GSSName.NT_USER_NAME );
                 GSSCredential clientCred = manager.createCredential( clientName,
-                                                               8 * 3600,
-                                                               createKerberosOid(),
-                                                               GSSCredential.INITIATE_ONLY );
+                    8 * 3600,
+                    createKerberosOid(),
+                    GSSCredential.INITIATE_ONLY );
 
                 GSSName serverName = manager.createName( serviceName + "@" + hostName, GSSName.NT_HOSTBASED_SERVICE );
                 GSSContext context = manager.createContext( serverName,
-                                                      createKerberosOid(),
-                                                      clientCred,
-                                                      GSSContext.DEFAULT_LIFETIME );
+                    createKerberosOid(),
+                    clientCred,
+                    GSSContext.DEFAULT_LIFETIME );
                 context.requestMutualAuth( true );
                 context.requestConf( true );
                 context.requestInteg( true );

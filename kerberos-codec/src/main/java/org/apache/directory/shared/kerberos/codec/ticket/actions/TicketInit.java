@@ -40,6 +40,7 @@ public class TicketInit extends GrammarAction<TicketContainer>
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( TicketInit.class );
 
+
     /**
      * Instantiates a new TicketInit action.
      */

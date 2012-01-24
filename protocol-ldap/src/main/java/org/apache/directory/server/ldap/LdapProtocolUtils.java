@@ -29,6 +29,7 @@ import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Utility methods used by the LDAP protocol service.
  *
@@ -43,14 +44,15 @@ public class LdapProtocolUtils
     public static final String REPLICA_ID_PREFIX = "rid=";
 
     private static final int REPLICA_ID_PREFIX_LEN = REPLICA_ID_PREFIX.length();
-    
+
     /** the prefix for Csn value */
     public static final String CSN_PREFIX = "csn=";
 
     private static final int CSN_PREFIX_LEN = CSN_PREFIX.length();
-    
+
     private static final Logger LOG = LoggerFactory.getLogger( LdapProtocolUtils.class );
-    
+
+
     /**
      * Extracts request controls from a request to populate into an
      * OperationContext.
@@ -62,7 +64,8 @@ public class LdapProtocolUtils
     {
         if ( request.getControls() != null )
         {
-            opContext.addRequestControls( request.getControls().values().toArray( LdapProtocolConstants.EMPTY_CONTROLS ) );
+            opContext
+                .addRequestControls( request.getControls().values().toArray( LdapProtocolConstants.EMPTY_CONTROLS ) );
         }
     }
 
@@ -78,8 +81,8 @@ public class LdapProtocolUtils
     {
         response.addAllControls( opContext.getResponseControls() );
     }
-    
-    
+
+
     public static byte[] createCookie( int replicaId, String csn )
     {
         // the syncrepl cookie format (compatible with OpenLDAP)
@@ -99,18 +102,18 @@ public class LdapProtocolUtils
         {
             return false;
         }
-    
+
         int pos = cookieString.indexOf( COOKIE_DELIM );
-        
+
         // position should start from REPLICA_ID_PREFIX_LEN or higher cause a cookie can be
         // like "rid=0,csn={csn}" or "rid=11,csn={csn}"
-        if ( pos <= REPLICA_ID_PREFIX_LEN )  
+        if ( pos <= REPLICA_ID_PREFIX_LEN )
         {
             return false;
         }
-    
+
         String replicaId = cookieString.substring( REPLICA_ID_PREFIX_LEN, pos );
-        
+
         try
         {
             Integer.parseInt( replicaId );
@@ -120,14 +123,14 @@ public class LdapProtocolUtils
             LOG.debug( "Failed to parse the replica id {}", replicaId );
             return false;
         }
-    
+
         if ( pos == cookieString.length() )
         {
             return false;
         }
-    
+
         String csnString = cookieString.substring( pos + 1 + CSN_PREFIX_LEN );
-    
+
         return Csn.isValid( csnString );
     }
 
@@ -154,7 +157,7 @@ public class LdapProtocolUtils
     public static int getReplicaId( String cookieString )
     {
         String replicaId = cookieString.substring( REPLICA_ID_PREFIX_LEN, cookieString.indexOf( COOKIE_DELIM ) );
-        
+
         return Integer.parseInt( replicaId );
     }
 }

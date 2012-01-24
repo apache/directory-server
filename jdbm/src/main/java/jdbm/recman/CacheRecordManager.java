@@ -84,14 +84,14 @@ public class CacheRecordManager implements RecordManager
      * @param recordManager Wrapped RecordManager
      * @param cache Cache policy
      */
-    public CacheRecordManager( RecordManager recordManager, CachePolicy<Long,CacheEntry> cache )
+    public CacheRecordManager( RecordManager recordManager, CachePolicy<Long, CacheEntry> cache )
     {
-        if ( recordManager == null ) 
+        if ( recordManager == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
-        
-        if ( cache == null ) 
+
+        if ( cache == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_542 ) );
         }
@@ -101,7 +101,7 @@ public class CacheRecordManager implements RecordManager
         this.cache.addListener( new CacheListener() );
     }
 
-    
+
     /**
      * Get the underlying Record Manager.
      *
@@ -113,19 +113,19 @@ public class CacheRecordManager implements RecordManager
         return recordManager;
     }
 
-    
+
     /**
      * Get the underlying cache policy
      *
      * @return underlying CachePolicy or null if CacheRecordManager has
      *         been closed. 
      */
-    public CachePolicy<Long,CacheEntry> getCachePolicy()
+    public CachePolicy<Long, CacheEntry> getCachePolicy()
     {
         return cache;
     }
 
-    
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -137,8 +137,8 @@ public class CacheRecordManager implements RecordManager
     {
         return insert( obj, DefaultSerializer.INSTANCE );
     }
-        
-        
+
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -152,16 +152,16 @@ public class CacheRecordManager implements RecordManager
         checkIfClosed();
 
         long recid = recordManager.insert( obj, serializer );
-        
-        try 
+
+        try
         {
             cache.put( recid, new CacheEntry( recid, obj, serializer, false ) );
-        } 
-        catch ( CacheEvictionException except ) 
+        }
+        catch ( CacheEvictionException except )
         {
             throw new WrappedRuntimeException( except );
         }
-        
+
         return recid;
     }
 
@@ -178,7 +178,7 @@ public class CacheRecordManager implements RecordManager
 
         // Remove the entry from the underlying storage
         recordManager.delete( recid );
-        
+
         // And now update the cache
         cache.remove( recid );
     }
@@ -195,7 +195,7 @@ public class CacheRecordManager implements RecordManager
     {
         update( recid, obj, DefaultSerializer.INSTANCE );
     }
-    
+
 
     /**
      * Updates a record using a custom serializer.
@@ -209,22 +209,23 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        try {
+        try
+        {
             CacheEntry entry = cache.get( recid );
-            
-            if ( entry != null ) 
+
+            if ( entry != null )
             {
                 // reuse existing cache entry
                 entry.obj = obj;
                 entry.serializer = serializer;
                 entry.isDirty = true;
-            } 
-            else 
+            }
+            else
             {
                 cache.put( recid, new CacheEntry( recid, obj, serializer, true ) );
             }
-        } 
-        catch ( CacheEvictionException except ) 
+        }
+        catch ( CacheEvictionException except )
         {
             throw new IOException( except.getLocalizedMessage() );
         }
@@ -243,7 +244,7 @@ public class CacheRecordManager implements RecordManager
         return fetch( recid, DefaultSerializer.INSTANCE );
     }
 
-        
+
     /**
      * Fetches a record using a custom serializer.
      *
@@ -257,29 +258,29 @@ public class CacheRecordManager implements RecordManager
         checkIfClosed();
 
         CacheEntry entry = cache.get( recid );
-        
-        if ( entry == null ) 
+
+        if ( entry == null )
         {
             entry = new CacheEntry( recid, null, serializer, false );
             entry.obj = recordManager.fetch( recid, serializer );
-            
-            try 
+
+            try
             {
                 cache.put( recid, entry );
-            } 
-            catch ( CacheEvictionException except ) 
+            }
+            catch ( CacheEvictionException except )
             {
                 throw new WrappedRuntimeException( except );
             }
         }
-        
+
         if ( entry.obj instanceof byte[] )
         {
-            byte[] copy = new byte[ ( ( byte[] ) entry.obj ).length ];
+            byte[] copy = new byte[( ( byte[] ) entry.obj ).length];
             System.arraycopy( entry.obj, 0, copy, 0, ( ( byte[] ) entry.obj ).length );
             return copy;
         }
-        
+
         return entry.obj;
     }
 
@@ -394,25 +395,25 @@ public class CacheRecordManager implements RecordManager
      */
     private void checkIfClosed() throws IllegalStateException
     {
-        if ( recordManager == null ) 
+        if ( recordManager == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
 
-    
+
     /**
      * Update all dirty cache objects to the underlying RecordManager.
      */
     protected void updateCacheEntries() throws IOException
     {
         Enumeration<CacheEntry> enume = cache.elements();
-        
-        while ( enume.hasMoreElements() ) 
+
+        while ( enume.hasMoreElements() )
         {
             CacheEntry entry = enume.nextElement();
-            
-            if ( entry.isDirty ) 
+
+            if ( entry.isDirty )
             {
                 recordManager.update( entry.recid, entry.obj, entry.serializer );
                 entry.isDirty = false;
@@ -429,7 +430,8 @@ public class CacheRecordManager implements RecordManager
         Object obj;
         Serializer serializer;
         boolean isDirty;
-        
+
+
         CacheEntry( long recid, Object obj, Serializer serializer, boolean isDirty )
         {
             this.recid = recid;
@@ -437,13 +439,12 @@ public class CacheRecordManager implements RecordManager
             this.serializer = serializer;
             this.isDirty = isDirty;
         }
-        
+
     } // class CacheEntry
 
-    
     private class CacheListener implements CachePolicyListener<CacheEntry>
     {
-        
+
         /** 
          * Notification that cache is evicting an object
          *
@@ -452,13 +453,13 @@ public class CacheRecordManager implements RecordManager
         public void cacheObjectEvicted( CacheEntry obj ) throws CacheEvictionException
         {
             CacheEntry entry = obj;
-            if ( entry.isDirty ) 
+            if ( entry.isDirty )
             {
-                try 
+                try
                 {
                     recordManager.update( entry.recid, entry.obj, entry.serializer );
-                } 
-                catch ( IOException except ) 
+                }
+                catch ( IOException except )
                 {
                     throw new CacheEvictionException( except );
                 }

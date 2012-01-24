@@ -55,54 +55,121 @@ public class ApReqDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x6C );
-        
+
         stream.put( new byte[]
-        {
-          0x6E, 0x6A,
-            0x30, 0x68,
-              (byte)0xA0, 0x03,                 // pvno
-                0x02, 0x01, 0x05,
-              (byte)0xA1, 0x03,                 // msg-type
-                0x02, 0x01, 0x0E,
-              (byte)0xA2, 0x07,                 // APOptions
-                0x03, 0x05, 0x00, 0x60, 0x00, 0x00, 0x00,
-              (byte)0xA3, 0x40,                 // Ticket
-                0x61, 0x3E, 
-                  0x30, 0x3C, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x05, 
-                    (byte)0xA1, 0x0D, 
-                      0x1B, 0x0B, 
-                        'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-                    (byte)0xA2, 0x13, 
-                      0x30, 0x11, 
-                        (byte)0xA0, 0x03, 
-                          0x02, 0x01, 0x01, 
-                        (byte)0xA1, 0x0A, 
-                          0x30, 0x08, 
-                            0x1B, 0x06, 
-                              'c', 'l', 'i', 'e', 'n', 't', 
-                    (byte)0xA3, 0x11, 
-                      0x30, 0x0F, 
-                        (byte)0xA0, 0x03, 
-                          0x02, 0x01, 0x11, 
-                        (byte)0xA2, 0x08, 
-                          0x04, 0x06, 
-                            'a', 'b', 'c', 'd', 'e', 'f', 
-              (byte)0xA4, 0x11,                 // Authenticator
-                0x30, 0x0F, 
-                  (byte)0xA0, 0x03, 
-                    0x02, 0x01, 0x11, 
-                  (byte)0xA2, 0x08, 
-                    0x04, 0x06, 
-                      'a', 'b', 'c', 'd', 'e', 'f', 
-        });
+            {
+                0x6E, 0x6A,
+                0x30, 0x68,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x0E,
+                ( byte ) 0xA2,
+                0x07, // APOptions
+                0x03,
+                0x05,
+                0x00,
+                0x60,
+                0x00,
+                0x00,
+                0x00,
+                ( byte ) 0xA3,
+                0x40, // Ticket
+                0x61,
+                0x3E,
+                0x30,
+                0x3C,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D,
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x13,
+                0x30,
+                0x11,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0A,
+                0x30,
+                0x08,
+                0x1B,
+                0x06,
+                'c',
+                'l',
+                'i',
+                'e',
+                'n',
+                't',
+                ( byte ) 0xA3,
+                0x11,
+                0x30,
+                0x0F,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                ( byte ) 0xA4,
+                0x11, // Authenticator
+                0x30,
+                0x0F,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+        } );
 
         stream.flip();
 
         // Allocate a ApReq Container
         ApReqContainer apReqContainer = new ApReqContainer( stream );
-        
+
         // Decode the ApReq PDU
         try
         {
@@ -114,22 +181,22 @@ public class ApReqDecoderTest
         }
 
         ApReq apReq = apReqContainer.getApReq();
-        
+
         assertTrue( apReq instanceof ApReq );
-        
+
         // Check the encoding
         int length = apReq.computeLength();
 
         // Check the length
         assertEquals( 0x6C, length );
-        
+
         // Check the encoding
         ByteBuffer encodedPdu = ByteBuffer.allocate( length );
-        
+
         try
         {
             encodedPdu = apReq.encode( encodedPdu );
-    
+
             // Check the length
             assertEquals( 0x6C, encodedPdu.limit() );
         }
@@ -138,81 +205,148 @@ public class ApReqDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a ApReq message with a bad MsgType
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeFullApReqBadMsgType() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
-        
+
         stream.put( new byte[]
-        {
-            0x6E, 0x6A,
-            0x30, 0x68,
-              (byte)0xA0, 0x03,                 // pvno
-                0x02, 0x01, 0x05,
-              (byte)0xA1, 0x03,                 // msg-type (wrong...)
-                0x02, 0x01, 0x0D,
-              (byte)0xA2, 0x07,                 // APOptions
-                0x03, 0x05, 0x00, 0x60, 0x00, 0x00, 0x00,
-              (byte)0xA3, 0x40,                 // Ticket
-                0x61, 0x3E, 
-                  0x30, 0x3C, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x05, 
-                    (byte)0xA1, 0x0D, 
-                      0x1B, 0x0B, 
-                        'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-                    (byte)0xA2, 0x13, 
-                      0x30, 0x11, 
-                        (byte)0xA0, 0x03, 
-                          0x02, 0x01, 0x01, 
-                        (byte)0xA1, 0x0A, 
-                          0x30, 0x08, 
-                            0x1B, 0x06, 
-                              'c', 'l', 'i', 'e', 'n', 't', 
-                    (byte)0xA3, 0x11, 
-                      0x30, 0x0F, 
-                        (byte)0xA0, 0x03, 
-                          0x02, 0x01, 0x11, 
-                        (byte)0xA2, 0x08, 
-                          0x04, 0x06, 
-                            'a', 'b', 'c', 'd', 'e', 'f', 
-              (byte)0xA4, 0x11,                 // Authenticator
-                0x30, 0x0F, 
-                  (byte)0xA0, 0x03, 
-                    0x02, 0x01, 0x11, 
-                  (byte)0xA2, 0x08, 
-                    0x04, 0x06, 
-                      'a', 'b', 'c', 'd', 'e', 'f', 
-        });
+            {
+                0x6E, 0x6A,
+                0x30, 0x68,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type (wrong...)
+                0x02,
+                0x01,
+                0x0D,
+                ( byte ) 0xA2,
+                0x07, // APOptions
+                0x03,
+                0x05,
+                0x00,
+                0x60,
+                0x00,
+                0x00,
+                0x00,
+                ( byte ) 0xA3,
+                0x40, // Ticket
+                0x61,
+                0x3E,
+                0x30,
+                0x3C,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D,
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x13,
+                0x30,
+                0x11,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0A,
+                0x30,
+                0x08,
+                0x1B,
+                0x06,
+                'c',
+                'l',
+                'i',
+                'e',
+                'n',
+                't',
+                ( byte ) 0xA3,
+                0x11,
+                0x30,
+                0x0F,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                ( byte ) 0xA4,
+                0x11, // Authenticator
+                0x30,
+                0x0F,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+        } );
 
         stream.flip();
 
         // Allocate a ApReq Container
         ApReqContainer apReqContainer = new ApReqContainer( stream );
-        
+
         // Decode the ApReq PDU
         kerberosDecoder.decode( stream, apReqContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a AP-REQ with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testApReqEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x6A, 0x00 } );
 

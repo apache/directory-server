@@ -33,14 +33,13 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum AsReqStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- HostAddresses message --------------------------------------
-    AS_REQ_STATE,                           // 1
+    AS_REQ_STATE, // 1
 
     // End
-    LAST_AS_REQ_STATE;                      // 2
-
+    LAST_AS_REQ_STATE; // 2
 
     /**
      * Get the grammar name

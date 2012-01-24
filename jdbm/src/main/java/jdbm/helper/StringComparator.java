@@ -46,10 +46,12 @@
 
 package jdbm.helper;
 
+
 import java.io.Serializable;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Comparator for String objects.  Delegates to String.compareTo().
@@ -74,17 +76,19 @@ public final class StringComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( String obj1, String obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( String obj1, String obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
         return obj1.compareTo( obj2 );
-     }
+    }
 
 }

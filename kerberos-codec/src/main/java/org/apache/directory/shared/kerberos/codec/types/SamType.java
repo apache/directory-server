@@ -20,8 +20,6 @@
 package org.apache.directory.shared.kerberos.codec.types;
 
 
-
-
 /**
  * Type safe enumeration of Single-use Authentication Mechanism types
  *
@@ -35,25 +33,25 @@ public enum SamType
      */
 
     /** safe SAM type enum for Enigma Logic */
-    PA_SAM_TYPE_ENIGMA ( 1, "Enigma Logic" ),
+    PA_SAM_TYPE_ENIGMA(1, "Enigma Logic"),
 
     /** safe SAM type enum for Digital Pathways */
-    PA_SAM_TYPE_DIGI_PATH ( 2, "Digital Pathways" ),
+    PA_SAM_TYPE_DIGI_PATH(2, "Digital Pathways"),
 
     /** safe SAM type enum for S/key where KDC has key 0 */
-    PA_SAM_TYPE_SKEY_K0 ( 3, "S/key where KDC has key 0" ),
+    PA_SAM_TYPE_SKEY_K0(3, "S/key where KDC has key 0"),
 
     /** safe SAM type enum for Traditional S/Key */
-    PA_SAM_TYPE_SKEY ( 4, "Traditional S/Key" ),
+    PA_SAM_TYPE_SKEY(4, "Traditional S/Key"),
 
     /** safe SAM type enum for Security Dynamics */
-    PA_SAM_TYPE_SECURID ( 5, "Security Dynamics" ),
+    PA_SAM_TYPE_SECURID(5, "Security Dynamics"),
 
     /** safe SAM type enum for CRYPTOCard */
-    PA_SAM_TYPE_CRYPTOCARD ( 6, "CRYPTOCard" ),
+    PA_SAM_TYPE_CRYPTOCARD(6, "CRYPTOCard"),
 
     /** safe SAM type enum for Apache Software Foundation */
-    PA_SAM_TYPE_APACHE ( 7, "Apache Software Foundation" );
+    PA_SAM_TYPE_APACHE(7, "Apache Software Foundation");
 
     /** the name of the sam type */
     private String name;
@@ -91,7 +89,7 @@ public enum SamType
      */
     public static SamType getTypeByOrdinal( int ordinal )
     {
-        for ( SamType st : SamType.values())
+        for ( SamType st : SamType.values() )
         {
             if ( ordinal == st.getOrdinal() )
             {

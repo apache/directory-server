@@ -95,18 +95,18 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 throw new IllegalArgumentException( "Partition path cannot be null" );
             }
-    
+
             File partitionFile = new File( getPartitionPath() );
-            
+
             if ( partitionFile.exists() && !partitionFile.isFile() )
             {
                 throw new IllegalArgumentException( "Partition path must be a LDIF file" );
             }
-    
+
             ldifFile = new RandomAccessFile( partitionFile, "rws" );
-    
+
             LOG.debug( "id is : {}", getId() );
-    
+
             // Initialize the suffixDirectory : it's a composition
             // of the workingDirectory followed by the suffix
             if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
@@ -115,14 +115,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 LOG.error( msg );
                 throw new LdapInvalidDnException( msg );
             }
-    
+
             if ( !suffixDn.isSchemaAware() )
             {
                 suffixDn.apply( schemaManager );
             }
-    
+
             super.doInit();
-            
+
             loadEntries();
         }
     }
@@ -202,7 +202,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             try
             {
-                Entry modifiedEntry = super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+                Entry modifiedEntry = super.modify( modifyContext.getDn(),
+                    modifyContext.getModItems().toArray( new Modification[]
+                        {} ) );
                 modifyContext.setAlteredEntry( modifiedEntry );
             }
             catch ( Exception e )
@@ -291,13 +293,12 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 Long suffixId = getEntryId( suffixDn );
 
-                if( suffixId == null )
+                if ( suffixId == null )
                 {
                     return;
                 }
-                
-                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
 
+                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
 
                 appendLdif( lookup( suffixId ) );
 
@@ -391,7 +392,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         synchronized ( lock )
         {
             String ldif = LdifUtils.convertToLdif( entry );
-            ldifFile.write( Strings.getBytesUtf8(ldif + "\n") );
+            ldifFile.write( Strings.getBytesUtf8( ldif + "\n" ) );
         }
     }
 
@@ -461,7 +462,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         ldifFile.close();
     }
 
-    
+
     /**
      * enable/disable the re-writing of partition data.
      * This method internally calls the @see {@link #rewritePartitionData()} to save any dirty data if present

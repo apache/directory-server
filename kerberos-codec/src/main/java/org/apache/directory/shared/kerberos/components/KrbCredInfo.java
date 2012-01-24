@@ -176,7 +176,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( pRealm != null )
         {
-            pRealmBytes = Strings.getBytesUtf8(pRealm);
+            pRealmBytes = Strings.getBytesUtf8( pRealm );
             pRealmLen = 1 + TLV.getNbBytes( pRealmBytes.length ) + pRealmBytes.length;
             krbKredInfoSeqLen += 1 + TLV.getNbBytes( pRealmLen ) + pRealmLen;
         }
@@ -224,7 +224,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( sRealm != null )
         {
-            sRealmBytes = Strings.getBytesUtf8(sRealm);
+            sRealmBytes = Strings.getBytesUtf8( sRealm );
             sRealmLen = 1 + TLV.getNbBytes( sRealmBytes.length ) + sRealmBytes.length;
             krbKredInfoSeqLen += 1 + TLV.getNbBytes( sRealmLen ) + sRealmLen;
         }
@@ -373,7 +373,7 @@ public class KrbCredInfo extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbCredInfo encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "KrbCredInfo encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "KrbCredInfo initial value : {}", toString() );
         }
 

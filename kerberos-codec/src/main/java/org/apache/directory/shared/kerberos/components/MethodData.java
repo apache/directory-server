@@ -66,7 +66,7 @@ public class MethodData extends AbstractAsn1Object
     {
         this.paDatas = new ArrayList<PaData>();
     }
-    
+
 
     /**
      * Adds an {@link PaData} to the list
@@ -102,17 +102,17 @@ public class MethodData extends AbstractAsn1Object
     public int hashCode()
     {
         int hash = 37;
-        
+
         if ( paDatas != null )
         {
             hash = hash * 17 + paDatas.size();
-            
+
             for ( PaData paData : paDatas )
             {
                 hash = hash * 17 + paData.hashCode();
             }
         }
-        
+
         return hash;
     }
 
@@ -125,11 +125,11 @@ public class MethodData extends AbstractAsn1Object
      */
     public boolean equals( MethodData that )
     {
-        if ( that == null ) 
+        if ( that == null )
         {
             return false;
         }
-        
+
         // infoEntries can't be null after creation
         if ( paDatas.size() != that.paDatas.size() )
         {
@@ -241,7 +241,7 @@ public class MethodData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "METHOD-DATA encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "METHOD-DATA encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "METHOD-DATA initial value : {}", toString() );
         }
 
@@ -256,7 +256,7 @@ public class MethodData extends AbstractAsn1Object
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
-        
+
         sb.append( "METHOD-DATA : " );
 
         for ( PaData paData : paDatas )

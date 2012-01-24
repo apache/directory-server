@@ -34,6 +34,7 @@ import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the EncryptedData encoding and decoding
  * 
@@ -54,17 +55,17 @@ public class EncryptedDataTest
         ed.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-                0x30, 0x12, 
-                  ( byte ) 0xA0, 0x03, 
-                    0x02, 0x01, 0x11, 
-                  ( byte ) 0xA1, 0x03, 
-                    0x02, 0x01, 0x01, 
-                  ( byte ) 0xA2, 0x06, 
-                    0x04, 0x04, 0x01, 0x02, 0x03, 0x04 
-            };
+            {
+                0x30, 0x12,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA1, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA2, 0x06,
+                0x04, 0x04, 0x01, 0x02, 0x03, 0x04
+        };
 
-        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
+        assertEquals( Strings.dumpBytes( expectedResult ), Strings.dumpBytes( encoded.array() ) );
     }
 
 
@@ -78,15 +79,15 @@ public class EncryptedDataTest
         ed.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0E, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA1, 0x03, 
-                  0x02, 0x01, 0x01, 
-                ( byte ) 0xA2, 0x02, 
-                  0x04, 0x00 
-            };
+            {
+                0x30, 0x0E,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA1, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA2, 0x02,
+                0x04, 0x00
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -103,13 +104,13 @@ public class EncryptedDataTest
         ed.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0D, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA2, 0x06, 
-                  0x04, 0x04, 0x01, 0x02, 0x03, 0x04 
-            };
+            {
+                0x30, 0x0D,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x06,
+                0x04, 0x04, 0x01, 0x02, 0x03, 0x04
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -125,13 +126,13 @@ public class EncryptedDataTest
         ed.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x09, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA2, 0x02, 
-                  0x04, 0x00 
-            };
+            {
+                0x30, 0x09,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x02,
+                0x04, 0x00
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }

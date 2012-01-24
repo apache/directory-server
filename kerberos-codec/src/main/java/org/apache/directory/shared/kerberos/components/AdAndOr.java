@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -32,6 +33,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The AdAndOr structure is used to store a AD-AND-OR associated to a type.
@@ -55,7 +57,7 @@ public class AdAndOr extends AbstractAsn1Object
 
     /** The condition-count */
     private int conditionCount;
-    
+
     /** The elements */
     private AuthorizationData elements;
 
@@ -63,6 +65,7 @@ public class AdAndOr extends AbstractAsn1Object
     private int conditionCountTagLength;
     private int elementsTagLength;
     private int adAndOrSeqLength;
+
 
     /**
      * Creates a new instance of AdAndOr
@@ -80,7 +83,7 @@ public class AdAndOr extends AbstractAsn1Object
         return conditionCount;
     }
 
-    
+
     /**
      * @param conditionCount the conditionCount to set
      */
@@ -89,7 +92,7 @@ public class AdAndOr extends AbstractAsn1Object
         this.conditionCount = conditionCount;
     }
 
-    
+
     /**
      * @return the elements
      */
@@ -98,7 +101,7 @@ public class AdAndOr extends AbstractAsn1Object
         return elements;
     }
 
-    
+
     /**
      * @param elements the elements to set
      */
@@ -106,8 +109,8 @@ public class AdAndOr extends AbstractAsn1Object
     {
         this.elements = elements;
     }
-    
-    
+
+
     /**
      * Compute the AD-AND-OR length
      * <pre>
@@ -128,11 +131,11 @@ public class AdAndOr extends AbstractAsn1Object
         // Compute the condition count length
         int conditionCountLength = Value.getNbBytes( conditionCount );
         conditionCountTagLength = 1 + TLV.getNbBytes( conditionCountLength ) + conditionCountLength;
-        adAndOrSeqLength = 1 + TLV.getNbBytes( conditionCountTagLength ) + conditionCountTagLength; 
+        adAndOrSeqLength = 1 + TLV.getNbBytes( conditionCountTagLength ) + conditionCountTagLength;
 
         // Compute the elements length
         elementsTagLength = elements.computeLength();
-        adAndOrSeqLength += 1 + TLV.getNbBytes( elementsTagLength ) + elementsTagLength; 
+        adAndOrSeqLength += 1 + TLV.getNbBytes( elementsTagLength ) + elementsTagLength;
 
         // Compute the whole sequence length
         return 1 + TLV.getNbBytes( adAndOrSeqLength ) + adAndOrSeqLength;
@@ -159,16 +162,16 @@ public class AdAndOr extends AbstractAsn1Object
             // The AD-AND-OR SEQ OF Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( adAndOrSeqLength ) );
-            
+
             // the condition-count
             buffer.put( ( byte ) KerberosConstants.AD_AND_OR_CONDITION_COUNT_TAG );
-            buffer.put( (byte)conditionCountTagLength );
+            buffer.put( ( byte ) conditionCountTagLength );
             Value.encode( buffer, conditionCount );
 
             // the elements
             buffer.put( ( byte ) KerberosConstants.AD_AND_OR_ELEMENTS_TAG );
-            buffer.put( (byte)elementsTagLength );
-            
+            buffer.put( ( byte ) elementsTagLength );
+
             elements.encode( buffer );
         }
         catch ( BufferOverflowException boe )
@@ -180,7 +183,7 @@ public class AdAndOr extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AD-AND-OR encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "AD-AND-OR encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "AD-AND-OR initial value : {}", toString() );
         }
 

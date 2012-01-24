@@ -42,7 +42,7 @@ public class SamException extends Exception
      *
      * @param type the type value for the SAM algorithm associated with this exception
      */
-    public SamException(SamType type)
+    public SamException( SamType type )
     {
         super();
 
@@ -56,7 +56,7 @@ public class SamException extends Exception
      * @param type the type value for the SAM algorithm associated with this exception
      * @param message a message regarding the nature of the fault
      */
-    public SamException(SamType type, String message)
+    public SamException( SamType type, String message )
     {
         super( message );
 
@@ -71,7 +71,7 @@ public class SamException extends Exception
      * @param type the type value for the SAM algorithm associated with this exception
      * @param cause the throwable that resulted in this exception being thrown
      */
-    public SamException(SamType type, Throwable cause)
+    public SamException( SamType type, Throwable cause )
     {
         super( cause );
 
@@ -88,7 +88,7 @@ public class SamException extends Exception
      * @param message a message regarding the nature of the fault
      * @param cause the throwable that resulted in this exception being thrown
      */
-    public SamException(SamType type, String message, Throwable cause)
+    public SamException( SamType type, String message, Throwable cause )
     {
         super( message, cause );
 

@@ -118,7 +118,7 @@ public class KrbSafe extends KerberosMessage
         this.checksum = checksum;
     }
 
-    
+
     /**
      * Compute the KRB-SAFE length
      * <pre>
@@ -216,14 +216,12 @@ public class KrbSafe extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbSafe encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "KrbSafe encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "KrbSafe initial value : {}", toString() );
         }
 
         return buffer;
     }
-    
-    
 
 
     /**

@@ -47,7 +47,6 @@
 package jdbm.recman;
 
 
-
 /**
  *  This is a marker interface that is implemented by classes that
  *  interpret blocks of data by pretending to be an overlay.

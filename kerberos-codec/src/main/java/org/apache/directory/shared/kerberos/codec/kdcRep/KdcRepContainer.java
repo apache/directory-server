@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.kdcRep;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class KdcRepContainer extends AbstractContainer
 {
     /** An KDC-REP container */
     private KdcRep kdcRep;
-    
+
+
     /**
      * Creates a new KdcReqContainer object.
      * @param stream The stream containing the data to decode
@@ -56,7 +58,7 @@ public class KdcRepContainer extends AbstractContainer
         return kdcRep;
     }
 
-    
+
     /**
      * Set a KdcRep Object into the container. It will be completed by the
      * KerberosDecoder.

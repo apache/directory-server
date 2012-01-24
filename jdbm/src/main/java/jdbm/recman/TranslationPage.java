@@ -47,41 +47,40 @@
 package jdbm.recman;
 
 
-
 /**
  * Class describing a page that holds translations from physical rowids
  * to logical rowids. In fact, the page just holds physical rowids - the
  * page's block is the block for the logical rowid, the offset serve
  * as offset for the rowids.
  */
-final class TranslationPage extends PageHeader 
+final class TranslationPage extends PageHeader
 {
     /** Offset of the PageHeader */
     static final short O_TRANS = PageHeader.SIZE; // short count
-    
+
     /** Number of PhysicalRowId in this page */
     static final short ELEMS_PER_PAGE = ( RecordFile.BLOCK_SIZE - O_TRANS ) / PhysicalRowId.SIZE;
-    
+
     /** The table of PhysicalRowId */
     final PhysicalRowId[] slots = new PhysicalRowId[ELEMS_PER_PAGE];
 
-    
+
     /**
      * Constructs a data page view from the indicated block.
      */
-    TranslationPage( BlockIo blockIo ) 
+    TranslationPage( BlockIo blockIo )
     {
         super( blockIo );
     }
-    
+
 
     /**
      * Factory method to create or return a data page for the indicated block.
      */
-    static TranslationPage getTranslationPageView( BlockIo blockIo ) 
+    static TranslationPage getTranslationPageView( BlockIo blockIo )
     {
         BlockView view = blockIo.getView();
-        
+
         if ( ( view != null ) && view instanceof TranslationPage )
         {
             return ( TranslationPage ) view;
@@ -91,45 +90,45 @@ final class TranslationPage extends PageHeader
             return new TranslationPage( blockIo );
         }
     }
-    
+
 
     /** Returns the value of the indicated rowid on the page */
-    PhysicalRowId get( short offset ) 
+    PhysicalRowId get( short offset )
     {
         int slot = ( offset - O_TRANS ) / PhysicalRowId.SIZE;
-        
+
         if ( slots[slot] == null )
         {
             slots[slot] = new PhysicalRowId( blockIo, offset );
         }
-        
+
         return slots[slot];
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "TranslationPage ( " );
-        
+
         // The blockIO
         sb.append( super.toString() ).append( ", " );
-        
+
         // Dump the Physical row id
         for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
         {
             if ( slots[i] != null )
             {
                 sb.append( ", [" ).append( i ).append( "]=<" ).
-                append( slots[i].getBlock() ).append( ", " ).
-                append( slots[i].getOffset() ).append( ">" );
+                    append( slots[i].getBlock() ).append( ", " ).
+                    append( slots[i].getOffset() ).append( ">" );
             }
         }
-        
+
         sb.append( ")" );
         return sb.toString();
     }

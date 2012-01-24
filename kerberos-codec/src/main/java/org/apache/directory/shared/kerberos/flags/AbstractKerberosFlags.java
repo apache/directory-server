@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.flags;
 
+
 import org.apache.directory.shared.asn1.util.BitString;
 
 
@@ -78,10 +79,10 @@ public abstract class AbstractKerberosFlags extends BitString
         // The first byte contains the number of unused bytes, 0 here as we store 32 bits
         bytes[0] = 0;
 
-        bytes[1] = (byte)(value >> 24);
-        bytes[3] = (byte)( (value >> 16) & 0x00FF );
-        bytes[3] = (byte)( (value >> 8) & 0x00FF );
-        bytes[4] = (byte)(value & 0x00FF);
+        bytes[1] = ( byte ) ( value >> 24 );
+        bytes[3] = ( byte ) ( ( value >> 16 ) & 0x00FF );
+        bytes[3] = ( byte ) ( ( value >> 8 ) & 0x00FF );
+        bytes[4] = ( byte ) ( value & 0x00FF );
 
         super.setData( bytes );
         this.value = value;
@@ -100,7 +101,8 @@ public abstract class AbstractKerberosFlags extends BitString
             throw new IllegalArgumentException( "The given flags is not correct" );
         }
 
-        value = ( ( flags[1] & 0x00FF ) << 24 ) | ( ( flags[2] & 0x00FF ) << 16 ) | ( ( flags[3] & 0x00FF ) << 8 ) | ( 0x00FF & flags[4] );
+        value = ( ( flags[1] & 0x00FF ) << 24 ) | ( ( flags[2] & 0x00FF ) << 16 ) | ( ( flags[3] & 0x00FF ) << 8 )
+            | ( 0x00FF & flags[4] );
     }
 
 

@@ -49,7 +49,7 @@ public class ServerIdentifier extends AddressOption
     }
 
 
-    public ServerIdentifier(InetAddress localHost)
+    public ServerIdentifier( InetAddress localHost )
     {
         setAddress( localHost );
     }

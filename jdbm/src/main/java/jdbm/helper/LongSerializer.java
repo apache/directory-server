@@ -46,21 +46,22 @@
 
 package jdbm.helper;
 
+
 import java.io.IOException;
+
 
 /**
  * Optimized serializer for long integers.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
-public class LongSerializer 
+public class LongSerializer
     implements Serializer
 {
 
-    
     public static final LongSerializer INSTANCE = new LongSerializer();
-    
-    
+
+
     /**
      * Construct a LongSerializer.
      */
@@ -69,32 +70,32 @@ public class LongSerializer
         // no op
     }
 
-    
+
     /**
      * Serialize the content of an object into a byte array.
      *
      * @param obj Object to serialize
      * @return a byte array representing the object's state
      */
-     public byte[] serialize( Object obj )
+    public byte[] serialize( Object obj )
         throws IOException
-     {
-         Long number = (Long) obj;
-         return Conversion.convertToByteArray( number.longValue() );
-     }
-        
-        
+    {
+        Long number = ( Long ) obj;
+        return Conversion.convertToByteArray( number.longValue() );
+    }
+
+
     /**
      * Deserialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
      * @return deserialized object
      */
-     public Object deserialize( byte[] serialized )
+    public Object deserialize( byte[] serialized )
         throws IOException
-     {
-         long number = Conversion.convertToLong( serialized );
-         return Long.valueOf( number );
-     }
+    {
+        long number = Conversion.convertToLong( serialized );
+        return Long.valueOf( number );
+    }
 
 }

@@ -33,48 +33,47 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KdcReqBodyStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- KDC-REQ-BODY message --------------------------------------
-    KDC_REQ_BODY_SEQ_STATE,                     // 1
+    KDC_REQ_BODY_SEQ_STATE, // 1
 
-    KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE,         // 2
-    KDC_REQ_BODY_KDC_OPTIONS_STATE,             // 3
+    KDC_REQ_BODY_KDC_OPTIONS_TAG_STATE, // 2
+    KDC_REQ_BODY_KDC_OPTIONS_STATE, // 3
 
-    KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE,      // 4
-    KDC_REQ_BODY_CNAME_STATE,                   // 5
+    KDC_REQ_BODY_CNAME_OR_REALM_TAG_STATE, // 4
+    KDC_REQ_BODY_CNAME_STATE, // 5
 
-    KDC_REQ_BODY_REALM_TAG_STATE,               // 6
+    KDC_REQ_BODY_REALM_TAG_STATE, // 6
 
-    KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE,// 7
-    KDC_REQ_BODY_SNAME_STATE,                   // 8
+    KDC_REQ_BODY_SNAME_OR_FROM_OR_TILL_TAG_STATE, // 7
+    KDC_REQ_BODY_SNAME_STATE, // 8
 
-    KDC_REQ_BODY_FROM_STATE,                    // 9
+    KDC_REQ_BODY_FROM_STATE, // 9
 
-    KDC_REQ_BODY_TILL_TAG_STATE,                // 10
-    KDC_REQ_BODY_TILL_STATE,                    // 11
+    KDC_REQ_BODY_TILL_TAG_STATE, // 10
+    KDC_REQ_BODY_TILL_STATE, // 11
 
-    KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE,      // 12
-    KDC_REQ_BODY_RTIME_STATE,                   // 13
+    KDC_REQ_BODY_RTIME_OR_NONCE_TAG_STATE, // 12
+    KDC_REQ_BODY_RTIME_STATE, // 13
 
-    KDC_REQ_BODY_NONCE_TAG_STATE,               // 14
-    KDC_REQ_BODY_NONCE_STATE,                   // 15
+    KDC_REQ_BODY_NONCE_TAG_STATE, // 14
+    KDC_REQ_BODY_NONCE_STATE, // 15
 
-    KDC_REQ_BODY_ETYPE_TAG_STATE,               // 16
-    KDC_REQ_BODY_ETYPE_SEQ_STATE,               // 17
-    KDC_REQ_BODY_ETYPE_STATE,                   // 18
+    KDC_REQ_BODY_ETYPE_TAG_STATE, // 16
+    KDC_REQ_BODY_ETYPE_SEQ_STATE, // 17
+    KDC_REQ_BODY_ETYPE_STATE, // 18
 
-    KDC_REQ_BODY_ADDRESSES_STATE,               // 19
+    KDC_REQ_BODY_ADDRESSES_STATE, // 19
 
-    KDC_REQ_BODY_ENC_AUTH_DATA_STATE,           // 20
+    KDC_REQ_BODY_ENC_AUTH_DATA_STATE, // 20
 
-    KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE,  // 21
-    KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE,  // 22
-    KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE,      // 23
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG_STATE, // 21
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_SEQ_STATE, // 22
+    KDC_REQ_BODY_ADDITIONAL_TICKETS_STATE, // 23
 
     // End
-    LAST_KDC_REQ_BODY_STATE;                    // 24
-
+    LAST_KDC_REQ_BODY_STATE; // 24
 
     /**
      * Get the grammar name

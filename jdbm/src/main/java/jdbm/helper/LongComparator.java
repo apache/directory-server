@@ -46,10 +46,12 @@
 
 package jdbm.helper;
 
+
 import java.io.Serializable;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Comparator for java.lang.Long objects.
@@ -74,26 +76,33 @@ public final class LongComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Long obj1, Long obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( Long obj1, Long obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
         long l1 = obj1.longValue();
         long l2 = obj2.longValue();
 
-        if ( l1 > l2 ) {
+        if ( l1 > l2 )
+        {
             return 1;
-        } else if ( l1 == l2 ) {
+        }
+        else if ( l1 == l2 )
+        {
             return 0;
-        } else {
+        }
+        else
+        {
             return -1;
         }
-     }
+    }
 
 }

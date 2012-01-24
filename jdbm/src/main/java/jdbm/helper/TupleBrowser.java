@@ -46,7 +46,9 @@
 
 package jdbm.helper;
 
+
 import java.io.IOException;
+
 
 /**
  * Browser to traverse a collection of tuples.  The browser allows for
@@ -54,7 +56,8 @@ import java.io.IOException;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
-public abstract class TupleBrowser<K, V> {
+public abstract class TupleBrowser<K, V>
+{
     /**
      * Get the next tuple.
      *
@@ -73,11 +76,13 @@ public abstract class TupleBrowser<K, V> {
      *         no previous tuple.
      */
     public abstract boolean getPrevious( Tuple<K, V> tuple ) throws IOException;
-    
-    
+
+
     /**
      * Closes the browser and deallocates any resources it might have allocated.
      * Repeated calls of close are OK.
      */
-    public void close() {}
+    public void close()
+    {
+    }
 }

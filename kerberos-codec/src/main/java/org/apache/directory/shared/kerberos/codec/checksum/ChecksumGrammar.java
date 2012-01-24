@@ -118,7 +118,8 @@ public final class ChecksumGrammar extends AbstractGrammar<ChecksumContainer>
         // --------------------------------------------------------------------------------------------
         // Checksum      ::= SEQUENCE {
         //          checksum        [1] OCTET STRING
-        super.transitions[ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] =
+        super.transitions[ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING
+            .getValue()] =
             new GrammarTransition<ChecksumContainer>(
                 ChecksumStatesEnum.CHECKSUM_CHECKSUM_TAG_STATE,
                 ChecksumStatesEnum.CHECKSUM_CHECKSUM_STATE,

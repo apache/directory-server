@@ -33,32 +33,31 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KdcRepStatesEnum implements States
 {
     // Start
-    START_STATE,                           // 0
+    START_STATE, // 0
 
     // ----- KDC-REP component --------------------------------------
-    KDC_REP_SEQ_STATE,                     // 1
+    KDC_REP_SEQ_STATE, // 1
 
-    KDC_REP_PVNO_TAG_STATE,                // 2
-    KDC_REP_PVNO_STATE,                    // 3
+    KDC_REP_PVNO_TAG_STATE, // 2
+    KDC_REP_PVNO_STATE, // 3
 
-    KDC_REP_MSG_TYPE_TAG_STATE,            // 4
-    KDC_REP_MSG_TYPE_STATE,                // 5
+    KDC_REP_MSG_TYPE_TAG_STATE, // 4
+    KDC_REP_MSG_TYPE_STATE, // 5
 
-    KDC_REP_PA_DATA_TAG_STATE,             // 6
-    KDC_REP_PA_DATA_STATE,                 // 7
+    KDC_REP_PA_DATA_TAG_STATE, // 6
+    KDC_REP_PA_DATA_STATE, // 7
 
-    KDC_REP_CREALM_TAG_STATE,              // 8
-    KDC_REP_CREALM_STATE,                  // 9
+    KDC_REP_CREALM_TAG_STATE, // 8
+    KDC_REP_CREALM_STATE, // 9
 
-    KDC_REP_CNAME_STATE,                   // 10
+    KDC_REP_CNAME_STATE, // 10
 
-    KDC_REP_TICKET_STATE,                  // 11
+    KDC_REP_TICKET_STATE, // 11
 
-    KDC_REP_ENC_PART_STATE,                // 12
+    KDC_REP_ENC_PART_STATE, // 12
 
     // End
-    LAST_KDC_REP_STATE;                    // 13
-
+    LAST_KDC_REP_STATE; // 13
 
     /**
      * Get the grammar name

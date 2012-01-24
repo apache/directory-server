@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
@@ -36,15 +37,16 @@ public class KerberosMessageContainer extends AbstractContainer
 {
     /** The internal kerberos message */
     private KerberosMessage message;
-    
+
     /** A PrincipalName container */
     private PrincipalName principalName;
-    
+
     /** A flag used when the protocol used to transfer the PDU is TCP */
     private boolean isTCP;
-    
+
     /** When the connection is using a TCP protocol, the PDU length */
     private int tcpLength = -1;
+
 
     /**
      * Creates a new KerberosMessageContainer object. We will store ten grammars,
@@ -67,7 +69,7 @@ public class KerberosMessageContainer extends AbstractContainer
         return message;
     }
 
-    
+
     /**
      * Set a Message Object into the container. It will be completed by the
      * KerberosDecoder.
@@ -85,7 +87,7 @@ public class KerberosMessageContainer extends AbstractContainer
      */
     public Ticket getTicket()
     {
-        return (Ticket)message;
+        return ( Ticket ) message;
     }
 
 
@@ -97,7 +99,7 @@ public class KerberosMessageContainer extends AbstractContainer
         return principalName;
     }
 
-    
+
     /**
      * Set a PrincipalName Object into the container. It will be completed by the
      * KerberosDecoder.

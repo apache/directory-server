@@ -76,7 +76,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
                 KerberosConstants.ENC_KRB_CRED_PART_TAG,
                 new EncKrbCredPartInit() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TAG_STATE.ordinal()][UniversalTag.SEQUENCE
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_SEQ_TAG_STATE,
@@ -90,14 +91,16 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
                 KerberosConstants.ENC_KRB_CRED_TICKET_INFO_TAG,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE.ordinal()][UniversalTag.SEQUENCE
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
                 UniversalTag.SEQUENCE,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE.ordinal()][UniversalTag.SEQUENCE
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TICKET_INFO_STATE,
@@ -111,7 +114,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
                 KerberosConstants.ENC_KRB_CRED_PART_NONCE_TAG,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_NONCE_STATE,
@@ -125,7 +129,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
                 KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_TIMESTAMP_STATE,
@@ -139,7 +144,8 @@ public final class EncKrbCredPartGrammar extends AbstractGrammar<EncKrbCredPartC
                 KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG,
                 new CheckNotNullLength<EncKrbCredPartContainer>() );
 
-        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<EncKrbCredPartContainer>(
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_TAG_STATE,
                 EncKrbCredPartStatesEnum.ENC_KRB_CRED_PART_USEC_STATE,

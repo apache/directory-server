@@ -49,20 +49,19 @@ public enum KerberosMessageStatesEnum implements States
 
     // ----- Kerberos message --------------------------------------------
 
-    AS_REQ_STATE,       // 0x6A
-    AS_REP_TAG_STATE,   // 0x6B
-    TGS_REQ_TAG_STATE,  // 0x6C
-    TGS_REP_TAG_STATE,  // 0x6D
-    AP_REQ_TAG_STATE,   // 0x6E
-    AP_REP_TAG_STATE,   // 0x6F
-    KRB_SAFE_STATE,     // 0x74
-    KRB_PRIV_STATE,     // 0x75
-    KRB_CRED_STATE,     // 0x76
-    KRB_ERROR_STATE,    // 0x7E
+    AS_REQ_STATE, // 0x6A
+    AS_REP_TAG_STATE, // 0x6B
+    TGS_REQ_TAG_STATE, // 0x6C
+    TGS_REP_TAG_STATE, // 0x6D
+    AP_REQ_TAG_STATE, // 0x6E
+    AP_REP_TAG_STATE, // 0x6F
+    KRB_SAFE_STATE, // 0x74
+    KRB_PRIV_STATE, // 0x75
+    KRB_CRED_STATE, // 0x76
+    KRB_ERROR_STATE, // 0x7E
 
     // End
     LAST_KERBEROS_MESSAGE_STATE;
-
 
     /**
      * Get the grammar name

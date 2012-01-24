@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.dhcp.protocol;
 
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -33,6 +34,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Implementation of a DHCP protocol handler which delegates the work of
  * generating replys to a DhcpService implementation.
@@ -40,9 +42,10 @@ import org.slf4j.LoggerFactory;
  * @see org.apache.directory.server.dhcp.service.DhcpService
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DhcpProtocolHandler implements IoHandler {
+public class DhcpProtocolHandler implements IoHandler
+{
     private static final Logger logger = LoggerFactory
-            .getLogger(DhcpProtocolHandler.class);
+        .getLogger( DhcpProtocolHandler.class );
 
     /**
      * Default DHCP client port
@@ -60,57 +63,73 @@ public class DhcpProtocolHandler implements IoHandler {
      */
     private final DhcpService dhcpService;
 
+
     /**
      * 
      */
-    public DhcpProtocolHandler(DhcpService service) {
+    public DhcpProtocolHandler( DhcpService service )
+    {
         this.dhcpService = service;
     }
 
-    public void sessionCreated(IoSession session) throws Exception {
-        logger.debug("{} CREATED", session.getLocalAddress());
-        session.getFilterChain().addFirst("codec",
-                new ProtocolCodecFilter(new DhcpProtocolCodecFactory()));
+
+    public void sessionCreated( IoSession session ) throws Exception
+    {
+        logger.debug( "{} CREATED", session.getLocalAddress() );
+        session.getFilterChain().addFirst( "codec",
+            new ProtocolCodecFilter( new DhcpProtocolCodecFactory() ) );
     }
 
-    public void sessionOpened(IoSession session) {
-        logger.debug("{} -> {} OPENED", session.getRemoteAddress(), session
-                .getLocalAddress());
+
+    public void sessionOpened( IoSession session )
+    {
+        logger.debug( "{} -> {} OPENED", session.getRemoteAddress(), session
+            .getLocalAddress() );
     }
 
-    public void sessionClosed(IoSession session) {
-        logger.debug("{} -> {} CLOSED", session.getRemoteAddress(), session
-                .getLocalAddress());
+
+    public void sessionClosed( IoSession session )
+    {
+        logger.debug( "{} -> {} CLOSED", session.getRemoteAddress(), session
+            .getLocalAddress() );
     }
 
-    public void sessionIdle(IoSession session, IdleStatus status) {
+
+    public void sessionIdle( IoSession session, IdleStatus status )
+    {
         // ignore
     }
 
-    public void exceptionCaught(IoSession session, Throwable cause) {
-        logger.error("EXCEPTION CAUGHT ", cause);
-        cause.printStackTrace(System.out);
+
+    public void exceptionCaught( IoSession session, Throwable cause )
+    {
+        logger.error( "EXCEPTION CAUGHT ", cause );
+        cause.printStackTrace( System.out );
 
         session.close( true );
     }
 
-    public void messageReceived(IoSession session, Object message)
-            throws Exception {
-        if (logger.isDebugEnabled())
-            logger.debug("{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
-                    session.getLocalAddress());
 
-        final DhcpMessage request = (DhcpMessage) message;
+    public void messageReceived( IoSession session, Object message )
+        throws Exception
+    {
+        if ( logger.isDebugEnabled() )
+            logger.debug( "{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
+                session.getLocalAddress() );
+
+        final DhcpMessage request = ( DhcpMessage ) message;
 
         final DhcpMessage reply = dhcpService.getReplyFor(
-                (InetSocketAddress) session.getServiceAddress(),
-                (InetSocketAddress) session.getRemoteAddress(), request);
+            ( InetSocketAddress ) session.getServiceAddress(),
+            ( InetSocketAddress ) session.getRemoteAddress(), request );
 
-        if (null != reply) {
-            final InetSocketAddress isa = determineMessageDestination(request, reply);
-            session.write(reply, isa);
+        if ( null != reply )
+        {
+            final InetSocketAddress isa = determineMessageDestination( request, reply );
+            session.write( reply, isa );
         }
     }
+
 
     /**
      * Determine where to send the message: <br>
@@ -132,24 +151,26 @@ public class DhcpProtocolHandler implements IoHandler {
      */
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    private InetSocketAddress determineMessageDestination(DhcpMessage request,
-            DhcpMessage reply) {
+    private InetSocketAddress determineMessageDestination( DhcpMessage request,
+        DhcpMessage reply )
+    {
 
         final MessageType mt = reply.getMessageType();
-        if (!isNullAddress(request.getRelayAgentAddress()))
+        if ( !isNullAddress( request.getRelayAgentAddress() ) )
             // send to agent, if received via agent.
-            return new InetSocketAddress(request.getRelayAgentAddress(), SERVER_PORT);
-        else if (null != mt && mt == MessageType.DHCPNAK)
+            return new InetSocketAddress( request.getRelayAgentAddress(), SERVER_PORT );
+        else if ( null != mt && mt == MessageType.DHCPNAK )
             // force broadcast for DHCPNAKs
-            return new InetSocketAddress("255.255.255.255", 68);
+            return new InetSocketAddress( "255.255.255.255", 68 );
         else // not a NAK...
-        if (!isNullAddress(request.getCurrentClientAddress()))
+        if ( !isNullAddress( request.getCurrentClientAddress() ) )
             // have a current address? unicast to it.
-            return new InetSocketAddress(request.getCurrentClientAddress(),
-                    CLIENT_PORT);
+            return new InetSocketAddress( request.getCurrentClientAddress(),
+                CLIENT_PORT );
         else
-            return new InetSocketAddress("255.255.255.255", 68);
+            return new InetSocketAddress( "255.255.255.255", 68 );
     }
+
 
     /**
      * Determine, whether the given address ist actually the null address
@@ -158,17 +179,20 @@ public class DhcpProtocolHandler implements IoHandler {
      * @param relayAgentAddress
      * @return
      */
-    private boolean isNullAddress(InetAddress addr) {
+    private boolean isNullAddress( InetAddress addr )
+    {
         final byte a[] = addr.getAddress();
-        for (int i = 0; i < a.length; i++)
-            if (a[i] != 0)
+        for ( int i = 0; i < a.length; i++ )
+            if ( a[i] != 0 )
                 return false;
         return true;
     }
 
-    public void messageSent(IoSession session, Object message) {
-        if (logger.isDebugEnabled())
-            logger.debug("{} -> {} SENT: " + message, session.getRemoteAddress(),
-                    session.getLocalAddress());
+
+    public void messageSent( IoSession session, Object message )
+    {
+        if ( logger.isDebugEnabled() )
+            logger.debug( "{} -> {} SENT: " + message, session.getRemoteAddress(),
+                session.getLocalAddress() );
     }
 }

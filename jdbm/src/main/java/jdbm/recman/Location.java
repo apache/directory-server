@@ -52,82 +52,82 @@ package jdbm.recman;
  * logical rowids are based on locations internally - this version is
  * used when there is no file block to back the location's data.
  */
-final class Location 
+final class Location
 {
     /** The block in which the data is stored */
     private long blockId;
-    
+
     /** The offset within this block */
     private short offset;
 
-    
+
     /**
      * Creates a location from a (block, offset) tuple.
      * 
      * @param blockId The block identifier
      * @param offset the offset in the block
      */
-    Location( long blockId, short offset ) 
+    Location( long blockId, short offset )
     {
         this.blockId = blockId;
         this.offset = offset;
     }
 
-    
+
     /**
      * Creates a location from a combined block/offset long, as used in the 
      * external representation of logical rowids. A recid is a logical rowid.
      * 
      * @param blockOffset The block + offset combinaison
      */
-    Location( long blockOffset ) 
+    Location( long blockOffset )
     {
         this.offset = ( short ) ( blockOffset & 0xffff );
         this.blockId = blockOffset >> 16;
     }
 
-    
+
     /**
      * Creates a location based on the data of the physical rowid.
      * 
      * @param physicalRowId The physical row id used as a base for the Location creation
      */
-    Location( PhysicalRowId physicalRowId ) 
+    Location( PhysicalRowId physicalRowId )
     {
         blockId = physicalRowId.getBlock();
         offset = physicalRowId.getOffset();
     }
 
-    
+
     /**
      * @eturn the blockId of the location
      */
-    long getBlock() 
+    long getBlock()
     {
         return blockId;
     }
 
-    
+
     /**
      * Returns the offset within the block of the location
      */
-    short getOffset() 
+    short getOffset()
     {
         return offset;
     }
 
-    
+
     /**
      * Returns the external representation of a location when used
      * as a logical rowid, which combines the block and the offset
      * in a single long.
      */
-    long toLong() 
+    long toLong()
     {
         return ( blockId << 16 ) + ( long ) offset;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -137,32 +137,33 @@ final class Location
         return 663;
     }
 
+
     /**
      * {@inheritDoc}
      */
     @Override
-   public boolean equals( Object o ) 
+    public boolean equals( Object o )
     {
-        if ( ( o == null ) || ! ( o instanceof Location ) )
+        if ( ( o == null ) || !( o instanceof Location ) )
         {
             return false;
         }
-        
+
         Location ol = ( Location ) o;
-        
+
         return ( ol.blockId == blockId ) && ( ol.offset == offset );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "Location ( " ).append( blockId ).append( " : " );
         sb.append( offset ).append( " ) " );
-        
+
         return sb.toString();
     }
 }

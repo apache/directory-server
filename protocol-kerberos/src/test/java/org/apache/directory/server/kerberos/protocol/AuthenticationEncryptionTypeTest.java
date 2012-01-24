@@ -90,8 +90,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests a basic request using DES-CBC-MD5.
      * 
@@ -123,7 +123,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -179,9 +179,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         KerberosTime timeStamp = new KerberosTime();
         PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
 
-        KdcReq message = new AsReq(); 
+        KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -242,7 +242,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -293,7 +293,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -315,7 +315,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

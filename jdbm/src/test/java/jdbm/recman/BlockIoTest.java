@@ -19,45 +19,48 @@
  */
 package jdbm.recman;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
 
+
 public class BlockIoTest
 {
     BlockIo blockIo;
     BlockIo blockIoData;
-    
+
+
     @Before
     public void init()
     {
         blockIo = new BlockIo( 0L, new byte[1024] );
-        
+
         // Init the blockIo with 1024 bytes from 0x00 to 0xFF, 4 times
         for ( int i = 0; i < 1024; i++ )
         {
-            blockIo.writeByte( i, (byte)( i & 0x00fff ) );
+            blockIo.writeByte( i, ( byte ) ( i & 0x00fff ) );
         }
-        
+
         blockIoData = new BlockIo( 0L, new byte[1024] );
         blockIoData.writeLong( 0, 0x8081828384858687L );
         blockIoData.writeInt( 8, 0x000000ff );
-        
+
         for ( int i = 0; i < 256; i++ )
         {
-            blockIoData.writeByte( 12+i, (byte)0x80 );
+            blockIoData.writeByte( 12 + i, ( byte ) 0x80 );
         }
     }
 
-    
+
     @Test
     public void testReadByte()
     {
-        assertEquals( (byte)0x00, blockIo.readByte( 0 ) );
-        assertEquals( (byte)0xff, blockIo.readByte( 1023 ) );
-        
+        assertEquals( ( byte ) 0x00, blockIo.readByte( 0 ) );
+        assertEquals( ( byte ) 0xff, blockIo.readByte( 1023 ) );
+
         try
         {
             blockIo.readByte( -1 );
@@ -67,7 +70,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readByte( 1024 );
@@ -79,7 +82,7 @@ public class BlockIoTest
         }
     }
 
-    
+
     @Test
     public void testReadInt()
     {
@@ -91,7 +94,7 @@ public class BlockIoTest
         assertEquals( 0x80818283, blockIo.readInt( 128 ) );
         assertEquals( 0xfbfcfdfe, blockIo.readInt( 1019 ) );
         assertEquals( 0xfcfdfeff, blockIo.readInt( 1020 ) );
-        
+
         try
         {
             blockIo.readInt( -1 );
@@ -101,7 +104,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readInt( 1021 );
@@ -111,7 +114,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readInt( 1024 );
@@ -123,7 +126,7 @@ public class BlockIoTest
         }
     }
 
-    
+
     @Test
     public void testReadShort()
     {
@@ -132,10 +135,10 @@ public class BlockIoTest
         assertEquals( 0x7d7e, blockIo.readShort( 125 ) );
         assertEquals( 0x7e7f, blockIo.readShort( 126 ) );
         assertEquals( 0x7f80, blockIo.readShort( 127 ) );
-        assertEquals( (short)0x8081, blockIo.readShort( 128 ) );
-        assertEquals( (short)0xfdfe, blockIo.readShort( 1021 ) );
-        assertEquals( (short)0xfeff, blockIo.readShort( 1022 ) );
-        
+        assertEquals( ( short ) 0x8081, blockIo.readShort( 128 ) );
+        assertEquals( ( short ) 0xfdfe, blockIo.readShort( 1021 ) );
+        assertEquals( ( short ) 0xfeff, blockIo.readShort( 1022 ) );
+
         try
         {
             blockIo.readShort( -1 );
@@ -145,7 +148,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readShort( 1023 );
@@ -155,7 +158,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readShort( 1024 );
@@ -167,7 +170,7 @@ public class BlockIoTest
         }
     }
 
-    
+
     @Test
     public void testReadLong()
     {
@@ -183,7 +186,7 @@ public class BlockIoTest
         assertEquals( 0x8081828384858687L, blockIo.readLong( 128 ) );
         assertEquals( 0xf7f8f9fafbfcfdfeL, blockIo.readLong( 1015 ) );
         assertEquals( 0xf8f9fafbfcfdfeffL, blockIo.readLong( 1016 ) );
-        
+
         try
         {
             blockIo.readLong( -1 );
@@ -193,7 +196,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readLong( 1017 );
@@ -203,7 +206,7 @@ public class BlockIoTest
         {
             // Expected
         }
-        
+
         try
         {
             blockIo.readLong( 1024 );

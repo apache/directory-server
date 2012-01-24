@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.flags;
 
+
 /**
  * This interface must be implemented by all the inherited Flag classes :
  * - TicketFlag

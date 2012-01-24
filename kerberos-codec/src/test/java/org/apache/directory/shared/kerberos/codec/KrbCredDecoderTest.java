@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.kerberos.messages.KrbCred;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.Test;
 
+
 /**
  * Test cases for KrbCred codec
  *
@@ -46,38 +48,39 @@ public class KrbCredDecoderTest
     @Test
     public void testDecodeKrebCred() throws Exception
     {
-        EncryptedData encPart = new EncryptedData( EncryptionType.DES3_CBC_MD5, 0, new byte[]{ 0, 1 } );
+        EncryptedData encPart = new EncryptedData( EncryptionType.DES3_CBC_MD5, 0, new byte[]
+            { 0, 1 } );
         PrincipalName pName = new PrincipalName( "pname", PrincipalNameType.KRB_NT_PRINCIPAL );
-        
+
         String realm = "ticketRealm";
         Ticket t1 = new Ticket( pName, encPart );
         t1.setRealm( realm );
-        
+
         Ticket t2 = new Ticket( pName, encPart );
         t2.setRealm( realm );
-        
+
         List<Ticket> tickets = new ArrayList<Ticket>();
         tickets.add( t1 );
         tickets.add( t2 );
-        
+
         KrbCred expected = new KrbCred();
         expected.setTickets( tickets );
         expected.setEncPart( encPart );
-        
+
         int krbCredLen = expected.computeLength();
         ByteBuffer stream = ByteBuffer.allocate( krbCredLen );
-        
+
         expected.encode( stream );
         stream.flip();
-        
+
         KrbCredContainer container = new KrbCredContainer( stream );
-        
+
         Asn1Decoder decoder = new Asn1Decoder();
-        
+
         decoder.decode( stream, container );
-        
+
         KrbCred actual = container.getKrbCred();
-        
+
         assertEquals( expected.getProtocolVersionNumber(), actual.getProtocolVersionNumber() );
         assertEquals( expected.getMessageType(), actual.getMessageType() );
         assertEquals( expected.getTickets(), actual.getTickets() );

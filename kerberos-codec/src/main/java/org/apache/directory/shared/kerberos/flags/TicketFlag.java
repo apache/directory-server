@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.flags;
 
+
 /**
  * An enum to describe all the TicketFlag possible values.
  * 
@@ -117,11 +118,10 @@ public enum TicketFlag implements KerberosFlag
      */
     MAX_VALUE(32);
 
-    
     // The interned value.
     private int value;
-    
-    
+
+
     /**
      * Class constructor
      */
@@ -129,8 +129,8 @@ public enum TicketFlag implements KerberosFlag
     {
         this.value = value;
     }
-    
-    
+
+
     /**
      * @return The value associated with this flag
      */

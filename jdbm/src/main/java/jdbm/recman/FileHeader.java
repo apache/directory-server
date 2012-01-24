@@ -73,14 +73,14 @@ import org.apache.directory.server.i18n.I18n;
  * We may have more than one, but no more than 1014, if the BLOCK_SIZE is 8192</li>
  * </ul> 
  */
-class FileHeader implements BlockView 
+class FileHeader implements BlockView
 {
     /** Position of the Magic number for FileHeader */
     private static final short O_MAGIC = 0; // short magic
-    
+
     /** Position of the Lists in the blockIo */
     private static final short O_LISTS = Magic.SZ_SHORT; // long[2*NLISTS]
-    
+
     /** Position of the ROOTs in the blockIo */
     private static final int O_ROOTS = O_LISTS + ( Magic.NLISTS * 2 * Magic.SZ_LONG );
 
@@ -90,7 +90,7 @@ class FileHeader implements BlockView
     /** The number of "root" rowids available in the file. */
     static final int NROOTS = ( RecordFile.BLOCK_SIZE - O_ROOTS ) / Magic.SZ_LONG;
 
-    
+
     /**
      * Constructs a FileHeader object from a block.
      *
@@ -99,10 +99,10 @@ class FileHeader implements BlockView
      * @throws IOException if the block is too short to keep the file
      *         header.
      */
-    FileHeader( BlockIo block, boolean isNew ) 
+    FileHeader( BlockIo block, boolean isNew )
     {
         this.block = block;
-        
+
         if ( isNew )
         {
             block.writeShort( O_MAGIC, Magic.FILE_HEADER );
@@ -117,65 +117,65 @@ class FileHeader implements BlockView
     /** 
      * Returns the offset of the "first" block of the indicated list 
      */
-    private short offsetOfFirst( int list ) 
+    private short offsetOfFirst( int list )
     {
         return ( short ) ( O_LISTS + ( 2 * Magic.SZ_LONG * list ) );
     }
 
-    
+
     /** 
      * Returns the offset of the "last" block of the indicated list 
      */
-    private short offsetOfLast( int list ) 
+    private short offsetOfLast( int list )
     {
         return ( short ) ( offsetOfFirst( list ) + Magic.SZ_LONG );
     }
 
-    
+
     /** 
      * Returns the offset of the indicated root 
      */
-    private short offsetOfRoot( int root ) 
+    private short offsetOfRoot( int root )
     {
         return ( short ) ( O_ROOTS + ( root * Magic.SZ_LONG ) );
     }
 
-    
+
     /**
      * Returns the first block of the indicated list
      */
-    long getFirstOf( int list ) 
+    long getFirstOf( int list )
     {
         return block.readLong( offsetOfFirst( list ) );
     }
-    
-    
+
+
     /**
      * Sets the first block of the indicated list
      */
-    void setFirstOf( int list, long value ) 
+    void setFirstOf( int list, long value )
     {
         block.writeLong( offsetOfFirst( list ), value );
     }
-    
-    
+
+
     /**
      * Returns the last block of the indicated list
      */
-    long getLastOf( int list ) 
+    long getLastOf( int list )
     {
         return block.readLong( offsetOfLast( list ) );
     }
-    
-    
+
+
     /**
      * Sets the last block of the indicated list
      */
-    void setLastOf( int list, long value ) 
+    void setLastOf( int list, long value )
     {
         block.writeLong( offsetOfLast( list ), value );
     }
-    
+
 
     /**
      *  Returns the indicated root rowid. A root rowid is a special rowid
@@ -186,19 +186,19 @@ class FileHeader implements BlockView
      *
      *  @see #NROOTS
      */
-    long getRoot( int root ) 
+    long getRoot( int root )
     {
         return block.readLong( offsetOfRoot( root ) );
     }
 
-    
+
     /**
      *  Sets the indicated root rowid.
      *
      *  @see #getRoot
      *  @see #NROOTS
      */
-    void setRoot( int root, long rowid ) 
+    void setRoot( int root, long rowid )
     {
         block.writeLong( offsetOfRoot( root ), rowid );
     }
@@ -207,52 +207,52 @@ class FileHeader implements BlockView
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "FileHeader ( " );
-        
+
         // The blockIO
         sb.append( block ).append( ", " );
-        
+
         // The free pages
         sb.append( "free[" );
         sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREE_PAGE ) ) ) );
         sb.append( ", " );
-        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREE_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREE_PAGE ) + Magic.SZ_LONG ) ) );
         sb.append( "], " );
 
         // The used pages
         sb.append( "used[" );
         sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.USED_PAGE ) ) ) );
         sb.append( ", " );
-        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.USED_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.USED_PAGE ) + Magic.SZ_LONG ) ) );
         sb.append( "], " );
-        
+
         // The translation pages
         sb.append( "translation[" );
         sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.TRANSLATION_PAGE ) ) ) );
         sb.append( ", " );
-        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.TRANSLATION_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.TRANSLATION_PAGE ) + Magic.SZ_LONG ) ) );
         sb.append( "], " );
 
         // The freeLogIds pages
         sb.append( "freeLogIds[" );
         sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREELOGIDS_PAGE ) ) ) );
         sb.append( ", " );
-        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREELOGIDS_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREELOGIDS_PAGE ) + Magic.SZ_LONG ) ) );
         sb.append( "], " );
 
         // The freePhysIds pages
         sb.append( "freePhysIds[" );
         sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREEPHYSIDS_PAGE ) ) ) );
         sb.append( ", " );
-        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREEPHYSIDS_PAGE )  + Magic.SZ_LONG ) ) );
+        sb.append( block.readLong( ( short ) ( 2 + ( 2 * Magic.SZ_LONG * Magic.FREEPHYSIDS_PAGE ) + Magic.SZ_LONG ) ) );
         sb.append( "]" );
 
         sb.append( " )" );
-        
+
         return sb.toString();
     }
 }

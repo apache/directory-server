@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.padata;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PaData;
 
@@ -32,6 +33,7 @@ public class PaDataContainer extends AbstractContainer
 {
     /** holds PaData */
     private PaData paData;
+
 
     /**
      * Creates a new PaDataContainer object.
@@ -53,7 +55,7 @@ public class PaDataContainer extends AbstractContainer
         return paData;
     }
 
-    
+
     /**
      * Set a PaData Object into the container
      * 

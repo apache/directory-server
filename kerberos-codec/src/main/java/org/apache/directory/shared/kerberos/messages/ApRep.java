@@ -55,7 +55,7 @@ public class ApRep extends KerberosMessage
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-    
+
     /** The encryptedData, an encrypted EncAPRepPart */
     private EncryptedData encPart;
 
@@ -66,15 +66,16 @@ public class ApRep extends KerberosMessage
     private int apRepLength;
     private int apRepSeqLength;
 
+
     /**
      * Creates a new instance of AP-REP.
      */
-    public ApRep() 
+    public ApRep()
     {
         super( KerberosMessageType.AP_REP );
     }
 
-    
+
     /**
      * Returns the {@link EncryptedData}.
      *
@@ -127,22 +128,22 @@ public class ApRep extends KerberosMessage
 
         // Compute the msg-type length
         msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
-        
+
         // Compute the enc-part length
         encPartLength = encPart.computeLength();
-        
+
         // Compute the sequence size
-        apRepLength = 
+        apRepLength =
             1 + TLV.getNbBytes( pvnoLength ) + pvnoLength +
-            1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength +
-            1 + TLV.getNbBytes( encPartLength ) + encPartLength;
-        
+                1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength +
+                1 + TLV.getNbBytes( encPartLength ) + encPartLength;
+
         apRepSeqLength = 1 + TLV.getNbBytes( apRepLength ) + apRepLength;
-        
+
         return 1 + TLV.getNbBytes( apRepSeqLength ) + apRepSeqLength;
     }
-    
-    
+
+
     /**
      * Encode the AP-REP component
      * 
@@ -156,51 +157,51 @@ public class ApRep extends KerberosMessage
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         try
         {
             // The AP-REP Tag
-            buffer.put( (byte)KerberosConstants.AP_REP_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REP_TAG );
             buffer.put( TLV.getBytes( apRepSeqLength ) );
-            
+
             // The AP-REP SEQ Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( apRepLength ) );
-            
+
             // The PVNO -------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REP_PVNO_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REP_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLength ) );
-            
+
             // The value
             Value.encode( buffer, getProtocolVersionNumber() );
-            
+
             // The msg-type ---------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REP_MSG_TYPE_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REP_MSG_TYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLength ) );
-            
+
             // The value
             Value.encode( buffer, getMessageType().getValue() );
-            
+
             // The enc-part ---------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REP_ENC_PART_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REP_ENC_PART_TAG );
             buffer.put( TLV.getBytes( encPartLength ) );
-            
+
             // The value
             encPart.encode( buffer );
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( apRepLength ) + apRepLength, 
+            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( apRepLength ) + apRepLength,
                 buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AP-REP encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "AP-REP encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "AP-REP initial value : {}", toString() );
         }
 
@@ -219,7 +220,7 @@ public class ApRep extends KerberosMessage
         sb.append( "  pvno : " ).append( getProtocolVersionNumber() ).append( "\n" );
         sb.append( "  msg-type : " ).append( getMessageType() ).append( "\n" );
         sb.append( "  enc-part : " ).append( encPart ).append( "\n" );
-        
+
         return sb.toString();
     }
 }

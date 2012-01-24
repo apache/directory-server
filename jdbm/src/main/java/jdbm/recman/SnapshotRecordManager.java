@@ -19,6 +19,7 @@
  */
 package jdbm.recman;
 
+
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,179 +47,182 @@ public class SnapshotRecordManager implements ActionRecordManager
 {
     /** Wrapped RecordManager */
     protected RecordManager recordManager;
-    
+
     /** Per thread action context */
-    private static final ThreadLocal < ActionContext > actionContextVar = 
-         new ThreadLocal < ActionContext > () 
-         {
-             @Override 
-             protected ActionContext initialValue()
-             {
-                 return null;
-             }
+    private static final ThreadLocal<ActionContext> actionContextVar =
+        new ThreadLocal<ActionContext>()
+        {
+            @Override
+            protected ActionContext initialValue()
+            {
+                return null;
+            }
         };
-     
+
     /** Used for keeping track of actions versions */
     ActionVersioning versioning = new ActionVersioning();
-    
+
     /** Versioned cache */
     LRUCache<Long, Object> versionedCache;
-    
+
     /** Passed to cache as IO callback */
     RecordIO recordIO = new RecordIO();
-    
+
     /** Lock used to serialize write actions and some management operatins */
     Lock bigLock = new ReentrantLock();
+
 
     /**
      * Construct a SanshotRecordManager wrapping another RecordManager
      *
      * @param recordManager Wrapped RecordManager
      */
-    public SnapshotRecordManager( RecordManager recordManager, int size)
+    public SnapshotRecordManager( RecordManager recordManager, int size )
     {
-        if ( recordManager == null ) 
+        if ( recordManager == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
 
         this.recordManager = recordManager;
-        
-        versionedCache = new LRUCache<Long ,Object>(recordIO, size);
+
+        versionedCache = new LRUCache<Long, Object>( recordIO, size );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
-     */     
-     public ActionContext beginAction( boolean readOnly , String whoStarted )
-     {
-         ActionContext actionContext = new ActionContext();
-         ActionVersioning.Version version;
-         
-         if ( readOnly )
-         {
-             version = versioning.beginReadAction();
-         }
-         else
-         {
-             bigLock.lock();
-             version = versioning.beginWriteAction();
-         }
-         
-         actionContext.beginAction( readOnly, version, whoStarted );
-         setCurrentActionContext( actionContext );
-         
-         return actionContext;
-     }
-     
-     /**
-      * {@inheritDoc}
-      */
-     public void setCurrentActionContext( ActionContext context )
-     {
-         ActionContext actionContext = actionContextVar.get();
-         
-         if ( actionContext != null )
-         {
-             throw new IllegalStateException( "Action Context Not Null: " + actionContext.getWhoStarted() );
-         }
+     */
+    public ActionContext beginAction( boolean readOnly, String whoStarted )
+    {
+        ActionContext actionContext = new ActionContext();
+        ActionVersioning.Version version;
 
-         actionContextVar.set( context );
-     }
-     
-     
-     /**
-      * {@inheritDoc}
-      */
-     public void unsetCurrentActionContext( ActionContext context )
-     {
-         ActionContext actionContext = actionContextVar.get();
-         
-         if ( actionContext != context )
-         {
-             throw new IllegalStateException( "Trying to end action context not set in the thread context variable" + context + 
-                     " " + actionContext );
-         }
+        if ( readOnly )
+        {
+            version = versioning.beginReadAction();
+        }
+        else
+        {
+            bigLock.lock();
+            version = versioning.beginWriteAction();
+        }
 
-         actionContextVar.set( null );
-     }
-     
-     
-     /**
-      * {@inheritDoc}
-      */
-     public void endAction( ActionContext actionContext )
-     {
-         ActionVersioning.Version minVersion = null;
-         
-         if ( actionContext.isReadOnlyAction() )
-         {
-             ActionVersioning.Version version = actionContext.getVersion(); 
-             minVersion = versioning.endReadAction( version );
-             actionContext.endAction();
-         }
-         else if ( actionContext.isWriteAction() )
-         {
-             minVersion = versioning.endWriteAction();
-             actionContext.endAction();
-             bigLock.unlock();
-         }
-         else
-         {
-             throw new IllegalStateException( " Wrong action type " + actionContext );
-         }
-         
-         unsetCurrentActionContext( actionContext );
-         
-         if ( minVersion != null )
-         {
-             versionedCache.advanceMinReadVersion( minVersion.getVersion() );
-         }
-     }
-     
-     
-     /**
-      * {@inheritDoc}
-      */
-     public void abortAction( ActionContext actionContext )
-     {
-         ActionVersioning.Version minVersion = null;
-         
-         if ( actionContext.isReadOnlyAction() )
-         {
-             ActionVersioning.Version version = actionContext.getVersion(); 
-             minVersion = versioning.endReadAction( version );
-             actionContext.endAction();
-         }
-         else if ( actionContext.isWriteAction() )
-         {
-             /*
-              *  Do not let versioning know that write action is complete,
-              *  so that the readers wont see the effect of the aborted
-              *  txn. The sensible thing to do would be to have the underling
-              *  record manager expose a abort action interface. When that lacks.
-              *  the right thing for the upper layer to do would is to rollback whatever 
-              *  is part of what JDBM calls a txn.
-              */
-             
-             actionContext.endAction();
-             bigLock.unlock();
-         }
-         else
-         {
-             throw new IllegalStateException( "Wrong action context type " + actionContext );
-         }
-         
-         unsetCurrentActionContext( actionContext );
-         
-         if ( minVersion != null )
-         {
-             versionedCache.advanceMinReadVersion( minVersion.getVersion() );
-         }
-     }
-     
-         
+        actionContext.beginAction( readOnly, version, whoStarted );
+        setCurrentActionContext( actionContext );
+
+        return actionContext;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCurrentActionContext( ActionContext context )
+    {
+        ActionContext actionContext = actionContextVar.get();
+
+        if ( actionContext != null )
+        {
+            throw new IllegalStateException( "Action Context Not Null: " + actionContext.getWhoStarted() );
+        }
+
+        actionContextVar.set( context );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void unsetCurrentActionContext( ActionContext context )
+    {
+        ActionContext actionContext = actionContextVar.get();
+
+        if ( actionContext != context )
+        {
+            throw new IllegalStateException( "Trying to end action context not set in the thread context variable"
+                + context +
+                " " + actionContext );
+        }
+
+        actionContextVar.set( null );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void endAction( ActionContext actionContext )
+    {
+        ActionVersioning.Version minVersion = null;
+
+        if ( actionContext.isReadOnlyAction() )
+        {
+            ActionVersioning.Version version = actionContext.getVersion();
+            minVersion = versioning.endReadAction( version );
+            actionContext.endAction();
+        }
+        else if ( actionContext.isWriteAction() )
+        {
+            minVersion = versioning.endWriteAction();
+            actionContext.endAction();
+            bigLock.unlock();
+        }
+        else
+        {
+            throw new IllegalStateException( " Wrong action type " + actionContext );
+        }
+
+        unsetCurrentActionContext( actionContext );
+
+        if ( minVersion != null )
+        {
+            versionedCache.advanceMinReadVersion( minVersion.getVersion() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void abortAction( ActionContext actionContext )
+    {
+        ActionVersioning.Version minVersion = null;
+
+        if ( actionContext.isReadOnlyAction() )
+        {
+            ActionVersioning.Version version = actionContext.getVersion();
+            minVersion = versioning.endReadAction( version );
+            actionContext.endAction();
+        }
+        else if ( actionContext.isWriteAction() )
+        {
+            /*
+             *  Do not let versioning know that write action is complete,
+             *  so that the readers wont see the effect of the aborted
+             *  txn. The sensible thing to do would be to have the underling
+             *  record manager expose a abort action interface. When that lacks.
+             *  the right thing for the upper layer to do would is to rollback whatever 
+             *  is part of what JDBM calls a txn.
+             */
+
+            actionContext.endAction();
+            bigLock.unlock();
+        }
+        else
+        {
+            throw new IllegalStateException( "Wrong action context type " + actionContext );
+        }
+
+        unsetCurrentActionContext( actionContext );
+
+        if ( minVersion != null )
+        {
+            versionedCache.advanceMinReadVersion( minVersion.getVersion() );
+        }
+    }
+
+
     /**
      * Get the underlying Record Manager.
      *
@@ -229,7 +233,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         return recordManager;
     }
 
-    
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -241,8 +245,8 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         return insert( obj, DefaultSerializer.INSTANCE );
     }
-        
-        
+
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -254,26 +258,26 @@ public class SnapshotRecordManager implements ActionRecordManager
     public long insert( Object obj, Serializer serializer ) throws IOException
     {
         checkIfClosed();
-        
+
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        
+
         if ( actionContext == null )
         {
             actionContext = beginAction( false, "insert missing action" );
             startedAction = true;
         }
-        
+
         long recid = 0;
-        
+
         try
         {
             recid = recordManager.insert( obj, serializer );
-            
+
             versionedCache.put( Long.valueOf( recid ), obj, actionContext.getVersion().getVersion(),
                 serializer, false );
-        } 
+        }
         catch ( IOException e )
         {
             if ( startedAction )
@@ -281,19 +285,19 @@ public class SnapshotRecordManager implements ActionRecordManager
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw e;
         }
-        catch ( CacheEvictionException except ) 
+        catch ( CacheEvictionException except )
         {
             if ( startedAction )
             {
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw new IOException( except.getLocalizedMessage() );
-        }       
+        }
         finally
         {
             if ( startedAction && !abortedAction )
@@ -301,7 +305,7 @@ public class SnapshotRecordManager implements ActionRecordManager
                 endAction( actionContext );
             }
         }
-        
+
         return recid;
     }
 
@@ -315,19 +319,19 @@ public class SnapshotRecordManager implements ActionRecordManager
     public void delete( long recid ) throws IOException
     {
         checkIfClosed();
-        
+
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        
+
         if ( actionContext == null )
         {
             actionContext = beginAction( false, "delete missing action" );
             startedAction = true;
         }
-        
+
         // Update the cache
-        try 
+        try
         {
             versionedCache.put( Long.valueOf( recid ), null, actionContext.getVersion().getVersion(),
                 null, false );
@@ -339,17 +343,17 @@ public class SnapshotRecordManager implements ActionRecordManager
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw e;
         }
-        catch ( CacheEvictionException except ) 
+        catch ( CacheEvictionException except )
         {
             if ( startedAction )
             {
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw new IOException( except.getLocalizedMessage() );
         }
         finally
@@ -373,7 +377,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     {
         update( recid, obj, DefaultSerializer.INSTANCE );
     }
-    
+
 
     /**
      * Updates a record using a custom serializer.
@@ -389,17 +393,17 @@ public class SnapshotRecordManager implements ActionRecordManager
         ActionContext actionContext = actionContextVar.get();
         boolean startedAction = false;
         boolean abortedAction = false;
-        
+
         if ( actionContext == null )
         {
             actionContext = beginAction( false, "update missing action" );
             startedAction = true;
         }
 
-        try 
+        try
         {
-           versionedCache.put( Long.valueOf( recid ), obj, actionContext.getVersion().getVersion(),
-               serializer, recid < 0 );       
+            versionedCache.put( Long.valueOf( recid ), obj, actionContext.getVersion().getVersion(),
+                serializer, recid < 0 );
         }
         catch ( IOException e )
         {
@@ -408,24 +412,24 @@ public class SnapshotRecordManager implements ActionRecordManager
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw e;
         }
-        catch ( CacheEvictionException except ) 
+        catch ( CacheEvictionException except )
         {
             if ( startedAction )
             {
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw new IOException( except.getLocalizedMessage() );
-        }       
+        }
         finally
         {
             if ( startedAction && !abortedAction )
             {
-                endAction ( actionContext );
+                endAction( actionContext );
             }
         }
     }
@@ -443,7 +447,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         return fetch( recid, DefaultSerializer.INSTANCE );
     }
 
-        
+
     /**
      * Fetches a record using a custom serializer.
      *
@@ -457,21 +461,21 @@ public class SnapshotRecordManager implements ActionRecordManager
         checkIfClosed();
         Object obj;
         ActionContext actionContext = actionContextVar.get();
-        
+
         boolean startedAction = false;
         boolean abortedAction = false;
-        
+
         if ( actionContext == null )
         {
             actionContext = beginAction( false, "fetch missing action" );
             startedAction = true;
         }
-        
-        try 
+
+        try
         {
-           obj = versionedCache.get( Long.valueOf( recid ), actionContext.getVersion().getVersion(),
-               serializer );
-        } 
+            obj = versionedCache.get( Long.valueOf( recid ), actionContext.getVersion().getVersion(),
+                serializer );
+        }
         catch ( IOException e )
         {
             if ( startedAction )
@@ -479,7 +483,7 @@ public class SnapshotRecordManager implements ActionRecordManager
                 abortAction( actionContext );
                 abortedAction = true;
             }
-            
+
             throw e;
         }
         finally
@@ -489,7 +493,7 @@ public class SnapshotRecordManager implements ActionRecordManager
                 endAction( actionContext );
             }
         }
-        
+
         return obj;
     }
 
@@ -533,7 +537,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     public long getRoot( int id ) throws IOException
     {
         bigLock.lock();
-        
+
         try
         {
             checkIfClosed();
@@ -554,7 +558,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     public void setRoot( int id, long rowid ) throws IOException
     {
         bigLock.lock();
-        
+
         try
         {
             checkIfClosed();
@@ -574,11 +578,11 @@ public class SnapshotRecordManager implements ActionRecordManager
     public void commit() throws IOException
     {
         bigLock.lock();
-        
+
         try
         {
             checkIfClosed();
-        
+
             recordManager.commit();
         }
         finally
@@ -593,7 +597,7 @@ public class SnapshotRecordManager implements ActionRecordManager
      */
     public void rollback() throws IOException
     {
-      // TODO handle this by quiecesing all actions and throwing away the cache contents
+        // TODO handle this by quiecesing all actions and throwing away the cache contents
     }
 
 
@@ -604,7 +608,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     public long getNamedObject( String name ) throws IOException
     {
         bigLock.lock();
-        
+
         try
         {
             checkIfClosed();
@@ -624,7 +628,7 @@ public class SnapshotRecordManager implements ActionRecordManager
     public void setNamedObject( String name, long recid ) throws IOException
     {
         bigLock.lock();
-        
+
         try
         {
             checkIfClosed();
@@ -636,7 +640,8 @@ public class SnapshotRecordManager implements ActionRecordManager
             bigLock.unlock();
         }
     }
-    
+
+
     @Override
     public String toString()
     {
@@ -644,7 +649,7 @@ public class SnapshotRecordManager implements ActionRecordManager
         sb.append( "SnapshotRecordManager: " );
         sb.append( "(lruCache:" ).append( versionedCache );
         sb.append( ")\n" );
-        
+
         return sb.toString();
     }
 
@@ -654,36 +659,36 @@ public class SnapshotRecordManager implements ActionRecordManager
      */
     private void checkIfClosed() throws IllegalStateException
     {
-        if ( recordManager == null ) 
+        if ( recordManager == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
-   
-    
+
     private class RecordIO implements EntryIO<Long, Object>
     {
-        public Object read( Long key, Serializer serializer) throws IOException
+        public Object read( Long key, Serializer serializer ) throws IOException
         {
             // Meta objects are kept in memory only
             if ( key < 0 )
             {
                 return null;
             }
-            
+
             return recordManager.fetch( key.longValue(), serializer );
         }
-        
+
+
         public void write( Long key, Object value, Serializer serializer ) throws IOException
         {
             if ( key < 0 )
             {
                 return;
             }
-            
+
             if ( value != null )
             {
-                recordManager.update( key.longValue(), value , serializer );
+                recordManager.update( key.longValue(), value, serializer );
             }
             else
             {

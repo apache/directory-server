@@ -53,7 +53,7 @@ public class DhcpMessageType extends DhcpOption
     }
 
 
-    public DhcpMessageType(MessageType type)
+    public DhcpMessageType( MessageType type )
     {
         this.type = type;
     }

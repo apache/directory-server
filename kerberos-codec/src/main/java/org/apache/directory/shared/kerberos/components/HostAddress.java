@@ -82,13 +82,14 @@ public class HostAddress extends AbstractAsn1Object
     private int hostAddressLength;
     private int hostAddressSeqLength;
 
-    
+
     /**
      * Creates an empty HostAdress instance
      */
     public HostAddress()
     {
     }
+
 
     /**
      * Creates a new instance of HostAddress.
@@ -125,12 +126,12 @@ public class HostAddress extends AbstractAsn1Object
     {
         int hash = 37;
         hash = hash * 17 + addrType.hashCode();
-        
+
         if ( address != null )
         {
             hash = hash * 17 + Arrays.hashCode( address );
         }
-        
+
         return hash;
     }
 
@@ -148,14 +149,14 @@ public class HostAddress extends AbstractAsn1Object
         {
             return true;
         }
-        
-        if ( !(that instanceof HostAddress ) )
+
+        if ( !( that instanceof HostAddress ) )
         {
             return false;
         }
-        
-        HostAddress hostAddress = (HostAddress)that;
-        
+
+        HostAddress hostAddress = ( HostAddress ) that;
+
         if ( addrType != hostAddress.addrType || ( address != null && hostAddress.address == null )
             || ( address == null && hostAddress.address != null ) )
         {
@@ -298,7 +299,7 @@ public class HostAddress extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Checksum encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "Checksum initial value : {}", toString() );
         }
 
@@ -350,7 +351,7 @@ public class HostAddress extends AbstractAsn1Object
         }
         catch ( UnknownHostException uhe )
         {
-            return "Unknow host : " + Strings.utf8ToString(address);
+            return "Unknow host : " + Strings.utf8ToString( address );
         }
     }
 }

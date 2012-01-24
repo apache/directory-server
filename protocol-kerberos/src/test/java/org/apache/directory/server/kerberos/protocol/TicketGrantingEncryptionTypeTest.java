@@ -91,8 +91,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests a basic request using DES-CBC-MD5.
      *
@@ -151,7 +151,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testRequestAes128() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -192,7 +192,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-                .getEType() );
+            .getEType() );
     }
 
 
@@ -206,7 +206,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testRequestAes128TgtAndRequested() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -225,7 +225,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-                preAuthEncryptionTypes );
+            preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
@@ -258,7 +258,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-                .getEType() );
+            .getEType() );
     }
 
 
@@ -271,7 +271,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testNonce() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -290,7 +290,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-                preAuthEncryptionTypes );
+            preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
@@ -324,7 +324,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-                .getEType() );
+            .getEType() );
 
         assertEquals( "Nonce", nonce, reply.getNonce() );
     }
@@ -339,7 +339,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testDecryptWithSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -358,7 +358,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-                preAuthEncryptionTypes );
+            preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
@@ -391,7 +391,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-                .getEType() );
+            .getEType() );
     }
 
 
@@ -405,7 +405,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testDecryptWithSubSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -424,7 +424,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-                preAuthEncryptionTypes );
+            preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPart, serverPrincipal, serverKey );
@@ -459,6 +459,6 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-                .getEType() );
+            .getEType() );
     }
 }

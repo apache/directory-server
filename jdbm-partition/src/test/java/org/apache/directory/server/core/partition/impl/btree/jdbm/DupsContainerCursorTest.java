@@ -60,7 +60,7 @@ public class DupsContainerCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    JdbmTable<String,String> table;
+    JdbmTable<String, String> table;
     File dbFile;
     private static SchemaManager schemaManager;
     RecordManager recman;
@@ -89,16 +89,16 @@ public class DupsContainerCursorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
+
     @Before
     public void createTable() throws Exception
     {
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -108,11 +108,12 @@ public class DupsContainerCursorTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         dbFile.deleteOnExit();
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
-                comparator, comparator, null, new DefaultSerializer() );
+        table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
+            comparator, comparator, null, new DefaultSerializer() );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -132,7 +133,7 @@ public class DupsContainerCursorTest
     }
 
 
-    @Test( expected=IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void testUsingNoDuplicates() throws Exception
     {
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
@@ -141,33 +142,34 @@ public class DupsContainerCursorTest
         //SerializableComparator.setRegistry( 
         //    new MockComparatorRegistry(
         //        new OidRegistry() ) );
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        table = new JdbmTable<String,String>( schemaManager, "test", recman, comparator, null, null );
+        table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
 
-        Cursor<Tuple<String,DupsContainer<String>>> cursor =
-            new DupsContainerCursor<String,String>( table );
+        Cursor<Tuple<String, DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String, String>( table );
         assertNotNull( cursor );
     }
 
 
-    @Test( expected=InvalidCursorPositionException.class )
+    @Test(expected = InvalidCursorPositionException.class)
     public void testEmptyTable() throws Exception
     {
-        Cursor<Tuple<String,DupsContainer<String>>> cursor =
-            new DupsContainerCursor<String,String>( table );
+        Cursor<Tuple<String, DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String, String>( table );
         assertNotNull( cursor );
 
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
 
-        cursor = new DupsContainerCursor<String,String>( table );
+        cursor = new DupsContainerCursor<String, String>( table );
         assertFalse( cursor.previous() );
 
-        cursor = new DupsContainerCursor<String,String>( table );
+        cursor = new DupsContainerCursor<String, String>( table );
         assertFalse( cursor.next() );
 
-        cursor.after( new Tuple<String,DupsContainer<String>>( "7", null ) );
+        cursor.after( new Tuple<String, DupsContainer<String>>( "7", null ) );
         cursor.get();
     }
 
@@ -176,11 +178,11 @@ public class DupsContainerCursorTest
     public void testOnTableWithSingleEntry() throws Exception
     {
         table.put( "1", "1" );
-        Cursor<Tuple<String,DupsContainer<String>>> cursor =
-            new DupsContainerCursor<String,String>( table );
+        Cursor<Tuple<String, DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String, String>( table );
         assertTrue( cursor.first() );
 
-        Tuple<String,DupsContainer<String>> tuple = cursor.get();
+        Tuple<String, DupsContainer<String>> tuple = cursor.get();
         assertEquals( "1", tuple.getKey() );
         assertEquals( "1", tuple.getValue().getArrayTree().getFirst() );
 
@@ -193,23 +195,23 @@ public class DupsContainerCursorTest
     @Test
     public void testOnTableWithMultipleEntries() throws Exception
     {
-        for( int i=1; i < 10; i++ )
+        for ( int i = 1; i < 10; i++ )
         {
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
 
-        Cursor<Tuple<String,DupsContainer<String>>> cursor =
-            new DupsContainerCursor<String,String>( table );
+        Cursor<Tuple<String, DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String, String>( table );
 
-        cursor.after( new Tuple<String,DupsContainer<String>>( "2", null ) );
+        cursor.after( new Tuple<String, DupsContainer<String>>( "2", null ) );
         assertTrue( cursor.next() );
 
-        Tuple<String,DupsContainer<String>> tuple = cursor.get();
+        Tuple<String, DupsContainer<String>> tuple = cursor.get();
         assertEquals( "3", tuple.getKey() );
         assertEquals( "3", tuple.getValue().getArrayTree().getFirst() );
 
-        cursor.before( new Tuple<String,DupsContainer<String>>( "7", null ) );
+        cursor.before( new Tuple<String, DupsContainer<String>>( "7", null ) );
         cursor.next();
         tuple = cursor.get();
         assertEquals( "7", tuple.getKey() );
@@ -218,10 +220,10 @@ public class DupsContainerCursorTest
         cursor.last();
         cursor.next();
         assertFalse( cursor.available() );
-       /* tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 9 ) );
-        assertEquals( 9, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() ); */
-        
+        /* tuple = cursor.get();
+         assertTrue( tuple.getKey().equals( 9 ) );
+         assertEquals( 9, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() ); */
+
         cursor.beforeFirst();
         cursor.next();
         tuple = cursor.get();
@@ -236,8 +238,8 @@ public class DupsContainerCursorTest
 
         // just to clear the jdbmTuple value so that line 127 inside after(tuple) method
         // can be executed as part of the below after(tuple) call
-        cursor.before(new Tuple<String,DupsContainer<String>>( "1", null ) );
-        cursor.after( new Tuple<String,DupsContainer<String>>( "0", null ) ); // this positions on tuple with key 1
+        cursor.before( new Tuple<String, DupsContainer<String>>( "1", null ) );
+        cursor.after( new Tuple<String, DupsContainer<String>>( "0", null ) ); // this positions on tuple with key 1
 
         cursor.next(); // this moves onto tuple with key 2
         tuple = cursor.get();

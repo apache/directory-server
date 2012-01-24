@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for PaData codec.
  *
@@ -47,23 +49,33 @@ public class PaDataDecoderTest
     public void testDecodePaData()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x0F,
-                  (byte)0xA1, 0x03,                 // padata-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA2, 0x08,                 // padata-value
-                    0x04, 0x06, 'p', 'a', 'd', 'a', 't', 'a'
-            } );
-        
-        String decodedPdu = Strings.dumpBytes(stream.array());
+                ( byte ) 0xA1, 0x03, // padata-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA2,
+                0x08, // padata-value
+                0x04,
+                0x06,
+                'p',
+                'a',
+                'd',
+                'a',
+                't',
+                'a'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         PaDataContainer container = new PaDataContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, container );
@@ -71,26 +83,26 @@ public class PaDataDecoderTest
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            
+
             fail( de.getMessage() );
         }
 
         PaData checksum = container.getPaData();
-        
+
         assertEquals( PaDataType.getTypeByValue( 2 ), checksum.getPaDataType() );
-        assertTrue( Arrays.equals( Strings.getBytesUtf8("padata"), checksum.getPaDataValue() ) );
-        
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( "padata" ), checksum.getPaDataValue() ) );
+
         ByteBuffer bb = ByteBuffer.allocate( checksum.computeLength() );
-        
+
         try
         {
             bb = checksum.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x11, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -98,73 +110,87 @@ public class PaDataDecoderTest
             fail();
         }
     }
-    
-    
-    @Test( expected = DecoderException.class )
+
+
+    @Test(expected = DecoderException.class)
     public void testDecodePaDataWithoutType() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0xC );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0xA,
-                  (byte)0xA2, 0x08,                 // padata-value
-                      0x04, 0x06, 'p', 'a', 'd', 'a', 't', 'a'
-            } );
-        
+                ( byte ) 0xA2, 0x08, // padata-value
+                0x04,
+                0x06,
+                'p',
+                'a',
+                'd',
+                'a',
+                't',
+                'a'
+        } );
+
         stream.flip();
 
         PaDataContainer chkContainer = new PaDataContainer();
-        
+
         krbDecoder.decode( stream, chkContainer );
         fail();
     }
-    
-    
-    @Test( expected = DecoderException.class )
+
+
+    @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithoutPaDataValue() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x05,
-                  (byte)0xA1, 0x03,                 // padata-type
-                    0x02, 0x01, 0x02
-            } );
-        
+                ( byte ) 0xA1, 0x03, // padata-type
+                0x02,
+                0x01,
+                0x02
+        } );
+
         stream.flip();
 
         PaDataContainer container = new PaDataContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
-    
+
+
     @Test
     public void testDecodePaDataWithEmptySeq() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x09,
-                  (byte)0xA1, 0x03,                 // padata-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA2, 0x02,                 // padata-value
-                    0x04, 0x00
-            } );
-        
+                ( byte ) 0xA1, 0x03, // padata-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA2,
+                0x02, // padata-value
+                0x04,
+                0x00
+        } );
+
         stream.flip();
 
         PaDataContainer container = new PaDataContainer();
-        
+
         krbDecoder.decode( stream, container );
     }
 

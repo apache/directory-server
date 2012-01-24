@@ -192,7 +192,7 @@ public class CipherTextHandlerTest
         try
         {
             byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
-            PaEncTsEnc object =  KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
+            PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
             assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getPausec() );
         }
@@ -438,7 +438,7 @@ public class CipherTextHandlerTest
     protected PaEncTsEnc getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException
     {
         Date date = null;
-        
+
         synchronized ( DateUtils.DATE_FORMAT )
         {
             date = DateUtils.DATE_FORMAT.parse( zuluTime );

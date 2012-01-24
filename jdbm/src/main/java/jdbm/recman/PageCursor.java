@@ -53,30 +53,30 @@ import java.io.IOException;
 /**
  * This class provides a cursor that can follow lists of pages bi-directionally.
  */
-final class PageCursor 
+final class PageCursor
 {
     /** The PageManager */
     PageManager pageManager;
-    
+
     /** The current block ID */
     long blockId;
-    
+
     /** The page type */
     short type;
-    
+
 
     /**
      * Constructs a page cursor that starts at the indicated block.
      * 
      * @param pageManager The PageManager
      */
-    PageCursor( PageManager pageManager, long blockId ) 
+    PageCursor( PageManager pageManager, long blockId )
     {
         this.pageManager = pageManager;
         this.blockId = blockId;
     }
-    
-    
+
+
     /**
      * Constructs a page cursor that starts at the first block of the 
      * indicated list.
@@ -84,26 +84,26 @@ final class PageCursor
      * @param pageManager The PageManager
      * @param type The page type
      */
-    PageCursor( PageManager pageManager, short type ) throws IOException 
+    PageCursor( PageManager pageManager, short type ) throws IOException
     {
         this.pageManager = pageManager;
         this.type = type;
     }
-    
-    
+
+
     /**
      * @return the BlockId
      */
-    long getBlockId() throws IOException 
+    long getBlockId() throws IOException
     {
         return blockId;
     }
-    
-    
+
+
     /**
      * @return the next blockId 
      */
-    long next() throws IOException 
+    long next() throws IOException
     {
         if ( blockId == 0 )
         {
@@ -113,22 +113,22 @@ final class PageCursor
         {
             blockId = pageManager.getNext( blockId );
         }
-        
+
         return blockId;
-    } 
-    
-    
+    }
+
+
     /**
      * @return the previous blockId
      */
-    long prev() throws IOException 
+    long prev() throws IOException
     {
         blockId = pageManager.getPrev( blockId );
-        
+
         return blockId;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

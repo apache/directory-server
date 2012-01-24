@@ -52,25 +52,25 @@ Project</a>
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "KerberosTcpIT-class",
     partitions =
-       {
-           @CreatePartition(
-               name = "example",
-               suffix = "dc=example,dc=com")
-       },
-       additionalInterceptors =
-       {
-               KeyDerivationInterceptor.class
-       })
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com")
+    },
+    additionalInterceptors =
+        {
+            KeyDerivationInterceptor.class
+    })
 @CreateLdapServer(
     transports =
-   {
-       @CreateTransport(protocol = "LDAP")
-   })
+        {
+            @CreateTransport(protocol = "LDAP")
+    })
 @CreateKdcServer(
     transports =
-   {
-       @CreateTransport(protocol = "TCP")
-   })
+        {
+            @CreateTransport(protocol = "TCP")
+    })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosTcpITest extends AbstractKerberosITest
 {

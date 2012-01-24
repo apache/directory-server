@@ -48,45 +48,45 @@ public class LdapSession
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdapSession.class );
-    
+
     /** A speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** The list of requests we can abandon */
-    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
-    
+    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0];
+
     /** A lock to protect the abandonableRequests against concurrent access */
     private final String outstandingLock;
-    
+
     /**
      * The associated IoSession. Usually, a LdapSession is established
      * at the user request, which means we have a IoSession.
      */
     private final IoSession ioSession;
-    
+
     /** The CoreSession */
     private CoreSession coreSession;
-    
+
     /** A reference on the LdapServer instance */
     private LdapServer ldapServer;
-    
+
     /** A map of all the running requests */
     private Map<Integer, AbandonableRequest> outstandingRequests;
-    
+
     /** The current Bind status */
     private BindStatus bindStatus;
-    
+
     /** The current mechanism used to authenticate the user */
     private String currentMechanism;
-    
+
     /**
      * A Map containing Objects used during the SASL negotiation
      */
     private Map<String, Object> saslProperties;
-    
+
     /** A map containing all the paged search context */
     private Map<Integer, PagedSearchContext> pagedSearchContexts;
-    
+
 
     /**
      * Creates a new instance of LdapSession associated with the underlying
@@ -103,8 +103,8 @@ public class LdapSession
         saslProperties = new HashMap<String, Object>();
         pagedSearchContexts = new ConcurrentHashMap<Integer, PagedSearchContext>();
     }
-    
-    
+
+
     /**
      * Check if the session is authenticated. There are two conditions for
      * a session to be authenticated :<br>
@@ -117,8 +117,8 @@ public class LdapSession
     {
         return ( coreSession != null ) && bindStatus == BindStatus.AUTHENTICATED;
     }
-    
-    
+
+
     /**
      * Check if the session is authenticated. There are two conditions for
      * a session to be authenticated :<br>
@@ -131,8 +131,8 @@ public class LdapSession
     {
         return bindStatus == BindStatus.ANONYMOUS;
     }
-    
-    
+
+
     /**
      * Check if the session is processing a BindRequest, either Simple
      * or SASL
@@ -142,10 +142,10 @@ public class LdapSession
     public boolean isAuthPending()
     {
         return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) ||
-               ( bindStatus == BindStatus.SASL_AUTH_PENDING );
+            ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
-    
-    
+
+
     /**
      * Check if the session is processing a Simple BindRequest
      * 
@@ -155,8 +155,8 @@ public class LdapSession
     {
         return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING );
     }
-    
-    
+
+
     /**
      * Check if the session is processing a SASL BindRequest
      * 
@@ -166,8 +166,8 @@ public class LdapSession
     {
         return ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
-    
-    
+
+
     /**
      * Gets the MINA IoSession associated with this LdapSession.
      *
@@ -177,8 +177,8 @@ public class LdapSession
     {
         return ioSession;
     }
-    
-    
+
+
     /**
      * Gets the logical core DirectoryService session associated with this 
      * LdapSession.
@@ -189,8 +189,8 @@ public class LdapSession
     {
         return coreSession;
     }
-    
-    
+
+
     /**
      * Sets the logical core DirectoryService session. 
      * 
@@ -200,8 +200,8 @@ public class LdapSession
     {
         this.coreSession = coreSession;
     }
-    
-    
+
+
     /**
      * Abandons all outstanding requests associated with this session.
      */
@@ -210,14 +210,14 @@ public class LdapSession
         synchronized ( outstandingLock )
         {
             AbandonableRequest[] abandonables = outstandingRequests.values().toArray( EMPTY_ABANDONABLES );
-            
+
             for ( AbandonableRequest abandonable : abandonables )
             {
                 abandonOutstandingRequest( abandonable.getMessageId() );
             }
         }
     }
-    
+
 
     /**
      * Abandons a specific request by messageId.
@@ -227,7 +227,7 @@ public class LdapSession
     public AbandonableRequest abandonOutstandingRequest( int messageId )
     {
         AbandonableRequest request = null;
-        
+
         synchronized ( outstandingLock )
         {
             request = outstandingRequests.remove( messageId );
@@ -238,7 +238,7 @@ public class LdapSession
             LOG.warn( "AbandonableRequest with messageId {} not found in outstandingRequests.", messageId );
             return null;
         }
-        
+
         if ( request.isAbandoned() )
         {
             LOG.info( "AbandonableRequest with messageId {} has already been abandoned", messageId );
@@ -246,16 +246,16 @@ public class LdapSession
         }
 
         request.abandon();
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "AbandonRequest on AbandonableRequest wth messageId {} was successful.", messageId );
         }
-        
+
         return request;
     }
 
-    
+
     /**
      * Registers an outstanding request which can be abandoned later.
      *
@@ -263,13 +263,13 @@ public class LdapSession
      */
     public void registerOutstandingRequest( AbandonableRequest request )
     {
-        synchronized( outstandingLock )
+        synchronized ( outstandingLock )
         {
             outstandingRequests.put( request.getMessageId(), request );
         }
     }
 
-    
+
     /**
      * Unregisters an outstanding request.
      *
@@ -277,19 +277,19 @@ public class LdapSession
      */
     public void unregisterOutstandingRequest( AbandonableRequest request )
     {
-        synchronized( outstandingLock )
+        synchronized ( outstandingLock )
         {
             outstandingRequests.remove( request.getMessageId() );
         }
     }
-    
-    
+
+
     /**
      * @return A list of all the abandonable requests for this session. 
      */
     public Map<Integer, AbandonableRequest> getOutstandingRequests()
     {
-        synchronized( outstandingLock )
+        synchronized ( outstandingLock )
         {
             return Collections.unmodifiableMap( outstandingRequests );
         }
@@ -303,8 +303,8 @@ public class LdapSession
     {
         return bindStatus;
     }
-    
-    
+
+
     /**
      * Set the current BindStatus to Simple authentication pending
      */
@@ -312,8 +312,8 @@ public class LdapSession
     {
         bindStatus = BindStatus.SIMPLE_AUTH_PENDING;
     }
-    
-    
+
+
     /**
      * Set the current BindStatus to SASL authentication pending
      */
@@ -330,7 +330,7 @@ public class LdapSession
     {
         bindStatus = BindStatus.ANONYMOUS;
     }
-    
+
 
     /**
      * Set the current BindStatus to authenticated
@@ -339,8 +339,8 @@ public class LdapSession
     {
         bindStatus = BindStatus.AUTHENTICATED;
     }
-    
-    
+
+
     /**
      * Get the mechanism selected by a user during a SASL Bind negotiation.
      * 
@@ -362,8 +362,8 @@ public class LdapSession
     {
         saslProperties.put( property, value );
     }
-    
-    
+
+
     /**
      * Get a Sasl property's value
      * 
@@ -374,8 +374,8 @@ public class LdapSession
     {
         return saslProperties.get( property );
     }
-    
-    
+
+
     /**
      * Clear all the Sasl values stored into the Map
      */
@@ -383,8 +383,8 @@ public class LdapSession
     {
         saslProperties.clear();
     }
-    
-    
+
+
     /**
      * Remove a property from the SaslProperty map
      *
@@ -414,8 +414,8 @@ public class LdapSession
     {
         this.ldapServer = ldapServer;
     }
-    
-    
+
+
     /**
      * Add a new Paged Search context into the stored context. If some
      * context with the same id already exists, it will be closed and 
@@ -426,12 +426,12 @@ public class LdapSession
     public void addPagedSearchContext( PagedSearchContext context ) throws Exception
     {
         PagedSearchContext oldContext = pagedSearchContexts.put( context.getCookieValue(), context );
-        
+
         if ( oldContext != null )
         {
             // ??? Very unlikely to happen ...
             EntryFilteringCursor cursor = oldContext.getCursor();
-            
+
             if ( cursor != null )
             {
                 try
@@ -445,8 +445,8 @@ public class LdapSession
             }
         }
     }
-    
-    
+
+
     /**
      * Remove a Paged Search context from the map storing all of them.
      * 
@@ -457,8 +457,8 @@ public class LdapSession
     {
         return pagedSearchContexts.remove( contextId );
     }
-    
-    
+
+
     /**
      * Get paged search context associated with an ID 
      * @param contextId The id for teh context we want to get 
@@ -466,12 +466,12 @@ public class LdapSession
      */
     public PagedSearchContext getPagedSearchContext( int contextId )
     {
-        PagedSearchContext ctx =  pagedSearchContexts.get( contextId );
-        
+        PagedSearchContext ctx = pagedSearchContexts.get( contextId );
+
         return ctx;
     }
-    
-    
+
+
     /**
      * The principal and remote address associated with this session.
      * @see Object#toString()
@@ -482,20 +482,20 @@ public class LdapSession
         {
             return "LdapSession : No Ldap session ...";
         }
-        
+
         StringBuilder sb = new StringBuilder();
-        
-        LdapPrincipal principal = coreSession.getAuthenticatedPrincipal(); 
+
+        LdapPrincipal principal = coreSession.getAuthenticatedPrincipal();
         SocketAddress address = coreSession.getClientAddress();
-        
+
         sb.append( "LdapSession : <" );
-        
+
         if ( principal != null )
         {
             sb.append( principal.getName() );
             sb.append( "," );
         }
-        
+
         if ( address != null )
         {
             sb.append( address );
@@ -504,9 +504,9 @@ public class LdapSession
         {
             sb.append( "..." );
         }
-        
+
         sb.append( ">" );
-        
+
         return sb.toString();
     }
 }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.authorizationData;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 
@@ -32,6 +33,7 @@ public class AuthorizationDataContainer extends AbstractContainer
 {
     /** An AuthorizationData container */
     private AuthorizationData authorizationData;
+
 
     /**
      * Creates a new AuthorizationDataContainer object.
@@ -53,7 +55,7 @@ public class AuthorizationDataContainer extends AbstractContainer
         return authorizationData;
     }
 
-    
+
     /**
      * Set a AuthorizationData Object into the container. It will be completed by the
      * KerberosDecoder.

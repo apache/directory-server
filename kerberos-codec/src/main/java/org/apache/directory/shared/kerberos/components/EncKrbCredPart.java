@@ -225,7 +225,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
                 // timestamp tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_KRB_CRED_PART_TIMESTAMP_TAG );
                 buffer.put( TLV.getBytes( timestampLen ) );
-                
+
                 buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( timestampBytes );
@@ -264,7 +264,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncKrbCredPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncKrbCredPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncKrbCredPart initial value : {}", toString() );
         }
 

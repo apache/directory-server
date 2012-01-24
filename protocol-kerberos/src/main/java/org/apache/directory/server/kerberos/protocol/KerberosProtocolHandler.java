@@ -64,7 +64,7 @@ public class KerberosProtocolHandler implements IoHandler
     private PrincipalStore store;
 
     private static final String CONTEXT_KEY = "context";
-    
+
 
     /**
      * Creates a new instance of KerberosProtocolHandler.
@@ -130,7 +130,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
-        
+
         if ( !( message instanceof KdcReq ) )
         {
             log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
@@ -139,7 +139,7 @@ public class KerberosProtocolHandler implements IoHandler
                 ErrorType.KRB_AP_ERR_BADDIRECTION ) ) );
             return;
         }
-        
+
         KdcReq request = ( KdcReq ) message;
 
         KerberosMessageType messageType = request.getMessageType();
@@ -148,7 +148,7 @@ public class KerberosProtocolHandler implements IoHandler
         {
             switch ( messageType )
             {
-                case AS_REQ :
+                case AS_REQ:
                     AuthenticationContext authContext = new AuthenticationContext();
                     authContext.setConfig( config );
                     authContext.setStore( store );

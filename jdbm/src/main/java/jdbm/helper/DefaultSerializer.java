@@ -59,8 +59,8 @@ public class DefaultSerializer implements Serializer
     private static final long serialVersionUID = -3818545055661017388L;
 
     public static final DefaultSerializer INSTANCE = new DefaultSerializer();
-    
-    
+
+
     /**
      * Construct a DefaultSerializer.
      */
@@ -69,34 +69,34 @@ public class DefaultSerializer implements Serializer
         // no op
     }
 
-    
+
     /**
      * Serialize the content of an object into a byte array.
      *
      * @param obj Object to serialize
      * @return a byte array representing the object's state
      */
-     public byte[] serialize( Object obj ) throws IOException
-     {
-         return Serialization.serialize( obj );
-     }
-        
-        
+    public byte[] serialize( Object obj ) throws IOException
+    {
+        return Serialization.serialize( obj );
+    }
+
+
     /**
      * De-serialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
      * @return de-serialized object
      */
-     public Object deserialize( byte[] serialized ) throws IOException
-     {
-         try 
-         {
+    public Object deserialize( byte[] serialized ) throws IOException
+    {
+        try
+        {
             return Serialization.deserialize( serialized );
-         } 
-         catch ( ClassNotFoundException except ) 
-         {
+        }
+        catch ( ClassNotFoundException except )
+        {
             throw new WrappedRuntimeException( except );
-         }
-     }
+        }
+    }
 }

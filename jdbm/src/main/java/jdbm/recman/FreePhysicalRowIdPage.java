@@ -47,37 +47,36 @@
 package jdbm.recman;
 
 
-
 /**
  * Class describing a page that holds physical rowids that were freed.
  */
-final class FreePhysicalRowIdPage extends PageHeader 
+final class FreePhysicalRowIdPage extends PageHeader
 {
     // offsets
     private static final short O_COUNT = PageHeader.SIZE; // short count
     static final short O_FREE = O_COUNT + Magic.SZ_SHORT;
-    static final short ELEMS_PER_PAGE =  ( RecordFile.BLOCK_SIZE - O_FREE ) / FreePhysicalRowId.SIZE;
-    
+    static final short ELEMS_PER_PAGE = ( RecordFile.BLOCK_SIZE - O_FREE ) / FreePhysicalRowId.SIZE;
+
     // slots we returned.
     FreePhysicalRowId[] slots = new FreePhysicalRowId[ELEMS_PER_PAGE];
 
-    
+
     /**
      * Constructs a data page view from the indicated block.
      */
-    FreePhysicalRowIdPage( BlockIo block ) 
+    FreePhysicalRowIdPage( BlockIo block )
     {
         super( block );
     }
-    
+
 
     /**
      * Factory method to create or return a data page for the indicated block.
      */
-    static FreePhysicalRowIdPage getFreePhysicalRowIdPageView( BlockIo block ) 
+    static FreePhysicalRowIdPage getFreePhysicalRowIdPageView( BlockIo block )
     {
         BlockView view = block.getView();
-        
+
         if ( view != null && view instanceof FreePhysicalRowIdPage )
         {
             return ( FreePhysicalRowIdPage ) view;
@@ -87,151 +86,151 @@ final class FreePhysicalRowIdPage extends PageHeader
             return new FreePhysicalRowIdPage( block );
         }
     }
-    
+
 
     /** 
      * Returns the number of free rowids 
      */
-    short getCount() 
+    short getCount()
     {
         return blockIo.readShort( O_COUNT );
     }
 
-    
+
     /** 
      * Sets the number of free rowids 
      */
-    private void setCount( short i ) 
+    private void setCount( short i )
     {
         blockIo.writeShort( O_COUNT, i );
     }
 
-    
+
     /** 
      * Frees a slot 
      */
-    void free( int slot ) 
+    void free( int slot )
     {
         get( slot ).setSize( 0 );
         setCount( ( short ) ( getCount() - 1 ) );
     }
 
-    
+
     /** 
      * Allocates a slot 
      */
-    FreePhysicalRowId alloc( int slot ) 
+    FreePhysicalRowId alloc( int slot )
     {
         setCount( ( short ) ( getCount() + 1 ) );
         return get( slot );
     }
 
-    
+
     /** 
      * Returns true if a slot is allocated 
      */
-    boolean isAllocated( int slot ) 
+    boolean isAllocated( int slot )
     {
         return get( slot ).getSize() != 0;
     }
-    
+
 
     /** 
      * Returns true if a slot is free 
      */
-    boolean isFree( int slot ) 
+    boolean isFree( int slot )
     {
-        return ! isAllocated( slot );
+        return !isAllocated( slot );
     }
-    
-    
+
+
     /** 
      * Returns the value of the indicated slot 
      */
-    FreePhysicalRowId get( int slot ) 
+    FreePhysicalRowId get( int slot )
     {
         if ( slots[slot] == null )
         {
-            slots[slot] = new FreePhysicalRowId( blockIo, slotToOffset( slot ) ) ;
+            slots[slot] = new FreePhysicalRowId( blockIo, slotToOffset( slot ) );
         }
-  
+
         return slots[slot];
     }
-    
+
 
     /** 
      * Converts slot to offset 
      */
-    short slotToOffset( int slot ) 
+    short slotToOffset( int slot )
     {
         return ( short ) ( O_FREE + ( slot * FreePhysicalRowId.SIZE ) );
     }
-    
-    
+
+
     /** 
      * @return first free slot, -1 if no slots are available
      */
-    int getFirstFree() 
+    int getFirstFree()
     {
-        for ( int i = 0; i < ELEMS_PER_PAGE; i++ ) 
+        for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
         {
             if ( isFree( i ) )
             {
                 return i;
             }
         }
-  
+
         return -1;
     }
-    
+
 
     /** 
      * @return first slot with available size >= indicated size, or -1 if no 
      * slots are available.
      */
-    int getFirstLargerThan( int size ) 
+    int getFirstLargerThan( int size )
     {
-        for ( int i = 0; i < ELEMS_PER_PAGE; i++ ) 
+        for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
         {
             if ( isAllocated( i ) && get( i ).getSize() >= size )
             {
                 return i;
             }
         }
-  
+
         return -1;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public String toString() 
+    public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "FreePhysRowIdPage ( " );
-        
+
         // The blockIO
         sb.append( super.toString() ).append( ", " );
-        
+
         // The first rowId
         sb.append( "count: " ).append( getCount() );
-        
+
         // Dump the Physical row id
         for ( int i = 0; i < ELEMS_PER_PAGE; i++ )
         {
             if ( slots[i] != null )
             {
                 sb.append( ", [" ).append( i ).append( "]=<" ).
-                append( slots[i].getBlock() ).append( ", " ).
-                append( slots[i].getOffset() ).append( ", " ).
-                append( slots[i].getSize() ).append( ">" );
+                    append( slots[i].getBlock() ).append( ", " ).
+                    append( slots[i].getOffset() ).append( ", " ).
+                    append( slots[i].getSize() ).append( ">" );
             }
         }
-        
+
         sb.append( ")" );
-        
+
         return sb.toString();
     }
 }

@@ -82,7 +82,7 @@ public class JdbmIndexTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -124,7 +124,7 @@ public class JdbmIndexTest
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-            
+
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -149,7 +149,7 @@ public class JdbmIndexTest
         {
             jdbmIdx = new JdbmIndex<String, Entry>();
         }
-        
+
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIdx.init( schemaManager, attributeType );
@@ -183,7 +183,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
@@ -228,7 +228,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
-        
+
         try
         {
             idx.setWkDirPath( wkdir.toURI() );
@@ -237,7 +237,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();

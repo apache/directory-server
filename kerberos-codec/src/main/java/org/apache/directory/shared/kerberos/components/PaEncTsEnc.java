@@ -75,7 +75,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
     {
     }
 
-    
+
     /**
      * Creates a new instance of PaEncTsEnc.
      */
@@ -85,7 +85,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
         this.pausec = pausec;
     }
 
-    
+
     /**
      * Returns the patimestamp value.
      *
@@ -117,7 +117,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
         {
             return -1;
         }
-        
+
         return pausec;
     }
 
@@ -152,7 +152,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
     {
         // The paTimestamp
         paTimestampLength = 0x11;
-        
+
         paEncTsEncLength = 1 + TLV.getNbBytes( paTimestampLength ) + paTimestampLength;
 
         // The pausec, if any
@@ -160,7 +160,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
         {
             int pausecLength = Value.getNbBytes( pausec );
             paUsecLength = 1 + TLV.getNbBytes( pausecLength ) + pausecLength;
-            paEncTsEncLength += 1 + TLV.getNbBytes( paUsecLength ) + paUsecLength; 
+            paEncTsEncLength += 1 + TLV.getNbBytes( paUsecLength ) + paUsecLength;
         }
 
         // Compute the whole sequence length
@@ -199,12 +199,12 @@ public class PaEncTsEnc extends AbstractAsn1Object
 
             // The patimestamp, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PA_ENC_TS_ENC_PA_TIMESTAMP_TAG );
-            buffer.put( (byte)0x11 );
+            buffer.put( ( byte ) 0x11 );
 
             buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( patimestamp.getBytes() );
-            
+
             // The pausec, first the tag, then the value, if any
             if ( pausec != null )
             {
@@ -222,14 +222,14 @@ public class PaEncTsEnc extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "Checksum encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "Checksum initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */

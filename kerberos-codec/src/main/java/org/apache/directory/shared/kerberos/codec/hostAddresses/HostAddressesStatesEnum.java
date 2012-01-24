@@ -33,16 +33,15 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum HostAddressesStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- HostAddresses message --------------------------------------
-    HOST_ADDRESSES_SEQ_STATE,               // 1
+    HOST_ADDRESSES_SEQ_STATE, // 1
 
-    HOST_ADDRESSES_ADDRESS_STATE,           // 2
+    HOST_ADDRESSES_ADDRESS_STATE, // 2
 
     // End
-    LAST_HOST_ADDRESSES_STATE;              // 3
-
+    LAST_HOST_ADDRESSES_STATE; // 3
 
     /**
      * Get the grammar name

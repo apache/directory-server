@@ -47,6 +47,7 @@
 
 package jdbm.helper;
 
+
 /**
  * Callback interface between {@link CachePolicy} and a Cache implementation
  * to notify about cached object eviction.
@@ -59,7 +60,7 @@ package jdbm.helper;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
-public interface CachePolicyListener<T> 
+public interface CachePolicyListener<T>
 {
     /**
      * Notification that the cache this listener is attached to is evicting

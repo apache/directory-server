@@ -51,27 +51,32 @@ public class ChecksumTest
     private static Checksum checksumC;
     private static Checksum checksumD;
 
-    private static final byte[] CHECKSUM_VALUE_A = { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
-        ( byte ) 0x30 };
-    private static final byte[] CHECKSUM_VALUE_B = { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
-        ( byte ) 0x30 };
-    private static final byte[] CHECKSUM_VALUE_C = { ( byte ) 0x30, ( byte ) 0x1B, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
-        ( byte ) 0x30 };
-    
+    private static final byte[] CHECKSUM_VALUE_A =
+        { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+            ( byte ) 0x30 };
+    private static final byte[] CHECKSUM_VALUE_B =
+        { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+            ( byte ) 0x30 };
+    private static final byte[] CHECKSUM_VALUE_C =
+        { ( byte ) 0x30, ( byte ) 0x1B, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+            ( byte ) 0x30 };
+
+
     /**
      * Initialize name instances
      */
     @BeforeClass
     public static void initNames() throws Exception
     {
-        checksumA = new Checksum ( ChecksumType.RSA_MD5, CHECKSUM_VALUE_A );
-        checksumACopy = new Checksum ( ChecksumType.RSA_MD5, CHECKSUM_VALUE_A );
-        checksumB = new Checksum ( ChecksumType.RSA_MD5, CHECKSUM_VALUE_B );
-        checksumC = new Checksum ( ChecksumType.RSA_MD5, CHECKSUM_VALUE_C );
-        checksumD = new Checksum ( ChecksumType.RSA_MD4, CHECKSUM_VALUE_A );
+        checksumA = new Checksum( ChecksumType.RSA_MD5, CHECKSUM_VALUE_A );
+        checksumACopy = new Checksum( ChecksumType.RSA_MD5, CHECKSUM_VALUE_A );
+        checksumB = new Checksum( ChecksumType.RSA_MD5, CHECKSUM_VALUE_B );
+        checksumC = new Checksum( ChecksumType.RSA_MD5, CHECKSUM_VALUE_C );
+        checksumD = new Checksum( ChecksumType.RSA_MD4, CHECKSUM_VALUE_A );
 
     }
-    
+
+
     @Test
     public void testEncodingChecksum() throws Exception
     {
@@ -83,14 +88,14 @@ public class ChecksumTest
         chk.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-            0x30, 0x0c, 
-              (byte)0xA0, 0x03, 
-                0x02, 0x01, 0x01, 
-              (byte)0xA1, 0x05, 
-                0x04, 0x03, 
-                  0x01, 0x02, 0x03 
-            };
+            {
+                0x30, 0x0c,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x05,
+                0x04, 0x03,
+                0x01, 0x02, 0x03
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -106,13 +111,13 @@ public class ChecksumTest
         chk.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-                0x30, 0x09, 
-                  ( byte ) 0xA0, 
-                    0x03, 0x02, 0x01, 0x01, 
-                  ( byte ) 0xA1, 0x02, 
-                    0x04, 0x00 
-            };
+            {
+                0x30, 0x09,
+                ( byte ) 0xA0,
+                0x03, 0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x02,
+                0x04, 0x00
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }

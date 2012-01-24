@@ -64,7 +64,8 @@ public class MarshallerSerializerBridge<E> implements Marshaller<E>
     /**
      * @see Marshaller#deserialize(byte[])
      */
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings(
+        { "unchecked" })
     public E deserialize( byte[] bytes ) throws IOException
     {
         return ( E ) serializer.deserialize( bytes );

@@ -72,12 +72,12 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     {
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        
+
         config = new KdcServer();
-        
+
         config.setEncryptionTypes( encryptionTypes );
-        
-        store  = new MapPrincipalStoreImpl();
+
+        store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
@@ -92,8 +92,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests when the KDC configuration requires pre-authentication by encrypted
      * timestamp that an AS_REQ without pre-authentication is rejected with the
@@ -121,7 +121,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
+        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED,
+            error.getErrorCode() );
     }
 
 
@@ -159,7 +160,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -170,7 +171,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY, error.getErrorCode() );
+        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY,
+            error.getErrorCode() );
     }
 
 
@@ -205,7 +207,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -217,7 +219,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "Pre-authentication information was invalid", ErrorType.KDC_ERR_PREAUTH_FAILED, error.getErrorCode() );
+        assertEquals( "Pre-authentication information was invalid", ErrorType.KDC_ERR_PREAUTH_FAILED,
+            error.getErrorCode() );
     }
 
 
@@ -249,7 +252,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -306,7 +309,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

@@ -55,19 +55,20 @@ public class JdbmBrowserBugTest
     private File dbFile = null;
     private RecordManager recman = null;
 
+
     @Before
     public void createTree() throws Exception
     {
         comparator = new Comparator<Integer>()
         {
-          public int compare( Integer i1, Integer i2 )
-          {
-              return i1.compareTo( i2 );
-          }
+            public int compare( Integer i1, Integer i2 )
+            {
+                return i1.compareTo( i2 );
+            }
         };
 
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -75,7 +76,8 @@ public class JdbmBrowserBugTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        bt = new BTree<Integer, Integer>( recman, new IntegerComparator(), new IntegerSerializer(), new IntegerSerializer() );
+        bt = new BTree<Integer, Integer>( recman, new IntegerComparator(), new IntegerSerializer(),
+            new IntegerSerializer() );
         LOG.debug( "created new BTree" );
     }
 
@@ -86,7 +88,7 @@ public class JdbmBrowserBugTest
         recman.close();
         recman = null;
         bt = null;
-        
+
         if ( dbFile.exists() )
         {
             String fileToDelete = dbFile.getAbsolutePath();
@@ -96,7 +98,7 @@ public class JdbmBrowserBugTest
 
             dbFile.delete();
         }
-        
+
         dbFile = null;
     }
 

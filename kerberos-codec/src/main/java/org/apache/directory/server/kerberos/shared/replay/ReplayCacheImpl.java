@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplayCacheImpl implements ReplayCache
 {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger( ReplayCacheImpl.class );
-    
+
     /** ehcache based storage to store the entries */
     private Cache cache;
 
@@ -65,13 +65,13 @@ public class ReplayCacheImpl implements ReplayCache
 
         /** The server principal */
         private KerberosPrincipal serverPrincipal;
-        
+
         /** The client principal */
         private KerberosPrincipal clientPrincipal;
-        
+
         /** The client time */
         private KerberosTime clientTime;
-        
+
         /** The client micro seconds */
         private int clientMicroSeconds;
 
@@ -249,8 +249,8 @@ public class ReplayCacheImpl implements ReplayCache
         Element element = new Element( entry.createKey(), entry );
         cache.put( element );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
-import java.util.Collections; 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CertGenerationRequestHandler 
+public class CertGenerationRequestHandler
     implements ExtendedOperationHandler<CertGenerationRequest, CertGenerationResponse>
 {
     private static final Set<String> EXTENSION_OIDS;
@@ -81,10 +81,10 @@ public class CertGenerationRequestHandler
 
         if ( entry != null )
         {
-            TlsKeyGenerator.addKeyPair( 
-                ( ( ClonedServerEntry ) entry ).getOriginalEntry(), 
+            TlsKeyGenerator.addKeyPair(
+                ( ( ClonedServerEntry ) entry ).getOriginalEntry(),
                 req.getIssuerDN(),
-                req.getSubjectDN(), 
+                req.getSubjectDN(),
                 req.getKeyAlgorithm() );
         }
     }

@@ -56,6 +56,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+
 /**
  * Contributed test case for BTree by Christof Dallermassl (cdaller@iicm.edu):
  *
@@ -123,13 +124,13 @@ public class TestStreamCorrupted
 
         // action:
         // insert data
-        for( int count = 0; count < iterations; count++ ) 
+        for ( int count = 0; count < iterations; count++ )
         {
             btree.insert( "num" + count, Integer.valueOf( count ), true );
         }
 
         // delete data
-        for( int count = 0; count < iterations; count++ ) 
+        for ( int count = 0; count < iterations; count++ )
         {
             btree.remove( "num" + count );
         }

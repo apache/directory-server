@@ -33,28 +33,27 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KdcReqStatesEnum implements States
 {
     // Start
-    START_STATE,                           // 0
+    START_STATE, // 0
 
     // ----- KDC-REQ component --------------------------------------
-    KDC_REQ_SEQ_STATE,                     // 1
+    KDC_REQ_SEQ_STATE, // 1
 
-    KDC_REQ_PVNO_TAG_STATE,                // 2
-    KDC_REQ_PVNO_STATE,                    // 3
+    KDC_REQ_PVNO_TAG_STATE, // 2
+    KDC_REQ_PVNO_STATE, // 3
 
-    KDC_REQ_MSG_TYPE_TAG_STATE,            // 4
-    KDC_REQ_MSG_TYPE_STATE,                // 5
+    KDC_REQ_MSG_TYPE_TAG_STATE, // 4
+    KDC_REQ_MSG_TYPE_STATE, // 5
 
-    KDC_REQ_PA_DATA_OR_REQ_BODY_STATE,     // 6
+    KDC_REQ_PA_DATA_OR_REQ_BODY_STATE, // 6
 
-    KDC_REQ_PA_DATA_TAG_STATE,             // 7
-    KDC_REQ_PA_DATA_SEQ_STATE,             // 8
-    KDC_REQ_PA_DATA_STATE,                 // 9
+    KDC_REQ_PA_DATA_TAG_STATE, // 7
+    KDC_REQ_PA_DATA_SEQ_STATE, // 8
+    KDC_REQ_PA_DATA_STATE, // 9
 
-    KDC_REQ_KDC_REQ_BODY_STATE,            // 10
+    KDC_REQ_KDC_REQ_BODY_STATE, // 10
 
     // End
-    LAST_KDC_REQ_STATE;                    // 11
-
+    LAST_KDC_REQ_STATE; // 11
 
     /**
      * Get the grammar name

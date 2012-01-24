@@ -41,10 +41,10 @@ public class KerberosEncoder extends ProtocolEncoderAdapter
         boolean isTcp = !session.getTransportMetadata().isConnectionless();
         IoBuffer response = null;
         IoBuffer kerberosMessage = null;
-        
+
         int responseLength = asn1Obj.computeLength();
         kerberosMessage = IoBuffer.allocate( responseLength );
-        
+
         if ( isTcp )
         {
             response = IoBuffer.allocate( responseLength + 4 );
@@ -59,7 +59,7 @@ public class KerberosEncoder extends ProtocolEncoderAdapter
             asn1Obj.encode( kerberosMessage.buf() );
 
             if ( isTcp )
-            { 
+            {
                 response.putInt( responseLength );
                 response.put( kerberosMessage.buf().array() );
             }
@@ -68,9 +68,9 @@ public class KerberosEncoder extends ProtocolEncoderAdapter
 
             out.write( response );
         }
-        catch( EncoderException e )
+        catch ( EncoderException e )
         {
-            throw new IOException(e.getMessage());
+            throw new IOException( e.getMessage() );
         }
     }
 }

@@ -58,6 +58,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+
 public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 {
     private KdcServer config;
@@ -95,8 +96,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests the default minimum request, which consists of as little as the
      * client name, service name, realm, till time, nonce, and encryption types.
@@ -163,7 +164,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO, error.getErrorCode() );
+        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO,
+            error.getErrorCode() );
     }
 
 
@@ -202,7 +204,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN, error.getErrorCode() );
+        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN,
+            error.getErrorCode() );
     }
 
 
@@ -295,7 +298,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Inappropriate type of checksum in message", ErrorType.KRB_AP_ERR_INAPP_CKSUM, error.getErrorCode() );
+        assertEquals( "Inappropriate type of checksum in message", ErrorType.KRB_AP_ERR_INAPP_CKSUM,
+            error.getErrorCode() );
     }
 
 
@@ -376,7 +380,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY, error.getErrorCode() );
+        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY,
+            error.getErrorCode() );
     }
 
 
@@ -1140,7 +1145,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID,
+            error.getErrorCode() );
     }
 
 
@@ -1195,7 +1201,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) session.getMessage();
-        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID,
+            error.getErrorCode() );
     }
 
 
@@ -1321,7 +1328,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "POSTDATED flag", reply.getFlags().isPostdated() );
         assertTrue( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
+        assertTrue( "Requested start time",
+            requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().isPostdated() );
         assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.protocol.shared;
 
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 
@@ -37,10 +38,10 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
      * search base as a single point of searching the DIT.
      */
     private String searchBaseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
-    
+
     /** determines if the search base is pointer to a catalog or a single entry point */
     private boolean catelogBased;
-    
+
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
 

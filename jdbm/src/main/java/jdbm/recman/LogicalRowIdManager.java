@@ -143,7 +143,7 @@ final class LogicalRowIdManager
     Location fetch( Location rowid ) throws IOException
     {
         TranslationPage xlatPage = TranslationPage.getTranslationPageView( recordFile.get( rowid.getBlock() ) );
-        
+
         try
         {
             Location retval = new Location( xlatPage.get( rowid.getOffset() ) );

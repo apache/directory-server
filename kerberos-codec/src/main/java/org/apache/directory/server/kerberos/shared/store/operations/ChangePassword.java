@@ -71,17 +71,20 @@ public class ChangePassword implements DirectoryServiceOperation
         }
 
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-        
+
         Attribute newPasswordAttribute = new DefaultAttribute(
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), Strings.getBytesUtf8(newPassword) );
-        Modification passwordMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute );
-        
-        Attribute principalAttribute = new DefaultAttribute( 
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ),
+            Strings.getBytesUtf8( newPassword ) );
+        Modification passwordMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            newPasswordAttribute );
+
+        Attribute principalAttribute = new DefaultAttribute(
             schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
-        Modification principalMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute );
-        
+        Modification principalMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            principalAttribute );
+
         //FIXME check if keyderivation is necessary
-        
+
         Entry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
         session.modify( entry.getDn(), passwordMod, principalMod );
 

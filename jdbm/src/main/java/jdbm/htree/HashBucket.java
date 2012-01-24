@@ -46,6 +46,7 @@
 
 package jdbm.htree;
 
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -54,6 +55,7 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * A bucket is a placeholder for multiple (key, value) pairs.  Buckets
@@ -89,19 +91,16 @@ final class HashBucket
      */
     public static final int OVERFLOW_SIZE = 8;
 
-
     /**
      * Depth of this bucket.
      */
     private int _depth;
-
 
     /**
      * Keys in this bucket.  Keys are ordered to match their respective
      * value in <code>_values</code>.
      */
     private ArrayList _keys;
-
 
     /**
      * Values in this bucket.  Values are ordered to match their respective
@@ -113,7 +112,8 @@ final class HashBucket
     /**
      * Public constructor for serialization.
      */
-    public HashBucket() {
+    public HashBucket()
+    {
         // empty
     }
 
@@ -124,7 +124,8 @@ final class HashBucket
      */
     public HashBucket( int level )
     {
-        if ( level > HashDirectory.MAX_DEPTH+1 ) {
+        if ( level > HashDirectory.MAX_DEPTH + 1 )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_534, level ) );
         }
         _depth = level;
@@ -156,9 +157,12 @@ final class HashBucket
      */
     public boolean hasRoom()
     {
-        if ( isLeaf() ) {
-            return true;  // leaf buckets are never full
-        } else {
+        if ( isLeaf() )
+        {
+            return true; // leaf buckets are never full
+        }
+        else
+        {
             // non-leaf bucket
             return ( _keys.size() < OVERFLOW_SIZE );
         }
@@ -174,13 +178,16 @@ final class HashBucket
      */
     public Object addElement( Object key, Object value )
     {
-        int existing = _keys.indexOf(key);
-        if ( existing != -1 ) {
+        int existing = _keys.indexOf( key );
+        if ( existing != -1 )
+        {
             // replace existing element
             Object before = _values.get( existing );
             _values.set( existing, value );
             return before;
-        } else {
+        }
+        else
+        {
             // add new (key, value) pair
             _keys.add( key );
             _values.add( value );
@@ -198,13 +205,16 @@ final class HashBucket
      */
     public Object removeElement( Object key )
     {
-        int existing = _keys.indexOf(key);
-        if ( existing != -1 ) {
+        int existing = _keys.indexOf( key );
+        if ( existing != -1 )
+        {
             Object obj = _values.get( existing );
             _keys.remove( existing );
             _values.remove( existing );
             return obj;
-        } else {
+        }
+        else
+        {
             // not found
             return null;
         }
@@ -217,10 +227,13 @@ final class HashBucket
      */
     public Object getValue( Object key )
     {
-        int existing = _keys.indexOf(key);
-        if ( existing != -1 ) {
+        int existing = _keys.indexOf( key );
+        if ( existing != -1 )
+        {
             return _values.get( existing );
-        } else {
+        }
+        else
+        {
             // key not found
             return null;
         }
@@ -265,11 +278,13 @@ final class HashBucket
         out.writeInt( entries );
 
         // write keys
-        for (int i=0; i<entries; i++) {
+        for ( int i = 0; i < entries; i++ )
+        {
             out.writeObject( _keys.get( i ) );
         }
         // write values
-        for (int i=0; i<entries; i++) {
+        for ( int i = 0; i < entries; i++ )
+        {
             out.writeObject( _values.get( i ) );
         }
     }
@@ -278,8 +293,9 @@ final class HashBucket
     /**
      * Implement Externalizable interface.
      */
-    public void readExternal(ObjectInput in)
-    throws IOException, ClassNotFoundException {
+    public void readExternal( ObjectInput in )
+        throws IOException, ClassNotFoundException
+    {
         _depth = in.readInt();
 
         int entries = in.readInt();
@@ -290,24 +306,28 @@ final class HashBucket
         _values = new ArrayList( size );
 
         // read keys
-        for ( int i=0; i<entries; i++ ) {
+        for ( int i = 0; i < entries; i++ )
+        {
             _keys.add( in.readObject() );
         }
         // read values
-        for ( int i=0; i<entries; i++ ) {
+        for ( int i = 0; i < entries; i++ )
+        {
             _values.add( in.readObject() );
         }
     }
 
-    public String toString() {
+
+    public String toString()
+    {
         StringBuffer buf = new StringBuffer();
-        buf.append("HashBucket {depth=");
-        buf.append(_depth);
-        buf.append(", keys=");
-        buf.append(_keys);
-        buf.append(", values=");
-        buf.append(_values);
-        buf.append("}");
+        buf.append( "HashBucket {depth=" );
+        buf.append( _depth );
+        buf.append( ", keys=" );
+        buf.append( _keys );
+        buf.append( ", values=" );
+        buf.append( _values );
+        buf.append( "}" );
         return buf.toString();
     }
 }

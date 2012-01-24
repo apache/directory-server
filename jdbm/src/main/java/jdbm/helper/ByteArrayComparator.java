@@ -46,10 +46,12 @@
 
 package jdbm.helper;
 
+
 import java.util.Comparator;
 import java.io.Serializable;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Comparator for byte arrays.
@@ -74,18 +76,20 @@ public final class ByteArrayComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( byte[] obj1, byte[] obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( byte[] obj1, byte[] obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
         return compareByteArray( obj1, obj2 );
-     }
+    }
 
 
     /**
@@ -96,37 +100,55 @@ public final class ByteArrayComparator
         int len = Math.min( thisKey.length, otherKey.length );
 
         // compare the byte arrays
-        for ( int i=0; i<len; i++ ) {
-            if ( thisKey[i] >= 0 ) {
-                if ( otherKey[i] >= 0 ) {
+        for ( int i = 0; i < len; i++ )
+        {
+            if ( thisKey[i] >= 0 )
+            {
+                if ( otherKey[i] >= 0 )
+                {
                     // both positive
-                    if ( thisKey[i] < otherKey[i] ) {
+                    if ( thisKey[i] < otherKey[i] )
+                    {
                         return -1;
-                    } else if ( thisKey[i] > otherKey[i] ) {
+                    }
+                    else if ( thisKey[i] > otherKey[i] )
+                    {
                         return 1;
                     }
-                } else {
+                }
+                else
+                {
                     // otherKey is negative => greater (because MSB is 1)
                     return -1;
                 }
-            } else {
-                if ( otherKey[i] >= 0 ) {
+            }
+            else
+            {
+                if ( otherKey[i] >= 0 )
+                {
                     // thisKey is negative => greater (because MSB is 1)
                     return 1;
-                } else {
+                }
+                else
+                {
                     // both negative
-                    if ( thisKey[i] < otherKey[i] ) {
+                    if ( thisKey[i] < otherKey[i] )
+                    {
                         return -1;
-                    } else if ( thisKey[i] > otherKey[i] ) {
+                    }
+                    else if ( thisKey[i] > otherKey[i] )
+                    {
                         return 1;
                     }
                 }
             }
         }
-        if ( thisKey.length == otherKey.length) {
+        if ( thisKey.length == otherKey.length )
+        {
             return 0;
         }
-        if ( thisKey.length < otherKey.length ) {
+        if ( thisKey.length < otherKey.length )
+        {
             return -1;
         }
         return 1;

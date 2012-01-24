@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.hostAddress;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 
@@ -32,6 +33,7 @@ public class HostAddressContainer extends AbstractContainer
 {
     /** An HostAddress container */
     private HostAddress hostAddress;
+
 
     /**
      * Creates a new HostAddressContainer object.
@@ -53,7 +55,7 @@ public class HostAddressContainer extends AbstractContainer
         return hostAddress;
     }
 
-    
+
     /**
      * Set a HostAddress Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -101,7 +101,6 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         HostAddress hostAddress = hostAddressContainer.getHostAddress();
         hostAddressesContainer.addHostAddress( hostAddress );
 
-
         if ( IS_DEBUG )
         {
             LOG.debug( "HostAddress added : {}", hostAddress );

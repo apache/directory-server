@@ -84,31 +84,31 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // First, create a new LdapSession and store it i the manager
         LdapSession ldapSession = new LdapSession( session );
         ldapServer.getLdapSessionManager().addLdapSession( ldapSession );
-        
+
         // Now, we have to store the DirectoryService instance into the session
         session.setAttribute( "maxPDUSize", ldapServer.getDirectoryService().getMaxPDUSize() );
-        
+
         // Last, store the message container
-        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer = 
-            new LdapMessageContainer<MessageDecorator<Message>>( 
-            ldapServer.getDirectoryService().getLdapCodecService(),
-            new BinaryAttributeDetector()
-            {
-                public boolean isBinary( String id )
+        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
+            new LdapMessageContainer<MessageDecorator<Message>>(
+                ldapServer.getDirectoryService().getLdapCodecService(),
+                new BinaryAttributeDetector()
                 {
-                    SchemaManager schemaManager = ldapServer.getDirectoryService().getSchemaManager();
-    
-                    try
+                    public boolean isBinary( String id )
                     {
-                        AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
-                        return !type.getSyntax().isHumanReadable();
+                        SchemaManager schemaManager = ldapServer.getDirectoryService().getSchemaManager();
+
+                        try
+                        {
+                            AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
+                            return !type.getSyntax().isHumanReadable();
+                        }
+                        catch ( Exception e )
+                        {
+                            return !Strings.isEmpty( id ) && id.endsWith( ";binary" );
+                        }
                     }
-                    catch ( Exception e )
-                    {
-                        return !Strings.isEmpty(id) && id.endsWith(";binary");
-                    }
-                }
-            } );
+                } );
 
         session.setAttribute( "messageContainer", ldapMessageContainer );
     }
@@ -191,15 +191,15 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest<?> req = 
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+            ExtendedRequest<?> req =
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest<?> req = 
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+            ExtendedRequest<?> req =
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
@@ -217,7 +217,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                     resp.getLdapResult().setDiagnosticMessage( "Unsupport critical control: " + control.getOid() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );
-                    
+
                     return;
                 }
             }
@@ -232,7 +232,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        if ( cause.getCause() instanceof ResponseCarryingMessageException)
+        if ( cause.getCause() instanceof ResponseCarryingMessageException )
         {
             ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
 

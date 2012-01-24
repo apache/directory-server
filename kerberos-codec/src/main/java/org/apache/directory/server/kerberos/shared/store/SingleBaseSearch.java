@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.api.CoreSession;
@@ -67,6 +66,6 @@ class SingleBaseSearch implements PrincipalStore
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return (String) new ChangePassword( principal, newPassword ).execute( session, searchBaseDn );
+        return ( String ) new ChangePassword( principal, newPassword ).execute( session, searchBaseDn );
     }
 }

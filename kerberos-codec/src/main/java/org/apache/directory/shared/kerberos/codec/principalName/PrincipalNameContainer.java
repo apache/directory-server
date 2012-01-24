@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.principalName;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 
@@ -32,6 +33,7 @@ public class PrincipalNameContainer extends AbstractContainer
 {
     /** A PrincipalName container */
     private PrincipalName principalName;
+
 
     /**
      * Creates a new PrincipalNameContainer object.
@@ -53,7 +55,7 @@ public class PrincipalNameContainer extends AbstractContainer
         return principalName;
     }
 
-    
+
     /**
      * Set a PrincipalName Object into the container. It will be completed by the
      * KerberosDecoder.

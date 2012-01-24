@@ -137,7 +137,7 @@ public class SoftCache implements CachePolicy
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_531 ) );
         }
-        
+
         this.internal = internal;
         map = new HashMap( INITIAL_CAPACITY, loadFactor );
     }
@@ -162,7 +162,7 @@ public class SoftCache implements CachePolicy
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_533 ) );
         }
-        
+
         internal.put( key, value );
         removeClearedEntries();
         map.put( key, new Entry( key, value, clearQueue ) );
@@ -193,28 +193,28 @@ public class SoftCache implements CachePolicy
     {
         // first try the internal cache.
         Object value = internal.get( key );
-        
+
         if ( value != null )
         {
             return value;
         }
-        
+
         // poll and remove cleared references.
         removeClearedEntries();
         Entry entry = ( Entry ) map.get( key );
-        
+
         if ( entry == null )
         { // object is not in cache.
             return null;
         }
-        
+
         value = entry.getValue();
-        
+
         if ( value == null )
         { // object was in cache, but it was cleared.
             return null;
         }
-        
+
         // we have the object. so we try to re-insert it into internal cache
         try
         {
@@ -226,7 +226,7 @@ public class SoftCache implements CachePolicy
             map.remove( key );
             return null;
         }
-        
+
         return value;
     }
 

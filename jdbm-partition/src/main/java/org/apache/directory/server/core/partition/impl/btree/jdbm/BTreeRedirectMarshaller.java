@@ -43,6 +43,7 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
     /** a reusable instance of this Marshaller */
     public static final BTreeRedirectMarshaller INSTANCE = new BTreeRedirectMarshaller();
 
+
     /**
      * @see Marshaller#serialize(Object)
      */

@@ -79,7 +79,7 @@ public interface RecordManager
      */
     long insert( Object obj ) throws IOException;
 
-    
+
     /**
      * Inserts a new record using a custom serializer.
      *
@@ -120,7 +120,7 @@ public interface RecordManager
      */
     void update( long recid, Object obj, Serializer serializer ) throws IOException;
 
-    
+
     /**
      * Fetches a record using standard java object serialization.
      *
@@ -190,4 +190,3 @@ public interface RecordManager
     /** Set the record id of a named object. */
     void setNamedObject( String name, long recid ) throws IOException;
 }
-

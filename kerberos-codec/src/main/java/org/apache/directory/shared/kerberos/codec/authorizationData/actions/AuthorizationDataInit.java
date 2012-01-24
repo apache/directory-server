@@ -74,7 +74,6 @@ public class AuthorizationDataInit extends GrammarAction<AuthorizationDataContai
             AuthorizationData authData = new AuthorizationData();
             authorizationDataContainer.setAuthorizationData( authData );
 
-
             if ( IS_DEBUG )
             {
                 LOG.debug( "AuthorizationData created" );

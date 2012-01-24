@@ -46,6 +46,7 @@ public class AddTicket extends GrammarAction<KdcReqBodyContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Instantiates a new AddTicket action.
      */

@@ -64,7 +64,8 @@ public class JndiRecordStoreImpl implements RecordStore
     }
 
 
-    private SearchStrategy getSearchStrategy( String catalogBaseDn, String searchBaseDn, DirectoryService directoryService )
+    private SearchStrategy getSearchStrategy( String catalogBaseDn, String searchBaseDn,
+        DirectoryService directoryService )
     {
         if ( catalogBaseDn != null )
         {

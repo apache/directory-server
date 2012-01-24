@@ -48,6 +48,7 @@
 
 package jdbm.recman;
 
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -57,6 +58,7 @@ import jdbm.RecordManagerProvider;
 import jdbm.helper.MRU;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Provider of the default RecordManager implementation.
@@ -81,8 +83,8 @@ public final class Provider implements RecordManagerProvider
         RecordManager recman = new BaseRecordManager( name );
 
         String value = options.getProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "false" );
-        
-        if ( value.equalsIgnoreCase( "TRUE" ) ) 
+
+        if ( value.equalsIgnoreCase( "TRUE" ) )
         {
             ( ( BaseRecordManager ) recman ).disableTransactions();
         }
@@ -91,21 +93,21 @@ public final class Provider implements RecordManagerProvider
         int cacheSize = Integer.parseInt( value );
 
         value = options.getProperty( RecordManagerOptions.CACHE_TYPE, RecordManagerOptions.NORMAL_CACHE );
-        
-        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) 
+
+        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) )
         {
             MRU cache = new MRU( cacheSize );
             recman = new CacheRecordManager( recman, cache );
-        } 
-        else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) 
+        }
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_551 ) );
-        } 
-        else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) 
+        }
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_552 ) );
-        } 
-        else 
+        }
+        else
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_553, value ) );
         }

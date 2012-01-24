@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.apReq;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,6 +35,7 @@ public class ApReqContainer extends AbstractContainer
 {
     /** An AP-REQ container */
     private ApReq apReq;
+
 
     /**
      * Creates a new ApReqContainer object.
@@ -56,7 +58,7 @@ public class ApReqContainer extends AbstractContainer
         return apReq;
     }
 
-    
+
     /**
      * Set an ApReq Object into the container. It will be completed by the
      * KerberosDecoder.

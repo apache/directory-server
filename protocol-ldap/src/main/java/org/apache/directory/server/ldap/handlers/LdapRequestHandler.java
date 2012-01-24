@@ -272,7 +272,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         result.setDiagnosticMessage( msg );
 
-        if ( e instanceof LdapOperationException)
+        if ( e instanceof LdapOperationException )
         {
             LdapOperationException ne = ( LdapOperationException ) e;
 
@@ -282,7 +282,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( (Dn) ne.getResolvedDn() );
+                result.setMatchedDn( ( Dn ) ne.getResolvedDn() );
             }
 
             // Add the referrals if necessary
@@ -292,7 +292,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
                 do
                 {
-                    String ref = ( (LdapReferralException) e ).getReferralInfo();
+                    String ref = ( ( LdapReferralException ) e ).getReferralInfo();
                     referrals.addLdapUrl( ref );
                 }
                 while ( ( ( LdapReferralException ) e ).skipReferral() );

@@ -86,7 +86,7 @@ public class BTreeRedirectMarshallerTest
         byte[] bites = createBites();
         for ( int ii = 1; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
-            bites[ii] =  ( byte ) 0xFF;
+            bites[ii] = ( byte ) 0xFF;
         }
 
         assertEquals( -1, marshaller.deserialize( bites ).getRecId() );
@@ -112,7 +112,7 @@ public class BTreeRedirectMarshallerTest
 
         for ( int ii = 2; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
-            bites[ii] =  ( byte ) 0xFF;
+            bites[ii] = ( byte ) 0xFF;
         }
 
         assertEquals( Long.MAX_VALUE, marshaller.deserialize( bites ).getRecId() );
@@ -148,7 +148,6 @@ public class BTreeRedirectMarshallerTest
         catch ( IOException e )
         {
         }
-
 
         try
         {

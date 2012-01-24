@@ -47,6 +47,7 @@
 
 package jdbm.helper;
 
+
 /**
  *  Exception that occurs during eviction of an object in the cache.
  *
@@ -66,6 +67,7 @@ public class CacheEvictionException
     {
         _nested = nested;
     }
+
 
     public Exception getNestedException()
     {

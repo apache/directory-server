@@ -138,7 +138,8 @@ public abstract class AbstractTicketGrantingServiceTest
         KerberosTime renewTill = new KerberosTime( now + KerberosTime.WEEK );
         encTicketPart.setRenewTill( renewTill );
 
-        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart,
+            KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket ticket = new Ticket();
         ticket.setSName( new PrincipalName( serverPrincipal.getName(), serverPrincipal.getNameType() ) );
@@ -151,7 +152,8 @@ public abstract class AbstractTicketGrantingServiceTest
     }
 
 
-    protected EncTicketPart getTicketArchetype( KerberosPrincipal clientPrincipal ) throws KerberosException, ParseException
+    protected EncTicketPart getTicketArchetype( KerberosPrincipal clientPrincipal ) throws KerberosException,
+        ParseException
     {
         EncTicketPart encTicketPart = new EncTicketPart();
 
@@ -181,7 +183,8 @@ public abstract class AbstractTicketGrantingServiceTest
     protected Ticket getTicket( EncTicketPart encTicketPart, KerberosPrincipal serverPrincipal,
         EncryptionKey serverKey ) throws KerberosException, ParseException
     {
-        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+        EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart,
+            KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket ticket = new Ticket();
         ticket.setTktVno( 5 );
@@ -214,18 +217,20 @@ public abstract class AbstractTicketGrantingServiceTest
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( KerberosUtils.getKerberosPrincipal( tgt.getEncTicketPart().getCName(), tgt.getEncTicketPart().getCRealm() ), kdcReqBody, checksumType );
+        EncryptedData authenticator = getAuthenticator(
+            KerberosUtils.getKerberosPrincipal( tgt.getEncTicketPart().getCName(), tgt.getEncTicketPart().getCRealm() ),
+            kdcReqBody, checksumType );
 
         PaData[] paDatas = getPreAuthenticationData( tgt, authenticator );
 
         KdcReq message = new TgsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
         }
-        
+
         return message;
     }
 
@@ -245,7 +250,7 @@ public abstract class AbstractTicketGrantingServiceTest
     {
         Authenticator authenticator = new Authenticator();
 
-        clientMicroSeconds = random.nextInt(999999);
+        clientMicroSeconds = random.nextInt( 999999 );
 
         authenticator.setVersionNumber( 5 );
         authenticator.setCName( new PrincipalName( clientPrincipal.getName(), clientPrincipal.getNameType() ) );
@@ -258,7 +263,8 @@ public abstract class AbstractTicketGrantingServiceTest
         Checksum checksum = getBodyChecksum( requestBody, checksumType );
         authenticator.setCksum( checksum );
 
-        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY );
+        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator,
+            KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY );
 
         return encryptedAuthenticator;
     }
@@ -271,8 +277,9 @@ public abstract class AbstractTicketGrantingServiceTest
         byte[] bodyBytes = kdcReqBody.encode( buffer ).array();
 
         ChecksumHandler checksumHandler = new ChecksumHandler();
-        
-        return checksumHandler.calculateChecksum( checksumType, bodyBytes, null, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
+
+        return checksumHandler
+            .calculateChecksum( checksumType, bodyBytes, null, KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
     }
 
 

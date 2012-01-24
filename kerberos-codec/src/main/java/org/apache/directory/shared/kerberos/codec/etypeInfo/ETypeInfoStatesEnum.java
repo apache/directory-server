@@ -33,13 +33,12 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum ETypeInfoStatesEnum implements States
 {
     // Start
-    START_STATE,                        // 0
+    START_STATE, // 0
 
-    ETYPE_INFO_SEQ_STATE,               // 1
+    ETYPE_INFO_SEQ_STATE, // 1
 
     // End
-    LAST_ETYPE_INFO_STATE;              // 2
-
+    LAST_ETYPE_INFO_STATE; // 2
 
     /**
      * Get the grammar name

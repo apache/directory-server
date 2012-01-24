@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.util.Strings;
+
 
 /**
  * The KDC-REP data structure. It will store the object described by the ASN.1 grammar :
@@ -56,22 +58,22 @@ public class KdcRep extends KerberosMessage
 {
     /** The PA-DATAs */
     private List<PaData> paData;
-    
+
     /** The client realm */
     private String crealm;
-    
+
     /** A storage for a byte array representation of the realm */
     private byte[] crealmBytes;
-    
+
     /** The client principal name */
     private PrincipalName cname;
-    
+
     /** The ticket tickets */
     private Ticket ticket;
-    
+
     /** Encoded part */
     private EncryptedData encPart;
-    
+
     /** The decoded KDC-REP part */
     protected EncKdcRepPart encKdcRepPart;
 
@@ -87,6 +89,7 @@ public class KdcRep extends KerberosMessage
     private int encPartLength;
     private int kdcRepSeqLength;
     private int kdcRepLength;
+
 
     /**
      * Creates a new instance of KDC-REP.
@@ -132,7 +135,7 @@ public class KdcRep extends KerberosMessage
     {
         this.paData.add( paData );
     }
-    
+
 
     /**
      * Returns the client realm.
@@ -165,7 +168,7 @@ public class KdcRep extends KerberosMessage
         return cname;
     }
 
-    
+
     /**
      * Set the client principalName
      * @param cname the client principalName
@@ -175,7 +178,7 @@ public class KdcRep extends KerberosMessage
         this.cname = cname;
     }
 
-    
+
     /**
      * Returns the {@link Ticket}
      *
@@ -216,7 +219,7 @@ public class KdcRep extends KerberosMessage
         this.encPart = encPart;
     }
 
-    
+
     /**
      * @return the encKdcRepPart
      */
@@ -233,8 +236,8 @@ public class KdcRep extends KerberosMessage
     {
         this.encKdcRepPart = encKdcRepPart;
     }
-    
-    
+
+
     /**
      * Compute the KDC-REP length
      * <pre>
@@ -281,11 +284,11 @@ public class KdcRep extends KerberosMessage
     {
         // The pvno length
         pvnoLength = 1 + 1 + 1;
-        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength; 
+        kdcRepSeqLength = 1 + TLV.getNbBytes( pvnoLength ) + pvnoLength;
 
         // The msg-type length
         msgTypeLength = 1 + 1 + 1;
-        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength; 
+        kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         // Compute the pa-data length.
         if ( paData.size() != 0 )
@@ -293,42 +296,42 @@ public class KdcRep extends KerberosMessage
             paDataLengths = new int[paData.size()];
             int pos = 0;
             paDataSeqLength = 0;
-            
+
             for ( PaData paDataElem : paData )
             {
                 paDataLengths[pos] = paDataElem.computeLength();
                 paDataSeqLength += paDataLengths[pos];
                 pos++;
             }
-            
+
             paDataLength = 1 + TLV.getNbBytes( paDataSeqLength ) + paDataSeqLength;
-            kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength; 
+            kdcRepSeqLength += 1 + TLV.getNbBytes( paDataLength ) + paDataLength;
         }
-        
+
         // The crealm length
-        crealmBytes = Strings.getBytesUtf8(crealm);
+        crealmBytes = Strings.getBytesUtf8( crealm );
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
-        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength; 
+        kdcRepSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength;
 
         // Compute the client principalName length
         cnameLength = cname.computeLength();
-        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength; 
+        kdcRepSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength;
 
         // Compute the ticket length
         ticketLength = ticket.computeLength();
-        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength; 
+        kdcRepSeqLength += 1 + TLV.getNbBytes( ticketLength ) + ticketLength;
 
         // Compute the encrypted part
         encPartLength = encPart.computeLength();
-        kdcRepSeqLength += 1 + TLV.getNbBytes( encPartLength ) + encPartLength; 
+        kdcRepSeqLength += 1 + TLV.getNbBytes( encPartLength ) + encPartLength;
 
         // compute the global size
         kdcRepLength = 1 + TLV.getNbBytes( kdcRepSeqLength ) + kdcRepSeqLength;
-        
+
         return kdcRepLength;
     }
-    
-    
+
+
     /**
      * Encode the KDC-REP component
      * 
@@ -346,34 +349,34 @@ public class KdcRep extends KerberosMessage
         // The KDC-REP SEQ Tag
         buffer.put( UniversalTag.SEQUENCE.getValue() );
         buffer.put( TLV.getBytes( kdcRepSeqLength ) );
-        
+
         // The PVNO -----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_PVNO_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_PVNO_TAG );
         buffer.put( TLV.getBytes( pvnoLength ) );
-        
+
         // The value
         Value.encode( buffer, getProtocolVersionNumber() );
-        
+
         // The MSG-TYPE if any ------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_MSG_TYPE_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_MSG_TYPE_TAG );
         buffer.put( TLV.getBytes( msgTypeLength ) );
-        
+
         // The value
         Value.encode( buffer, getMessageType().getValue() );
-        
+
         // The PD-DATA if any -------------------------------------------------
         if ( paData.size() != 0 )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REP_PA_DATA_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REP_PA_DATA_TAG );
             buffer.put( TLV.getBytes( paDataLength ) );
-            
+
             // The sequence
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( paDataSeqLength ) );
-            
+
             // The values
             for ( PaData paDataElem : paData )
             {
@@ -383,9 +386,9 @@ public class KdcRep extends KerberosMessage
 
         // The CREALM ---------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_CREALM_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_CREALM_TAG );
         buffer.put( TLV.getBytes( crealmLength ) );
-        
+
         // The value
         buffer.put( UniversalTag.GENERAL_STRING.getValue() );
         buffer.put( TLV.getBytes( crealmBytes.length ) );
@@ -393,33 +396,32 @@ public class KdcRep extends KerberosMessage
 
         // The CNAME ----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_CNAME_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_CNAME_TAG );
         buffer.put( TLV.getBytes( cnameLength ) );
-        
+
         // The value
         cname.encode( buffer );
 
         // The TICKET ---------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_TICKET_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_TICKET_TAG );
         buffer.put( TLV.getBytes( ticketLength ) );
-        
+
         // The value
         ticket.encode( buffer );
 
         // The ENC-PART -------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REP_ENC_PART_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REP_ENC_PART_TAG );
         buffer.put( TLV.getBytes( encPartLength ) );
-        
+
         // The value
         encPart.encode( buffer );
-        
+
         return buffer;
     }
 
 
-    
     /**
      * @see Object#toString()
      */
@@ -448,12 +450,12 @@ public class KdcRep extends KerberosMessage
         {
             sb.append( "padata : " ).append( paDataElem ).append( '\n' );
         }
-        
+
         sb.append( "crealm : " ).append( crealm ).append( '\n' );
         sb.append( "cname : " ).append( cname ).append( '\n' );
         sb.append( "ticket : " ).append( ticket ).append( '\n' );
         sb.append( "enc-part : " ).append( encPart ).append( '\n' );
-        
+
         return sb.toString();
     }
 }

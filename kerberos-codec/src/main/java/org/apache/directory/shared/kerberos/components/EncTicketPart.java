@@ -97,7 +97,6 @@ public class EncTicketPart extends AbstractAsn1Object
     /** the authorization data */
     private AuthorizationData authorizationData;
 
-
     private int flagsLen;
     private int keyLen;
     private int cRealmLen;
@@ -116,6 +115,7 @@ public class EncTicketPart extends AbstractAsn1Object
     private int authzDataLen;
     private int encTikcetPartSeqLen;
     private int encTikcetPartLen;
+
 
     /**
      * compute length for EncTicketPart:
@@ -180,7 +180,7 @@ public class EncTicketPart extends AbstractAsn1Object
         keyLen = key.computeLength();
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( keyLen ) + keyLen;
 
-        cRealmBytes = Strings.getBytesUtf8(cRealm);
+        cRealmBytes = Strings.getBytesUtf8( cRealm );
         cRealmLen = 1 + TLV.getNbBytes( cRealmBytes.length ) + cRealmBytes.length;
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( cRealmLen ) + cRealmLen;
 
@@ -333,7 +333,7 @@ public class EncTicketPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncTicketPart initial value : {}", toString() );
         }
 
@@ -552,11 +552,11 @@ public class EncTicketPart extends AbstractAsn1Object
         {
             flags = new TicketFlags();
         }
-        
+
         flags.setFlag( flag.getValue() );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

@@ -111,7 +111,8 @@ public class TicketFactory
         KerberosTime renewTill = new KerberosTime( now + ONE_WEEK );
         encTicketPart.setRenewTill( renewTill );
 
-        EncryptedData encryptedTicketPart = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+        EncryptedData encryptedTicketPart = cipherTextHandler.seal( serverKey, encTicketPart,
+            KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
 
         Ticket ticket = new Ticket();
         ticket.setTktVno( KerberosConstants.KERBEROS_V5 );

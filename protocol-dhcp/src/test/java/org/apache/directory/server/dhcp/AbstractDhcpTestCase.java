@@ -45,7 +45,7 @@ public abstract class AbstractDhcpTestCase
     }
 
 
-    public AbstractDhcpTestCase(Class<?> subclass)
+    public AbstractDhcpTestCase( Class<?> subclass )
     {
         log = LoggerFactory.getLogger( subclass );
     }

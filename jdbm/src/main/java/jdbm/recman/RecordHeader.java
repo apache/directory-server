@@ -57,68 +57,68 @@ import org.apache.directory.server.i18n.I18n;
  * be moved and which allows the system to put small records in larger free 
  * spots.
  */
-class RecordHeader 
+class RecordHeader
 {
     // offsets
     private static final short O_CURRENTSIZE = 0; // int currentSize
     private static final short O_AVAILABLESIZE = Magic.SZ_INT; // int availableSize
     static final int SIZE = O_AVAILABLESIZE + Magic.SZ_INT;
-    
+
     // my block and the position within the block
     private BlockIo block;
     private short pos;
 
-    
+
     /**
      * Constructs a record header from the indicated data starting at the 
      * indicated position.
      */
-    RecordHeader( BlockIo block, short pos ) 
+    RecordHeader( BlockIo block, short pos )
     {
         this.block = block;
         this.pos = pos;
-        
+
         if ( pos > ( RecordFile.BLOCK_SIZE - SIZE ) )
         {
             throw new Error( I18n.err( I18n.ERR_562, block.getBlockId(), pos ) );
         }
     }
 
-    
+
     /** Returns the current size */
-    int getCurrentSize() 
+    int getCurrentSize()
     {
         return block.readInt( pos + O_CURRENTSIZE );
     }
-    
-    
+
+
     /** Sets the current size */
-    void setCurrentSize( int value ) 
+    void setCurrentSize( int value )
     {
         block.writeInt( pos + O_CURRENTSIZE, value );
     }
-    
-    
+
+
     /** Returns the available size */
-    int getAvailableSize() 
+    int getAvailableSize()
     {
         return block.readInt( pos + O_AVAILABLESIZE );
     }
-    
-    
+
+
     /** Sets the available size */
-    void setAvailableSize( int value ) 
+    void setAvailableSize( int value )
     {
         block.writeInt( pos + O_AVAILABLESIZE, value );
     }
 
-    
+
     // overrides java.lang.Object
-    public String toString() 
+    public String toString()
     {
-        return "RH( " + block.getBlockId() + " : " + pos 
+        return "RH( " + block.getBlockId() + " : " + pos
             + ", avl = " + getAvailableSize()
-            + ", cur = " + getCurrentSize() 
+            + ", cur = " + getCurrentSize()
             + " )";
     }
 }

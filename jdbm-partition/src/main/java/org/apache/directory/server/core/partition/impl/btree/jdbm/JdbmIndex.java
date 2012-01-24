@@ -61,7 +61,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * default duplicate limit before duplicate keys switch to using a btree for values
      */
     public static final int DEFAULT_DUPLICATE_LIMIT = 512;
-    
+
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
 
@@ -154,7 +154,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
+
         keyCache = new SynchronizedLRUMap( cacheSize );
         this.attributeType = attributeType;
 
@@ -166,7 +166,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            
+
             e.printStackTrace();
             throw e;
         }
@@ -193,7 +193,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
-        
+
         initialized = true;
     }
 
@@ -242,7 +242,8 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit, recMan,
+            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                recMan,
                 LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
         }
     }
@@ -383,7 +384,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     public synchronized void drop( K attrVal, Long id ) throws Exception
     {
         K normalizedValue = getNormalized( attrVal );
-        
+
         // The pair to be removed must exists
         if ( forward.has( normalizedValue, id ) )
         {
@@ -433,7 +434,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( (Cursor) reverse.cursor( id ), false );
+        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
     }
 
 
@@ -643,8 +644,8 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         return reverse.isDupsEnabled();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

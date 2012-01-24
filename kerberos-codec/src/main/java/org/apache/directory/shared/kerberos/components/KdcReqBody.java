@@ -40,7 +40,6 @@ import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.apache.directory.shared.util.Strings;
 
 
-
 /**
  * The KDC-REQ-BODY data structure. It will store the object described by the ASN.1 grammar :
  * <pre>
@@ -126,6 +125,7 @@ public class KdcReqBody extends AbstractAsn1Object
     private int kdcReqBodySeqLength;
     private int kdcReqBodyLength;
 
+
     /**
      * Creates a new instance of RequestBody.
      */
@@ -143,7 +143,8 @@ public class KdcReqBody extends AbstractAsn1Object
      */
     public Ticket[] getAdditionalTickets()
     {
-        return additionalTickets.toArray( new Ticket[]{} );
+        return additionalTickets.toArray( new Ticket[]
+            {} );
     }
 
 
@@ -477,7 +478,7 @@ public class KdcReqBody extends AbstractAsn1Object
         }
 
         // Compute the realm length.
-        realmBytes = Strings.getBytesUtf8(realm);
+        realmBytes = Strings.getBytesUtf8( realm );
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
         kdcReqBodySeqLength += 1 + TLV.getNbBytes( realmLength ) + realmLength;
 
@@ -585,7 +586,7 @@ public class KdcReqBody extends AbstractAsn1Object
 
         // The KdcOptions -----------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_KDC_OPTIONS_TAG );
         buffer.put( TLV.getBytes( kdcOptionsLength ) );
 
         // The value
@@ -595,7 +596,7 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( cName != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_CNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_CNAME_TAG );
             buffer.put( TLV.getBytes( cNameLength ) );
 
             // The value
@@ -604,7 +605,7 @@ public class KdcReqBody extends AbstractAsn1Object
 
         // The realm ----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_REALM_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_REALM_TAG );
         buffer.put( TLV.getBytes( realmLength ) );
 
         // The value
@@ -616,7 +617,7 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( sName != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_SNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_SNAME_TAG );
             buffer.put( TLV.getBytes( sNameLength ) );
 
             // The value
@@ -627,41 +628,41 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( from != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_FROM_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_FROM_TAG );
             buffer.put( TLV.getBytes( fromLength ) );
 
             // The value
             buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
-            buffer.put( (byte)0x0F );
+            buffer.put( ( byte ) 0x0F );
             buffer.put( from.getBytes() );
         }
 
         // The till -----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_TILL_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_TILL_TAG );
         buffer.put( TLV.getBytes( tillLength ) );
 
         // The value
         buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
-        buffer.put( (byte)0x0F );
+        buffer.put( ( byte ) 0x0F );
         buffer.put( till.getBytes() );
 
         // The rtime if any ---------------------------------------------------
         if ( rtime != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_RTIME_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_RTIME_TAG );
             buffer.put( TLV.getBytes( rtimeLength ) );
 
             // The value
             buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
-            buffer.put( (byte)0x0F );
+            buffer.put( ( byte ) 0x0F );
             buffer.put( rtime.getBytes() );
         }
 
         // The nonce ----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_NONCE_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_NONCE_TAG );
         buffer.put( TLV.getBytes( nonceLength ) );
 
         // The value
@@ -669,7 +670,7 @@ public class KdcReqBody extends AbstractAsn1Object
 
         // The etype ----------------------------------------------------------
         // The tag
-        buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ETYPE_TAG );
+        buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ETYPE_TAG );
         buffer.put( TLV.getBytes( eTypeLength ) );
 
         // The sequence
@@ -686,7 +687,7 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( addresses != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ADDRESSES_TAG );
             buffer.put( TLV.getBytes( addressesLength ) );
 
             // The value
@@ -697,7 +698,7 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( encAuthorizationData != null )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ENC_AUTHZ_DATA_TAG );
             buffer.put( TLV.getBytes( encAuthzDataLength ) );
 
             // The value
@@ -708,7 +709,7 @@ public class KdcReqBody extends AbstractAsn1Object
         if ( additionalTickets.size() != 0 )
         {
             // The tag
-            buffer.put( (byte)KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
+            buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
             buffer.put( TLV.getBytes( additionalTicketLength ) );
 
             // The sequence
@@ -782,7 +783,6 @@ public class KdcReqBody extends AbstractAsn1Object
 
         sb.append( "till : " ).append( till ).append( '\n' );
 
-
         if ( rtime != null )
         {
             sb.append( "rtime : " ).append( rtime ).append( '\n' );
@@ -830,7 +830,6 @@ public class KdcReqBody extends AbstractAsn1Object
 
             sb.append( '\n' );
         }
-
 
         if ( encAuthorizationData != null )
         {

@@ -46,8 +46,10 @@
 
 package jdbm.helper;
 
+
 import java.io.IOException;
 import java.io.Serializable;
+
 
 /**
  * Interface used to provide a serialization mechanism other than a class' normal
@@ -63,14 +65,14 @@ public interface Serializer extends Serializable
      * @param obj Object to serialize
      * @return a byte array representing the object's state
      */
-     public byte[] serialize( Object obj ) throws IOException;
-        
-        
+    public byte[] serialize( Object obj ) throws IOException;
+
+
     /**
      * Deserialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
      * @return deserialized object
      */
-     public Object deserialize( byte[] serialized ) throws IOException;
+    public Object deserialize( byte[] serialized ) throws IOException;
 }
