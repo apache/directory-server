@@ -291,6 +291,6 @@ public class LookupOperationContext extends AbstractOperationContext
     public String toString()
     {
         return "LookupContext for Dn '" + getDn().getName() + "'"
-            + ( ( attrsId != null ) ? ", attributes : <" + Strings.listToString(attrsId) + ">" : "" );
+            + ( ( attrsId != null ) ? ", attributes : <" + Strings.listToString( attrsId ) + ">" : "" );
     }
 }

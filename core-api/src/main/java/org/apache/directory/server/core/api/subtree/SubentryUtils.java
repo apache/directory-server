@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.subtree;
 
+
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.subtree.Subentry;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
@@ -35,6 +36,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class SubentryUtils
 {
@@ -55,15 +57,16 @@ public class SubentryUtils
 
     /** A reference to the AccessControlSubentries AT */
     protected static AttributeType SUBSCHEMA_SUBENTRY_AT;
-    
+
     /** A reference to the TriggerExecutionSubentries AT */
     protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
+
 
     public SubentryUtils( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
-        
+
         // Init the At we use locally
         ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
@@ -72,8 +75,8 @@ public class SubentryUtils
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
     }
-    
-    
+
+
     //-------------------------------------------------------------------------------------------
     // Shared method
     //-------------------------------------------------------------------------------------------
@@ -90,7 +93,7 @@ public class SubentryUtils
     public Entry getSubentryAttributes( Dn dn, Entry entryAttrs ) throws LdapException
     {
         Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
-        
+
         SubentryCache subentryCache = directoryService.getSubentryCache();
         SubtreeEvaluator evaluator = directoryService.getEvaluator();
 

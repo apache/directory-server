@@ -58,6 +58,7 @@ public interface DirectoryService extends ServerEntryFactory
 {
     String JNDI_KEY = DirectoryService.class.getName();
 
+
     /**
      * Reverts the server's state to an earlier revision.  Note that the revsion number
      * still increases to revert back even though the state reverted to is the same.
@@ -100,6 +101,7 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     void removePartition( Partition partition ) throws Exception;
+
 
     /**
      * @return The Directory Service SchemaManager
@@ -189,10 +191,12 @@ public interface DirectoryService extends ServerEntryFactory
      **/
     SubentryCache getSubentryCache();
 
+
     /**
      * @return Returns the subentry evaluator
      */
     SubtreeEvaluator getEvaluator();
+
 
     /**
      * Gets a logical session to perform operations on this DirectoryService
@@ -351,6 +355,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @param interceptor The added interceptor
      */
     void addLast( Interceptor interceptor ) throws LdapException;
+
 
     /**
      * Add an interceptor after a given interceptor in the interceptor list.
@@ -565,6 +570,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the syncPeriodMillis
      */
     long getSyncPeriodMillis();
+
 
     /**
      * @return the cache service

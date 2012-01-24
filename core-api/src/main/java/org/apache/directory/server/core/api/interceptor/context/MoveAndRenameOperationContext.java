@@ -41,6 +41,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /** The new superior Dn */
     private Dn newSuperiorDn;
 
+
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
      */
@@ -108,7 +109,6 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         {
             throwReferral();
         }
-
 
         try
         {

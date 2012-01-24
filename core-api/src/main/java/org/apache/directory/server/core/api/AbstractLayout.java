@@ -120,7 +120,7 @@ public abstract class AbstractLayout
             {
                 if ( !requiredDirectory.mkdirs() )
                 {
-                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, requiredDirectory ) );
+                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, requiredDirectory ) );
                 }
             }
         }

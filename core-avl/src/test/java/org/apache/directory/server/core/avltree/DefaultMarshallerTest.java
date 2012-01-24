@@ -64,7 +64,6 @@ public class DefaultMarshallerTest
         assertTrue( ArrayUtils.isEquals( serialized, marshaller.serialize( deserialized ) ) );
     }
 
-
     static class Bar implements Serializable
     {
         private static final long serialVersionUID = 2982919006977619754L;
@@ -74,7 +73,6 @@ public class DefaultMarshallerTest
         long longValue = 32L;
         Foo fooValue = new Foo();
     }
-
 
     static class Foo implements Serializable
     {

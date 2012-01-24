@@ -375,7 +375,7 @@ public class CursorList implements EntryFilteringCursor
         {
             return list.get( index ).get();
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
@@ -436,7 +436,7 @@ public class CursorList implements EntryFilteringCursor
     public void close( Exception reason ) throws Exception
     {
         closed = true;
-        
+
         for ( Cursor<?> c : list )
         {
             try

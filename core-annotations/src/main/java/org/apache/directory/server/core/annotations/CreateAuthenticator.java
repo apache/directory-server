@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,6 +26,7 @@ import java.lang.annotation.Target;
 
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.Authenticator;
+
 
 /**
  * An authenticator creation
@@ -39,15 +41,18 @@ import org.apache.directory.server.core.authn.Authenticator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateAuthenticator
 {
     /** The authenticator implementation class */
     Class<? extends Authenticator> type() default AnonymousAuthenticator.class;
-    
+
+
     /** Delegate host, use for testing DelegatingAuthenticator */
     String delegateHost() default "localhost";
-    
+
+
     /** Delegate port, use for testing DelegatingAuthenticator */
     int delegatePort() default -1;
 }

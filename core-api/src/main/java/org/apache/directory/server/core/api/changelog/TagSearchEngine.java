@@ -59,7 +59,8 @@ public interface TagSearchEngine
      * @throws Exception if there is a problem accessing the store
      */
     Tag lookup( long revision ) throws Exception;
-    
+
+
     /**
      * Checks to see if a snapshot exists for a specific revision. 
      *
@@ -74,7 +75,6 @@ public interface TagSearchEngine
     // Tag Search Operations
     // -----------------------------------------------------------------------
 
-    
     /**
      * Finds all the snapshot tags taken since revision 0 until the current 
      * revision.
@@ -84,7 +84,8 @@ public interface TagSearchEngine
      * @throws Exception if there is a problem accessing the store
      */
     Cursor<Tag> find( RevisionOrder order ) throws Exception;
-    
+
+
     /**
      * Finds all the snapshot tags taken before a specific revision.  If a tag 
      * exists at the revision parameter it will be returned as well.
@@ -97,7 +98,8 @@ public interface TagSearchEngine
      * or less than 0.
      */
     Cursor<Tag> findBefore( long revision, RevisionOrder order ) throws Exception;
-    
+
+
     /**
      * Finds all the snapshot tags taken after a specific revision.  If a tag 
      * exists at the revision parameter it will be returned as well.
@@ -110,7 +112,8 @@ public interface TagSearchEngine
      * or less than 0.
      */
     Cursor<Tag> findAfter( long revision, RevisionOrder order ) throws Exception;
-    
+
+
     /**
      * Enumerates over the tags of all snapshots taken between a specific revision 
      * range inclusive.  The first revision parameter should be less than or equal 

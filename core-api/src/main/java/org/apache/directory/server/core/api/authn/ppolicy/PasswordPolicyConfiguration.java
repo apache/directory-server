@@ -155,6 +155,7 @@ public class PasswordPolicyConfiguration
     //TODO to be injected from config  
     private PasswordValidator pwdValidator = DefaultPasswordValidator.INSTANCE;
 
+
     public String getPwdAttribute()
     {
         return pwdAttribute;

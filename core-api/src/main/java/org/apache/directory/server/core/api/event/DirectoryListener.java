@@ -40,41 +40,41 @@ public interface DirectoryListener
      *
      * @param addContext the add operation context responsible for the change
      */
-    void entryAdded( AddOperationContext addContext ); 
-    
-    
+    void entryAdded( AddOperationContext addContext );
+
+
     /**
      * Called when an entry has been deleted.
      *
      * @param deleteContext the delete operation context responsible for the change
      */
     void entryDeleted( DeleteOperationContext deleteContext );
-    
-    
+
+
     /**
      * Called when an entry has been modified.
      *
      * @param modifyContext the modify operation context responsible for the change
      */
     void entryModified( ModifyOperationContext modifyContext );
-    
-    
+
+
     /**
      * Called when an entry has been renamed.
      *
      * @param renameContext the rename operation context responsible for the change
      */
     void entryRenamed( RenameOperationContext renameContext );
-    
-    
+
+
     /**
      * Called when an entry is moved.
      *
      * @param moveContext the move operation context responsible for the change
      */
     void entryMoved( MoveOperationContext moveContext );
-    
-    
+
+
     /**
      * Called when an entry is moved and renamed at the same time.
      *

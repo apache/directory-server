@@ -23,6 +23,7 @@ package org.apache.directory.server.core.avltree;
 import java.util.Comparator;
 import java.util.List;
 
+
 /**
  * An interface to the AVL tree based map. The implementations
  * should hold a value(s) along with a key  
@@ -78,7 +79,7 @@ public interface AvlTreeMap<K, V>
      */
     SingletonOrOrderedSet<V> remove( K key );
 
-    
+
     /**
      * Tests if the tree is logically empty.
      * 

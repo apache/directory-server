@@ -54,7 +54,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      * {@inheritDoc}
      */
     @Override
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) 
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
         // TODO Auto-generated method stub

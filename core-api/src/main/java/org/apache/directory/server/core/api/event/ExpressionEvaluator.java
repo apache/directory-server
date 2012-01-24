@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
-
 /**
  * Top level filter expression evaluator implementation.
  * 
@@ -71,7 +70,7 @@ public class ExpressionEvaluator implements Evaluator
     {
         SubstringEvaluator substringEvaluator = null;
         substringEvaluator = new SubstringEvaluator();
-//      leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
+        //      leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
         leafEvaluator = new LeafEvaluator( substringEvaluator );
     }
 
@@ -104,7 +103,7 @@ public class ExpressionEvaluator implements Evaluator
 
         if ( bnode instanceof OrNode )
         {
-            for ( ExprNode child: bnode.getChildren() )
+            for ( ExprNode child : bnode.getChildren() )
             {
                 if ( evaluate( child, dn, entry ) )
                 {
@@ -114,12 +113,12 @@ public class ExpressionEvaluator implements Evaluator
 
             return false;
         }
-        else if ( bnode instanceof AndNode)
+        else if ( bnode instanceof AndNode )
         {
-            for ( ExprNode child: bnode.getChildren() )
+            for ( ExprNode child : bnode.getChildren() )
             {
                 boolean res = evaluate( child, dn, entry );
-                
+
                 if ( !res )
                 {
                     return false;
@@ -128,7 +127,7 @@ public class ExpressionEvaluator implements Evaluator
 
             return true;
         }
-        else if ( bnode instanceof NotNode)
+        else if ( bnode instanceof NotNode )
         {
             if ( null != bnode.getFirstChild() )
             {
@@ -139,7 +138,7 @@ public class ExpressionEvaluator implements Evaluator
         }
         else
         {
-                throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_244, bnode ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_244, bnode ) );
         }
     }
 }

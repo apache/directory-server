@@ -43,10 +43,10 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
     /** marshaller to be used for marshalling the keys */
     private Marshaller<E> keyMarshaller;
-    
+
     /** key Comparator for the AvlTree */
     private Comparator<E> comparator;
-    
+
 
     /**
      * Creates a new instance of AvlTreeMarshaller with a custom key
@@ -81,23 +81,23 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      */
     public byte[] serialize( AvlTree<E> tree )
     {
-        if( tree.isEmpty() )
+        if ( tree.isEmpty() )
         {
             return EMPTY_TREE;
         }
 
         LinkedAvlNode<E> x = tree.getFirst().next;
-        
-        while( x != null )
+
+        while ( x != null )
         {
-            x.setIndex( x.previous.getIndex() + 1 );  
+            x.setIndex( x.previous.getIndex() + 1 );
             x = x.next;
         }
-        
+
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream( byteStream );
         byte[] data = null;
-        
+
         try
         {
             out.writeByte( 0 ); // represents the start of AvlTree byte stream
@@ -107,15 +107,15 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             data = byteStream.toByteArray();
             out.close();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             e.printStackTrace();
         }
-        
+
         return data;
     }
 
-    
+
     /**
      * writes the content of the AVLTree to an output stream.
      * The current format is 
@@ -130,34 +130,34 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     private void writeTree( LinkedAvlNode<E> node, DataOutputStream out ) throws IOException
     {
         byte[] data = keyMarshaller.serialize( node.getKey() );
-        
+
         out.writeInt( data.length ); // data-length
         out.write( data ); // data
         out.writeInt( node.getIndex() ); // index
-        
-        if( node.getLeft() != null )
+
+        if ( node.getLeft() != null )
         {
             out.writeInt( 2 ); // left
             writeTree( node.getLeft(), out );
         }
         else
         {
-            out.writeInt( 0 );   
+            out.writeInt( 0 );
         }
-        
-        if( node.getRight() != null )
+
+        if ( node.getRight() != null )
         {
             out.writeInt( 4 ); // right
             writeTree( node.getRight(), out );
         }
         else
         {
-            out.writeInt( 0 );   
+            out.writeInt( 0 );
         }
-        
+
     }
 
-    
+
     /**
      * Creates an AVLTree from given bytes of data.
      * 
@@ -177,43 +177,43 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
         ByteArrayInputStream bin = new ByteArrayInputStream( data );
         DataInputStream din = new DataInputStream( bin );
-        
+
         byte startByte = din.readByte();
-        
-        if( startByte != 0 )
+
+        if ( startByte != 0 )
         {
             throw new IOException( I18n.err( I18n.ERR_443 ) );
         }
-        
+
         int size = din.readInt();
-        
-        LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
+
+        LinkedAvlNode[] nodes = new LinkedAvlNode[size];
         LinkedAvlNode<E> root = readTree( din, null, nodes );
-        
+
         AvlTreeImpl<E> tree = new AvlTreeImpl<E>( comparator );
-        
+
         tree.setRoot( root );
-        
+
         tree.setFirst( nodes[0] );
-        
+
         // Update the size
         tree.setSize( size );
-        
-        if( nodes.length >= 1 )
+
+        if ( nodes.length >= 1 )
         {
-            tree.setLast( nodes[ nodes.length - 1 ] );
+            tree.setLast( nodes[nodes.length - 1] );
         }
-        
-        for( int i = 0; i < nodes.length - 1; i++ )
+
+        for ( int i = 0; i < nodes.length - 1; i++ )
         {
-            nodes[ i ].setNext( nodes[ i + 1] );
-            nodes[ i + 1].setPrevious( nodes[ i ] );
+            nodes[i].setNext( nodes[i + 1] );
+            nodes[i + 1].setPrevious( nodes[i] );
         }
 
         return tree;
     }
 
-    
+
     /**
      * Reads the data from given InputStream and creates the LinkedAvlNodes to
      * form the tree node = [size] [data-length] [data] [index] [child-marker]
@@ -224,35 +224,36 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * @return the deserialized AvlTree node
      * @throws IOException on failures to deserialize or read from the stream
      */
-    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node, LinkedAvlNode[] nodes ) throws IOException
+    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node, LinkedAvlNode[] nodes )
+        throws IOException
     {
         int dLen = in.readInt();
-      
-        byte[] data = new byte[ dLen ];
+
+        byte[] data = new byte[dLen];
 
         //noinspection ResultOfMethodCallIgnored
         in.readFully( data );
 
         E key = keyMarshaller.deserialize( data );
         node = new LinkedAvlNode( key );
-      
+
         int index = in.readInt();
-        nodes[ index ] = node;
-      
+        nodes[index] = node;
+
         int childMarker = in.readInt();
-      
-        if( childMarker == 2)
+
+        if ( childMarker == 2 )
         {
             node.setLeft( readTree( in, node.getLeft(), nodes ) );
         }
-      
+
         childMarker = in.readInt();
-      
-        if( childMarker == 4 )
+
+        if ( childMarker == 4 )
         {
             node.setRight( readTree( in, node.getRight(), nodes ) );
         }
-      
+
         return node;
     }
 }

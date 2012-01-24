@@ -40,16 +40,17 @@ public class SubentryCache implements Iterable<Dn>
 {
     /** The default cache size limit */
     private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
-    
+
     /** The cache size limit */
     private int cacheMaxSize = DEFAULT_CACHE_MAX_SIZE;
-    
+
     /** The current cache size */
     private AtomicInteger cacheSize;
-    
+
     /** The Subentry cache */
     private final Map<Dn, Subentry> cache;
-    
+
+
     /**
      * Creates a new instance of SubentryCache with a default maximum size.
      */
@@ -58,8 +59,8 @@ public class SubentryCache implements Iterable<Dn>
         cache = new ConcurrentHashMap<Dn, Subentry>();
         cacheSize = new AtomicInteger( 0 );
     }
-    
-    
+
+
     /**
      * Creates a new instance of SubentryCache with a specific maximum size.
      */
@@ -69,8 +70,8 @@ public class SubentryCache implements Iterable<Dn>
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
-    
-    
+
+
     /**
      * Retrieve a Subentry given a Dn. If there is none, null will be returned.
      *
@@ -81,8 +82,8 @@ public class SubentryCache implements Iterable<Dn>
     {
         return cache.get( dn );
     }
-    
-    
+
+
     /**
      * Remove a Subentry for a given Dn
      *
@@ -93,16 +94,16 @@ public class SubentryCache implements Iterable<Dn>
     public final Subentry removeSubentry( Dn dn )
     {
         Subentry oldSubentry = cache.remove( dn );
-        
+
         if ( oldSubentry != null )
         {
             cacheSize.decrementAndGet();
         }
-        
+
         return oldSubentry;
     }
-    
-    
+
+
     /**
      * Stores a new Subentry into the cache, associated with a Dn
      *
@@ -117,18 +118,18 @@ public class SubentryCache implements Iterable<Dn>
         {
             // TODO : Throw an exception here
         }
-        
+
         Subentry oldSubentry = cache.put( dn, subentry );
-        
+
         if ( oldSubentry == null )
         {
             cacheSize.getAndIncrement();
         }
-        
+
         return oldSubentry;
     }
-    
-    
+
+
     /**
      * Tells if there is a Subentry associated with a Dn
      * @param dn The Dn
@@ -138,8 +139,8 @@ public class SubentryCache implements Iterable<Dn>
     {
         return cache.containsKey( dn );
     }
-    
-    
+
+
     /**
      * @return An Iterator over the Subentry's DNs 
      */
@@ -147,8 +148,8 @@ public class SubentryCache implements Iterable<Dn>
     {
         return cache.keySet().iterator();
     }
-    
-    
+
+
     /**
      * @return The number of elements in the cache
      */

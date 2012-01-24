@@ -46,8 +46,8 @@ public class HasEntryOperationContext extends AbstractOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
         }
     }
-    
-    
+
+
     /**
      * Creates a new instance of HasEntryOperationContext.
      *
@@ -62,7 +62,7 @@ public class HasEntryOperationContext extends AbstractOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.HAS_ENTRY ) );
         }
     }
-    
+
 
     /**
      * @return the operation name
@@ -72,7 +72,7 @@ public class HasEntryOperationContext extends AbstractOperationContext
         return MessageTypeEnum.ADD_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */

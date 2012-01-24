@@ -40,28 +40,28 @@ public class NotificationCriteria
 {
     /** The scope to use (default to ONE_LEVEL) */
     private SearchScope scope = SearchScope.ONELEVEL;
-    
+
     /** The AliasderefMode to use (default to DEREF_ALWAYS) */
     private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-    
+
     /** The Base DN to search from (default to null) */
     private Dn base = null;
-    
+
     /** The filter to use (default to '(ObjectClass=*)') */
     private ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-    
+
     /** The event mask to use (default to everything) */
     private int eventMask = EventType.ALL_EVENT_TYPES_MASK;
-    
-    
+
+
     /**
      * Create a new instance of a NotiticationCriteria
      */
     public NotificationCriteria()
     {
     }
-    
-    
+
+
     /**
      * Create a new instance of a NotiticationCriteria initialized with a search request
      */
@@ -72,8 +72,8 @@ public class NotificationCriteria
         this.base = req.getBase();
         this.filter = req.getFilter();
     }
-    
-    
+
+
     /**
      * @param scope the scope to set
      */
@@ -81,8 +81,8 @@ public class NotificationCriteria
     {
         this.scope = scope;
     }
-    
-    
+
+
     /**
      * @return the scope
      */
@@ -142,7 +142,7 @@ public class NotificationCriteria
      */
     public void setFilter( String filter ) throws Exception
     {
-        this.filter = FilterParser.parse(filter);
+        this.filter = FilterParser.parse( filter );
     }
 
 
@@ -167,7 +167,7 @@ public class NotificationCriteria
     /**
      * @param eventTypes the eventTypes to set
      */
-    public void setEventMask( EventType ...eventTypes )
+    public void setEventMask( EventType... eventTypes )
     {
         this.eventMask = EventType.getMask( eventTypes );
     }
@@ -180,22 +180,22 @@ public class NotificationCriteria
     {
         return eventMask;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "Notification criteria : " );
         sb.append( '\'' ).append( base ).append( "', " );
         sb.append( '\'' ).append( filter ).append( "', " );
         sb.append( '\'' ).append( scope ).append( "', " );
         sb.append( '\'' ).append( aliasDerefMode ).append( "', " );
         sb.append( '\'' ).append( EventType.toString( eventMask ) ).append( '\'' );
-        
+
         return sb.toString();
     }
 }

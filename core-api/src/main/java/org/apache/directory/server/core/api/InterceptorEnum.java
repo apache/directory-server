@@ -19,31 +19,34 @@
  */
 package org.apache.directory.server.core.api;
 
+
 /**
  * The list of mandatory interceptors we use in the server.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum InterceptorEnum {
-    NORMALIZATION_INTERCEPTOR( "normalizationInterceptor" ),
-    AUTHENTICATION_INTERCEPTOR( "authenticationInterceptor" ),
-    REFERRAL_INTERCEPTOR( "referralInterceptor" ),
-    ACI_AUTHORIZATION_INTERCEPTOR( "aciAuthorizationInterceptor" ),
-    DEFAULT_AUTHORIZATION_INTERCEPTOR( "defaultAuthorizationInterceptor" ),
-    ADMINISTRATIVE_POINT_INTERCEPTOR( "administrativePointInterceptor" ),
-    EXCEPTION_INTERCEPTOR( "exceptionInterceptor" ),
-    OPERATIONAL_ATTRIBUTE_INTERCEPTOR( "operationalAttributeInterceptor" ),
-    SCHEMA_INTERCEPTOR( "schemaInterceptor" ),
-    SUBENTRY_INTERCEPTOR( "subentryInterceptor" ),
-    EVENT_INTERCEPTOR( "eventInterceptor" ),
-    TRIGGER_INTERCEPTOR( "triggerInterceptor" ),
-    CHANGE_LOG_INTERCEPTOR( "changeLogInterceptor" ),
-    COLLECTIVE_ATTRIBUTE_INTERCEPTOR( "collectiveAttributeInterceptor" ),
-    JOURNAL_INTERCEPTOR( "journalInterceptor" );
-    
+public enum InterceptorEnum
+{
+    NORMALIZATION_INTERCEPTOR("normalizationInterceptor"),
+    AUTHENTICATION_INTERCEPTOR("authenticationInterceptor"),
+    REFERRAL_INTERCEPTOR("referralInterceptor"),
+    ACI_AUTHORIZATION_INTERCEPTOR("aciAuthorizationInterceptor"),
+    DEFAULT_AUTHORIZATION_INTERCEPTOR("defaultAuthorizationInterceptor"),
+    ADMINISTRATIVE_POINT_INTERCEPTOR("administrativePointInterceptor"),
+    EXCEPTION_INTERCEPTOR("exceptionInterceptor"),
+    OPERATIONAL_ATTRIBUTE_INTERCEPTOR("operationalAttributeInterceptor"),
+    SCHEMA_INTERCEPTOR("schemaInterceptor"),
+    SUBENTRY_INTERCEPTOR("subentryInterceptor"),
+    EVENT_INTERCEPTOR("eventInterceptor"),
+    TRIGGER_INTERCEPTOR("triggerInterceptor"),
+    CHANGE_LOG_INTERCEPTOR("changeLogInterceptor"),
+    COLLECTIVE_ATTRIBUTE_INTERCEPTOR("collectiveAttributeInterceptor"),
+    JOURNAL_INTERCEPTOR("journalInterceptor");
+
     /** The associated interceptor name */
     private String name;
-    
+
+
     /**
      * The private constructor
      * @param methodName The associated interceptor name
@@ -52,8 +55,8 @@ public enum InterceptorEnum {
     {
         this.name = name;
     }
-    
-    
+
+
     /**
      * @return The associated interceptor name
      */

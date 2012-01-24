@@ -162,7 +162,7 @@ public class AvlTreeMapNoDupsCursorTest
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
@@ -180,27 +180,27 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
         assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 7, null ) );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 7, null ) );
         assertFalse( cursor.available() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 7, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
         assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 9, null ) );
         assertFalse( cursor.available() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 9, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -247,7 +247,7 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
         assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
@@ -261,12 +261,12 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
         assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
@@ -313,123 +313,123 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
         assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position after first object
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 5, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
         assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 5, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
         assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position before last object
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 10, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 10, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
         assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position on last object
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 11, null ) );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 11, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position after last object
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 20, null ) );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 20, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position after last object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 20, null ) );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 20, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position on last object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 11, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
         assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 11, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
         assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position before last object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 10, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
         assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 10, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
         assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position after first object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 5, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
         assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 5, null ) );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
         assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         // position on first object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
         assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         // position before first object
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 2, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
         assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
-        
+
         cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 2, null ) );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -449,7 +449,7 @@ public class AvlTreeMapNoDupsCursorTest
         cursor.beforeValue( 0, null );
     }
 
-    
+
     @Test
     public void testCursorWithDupValues() throws Exception
     {
@@ -460,22 +460,22 @@ public class AvlTreeMapNoDupsCursorTest
 
         cursor.next();
         Tuple<Integer, SingletonOrOrderedSet<Integer>> t = cursor.get();
-     
+
         assertEquals( 3, t.getKey().intValue() );
-        
+
         assertEquals( AvlTreeImpl.class, t.getValue().getOrderedSet().getClass() );
-        
+
         AvlTree<Integer> dupsTree = t.getValue().getOrderedSet();
         assertEquals( 3, dupsTree.getSize() );
-        
+
         AvlTreeCursor<Integer> valCursor = new AvlTreeCursor<Integer>( dupsTree );
-        
+
         assertTrue( valCursor.next() );
         assertEquals( 3, valCursor.get().intValue() );
-        
+
         assertTrue( valCursor.next() );
         assertEquals( 7, valCursor.get().intValue() );
-        
+
         assertTrue( valCursor.next() );
         assertEquals( 10, valCursor.get().intValue() );
 

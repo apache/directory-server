@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.core.api.changelog;
 
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**
@@ -42,6 +42,7 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      */
     Tag tag( long revision ) throws Exception;
 
+
     /**
      * Creates a snapshot of the server at the current revision.
      *
@@ -49,6 +50,7 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws Exception if there is a problem taking a tag
      */
     Tag tag() throws Exception;
+
 
     /**
      * Creates a snapshot of the server at the current revision with a description
@@ -69,8 +71,8 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws Exception on failures to access the tag store
      */
     Tag getLatest() throws LdapException;
-    
-    
+
+
     /**
      * Removes a Tag created for a given revision.
      *
@@ -79,7 +81,8 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws Exception on failures to access the tag store
      */
     Tag removeTag( long revision ) throws Exception;
-    
+
+
     /**
      * Creates a tag with the given description for a snapshot of the server
      * in a specific state at a revision.

@@ -56,19 +56,19 @@ public class LeafEvaluator implements Evaluator
 {
     /** equality matching type constant */
     private static final int EQUALITY_MATCH = 0;
-    
+
     /** ordering matching type constant */
     private static final int ORDERING_MATCH = 1;
-    
+
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-//    /** SchemaManager needed for normalizing and comparing values */
-//    private SchemaManager schemaManager;
-    
+    //    /** SchemaManager needed for normalizing and comparing values */
+    //    private SchemaManager schemaManager;
+
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
-    
+
     /** ScopeNode evaluator we depend on */
     private ScopeEvaluator scopeEvaluator;
 
@@ -89,19 +89,18 @@ public class LeafEvaluator implements Evaluator
     }
 
 
-//    /**
-//     * Creates a leaf expression node evaluator.
-//     *
-//     * @param schemaManager The server schemaManager
-//     */
-//    public LeafEvaluator( SchemaManager schemaManager,
-//        SubstringEvaluator substringEvaluator )
-//    {
-//        this.schemaManager = schemaManager;
-//        this.scopeEvaluator = new ScopeEvaluator();
-//        this.substringEvaluator = substringEvaluator;
-//    }
-
+    //    /**
+    //     * Creates a leaf expression node evaluator.
+    //     *
+    //     * @param schemaManager The server schemaManager
+    //     */
+    //    public LeafEvaluator( SchemaManager schemaManager,
+    //        SubstringEvaluator substringEvaluator )
+    //    {
+    //        this.schemaManager = schemaManager;
+    //        this.scopeEvaluator = new ScopeEvaluator();
+    //        this.substringEvaluator = substringEvaluator;
+    //    }
 
     public ScopeEvaluator getScopeEvaluator()
     {
@@ -137,7 +136,7 @@ public class LeafEvaluator implements Evaluator
         {
             return evalGreaterOrLesser( ( GreaterEqNode<?> ) node, entry, COMPARE_GREATER );
         }
-        else if ( node instanceof LessEqNode)
+        else if ( node instanceof LessEqNode )
         {
             return evalGreaterOrLesser( ( LessEqNode<?> ) node, entry, COMPARE_LESSER );
         }
@@ -272,7 +271,7 @@ public class LeafEvaluator implements Evaluator
         // check if Ava value exists in attribute
         AttributeType attributeType = node.getAttributeType();
         Value<?> value = null;
-        
+
         if ( attributeType.getSyntax().isHumanReadable() )
         {
             if ( node.getValue().isHumanReadable() )
@@ -288,7 +287,7 @@ public class LeafEvaluator implements Evaluator
         {
             value = node.getValue();
         }
-        
+
         if ( attr.contains( value ) )
         {
             return true;
@@ -333,7 +332,7 @@ public class LeafEvaluator implements Evaluator
     private LdapComparator<? super Object> getComparator( AttributeType attributeType ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
-        
+
         return mrule.getLdapComparator();
     }
 
@@ -348,7 +347,7 @@ public class LeafEvaluator implements Evaluator
     private Normalizer getNormalizer( AttributeType attributeType ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
-        
+
         return mrule.getNormalizer();
     }
 

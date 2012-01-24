@@ -37,16 +37,16 @@ public class ChangeLogEvent
 {
     /** */
     private String zuluTime;
-    
+
     /** The committer */
     private LdapPrincipal committer;
-    
+
     /** The revision number for this event */
     private long revision;
-    
+
     /** The modification */
     private LdifEntry forwardLdif;
-    
+
     /** The revert changes. Can contain more than one single change */
     private List<LdifEntry> reverseLdifs;
 
@@ -58,12 +58,12 @@ public class ChangeLogEvent
      * @param zuluTime the timestamp for when the change occurred in generalizedTime format
      */
     public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer, LdifEntry forwardLdif,
-                           LdifEntry reverseLdif )
+        LdifEntry reverseLdif )
     {
         this.zuluTime = zuluTime;
         this.revision = revision;
         this.forwardLdif = forwardLdif;
-        this.reverseLdifs = new ArrayList<LdifEntry>(1);
+        this.reverseLdifs = new ArrayList<LdifEntry>( 1 );
         reverseLdifs.add( reverseLdif );
         this.committer = committer;
     }
@@ -79,7 +79,7 @@ public class ChangeLogEvent
      * @param reverseLdifs the reverted operations
      */
     public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer, LdifEntry forwardLdif,
-                           List<LdifEntry> reverseLdifs )
+        List<LdifEntry> reverseLdifs )
     {
         this.zuluTime = zuluTime;
         this.revision = revision;
@@ -149,35 +149,35 @@ public class ChangeLogEvent
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "ChangeLogEvent { " );
-        
+
         sb.append( "principal=" )
-        .append( getCommitterPrincipal() )
-        .append( ", " );
-        
+            .append( getCommitterPrincipal() )
+            .append( ", " );
+
         sb.append( "zuluTime=" )
-          .append( getZuluTime() )
-          .append( ", " );
-        
+            .append( getZuluTime() )
+            .append( ", " );
+
         sb.append( "revision=" )
-        .append( getRevision() )
-        .append( ", " );
-        
+            .append( getRevision() )
+            .append( ", " );
+
         sb.append( "\nforwardLdif=" )
-        .append( getForwardLdif() )
-        .append( ", " );
-        
+            .append( getForwardLdif() )
+            .append( ", " );
+
         if ( reverseLdifs != null )
         {
             sb.append( "\nreverseLdif number=" ).append( reverseLdifs.size() );
             int i = 0;
-            
-            for ( LdifEntry reverseLdif:reverseLdifs )
+
+            for ( LdifEntry reverseLdif : reverseLdifs )
             {
                 sb.append( "\nReverse[" ).append( i++ ).append( "] :\n" );
                 sb.append( reverseLdif );
             }
         }
-        
+
         sb.append( " }" );
 
         return sb.toString();

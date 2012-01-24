@@ -54,8 +54,8 @@ public interface OperationManager
      * @throws LdapException If the addition can't be processed successfully
      */
     void add( AddOperationContext addContext ) throws LdapException;
-    
-    
+
+
     /**
      * Get the RooDse entry.
      * 
@@ -63,13 +63,13 @@ public interface OperationManager
      * @return The rootDse if found
      * @throws LdapException If we can't get back the rootDse entry
      */
-    Entry getRootDse( GetRootDseOperationContext  getRootDseContext ) throws LdapException;
+    Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    boolean compare( CompareOperationContext compareContext) throws LdapException;
+    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**
@@ -125,13 +125,13 @@ public interface OperationManager
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
-    
+
     /**
      * TODO document after determining if this method should be here.
      */
     void bind( BindOperationContext bindContext ) throws LdapException;
 
-    
+
     /**
      * TODO document after determining if this method should be here.
      */

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.changelog;
 
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -33,6 +34,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A helper class which serialize and deserialize a ChangeLogEvent.
  *
@@ -43,6 +45,7 @@ public final class ChangeLogEventSerializer
     /** The LoggerFactory used by this class */
     protected static final Logger LOG = LoggerFactory.getLogger( ChangeLogEventSerializer.class );
 
+
     /**
      * Private constructor.
      */
@@ -50,7 +53,7 @@ public final class ChangeLogEventSerializer
     {
     }
 
-    
+
     /**
      * Serializes a ChangeLogEvent instance.
      * 
@@ -62,29 +65,29 @@ public final class ChangeLogEventSerializer
     {
         // The date the change has been created, "yyyyMMddHHmmss'Z'" 
         out.writeUTF( event.getZuluTime() );
-        
+
         // The committer's Principal
         LdapPrincipalSerializer.serialize( event.getCommitterPrincipal(), out );
-        
+
         // The revision
         out.writeLong( event.getRevision() );
-        
+
         // The forward LDIF
         event.getForwardLdif().writeExternal( out );
-        
+
         // The reverse LDIFs number
         int nbReverses = event.getReverseLdifs().size();
         out.writeInt( nbReverses );
-        
+
         for ( LdifEntry reverseLdif : event.getReverseLdifs() )
         {
             reverseLdif.writeExternal( out );
         }
-        
+
         out.flush();
     }
-    
-    
+
+
     /**
      * Deserializes a ChangeLogEvent instance.
      * 
@@ -98,16 +101,16 @@ public final class ChangeLogEventSerializer
     {
         // The date the change has been created, "yyyyMMddHHmmss'Z'" 
         String zuluTime = in.readUTF();
-        
+
         // The committer's Principal
         LdapPrincipal committerPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
-        
+
         // The revision
         long revision = in.readLong();
-        
+
         // The forward LDIF
         LdifEntry forwardEntry = new LdifEntry();
-        
+
         try
         {
             forwardEntry.readExternal( in );
@@ -118,12 +121,12 @@ public final class ChangeLogEventSerializer
             ioe.initCause( cnfe );
             throw ioe;
         }
-        
+
         // The reverse LDIFs number
         int nbReverses = in.readInt();
-        
+
         List<LdifEntry> reverses = new ArrayList<LdifEntry>( nbReverses );
-        
+
         for ( int i = 0; i < nbReverses; i++ )
         {
             LdifEntry reverseEntry = new LdifEntry();
@@ -138,11 +141,12 @@ public final class ChangeLogEventSerializer
                 ioe.initCause( cnfe );
                 throw ioe;
             }
-            
+
             reverses.add( reverseEntry );
         }
-        
-        ChangeLogEvent changeLogEvent = new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry, reverses );
+
+        ChangeLogEvent changeLogEvent = new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry,
+            reverses );
 
         return changeLogEvent;
     }

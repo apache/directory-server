@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api;
 
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -31,6 +32,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 
+
 public class MockCursor implements Cursor<Entry>
 {
     final int count;
@@ -38,13 +40,13 @@ public class MockCursor implements Cursor<Entry>
     SchemaManager schemaManager;
 
 
-    public MockCursor(int count)
+    public MockCursor( int count )
     {
         this.count = count;
     }
 
 
-    public boolean available() 
+    public boolean available()
     {
         return ii < count;
     }
@@ -70,7 +72,7 @@ public class MockCursor implements Cursor<Entry>
         }
 
         ii++;
-        
+
         return new Object();
     }
 
@@ -123,7 +125,7 @@ public class MockCursor implements Cursor<Entry>
     }
 
 
-    public boolean next() 
+    public boolean next()
     {
         if ( ii >= count )
         {
@@ -131,7 +133,7 @@ public class MockCursor implements Cursor<Entry>
         }
 
         ii++;
-        
+
         return true;
     }
 
@@ -142,7 +144,7 @@ public class MockCursor implements Cursor<Entry>
         {
             return false;
         }
-        
+
         ii--;
         return true;
     }

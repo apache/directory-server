@@ -138,7 +138,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         messageId.incrementAndGet();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -228,7 +228,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         addRequest.setEntryDn( entry.getDn() );
 
         AddResponse addResponse = add( addRequest );
-        
+
         processResponse( addResponse );
     }
 
@@ -666,13 +666,12 @@ public class LdapCoreSessionConnection implements LdapConnection
         modifyRequest.setName( entry.getDn() );
 
         Iterator<Attribute> itr = entry.iterator();
-        
+
         while ( itr.hasNext() )
         {
             modifyRequest.addModification( new DefaultModification( modOp, itr.next() ) );
         }
 
-        
         ModifyResponse modifyResponse = modify( modifyRequest );
 
         processResponse( modifyResponse );
@@ -710,7 +709,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         addResponseControls( modRequest, resp );
-        
+
         return resp;
     }
 
@@ -1165,7 +1164,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public void bind() throws LdapException, IOException
     {
         throw new UnsupportedOperationException(
-        "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
+            "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
     }
 
 
@@ -1254,7 +1253,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public void bind( Dn name, String credentials ) throws LdapException, IOException
     {
-        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
+        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8( credentials ) );
 
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setDn( name );

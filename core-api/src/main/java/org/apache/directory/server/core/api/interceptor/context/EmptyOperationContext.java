@@ -40,7 +40,7 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
     {
         super( session, Dn.EMPTY_DN );
     }
-    
+
 
     /**
      * Set the context Dn
@@ -53,11 +53,11 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
         {
             return;
         }
-        
+
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_324 ) );
     }
 
-    
+
     /**
      * @see Object#toString()
      */

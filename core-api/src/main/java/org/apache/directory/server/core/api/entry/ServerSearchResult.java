@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.api.entry;
 
 
-
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+
 
 /**
  * Creates a wrapper around a SearchResult object so that we can use the Dn
@@ -34,16 +34,16 @@ public class ServerSearchResult
 {
     /** Distinguished name for this result */
     private Dn dn;
-    
+
     /** The associated entry */
     private Entry serverEntry;
-    
+
     /** Tells if the name is relative to the target context */
     private boolean isRelative;
-    
+
     /** The bound object */
     private Object object;
-    
+
 
     /**
      * 
@@ -84,8 +84,8 @@ public class ServerSearchResult
     {
         return dn;
     }
-    
-    
+
+
     /**
      * @return The entry
      */
@@ -95,42 +95,42 @@ public class ServerSearchResult
     }
 
 
-    public boolean isRelative() 
+    public boolean isRelative()
     {
         return isRelative;
     }
 
 
-    public void setRelative( boolean isRelative ) 
+    public void setRelative( boolean isRelative )
     {
         this.isRelative = isRelative;
     }
 
 
-    public void setServerEntry( Entry serverEntry ) 
+    public void setServerEntry( Entry serverEntry )
     {
         this.serverEntry = serverEntry;
     }
 
 
-    public Object getObject() 
+    public Object getObject()
     {
         return object;
     }
 
 
-    public void setObject( Object object ) 
+    public void setObject( Object object )
     {
         this.object = object;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        String name = (dn == null ? "null" : ( dn == Dn.EMPTY_DN ? "\"\"" : dn.getName() ) );
+        String name = ( dn == null ? "null" : ( dn == Dn.EMPTY_DN ? "\"\"" : dn.getName() ) );
         return "ServerSearchResult : " + name + "\n" + serverEntry;
     }
 }

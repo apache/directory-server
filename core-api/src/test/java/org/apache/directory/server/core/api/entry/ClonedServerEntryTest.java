@@ -51,6 +51,7 @@ public class ClonedServerEntryTest
     private static Entry clonedServerEntryB1;
     private static Entry clonedServerEntryC1;
 
+
     /**
      * Initialize name instances
      */

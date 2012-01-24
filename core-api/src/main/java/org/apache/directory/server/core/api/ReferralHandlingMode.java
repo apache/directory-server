@@ -33,19 +33,19 @@ import org.apache.directory.shared.util.Strings;
  */
 public enum ReferralHandlingMode
 {
-    THROW( "throw" ), 
-    FOLLOW( "follow" ), 
-    IGNORE( "ignore" ), 
-    THROW_FINDING_BASE( "throw-finding-base" );
-    
+    THROW("throw"),
+    FOLLOW("follow"),
+    IGNORE("ignore"),
+    THROW_FINDING_BASE("throw-finding-base");
+
     /** 
      * The JNDI Context.REFERRAL key's value.
      * 
      * @see Context#REFERRAL
      */
     private final String jndiValue;
-    
-    
+
+
     /**
      * Creates a new instance of ReferralHandlingMode.
      *
@@ -56,8 +56,8 @@ public enum ReferralHandlingMode
     {
         this.jndiValue = jndiValue;
     }
-    
-    
+
+
     /**
      * Gets the equivalent JNDI Context.REFERRAL key's value for this enumeration constant.
      *
@@ -68,8 +68,8 @@ public enum ReferralHandlingMode
     {
         return jndiValue;
     }
-    
-    
+
+
     /**
      * Gets the enumeration constant for the JNDI Context.REFERRAL key's value.
      *
@@ -81,27 +81,27 @@ public enum ReferralHandlingMode
     public static final ReferralHandlingMode getModeFromJndi( String jndiValue )
     {
         jndiValue = Strings.toLowerCase( Strings.trim( jndiValue ) );
-        
+
         if ( jndiValue.equals( "throw" ) )
         {
             return THROW;
         }
-        
+
         if ( jndiValue.equals( "follow" ) )
         {
             return FOLLOW;
         }
-        
+
         if ( jndiValue.equals( "ignore" ) )
         {
             return IGNORE;
         }
-        
+
         if ( jndiValue.equals( "throw-finding-base" ) )
         {
             return THROW_FINDING_BASE;
         }
-        
+
         throw new IllegalArgumentException( I18n.err( I18n.ERR_437, jndiValue ) );
     }
 }

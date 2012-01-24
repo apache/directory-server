@@ -54,37 +54,38 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 {
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( SearchingOperationContext.class );
-    
+
     /** A flag describing the way alias should be handled */
     protected AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
     /** The sizeLimit for this search operation */
     protected long sizeLimit = 0;
-    
+
     /** The timeLimit for this search operation */
     protected int timeLimit = 0;
-    
+
     /** The scope for this search : default to One Level */
     protected SearchScope scope = ONELEVEL;
 
     /** A flag set if the returned attributes set contains '+' */
     protected boolean allOperationalAttributes = false;
-    
+
     /** A flag set if the returned attributes set contains '*' */
     protected boolean allUserAttributes = false;
-    
+
     /** A flag set if the returned attributes set contains '1.1' */
     protected boolean noAttributes = false;
-    
+
     /** A set containing the returning attributeTypesOptions */
-    protected Set<AttributeTypeOptions> returningAttributes; 
-    
+    protected Set<AttributeTypeOptions> returningAttributes;
+
     /** A flag if the search operation is abandoned */
     protected boolean abandoned = false;
-    
+
     /** A flag to tell if only the attribute names to be returned */
     protected boolean typesOnly = false;
-    
+
+
     /**
      * Creates a new instance of SearchingOperationContext.
      */
@@ -120,19 +121,19 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
 
 
-    protected void setReturningAttributes( Collection<String> attributesIds ) 
+    protected void setReturningAttributes( Collection<String> attributesIds )
         throws LdapException
     {
         setReturningAttributes( attributesIds.toArray( StringConstants.EMPTY_STRINGS ) );
     }
-    
-    
+
+
     public void setReturningAttributes( String[] attributesIds ) throws LdapException
     {
         if ( attributesIds != null && attributesIds.length != 0 )
         {
             returningAttributes = new HashSet<AttributeTypeOptions>();
-            
+
             for ( String returnAttribute : attributesIds )
             {
                 if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
@@ -140,46 +141,47 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     noAttributes = true;
                     continue;
                 }
-                
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                 {
                     allOperationalAttributes = true;
                     continue;
                 }
-                
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
                 {
                     allUserAttributes = true;
                     continue;
                 }
-                
+
                 try
                 {
                     String id = SchemaUtils.stripOptions( returnAttribute );
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
-                    
+
                     AttributeType attributeType = session.getDirectoryService()
                         .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-                   
+
                     returningAttributes.add( attrOptions );
                 }
                 catch ( LdapNoSuchAttributeException nsae )
                 {
-                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored", returnAttribute );
+                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
+                        returnAttribute );
                     // Unknown attributes should be silently ignored, as RFC 2251 states
                 }
             }
-            
+
             // reset the noAttrubte flag if it is already set cause that will be ignored if any other AT is requested
-            if( noAttributes && ( allUserAttributes || allOperationalAttributes || ( ! returningAttributes.isEmpty() ) ) )
+            if ( noAttributes && ( allUserAttributes || allOperationalAttributes || ( !returningAttributes.isEmpty() ) ) )
             {
                 noAttributes = false;
-            }   
+            }
         }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -188,7 +190,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         return "ListOperationContext with Dn '" + getDn().getName() + "'";
     }
 
-    
+
     public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
@@ -341,7 +343,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         return returningAttributes;
     }
 
-    
+
     /**
      * Creates a new SearchControls object populated with the parameters 
      * contained in this SearchOperationContext in normalized form.
@@ -352,8 +354,8 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     {
         return getSearchControls( false );
     }
-    
-    
+
+
     /**
      * Creates a new SearchControls object populated with the parameters 
      * contained in this SearchOperationContext.
@@ -369,22 +371,22 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         controls.setTimeLimit( timeLimit );
 
         Set<String> allReturningAttributes = new HashSet<String>();
-        
+
         if ( noAttributes )
         {
             allReturningAttributes.add( SchemaConstants.NO_ATTRIBUTE );
         }
-        
+
         if ( allUserAttributes )
         {
             allReturningAttributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
         }
-        
+
         if ( allOperationalAttributes )
         {
             allReturningAttributes.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
         }
-        
+
         if ( returningAttributes != null )
         {
             for ( AttributeTypeOptions at : returningAttributes )
@@ -399,12 +401,12 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                 }
             }
         }
-        
+
         if ( allReturningAttributes.size() > 0 )
         {
             controls.setReturningAttributes( allReturningAttributes.toArray( ArrayUtils.EMPTY_STRING_ARRAY ) );
         }
-        
+
         return controls;
     }
 

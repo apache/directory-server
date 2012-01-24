@@ -116,7 +116,6 @@ public abstract class BaseInterceptor implements Interceptor
     /** A starage for the uniqueMember attributeType */
     protected static AttributeType UNIQUE_MEMBER_AT;
 
-
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
      */

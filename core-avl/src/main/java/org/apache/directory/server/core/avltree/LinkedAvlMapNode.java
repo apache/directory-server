@@ -29,7 +29,7 @@ public class LinkedAvlMapNode<K, V>
 {
     /** The key stored in the node */
     K key;
-    
+
     /** the value stored in the node */
     SingletonOrOrderedSet<V> value;
 

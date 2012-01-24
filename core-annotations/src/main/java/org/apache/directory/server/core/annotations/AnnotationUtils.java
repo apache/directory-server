@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
 
 /**
  * An helper class used to find annotations in methods and classes
@@ -40,15 +42,15 @@ public class AnnotationUtils
     public static Object getInstance( Class<? extends Annotation> clazz ) throws ClassNotFoundException
     {
         Object instance = null;
-        
+
         // Get the caller by inspecting the stackTrace
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
         // Iterate on the stack trace.
-        for ( int i = stackTrace.length - 1; i >= 0  ; i-- )
+        for ( int i = stackTrace.length - 1; i >= 0; i-- )
         {
             Class<?> classCaller = null;
-            
+
             // Get the current class
             try
             {
@@ -59,37 +61,37 @@ public class AnnotationUtils
                 // Corner case : we just have to go higher in the stack in this case.
                 continue;
             }
-    
+
             // Get the current method
             String methodCaller = stackTrace[i].getMethodName();
-    
+
             // Check if we have any annotation associated with the method
             Method[] methods = classCaller.getMethods();
-    
+
             for ( Method method : methods )
             {
                 if ( methodCaller.equals( method.getName() ) )
                 {
                     instance = method.getAnnotation( clazz );
-    
+
                     if ( instance != null )
                     {
                         break;
                     }
                 }
             }
-            
+
             if ( instance == null )
             {
                 instance = classCaller.getAnnotation( clazz );
             }
-            
+
             if ( instance != null )
             {
                 break;
             }
         }
-        
+
         return instance;
     }
 }

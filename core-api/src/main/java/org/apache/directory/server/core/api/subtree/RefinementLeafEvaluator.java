@@ -53,7 +53,7 @@ public class RefinementLeafEvaluator
      *
      * @param schemaManager The server schemaManager
      */
-    public RefinementLeafEvaluator( SchemaManager schemaManager)
+    public RefinementLeafEvaluator( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -76,12 +76,12 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
         }
-        
-        if ( !( node instanceof EqualityNode) )
+
+        if ( !( node instanceof EqualityNode ) )
         {
             throw new LdapException( I18n.err( I18n.ERR_301, node ) );
         }
-        
+
         if ( node.isSchemaAware() )
         {
             if ( !node.getAttributeType().equals( OBJECT_CLASS_AT ) )
@@ -90,18 +90,17 @@ public class RefinementLeafEvaluator
             }
         }
         else if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) &&
-                  !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
         }
-            
 
         if ( null == objectClasses )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_303 ) );
         }
-        
-        if ( !(  objectClasses.isInstanceOf( OBJECT_CLASS_AT ) ) )
+
+        if ( !( objectClasses.isInstanceOf( OBJECT_CLASS_AT ) ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
         }
@@ -114,15 +113,15 @@ public class RefinementLeafEvaluator
         {
             return true;
         }
-        
+
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
             Iterator<String> list = schemaManager.getGlobalOidRegistry().getNameSet( value ).iterator();
-            
+
             while ( list.hasNext() )
             {
                 String objectClass = list.next();
-                
+
                 if ( objectClasses.contains( objectClass ) )
                 {
                     return true;

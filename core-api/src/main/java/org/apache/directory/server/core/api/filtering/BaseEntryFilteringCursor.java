@@ -58,22 +58,21 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 
     /** the underlying wrapped search results Cursor */
     private final Cursor<Entry> wrapped;
-    
+
     /** the parameters associated with the search operation */
     private final SearchingOperationContext operationContext;
-    
+
     /** the list of filters to be applied */
     private final List<EntryFilter> filters;
-    
+
     /** the first accepted search result that is pre fetched */
     private Entry prefetched;
 
-    
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * single filter initially: more can be added later after creation.
@@ -83,13 +82,13 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, EntryFilter filter )
     {
         this( wrapped, operationContext, Collections.singletonList( filter ) );
     }
 
-    
+
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * no filter initially: more can be added later after creation.
@@ -106,7 +105,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         this.filters = new ArrayList<EntryFilter>();
     }
 
-    
+
     /**
      * Creates a new entry filtering Cursor over an existing Cursor using a 
      * list of filters initially: more can be added later after creation.
@@ -116,7 +115,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filters a list of filters to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
         this.wrapped = wrapped;
@@ -124,13 +123,12 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         this.filters = new ArrayList<EntryFilter>();
         this.filters.addAll( filters );
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // Class Specific Methods
     // ------------------------------------------------------------------------
 
-    
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isAbandoned()
      */
@@ -138,22 +136,22 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         return getOperationContext().isAbandoned();
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#setAbandoned(boolean)
      */
     public void setAbandoned( boolean abandoned )
     {
         getOperationContext().setAbandoned( abandoned );
-        
+
         if ( abandoned )
         {
             log.info( "Cursor has been abandoned." );
         }
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#addEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
@@ -161,8 +159,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         return filters.add( filter );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#removeEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
@@ -170,8 +168,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         return filters.remove( filter );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getEntryFilters()
      */
@@ -179,8 +177,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         return Collections.unmodifiableList( filters );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getOperationContext()
      */
@@ -189,12 +187,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         return operationContext;
     }
 
-    
+
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
 
-    
     /* 
      * @see Cursor#after(Object)
      */
@@ -281,8 +278,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         wrapped.close( reason );
         prefetched = null;
     }
-    
-    
+
+
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         wrapped.setClosureMonitor( monitor );
@@ -303,7 +300,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
+
         beforeFirst();
         return next();
     }
@@ -321,7 +318,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         {
             return prefetched;
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
@@ -356,22 +353,23 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         afterLast();
         return previous();
     }
-    
-    
+
+
     private void filterContents( Entry entry ) throws Exception
     {
         boolean typesOnly = getOperationContext().isTypesOnly();
 
         boolean returnAll = ( getOperationContext().getReturningAttributes() == null ||
-            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) ) && ( ! typesOnly );
-        
+            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) )
+            && ( !typesOnly );
+
         if ( returnAll )
         {
             return;
         }
 
-        Entry originalEntry = ((ClonedServerEntry)entry).getOriginalEntry();
-        
+        Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+
         if ( getOperationContext().isNoAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
@@ -379,53 +377,52 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 AttributeType attributeType = attribute.getAttributeType();
                 entry.remove( entry.get( attributeType ) );
             }
-            
+
             return;
         }
-        
-        
+
         if ( getOperationContext().isAllUserAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
-                
+
                 boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
-                
-                if (  isNotRequested && isNotUserAttribute )
+
+                if ( isNotRequested && isNotUserAttribute )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
-            
+
             return;
         }
-        
+
         if ( getOperationContext().isAllOperationalAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
@@ -434,50 +431,50 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 }
 
                 boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
-                
+
                 if ( isNotRequested && isUserAttribute )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
-            
+
             return;
         }
-        
+
         if ( getOperationContext().getReturningAttributes() != null )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+
+                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) || 
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
                         attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
                     }
                 }
-    
+
                 if ( isNotRequested )
                 {
                     entry.removeAttributes( attributeType );
                 }
-                else if( typesOnly )
+                else if ( typesOnly )
                 {
                     entry.get( attributeType ).clear();
                 }
             }
         }
     }
-    
-    
+
+
     /* 
      * @see Cursor#next()
      */
@@ -492,15 +489,15 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
+
         Entry tempResult = null;
-        
+
         outer: while ( wrapped.next() )
         {
             boolean accepted = true;
-            
+
             Entry tempEntry = wrapped.get();
-            
+
             if ( tempEntry instanceof ClonedServerEntry )
             {
                 tempResult = tempEntry;
@@ -509,7 +506,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             {
                 tempResult = new ClonedServerEntrySearch( tempEntry );
             }
-            
+
             /*
              * O P T I M I Z A T I O N
              * -----------------------
@@ -517,40 +514,40 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              * Don't want to waste cycles on enabling a loop for processing 
              * filters if we have zero or one filter.
              */
-            
+
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
-            if ( ( filters.size() == 1 ) &&  filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+
+            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
+
             /* E N D   O P T I M I Z A T I O N */
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
                     continue outer;
                 }
             }
-            
+
             /*
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
             filterContents( prefetched );
-            
+
             return true;
         }
-        
+
         prefetched = null;
         return false;
     }
@@ -570,14 +567,14 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
+
         Entry tempResult = null;
-        
+
         outer: while ( wrapped.previous() )
         {
             boolean accepted = true;
             tempResult = new ClonedServerEntrySearch( wrapped.get() );
-            
+
             /*
              * O P T I M I Z A T I O N
              * -----------------------
@@ -585,32 +582,32 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              * Don't want to waste cycles on enabling a loop for processing 
              * filters if we have zero or one filter.
              */
-            
+
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
+
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
                 filterContents( prefetched );
                 return true;
             }
-            
+
             /* E N D   O P T I M I Z A T I O N */
-            
+
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
                     continue outer;
                 }
             }
-            
+
             /*
              * Here the entry has been accepted by all filters.
              */
@@ -618,9 +615,9 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             filterContents( prefetched );
             return true;
         }
-        
+
         prefetched = null;
-        
+
         return false;
     }
 

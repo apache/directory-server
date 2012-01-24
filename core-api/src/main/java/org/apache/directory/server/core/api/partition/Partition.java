@@ -278,8 +278,8 @@ public interface Partition
      * @throws Exception if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
-    
-    
+
+
     /**
      * Dump the requested index to a given stream
      * @param name The index to dump to stdout

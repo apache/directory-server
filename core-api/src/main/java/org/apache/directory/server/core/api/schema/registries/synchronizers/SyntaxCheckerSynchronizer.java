@@ -126,7 +126,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
-                    Strings.listToString(schemaManager.getErrors()) );
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -151,7 +151,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the SyntaxChecker's instance
         String schemaName = getSchemaName( entry.getDn() );
-        
+
         // Get the Schema
         Schema schema = schemaManager.getLoadedSchema( schemaName );
 
@@ -159,7 +159,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The SyntaxChecker {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
-            
+
             return;
         }
 
@@ -201,7 +201,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
-                    Strings.listToString(schemaManager.getErrors()) );
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -327,7 +327,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
     }
 
-    
+
     /**
      * Check that a SyntaxChecker exists in the SyntaxCheckerRegistry, and if so,
      * return it.
@@ -338,7 +338,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( oid ) )
         {
-            return (SyntaxChecker)schemaManager.getSyntaxCheckerRegistry().get( oid );
+            return ( SyntaxChecker ) schemaManager.getSyntaxCheckerRegistry().get( oid );
         }
         else
         {

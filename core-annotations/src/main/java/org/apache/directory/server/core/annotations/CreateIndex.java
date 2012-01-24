@@ -18,12 +18,14 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.directory.server.xdbm.Index;
+
 
 /**
  * An annotation for the Index creation. It's used when we need to inject an
@@ -43,16 +45,19 @@ import org.apache.directory.server.xdbm.Index;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateIndex
 {
     /** The index implementation class */
     @SuppressWarnings("unchecked")
     Class<? extends Index> type() default Index.class;
-    
+
+
     /** The cache size */
     int cacheSize() default 1000;
-    
+
+
     /** The indexed attribute */
     String attribute();
 }

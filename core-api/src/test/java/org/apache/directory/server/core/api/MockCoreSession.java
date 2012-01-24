@@ -206,7 +206,7 @@ public class MockCoreSession implements CoreSession
             }
             else if ( value instanceof byte[] )
             {
-                val = new StringValue( attributeType, Strings.utf8ToString((byte[]) value) );
+                val = new StringValue( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
             }
             else
             {
@@ -217,7 +217,7 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new BinaryValue( attributeType, Strings.getBytesUtf8((String) value) );
+                val = new BinaryValue( attributeType, Strings.getBytesUtf8( ( String ) value ) );
             }
             else if ( value instanceof byte[] )
             {
@@ -511,7 +511,7 @@ public class MockCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
         LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
         lookupContext.addRequestControls( controls );
-        
+
         return operationManager.lookup( lookupContext );
     }
 
@@ -812,7 +812,7 @@ public class MockCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return Strings.isEmpty(getEffectivePrincipal().getName());
+        return Strings.isEmpty( getEffectivePrincipal().getName() );
     }
 
 
@@ -861,12 +861,12 @@ public class MockCoreSession implements CoreSession
         return exists( new Dn( dn ) );
     }
 
-    
+
     public boolean exists( Dn dn ) throws LdapException
     {
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
-        
+
         return operationManager.hasEntry( hasEntryContext );
     }
 

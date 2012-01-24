@@ -1146,15 +1146,15 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     {
         return allowDuplicates;
     }
-    
-    
+
+
     /**
      * removes all the nodes from the tree
      */
     public void removeAll()
     {
         LinkedAvlMapNode<K, V> tmp;
-        
+
         while ( first != null )
         {
             tmp = first;

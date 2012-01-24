@@ -39,8 +39,8 @@ public interface ChangeOperationContext extends OperationContext
      * @return the ChangeLogEvent associated with this operation, or null
      */
     ChangeLogEvent getChangeLogEvent();
-    
-    
+
+
     /**
      * Set the flag which tells the server to log the changes into
      * the changeLog file
@@ -49,7 +49,7 @@ public interface ChangeOperationContext extends OperationContext
      */
     void setLogChange( LogChange log );
 
-    
+
     /**
      * @return True if the changes are logged into the changeLog
      */

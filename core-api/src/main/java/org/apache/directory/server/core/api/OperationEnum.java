@@ -19,49 +19,52 @@
  */
 package org.apache.directory.server.core.api;
 
+
 /**
  * The list of Operation we can process on the Interceptors.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public enum OperationEnum {
-    ADD( "add" ),
-    BIND( "bind" ),
-    COMPARE( "compare" ),
-    DELETE( "delete" ),
-    GET_ROOT_DSE( "getRootDse" ),
-    HAS_ENTRY( "hasEntry" ),
-    LIST( "list" ),
-    LOOKUP( "lookup" ),
-    MODIFY( "modify" ),
-    MOVE( "move" ),
-    MOVE_AND_RENAME( "moveAndRename" ),
-    RENAME( "rename" ),
-    SEARCH( "search" ),
-    UNBIND( "unbind" );
-    
+public enum OperationEnum
+{
+    ADD("add"),
+    BIND("bind"),
+    COMPARE("compare"),
+    DELETE("delete"),
+    GET_ROOT_DSE("getRootDse"),
+    HAS_ENTRY("hasEntry"),
+    LIST("list"),
+    LOOKUP("lookup"),
+    MODIFY("modify"),
+    MOVE("move"),
+    MOVE_AND_RENAME("moveAndRename"),
+    RENAME("rename"),
+    SEARCH("search"),
+    UNBIND("unbind");
+
     /** The associated method name */
     private String methodName;
-    
+
     /** A list of all the operations */
     private static OperationEnum[] operations = new OperationEnum[]
-            {
-                ADD,
-                BIND,
-                COMPARE,
-                DELETE,
-                GET_ROOT_DSE,
-                HAS_ENTRY,
-                LIST,
-                LOOKUP,
-                MODIFY,
-                MOVE,
-                MOVE_AND_RENAME,
-                RENAME,
-                SEARCH,
-                UNBIND
-            };
-    
+        {
+            ADD,
+            BIND,
+            COMPARE,
+            DELETE,
+            GET_ROOT_DSE,
+            HAS_ENTRY,
+            LIST,
+            LOOKUP,
+            MODIFY,
+            MOVE,
+            MOVE_AND_RENAME,
+            RENAME,
+            SEARCH,
+            UNBIND
+    };
+
+
     /**
      * The private constructor
      * @param methodName The associated method name
@@ -70,8 +73,8 @@ public enum OperationEnum {
     {
         this.methodName = methodName;
     }
-    
-    
+
+
     /**
      * @return The associated method name
      */
@@ -79,8 +82,8 @@ public enum OperationEnum {
     {
         return methodName;
     }
-    
-    
+
+
     /**
      * @return The list of all the operations
      */

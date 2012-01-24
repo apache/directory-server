@@ -46,7 +46,7 @@ public interface Journal
      * @param enabled true to enable the service, false to disable it
      */
     void setEnabled( boolean enabled );
-    
+
 
     /**
      * @return The underlying storage
@@ -71,7 +71,7 @@ public interface Journal
      */
     void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException;
 
-    
+
     /**
      * Records a ack for a change
      *
@@ -79,7 +79,7 @@ public interface Journal
      */
     void ack( long revision );
 
-    
+
     /**
      * Records a nack for a change
      *
@@ -87,7 +87,7 @@ public interface Journal
      */
     void nack( long revision );
 
-    
+
     /**
      * Initialize the Journal.
      * 
@@ -96,7 +96,7 @@ public interface Journal
      */
     void init( DirectoryService service ) throws Exception;
 
-    
+
     /**
      * Destroy the journal service
      * @throws Exception If something went wrong

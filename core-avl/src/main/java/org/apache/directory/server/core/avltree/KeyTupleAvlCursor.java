@@ -32,12 +32,12 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
+public class KeyTupleAvlCursor<K, V> extends AbstractTupleCursor<K, V>
 {
     private final AvlTreeCursor<V> wrapped;
     private final K key;
 
-    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
+    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
     private boolean valueAvailable;
 
 
@@ -83,7 +83,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        if ( key != null && ! key.equals( this.key ) )
+        if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
@@ -96,7 +96,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
     public void afterValue( K key, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        if ( key != null && ! key.equals( this.key ) )
+        if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
@@ -114,7 +114,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K,V> element ) throws Exception
+    public void before( Tuple<K, V> element ) throws Exception
     {
         checkNotClosed( "before()" );
         wrapped.before( element.getValue() );
@@ -122,7 +122,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void after( Tuple<K,V> element ) throws Exception
+    public void after( Tuple<K, V> element ) throws Exception
     {
         checkNotClosed( "after()" );
         wrapped.after( element.getValue() );
@@ -194,7 +194,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public Tuple<K,V> get() throws Exception
+    public Tuple<K, V> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( valueAvailable )

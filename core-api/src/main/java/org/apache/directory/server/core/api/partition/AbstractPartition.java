@@ -48,17 +48,18 @@ public abstract class AbstractPartition implements Partition
 
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
-    
+
     /** The partition ID */
     protected String id;
-    
+
     /** The root Dn for this partition */
     protected Dn suffixDn;
+
 
     /**
      * {@inheritDoc}
      */
-    public void initialize( ) throws LdapException
+    public void initialize() throws LdapException
     {
         if ( initialized )
         {
@@ -176,8 +177,8 @@ public abstract class AbstractPartition implements Partition
     {
         return suffixDn;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -192,8 +193,8 @@ public abstract class AbstractPartition implements Partition
             this.suffixDn.apply( schemaManager );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -202,7 +203,7 @@ public abstract class AbstractPartition implements Partition
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
     }
 
-    
+
     /**
      * Check that the operation is done on an initialized store
      * @param property

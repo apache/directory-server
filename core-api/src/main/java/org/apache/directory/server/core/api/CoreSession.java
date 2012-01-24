@@ -67,7 +67,7 @@ public interface CoreSession
      */
     DirectoryService getDirectoryService();
 
-    
+
     /**
      * Gets the anonymous LDAP principal used to authenticate.
      *
@@ -75,7 +75,7 @@ public interface CoreSession
      */
     LdapPrincipal getAnonymousPrincipal();
 
-    
+
     /**
      * Gets the LDAP principal used to authenticate.  This is the identity 
      * used to establish this session on authentication.
@@ -83,8 +83,8 @@ public interface CoreSession
      * @return the LdapPrincipal used to authenticate.
      */
     LdapPrincipal getAuthenticatedPrincipal();
-    
-    
+
+
     /**
      * Gets the LDAP principal used for the effective identity associated with
      * this session which may not be the same as the authenticated principal.  
@@ -106,23 +106,23 @@ public interface CoreSession
      */
     LdapPrincipal getEffectivePrincipal();
 
-    
+
     /**
      * Gets whether or not confidentiality is enabled for this session.
      * 
      * @return true if confidentiality is enabled, false otherwise
      */
     boolean isConfidential();
-    
-    
+
+
     /**
      * Gets whether or not this user is anonymous.
      *
      * @return true if the identity is anonymous false otherwise
      */
     boolean isAnonymous();
-    
-    
+
+
     /**
      * Returns true if the effective principal associated with this session is 
      * the administrator.
@@ -131,8 +131,8 @@ public interface CoreSession
      * @return true if authorized as the administrator, false otherwise
      */
     boolean isAdministrator();
-    
-    
+
+
     /**
      * Returns true if the effective principal associated with this session is 
      * the administrator or is within the administrators group.
@@ -142,24 +142,24 @@ public interface CoreSession
      * @return true if authorized as an administrator, false otherwise
      */
     boolean isAnAdministrator();
-    
-    
+
+
     /**
      * Gets the authentication level associated with this session.
      * 
      * @return the authentication level associated with the session
      */
     AuthenticationLevel getAuthenticationLevel();
-    
-    
+
+
     /**
      * Gets the controls enabled for this session.
      * 
      * @return the session controls as a Set
      */
     Set<Control> getControls();
-    
-    
+
+
     /**
      * Gets all outstanding operations currently being performed that have yet 
      * to be completed.
@@ -168,7 +168,7 @@ public interface CoreSession
      */
     Set<OperationContext> getOutstandingOperations();
 
-    
+
     /**
      * Gets whether or not this session is virtual.  Virtual sessions verses 
      * real sessions represent logical sessions established by non-LDAP 
@@ -177,8 +177,8 @@ public interface CoreSession
      * @return true if the session is virtual, false otherwise
      */
     boolean isVirtual();
-    
-    
+
+
     /**
      * Gets the socket address of the LDAP client or null if there is no LDAP
      * client associated with the session.  Some calls to the core can be made
@@ -202,8 +202,8 @@ public interface CoreSession
      * associated with a real LDAP service
      */
     SocketAddress getServiceAddress();
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Operation Methods
     // -----------------------------------------------------------------------
@@ -214,8 +214,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( Entry entry ) throws LdapException;
-    
-    
+
+
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * 
@@ -224,8 +224,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( Entry entry, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The flag is used to tell the server to ignore the referrals and manipulate
@@ -236,8 +236,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( Entry entry, boolean ignoreReferral ) throws LdapException;
-    
-    
+
+
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The flag is used to tell the server to ignore the referrals and manipulate
@@ -249,8 +249,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( Entry entry, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
@@ -259,8 +259,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( AddRequest addRequest ) throws LdapException;
-    
-    
+
+
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
@@ -270,8 +270,8 @@ public interface CoreSession
      * @exception Exception on failures to add the entry
      */
     void add( AddRequest addRequest, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Checks to see if an attribute in an entry contains a value.
      *
@@ -281,8 +281,8 @@ public interface CoreSession
      * @throws Exception if there are failures while comparing
      */
     boolean compare( Dn dn, String oid, Object value ) throws LdapException;
-    
-    
+
+
     /**
      * Checks to see if an attribute in an entry contains a value.
      * The flag is used to tell the server to ignore the referrals and manipulate
@@ -295,8 +295,8 @@ public interface CoreSession
      * @throws Exception if there are failures while comparing
      */
     boolean compare( Dn dn, String oid, Object value, boolean ignoreReferral ) throws LdapException;
-    
-    
+
+
     /**
      * Checks to see if an attribute in an entry contains a value.
      *
@@ -305,7 +305,7 @@ public interface CoreSession
      */
     boolean compare( CompareRequest compareRequest ) throws LdapException;
 
-    
+
     /**
      * Deletes an entry in the server.
      *
@@ -314,7 +314,7 @@ public interface CoreSession
      */
     void delete( Dn dn ) throws LdapException;
 
-    
+
     /**
      * Deletes an entry in the server.
      *
@@ -323,8 +323,8 @@ public interface CoreSession
      * @throws Exception if there are failures while deleting the entry
      */
     void delete( Dn dn, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Deletes an entry in the server.
      *
@@ -333,8 +333,8 @@ public interface CoreSession
      * @throws Exception if there are failures while deleting the entry
      */
     void delete( DeleteRequest deleteRequest ) throws LdapException;
-    
-    
+
+
     /**
      * Deletes an entry in the server. The operation can be logged if requested
      *
@@ -345,7 +345,7 @@ public interface CoreSession
      */
     void delete( DeleteRequest deleteRequest, LogChange log ) throws LdapException;
 
-    
+
     /**
      * Deletes an entry in the server.
      * The flag is used to tell the server to ignore the referrals and manipulate
@@ -356,8 +356,8 @@ public interface CoreSession
      * @throws Exception if there are failures while deleting the entry
      */
     void delete( Dn dn, boolean ignoreReferral ) throws LdapException;
-    
-    
+
+
     /**
      * Deletes an entry in the server.
      * The flag is used to tell the server to ignore the referrals and manipulate
@@ -369,20 +369,20 @@ public interface CoreSession
      * @throws Exception if there are failures while deleting the entry
      */
     void delete( Dn dn, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Checks to see if an entry exists. 
      */
     boolean exists( String dn ) throws LdapException;
-    
-    
+
+
     /**
      * Checks to see if an entry exists. 
      */
     boolean exists( Dn dn ) throws LdapException;
-    
-    
+
+
     /**
      * Looks up an entry in the server returning all attributes: both user and
      * operational attributes.
@@ -392,7 +392,7 @@ public interface CoreSession
      */
     Entry lookup( Dn dn ) throws LdapException;
 
-    
+
     /**
      * Looks up an entry in the server returning all attributes: both user and
      * operational attributes.
@@ -403,7 +403,7 @@ public interface CoreSession
      */
     Entry lookup( Dn dn, String... atIds ) throws LdapException;
 
-    
+
     /**
      * Looks up an entry in the server returning all attributes: both user and
      * operational attributes.
@@ -415,7 +415,7 @@ public interface CoreSession
      */
     Entry lookup( Dn dn, Control[] controls, String... atIds ) throws LdapException;
 
-    
+
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -426,7 +426,7 @@ public interface CoreSession
      */
     void modify( Dn dn, List<Modification> mods ) throws LdapException;
 
-    
+
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -436,8 +436,8 @@ public interface CoreSession
      * @throws Exception if there are failures while modifying the entry
      */
     void modify( Dn dn, Modification... mods ) throws LdapException;
-    
-    
+
+
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -448,8 +448,8 @@ public interface CoreSession
      * @throws Exception if there are failures while modifying the entry
      */
     void modify( Dn dn, List<Modification> mods, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -462,8 +462,8 @@ public interface CoreSession
      * @throws Exception if there are failures while modifying the entry
      */
     void modify( Dn dn, List<Modification> mods, boolean ignoreReferral ) throws LdapException;
-    
-    
+
+
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -477,14 +477,14 @@ public interface CoreSession
      * @throws Exception if there are failures while modifying the entry
      */
     void modify( Dn dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+
+
     void modify( ModifyRequest modifyRequest ) throws LdapException;
-    
-    
+
+
     void modify( ModifyRequest modifyRequest, LogChange log ) throws LdapException;
 
-    
+
     /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
@@ -494,8 +494,8 @@ public interface CoreSession
      * @exception if there are failures while moving the entry/branch
      */
     void move( Dn dn, Dn newParent ) throws LdapException;
-    
-    
+
+
     /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
@@ -506,8 +506,8 @@ public interface CoreSession
      * @exception if there are failures while moving the entry/branch
      */
     void move( Dn dn, Dn newParent, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
@@ -518,8 +518,8 @@ public interface CoreSession
      * @exception if there are failures while moving the entry/branch
      */
     void move( Dn dn, Dn newParent, boolean ignoreReferral ) throws Exception;
-    
-    
+
+
     /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
@@ -531,8 +531,8 @@ public interface CoreSession
      * @exception if there are failures while moving the entry/branch
      */
     void move( Dn dn, Dn newParent, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Move an entry by changing its superior.
      *
@@ -540,8 +540,8 @@ public interface CoreSession
      * @throws Exception if there are failures while moving the entry/branch
      */
     void move( ModifyDnRequest modifyDnRequest ) throws LdapException;
-    
-    
+
+
     /**
      * Move an entry by changing its superior.
      *
@@ -550,8 +550,8 @@ public interface CoreSession
      * @throws Exception if there are failures while moving the entry/branch
      */
     void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Moves and renames (the relative distinguished name of) an entry (or a 
      * branch if the entry has children) at a specified distinguished name to 
@@ -565,8 +565,8 @@ public interface CoreSession
      * or branch
      */
     void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn ) throws LdapException;
-    
-    
+
+
     /**
      * Moves and renames (the relative distinguished name of) an entry (or a 
      * branch if the entry has children) at a specified distinguished name to 
@@ -581,8 +581,8 @@ public interface CoreSession
      * or branch
      */
     void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Moves and renames (the relative distinguished name of) an entry (or a 
      * branch if the entry has children) at a specified distinguished name to 
@@ -596,9 +596,10 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
-    
-    
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral )
+        throws LdapException;
+
+
     /**
      * Moves and renames (the relative distinguished name of) an entry (or a 
      * branch if the entry has children) at a specified distinguished name to 
@@ -613,9 +614,10 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+    void moveAndRename( Dn dn, Dn newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log )
+        throws LdapException;
+
+
     /**
      * Move and rename an entry. We change the Rdn and the superior.
      *
@@ -624,8 +626,8 @@ public interface CoreSession
      * or branch
      */
     void moveAndRename( ModifyDnRequest modifyDnRequest ) throws LdapException;
-    
-    
+
+
     /**
      * Move and rename an entry. We change the Rdn and the superior.
      *
@@ -635,8 +637,8 @@ public interface CoreSession
      * or branch
      */
     void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Renames an entry by changing it's relative distinguished name.  This 
      * has the side effect of changing the distinguished name of all entries
@@ -650,8 +652,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn ) throws LdapException;
-    
-    
+
+
     /**
      * Renames an entry by changing it's relative distinguished name.  This 
      * has the side effect of changing the distinguished name of all entries
@@ -666,8 +668,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Renames an entry by changing it's relative distinguished name.  This 
      * has the side effect of changing the distinguished name of all entries
@@ -682,8 +684,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws LdapException;
-    
-    
+
+
     /**
      * Renames an entry by changing it's relative distinguished name.  This 
      * has the side effect of changing the distinguished name of all entries
@@ -699,8 +701,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * Rename an entry applying the ModifyDN request 
      *
@@ -708,8 +710,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( ModifyDnRequest modifyDnRequest ) throws LdapException;
-    
-    
+
+
     /**
      * Rename an entry applying the ModifyDN request 
      *
@@ -718,8 +720,8 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException;
-    
-    
+
+
     /**
      * An optimized search operation using one level search scope which 
      * returns all the children of an entry specified by distinguished name.
@@ -733,8 +735,8 @@ public interface CoreSession
      */
     EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
-    
-    
+
+
     /**
      * An optimized search operation using one level search scope which 
      * applies size and time limit constraints and returns all the children 
@@ -752,8 +754,8 @@ public interface CoreSession
      */
     EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
-    
-    
+
+
     /**
      * Searches the directory using a specified filter. The scope is defaulting
      * to 'base'. The alias dereferencing default to 'always'. the returned attributes 
@@ -764,8 +766,8 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor search( Dn dn, String filter ) throws LdapException;
-    
-    
+
+
     /**
      * Searches the directory using a specified filter. The scope is defaulting
      * to 'base'. The alias dereferencing default to 'always'. the returned attributes 
@@ -777,8 +779,8 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
-    
-    
+
+
     /**
      * Searches the directory using a specified search scope and filter.
      *
@@ -791,8 +793,8 @@ public interface CoreSession
      */
     EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
-    
-    
+
+
     /**
      * Searches the directory using a specified search scope and filter.
      *
@@ -817,8 +819,8 @@ public interface CoreSession
      * @throws LdapException If the operation failed
      */
     void unbind() throws LdapException;
-    
-    
+
+
     /**
      * Unbind from the current LdapSession.
      * 

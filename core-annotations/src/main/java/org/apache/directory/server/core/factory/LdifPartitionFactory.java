@@ -42,7 +42,8 @@ public class LdifPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory )
+    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+        File workingDirectory )
         throws Exception
     {
         LdifPartition partition = new LdifPartition( schemaManager );
@@ -50,7 +51,7 @@ public class LdifPartitionFactory implements PartitionFactory
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionPath( workingDirectory.toURI() );
-        
+
         return partition;
     }
 

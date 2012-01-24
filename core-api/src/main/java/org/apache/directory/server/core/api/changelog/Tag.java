@@ -58,14 +58,14 @@ public class Tag
         this.revisionDate = revisionDate;
     }
 
-    
+
     public Tag( long revision, String description, long tagTime, long revisionTime )
     {
         this.revision = revision;
         this.description = description;
         this.tagDate = new Date( tagTime );
 
-        if( revisionTime > 0 )
+        if ( revisionTime > 0 )
         {
             this.revisionDate = new Date( revisionTime );
         }
@@ -114,7 +114,7 @@ public class Tag
             hash = hash * 17 + description.hashCode();
         }
         hash = hash * 17 + Long.valueOf( revision ).hashCode();
-        
+
         return hash;
     }
 
@@ -148,22 +148,21 @@ public class Tag
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "Tag { " );
-        
+
         sb.append( "revision = " )
-          .append( revision )
-          .append( ", " );
-        
+            .append( revision )
+            .append( ", " );
+
         sb.append( " tagDate = " )
-          .append( tagDate )
-          .append( ", " );
-        
+            .append( tagDate )
+            .append( ", " );
+
         sb.append( " revisionDate = " )
-        .append( revisionDate );
-        
+            .append( revisionDate );
+
         sb.append( " }" );
-        
+
         return sb.toString();
     }
-    
-    
+
 }

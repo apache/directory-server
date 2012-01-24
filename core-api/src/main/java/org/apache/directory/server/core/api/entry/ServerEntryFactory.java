@@ -38,7 +38,7 @@ public interface ServerEntryFactory
      * May want to add more newEntry() overrides, some with variable arguments 
      * to create entries in one method call.
      */
-    
+
     /**
      * Creates a new ServerEntry which has not yet been added to the 
      * directory.

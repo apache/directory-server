@@ -33,5 +33,6 @@ public interface Marshaller<E>
 {
     byte[] serialize( E object ) throws IOException;
 
+
     E deserialize( byte[] bytes ) throws IOException;
 }
