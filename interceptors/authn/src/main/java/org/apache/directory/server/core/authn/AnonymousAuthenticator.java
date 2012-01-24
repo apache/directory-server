@@ -57,9 +57,9 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
         if ( getDirectoryService().isAllowAnonymousAccess() )
         {
             LdapPrincipal principal = getDirectoryService().getAdminSession().getAnonymousPrincipal();
-            
+
             IoSession session = bindContext.getIoSession();
-            
+
             if ( session != null )
             {
                 SocketAddress clientAddress = session.getRemoteAddress();
@@ -67,7 +67,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
                 SocketAddress serverAddress = session.getServiceAddress();
                 principal.setServerAddress( serverAddress );
             }
-            
+
             return principal;
         }
         else

@@ -90,6 +90,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
+
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
@@ -124,7 +125,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         LdapPrincipal principal = null;
 
         // use cache only if pwdpolicy is not enabled
-        if( !getDirectoryService().isPwdPolicyEnabled() )
+        if ( !getDirectoryService().isPwdPolicyEnabled() )
         {
             synchronized ( credentialCache )
             {
@@ -150,10 +151,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
+                AuthenticationLevel.SIMPLE, storedPassword );
 
             // Now, update the local cache ONLY if pwdpolicy is not enabled.
-            if( !getDirectoryService().isPwdPolicyEnabled() )
+            if ( !getDirectoryService().isPwdPolicyEnabled() )
             {
                 synchronized ( credentialCache )
                 {
@@ -186,7 +188,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         LdapPrincipal principal = getStoredPassword( bindContext );
 
         IoSession session = bindContext.getIoSession();
-        
+
         if ( session != null )
         {
             SocketAddress clientAddress = session.getRemoteAddress();
@@ -194,7 +196,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             SocketAddress serverAddress = session.getServiceAddress();
             principal.setServerAddress( serverAddress );
         }
-        
+
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
 
@@ -243,7 +245,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             lookupContext.addAttrsId( SchemaConstants.ALL_USER_ATTRIBUTES );
             // OP attributes required for ppolicy
             lookupContext.addAttrsId( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
-            
+
             userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( userEntry == null )
@@ -299,7 +301,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         String result = null;
 
         // Check if password arg is string or byte[]
-        String sPassword = Strings.utf8ToString(password);
+        String sPassword = Strings.utf8ToString( password );
         int rightParen = sPassword.indexOf( '}' );
 
         if ( ( sPassword.length() > 2 ) && ( sPassword.charAt( 0 ) == '{' ) && ( rightParen > -1 ) )
@@ -353,9 +355,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
             {
-                String saltWithCrypted = UnixCrypt.crypt(Strings.utf8ToString(password), "");
+                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString( password ), "" );
                 String crypted = saltWithCrypted.substring( 2 );
-                return '{' + algorithm + '}' + Arrays.toString( Strings.getBytesUtf8(crypted) );
+                return '{' + algorithm + '}' + Arrays.toString( Strings.getBytesUtf8( crypted ) );
             }
             else
             {
@@ -363,7 +365,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
                 // calculate hashed value of password
                 byte[] fingerPrint = digest.digest( password );
-                char[] encoded = Base64.encode(fingerPrint);
+                char[] encoded = Base64.encode( fingerPrint );
 
                 // create return result of form "{alg}bbbbbbb"
                 return '{' + algorithm + '}' + new String( encoded );

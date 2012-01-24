@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.authn;
 
+
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -53,6 +54,7 @@ public class LdapPrincipalTest
     /** The schema manager instance */
     private static SchemaManager schemaManager;
 
+
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -81,15 +83,16 @@ public class LdapPrincipalTest
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
     }
-    
-    
+
+
     /**
      * Test the serialization of an empty LdapPrincipal
      */
     @Test
     public void testStaticSerializeLdapPrincipalWithSchemaManager() throws Exception
     {
-        LdapPrincipal principal = new LdapPrincipal( schemaManager, new Dn( schemaManager, "uid=admin,ou=system" ), AuthenticationLevel.STRONG );
+        LdapPrincipal principal = new LdapPrincipal( schemaManager, new Dn( schemaManager, "uid=admin,ou=system" ),
+            AuthenticationLevel.STRONG );
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );

@@ -109,16 +109,16 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
                 getClass().getResourceAsStream( "/org/apache/directory/server/installers/log4j.properties" ),
                 new File( instanceDirectory, "log4j.properties" ), true );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
-                    new File( instanceDirectory, "wrapper.conf" ), true );
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
+                new File( instanceDirectory, "wrapper.conf" ), true );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
-                    new File( instanceDirectory, "config.ldif" ), false );
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
+                new File( instanceDirectory, "config.ldif" ), false );
 
             // Copying the init script to the instance directory
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                    getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
-                    new File( instanceDirectory, "etc-initd-script" ), true );
+                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
+                new File( instanceDirectory, "etc-initd-script" ), true );
 
             // Creating the sh directory for the shell scripts
             File binShDirectory = new File( getBinInstallerDirectory(), "sh" );
@@ -131,15 +131,15 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Copying shell script utilities for the installer
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "bootstrap.sh" ),
-                        new File( getBinInstallerDirectory(), "bootstrap.sh" ), true );
+                new File( getBinInstallerDirectory(), "bootstrap.sh" ), true );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                        "createInstaller.sh" ), new File( getBinInstallerDirectory(), "createInstaller.sh" ), true );
+                "createInstaller.sh" ), new File( getBinInstallerDirectory(), "createInstaller.sh" ), true );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "functions.sh" ),
-                        new File( binShDirectory, "functions.sh" ), false );
+                new File( binShDirectory, "functions.sh" ), false );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "install.sh" ),
-                        new File( binShDirectory, "install.sh" ), false );
+                new File( binShDirectory, "install.sh" ), false );
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "variables.sh" ),
-                        new File( binShDirectory, "variables.sh" ), false );
+                new File( binShDirectory, "variables.sh" ), false );
         }
         catch ( Exception e )
         {
@@ -151,7 +151,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         log.info( "    Generating Bin installer" );
         Execute createBinTask = new Execute();
         String[] cmd = new String[]
-                    { shUtility.getAbsolutePath(), "createInstaller.sh" };
+            { shUtility.getAbsolutePath(), "createInstaller.sh" };
         createBinTask.setCommandline( cmd );
         createBinTask.setWorkingDirectory( getBinInstallerDirectory() );
         try
