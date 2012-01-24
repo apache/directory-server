@@ -69,7 +69,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
         Value<V> value = equalityEvaluator.getExpression().getValue();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<V, Entry, ID> userIndex = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
@@ -92,7 +92,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -113,7 +113,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -131,7 +131,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -149,7 +149,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor
             != null )
         {
@@ -168,7 +168,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -186,7 +186,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -206,7 +206,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -226,7 +226,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -237,7 +237,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -256,7 +256,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -281,7 +281,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -299,7 +299,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();

@@ -95,7 +95,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -126,7 +126,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
     {
         ID id = candidate.getId();
-        
+
         /*
          * This condition catches situations where the candidate is equal to 
          * the base entry and when the base entry is the context entry.  Note

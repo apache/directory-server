@@ -83,7 +83,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -156,7 +156,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         {
             checkNotClosed( "previous()" );
             IndexEntry<String, ID> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
@@ -178,7 +178,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         {
             checkNotClosed( "next()" );
             IndexEntry<String, ID> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
@@ -197,7 +197,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     public IndexEntry<String, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return indexEntry;

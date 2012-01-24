@@ -57,6 +57,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
+
     /**
      * Creates a new instance of ApproximateCursor
      * @param db The Store we want to build a cursor on
@@ -70,7 +71,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
 
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();
         Value<V> value = approximateEvaluator.getExpression().getValue();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<V, Entry, ID> index = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
@@ -93,7 +94,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -114,7 +115,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -132,7 +133,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, value );
@@ -150,7 +151,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -169,7 +170,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -205,7 +206,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -224,7 +225,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -235,7 +236,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -254,7 +255,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -279,7 +280,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -289,6 +290,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         return setAvailable( false );
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -296,7 +298,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();

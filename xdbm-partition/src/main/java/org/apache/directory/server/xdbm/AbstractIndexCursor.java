@@ -32,13 +32,15 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements IndexCursor<V, Entry, ID>
+public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements
+    IndexCursor<V, Entry, ID>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
 
     /** The message used for unsupported operations */
     protected static final String UNSUPPORTED_MSG = "Unsupported operation";
+
 
     /**
      * {@inheritDoc}
@@ -47,8 +49,8 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     {
         return available;
     }
-    
-    
+
+
     /**
      * Gets the message to return for operations that are not supported
      * 
@@ -74,7 +76,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

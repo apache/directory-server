@@ -92,9 +92,10 @@ public class AvlPartitionTest
 
     /** The DC AttributeType instance */
     private static AttributeType DC_AT;
-    
+
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -119,7 +120,7 @@ public class AvlPartitionTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
@@ -225,7 +226,7 @@ public class AvlPartitionTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( partition.getAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
@@ -237,7 +238,7 @@ public class AvlPartitionTest
 
         assertEquals( 0, partition.getCacheSize() );
         assertNotNull( partition.getPresenceIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
@@ -248,7 +249,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getOneLevelIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
@@ -259,7 +260,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSubLevelIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
@@ -270,7 +271,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getId() );
-        
+
         try
         {
             partition.setId( "foo" );
@@ -282,7 +283,7 @@ public class AvlPartitionTest
 
         assertNotNull( partition.getEntryUuidIndex() );
         assertNotNull( partition.getRdnIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
@@ -293,7 +294,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getOneAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
@@ -304,7 +305,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSubAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
@@ -315,7 +316,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSuffixDn() );
-        
+
         Iterator<String> systemIndices = partition.getSystemIndices();
 
         for ( int i = 0; i < 10; i++ )
@@ -326,7 +327,7 @@ public class AvlPartitionTest
 
         assertFalse( systemIndices.hasNext() );
         assertNotNull( partition.getSystemIndex( APACHE_ALIAS_AT ) );
-        
+
         try
         {
             partition.getSystemIndex( SN_AT );
@@ -335,7 +336,7 @@ public class AvlPartitionTest
         catch ( IndexNotFoundException e )
         {
         }
-        
+
         try
         {
             partition.getSystemIndex( DC_AT );
@@ -346,10 +347,10 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSuffixDn() );
-        
+
         Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
-        
+
         while ( userIndices.hasNext() )
         {
             userIndices.next();
@@ -367,7 +368,7 @@ public class AvlPartitionTest
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
         assertNotNull( partition.getUserIndex( OU_AT ) );
-        
+
         try
         {
             partition.getUserIndex( SN_AT );
@@ -376,7 +377,7 @@ public class AvlPartitionTest
         catch ( IndexNotFoundException e )
         {
         }
-        
+
         try
         {
             partition.getUserIndex( DC_AT );
@@ -711,7 +712,7 @@ public class AvlPartitionTest
         partition.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
-        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
         lookedup = partition.lookup( partition.getEntryId( dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
@@ -738,7 +739,8 @@ public class AvlPartitionTest
         lookedup = partition.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT,
+            "JWalker" ) );
         assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
@@ -761,7 +763,8 @@ public class AvlPartitionTest
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn,
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertNotNull( lookedup.get( "sn" ) );
 
         lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );

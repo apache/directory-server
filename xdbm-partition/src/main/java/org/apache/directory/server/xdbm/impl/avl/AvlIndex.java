@@ -126,7 +126,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         {
             forward.close();
         }
-        
+
         if ( reverse != null )
         {
             reverse.close();
@@ -428,8 +428,8 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         return reverse.isDupsEnabled();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

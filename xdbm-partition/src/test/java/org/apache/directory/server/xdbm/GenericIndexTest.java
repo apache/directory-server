@@ -73,7 +73,7 @@ public class GenericIndexTest
     @Test
     public void testConstructor3()
     {
-        File tmpDir = new File(System.getProperty( "java.io.tmpdir" ));
+        File tmpDir = new File( System.getProperty( "java.io.tmpdir" ) );
 
         index = new GenericIndex<String, Long, Long>( "cn", 42, tmpDir.toURI() );
         assertEquals( "cn", index.getAttributeId() );
@@ -108,8 +108,8 @@ public class GenericIndexTest
     @Test
     public void testSetGetWkDirPath()
     {
-        File tmpDir = new File( System.getProperty( "java.io.tmpdir" ));
-        File zzzDir = new File( tmpDir, "zzz"  );
+        File tmpDir = new File( System.getProperty( "java.io.tmpdir" ) );
+        File zzzDir = new File( tmpDir, "zzz" );
 
         index.setWkDirPath( zzzDir.toURI() );
         assertNotNull( index.getWkDirPath() );

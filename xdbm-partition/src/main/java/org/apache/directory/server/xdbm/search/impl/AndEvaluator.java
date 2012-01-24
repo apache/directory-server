@@ -74,7 +74,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
         List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
-        
+
         Collections.sort( optimized, new ScanCountComparator<ID>() );
 
         return optimized;

@@ -106,14 +106,14 @@ public class GreaterEqTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -129,7 +129,7 @@ public class GreaterEqTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
@@ -137,8 +137,8 @@ public class GreaterEqTest
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.POSTALCODE_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
@@ -150,7 +150,7 @@ public class GreaterEqTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -613,9 +613,9 @@ public class GreaterEqTest
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         attrs.add( "entryUUID", UUID.randomUUID().toString() );
-        
+
         AddOperationContext addContext = new AddOperationContext( null, attrs );
-        ((Partition)store).add( addContext );
+        ( ( Partition ) store ).add( addContext );
 
         indexEntry.setId( 12L );
         assertTrue( evaluator.evaluate( indexEntry ) );

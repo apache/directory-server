@@ -41,7 +41,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 {
     /** The entry ID */
     protected ID parentId;
-    
+
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
 
@@ -128,9 +128,9 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     public int hashCode()
     {
         int h = 37;
-        h = h*17 + ( ( parentId == null ) ? 0 : parentId.hashCode() );
-        h = h*17 + Arrays.hashCode( rdns );
-        
+        h = h * 17 + ( ( parentId == null ) ? 0 : parentId.hashCode() );
+        h = h * 17 + Arrays.hashCode( rdns );
+
         return h;
     }
 
@@ -144,14 +144,14 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             return true;
         }
-        
+
         if ( !( obj instanceof ParentIdAndRdn<?> ) )
         {
             return false;
         }
 
-        ParentIdAndRdn<ID> that = (ParentIdAndRdn<ID>) obj;
-        
+        ParentIdAndRdn<ID> that = ( ParentIdAndRdn<ID> ) obj;
+
         if ( rdns == null )
         {
             return that.rdns == null;
@@ -160,12 +160,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             return false;
         }
-        
+
         if ( rdns.length != that.rdns.length )
         {
             return false;
         }
-        
+
         for ( int i = 0; i < rdns.length; i++ )
         {
             if ( !rdns[i].equals( that.rdns[i] ) )
@@ -173,18 +173,18 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
                 return false;
             }
         }
-        
+
         return true;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public int compareTo( ParentIdAndRdn<ID> that )
     {
         int val = this.rdns.length - that.rdns.length;
-        
+
         if ( val != 0 )
         {
             return val;
@@ -193,7 +193,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         for ( int i = 0; i < this.rdns.length; i++ )
         {
             val = this.rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
-            
+
             if ( val != 0 )
             {
                 return val;
@@ -201,7 +201,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         }
 
         val = this.getParentId().compareTo( that.getParentId() );
-        
+
         return val;
     }
 
@@ -224,7 +224,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         parentId = ( ID ) in.readObject();
         int size = in.readInt();
         rdns = new Rdn[size];
-        
+
         for ( int i = 0; i < size; i++ )
         {
             Rdn rdn = new Rdn();
@@ -232,20 +232,20 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             rdns[i] = rdn;
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "ParentIdAndRdn<" );
         sb.append( parentId ).append( ", '" );
-        
+
         boolean isFirst = true;
-        
+
         for ( Rdn rdn : rdns )
         {
             if ( isFirst )
@@ -256,12 +256,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             {
                 sb.append( "," );
             }
-            
+
             sb.append( rdn );
         }
-        
+
         sb.append( "'>" );
-        
+
         return sb.toString();
     }
 }

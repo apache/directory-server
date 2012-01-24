@@ -107,7 +107,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            if ( ((Partition)db).getSuffixDn().equals( base ) )
+            if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
                 return new EmptyIndexCursor<ID, Entry, ID>();
@@ -174,8 +174,8 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope(searchCtls
-                .getSearchScope()) );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
+            .getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

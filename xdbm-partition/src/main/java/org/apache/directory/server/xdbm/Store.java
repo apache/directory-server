@@ -89,7 +89,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * store and it's indices to conduct search operations.
      */
     public static final String[] SYS_INDEX_OID_ARRAY =
-        { 
+        {
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
             ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
@@ -100,9 +100,9 @@ public interface Store<E, ID extends Comparable<ID>>
             ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
             SchemaConstants.ENTRY_CSN_AT_OID,
             SchemaConstants.ENTRY_UUID_AT_OID,
-            SchemaConstants.OBJECT_CLASS_AT_OID 
-        };
-    
+            SchemaConstants.OBJECT_CLASS_AT_OID
+    };
+
     public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
         .asList( SYS_INDEX_OID_ARRAY ) ) );
 
@@ -129,6 +129,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the root ID
      */
     ID getRootId();
+
 
     /**
      * Sets the flag telling the server to flush on disk when some
@@ -369,7 +370,7 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     Entry lookup( ID id ) throws Exception;
 
-    
+
     /**
      * Gets the count of immediate children of the given entry ID.
      *
@@ -410,7 +411,7 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
-    
+
     void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
 
 

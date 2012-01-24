@@ -98,14 +98,14 @@ public class SubtreeScopeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -121,20 +121,20 @@ public class SubtreeScopeTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( true );
 
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -144,7 +144,7 @@ public class SubtreeScopeTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -623,7 +623,8 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing3() throws Exception
     {
-        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -634,9 +635,10 @@ public class SubtreeScopeTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        ( ( Partition ) store ).add( addContext );
 
-        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         entry = new DefaultEntry( schemaManager, dn );
@@ -645,9 +647,9 @@ public class SubtreeScopeTest
         entry.add( "sn", "doe" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
-        
+
         addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        ( ( Partition ) store ).add( addContext );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );

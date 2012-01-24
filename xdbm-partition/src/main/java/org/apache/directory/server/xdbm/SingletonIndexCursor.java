@@ -51,7 +51,7 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public boolean available()
     {
         return onSingleton;
@@ -175,7 +175,7 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "()" );
-        
+
         if ( onSingleton )
         {
             return singleton;

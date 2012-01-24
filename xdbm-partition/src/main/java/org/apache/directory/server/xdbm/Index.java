@@ -264,7 +264,7 @@ public interface Index<K, O, ID>
 
     void sync() throws Exception;
 
-    
+
     /**
      * tells whether the Index implementation supports storing duplicate keys
      *

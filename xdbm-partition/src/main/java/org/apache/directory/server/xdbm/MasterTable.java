@@ -43,8 +43,8 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * @throws Exception on failure to update the id sequence
      */
     ID getNextId( E entry ) throws Exception;
-    
-    
+
+
     /**
      * Resets the root ID to 0, this method should be called after deleting the
      * context entry of the partition

@@ -610,7 +610,7 @@ public class PartitionFrame extends JFrame
 
         try
         {
-            root = FilterParser.parse(schemaManager, filter);
+            root = FilterParser.parse( schemaManager, filter );
         }
         catch ( Exception e )
         {
@@ -791,7 +791,7 @@ public class PartitionFrame extends JFrame
     public void showIndexDialog( String idxAttr ) throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( idxAttr );
-        
+
         Index index;
         boolean isSystem = partition.hasSystemIndexOn( attributeType );
 

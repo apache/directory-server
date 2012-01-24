@@ -30,61 +30,61 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
-@CreateDS( name="ClassDS" )
+@CreateDS(name = "ClassDS")
 @ApplyLdifs(
     {
-        "dn: cn=testClassA,ou=system", 
-        "objectClass: person", 
-        "cn: testClassA", 
+        "dn: cn=testClassA,ou=system",
+        "objectClass: person",
+        "cn: testClassA",
         "sn: sn_testClassA",
-        
-        "dn: cn=testClassA2,ou=system", 
-        "objectClass: person", 
-        "cn: testClassA2", 
+
+        "dn: cn=testClassA2,ou=system",
+        "objectClass: person",
+        "cn: testClassA2",
         "sn: sn_testClassA2"
-        
-    })
+
+})
 public class TestClassA extends AbstractLdapTestUnit
 {
-    @Test
-    @CreateDS( name="testDS" )
-    @ApplyLdifs(
-        {
-            "dn: cn=testMethodA,ou=system", 
-            "objectClass: person",
-            "cn: testMethodA", 
-            "sn: sn_testMethodA" 
-        })
-    public void testWithFactoryAnnotation() throws Exception
+@Test
+@CreateDS(name = "testDS")
+@ApplyLdifs(
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-        
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        "dn: cn=testMethodA,ou=system",
+        "objectClass: person",
+        "cn: testMethodA",
+        "sn: sn_testMethodA"
+})
+public void testWithFactoryAnnotation() throws Exception
+{
+    if ( isRunInSuite )
+    {
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
     }
 
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+}
 
-    @Test
-    @ApplyLdifs(
-        {
-            "dn: cn=testMethodWithApplyLdif,ou=system", 
-            "objectClass: person", 
-            "cn: testMethodWithApplyLdif", 
-            "sn: sn_testMethodWithApplyLdif" 
-        })
-    public void testWithoutFactoryAnnotation() throws Exception
+
+@Test
+@ApplyLdifs(
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
-        assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
+        "dn: cn=testMethodWithApplyLdif,ou=system",
+        "objectClass: person",
+        "cn: testMethodWithApplyLdif",
+        "sn: sn_testMethodWithApplyLdif"
+})
+public void testWithoutFactoryAnnotation() throws Exception
+{
+    if ( isRunInSuite )
+    {
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
     }
+
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
+    assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
+}
 }

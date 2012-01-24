@@ -107,14 +107,14 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     {
         assertFalse( session.exists( "cn=testadd,ou=system" ) );
 
-        connection.add( 
-            new DefaultEntry( 
+        connection.add(
+            new DefaultEntry(
                 "cn=testadd,ou=system",
                 "ObjectClass : top",
                 "ObjectClass : person",
                 "cn: testadd_sn",
                 "sn: testadd_sn"
-                ) );
+            ) );
 
         assertTrue( session.exists( "cn=testadd,ou=system" ) );
     }
@@ -124,15 +124,15 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void testAddWithControl() throws Exception
     {
         assertFalse( session.exists( "cn=testadd,ou=system" ) );
-        
-        Entry entry = new DefaultEntry( 
+
+        Entry entry = new DefaultEntry(
             "cn=testadd,ou=system",
             "ObjectClass : top",
             "ObjectClass : person",
             "cn: testadd_sn",
             "sn: testadd_sn"
             );
-        
+
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
         addRequest.addControl( new ManageDsaITImpl() );
@@ -173,7 +173,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAddAsyncLdif() throws Exception
     {
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             "cn=testAsyncAdd,ou=system",
             "ObjectClass: top",
             "ObjectClass: person",
@@ -196,13 +196,13 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
 
     @ApplyLdifs(
-        { 
-            "dn: cn=kayyagari,ou=system", 
-            "objectClass: person", 
-            "objectClass: top", 
+        {
+            "dn: cn=kayyagari,ou=system",
+            "objectClass: person",
+            "objectClass: top",
             "cn: kayyagari",
-            "description: dbugger", 
-            "sn: dbugger", 
+            "description: dbugger",
+            "sn: dbugger",
             "userPassword: secret" })
     @Test
     /**

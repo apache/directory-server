@@ -80,203 +80,204 @@ import org.junit.runner.RunWith;
         "sn:: RW1tYW51ZWwgTMOpY2hhcm55",
         "cn: elecharny"
 
-    })
+})
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+private LdapNetworkConnection connection;
 
 
-    @Before
-    public void setup() throws Exception
+@Before
+public void setup() throws Exception
+{
+    connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+}
+
+
+@After
+public void shutdown() throws Exception
+{
+    LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
+}
+
+
+@Test
+public void testSimpleSearch() throws Exception
+{
+    EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+    int count = 0;
+
+    while ( cursor.next() )
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        Entry entry = cursor.get();
+        assertNotNull( entry );
+        count++;
     }
 
+    SearchResultDone done = cursor.getSearchResultDone();
 
-    @After
-    public void shutdown() throws Exception
-    {
-        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
-    }
-
-
-    @Test
-    public void testSimpleSearch() throws Exception
-    {
-        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
-        int count = 0;
-        
-        while ( cursor.next() )
-        {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            count++;
-        }
-
-        SearchResultDone done = cursor.getSearchResultDone();
-
-        assertNotNull( done );
-        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
-        assertEquals( 5, count );
-        cursor.close();
-    }
+    assertNotNull( done );
+    assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+    assertEquals( 5, count );
+    cursor.close();
+}
 
 
-    @Test
-    public void testSimpleSearchWithControl() throws Exception
-    {
-        SearchRequest searchRequest = new SearchRequestImpl().setBase( new Dn( "ou=system" ) ).setFilter( "(objectclass=*)" )
+@Test
+public void testSimpleSearchWithControl() throws Exception
+{
+    SearchRequest searchRequest = new SearchRequestImpl().setBase( new Dn( "ou=system" ) )
+        .setFilter( "(objectclass=*)" )
         .setScope( SearchScope.ONELEVEL ).addControl( new ManageDsaITImpl() );
-        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
-        int count = 0;
-        
-        while ( cursor.next() )
-        {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            count++;
-        }
+    EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+    int count = 0;
 
-        SearchResultDone done = cursor.getSearchResultDone();
-
-        assertNotNull( done );
-        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
-        assertEquals( 5, count );
-        cursor.close();
+    while ( cursor.next() )
+    {
+        Entry entry = cursor.get();
+        assertNotNull( entry );
+        count++;
     }
 
+    SearchResultDone done = cursor.getSearchResultDone();
 
-    @Test
-    public void testSearch() throws Exception
+    assertNotNull( done );
+    assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+    assertEquals( 5, count );
+    cursor.close();
+}
+
+
+@Test
+public void testSearch() throws Exception
+{
+    EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)",
+        SearchScope.ONELEVEL,
+        "*", "+" );
+    int count = 0;
+
+    while ( cursor.next() )
     {
-        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)",
-            SearchScope.ONELEVEL,
-            "*", "+" );
-        int count = 0;
-        
-        while ( cursor.next() )
-        {
-            assertNotNull( cursor.get() );
-            count++;
-        }
-
-        SearchResultDone done = cursor.getSearchResultDone();
-
-        assertNotNull( done );
-        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
-        assertEquals( 5, count );
-        cursor.close();
+        assertNotNull( cursor.get() );
+        count++;
     }
 
+    SearchResultDone done = cursor.getSearchResultDone();
 
-    @Test
-    public void testSearchEquality() throws Exception
+    assertNotNull( done );
+    assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+    assertEquals( 5, count );
+    cursor.close();
+}
+
+
+@Test
+public void testSearchEquality() throws Exception
+{
+    EntryCursor cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
+        SearchScope.ONELEVEL, "*", "+" );
+    int count = 0;
+
+    while ( cursor.next() )
     {
-        EntryCursor cursor = connection.search( "ou=system", "(objectclass=organizationalUnit)",
-            SearchScope.ONELEVEL, "*", "+" );
-        int count = 0;
-        
-        while ( cursor.next() )
-        {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            count++;
-        }
-
-        assertEquals( 4, count );
-        cursor.close();
+        Entry entry = cursor.get();
+        assertNotNull( entry );
+        count++;
     }
 
+    assertEquals( 4, count );
+    cursor.close();
+}
 
-    @Test
-    public void testAsyncSearch() throws Exception
+
+@Test
+public void testAsyncSearch() throws Exception
+{
+    SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
+        "+" );
+    int count = 0;
+    Response searchResponse = null;
+
+    do
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
-            "+" );
-        int count = 0;
-        Response searchResponse = null;
-
-        do
-        {
-            searchResponse = ( Response ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
-            assertNotNull( searchResponse );
-            if ( !( searchResponse instanceof SearchResultDone ) )
-            {
-                count++;
-            }
-        }
-        while ( !( searchResponse instanceof SearchResultDone ) );
-
-        assertEquals( 5, count );
-    }
-
-
-    /**
-     * Test a search with a Substring filter
-     * @throws Exception
-     */
-    @Test
-    public void testSearchPersonSubstring() throws Exception
-    {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE,
-            "*", "+" );
-        int count = 0;
-        Response searchResponse = null;
-
-        do
-        {
-            searchResponse = ( Response ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
-            assertNotNull( searchResponse );
-
-            if ( !( searchResponse instanceof SearchResultDone ) )
-            {
-                count++;
-            }
-        }
-        while ( !( searchResponse instanceof SearchResultDone ) );
-
-        assertEquals( 3, count );
-    }
-
-
-    @Test
-    public void testSearchWithDerefAlias() throws Exception
-    {
-        SearchRequest searchRequest = new SearchRequestImpl();
-        searchRequest.setBase( new Dn( "ou=users,ou=system" ) );
-        searchRequest.setFilter( "(objectClass=*)" );
-        searchRequest.setScope( SearchScope.ONELEVEL );
-        searchRequest.addAttributes( "*" );
-
-        int count = 0;
-        Cursor<Response> cursor = connection.search( searchRequest );
-
-        while ( cursor.next() )
+        searchResponse = ( Response ) searchFuture.get( 1000, TimeUnit.MILLISECONDS );
+        assertNotNull( searchResponse );
+        if ( !( searchResponse instanceof SearchResultDone ) )
         {
             count++;
         }
-        cursor.close();
+    }
+    while ( !( searchResponse instanceof SearchResultDone ) );
 
-        // due to dereferencing of aliases we get only one entry
-        assertEquals( 2, count );
+    assertEquals( 5, count );
+}
 
-        count = 0;
-        searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
-        cursor = connection.search( searchRequest );
 
-        while ( cursor.next() )
+/**
+ * Test a search with a Substring filter
+ * @throws Exception
+ */
+@Test
+public void testSearchPersonSubstring() throws Exception
+{
+    SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE,
+        "*", "+" );
+    int count = 0;
+    Response searchResponse = null;
+
+    do
+    {
+        searchResponse = ( Response ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
+        assertNotNull( searchResponse );
+
+        if ( !( searchResponse instanceof SearchResultDone ) )
         {
             count++;
         }
-        cursor.close();
-
-        assertEquals( 3, count );
     }
+    while ( !( searchResponse instanceof SearchResultDone ) );
+
+    assertEquals( 3, count );
+}
 
 
-    @Test(expected = LdapException.class)
-    public void testSearchUTF8() throws Exception
+@Test
+public void testSearchWithDerefAlias() throws Exception
+{
+    SearchRequest searchRequest = new SearchRequestImpl();
+    searchRequest.setBase( new Dn( "ou=users,ou=system" ) );
+    searchRequest.setFilter( "(objectClass=*)" );
+    searchRequest.setScope( SearchScope.ONELEVEL );
+    searchRequest.addAttributes( "*" );
+
+    int count = 0;
+    Cursor<Response> cursor = connection.search( searchRequest );
+
+    while ( cursor.next() )
     {
-        connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
+        count++;
     }
+    cursor.close();
+
+    // due to dereferencing of aliases we get only one entry
+    assertEquals( 2, count );
+
+    count = 0;
+    searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+    cursor = connection.search( searchRequest );
+
+    while ( cursor.next() )
+    {
+        count++;
+    }
+    cursor.close();
+
+    assertEquals( 3, count );
+}
+
+
+@Test(expected = LdapException.class)
+public void testSearchUTF8() throws Exception
+{
+    connection.search( "ou=system", "(sn=Emmanuel L\u00e9charny)", SearchScope.ONELEVEL, "*", "+" );
+}
 }

@@ -93,14 +93,14 @@ public class PresenceTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -116,20 +116,20 @@ public class PresenceTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -139,7 +139,7 @@ public class PresenceTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;

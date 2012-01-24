@@ -101,14 +101,14 @@ public class AndCursorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( "collective" );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -129,18 +129,18 @@ public class AndCursorTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
-        
+        ( ( Partition ) store ).initialize();
+
         StoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
@@ -155,7 +155,7 @@ public class AndCursorTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -173,7 +173,7 @@ public class AndCursorTest
     {
         String filter = "(&(cn=J*)(sn=*))";
 
-        ExprNode exprNode = FilterParser.parse(schemaManager, filter);
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
@@ -211,7 +211,7 @@ public class AndCursorTest
         Evaluator<? extends ExprNode, Entry, Long> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( (SubstringNode) exprNode, store, schemaManager );
+        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
@@ -221,7 +221,7 @@ public class AndCursorTest
         andNode.addNode( exprNode );
 
         exprNode = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-        eval = new PresenceEvaluator( (PresenceNode) exprNode, store, schemaManager );
+        eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
 
         andNode.addNode( exprNode );

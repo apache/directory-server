@@ -27,42 +27,43 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
+
+@RunWith(FrameworkRunner.class)
 @ApplyLdifs(
     {
-        "dn: cn=testClassB,ou=system", 
-        "objectClass: person", 
-        "cn: testClassB", 
+        "dn: cn=testClassB,ou=system",
+        "objectClass: person",
+        "cn: testClassB",
         "sn: sn_testClassB"
-    })
+})
 public class TestClassB extends AbstractLdapTestUnit
 {
 
-    @Test
-    @CreateDS( name="testDS" )
-    public void testWithFactoryAnnotation() throws Exception
+@Test
+@CreateDS(name = "testDS")
+public void testWithFactoryAnnotation() throws Exception
+{
+    if ( isRunInSuite )
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
     }
-    
-    
-    @Test
-    public void testWithoutFactoryAnnotation() throws Exception
+
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+}
+
+
+@Test
+public void testWithoutFactoryAnnotation() throws Exception
+{
+    // this assertion will only work if ran as part of TestSuite
+    // commenting this to make maven report test success, uncomment in an IDE
+    // while running the TestSuite
+    // assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+    if ( isRunInSuite )
     {
-        // this assertion will only work if ran as part of TestSuite
-        // commenting this to make maven report test success, uncomment in an IDE
-        // while running the TestSuite
-        // assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
     }
+
+    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+}
 }

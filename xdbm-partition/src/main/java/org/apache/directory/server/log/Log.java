@@ -19,11 +19,13 @@
  */
 package org.apache.directory.server.log;
 
+
 import java.io.IOException;
+
 
 public interface Log
 {
-    
+
     /**
      * Initializes the logging subsystem
      *
@@ -32,8 +34,9 @@ public interface Log
      * @param logBufferSize size of buffer that will hold unflushed log changes. Specifigy zero if no buffering is desired
      * @param logFileSize A soft limit on the log file size
      */
-   public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize );
-    
+    public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize );
+
+
     /**
      * Logs the given user record to the log. Position in the log files where the record is logged is returned as part of
      * userRecord.
@@ -44,8 +47,8 @@ public interface Log
      * @throws InvalidLogException
      */
     public void log( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException;
-    
-    
+
+
     /**
      * Starts a san in the logs starting from the given log position
      *
@@ -54,5 +57,4 @@ public interface Log
      */
     public LogScanner beginScan( LogAnchor startPoint );
 
-    
 }

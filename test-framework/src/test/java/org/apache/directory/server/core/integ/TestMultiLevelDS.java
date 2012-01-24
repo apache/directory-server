@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.integ;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -28,35 +29,36 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * TODO TestMultiLevelDS.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith( FrameworkRunner.class )
-@CreateDS( name = "TestMultiLevelDS-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "TestMultiLevelDS-class")
 public class TestMultiLevelDS extends AbstractLdapTestUnit
 {
-    
+
     @Test
     public void testMethodWithClassLevelDs()
     {
         // to make this test pass standalone
-        if( isRunInSuite )
+        if ( isRunInSuite )
         {
             assertTrue( getLdapServer().getDirectoryService() == getService() );
         }
         assertFalse( getService().isAccessControlEnabled() );
         assertEquals( "TestMultiLevelDS-class", getService().getInstanceId() );
     }
-    
-    
+
+
     @Test
-    @CreateDS( enableAccessControl=true, name = "testMethodWithClassLevelDs-method" )
+    @CreateDS(enableAccessControl = true, name = "testMethodWithClassLevelDs-method")
     public void testMethodWithMethodLevelDs()
     {
         // to make this test pass standalone
-        if( isRunInSuite )
+        if ( isRunInSuite )
         {
             assertTrue( getLdapServer().getDirectoryService() == getService() );
         }

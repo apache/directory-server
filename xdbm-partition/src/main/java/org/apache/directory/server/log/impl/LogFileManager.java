@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.log.impl;
 
+
 import java.io.IOException;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -31,8 +32,9 @@ import java.io.FileNotFoundException;
  */
 interface LogFileManager
 {
-    final static String LOG_NAME_PREFIX = "log_"; 
-  
+    final static String LOG_NAME_PREFIX = "log_";
+
+
     /**
      * Inits the log file manager to use the given logfile path and the suffix. Each log file
      * has name logFileName_<logFileNumber>.suffix 
@@ -41,8 +43,8 @@ interface LogFileManager
      * @param suffix suffix for log file.
      */
     public void init( String logFilepath, String suffix );
-    
-    
+
+
     /**
      * Returns a reader for the given log file number
      *
@@ -52,8 +54,8 @@ interface LogFileManager
      * @throws FileNotFoundException
      */
     public LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
-    
-  
+
+
     /**
      * Returns a writer for the given log file number
      *
@@ -63,8 +65,8 @@ interface LogFileManager
      * @throws FileNotFoundException
      */
     public LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException;
-    
-    
+
+
     /**
      * Create a log file with the given identifier
      * 
@@ -73,8 +75,8 @@ interface LogFileManager
      * @throws IOException
      */
     public boolean createLogFile( long logFileNumber ) throws IOException;
-    
-       
+
+
     /**
      * Truncates the file to the given size. Mostly used for throwing away
      * junk at the end of log file after a log replay after a crash.
@@ -84,16 +86,17 @@ interface LogFileManager
      * @throws IOException
      */
     public void truncateLogFile( long logFileNumber, long size ) throws IOException;
-    
+
+
     /**
      * Deletes the underlying log file.
      *
      * @param logFileNumber identifier of the log file
      * @throws IOException If the log file could not be deleted
      */
-    public void deleteLogFile( long logFileNumber ) throws IOException; 
-    
-    
+    public void deleteLogFile( long logFileNumber ) throws IOException;
+
+
     /**
      * Moves the old log file to a new name
      *
@@ -101,9 +104,8 @@ interface LogFileManager
      * @param newLongFileNumber identifier of the new file
      * @return true if the rename succeeded
      */
-    public boolean rename(long orignalLogFileNumber, long newLongFileNumber);
-    
-    
+    public boolean rename( long orignalLogFileNumber, long newLongFileNumber );
+
     interface LogFileReader
     {
         /**
@@ -117,7 +119,7 @@ interface LogFileManager
          * @throws IOException
          */
         public int read( byte[] buffer, int offset, int length ) throws IOException, EOFException;
-        
+
 
         /**
          * Repositions the reader at the given offset
@@ -125,14 +127,15 @@ interface LogFileManager
          * @param position
          */
         public void seek( long position ) throws IOException;
-        
+
+
         /**
          * Close the log file reader and releases the resources 
          *
          */
         public void close() throws IOException;
-        
-        
+
+
         /**
          * Each log file is assigned a sequence number. This method
          * returns that number
@@ -140,18 +143,20 @@ interface LogFileManager
          * @return number assigned to this log file
          */
         public long logFileNumber();
-        
+
+
         /**
          * returns the length of the file
          */
         public long getLength() throws IOException;
-        
+
+
         /**
          * returns the offset of the next read
          */
         public long getOffset() throws IOException;
     }
-    
+
     interface LogFileWriter
     {
         /**
@@ -162,21 +167,22 @@ interface LogFileManager
          * @param length number of bytes to be appended
          */
         public void append( byte[] buffer, int offset, int length ) throws IOException;
-        
-        
-        
+
+
         /**
          * Sync the file contents to media  
          *
          */
         public void sync() throws IOException;
-        
+
+
         /**
          * Close the log file reader and releases the resources 
          *
          */
         public void close() throws IOException;
-        
+
+
         /**
          * Each log file is assigned a sequence number. This method
          * returns that number
@@ -184,12 +190,13 @@ interface LogFileManager
          * @return number assigned to this log file
          */
         public long logFileNumber();
-        
+
+
         /**
          * returns the length of the file
          */
         public long getLength() throws IOException;
 
     }
-    
+
 }

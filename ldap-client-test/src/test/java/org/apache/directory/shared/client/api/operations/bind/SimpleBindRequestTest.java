@@ -474,7 +474,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
                     next( bindContext );
                 }
             };
-            
+
             getService().addFirst( interceptor );
 
             // Send another BindRequest

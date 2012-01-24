@@ -114,17 +114,18 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     }
 
 
-    @ApplyLdifs({
-        "dn: uid=kayyagari,ou=system",
-        "objectClass: extensibleObject",
-        "objectClass: uidObject",
-        "objectClass: referral",
-        "objectClass: top",
-        "uid: kayyagari",
-        "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
+    @ApplyLdifs(
+        {
+            "dn: uid=kayyagari,ou=system",
+            "objectClass: extensibleObject",
+            "objectClass: uidObject",
+            "objectClass: referral",
+            "objectClass: top",
+            "uid: kayyagari",
+            "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
     })
-    @Test
-    public void testLookup() throws Exception
+@Test
+public void testLookup() throws Exception
     {
         Entry entry = connection.lookup( ADMIN_DN );
         assertNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
@@ -132,7 +133,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         // perform lookup with operational attributes
         entry = connection.lookup( ADMIN_DN, "+", "*" );
         assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
-        
+
         entry = connection.lookup( "uid=kayyagari,ou=system" );
         assertNull( entry );
     }
@@ -205,12 +206,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertTrue( map.containsKey( "ou=schema" ) );
     }
 
-    
+
     @Test
     public void testAnonBind() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        
+
         connection.bind();
         assertTrue( connection.isAuthenticated() );
         connection.close();

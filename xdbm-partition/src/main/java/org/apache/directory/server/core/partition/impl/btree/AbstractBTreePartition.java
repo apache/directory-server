@@ -98,17 +98,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends AbstractPartition implements Store<Entry, ID>
+public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends AbstractPartition implements
+    Store<Entry, ID>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBTreePartition.class );
 
     /** the search engine used to search the database */
     protected SearchEngine<Entry, ID> searchEngine;
-    
+
     /** The optimizer to use during search operation */
     protected Optimizer optimizer;
-    
+
     /** Tells if the Optimizer is enabled */
     protected boolean optimizerEnabled = true;
 
@@ -168,12 +169,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
     /** the one level scope alias index */
     protected Index<ID, Entry, ID> oneAliasIdx;
-    
+
     /** Cached attributes types to avoid lookup all over the code */
     protected AttributeType OBJECT_CLASS_AT;
     protected AttributeType ENTRY_CSN_AT;
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -208,8 +210,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         return cacheSize;
     }
-    
-    
+
+
     /**
      * Used to specify the entry cache size for a Partition.  Various Partition
      * implementations may interpret this value in different ways: i.e. total cache
@@ -242,7 +244,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         this.optimizerEnabled = optimizerEnabled;
     }
 
-    
+
     /**
      * Sets the path in which this Partition stores data. This may be an URL to
      * a file or directory, or an JDBC URL.
@@ -264,6 +266,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         return isSyncOnWrite.get();
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -283,7 +286,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) ;
+            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>(
+                ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
             index.setWkDirPath( partitionPath );
             addIndex( index );
         }
@@ -304,14 +308,16 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
         if ( getRdnIndex() == null )
         {
-            Index<ParentIdAndRdn<ID>, Entry, ID> index = new GenericIndex<ParentIdAndRdn<ID>, Entry, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            Index<ParentIdAndRdn<ID>, Entry, ID> index = new GenericIndex<ParentIdAndRdn<ID>, Entry, ID>(
+                ApacheSchemaConstants.APACHE_RDN_AT_OID );
             index.setWkDirPath( partitionPath );
             addIndex( index );
         }
 
         if ( getAliasIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>(
+                ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             index.setWkDirPath( partitionPath );
             addIndex( index );
         }
@@ -401,7 +407,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
         userIndices = tmp;
     }
-    
+
 
     /**
      * Gets the DefaultSearchEngine used by this ContextPartition to search the
@@ -428,8 +434,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * {@inheritDoc}
      */
     public abstract ID getRootId();
-    
-    
+
+
     /**
      * Convert and initialize an index for a specific store implementation.
      *
@@ -516,7 +522,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -525,6 +531,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         setupSystemIndices();
         setupUserIndices();
     }
+
 
     //---------------------------------------------------------------------------------------------
     // The Add operation
@@ -538,7 +545,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
             Dn entryDn = entry.getDn();
-    
+
             // check if the entry already exists
             if ( getEntryId( entryDn ) != null )
             {
@@ -546,9 +553,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                     I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
                 throw ne;
             }
-    
+
             ID parentId = null;
-    
+
             //
             // Suffix entry cannot have a parent since it is the root so it is
             // capped off using the zero value which no entry can have since
@@ -556,7 +563,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             //
             Dn parentDn = null;
             ParentIdAndRdn<ID> key = null;
-    
+
             if ( entryDn.equals( suffixDn ) )
             {
                 parentId = getRootId();
@@ -566,25 +573,25 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 parentDn = entryDn.getParent();
                 parentId = getEntryId( parentDn );
-                
+
                 key = new ParentIdAndRdn<ID>( parentId, entryDn.getRdn() );
             }
-    
+
             // don't keep going if we cannot find the parent Id
             if ( parentId == null )
             {
                 throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
             }
-            
+
             // Get a new ID for the added entry
             ID id = master.getNextId( entry );
-    
+
             // Update the RDN index
             rdnIdx.add( key, id );
-    
+
             // Update the ObjectClass index
             Attribute objectClass = entry.get( OBJECT_CLASS_AT );
-            
+
             if ( objectClass == null )
             {
                 String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
@@ -593,84 +600,84 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 //e.setResolvedName( entryDn );
                 throw e;
             }
-    
+
             for ( Value<?> value : objectClass )
             {
                 objectClassIdx.add( value.getString(), id );
             }
-    
+
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
                 addAliasIndices( id, entryDn, aliasAttr.getString() );
             }
-    
+
             // Update the OneLevel index
             oneLevelIdx.add( parentId, id );
-    
+
             // Update the SubLevel index
             ID tempId = parentId;
-    
+
             while ( ( tempId != null ) && ( !tempId.equals( getRootId() ) ) && ( !tempId.equals( getSuffixId() ) ) )
             {
                 subLevelIdx.add( tempId, id );
                 tempId = getParentId( tempId );
             }
-    
+
             // making entry an ancestor/descendent of itself in sublevel index
             subLevelIdx.add( id, id );
-    
+
             // Update the EntryCsn index
             Attribute entryCsn = entry.get( ENTRY_CSN_AT );
-    
+
             if ( entryCsn == null )
             {
                 String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
             }
-    
+
             entryCsnIdx.add( entryCsn.getString(), id );
-    
+
             // Update the EntryUuid index
             Attribute entryUuid = entry.get( ENTRY_UUID_AT );
-    
+
             if ( entryUuid == null )
             {
                 String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
             }
-    
+
             entryUuidIdx.add( entryUuid.getString(), id );
-    
+
             // Now work on the user defined userIndices
             for ( Attribute attribute : entry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 String attributeOid = attributeType.getOid();
-    
+
                 if ( hasUserIndexOn( attributeType ) )
                 {
                     Index<Object, Entry, ID> idx = ( Index<Object, Entry, ID> ) getUserIndex( attributeType );
-    
+
                     // here lookup by attributeId is OK since we got attributeId from
                     // the entry via the enumeration - it's in there as is for sure
-    
+
                     for ( Value<?> value : attribute )
                     {
                         idx.add( value.getValue(), id );
                     }
-    
+
                     // Adds only those attributes that are indexed
                     presenceIdx.add( attributeOid, id );
                 }
             }
-    
+
             // Add the parentId in the entry
             entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
-            
+
             // And finally add the entry into the master table
             master.put( id, entry );
-    
+
             if ( isSyncOnWrite.get() )
             {
                 sync();
@@ -728,7 +735,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             // First get the entry
             Entry entry = master.get( id );
-            
+
             if ( entry == null )
             {
                 // Not allowed
@@ -777,7 +784,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             }
 
             master.remove( id );
-            
+
             // if this is a context entry reset the master table counter
             if ( id.equals( getDefaultId() ) )
             {
@@ -795,7 +802,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
     }
 
-    
+
     //---------------------------------------------------------------------------------------------
     // The List operation
     //---------------------------------------------------------------------------------------------
@@ -809,7 +816,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 list( getEntryId( listContext.getDn() ) ) ), listContext );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -821,15 +828,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             // and below
             IndexCursor<ID, Entry, ID> cursor = oneLevelIdx.forwardCursor( id );
             cursor.beforeValue( id, null );
-            
+
             return cursor;
-         }
+        }
         catch ( Exception e )
         {
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
-
 
 
     //---------------------------------------------------------------------------------------------
@@ -882,7 +888,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         Entry entry = lookup( id );
 
         // Remove all the attributes if the NO_ATTRIBUTE flag is set and there is no requested attribute
-        if ( lookupContext.hasNoAttribute() && ( ( lookupContext.getAttrsId() == null ) || lookupContext.getAttrsId().size() == 0 ) )
+        if ( lookupContext.hasNoAttribute()
+            && ( ( lookupContext.getAttrsId() == null ) || lookupContext.getAttrsId().size() == 0 ) )
         {
             entry.clear();
 
@@ -897,7 +904,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             }
             else
             {
-                for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
+                for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                 {
                     AttributeType attributeType = attribute.getAttributeType();
                     String oid = attributeType.getOid();
@@ -916,7 +923,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             if ( lookupContext.hasAllOperational() )
             {
-                for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
+                for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                 {
                     AttributeType attributeType = attribute.getAttributeType();
 
@@ -930,7 +937,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 if ( lookupContext.getAttrsId().size() == 0 )
                 {
-                    for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
+                    for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                     {
                         AttributeType attributeType = attribute.getAttributeType();
 
@@ -942,11 +949,11 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 }
                 else
                 {
-                    for ( Attribute attribute : ( ((ClonedServerEntry)entry).getOriginalEntry() ).getAttributes() )
+                    for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                     {
                         AttributeType attributeType = attribute.getAttributeType();
                         String oid = attributeType.getOid();
-                        
+
                         if ( !lookupContext.getAttrsId().contains( oid ) )
                         {
                             entry.removeAttributes( attributeType );
@@ -972,16 +979,16 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             Entry entry = master.get( id );
-    
+
             if ( entry != null )
             {
                 // We have to store the DN in this entry
                 Dn dn = buildEntryDn( id );
                 entry.setDn( dn );
-                
+
                 return new ClonedServerEntry( entry );
             }
-    
+
             return null;
         }
         catch ( Exception e )
@@ -1001,7 +1008,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            Entry modifiedEntry = modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{}) );
+            Entry modifiedEntry = modify( modifyContext.getDn(),
+                modifyContext.getModItems().toArray( new Modification[]
+                    {} ) );
             modifyContext.setAlteredEntry( modifiedEntry );
         }
         catch ( Exception e )
@@ -1009,8 +1018,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1018,7 +1027,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
-        
+
         for ( Modification mod : mods )
         {
             Attribute attrMods = mod.getAttribute();
@@ -1052,8 +1061,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
         return entry;
     }
-    
-    
+
+
     /**
      * Adds a set of attribute values while affecting the appropriate userIndices.
      * The entry is not persisted: it is only changed in anticipation for a put
@@ -1336,7 +1345,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             Dn newSuperior = moveContext.getNewSuperior();
             Dn newDn = moveContext.getNewDn();
             Entry modifiedEntry = moveContext.getModifiedEntry();
-            
+
             move( oldDn, newSuperior, newDn, modifiedEntry );
         }
         catch ( Exception e )
@@ -1402,7 +1411,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
         rdnIdx.add( key, entryId );
 
-
         /*
          * Read Alias Index Tuples
          *
@@ -1427,7 +1435,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             modifiedEntry = lookup( entryId );
         }
-        
+
         // Update the master table with the modified entry
         modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
         master.put( entryId, modifiedEntry );
@@ -1460,7 +1468,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             Rdn newRdn = moveAndRenameContext.getNewRdn();
             boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
-            
+
             moveAndRename( oldDn, newSuperiorDn, newRdn, modifiedEntry, deleteOldRdn );
         }
         catch ( LdapException le )
@@ -1479,7 +1487,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     /**
      * {@inheritDoc}
      */
-    public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
+    public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
+        boolean deleteOldRdn ) throws Exception
     {
         // Check that the old entry exists
         ID oldId = getEntryId( oldDn );
@@ -1542,7 +1551,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * @param modifiedEntry the modified entry
      * @throws Exception if something goes wrong
      */
-    private void moveAndRename( Dn oldDn, ID childId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry ) throws Exception
+    private void moveAndRename( Dn oldDn, ID childId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry )
+        throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         ID newParentId = getEntryId( newSuperior );
@@ -1647,7 +1657,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             entry = master.get( id );
         }
-        
+
         Dn updn = entry.getDn();
 
         newRdn.apply( schemaManager );
@@ -1744,7 +1754,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             }
         }
 
-
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
@@ -1790,7 +1799,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             ID id = getEntryId( entryContext.getDn() );
 
             Entry entry = lookup( id );
-            
+
             return entry != null;
         }
         catch ( LdapException e )
@@ -1849,7 +1858,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         cursor.close();
-        
+
         // detach the childId and all its children from oldParentId and all it parents excluding the root
         for ( ID pid : parentIds )
         {
@@ -1863,7 +1872,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         tempId = newParentId;
 
         // find all the parents of the newParentId
-        while ( ( tempId != null)  && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
+        while ( ( tempId != null ) && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
         {
             parentIds.add( tempId );
             tempId = getParentId( tempId );
@@ -1913,7 +1922,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 {
                     upName.append( ',' );
                 }
-                
+
                 upName.append( rdn.getName() );
             }
 
@@ -1959,8 +1968,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         return buildEntryDn( id );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -2023,7 +2032,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         if ( suffixId == null )
         {
             ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
-            
+
             suffixId = rdnIdx.forwardLookup( key );
         }
 
@@ -2080,7 +2089,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
     }
 
-    
+
     /**
      * Set the list of indexes for this partition
      * @param indexedAttributes The list of indexes
@@ -2098,6 +2107,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         return indexedAttributes;
     }
+
 
     /**
      * {@inheritDoc}
@@ -2149,7 +2159,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         String oid = attributeType.getOid();
-        
+
         if ( userIndices.containsKey( oid ) )
         {
             return userIndices.get( oid );
@@ -2170,7 +2180,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         String oid = attributeType.getOid();
-        
+
         if ( systemIndices.containsKey( oid ) )
         {
             return systemIndices.get( oid );
@@ -2305,8 +2315,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         return hasUserIndexOn( attributeType ) || hasSystemIndexOn( attributeType );
     }
-    
-    
+
+
     //---------------------------------------------------------------------------------------------
     // Alias index manipulation
     //---------------------------------------------------------------------------------------------
@@ -2425,8 +2435,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             ancestorId = getEntryId( ancestorDn );
         }
     }
-    
-    
+
+
     /**
      * Removes the index entries for an alias before the entry is deleted from
      * the master table.
@@ -2548,7 +2558,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
     }
 
-    
+
     //---------------------------------------------------------------------------------------------
     // Debug methods
     //---------------------------------------------------------------------------------------------
@@ -2557,11 +2567,11 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             IndexCursor<?, Entry, ID> cursor = index.forwardCursor();
-            
+
             while ( cursor.next() )
             {
                 IndexEntry<?, ID> entry = cursor.get();
-                
+
                 System.out.println( entry );
             }
         }
@@ -2570,8 +2580,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             // TODO : fixme
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -2580,15 +2590,15 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( name );
-            
+
             if ( attributeType == null )
             {
                 stream.write( Strings.getBytesUtf8( "Cannot find an index for AttributeType names " + name ) );
-                
+
                 return;
             }
-            
-            if ( attributeType.getOid().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID  ))
+
+            if ( attributeType.getOid().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
             {
                 dumpIndex( stream, rdnIdx );
             }

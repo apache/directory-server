@@ -43,9 +43,8 @@ public abstract class AbstractLdapTestUnit
 
     /** A flag set if the test is run in a suite */
     public static boolean isRunInSuite;
-    
 
-    
+
     public static DirectoryService getService()
     {
         return service;

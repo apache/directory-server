@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -35,6 +36,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     /** The referenced Entry if loaded from the store */
     private Entry entry;
 
+
     /**
      * Creates an instance of AbstractIndexEntry
      * 
@@ -44,32 +46,32 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     {
         this.entry = entry;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public abstract V getValue();
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract void setValue( V value );
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract ID getId();
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract void setId( ID id );
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -78,13 +80,13 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         return entry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract Tuple<?, ?> getTuple();
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -93,7 +95,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         this.entry = entry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -102,7 +104,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         entry = null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

@@ -37,7 +37,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
 {
     /** The index entry we use to return entries one by one.  */
     private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
-    
+
     /** The cursor on the EntryUUID index */
     private final IndexCursor<String, Entry, ID> wrapped;
 
@@ -50,7 +50,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * Creates a new instance of AllEntriesCursor
      * @param db
@@ -69,7 +69,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void afterValue( ID key, ID value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         wrapped.afterValue( key, null );
     }
 
@@ -80,7 +80,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void beforeValue( ID id, ID value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         wrapped.beforeValue( id, null );
     }
 
@@ -91,7 +91,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void after( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         wrapped.afterValue( indexEntry.getId(), null );
     }
 
@@ -102,7 +102,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         wrapped.afterLast();
     }
 
@@ -122,7 +122,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void before( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         wrapped.beforeValue( indexEntry.getId(), null );
     }
 
@@ -133,7 +133,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         wrapped.beforeFirst();
     }
 
@@ -144,7 +144,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean first() throws Exception
     {
         checkNotClosed( "first()" );
-        
+
         return wrapped.first();
     }
 
@@ -155,13 +155,13 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
         IndexEntry<String, ID> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
         indexEntry.setEntry( wrappedEntry.getEntry() );
-        
+
         return indexEntry;
     }
 
@@ -172,7 +172,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
-        
+
         return wrapped.last();
     }
 
@@ -183,7 +183,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         return wrapped.next();
     }
 
@@ -194,7 +194,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         return wrapped.previous();
     }
 

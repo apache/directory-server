@@ -40,7 +40,7 @@ public class PartitionViewer
 
     /** A handle on the atomic partition */
     private AbstractBTreePartition partition;
-    
+
     /** A handle on the global schemaManager */
     private SchemaManager schemaManager;
 
@@ -55,7 +55,8 @@ public class PartitionViewer
     // added return value so expressions in debugger does not freak with void
     public int execute() throws Exception
     {
-        Thread t = new Thread( new Runnable() {
+        Thread t = new Thread( new Runnable()
+        {
             public void run()
             {
                 PartitionFrame frame = null;
@@ -72,12 +73,13 @@ public class PartitionViewer
                 Dimension frameSize = frame.getSize();
                 frameSize.height = ( ( frameSize.height > screenSize.height ) ? screenSize.height : frameSize.height );
                 frameSize.width = ( ( frameSize.width > screenSize.width ) ? screenSize.width : frameSize.width );
-                frame.setLocation( ( screenSize.width - frameSize.width ) / 2, ( screenSize.height - frameSize.height ) / 2 );
+                frame.setLocation( ( screenSize.width - frameSize.width ) / 2,
+                    ( screenSize.height - frameSize.height ) / 2 );
 
                 frame.setVisible( true );
                 LOG.debug( frameSize + "" );
             }
-        });
+        } );
 
         t.run();
         return 0;

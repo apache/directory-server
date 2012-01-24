@@ -60,7 +60,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -80,7 +80,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -88,7 +88,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -99,7 +99,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -116,7 +116,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -130,7 +130,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return uuidCursor.get();

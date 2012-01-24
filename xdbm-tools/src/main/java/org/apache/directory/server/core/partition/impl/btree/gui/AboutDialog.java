@@ -68,7 +68,7 @@ public class AboutDialog extends JDialog
 
 
     /** Creates new About Dialog */
-    public AboutDialog(Frame parent, boolean modal)
+    public AboutDialog( Frame parent, boolean modal )
     {
         super( parent, modal );
         initGUI();

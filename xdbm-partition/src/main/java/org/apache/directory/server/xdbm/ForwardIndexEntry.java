@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -36,7 +37,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /** The underlying Tuple */
     private final Tuple<V, ID> tuple = new Tuple<V, ID>();
 
-    
+
     /**
      * Creates a ForwardIndexEntry instance
      */
@@ -44,8 +45,8 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     {
         super( null );
     }
-    
-    
+
+
     /**
      * Sets the key value tuple represented by this ForwardIndexEntry optionally
      * setting the Entry associated with the id if one was loaded from the
@@ -140,7 +141,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
         buf.append( ", " );
         buf.append( tuple.getValue() );
         buf.append( " ]" );
-        
+
         return buf.toString();
     }
 }

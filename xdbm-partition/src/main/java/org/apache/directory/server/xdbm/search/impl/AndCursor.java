@@ -43,10 +43,10 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
-    
+
     /** */
     private final IndexCursor<V, Entry, ID> wrapped;
-    
+
     /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
 
@@ -74,7 +74,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -103,7 +103,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -114,7 +114,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -129,7 +129,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
             checkNotClosed( "previous()" );
 
             IndexEntry<V, ID> candidate = wrapped.get();
-            
+
             if ( matches( candidate ) )
             {
                 return setAvailable( true );
@@ -149,14 +149,14 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         {
             checkNotClosed( "next()" );
             IndexEntry<V, ID> candidate = wrapped.get();
-            
+
             if ( matches( candidate ) )
             {
                 return setAvailable( true );
             }
         }
 
-        return setAvailable( false);
+        return setAvailable( false );
     }
 
 
@@ -166,7 +166,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return wrapped.get();

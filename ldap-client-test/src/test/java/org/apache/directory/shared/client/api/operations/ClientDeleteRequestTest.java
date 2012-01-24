@@ -68,17 +68,17 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     { "dn: cn=parent,ou=system", "objectClass: person", "cn: parent_cn", "sn: parent_sn",
 
-    "",
+        "",
 
-    "dn: cn=child1,cn=parent,ou=system", "objectClass: person", "cn: child1_cn", "sn: child1_sn",
+        "dn: cn=child1,cn=parent,ou=system", "objectClass: person", "cn: child1_cn", "sn: child1_sn",
 
-    "",
+        "",
 
-    "dn: cn=child2,cn=parent,ou=system", "objectClass: person", "cn: child2_cn", "sn: child2_sn",
+        "dn: cn=child2,cn=parent,ou=system", "objectClass: person", "cn: child2_cn", "sn: child2_sn",
 
-    "",
+        "",
 
-    "dn: cn=grand_child11,cn=child1,cn=parent,ou=system", "objectClass: person", "cn: grand_child11_cn",
+        "dn: cn=grand_child11,cn=child1,cn=parent,ou=system", "objectClass: person", "cn: grand_child11_cn",
         "sn: grand_child11_sn",
 
         "",
@@ -236,9 +236,9 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
             deleteRequest.setName( new Dn( "cn=parent,ou=system" ) );
             Control deleteTreeControl = new OpaqueControl( "1.2.840.113556.1.4.805" );
             deleteRequest.addControl( deleteTreeControl );
-    
+
             DeleteResponse deleteResponse = connection.delete( deleteRequest );
-    
+
             assertNotNull( deleteResponse );
             assertEquals( ResultCodeEnum.SUCCESS, deleteResponse.getLdapResult().getResultCode() );
             assertFalse( session.exists( "cn=parent,ou=system" ) );

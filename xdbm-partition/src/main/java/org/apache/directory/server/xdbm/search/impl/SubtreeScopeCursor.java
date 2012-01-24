@@ -99,7 +99,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         return UNSUPPORTED_MSG;
     }
 
-    
+
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     private ID getContextEntryId() throws Exception
     {
@@ -107,7 +107,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -188,7 +188,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 {
                     checkNotClosed( "previous()" );
                     setAvailable( cursor.previous() );
-                    
+
                     if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
@@ -211,7 +211,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
          * last element.
          */
         setAvailable( cursor.previous() );
-        
+
         if ( !available() )
         {
             cursor = scopeCursor;
@@ -288,7 +288,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             {
                 cursor = dereferencedCursor;
                 cursor.beforeFirst();
-                
+
                 return setAvailable( cursor.next() );
             }
 
@@ -302,7 +302,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return cursor.get();
@@ -314,18 +314,18 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
 
     private void closeCursors() throws Exception
     {
-        if( dereferencedCursor != null )
+        if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
         }
-        
-        if( scopeCursor != null )
+
+        if ( scopeCursor != null )
         {
             scopeCursor.close();
         }
     }
-    
-    
+
+
     @Override
     public void close() throws Exception
     {

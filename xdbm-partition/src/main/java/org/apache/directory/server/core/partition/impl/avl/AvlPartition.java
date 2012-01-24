@@ -50,7 +50,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartition.class );
 
-    
+
     /**
      * Creates a store based on AVL Trees.
      */
@@ -69,7 +69,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         {
             EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( this, schemaManager );
             CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( this, evaluatorBuilder );
-    
+
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
@@ -79,17 +79,17 @@ public class AvlPartition extends AbstractBTreePartition<Long>
             {
                 optimizer = new DefaultOptimizer<Entry, Long>( this );
             }
-    
+
             searchEngine = new DefaultSearchEngine<Long>( this, cursorBuilder, evaluatorBuilder, optimizer );
-    
+
             if ( isInitialized() )
             {
                 return;
             }
-    
+
             // Create the master table (the table containing all the entries)
             master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
-    
+
             super.doInit();
         }
     }
@@ -153,7 +153,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         }
         else if ( index instanceof AvlIndex<?, ?> )
         {
-            avlIndex = (AvlIndex<?, Entry> ) index;
+            avlIndex = ( AvlIndex<?, Entry> ) index;
         }
         else
         {
@@ -161,13 +161,13 @@ public class AvlPartition extends AbstractBTreePartition<Long>
                 + "Will create new AvlIndex using copied configuration parameters.", index );
             avlIndex = new AvlIndex( index.getAttributeId() );
         }
-     
+
         avlIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
-      
+
         return avlIndex;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

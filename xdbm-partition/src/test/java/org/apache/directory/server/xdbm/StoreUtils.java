@@ -166,8 +166,8 @@ public class StoreUtils
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
     }
-    
-    
+
+
     /**
      * 
      * adds a given <i>ServerEntry</i> to the store after injecting entryCSN and entryUUID operational
@@ -184,6 +184,6 @@ public class StoreUtils
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        ( ( Partition ) store ).add( addContext );
     }
 }

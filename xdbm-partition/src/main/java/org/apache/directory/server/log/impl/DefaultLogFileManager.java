@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.log.impl;
 
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -30,11 +31,13 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.log.impl.LogFileManager.LogFileReader;
 import org.apache.directory.server.log.impl.LogFileManager.LogFileWriter;
 
-class DefaultLogFileManager implements LogFileManager 
+
+class DefaultLogFileManager implements LogFileManager
 {
     private String logFilePath;
     private String suffix;
-    
+
+
     /**
      * Inits the log file manager to use the given logfile path and the suffix. Each log file
      * has name logFileName_<logFileNumber>.suffix 
@@ -47,48 +50,49 @@ class DefaultLogFileManager implements LogFileManager
         this.logFilePath = logFilePath;
         this.suffix = suffix;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public LogFileReader getReaderForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
-    {      
+    {
         File logFile = this.makeLogFileName( logFileNumber );
-        
+
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "r" );
-        
+
         return new LogFileReader( raf, logFileNumber );
     }
-    
+
+
     /**
      * {@inheritDoc}
      */
     public LogFileWriter getWriterForLogFile( long logFileNumber ) throws IOException, FileNotFoundException
     {
         File logFile = this.makeLogFileName( logFileNumber );
-        
+
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
-        
+
         return new LogFileWriter( raf, logFileNumber );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean createLogFile( long logFileNumber ) throws IOException
     {
         File logFile = this.makeLogFileName( logFileNumber );
-        
+
         boolean fileAlreadyExists = !logFile.createNewFile();
-        
+
         return fileAlreadyExists;
     }
-    
-       
+
+
     /**
      * {@inheritDoc}
      */
@@ -96,65 +100,67 @@ class DefaultLogFileManager implements LogFileManager
     {
         if ( size < 0 )
         {
-            throw new IllegalArgumentException( "Invalid file size is specified for the log file: " + logFileNumber + " " + size );
+            throw new IllegalArgumentException( "Invalid file size is specified for the log file: " + logFileNumber
+                + " " + size );
         }
-        
+
         File logFile = this.makeLogFileName( logFileNumber );
-        
+
         // This will throw a file not found exception if file does not exist
         RandomAccessFile raf = new RandomAccessFile( logFile, "rw" );
-        
+
         raf.setLength( size );
         raf.getFD().sync();
     }
-    
-   
+
+
     /**
      * {@inheritDoc}
      */
     public void deleteLogFile( long logFileNumber ) throws IOException
     {
         File logFile = this.makeLogFileName( logFileNumber );
-        
+
         if ( !logFile.delete() )
         {
-            throw new IOException(I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, logFile ));
+            throw new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, logFile ) );
         }
     }
-    
-   
+
+
     /**
      * {@inheritDoc}
      */
-    public boolean rename(long originalLogFileNumber, long newLongFileNumber)
+    public boolean rename( long originalLogFileNumber, long newLongFileNumber )
     {
-        File oldLogFile = this.makeLogFileName( originalLogFileNumber );  
+        File oldLogFile = this.makeLogFileName( originalLogFileNumber );
         boolean result = oldLogFile.renameTo( this.makeLogFileName( newLongFileNumber ) );
         return result;
     }
-    
-    
+
+
     private File makeLogFileName( long logFileNumber )
     {
-        
+
         return new File( logFilePath + "/" + LogFileManager.LOG_NAME_PREFIX + logFileNumber + "." + suffix );
     }
-    
+
     static class LogFileReader implements LogFileManager.LogFileReader
     {
         /** Underlying log file */
         RandomAccessFile raf;
-        
+
         /** Log file identifier */
         long logFileNumber;
-        
-  
+
+
         public LogFileReader( RandomAccessFile raf, long logFileNumber )
         {
             this.raf = raf;
             this.logFileNumber = logFileNumber;
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -163,7 +169,8 @@ class DefaultLogFileManager implements LogFileManager
             raf.readFully( buffer, offset, length );
             return length;
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -171,7 +178,8 @@ class DefaultLogFileManager implements LogFileManager
         {
             raf.seek( position );
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -179,8 +187,8 @@ class DefaultLogFileManager implements LogFileManager
         {
             raf.close();
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -188,7 +196,8 @@ class DefaultLogFileManager implements LogFileManager
         {
             return logFileNumber;
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -196,7 +205,8 @@ class DefaultLogFileManager implements LogFileManager
         {
             return raf.length();
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -205,22 +215,23 @@ class DefaultLogFileManager implements LogFileManager
             return raf.getFilePointer();
         }
     }
-    
-    
+
     static class LogFileWriter implements LogFileManager.LogFileWriter
     {
         /** Underlying log file */
         RandomAccessFile raf;
-        
+
         /** Log file identifier */
         long logFileNumber;
-        
-  
+
+
         public LogFileWriter( RandomAccessFile raf, long logFileNumber )
         {
             this.raf = raf;
             this.logFileNumber = logFileNumber;
         }
+
+
         /**
          * {@inheritDoc}
          */
@@ -228,15 +239,17 @@ class DefaultLogFileManager implements LogFileManager
         {
             raf.write( buffer, offset, length );
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
         public void sync() throws IOException
         {
-             raf.getFD().sync();
+            raf.getFD().sync();
         }
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -244,15 +257,17 @@ class DefaultLogFileManager implements LogFileManager
         {
             raf.close();
         }
-        
-         /**
-          * {@inheritDoc}
-          */
+
+
+        /**
+         * {@inheritDoc}
+         */
         public long logFileNumber()
         {
             return logFileNumber;
         }
-        
+
+
         /**
          * {@inheritDoc}
          */

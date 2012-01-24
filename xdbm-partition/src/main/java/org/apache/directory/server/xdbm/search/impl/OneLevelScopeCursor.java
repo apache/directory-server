@@ -92,7 +92,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -179,7 +179,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
          * last element.
          */
         setAvailable( cursor.previous() );
-        
+
         if ( !available() )
         {
             cursor = scopeCursor;
@@ -269,7 +269,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return cursor.get();
@@ -283,12 +283,12 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public void close() throws Exception
     {
         scopeCursor.close();
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
         }
-        
+
         super.close();
     }
 
@@ -297,14 +297,13 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public void close( Exception cause ) throws Exception
     {
         scopeCursor.close( cause );
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close( cause );
         }
-        
+
         super.close( cause );
     }
-    
-    
+
 }

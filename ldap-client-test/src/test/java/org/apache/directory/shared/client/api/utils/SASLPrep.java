@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.client.api.utils;
 
+
 /**
  * This class implement the RFC 4013. It contains methods to prepare
  * String passwords before the client API can send them to the server.

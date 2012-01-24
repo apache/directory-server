@@ -163,7 +163,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
         else
         {
-            return evaluateWithIndex( );
+            return evaluateWithIndex();
         }
     }
 
@@ -204,13 +204,13 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
 
 
-    private boolean evaluateWithIndex( ) throws Exception
+    private boolean evaluateWithIndex() throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -240,7 +240,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
@@ -364,7 +364,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                 for ( Value<?> value : attr )
                 {
                     String strValue = ( String ) value.getNormValue();
-    
+
                     // Once match is found cleanup and return true
                     if ( regex.matcher( strValue ).matches() )
                     {
@@ -380,8 +380,8 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                 // the value.
                 for ( Value<?> value : attr )
                 {
-                    byte[] byteValue = (byte[])value.getNormValue();
-    
+                    byte[] byteValue = ( byte[] ) value.getNormValue();
+
                     // Once match is found cleanup and return true
                     // @TODO : implement this check.
                     /*

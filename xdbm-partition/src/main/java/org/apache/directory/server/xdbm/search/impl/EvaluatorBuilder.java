@@ -73,7 +73,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     {
         switch ( node.getAssertionType() )
         {
-            /* ---------- LEAF NODE HANDLING ---------- */
+        /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
                 return new ApproximateEvaluator<T, ID>( ( ApproximateNode<T> ) node, db, schemaManager );
@@ -109,7 +109,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
                 return buildAndEvaluator( ( AndNode ) node );
 
             case NOT:
-                return new NotEvaluator<ID>( (NotNode) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotEvaluator<ID>( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );

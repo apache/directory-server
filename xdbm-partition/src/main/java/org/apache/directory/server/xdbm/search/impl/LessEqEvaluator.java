@@ -83,7 +83,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
     public LessEqNode<T> getExpression()
     {
-        return (LessEqNode<T>)node;
+        return ( LessEqNode<T> ) node;
     }
 
 

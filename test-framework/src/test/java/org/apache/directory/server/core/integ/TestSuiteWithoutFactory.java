@@ -18,19 +18,22 @@
  */
 package org.apache.directory.server.core.integ;
 
+
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-@RunWith( FrameworkSuite.class )
-@Suite.SuiteClasses({ TestClassA.class, TestClassB.class, TestClassC.class })
+
+@RunWith(FrameworkSuite.class)
+@Suite.SuiteClasses(
+    { TestClassA.class, TestClassB.class, TestClassC.class })
 @ApplyLdifs(
     {
-        "dn: cn=testSuite,ou=system", 
-        "objectClass: person", 
-        "cn: testSuite", 
-        "sn: sn_testSuite" 
-    })
+        "dn: cn=testSuite,ou=system",
+        "objectClass: person",
+        "cn: testSuite",
+        "sn: sn_testSuite"
+})
 public class TestSuiteWithoutFactory
 {
 }

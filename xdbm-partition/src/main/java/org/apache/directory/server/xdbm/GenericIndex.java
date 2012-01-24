@@ -273,7 +273,7 @@ public class GenericIndex<K, O, ID> extends AbstractIndex<K, O, ID>
         throw new UnsupportedOperationException();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

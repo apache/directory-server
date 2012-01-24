@@ -34,6 +34,7 @@ public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends Seriali
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
 
+
     /**
      * Creates a new instance of ParentIdAndRdnComparator.
      *

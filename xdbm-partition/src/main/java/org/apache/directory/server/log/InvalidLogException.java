@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.log;
 
+
 /** 
  * An exception used when the log content could be invalid.
  *
@@ -26,21 +27,26 @@ package org.apache.directory.server.log;
  */
 public class InvalidLogException extends Exception
 {
-    public InvalidLogException() {}
-
-    public InvalidLogException(String s) 
+    public InvalidLogException()
     {
-        super(s);
     }
 
-    public InvalidLogException(Throwable cause) 
+
+    public InvalidLogException( String s )
     {
-        super(cause);
+        super( s );
     }
 
-    public InvalidLogException(String s, Throwable cause) 
+
+    public InvalidLogException( Throwable cause )
     {
-        super(s, cause);
+        super( cause );
+    }
+
+
+    public InvalidLogException( String s, Throwable cause )
+    {
+        super( s, cause );
     }
 
 }

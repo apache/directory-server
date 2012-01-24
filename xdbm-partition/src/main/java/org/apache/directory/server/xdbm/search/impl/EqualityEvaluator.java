@@ -88,7 +88,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
 
     public EqualityNode<T> getExpression()
     {
-        return (EqualityNode<T>)node;
+        return ( EqualityNode<T> ) node;
     }
 
 
@@ -187,7 +187,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
                 }
                 else
                 {
-                    nodeValue = Strings.utf8ToString(((Value<byte[]>) node.getValue()).getNormValue());
+                    nodeValue = Strings.utf8ToString( ( ( Value<byte[]> ) node.getValue() ).getNormValue() );
                 }
 
                 if ( ldapComparator != null )
@@ -208,12 +208,12 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
             else
             {
                 // Deal with a binary value
-                byte[] serverValue = ( (Value<byte[]>) value ).getNormValue();
+                byte[] serverValue = ( ( Value<byte[]> ) value ).getNormValue();
                 byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormValue();
 
                 if ( ldapComparator != null )
                 {
-                    if ( ldapComparator.compare( (Object)serverValue, (Object)nodeValue ) == 0 )
+                    if ( ldapComparator.compare( ( Object ) serverValue, ( Object ) nodeValue ) == 0 )
                     {
                         return true;
                     }

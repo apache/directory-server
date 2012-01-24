@@ -72,7 +72,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public boolean available()
     {
         if ( presenceCursor != null )
@@ -90,11 +90,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void beforeValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.beforeValue( id, value );
-            
+
             return;
         }
 
@@ -108,11 +108,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void before( IndexEntry<String, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.before( element );
-            
+
             return;
         }
 
@@ -126,11 +126,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void afterValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.afterValue( id, value );
-            
+
             return;
         }
 
@@ -144,11 +144,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void after( IndexEntry<String, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.after( element );
-            
+
             return;
         }
 
@@ -159,11 +159,11 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.beforeFirst();
-            
+
             return;
         }
 
@@ -175,7 +175,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.afterLast();
@@ -203,14 +203,14 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
-        
+
         if ( presenceCursor != null )
         {
             return presenceCursor.last();
         }
 
         afterLast();
-        
+
         return previous();
     }
 
@@ -218,7 +218,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( presenceCursor != null )
         {
             return presenceCursor.previous();
@@ -228,7 +228,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -251,7 +251,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -265,7 +265,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public IndexEntry<String, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( presenceCursor != null )
         {
             if ( presenceCursor.available() )
@@ -285,7 +285,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
              */
             IndexEntry<String, ID> indexEntry = uuidCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
-            
+
             return indexEntry;
         }
 

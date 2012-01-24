@@ -68,7 +68,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         this.lessEqEvaluator = lessEqEvaluator;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attributeType ) ).forwardCursor();
@@ -90,14 +90,14 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -120,7 +120,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( compareValue > 0 )
             {
                 afterLast();
-                
+
                 return;
             }
             else if ( compareValue == 0 )
@@ -128,7 +128,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
                 last();
                 previous();
                 setAvailable( false );
-                
+
                 return;
             }
 
@@ -148,7 +148,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -196,7 +196,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
@@ -216,7 +216,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             if ( comparedValue >= 0 )
             {
                 afterLast();
-                
+
                 return;
             }
 
@@ -237,7 +237,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
@@ -357,7 +357,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -370,7 +370,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?, ID> candidate = userIdxCursor.get();
-                
+
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
@@ -385,7 +385,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         {
             checkNotClosed( "next()" );
             ndnCandidate = uuidIdxCursor.get();
-            
+
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
                 return setAvailable( true );
@@ -403,7 +403,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             if ( available() )

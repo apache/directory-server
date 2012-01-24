@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -28,6 +29,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+
 
 /**
  * An abstract evaluator to store the common fileds for the Simple node evaluators
@@ -43,25 +45,26 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
 
     /** The backend */
     protected final Store<Entry, ID> db;
-    
+
     /** The SchemaManager instance */
     protected final SchemaManager schemaManager;
-    
+
     /** The AttributeType we will use for the evaluation */
     protected final AttributeType attributeType;
-    
+
     /** The associated normalizer */
     protected Normalizer normalizer;
-    
+
     /** The associated comparator */
     protected LdapComparator<? super Object> ldapComparator;
-    
+
     /** The index to use if any */
     protected Index<T, Entry, ID> idx;
 
+
     @SuppressWarnings("unchecked")
     public LeafEvaluator( SimpleNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
-    throws Exception
+        throws Exception
     {
         this.db = db;
         this.node = node;
@@ -69,7 +72,7 @@ public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Eva
         this.attributeType = node.getAttributeType();
     }
 
-    
+
     /**
      * @return The AttributeType
      */

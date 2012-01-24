@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.client.api;
 
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,6 +37,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * A test class for NetworkSchemaLoader.
@@ -75,7 +77,7 @@ public class NetworkSchemaLoaderTest extends AbstractLdapTestUnit
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(sm.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( sm.getErrors() ) );
         }
 
         assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );

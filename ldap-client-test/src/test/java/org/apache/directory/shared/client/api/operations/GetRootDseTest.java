@@ -67,7 +67,7 @@ public class GetRootDseTest extends AbstractLdapTestUnit
 
     /**
      * Test a                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-lookup requesting all the attributes (* and +)
+    lookup requesting all the attributes (* and +)
      *
      * @throws Exception
      */
@@ -75,7 +75,7 @@ lookup requesting all the attributes (* and +)
     public void testGetRootDse() throws Exception
     {
         Entry rootDse = connection.getRootDse();
-        
+
         assertNotNull( rootDse );
 
         assertEquals( 1, rootDse.size() );
@@ -85,7 +85,7 @@ lookup requesting all the attributes (* and +)
 
     /**
      * Test a                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-lookup requesting all the user attributes (*)
+    lookup requesting all the user attributes (*)
      *
      * @throws Exception
      */
@@ -112,7 +112,7 @@ lookup requesting all the user attributes (*)
         Entry rootDse = connection.getRootDse( "+" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
         assertTrue( rootDse.containsAttribute( "namingContexts" ) );
@@ -138,7 +138,7 @@ lookup requesting all the user attributes (*)
         Entry rootDse = connection.getRootDse( "objectClass", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -158,7 +158,7 @@ lookup requesting all the user attributes (*)
         Entry rootDse = connection.getRootDse( "*", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -178,7 +178,7 @@ lookup requesting all the user attributes (*)
         Entry rootDse = connection.getRootDse( "+", "Objectclass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 11, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -196,7 +196,7 @@ lookup requesting all the user attributes (*)
 
     /**
      * Test a                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-lookup requesting a all user attributes (*)
+    lookup requesting a all user attributes (*)
      * and all operational attributes (+)
      *
      * @throws Exception
@@ -207,7 +207,7 @@ lookup requesting a all user attributes (*)
         Entry rootDse = connection.getRootDse( "+", "*" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 11, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -234,7 +234,7 @@ lookup requesting a all user attributes (*)
         Entry rootDse = connection.getRootDse( "1.1" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 0, rootDse.size() );
     }
 
@@ -250,7 +250,7 @@ lookup requesting a all user attributes (*)
         Entry rootDse = connection.getRootDse( "1.1", "objectClass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 1, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
     }
