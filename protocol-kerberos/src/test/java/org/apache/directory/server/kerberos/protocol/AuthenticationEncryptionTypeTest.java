@@ -53,6 +53,7 @@ import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -99,7 +100,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * @throws Exception
      */
     @Test
-    //@Ignore("AbstractAuthenticationServiceTest.getEncryptionKey() always uses AES128_CTS_HMAC_SHA1_96")
+    @Ignore("AbstractAuthenticationServiceTest.getEncryptionKey() always uses AES128_CTS_HMAC_SHA1_96")
     public void testRequestDesCbcMd5() throws Exception
     {
         KdcReqBody kdcReqBody = new KdcReqBody();
