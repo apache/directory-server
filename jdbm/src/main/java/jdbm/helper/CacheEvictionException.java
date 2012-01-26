@@ -58,7 +58,7 @@ public class CacheEvictionException
 {
 
     /**
-     * Nested exception -- the original exception that occured, if any.
+     * Nested exception -- the original exception that occurred, if any.
      */
     protected Exception _nested;
 

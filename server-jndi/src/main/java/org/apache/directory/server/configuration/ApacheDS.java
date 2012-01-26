@@ -114,7 +114,7 @@ public class ApacheDS
      *  <li>start the LDAPS server</li>
      *  
      * @throws NamingException If the server cannot be started
-     * @throws IOException If an IO error occured while reading some file
+     * @throws IOException If an IO error occurred while reading some file
      */
     public void startup() throws Exception
     {

@@ -2495,7 +2495,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * one and subtree alias index tuples for old ancestors above the moved base
      * that will no longer be ancestors after the move.
      *
-     * @param movedBase the base at which the move occured - the moved node
+     * @param movedBase the base at which the move occurred - the moved node
      * @throws Exception if system userIndices fail
      */
     protected void dropMovedAliasIndices( final Dn movedBase ) throws Exception
@@ -2514,7 +2514,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * above the moved base.
      *
      * @param aliasId the id of the alias
-     * @param movedBase the base where the move occured
+     * @param movedBase the base where the move occurred
      * @throws Exception if userIndices fail
      */
     protected void dropAliasIndices( ID aliasId, Dn movedBase ) throws Exception

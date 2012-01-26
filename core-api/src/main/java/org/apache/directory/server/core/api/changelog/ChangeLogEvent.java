@@ -128,9 +128,9 @@ public class ChangeLogEvent
 
 
     /**
-     * Gets the generalizedTime when this event occured.
+     * Gets the generalizedTime when this event occurred.
      *
-     * @return the zuluTime when this event occured
+     * @return the zuluTime when this event occurred
      */
     public String getZuluTime()
     {

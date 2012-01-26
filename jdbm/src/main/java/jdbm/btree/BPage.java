@@ -630,7 +630,7 @@ public class BPage<K, V> implements Serializer
 
             if ( result.underflow )
             {
-                // underflow occured
+                // underflow occurred
                 if ( child.first != half + 1 )
                 {
                     throw new IllegalStateException( I18n.err( I18n.ERR_513, "1" ) );
