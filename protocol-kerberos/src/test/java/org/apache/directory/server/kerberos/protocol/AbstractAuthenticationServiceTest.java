@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.protocol;
 
@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
-
+import java.util.List;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -59,23 +59,23 @@ public abstract class AbstractAuthenticationServiceTest
     protected static final SecureRandom random = new SecureRandom();
 
 
-    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
+    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase, List<EncryptionType> encryptionTypes )
         throws Exception
     {
         KerberosTime timeStamp = new KerberosTime();
 
-        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp, encryptionTypes );
     }
 
 
     protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal,
-        String passPhrase, KerberosTime timeStamp ) throws Exception
+        String passPhrase, KerberosTime timeStamp, List<EncryptionType> encryptionTypes ) throws Exception
     {
         PaData[] paData = new PaData[1];
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase, encryptionTypes );
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
             KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
@@ -110,11 +110,13 @@ public abstract class AbstractAuthenticationServiceTest
      * @param passPhrase
      * @return The server's {@link EncryptionKey}.
      */
-    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase )
+    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase, List<EncryptionType> encryptionTypes )
     {
+        EncryptionType encryptionType = encryptionTypes.get( 0 );
+        
         KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "AES128" );
         byte[] keyBytes = kerberosKey.getEncoded();
-        EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyBytes );
+        EncryptionKey key = new EncryptionKey( encryptionType, keyBytes );
 
         return key;
     }

@@ -6,24 +6,23 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc;
 
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import net.sf.ehcache.Cache;
@@ -114,7 +113,7 @@ public class KdcServer extends DirectoryBackedService
     private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
 
     /** The encryption types. */
-    private Set<EncryptionType> encryptionTypes;
+    private List<EncryptionType> encryptionTypes;
 
     /** The primary realm */
     private String primaryRealm = DEFAULT_REALM;
@@ -276,7 +275,7 @@ public class KdcServer extends DirectoryBackedService
      * 
      * @param encryptionTypes the encryptionTypes to set
      */
-    public void setEncryptionTypes( Set<EncryptionType> encryptionTypes )
+    public void setEncryptionTypes( List<EncryptionType> encryptionTypes )
     {
         this.encryptionTypes = encryptionTypes;
     }
@@ -399,7 +398,7 @@ public class KdcServer extends DirectoryBackedService
      *
      * @return The encryption types.
      */
-    public Set<EncryptionType> getEncryptionTypes()
+    public List<EncryptionType> getEncryptionTypes()
     {
         return encryptionTypes;
     }
@@ -465,7 +464,7 @@ public class KdcServer extends DirectoryBackedService
             UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
             setTransports( transport );
 
-            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
+            DatagramAcceptor acceptor = transport.getAcceptor();
 
             // Inject the chain
             IoFilterChainBuilder udpChainBuilder = new DefaultIoFilterChainBuilder();
@@ -553,7 +552,7 @@ public class KdcServer extends DirectoryBackedService
     {
         String[] encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
 
-        encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes = new ArrayList<EncryptionType>();
 
         for ( String enc : encryptionTypeStrings )
         {

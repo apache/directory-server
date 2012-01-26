@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.protocol;
 
@@ -23,9 +23,8 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -70,7 +69,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Before
     public void setUp()
     {
-        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         config = new KdcServer();
@@ -135,7 +134,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * if the pre-authentication check fails, an error message with the code
      * KDC_ERR_PREAUTH_FAILED is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationIntegrityFailed() throws Exception
@@ -156,7 +155,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -181,7 +180,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * if the pre-authentication check fails, an error message with the code
      * KDC_ERR_PREAUTH_FAILED is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationFailed() throws Exception
@@ -203,7 +202,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KerberosTime timeStamp = new KerberosTime( 0 );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -228,7 +227,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * Tests when pre-authentication is included that is not supported by the KDC, that
      * the correct error message is returned.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationNoSupport() throws Exception
@@ -307,7 +306,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
             KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.kerberos;
 
@@ -23,8 +23,6 @@ package org.apache.directory.shared.kerberos;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
@@ -208,7 +206,7 @@ public class KerberosUtils
 
 
     /**
-     * Constructs a KerberosPrincipal from a PrincipalName and an 
+     * Constructs a KerberosPrincipal from a PrincipalName and an
      * optional realm
      *
      * @param principal The principal name and type
@@ -237,8 +235,8 @@ public class KerberosUtils
      * @param configuredTypes The configured encryption types
      * @return The first matching encryption type.
      */
-    public static EncryptionType getBestEncryptionType( Set<EncryptionType> requestedTypes,
-        Set<EncryptionType> configuredTypes )
+    public static EncryptionType getBestEncryptionType( List<EncryptionType> requestedTypes,
+        List<EncryptionType> configuredTypes )
     {
         for ( EncryptionType encryptionType : requestedTypes )
         {
@@ -258,7 +256,7 @@ public class KerberosUtils
      * @param encryptionTypes The encryptionTypes
      * @return A list comma separated of the encryptionTypes
      */
-    public static String getEncryptionTypesString( Set<EncryptionType> encryptionTypes )
+    public static String getEncryptionTypesString( List<EncryptionType> encryptionTypes )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;

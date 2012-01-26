@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
@@ -25,8 +25,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
@@ -161,10 +159,10 @@ public class TicketGrantingService
 
     private static void selectEncryptionType( TicketGrantingContext tgsContext ) throws Exception
     {
-        KdcContext kdcContext = ( KdcContext ) tgsContext;
+        KdcContext kdcContext = tgsContext;
         KdcServer config = kdcContext.getConfig();
 
-        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
+        List<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -860,7 +858,7 @@ public class TicketGrantingService
                     throw new KerberosException( ErrorType.KDC_ERR_POLICY );
                 }
 
-                // We set the RENEWABLE option for later processing.                           
+                // We set the RENEWABLE option for later processing.
                 request.getKdcReqBody().getKdcOptions().set( KdcOptions.RENEWABLE );
                 long rtime = Math.min( request.getKdcReqBody().getTill().getTime(), tgt.getEncTicketPart()
                     .getRenewTill().getTime() );

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.protocol;
 
@@ -24,9 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -206,7 +205,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * "If the server cannot accommodate any encryption type requested by the
      * client, an error message with code KDC_ERR_ETYPE_NOSUPP is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testEncryptionTypeNoSupport() throws Exception
@@ -216,7 +215,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
-        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
         encryptionTypes.add( EncryptionType.DES3_CBC_MD5 );
 
         kdcReqBody.setEType( encryptionTypes );
@@ -231,7 +230,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -253,7 +252,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     /**
      * Tests that a non-existent server principal returns the correct error message.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testServerNotFound() throws Exception
@@ -267,7 +266,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -316,7 +315,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * Tests that when a server principal is not configured with Kerberos keys that
      * the correct error message is returned.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testServerNullKey() throws Exception
@@ -330,7 +329,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -359,7 +358,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * POSTDATE option has not been specified, then the starttime of the
      * ticket is set to the authentication server's current time."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testStartTimeAbsentNoPostdate() throws Exception
@@ -380,7 +379,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -413,7 +412,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * POSTDATE option has not been specified, then the starttime of the
      * ticket is set to the authentication server's current time."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testStartTimeInThePastNoPostdate() throws Exception
@@ -437,7 +436,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -470,7 +469,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * POSTDATE option has not been specified, then the starttime of the
      * ticket is set to the authentication server's current time."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testStartTimeAcceptableClockSkewNoPostdate() throws Exception
@@ -494,7 +493,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -550,7 +549,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -602,7 +601,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -630,7 +629,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * the POSTDATED option has not been specified, then the error
      * KDC_ERR_CANNOT_POSTDATE is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testStartTimeNoPostdated() throws Exception
@@ -653,7 +652,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -715,7 +714,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -775,7 +774,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -798,7 +797,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
 
     /**
-     * Tests when an end time is requested that exceeds the maximum end time as 
+     * Tests when an end time is requested that exceeds the maximum end time as
      * configured in policy that the maximum allowable end time is returned instead
      * of the requested end time.
      * 
@@ -827,7 +826,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -874,7 +873,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -922,7 +921,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -960,7 +959,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 'RENEWABLE' option were requested (the field and option names are described
      * fully in Section 5.4.1).
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testRenewableOk() throws Exception
@@ -983,7 +982,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1019,7 +1018,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * if they have been requested and if the policy of the local realm
      * allows:  FORWARDABLE, MAY-POSTDATE, POSTDATED, PROXIABLE, RENEWABLE."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testForwardableTicket() throws Exception
@@ -1041,7 +1040,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1072,7 +1071,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * if they have been requested and if the policy of the local realm
      * allows:  FORWARDABLE, MAY-POSTDATE, POSTDATED, PROXIABLE, RENEWABLE."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAllowPostdate() throws Exception
@@ -1094,7 +1093,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1125,7 +1124,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * if they have been requested and if the policy of the local realm
      * allows:  FORWARDABLE, MAY-POSTDATE, POSTDATED, PROXIABLE, RENEWABLE."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testProxiableTicket() throws Exception
@@ -1147,7 +1146,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1181,7 +1180,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * the starttime of the ticket plus the maximum renewable lifetime
      * set by the policy of the local realm."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testRenewableTicket() throws Exception
@@ -1206,7 +1205,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1243,7 +1242,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * the starttime of the ticket plus the maximum renewable lifetime
      * set by the policy of the local realm."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testRenewableTicketExceedsMaximumAllowable() throws Exception
@@ -1268,7 +1267,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1322,7 +1321,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1367,7 +1366,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1412,7 +1411,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1457,7 +1456,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -1502,7 +1501,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );

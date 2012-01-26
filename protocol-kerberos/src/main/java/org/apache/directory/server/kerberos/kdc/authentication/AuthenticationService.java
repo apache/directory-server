@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc.authentication;
 
@@ -131,10 +131,10 @@ public class AuthenticationService
     private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException,
         InvalidTicketException
     {
-        KdcContext kdcContext = ( KdcContext ) authContext;
+        KdcContext kdcContext = authContext;
         KdcServer config = kdcContext.getConfig();
 
-        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
+        List<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -788,7 +788,7 @@ public class AuthenticationService
      * @param encryptionTypes
      * @return The error message as bytes.
      */
-    private static byte[] preparePreAuthenticationError( Set<EncryptionType> encryptionTypes )
+    private static byte[] preparePreAuthenticationError( List<EncryptionType> encryptionTypes )
     {
         PaData[] paDataSequence = new PaData[2];
 
