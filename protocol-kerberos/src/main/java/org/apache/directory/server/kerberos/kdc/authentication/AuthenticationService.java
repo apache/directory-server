@@ -24,8 +24,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -207,8 +205,8 @@ public class AuthenticationService
 
             if ( preAuthData == null || preAuthData.size() == 0 )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config
-                    .getEncryptionTypes() ) );
+                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError(
+                    request.getKdcReqBody().getEType(), config.getEncryptionTypes() ) );
             }
 
             try
@@ -277,7 +275,8 @@ public class AuthenticationService
                 if ( preAuthData == null )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                        preparePreAuthenticationError( config.getEncryptionTypes() ) );
+                        preparePreAuthenticationError( authContext.getRequest().getKdcReqBody().getEType(),
+                            config.getEncryptionTypes() ) );
                 }
 
                 PaEncTsEnc timestamp = null;
@@ -287,6 +286,7 @@ public class AuthenticationService
                     if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue = KerberosDecoder.decodeEncryptedData( paData.getPaDataValue() );
+                        paData.getPaDataType();
                         byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue,
                             KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
                         timestamp = KerberosDecoder.decodePaEncTsEnc( decryptedData );
@@ -301,7 +301,7 @@ public class AuthenticationService
                 if ( timestamp == null )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                        preparePreAuthenticationError( config.getEncryptionTypes() ) );
+                        preparePreAuthenticationError( authContext.getRequest().getKdcReqBody().getEType(), config.getEncryptionTypes() ) );
                 }
 
                 if ( !timestamp.getPaTimestamp().isInClockSkew( config.getAllowableClockSkew() ) )
@@ -788,7 +788,7 @@ public class AuthenticationService
      * @param encryptionTypes
      * @return The error message as bytes.
      */
-    private static byte[] preparePreAuthenticationError( List<EncryptionType> encryptionTypes )
+    private static byte[] preparePreAuthenticationError( List<EncryptionType> clientEncryptionTypes, List<EncryptionType> serverEncryptionTypes )
     {
         PaData[] paDataSequence = new PaData[2];
 
@@ -800,10 +800,13 @@ public class AuthenticationService
 
         ETypeInfo eTypeInfo = new ETypeInfo();
 
-        for ( EncryptionType encryptionType : encryptionTypes )
+        for ( EncryptionType encryptionType : clientEncryptionTypes )
         {
-            ETypeInfoEntry etypeInfoEntry = new ETypeInfoEntry( encryptionType, null );
-            eTypeInfo.addETypeInfoEntry( etypeInfoEntry );
+            if ( serverEncryptionTypes.contains( encryptionType ) )
+            {
+                ETypeInfoEntry etypeInfoEntry = new ETypeInfoEntry( encryptionType, null );
+                eTypeInfo.addETypeInfoEntry( etypeInfoEntry );
+            }
         }
 
         byte[] encTypeInfo = null;

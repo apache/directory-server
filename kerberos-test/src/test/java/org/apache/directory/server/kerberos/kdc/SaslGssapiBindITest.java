@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc;
 
@@ -171,6 +171,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // isn't resolved to localhost by default. In that case we need
         // to use the IP address for the service principal.
         String hostName;
+        
         try
         {
             InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
@@ -181,6 +182,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
             System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
             hostName = "localhost";
         }
+        
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
         getLdapServer().setSaslPrincipal( servicePrincipal );
 
@@ -195,6 +197,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
         boolean isKrb5KdcDisabled = false;
+        
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -396,7 +399,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     /**
      * Sets the contexts of this class taking into account the extras and overrides
-     * properties.  
+     * properties.
      *
      * @param env an environment to use while setting up the system root.
      * @throws NamingException if there is a failure of any kind
