@@ -164,7 +164,7 @@ public void testLookup() throws Exception
         Entry entry = connection.lookup( "uid=admin,ou=system" );
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
-        connection.loadSchema();
+        connection.loadDefaultSchema();
 
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
@@ -174,7 +174,7 @@ public void testLookup() throws Exception
     @Test
     public void testLoadSchema() throws Exception
     {
-        connection.loadSchema();
+        connection.loadDefaultSchema();
         SchemaManager manager = connection.getSchemaManager();
         assertNotNull( manager );
         assertTrue( manager.isEnabled( "system" ) );

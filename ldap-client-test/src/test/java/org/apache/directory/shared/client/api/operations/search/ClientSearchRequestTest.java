@@ -299,7 +299,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchBinary() throws Exception
     {
-        connection.loadSchema();
+        connection.loadDefaultSchema();
         EntryCursor cursor = connection.search( "ou=system", "(publicKey=\\30\\5C\\30\\0D\\06\\09\\2A\\86\\48\\86\\F7\\0D\\01\\01\\01\\05\\00\\03\\4B\\00\\30\\48\\02\\41\\00\\A6\\C7\\9C\\B1\\6C\\E4\\DD\\8F\\1E\\4D\\20\\93\\22\\3F\\83\\75\\DE\\21\\D8\\F1\\9D\\63\\80\\5B\\94\\55\\6A\\9E\\33\\59\\9B\\8D\\63\\88\\0D\\18\\7D\\4C\\85\\F1\\CF\\54\\77\\32\\E9\\61\\0C\\A2\\8F\\B3\\6B\\15\\34\\5E\\1F\\88\\BF\\A0\\73\\AC\\86\\BB\\D0\\85\\02\\03\\01\\00\\01)", SearchScope.SUBTREE, "publicKey" );
         
         assertTrue( cursor.next() );

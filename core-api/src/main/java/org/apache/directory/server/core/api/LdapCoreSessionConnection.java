@@ -470,7 +470,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public void loadSchema() throws LdapException
+    public void loadDefaultSchema() throws LdapException
     {
         // do nothing, cause we already have SchemaManager in the session's DirectoryService
     }
