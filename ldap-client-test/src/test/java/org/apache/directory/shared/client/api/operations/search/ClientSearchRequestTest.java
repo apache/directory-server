@@ -24,8 +24,6 @@ package org.apache.directory.shared.client.api.operations.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -286,7 +284,12 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     {
         EntryCursor cursor = connection.search( "ou=users,ou=system", "(sn=Emmanuel L\u00E9charny)", SearchScope.ONELEVEL, "*", "+" );
 
-        assertFalse (cursor.next() );
+        assertTrue(cursor.next() );
+        
+        Entry entry = cursor.get();
+        assertNotNull( entry );
+        assertTrue( entry.contains( "cn", "elecharny" ) );
+        assertTrue( entry.contains( "sn", "Emmanuel L\u00E9charny" ) );
         
         cursor.close();
     }
