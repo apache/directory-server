@@ -60,7 +60,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm</artifactId>
+      <artifactId>apacheds-jdbm2</artifactId>
     </dependency>
 
     <dependency>
