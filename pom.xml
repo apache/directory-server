@@ -103,6 +103,7 @@
     <module>i18n</module>
     <module>all</module>
     <module>jdbm</module>
+    <module>jdbm2</module>
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>
     <module>xdbm-tools</module>
@@ -704,6 +705,12 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-jdbm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-jdbm2</artifactId>
         <version>${project.version}</version>
       </dependency>
       
