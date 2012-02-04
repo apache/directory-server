@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributesFactory;
 import org.apache.directory.shared.ldap.model.schema.DITContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
