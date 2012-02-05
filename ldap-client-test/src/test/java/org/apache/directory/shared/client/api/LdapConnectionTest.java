@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.SsseSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -45,12 +44,8 @@ import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.registries.DefaultSchema;
-import org.apache.directory.shared.ldap.model.schema.registries.Schema;
-import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -220,50 +215,5 @@ public void testLookup() throws Exception
         connection.bind();
         assertTrue( connection.isAuthenticated() );
         connection.close();
-    }
-    
-    
-    @Test
-    @Ignore
-    public void testLoadPrivateSchema() throws Exception
-    {
-        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        
-        // Load the default schema
-        connection.loadDefaultSchema();
-        
-        // Now, try to load the NIS schema
-        SchemaManager schemaManager = connection.getSchemaManager();
-        
-        Schema mySchema = new DefaultSchema( "mySchema" );
-        
-        assertTrue( schemaManager.load( "nis" ) );
-
-        connection.bind();
-        assertTrue( connection.isAuthenticated() );
-        connection.close();
-        
-    }
-    
-    
-    @Test
-    public void testLoadSSSE() throws Exception
-    {
-        SchemaLoader loader = new SsseSchemaLoader( connection );
-        
-        // Load the default schema
-        connection.loadSchema( loader );
-        SchemaManager schemaManager = connection.getSchemaManager();
-        assertNotNull( schemaManager );
-        assertTrue( schemaManager.isSchemaLoaded( "system" ) );
-        assertTrue( schemaManager.isEnabled( "system" ) );
-        assertFalse( schemaManager.isSchemaLoaded( "nis" ) );
-        assertEquals( schemaManager.getLoader().getAllSchemas().size(), schemaManager.getEnabled().size() );
-
-        
-        connection.bind();
-        assertTrue( connection.isAuthenticated() );
-        connection.close();
-        
     }
 }
