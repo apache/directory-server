@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
+import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDectector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
@@ -33,9 +33,6 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -45,8 +42,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
- * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing 
+ * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for
+ * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing
  * {@link IoHandler} handler and populates it with subordinate handlers for
  * the various kinds of LDAP {@link Request} messages.  This is done in the
  * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
@@ -92,30 +89,15 @@ class LdapProtocolHandler extends DemuxingIoHandler
         LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
             new LdapMessageContainer<MessageDecorator<Message>>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
-                new BinaryAttributeDetector()
-                {
-                    public boolean isBinary( String id )
-                    {
-                        SchemaManager schemaManager = ldapServer.getDirectoryService().getSchemaManager();
-
-                        try
-                        {
-                            AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
-                            return !type.getSyntax().isHumanReadable();
-                        }
-                        catch ( Exception e )
-                        {
-                            return !Strings.isEmpty( id ) && id.endsWith( ";binary" );
-                        }
-                    }
-                } );
+                new DefaultBinaryAttributeDectector(
+                    ldapServer.getDirectoryService().getSchemaManager() ) );
 
         session.setAttribute( "messageContainer", ldapMessageContainer );
     }
 
 
     /**
-     * This method is called when a session is closed. If we have some 
+     * This method is called when a session is closed. If we have some
      * cleanup to do, it's done there.
      * 
      * @param session the closing session
@@ -133,7 +115,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * Explicitly handles {@link LdapSession} and {@link IoSession} cleanup tasks.
      *
-     * @param ldapSession the LdapSession to cleanup after being removed from 
+     * @param ldapSession the LdapSession to cleanup after being removed from
      * the {@link LdapSessionManager}
      */
     private void cleanUpSession( LdapSession ldapSession )
@@ -181,7 +163,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // Translate SSLFilter messages into LDAP extended request
         // defined in RFC #2830, 'Lightweight Directory Access Protocol (v3):
         // Extension for Transport Layer Security'.
-        // 
+        //
         // The RFC specifies the payload should be empty, but we use
         // it to notify the TLS state changes.  This hack should be
         // OK from the viewpointd of security because StartTLS

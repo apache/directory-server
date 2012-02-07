@@ -669,7 +669,7 @@ public class DescriptionParsers
      */
     private boolean isHumanReadable( LdapSyntax ldapSyntax )
     {
-        List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
+        List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_NOT_HUMAN_READABLE );
 
         if ( values == null || values.size() == 0 )
         {
