@@ -48,7 +48,7 @@ import org.junit.runners.Suite;
     {
         LdapConnectionTest.class,
         LdapSSLConnectionTest.class,
-        NetworkSchemaLoaderTest.class,
+        AdsSchemaLoaderTest.class,
 
         ClientAbandonRequestTest.class,
         ClientAddRequestTest.class,

@@ -31,12 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
+import org.apache.directory.shared.ldap.codec.api.NoSchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -161,10 +165,26 @@ public void testLookup() throws Exception
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
-        Entry entry = connection.lookup( "uid=admin,ou=system" );
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localhost" );
+        config.setLdapPort( ldapServer.getPort() );
+        config.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
+        config.setCredentials( "secret" );
+        config.setBinaryAttributeDetector( new NoSchemaBinaryAttributeDetector() );
+
+        LdapConnection myConnection = new LdapNetworkConnection( config );
+        myConnection.bind( "uid=admin,ou=system", "secret" );
+
+        Entry entry = myConnection.lookup( "uid=admin,ou=system" );
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+        
+        // Now, load a new binary Attribute
+        config.getBinaryAttributeDetector().addBinaryAttribute( "userPassword" );
+        entry = myConnection.lookup( "uid=admin,ou=system" );
+        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
         connection.loadDefaultSchema();
+        connection.getConfig().setBinaryAttributeDetector( new DefaultBinaryAttributeDetector( connection.getSchemaManager() ) );
 
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );

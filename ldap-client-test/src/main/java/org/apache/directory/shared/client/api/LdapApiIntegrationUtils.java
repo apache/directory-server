@@ -29,6 +29,7 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +129,7 @@ public class LdapApiIntegrationUtils
     private static LdapConnectionPool getAdminPool( LdapServer ldapServer )
     {
         int port = ldapServer.getPort();
+        
         if ( !pools.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
@@ -135,6 +137,8 @@ public class LdapApiIntegrationUtils
             config.setLdapPort( port );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
+            config.setBinaryAttributeDetector( new DefaultBinaryAttributeDetector(
+                ldapServer.getDirectoryService().getSchemaManager() ) );
             PoolableLdapConnectionFactory factory = new PoolableLdapConnectionFactory( config );
             LdapConnectionPool pool = new LdapConnectionPool( factory );
             pool.setTestOnBorrow( true );

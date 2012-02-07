@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server;
 
@@ -29,8 +29,11 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.Test;
 
 
@@ -74,12 +77,14 @@ public class UberJarMainTest
             {
                 try
                 {
-                    // Creating a connection on the created server 
+                    SchemaManager schemaManager = new DefaultSchemaManager();
+                    // Creating a connection on the created server
                     LdapConnectionConfig configuration = new LdapConnectionConfig();
                     configuration.setLdapHost( "localhost" );
                     configuration.setLdapPort( 10389 );
                     configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
                     configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
+                    configuration.setBinaryAttributeDetector( new DefaultBinaryAttributeDetector( schemaManager ) );
                     LdapNetworkConnection connection = new LdapNetworkConnection( configuration );
 
                     // Binding on the connection
@@ -102,7 +107,7 @@ public class UberJarMainTest
         };
 
         // Starting the connection verification thread
-        // and waiting for the termination of it 
+        // and waiting for the termination of it
         connectionVerificationThread.start();
         connectionVerificationThread.join();
 

@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDectector;
+import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
@@ -89,7 +89,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
             new LdapMessageContainer<MessageDecorator<Message>>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
-                new DefaultBinaryAttributeDectector(
+                new DefaultBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );
 
         session.setAttribute( "messageContainer", ldapMessageContainer );

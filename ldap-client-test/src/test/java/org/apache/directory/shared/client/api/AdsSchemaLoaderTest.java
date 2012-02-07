@@ -21,20 +21,16 @@
 package org.apache.directory.shared.client.api;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.SsseSchemaLoader;
+import org.apache.directory.ldap.client.api.NetworkSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
@@ -51,7 +47,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-public class SsseSchemaLoaderTest extends AbstractLdapTestUnit
+public class AdsSchemaLoaderTest extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
 
@@ -68,30 +64,23 @@ public class SsseSchemaLoaderTest extends AbstractLdapTestUnit
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
-    
-    
+
+
     @Test
-    public void testLoadSSSE() throws Exception
+    public void testNetworkSchemaLoader() throws Exception
     {
-        SchemaLoader loader = new SsseSchemaLoader( connection );
-        
-        // Load the schemas
-        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+        NetworkSchemaLoader loader = new NetworkSchemaLoader( connection );
 
-        assertNotNull( schemaManager );
+        SchemaManager sm = new DefaultSchemaManager( loader );
 
-        boolean loaded = schemaManager.loadAllEnabled();
+        boolean loaded = sm.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
+            fail( "Schema load failed : " + Exceptions.printErrors( sm.getErrors() ) );
         }
 
-        assertTrue( schemaManager.isSchemaLoaded( "system" ) );
-        assertTrue( schemaManager.isEnabled( "system" ) );
-        assertFalse( schemaManager.isSchemaLoaded( "nis" ) );
-        assertEquals( schemaManager.getLoader().getAllSchemas().size(), schemaManager.getEnabled().size() );
-
-        assertTrue( schemaManager.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
+        assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
     }
+
 }
