@@ -75,7 +75,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 

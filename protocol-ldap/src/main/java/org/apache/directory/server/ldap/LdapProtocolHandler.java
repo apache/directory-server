@@ -20,10 +20,10 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
@@ -89,7 +89,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
             new LdapMessageContainer<MessageDecorator<Message>>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
-                new DefaultBinaryAttributeDetector(
+                new SchemaBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );
 
         session.setAttribute( "messageContainer", ldapMessageContainer );

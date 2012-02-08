@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.SsseSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private LdapConnection connection;
 
 
     @Before

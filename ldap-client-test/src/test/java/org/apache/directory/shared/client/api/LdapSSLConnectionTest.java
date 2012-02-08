@@ -43,7 +43,7 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -94,14 +94,14 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
-        sslConfig.setBinaryAttributeDetector( new DefaultBinaryAttributeDetector(
+        sslConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
                 ldapServer.getDirectoryService().getSchemaManager() ) );
 
         tlsConfig = new LdapConnectionConfig();
         tlsConfig.setLdapHost( "localhost" );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
-        tlsConfig.setBinaryAttributeDetector( new DefaultBinaryAttributeDetector(
+        tlsConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
             ldapServer.getDirectoryService().getSchemaManager() ) );
     }
 

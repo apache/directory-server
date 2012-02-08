@@ -29,11 +29,9 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.codec.api.DefaultBinaryAttributeDetector;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.Test;
 
 
@@ -77,15 +75,15 @@ public class UberJarMainTest
             {
                 try
                 {
-                    SchemaManager schemaManager = new DefaultSchemaManager();
                     // Creating a connection on the created server
                     LdapConnectionConfig configuration = new LdapConnectionConfig();
                     configuration.setLdapHost( "localhost" );
                     configuration.setLdapPort( 10389 );
                     configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
                     configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
-                    configuration.setBinaryAttributeDetector( new DefaultBinaryAttributeDetector( schemaManager ) );
+                    configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector() );
                     LdapNetworkConnection connection = new LdapNetworkConnection( configuration );
+                    connection.loadDefaultSchema();
 
                     // Binding on the connection
                     connection.bind();

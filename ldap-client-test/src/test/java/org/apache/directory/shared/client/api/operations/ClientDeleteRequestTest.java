@@ -94,7 +94,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -152,11 +152,11 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
     /**
      * this method uses reflection to test deleteChildren method without using the
-     * convenient method delete( dn, true ), cause the convenient method checks 
+     * convenient method delete( dn, true ), cause the convenient method checks
      * whether the server supports the CascadeControl.
      * 
      * Cause ADS supports this control, delete(dn, true) will never call the method
-     * deleteChildren() (which has private scope) 
+     * deleteChildren() (which has private scope)
      * To test the manual deletion of the entries in the absence of this CascadeControl
      * reflection was used to invoke the private method deleteChildren().
      * 

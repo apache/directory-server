@@ -83,7 +83,7 @@ private CoreSession session;
 @Before
 public void setup() throws Exception
 {
-    connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+    connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     session = getLdapServer().getDirectoryService().getAdminSession();
 }
 
