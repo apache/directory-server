@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
 import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
@@ -83,7 +84,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         ldapServer.getLdapSessionManager().addLdapSession( ldapSession );
 
         // Now, we have to store the DirectoryService instance into the session
-        session.setAttribute( "maxPDUSize", ldapServer.getDirectoryService().getMaxPDUSize() );
+        session.setAttribute( LdapDecoder.MAX_PDU_SIZE_ATTR, ldapServer.getDirectoryService().getMaxPDUSize() );
 
         // Last, store the message container
         LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
@@ -92,7 +93,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                 new SchemaBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );
 
-        session.setAttribute( "messageContainer", ldapMessageContainer );
+        session.setAttribute( LdapDecoder.MESSAGE_CONTAINER_ATTR, ldapMessageContainer );
     }
 
 
