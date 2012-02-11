@@ -81,7 +81,7 @@ public class UberJarMainTest
                     configuration.setLdapPort( 10389 );
                     configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
                     configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
-                    configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector() );
+                    configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector( null ) );
                     LdapNetworkConnection connection = new LdapNetworkConnection( configuration );
                     connection.loadDefaultSchema();
 
