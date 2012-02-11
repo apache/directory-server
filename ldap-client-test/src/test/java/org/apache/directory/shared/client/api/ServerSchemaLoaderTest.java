@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.SsseSchemaLoader;
+import org.apache.directory.ldap.client.api.DefaultSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -74,7 +74,7 @@ public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
     public void testLoadSSSE() throws Exception
     {
         connection.setTimeOut( 0L );
-        SchemaLoader loader = new SsseSchemaLoader( connection );
+        SchemaLoader loader = new DefaultSchemaLoader( connection );
         
         // Load the schemas
         SchemaManager schemaManager = new DefaultSchemaManager( loader );

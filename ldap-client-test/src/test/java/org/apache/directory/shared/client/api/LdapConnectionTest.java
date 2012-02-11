@@ -41,7 +41,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.api.ConfigurableBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
-import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -166,6 +165,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
+        // test with a local connection using a local BinaryAttributeDetector
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setLdapHost( "localhost" );
         config.setLdapPort( ldapServer.getPort() );
@@ -174,16 +174,12 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
 
         LdapConnection myConnection = new LdapNetworkConnection( config );
-        myConnection.bind( "uid=admin,ou=system", "secret" );
-
-        // Use the default list of binary Attributes
-        Entry entry = myConnection.lookup( "uid=admin,ou=system" );
-        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
         
         // Remove the UserPassword from the list
         ((ConfigurableBinaryAttributeDetector)config.getBinaryAttributeDetector()).
             removeBinaryAttribute( "userPassword" );
-        entry = myConnection.lookup( "uid=admin,ou=system" );
+        myConnection.bind( "uid=admin,ou=system", "secret" );
+        Entry entry = myConnection.lookup( "uid=admin,ou=system" );
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
         
         // Now, load a new binary Attribute
@@ -192,8 +188,11 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         entry = myConnection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
-        connection.loadDefaultSchema();
+        // Now, test using the scerver's schema
+        ((LdapNetworkConnection)connection).loadSchema();
+        connection.bind( "uid=admin,ou=system", "secret" );
 
+        // Use the default list of binary Attributes
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
@@ -282,14 +281,14 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setLdapHost( "localhost" );
         config.setLdapPort( ldapServer.getPort() );
-        config.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector() );
+        config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
         
         LdapConnection ldapConnection = new LdapNetworkConnection( config );
         
         ldapConnection.bind( "uid=admin,ou=system", "secret" );
         
-        // Try to retrieve a binary attribute : it should be seen as a String
+        // Try to retrieve a binary attribute : it should be seen as a byte[]
         Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
-        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
 }

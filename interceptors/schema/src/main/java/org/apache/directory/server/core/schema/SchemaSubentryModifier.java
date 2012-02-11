@@ -319,9 +319,9 @@ public class SchemaSubentryModifier
 
     private String getSchema( SchemaObject desc )
     {
-        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
+        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA_AT ) )
         {
-            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA_AT ).get( 0 );
         }
 
         return MetaSchemaConstants.SCHEMA_OTHER;
