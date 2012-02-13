@@ -24,8 +24,8 @@ package org.apache.directory.shared.client.api;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.ldap.client.api.DefaultSchemaLoader;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.NetworkSchemaLoader;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -67,9 +67,9 @@ public class AdsSchemaLoaderTest extends AbstractLdapTestUnit
 
 
     @Test
-    public void testNetworkSchemaLoader() throws Exception
+    public void testDefaultSchemaLoader() throws Exception
     {
-        NetworkSchemaLoader loader = new NetworkSchemaLoader( connection );
+        DefaultSchemaLoader loader = new DefaultSchemaLoader( connection );
 
         SchemaManager sm = new DefaultSchemaManager( loader );
 
