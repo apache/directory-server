@@ -201,11 +201,11 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testLoadSchema() throws Exception
     {
-        connection.loadDefaultSchema();
+        connection.loadSchema();
         SchemaManager manager = connection.getSchemaManager();
         assertNotNull( manager );
         assertTrue( manager.isEnabled( "system" ) );
-        assertTrue( manager.isEnabled( "nis" ) );
+        assertFalse( manager.isEnabled( "nis" ) );
         assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
     }
 
