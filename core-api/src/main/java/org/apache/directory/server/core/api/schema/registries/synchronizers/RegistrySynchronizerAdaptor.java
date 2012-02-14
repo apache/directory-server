@@ -47,14 +47,13 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Central point of control for schemas enforced by the server.  The 
+ * Central point of control for schemas enforced by the server.  The
  * following duties are presently performed by this class:
  * 
  * <ul>
@@ -99,8 +98,12 @@ public class RegistrySynchronizerAdaptor
             MetaSchemaConstants.META_NAME_FORM_OC
     };
 
-    private final Registries registries;
+    /** The SchemaManager */
+    private final SchemaManager schemaManager;
+    
+    /** The ObjectClss Attribute */
     private final AttributeType objectClassAT;
+    
     private final RegistrySynchronizer[] registrySynchronizers = new RegistrySynchronizer[11];
     private final Map<String, RegistrySynchronizer> objectClass2synchronizerMap = new HashMap<String, RegistrySynchronizer>();
     private final SchemaSynchronizer schemaSynchronizer;
@@ -123,10 +126,9 @@ public class RegistrySynchronizerAdaptor
 
     public RegistrySynchronizerAdaptor( SchemaManager schemaManager ) throws Exception
     {
-        this.registries = schemaManager.getRegistries();
+        this.schemaManager = schemaManager;
         this.schemaSynchronizer = new SchemaSynchronizer( schemaManager );
-        this.objectClassAT = this.registries.getAttributeTypeRegistry()
-            .lookup( SchemaConstants.OBJECT_CLASS_AT );
+        this.objectClassAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
         this.registrySynchronizers[COMPARATOR_INDEX] = new ComparatorSynchronizer( schemaManager );
         this.registrySynchronizers[NORMALIZER_INDEX] = new NormalizerSynchronizer( schemaManager );
@@ -140,7 +142,8 @@ public class RegistrySynchronizerAdaptor
         this.registrySynchronizers[DIT_CONTENT_RULE_INDEX] = new DitContentRuleSynchronizer( schemaManager );
         this.registrySynchronizers[NAME_FORM_INDEX] = new NameFormSynchronizer( schemaManager );
 
-        ObjectClassRegistry ocReg = registries.getObjectClassRegistry();
+        ObjectClassRegistry ocReg = schemaManager.getObjectClassRegistry();
+        
         for ( int ii = 0; ii < META_OBJECT_CLASSES.length; ii++ )
         {
             ObjectClass oc = ocReg.lookup( META_OBJECT_CLASSES[ii] );
@@ -153,7 +156,7 @@ public class RegistrySynchronizerAdaptor
      * Add a new SchemaObject or a new Schema in the Schema partition.
      *
      * @param addContext The Add context, containing the entry to be added
-     * @throws Exception If the addition failed 
+     * @throws Exception If the addition failed
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
@@ -163,7 +166,7 @@ public class RegistrySynchronizerAdaptor
         for ( Value<?> value : oc )
         {
 
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -230,7 +233,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value<?> value : oc )
         {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -285,7 +288,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value<?> value : oc )
         {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -327,7 +330,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value<?> value : oc )
         {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -356,7 +359,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value<?> value : oc )
         {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -386,7 +389,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value<?> value : oc )
         {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
