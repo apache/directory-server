@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -42,8 +41,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A synchronizer which detects changes to syntaxCheckers and updates the 
- * respective {@link Registries}.
+ * A synchronizer which detects changes to syntaxCheckers and updates the
+ * {@link SchemaManager}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -112,8 +111,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
 
-        // At this point, the constructed SyntaxChecker has not been checked against the 
-        // existing Registries. It will be checked there, if the schema and the 
+        // At this point, the constructed SyntaxChecker has not been checked against the
+        // existing SchemaManager. It will be checked there, if the schema and the
         // SyntaxChecker are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
 
@@ -168,7 +167,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         try
         {
-            syntaxChecker = ( SyntaxChecker ) checkSyntaxCheckerOidExists( entry );
+            syntaxChecker = checkSyntaxCheckerOidExists( entry );
         }
         catch ( LdapSchemaViolationException lsve )
         {
@@ -180,7 +179,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 // Remove the syntaxChecker from the schema/SchemaObject Map
                 schemaManager.getRegistries().dissociateFromSchema( syntaxChecker );
 
-                // Ok, we can exit. 
+                // Ok, we can exit.
                 return;
             }
             else
@@ -227,7 +226,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_389, oldOid ) );
         }
 
-        Entry targetEntry = ( Entry ) entry.clone();
+        Entry targetEntry = entry.clone();
         String newOid = newRdn.getNormValue().getString();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
@@ -262,7 +261,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_391, oldOid ) );
         }
 
-        Entry targetEntry = ( Entry ) entry.clone();
+        Entry targetEntry = entry.clone();
 
         String newOid = newRdn.getNormValue().getString();
 
@@ -338,7 +337,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( oid ) )
         {
-            return ( SyntaxChecker ) schemaManager.getSyntaxCheckerRegistry().get( oid );
+            return schemaManager.getSyntaxCheckerRegistry().get( oid );
         }
         else
         {
