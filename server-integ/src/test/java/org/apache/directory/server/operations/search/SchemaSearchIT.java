@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.search;
 
@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Test case with different search operations on the cn=schema entry. 
+ * Test case with different search operations on the cn=schema entry.
  * Created to demonstrate DIRSERVER-1055
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -246,8 +246,8 @@ public void testRequestAllOperationalAttributes() throws Exception
 
 
 /**
- * Test case for DIRSERVER-1083: Search on an custom attribute added to 
- * the dynamic schema fails when no result is found. 
+ * Test case for DIRSERVER-1083: Search on an custom attribute added to
+ * the dynamic schema fails when no result is found.
  */
 @Test
 public void testSearchingNewSchemaElements() throws Exception
@@ -291,7 +291,7 @@ public void testSearchingNewSchemaElements() throws Exception
 
 
 /**
- * Test case for DIRSERVER-: Ensure that schema entry is returned, 
+ * Test case for DIRSERVER-: Ensure that schema entry is returned,
  * even if no ManageDsaIT decorator is present in the search request.
  */
 @Test
@@ -326,7 +326,7 @@ public void testRequestWithoutManageDsaITControl() throws Exception
 
 
 /**
- * Test a search done on cn=schema 
+ * Test a search done on cn=schema
  */
 @Test
 public void testSubSchemaSubEntrySearch() throws Exception
@@ -349,7 +349,7 @@ public void testSubSchemaSubEntrySearch() throws Exception
     while ( ocs.hasMore() )
     {
         String oc = ( String ) ocs.nextElement();
-        if ( oc.contains( "2.5.6.6" ) )
+        if ( oc.startsWith( "( 2.5.6.6" ) )
         {
             assertEquals(
                 "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) X-SCHEMA 'core' )",
