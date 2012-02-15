@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -389,9 +389,9 @@ public class SchemaSubentryManager
                 break;
 
             case ( DIT_STRUCTURE_RULE_INDEX ):
-                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
+                DitStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
 
-                for ( DITStructureRule dsr : dsrs )
+                for ( DitStructureRule dsr : dsrs )
                 {
                     subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, dsr );
                 }
@@ -528,9 +528,9 @@ public class SchemaSubentryManager
                 break;
 
             case ( DIT_STRUCTURE_RULE_INDEX ):
-                DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
+                DitStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
 
-                for ( DITStructureRule dsr : dsrs )
+                for ( DitStructureRule dsr : dsrs )
                 {
                     subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, dsr );
                 }

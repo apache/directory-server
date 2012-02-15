@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributesFactory;
 import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -106,7 +106,7 @@ public class SchemaSubentryModifier
         {
             buf.append( SchemaConstants.MATCHING_RULE_USE_AT );
         }
-        else if ( obj instanceof DITStructureRule )
+        else if ( obj instanceof DitStructureRule )
         {
             buf.append( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         }

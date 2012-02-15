@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -74,7 +74,7 @@ public class DescriptionParsers
     private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
     private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
     private static final MatchingRuleUse[] EMPTY_MATCHING_RULE_USES = new MatchingRuleUse[0];
-    private static final DITStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
+    private static final DitStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DitStructureRule[0];
     private static final DitContentRule[] EMPTY_DIT_CONTENT_RULES = new DitContentRule[0];
     private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
 
@@ -532,23 +532,23 @@ public class DescriptionParsers
      * schema entities.
      * 
      * @param attr the attribute containing dITStructureRuleDescriptions
-     * @return the set of DITStructureRule objects for the descriptions
+     * @return the set of DitStructureRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws LdapException
+    public DitStructureRule[] parseDitStructureRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_DIT_STRUCTURE_RULES;
         }
 
-        DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
+        DitStructureRule[] ditStructureRules = new DitStructureRule[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            DITStructureRule ditStructureRule = null;
+            DitStructureRule ditStructureRule = null;
 
             try
             {

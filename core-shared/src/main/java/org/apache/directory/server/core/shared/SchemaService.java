@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -200,7 +200,7 @@ public class SchemaService
         Attribute attr = new DefaultAttribute(
             schemaManager.getAttributeType( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
-        for ( DITStructureRule ditStructureRule : schemaManager.getDITStructureRuleRegistry() )
+        for ( DitStructureRule ditStructureRule : schemaManager.getDITStructureRuleRegistry() )
         {
             attr.add( SchemaUtils.render( ditStructureRule ).toString() );
         }
