@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValu
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DITContentRule;
+import org.apache.directory.shared.ldap.model.schema.DContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -75,7 +75,7 @@ public class DescriptionParsers
     private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
     private static final MatchingRuleUse[] EMPTY_MATCHING_RULE_USES = new MatchingRuleUse[0];
     private static final DITStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
-    private static final DITContentRule[] EMPTY_DIT_CONTENT_RULES = new DITContentRule[0];
+    private static final DContentRule[] EMPTY_DIT_CONTENT_RULES = new DContentRule[0];
     private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
 
     /** The SchemaObject description's parsers */
@@ -576,23 +576,23 @@ public class DescriptionParsers
      * schema entities.
      * 
      * @param attr the attribute containing dITContentRuleDescriptions
-     * @return the set of DITContentRule objects for the descriptions
+     * @return the set of DContentRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITContentRule[] parseDitContentRules( Attribute attr ) throws LdapException
+    public DContentRule[] parseDitContentRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_DIT_CONTENT_RULES;
         }
 
-        DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
+        DContentRule[] ditContentRules = new DContentRule[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            DITContentRule ditContentRule = null;
+            DContentRule ditContentRule = null;
 
             try
             {
