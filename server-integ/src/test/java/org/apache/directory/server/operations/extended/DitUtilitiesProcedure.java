@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class DITUtilitiesSP
+public class DitUtilitiesProcedure
 {
-    private static final Logger log = LoggerFactory.getLogger( DITUtilitiesSP.class );
+    private static final Logger log = LoggerFactory.getLogger( DitUtilitiesProcedure.class );
 
 
     /**

@@ -147,12 +147,12 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
         
         injectEntries( ldif );
         
-        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DitUtilitiesProcedure.class );
         
         Dn people = new Dn( "ou=People" );
         people = Dn.normalize(  people, oids );
         
-        String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
+        String spName = DitUtilitiesProcedure.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
                                          people };
         
