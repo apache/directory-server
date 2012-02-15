@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DContentRule;
+import org.apache.directory.shared.ldap.model.schema.DitContentRule;
 import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -399,9 +399,9 @@ public class SchemaSubentryManager
                 break;
 
             case ( DIT_CONTENT_RULE_INDEX ):
-                DContentRule[] dcrs = parsers.parseDitContentRules( mods );
+                DitContentRule[] dcrs = parsers.parseDitContentRules( mods );
 
-                for ( DContentRule dcr : dcrs )
+                for ( DitContentRule dcr : dcrs )
                 {
                     subentryModifier.deleteSchemaObject( nextInterceptor, position, modifyContext, dcr );
                 }
@@ -538,9 +538,9 @@ public class SchemaSubentryManager
                 break;
 
             case ( DIT_CONTENT_RULE_INDEX ):
-                DContentRule[] dcrs = parsers.parseDitContentRules( mods );
+                DitContentRule[] dcrs = parsers.parseDitContentRules( mods );
 
-                for ( DContentRule dcr : dcrs )
+                for ( DitContentRule dcr : dcrs )
                 {
                     subentryModifier.addSchemaObject( nextInterceptor, position, modifyContext, dcr );
                 }
