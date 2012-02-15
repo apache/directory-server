@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DITContentRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.DitContentRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.DitStructureRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
@@ -87,8 +87,8 @@ public class DescriptionParsers
     private final AttributeTypeDescriptionSchemaParser attributeTypeParser = new AttributeTypeDescriptionSchemaParser();
     private final ObjectClassDescriptionSchemaParser objectClassParser = new ObjectClassDescriptionSchemaParser();
     private final MatchingRuleUseDescriptionSchemaParser matchingRuleUseParser = new MatchingRuleUseDescriptionSchemaParser();
-    private final DITStructureRuleDescriptionSchemaParser ditStructureRuleParser = new DITStructureRuleDescriptionSchemaParser();
-    private final DITContentRuleDescriptionSchemaParser ditContentRuleParser = new DITContentRuleDescriptionSchemaParser();
+    private final DitStructureRuleDescriptionSchemaParser ditStructureRuleParser = new DitStructureRuleDescriptionSchemaParser();
+    private final DitContentRuleDescriptionSchemaParser ditContentRuleParser = new DitContentRuleDescriptionSchemaParser();
     private final NameFormDescriptionSchemaParser nameFormParser = new NameFormDescriptionSchemaParser();
 
     /** The SchemaManager instance */
