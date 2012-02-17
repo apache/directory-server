@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.impl.avl;
 
@@ -656,7 +656,8 @@ public class AvlPartitionTest
         Long id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.lookup( id );
-        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "Ja\\+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja\\+es", entry2.get( "sn" ).get().getNormValue() );
     }
 
 
@@ -680,7 +681,7 @@ public class AvlPartitionTest
 
         partition.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
 
-        // to drop the alias indices   
+        // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
         parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );

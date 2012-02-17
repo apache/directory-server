@@ -28,7 +28,9 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,26 +42,26 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "RenamePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+@CreateDS(name = "RenamePerfDS",
+    partitions =
+    {
+        @CreatePartition(
+            name = "example",
+            suffix = "dc=example,dc=com",
+            contextEntry =
                 @ContextEntry(
-                    entryLdif = 
+                    entryLdif =
                         "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
             indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
+            {
+                @CreateIndex(attribute = "objectClass"),
                 @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
+                @CreateIndex(attribute = "cn")
             })
-    }, 
+    },
     enableChangeLog = false)
 public class RenamePerfIT extends AbstractLdapTestUnit
 {
@@ -107,7 +109,7 @@ public class RenamePerfIT extends AbstractLdapTestUnit
             connection.rename( oldDn, newRdn, true );
             long ttt1 = System.nanoTime();
 
-            oldDn = newRdn + ",ou=system"; 
+            oldDn = newRdn + ",ou=system";
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
@@ -118,4 +120,30 @@ public class RenamePerfIT extends AbstractLdapTestUnit
         connection.close();
     }
 
+    
+    @Test
+    public void testRenameUperCase() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
+        entry.add( "ObjectClass", "top", "person" );
+        entry.add( "sn", "TEST" );
+        entry.add( "cn", "test0" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        System.out.println( "Original : " + original );
+
+        connection.modify( oldDn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "cn", "TEST" ) );
+        
+        Entry renamed = connection.lookup( oldDn );
+        
+        System.out.println( "Renamed : " + renamed );
+    }
 }

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.modifydn;
 
@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
@@ -37,13 +38,16 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -103,44 +107,51 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnAndDeleteOld() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+        connection.setTimeOut( 0L );
+        //connection.loadSchema();
 
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
-        Attributes attributes = this.getPersonAttributes( "Amos", oldCn );
-        ctx.createSubcontext( oldRdn, attributes );
+        String oldDn = oldRdn + ", " + BASE;
+
+        Entry entry = new DefaultEntry( oldDn,
+            "objectClass: top",
+            "objectClass: person",
+            "cn", oldCn,
+            "sn: Amos",
+            "description", oldCn + " is a person." );
+        
+        connection.add( entry );
+
+        Entry tori = connection.lookup( oldDn );
+        
+        assertNotNull( tori );
+        assertTrue( tori.contains( "cn", "Myra Ellen Amos" ) );
 
         // modify Rdn
         String newCn = "Tori Amos";
         String newRdn = "cn=" + newCn;
-        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-        ctx.rename( oldRdn, newRdn );
+        String newDn = newRdn + "," + BASE;
+        
+        connection.rename( oldDn, newRdn, true );
 
         // Check, whether old Entry does not exists
-        try
-        {
-            ctx.lookup( oldRdn );
-            fail( "Entry must not exist" );
-        }
-        catch ( NameNotFoundException ignored )
-        {
-            // expected behaviour
-            assertTrue( true );
-        }
+        assertNull( connection.lookup( oldDn ) );
 
         // Check, whether new Entry exists
-        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        tori = connection.lookup( newDn );
+
         assertNotNull( tori );
 
         // Check values of cn
-        Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
-        assertTrue( !cn.contains( oldCn ) ); // old value is gone
-        assertEquals( 1, cn.size() );
+        assertTrue( tori.contains( "cn", newCn ) );
+        assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
+        assertEquals( 1, tori.get( "cn" ).size() );
 
         // Remove entry (use new rdn)
-        ctx.unbind( newRdn );
+        connection.delete( newDn );
     }
 
 
@@ -184,7 +195,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -231,7 +242,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -286,7 +297,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCase( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( !cn.contains( oldCn ) ); // old value is gone
         assertTrue( cn.contains( alternateCn ) ); // alternate value is still available
         assertEquals( 2, cn.size() );
@@ -425,7 +436,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
-        assertTrue( ou.contains( Strings.toLowerCase( newOu ) ) );
+        assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
 
@@ -495,7 +506,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         String expectedCn = new String( new byte[]
-            { ( byte ) 0xC3, ( byte ) 0xA4, '+' }, "UTF-8" );
+            { ( byte ) 0xC3, ( byte ) 0xA4, '\\', '+' }, "UTF-8" );
         assertTrue( cn.contains( expectedCn ) );
 
         // Remove entry (use new rdn)
@@ -546,7 +557,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
-        assertTrue( cn.contains( "#test" ) );
+        assertTrue( cn.contains( "\\#test" ) );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
@@ -560,7 +571,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: cn
      * - New Rdn: cn+sn
      * - Keep old Rdn
-     * - Attributes: cn, sn, description must exist 
+     * - Attributes: cn, sn, description must exist
      */
     @Test
     public void testModifyMultiValuedRdnVariant1() throws Exception
@@ -600,7 +611,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: cn
      * - New Rdn: cn+sn
      * - Delete old Rdn
-     * - Attributes: cn, sn, description must exist 
+     * - Attributes: cn, sn, description must exist
      */
     @Test
     public void testModifyMultiValuedRdnVariant2() throws Exception
@@ -640,7 +651,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: description
      * - New Rdn: cn+sn
      * - Keep old Rdn
-     * - Attributes: cn, sn, description must exist 
+     * - Attributes: cn, sn, description must exist
      */
     @Test
     public void testModifyMultiValuedRdnVariant3() throws Exception
@@ -680,7 +691,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: description
      * - New Rdn: cn+sn
      * - Delete old Rdn
-     * - Attributes: cn, sn must exist; descriptions must not exist 
+     * - Attributes: cn, sn must exist; descriptions must not exist
      */
     @Test
     public void testModifyMultiValuedRdnVariant4() throws Exception
@@ -720,7 +731,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: cn
      * - New Rdn: sn+telephoneNumber
      * - Keep old Rdn
-     * - Attributes: cn, sn, description, telephoneNumber must exist 
+     * - Attributes: cn, sn, description, telephoneNumber must exist
      * 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
@@ -826,7 +837,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Old Rdn: cn+sn
      * - New Rdn: cn
      * - Keep old Rdn
-     * - Attributes: cn, sn, description must exist 
+     * - Attributes: cn, sn, description must exist
      * 
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
@@ -947,7 +958,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
         ctx.rename( oldRdn, newRdn );
 
-        // rename back to old Rdn, enable deleteOldRdn, 
+        // rename back to old Rdn, enable deleteOldRdn,
         // must fail with NoPermisionException
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         try
@@ -988,7 +999,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
         ctx.rename( oldRdn, newRdn );
 
-        // rename back to old Rdn, enable deleteOldRdn, 
+        // rename back to old Rdn, enable deleteOldRdn,
         // must fail with NoPermisionException
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         try
