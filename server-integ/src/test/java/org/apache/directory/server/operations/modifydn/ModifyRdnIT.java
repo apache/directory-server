@@ -108,8 +108,8 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     public void testModifyRdnAndDeleteOld() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
-        connection.setTimeOut( 0L );
-        //connection.loadSchema();
+        //connection.setTimeOut( 0L );
+        connection.loadSchema();
 
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
