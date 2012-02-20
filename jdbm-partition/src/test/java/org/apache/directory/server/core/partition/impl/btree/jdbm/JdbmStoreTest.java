@@ -761,7 +761,7 @@ public class JdbmStoreTest
         Long id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id );
-        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "Ja\\+es", entry2.get( "sn" ).getString() );
     }
 
 
