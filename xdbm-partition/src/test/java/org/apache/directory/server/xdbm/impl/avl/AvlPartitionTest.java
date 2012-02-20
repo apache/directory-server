@@ -637,7 +637,7 @@ public class AvlPartitionTest
     @Test
     public void testRenameEscaped() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -656,8 +656,8 @@ public class AvlPartitionTest
         Long id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.lookup( id );
-        assertEquals( "Ja\\+es", entry2.get( "sn" ).getString() );
-        assertEquals( "ja\\+es", entry2.get( "sn" ).get().getNormValue() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
     }
 
 
