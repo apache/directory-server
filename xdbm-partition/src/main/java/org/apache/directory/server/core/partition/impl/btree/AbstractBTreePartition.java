@@ -1678,7 +1678,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
-            entry.add( newRdnAttrType, newAtav.getNormValue() );
+            entry.add( newRdnAttrType, newAtav.getUpValue() );
 
             if ( hasUserIndexOn( newRdnAttrType ) )
             {

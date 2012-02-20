@@ -1440,7 +1440,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !entry.contains( type, atav.getNormValue() ) )
             {
-                entry.add( new DefaultAttribute( type, atav.getNormValue() ) );
+                entry.add( new DefaultAttribute( type, atav.getUpValue() ) );
             }
         }
 
