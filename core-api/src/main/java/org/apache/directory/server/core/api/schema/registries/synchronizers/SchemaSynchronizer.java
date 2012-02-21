@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.util.Strings;
@@ -261,7 +260,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
-        String rdnAttribute = newRdn.getUpType();
+        String rdnAttribute = newRdn.getNormType();
         String rdnAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName( rdnAttribute );
 
         if ( !rdnAttributeOid.equals( cnAT.getOid() ) )

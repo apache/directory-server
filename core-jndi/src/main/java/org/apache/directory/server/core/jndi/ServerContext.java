@@ -944,7 +944,7 @@ public abstract class ServerContext implements EventContext
         {
             if ( SchemaConstants.CN_AT_OID.equals( rdn.getNormType() ) )
             {
-                serverEntry.put( rdn.getUpType(), rdn.getUpValue() );
+                serverEntry.put( rdn.getType(), rdn.getValue() );
             }
             else
             {
@@ -1037,7 +1037,7 @@ public abstract class ServerContext implements EventContext
 
         if ( rdn.size() == 1 )
         {
-            serverEntry.put( rdn.getUpType(), rdn.getUpValue() );
+            serverEntry.put( rdn.getType(), rdn.getValue() );
         }
         else
         {

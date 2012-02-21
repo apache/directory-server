@@ -332,7 +332,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             try
             {
-                username = entry.getDn().getRdn().getUpValue().getString();
+                username = entry.getDn().getRdn().getValue().getString();
                 check( username, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
@@ -901,7 +901,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 try
                 {
-                    String userName = entry.getDn().getRdn().getUpValue().getString();
+                    String userName = entry.getDn().getRdn().getValue().getString();
                     check( userName, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )

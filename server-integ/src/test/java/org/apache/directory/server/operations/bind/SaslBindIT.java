@@ -293,7 +293,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         CramMd5Request request = new CramMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
 
         BindResponse resp = connection.bind( request );
@@ -316,7 +316,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         CramMd5Request request = new CramMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
 
         BindResponse resp = connection.bind( request );
@@ -335,7 +335,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
         BindResponse resp = connection.bind( request );
@@ -359,7 +359,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
         request.setQualityOfProtection( SaslQoP.AUTH );
@@ -385,7 +385,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
         request.setQualityOfProtection( SaslQoP.AUTH_INT );
@@ -411,7 +411,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
         request.setQualityOfProtection( SaslQoP.AUTH_CONF );
@@ -435,7 +435,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( "badrealm.com" );
         BindResponse resp = connection.bind( request );
@@ -455,7 +455,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         DigestMd5Request request = new DigestMd5Request();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
         BindResponse resp = connection.bind( request );
@@ -475,7 +475,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         GssApiRequest request = new GssApiRequest();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
         request.setKdcHost( "localhost" );
@@ -500,7 +500,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         GssApiRequest request = new GssApiRequest();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( "badrealm.com" );
         request.setKdcHost( "localhost" );
@@ -530,7 +530,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         GssApiRequest request = new GssApiRequest();
-        request.setUsername( userDn.getRdn().getUpValue().getString() );
+        request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
         request.setKdcHost( "localhost" );
@@ -621,7 +621,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Digest-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
             DigestMd5Request digetDigestMd5Request = new DigestMd5Request();
-            digetDigestMd5Request.setUsername( userDn.getRdn().getUpValue().getString() );
+            digetDigestMd5Request.setUsername( userDn.getRdn().getValue().getString() );
             digetDigestMd5Request.setCredentials( "secret" );
             digetDigestMd5Request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
             resp = connection.bind( digetDigestMd5Request );
@@ -633,7 +633,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Cram-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
             CramMd5Request cramMd5Request = new CramMd5Request();
-            cramMd5Request.setUsername( userDn.getRdn().getUpValue().getString() );
+            cramMd5Request.setUsername( userDn.getRdn().getValue().getString() );
             cramMd5Request.setCredentials( "secret" );
             resp = connection.bind( cramMd5Request );
             assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
@@ -644,7 +644,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // GSSAPI
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
             GssApiRequest gssApiRequest = new GssApiRequest();
-            gssApiRequest.setUsername( userDn.getRdn().getUpValue().getString() );
+            gssApiRequest.setUsername( userDn.getRdn().getValue().getString() );
             gssApiRequest.setCredentials( "secret" );
             gssApiRequest.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
             gssApiRequest.setKdcHost( "localhost" );

@@ -735,7 +735,7 @@ public class JdbmStoreTest
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
         Entry renamed = store.lookup( new LookupOperationContext( null, dn ) );
         assertNotNull( renamed );
-        assertEquals( "James", renamed.getDn().getRdn().getUpValue().getString() );
+        assertEquals( "James", renamed.getDn().getRdn().getValue().getString() );
     }
 
 
