@@ -1418,29 +1418,29 @@ public class SchemaInterceptor extends BaseInterceptor
             // are still present in the entry.
             for ( Ava atav : oldRdn )
             {
-                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-                entry.remove( type, atav.getUpValue() );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getType() );
+                entry.remove( type, atav.getValue() );
             }
 
             // Check that no operational attributes are removed
             for ( Ava atav : oldRdn )
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getType() );
 
                 if ( !attributeType.isUserModifiable() )
                 {
-                    throw new LdapNoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
+                    throw new LdapNoPermissionException( "Cannot modify the attribute '" + atav.getType() + "'" );
                 }
             }
         }
 
         for ( Ava atav : newRdn )
         {
-            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getType() );
 
             if ( !entry.contains( type, atav.getNormValue() ) )
             {
-                entry.add( new DefaultAttribute( type, atav.getUpValue() ) );
+                entry.add( new DefaultAttribute( type, atav.getValue() ) );
             }
         }
 
@@ -1795,7 +1795,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
             {
-                String message = I18n.err( I18n.ERR_62, dn, atav.getUpType() );
+                String message = I18n.err( I18n.ERR_62, dn, atav.getType() );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, message );
             }

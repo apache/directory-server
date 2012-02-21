@@ -1043,7 +1043,7 @@ public abstract class ServerContext implements EventContext
         {
             for ( Ava atav : rdn )
             {
-                serverEntry.put( atav.getUpType(), atav.getUpValue() );
+                serverEntry.put( atav.getType(), atav.getValue() );
             }
         }
     }
