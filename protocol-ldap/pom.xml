@@ -59,8 +59,8 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm2</artifactId>
+      <groupId>org.apache.directory.jdbm</groupId>
+      <artifactId>apacheds-jdbm</artifactId>
     </dependency>
 
     <dependency>
