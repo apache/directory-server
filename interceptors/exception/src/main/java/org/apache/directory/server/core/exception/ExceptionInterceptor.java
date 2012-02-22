@@ -370,10 +370,16 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
-            LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-            //e.setResolvedName( DNFactory.create( newDn.getName() ) );
-            throw e;
+            // Ok, the target entry already exists.
+            // If the target entry has the same name than the modified entry, it's a rename on itself,
+            // we want to allow this.
+            if ( !newDn.equals( dn ) )
+            {
+                LdapEntryAlreadyExistsException e;
+                e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
+                //e.setResolvedName( DNFactory.create( newDn.getName() ) );
+                throw e;
+            }
         }
 
         // Remove the previous entry from the notAnAlias cache

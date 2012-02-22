@@ -1438,10 +1438,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getType() );
 
-            if ( !entry.contains( type, atav.getNormValue() ) )
-            {
-                entry.add( new DefaultAttribute( type, atav.getValue() ) );
-            }
+            entry.add( new DefaultAttribute( type, atav.getValue() ) );
         }
 
         // Substitute the Rdn and check if the new entry is correct

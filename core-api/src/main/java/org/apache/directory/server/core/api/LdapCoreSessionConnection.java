@@ -774,9 +774,9 @@ public class LdapCoreSessionConnection implements LdapConnection
             }
             else
             {
-                result.setDiagnosticMessage( "Attempt to move entry onto itself." );
-                result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
-                result.setMatchedDn( modDnRequest.getName() );
+                // This might be a simple change, we will update the DN and the entry
+                // with the new provided value by using a modify operation later on
+                session.rename( modDnRequest );
             }
 
         }
