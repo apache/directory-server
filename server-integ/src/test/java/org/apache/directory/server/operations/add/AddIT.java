@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.add;
 
@@ -513,7 +513,7 @@ public class AddIT extends AbstractLdapTestUnit
         String rdnAlias = "ou=bestFruit";
         containerCtx.createSubcontext( rdnAlias, alias );
 
-        // search one level scope for alias 
+        // search one level scope for alias
         SearchControls controls = new SearchControls();
         controls.setDerefLinkFlag( true );
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -806,7 +806,7 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests add operation on normal and referral entries without the 
+     * Tests add operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -844,8 +844,8 @@ public class AddIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests add operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests add operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test
@@ -974,7 +974,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         String[] expectedCns =
-            { "Jackson", "michael" };
+            { "Jackson", "Michael" };
 
         for ( String name : expectedCns )
         {
@@ -1069,15 +1069,15 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         assertTrue( cn.contains( "Jackson" ) );
-        assertTrue( cn.contains( "michael" ) );
+        assertTrue( cn.contains( "Michael" ) );
     }
 
 
     /**
      * Test that if we inject a PDU above the max allowed size,
-     * the connection is closed. 
+     * the connection is closed.
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
     public void testAddPDUExceedingMaxSizeJNDI() throws Exception
@@ -1144,9 +1144,9 @@ public class AddIT extends AbstractLdapTestUnit
 
     /**
      * Test that if we inject a PDU above the max allowed size,
-     * the connection is closed. 
+     * the connection is closed.
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
     public void testAddPDUExceedingMaxSizeLdapApi() throws Exception
@@ -1225,7 +1225,7 @@ public class AddIT extends AbstractLdapTestUnit
         binary.put( "userPassword", "test" );
         /*
          * Note that the Rdn attribute is different to the userPassword specified
-         * in the entry. This creates a second cn attribute "userPassword:#414243". 
+         * in the entry. This creates a second cn attribute "userPassword:#414243".
          * This is a JNDI hack:
          * If no other userPassword is available in the entry, JNDI adds the Rdn
          * attribute to the entry before sending the request to the server.
@@ -1241,7 +1241,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "amos,tori" ) );
+        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword
@@ -1333,7 +1333,7 @@ public class AddIT extends AbstractLdapTestUnit
      *        |--cn=alias  <--alias, pointing to the real entry
      * </pre>
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
     @CreateDS(
@@ -1378,7 +1378,7 @@ public class AddIT extends AbstractLdapTestUnit
     /**
      * Adding an entry with a non existing attribute type.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddEntryNonExistingAT() throws Exception
@@ -1414,7 +1414,7 @@ public class AddIT extends AbstractLdapTestUnit
     /**
      * Adding an entry with a non existing attribute type.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test(expected = LdapOperationException.class)
     public void testAddEntryNonExistingOC() throws Exception
@@ -1436,7 +1436,7 @@ public class AddIT extends AbstractLdapTestUnit
     /**
      * Adding an entry with a 100K attribute's value.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test(expected = LdapException.class)
     public void testAddEntry100KData() throws Exception
@@ -1464,7 +1464,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         connection.add( personEntry );
 
-        // Check that the entry has been stored 
+        // Check that the entry has been stored
         Entry entry = connection.lookup( dn, "description", "cn", "sn" );
 
         String description = entry.get( "description" ).getString();
