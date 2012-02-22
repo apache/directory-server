@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -40,8 +42,10 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
@@ -254,4 +258,93 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         }
     }
 
+    
+    @Test
+    /**
+     * tests adding en entry with escaped chars in the RDN
+     */
+    public void testAddEntryWithRdnContainingEscapedChars() throws Exception
+    {
+        //test as admin first
+        Dn dn = new Dn( "cn=a\\+B,ou=system" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: x" );
+
+        connection.add( entry );
+
+        Entry loadedEntry = connection.lookup( dn.getName(), "*" );
+        assertNotNull( loadedEntry );
+        assertTrue( loadedEntry.containsAttribute( "cn" ) );
+        
+        String cn = loadedEntry.get( "cn" ).get().getString();
+        
+        assertEquals( "a+B", cn );
+    }
+
+    
+    @Test
+    /**
+     * tests adding en entry with escaped chars in the RDN
+     */
+    public void testAddEntryWithRdnContainingEscapedCharsExistingnEntry() throws Exception
+    {
+        //test as admin first
+        Dn dn = new Dn( "cn=a\\+B,ou=system" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: a+b",
+            "sn: x" );
+
+        connection.add( entry );
+
+        Entry loadedEntry = connection.lookup( dn.getName(), "*" );
+        assertNotNull( loadedEntry );
+        assertTrue( loadedEntry.containsAttribute( "cn" ) );
+        
+        String cn = loadedEntry.get( "cn" ).get().getString();
+        
+        assertEquals( "a+b", cn );
+    }
+
+    
+    @Test
+    /**
+     * tests adding en entry with escaped chars in the RDN
+     */
+    public void testAddEntryWithRdnContainingEscapedCharsMultiValued() throws Exception
+    {
+        //test as admin first
+        Dn dn = new Dn( "cn=a\\+B,ou=system" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: c",
+            "sn: x" );
+
+        connection.add( entry );
+
+        Entry loadedEntry = connection.lookup( dn.getName(), "*" );
+        assertNotNull( loadedEntry );
+        assertTrue( loadedEntry.containsAttribute( "cn" ) );
+        
+        Attribute attribute = loadedEntry.get( "cn" );
+        Set<String> expected = new HashSet<String>();
+        expected.add( "a+B" );
+        expected.add( "c" );
+        int count = 0;
+        
+        for ( Value<?> value : attribute )
+        {
+            String val = value.getString();
+            
+            assertTrue( expected.contains( val ) );
+            count++;
+            
+        }
+        
+        assertEquals( 2, count );
+    }
 }

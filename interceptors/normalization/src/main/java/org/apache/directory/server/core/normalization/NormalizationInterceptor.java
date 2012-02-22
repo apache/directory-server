@@ -433,7 +433,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // 1) The attribute does not exist
                 if ( !entry.containsAttribute( upId ) )
                 {
-                    entry.add( upId, value );
+                    entry.add( upId, upValue );
                 }
                 // 2) The attribute exists
                 else
@@ -444,12 +444,12 @@ public class NormalizationInterceptor extends BaseInterceptor
                     if ( at.isSingleValued() )
                     {
                         entry.removeAttributes( upId );
-                        entry.add( upId, value );
+                        entry.add( upId, upValue );
                     }
                     // 2.2 the attribute is multi-valued : add the missing value
                     else
                     {
-                        entry.add( upId, value );
+                        entry.add( upId, upValue );
                     }
                 }
             }
